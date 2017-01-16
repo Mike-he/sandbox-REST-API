@@ -16,11 +16,16 @@ class SalesCompanyPostType extends AbstractType
     {
         $builder
             ->add('name')
-            ->add('applicant_name')
             ->add('phone')
-            ->add('email')
             ->add('address')
-            ->add('description');
+            ->add('contacter')
+            ->add('contacter_phone')
+            ->add('contacter_email')
+            ->add('description')
+            ->add('admins')
+            ->add('coffee_admins')
+            ->add('services')
+            ->add('exclude_permissions');
     }
 
     /**

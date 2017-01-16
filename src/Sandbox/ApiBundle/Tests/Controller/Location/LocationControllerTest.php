@@ -199,6 +199,14 @@ class LocationControllerTest extends WebTestCase
         $secondSpaceType = $this->entity;
         $this->given('third-room-type');
         $thirdSpaceType = $this->entity;
+        $this->given('fourth-room-type');
+        $fourthSpaceType = $this->entity;
+        $this->given('fifth-room-type');
+        $fifthSpaceType = $this->entity;
+        $this->given('sixth-room-type');
+        $sixthSpaceType = $this->entity;
+        $this->given('seventh-room-type');
+        $seventhSpaceType = $this->entity;
 
         $this->given('first-building-tag');
         $firstBuildingTag = $this->entity;
@@ -234,6 +242,26 @@ class LocationControllerTest extends WebTestCase
                                 'id' => $thirdSpaceType->getId(),
                                 'name' => $this->getContainer()->get('translator')
                                     ->trans(ProductOrderExport::TRANS_ROOM_TYPE.$thirdSpaceType->getName()),
+                            ],
+                            [
+                                'id' => $fourthSpaceType->getId(),
+                                'name' => $this->getContainer()->get('translator')
+                                    ->trans(ProductOrderExport::TRANS_ROOM_TYPE.$fourthSpaceType->getName()),
+                            ],
+                            [
+                                'id' => $fifthSpaceType->getId(),
+                                'name' => $this->getContainer()->get('translator')
+                                    ->trans(ProductOrderExport::TRANS_ROOM_TYPE.$fifthSpaceType->getName()),
+                            ],
+                            [
+                                'id' => $sixthSpaceType->getId(),
+                                'name' => $this->getContainer()->get('translator')
+                                    ->trans(ProductOrderExport::TRANS_ROOM_TYPE.$sixthSpaceType->getName()),
+                            ],
+                            [
+                                'id' => $seventhSpaceType->getId(),
+                                'name' => $this->getContainer()->get('translator')
+                                    ->trans(ProductOrderExport::TRANS_ROOM_TYPE.$seventhSpaceType->getName()),
                             ],
                         ],
                     ],

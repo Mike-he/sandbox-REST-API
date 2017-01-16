@@ -71,7 +71,9 @@ product_order:
     base_price: 单价
     unit_price: 单位
     amount: 订单原价
-    discount_price: 实收款
+    discount_price: 付款金额
+    refund_amount: 退款金额
+    actual_amount: 实收款
     leasing_time: 租赁时间
     order_time: 创建时间
     payment_time: 付款时间

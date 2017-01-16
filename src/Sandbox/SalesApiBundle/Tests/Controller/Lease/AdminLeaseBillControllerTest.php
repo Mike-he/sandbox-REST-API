@@ -6,10 +6,6 @@ use AllanSimon\TestHelpers\ApiHelpersTrait;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
 use Sandbox\ApiBundle\Tests\Traits\CommonTestsUtilsTrait;
 
-/**
- * @group li
- * Class AdminLeaseBillControllerTest
- */
 class AdminLeaseBillControllerTest extends WebTestCase
 {
     use ApiHelpersTrait;

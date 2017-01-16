@@ -14,6 +14,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
  * Class AdminCommunityController.
@@ -100,11 +101,34 @@ class AdminCommunityController extends SalesRestController
                 AdminPermission::KEY_SALES_BUILDING_ORDER,
             )
         );
+        $adminPlatform = $this->getAdminPlatform();
+        $platform = $adminPlatform['platform'];
 
-        $using = $this->getBuildingInfo($companyId, $buildingIds, RoomBuilding::STATUS_ACCEPT, true);
-        $invisible = $this->getBuildingInfo($companyId, $buildingIds, RoomBuilding::STATUS_ACCEPT, false);
-        $banned = $this->getBuildingInfo($companyId, $buildingIds, RoomBuilding::STATUS_BANNED);
-        $pending = $this->getBuildingInfo($companyId, $buildingIds, RoomBuilding::STATUS_PENDING);
+        if ($platform != AdminPermission::PERMISSION_PLATFORM_SALES) {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        }
+
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+        $salesCompany = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
+            ->find($salesCompanyId);
+
+        $salesInfos = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
+            ->findBy(array(
+                'company' => $salesCompany,
+                'status' => true,
+            ));
+
+        $typeKeys = array();
+        foreach ($salesInfos as $info) {
+            array_push($typeKeys, $info->getRoomTypes());
+        }
+
+        $using = $this->getBuildingInfo($companyId, $buildingIds, RoomBuilding::STATUS_ACCEPT, $typeKeys, true);
+        $invisible = $this->getBuildingInfo($companyId, $buildingIds, RoomBuilding::STATUS_ACCEPT, $typeKeys, false);
+        $banned = $this->getBuildingInfo($companyId, $buildingIds, RoomBuilding::STATUS_BANNED, $typeKeys);
+        $pending = $this->getBuildingInfo($companyId, $buildingIds, RoomBuilding::STATUS_PENDING, $typeKeys);
 
         $result = array(
             'using' => $using,
@@ -135,13 +159,28 @@ class AdminCommunityController extends SalesRestController
         // check user permission
         $this->checkAdminCommunityPermissions(AdminPermission::OP_LEVEL_VIEW);
 
+        $adminPlatform = $this->getAdminPlatform();
+        $platform = $adminPlatform['platform'];
+
+        if ($platform != AdminPermission::PERMISSION_PLATFORM_SALES) {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        }
+
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
         $building = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')->find($id);
         $this->throwNotFoundIfNull($building, self::NOT_FOUND_MESSAGE);
 
-        $roomTypes = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomTypes')->findAll();
+        $UsedRoomTypes = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
+            ->getCompanyService($salesCompanyId);
 
         $result = array();
-        foreach ($roomTypes as $roomType) {
+        foreach ($UsedRoomTypes as $usedRoomType) {
+            $roomType = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomTypes')
+                ->findOneBy(array('name' => $usedRoomType->getRoomTypes()));
+
             $using_number = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Product\Product')
                 ->countsProductByType(
@@ -270,6 +309,7 @@ class AdminCommunityController extends SalesRestController
         $company,
         $buildingIds,
         $status,
+        $typeKeys,
         $visible = null
     ) {
         $buildings = $this->getDoctrine()
@@ -286,13 +326,13 @@ class AdminCommunityController extends SalesRestController
         foreach ($buildings as $building) {
             $allNumber = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Room\Room')
-                ->countsRoomByBuilding($building);
+                ->countsRoomByBuilding($building, $typeKeys);
 
             $usingNumber = 0;
             if ($visible == true) {
                 $usingNumber = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Product\Product')
-                    ->countsProductByBuilding($building, $visible);
+                    ->countsProductByBuilding($building, $visible,$typeKeys);
             }
 
             $result[] = array(

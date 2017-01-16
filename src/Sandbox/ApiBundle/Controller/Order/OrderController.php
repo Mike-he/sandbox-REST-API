@@ -10,6 +10,7 @@ use Sandbox\ApiBundle\Entity\Order\ProductOrderCheck;
 use Sandbox\ApiBundle\Entity\Order\ProductOrderRecord;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Entity\Room\Room;
+use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesUser;
 use Sandbox\ApiBundle\Traits\ProductOrderNotification;
 use Symfony\Component\HttpFoundation\Request;
@@ -139,6 +140,14 @@ class OrderController extends PaymentController
                 $companyName = $building->getCompany()->getName();
             }
 
+            $price = $order->getDiscountPrice();
+            $refund = $order->getActualRefundAmount();
+            if (is_null($refund) || empty($refund)) {
+                $refund = 0;
+            }
+
+            $actualAmount = $price - $refund;
+
             // set excel body
             $body = array(
                 ProductOrderExport::COMPANY_NAME => $companyName,
@@ -150,7 +159,9 @@ class OrderController extends PaymentController
                 ProductOrderExport::BASE_PRICE => $productInfo['base_price'],
                 ProductOrderExport::UNIT_PRICE => $unitPrice,
                 ProductOrderExport::AMOUNT => $order->getPrice(),
-                ProductOrderExport::DISCOUNT_PRICE => $order->getDiscountPrice(),
+                ProductOrderExport::DISCOUNT_PRICE => $price,
+                ProductOrderExport::REFUND_AMOUNT => $refund,
+                ProductOrderExport::ACTUAL_AMOUNT => $actualAmount,
                 ProductOrderExport::LEASING_TIME => $leasingTime,
                 ProductOrderExport::ORDER_TIME => $order->getCreationDate()->format('Y-m-d H:i:s'),
                 ProductOrderExport::PAYMENT_TIME => $order->getPaymentDate()->format('Y-m-d H:i:s'),
@@ -176,6 +187,8 @@ class OrderController extends PaymentController
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_UNIT_PRICE, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_AMOUNT, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_DISCOUNT_PRICE, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_REFUND_AMOUNT, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ACTUAL_AMOUNT, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_LEASING_TIME, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_TIME, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_PAYMENT_TIME, array(), null, $language),
@@ -966,5 +979,36 @@ class OrderController extends PaymentController
         $salesUser->setModificationDate(new \DateTime('now'));
 
         $em->persist($salesUser);
+    }
+
+    /**
+     * @param Product      $product
+     * @param ProductOrder $order
+     */
+    protected function setOrderDrawer(
+        $product,
+        $order
+    ) {
+        $type = $product->getRoom()->getType();
+        $salesCompany = $product->getRoom()->getBuilding()->getCompany();
+        $salesCompanyInfo = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
+            ->findOneBy(array(
+                'roomTypes' => $type,
+                'company' => $salesCompany,
+            ));
+
+        if (is_null($salesCompanyInfo)) {
+            return;
+        }
+
+        $drawer = $salesCompanyInfo->getDrawer();
+        if ($drawer == SalesCompanyServiceInfos::DRAWER_SANDBOX) {
+            return;
+        }
+
+        $order->setSalesInvoice(true);
+
+        return;
     }
 }

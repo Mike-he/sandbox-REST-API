@@ -298,4 +298,34 @@ class LeaseRepository extends EntityRepository
 
         return $query;
     }
+
+    /**
+     * @param $productId
+     * @param $start
+     * @param $end
+     * @param $status
+     *
+     * @return array
+     */
+    public function getRoomUsersUsage(
+        $productId,
+        $start,
+        $end,
+        $status
+    ) {
+        $query = $this->createQueryBuilder('l')
+            ->where('l.product = :productId')
+            ->andWhere('l.status in (:status)')
+            ->andWhere('
+                (l.startDate <= :start AND l.endDate > :start) OR
+                (l.startDate < :end AND l.endDate >= :end) OR
+                (l.startDate >= :start AND l.endDate <= :end)
+            ')
+            ->setParameter('productId', $productId)
+            ->setParameter('status', $status)
+            ->setParameter('start', $start)
+            ->setParameter('end', $end);
+
+        return $query->getQuery()->getResult();
+    }
 }

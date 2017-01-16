@@ -12,14 +12,12 @@ class LoadLeaseData extends AbstractFixture implements OrderedFixtureInterface
 {
     public function load(ObjectManager $manager)
     {
-        $date = new \DateTime('now');
-
         $l1 = new Lease();
         $l1->setDeposit(12456);
         $l1->setSupervisor($this->getReference('user-mike'));
         $l1->setDrawee($this->getReference('user-mike'));
-        $l1->setStartDate($date);
-        $l1->setEndDate($date);
+        $l1->setStartDate(new \DateTime('2016-11-01'));
+        $l1->setEndDate(new \DateTime('2017-07-01'));
         $l1->setLesseeEmail('mike@sandbox3.cn');
         $l1->setLesseeAddress('展想广场');
         $l1->setLesseeName('mike');
@@ -34,21 +32,29 @@ class LoadLeaseData extends AbstractFixture implements OrderedFixtureInterface
         $l1->setMonthlyRent(8000);
         $l1->setPurpose('我也不知道');
         $l1->setSerialNumber('HT01092091029012');
-        $l1->setStatus('reviewing');
+        $l1->setStatus(Lease::LEASE_STATUS_CONFIRMING);
         $l1->setSupplementaryTerms('woquniqutaqu');
         $l1->setTotalRent(96000);
-        $l1->setProduct($this->getReference('product-for-get-spaces-data-structure'));
+        $l1->setProduct($this->getReference('product-for-longterm'));
         $this->addReference('lease_one', $l1);
 
         $l2 = new Lease();
         $l2->setSerialNumber('HT345689892');
-        $l2->setSupervisor($this->getReference('user-mike'));
-        $l2->setDrawee($this->getReference('user-mike'));
+        $l2->setSupervisor($this->getReference('user-2'));
+        $l2->setDrawee($this->getReference('user-2'));
+        $l2->setStartDate(new \DateTime('2016-01-01'));
+        $l2->setEndDate(new \DateTime('2016-06-01'));
+        $l2->setProduct($this->getReference('product-for-longterm'));
+        $l2->setStatus(Lease::LEASE_STATUS_DRAFTING);
 
         $l3 = new Lease();
         $l3->setSerialNumber('HT12356890564');
         $l3->setSupervisor($this->getReference('user-mike'));
         $l3->setDrawee($this->getReference('user-mike'));
+        $l3->setStartDate(new \DateTime('2016-11-01'));
+        $l3->setEndDate(new \DateTime('2017-07-01'));
+        $l3->setStatus(Lease::LEASE_STATUS_CLOSED);
+        $l3->setProduct($this->getReference('product-for-longterm'));
 
         $lb1 = new LeaseBill();
         $lb1->setSerialNumber('B1234567');
@@ -71,7 +77,8 @@ class LoadLeaseData extends AbstractFixture implements OrderedFixtureInterface
         $lb2->setType(LeaseBill::TYPE_OTHER);
         $lb2->setStatus(LeaseBill::STATUS_UNPAID);
         $lb2->setLease($l1);
-        $this->addReference('lease_bill_for_type_other', $lb1);
+        $lb2->setRevisedAmount('88.8');
+        $this->addReference('lease_bill_for_type_other', $lb2);
 
         $manager->persist($l1);
         $manager->persist($l2);

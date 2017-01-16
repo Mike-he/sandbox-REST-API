@@ -112,7 +112,7 @@ class Lease
      *
      * @ORM\Column(name="start_date", type="datetime", nullable=true)
      *
-     * @Serializer\Groups({"main", "lease_list"})
+     * @Serializer\Groups({"main", "lease_list", "room_usage"})
      */
     private $startDate;
 
@@ -121,7 +121,7 @@ class Lease
      *
      * @ORM\Column(name="end_date", type="datetime", nullable=true)
      *
-     * @Serializer\Groups({"main", "lease_list"})
+     * @Serializer\Groups({"main", "lease_list", "room_usage"})
      */
     private $endDate;
 
@@ -920,7 +920,7 @@ class Lease
     /**
      * @Serializer\VirtualProperty
      * @Serializer\SerializedName("supervisor")
-     * @Serializer\Groups({"main", "lease_list"})
+     * @Serializer\Groups({"main", "lease_list", "room_usage"})
      */
     public function getSupervisorId()
     {
@@ -1165,7 +1165,7 @@ class Lease
     /**
      * @Serializer\VirtualProperty
      * @Serializer\SerializedName("invited_people")
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "room_usage"})
      */
     public function degenerateInvitedPeople()
     {

@@ -772,6 +772,7 @@ class ProductRepository extends EntityRepository
     /**
      * @param int      $userId
      * @param RoomCity $city
+     * @param array    $excludeIds
      * @param int      $limit
      * @param int      $offset
      * @param bool     $recommend
@@ -784,11 +785,14 @@ class ProductRepository extends EntityRepository
     public function getProductsRecommend(
         $userId,
         $city,
+        $excludeIds,
         $limit,
         $offset,
         $recommend
     ) {
         $query = $this->createQueryBuilder('p')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
+            ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'b.id = r.buildingId')
             ->where('p.visible = :visible')
             ->andWhere('p.recommend = :recommend')
             ->andWhere('p.startDate <= :now AND p.endDate >= :now')
@@ -797,8 +801,7 @@ class ProductRepository extends EntityRepository
             ->setParameter('now', new \DateTime('now'));
 
         if (!is_null($city)) {
-            $query->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
-                ->andWhere('r.city = :city')
+            $query->andWhere('r.city = :city')
                 ->setParameter('city', $city);
         }
 
@@ -809,6 +812,11 @@ class ProductRepository extends EntityRepository
         } else {
             $query->andWhere('p.private = :private')
                 ->setParameter('private', false);
+        }
+
+        if (!is_null($excludeIds) && !empty($excludeIds)) {
+            $query->andWhere('b.companyId NOT IN (:excludeIds)')
+                ->setParameter('excludeIds', $excludeIds);
         }
 
         if ($recommend) {
@@ -1090,12 +1098,14 @@ class ProductRepository extends EntityRepository
     /**
      * @param $building
      * @param $visible
+     * @param $roomtype
      *
      * @return mixed
      */
     public function countsProductByBuilding(
         $building,
-        $visible = null
+        $visible = null,
+        $roomtype = null
     ) {
         $query = $this->createQueryBuilder('p')
             ->select('COUNT(p)')
@@ -1103,6 +1113,11 @@ class ProductRepository extends EntityRepository
             ->where('r.building = :building')
             ->andWhere('p.isDeleted = FALSE')
             ->setParameter('building', $building);
+
+        if (!is_null($roomtype) || !empty($roomtype)) {
+            $query->andWhere('r.type in (:type)')
+                ->setParameter('type', $roomtype);
+        }
 
         if (!is_null($visible)) {
             $query->andWhere('p.visible = :visible')
@@ -1276,5 +1291,24 @@ class ProductRepository extends EntityRepository
             ->setParameter('longterm', Room::TYPE_LONG_TERM);
 
         return $query->getQuery()->getOneOrNullResult();
+    }
+
+    public function findProductsByType(
+        $company,
+        $type
+    ) {
+        return $this->createQueryBuilder('p')
+            ->select('p')
+            ->leftJoin('p.room', 'r')
+            ->leftJoin('r.building', 'b')
+            ->where('p.isDeleted = FALSE')
+            ->where('p.visible = TRUE')
+            ->andWhere('r.isDeleted = FALSE')
+            ->andWhere('b.company = :company')
+            ->andWhere('r.type = :type')
+            ->setParameter('company', $company)
+            ->setParameter('type', $type)
+            ->getQuery()
+            ->getResult();
     }
 }

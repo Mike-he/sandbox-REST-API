@@ -72,6 +72,8 @@ product_order:
     unit_price: Unit
     amount: Amount
     discount_price: Paid Amount
+    refund_amount: Refund Amount
+    actual_amount: Actual Amount
     leasing_time: Leasing Time
     order_time: Order Creation
     payment_time: Payment Date

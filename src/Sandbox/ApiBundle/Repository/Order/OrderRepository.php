@@ -1028,6 +1028,8 @@ class OrderRepository extends EntityRepository
      * @param $createEnd
      * @param $status
      * @param $refundStatus
+     * @param $refundLow
+     * @param $refundHigh
      * @param $limit
      * @param $offset
      *
@@ -1054,6 +1056,8 @@ class OrderRepository extends EntityRepository
         $createEnd,
         $status,
         $refundStatus,
+        $refundLow,
+        $refundHigh,
         $limit,
         $offset
     ) {
@@ -1069,7 +1073,7 @@ class OrderRepository extends EntityRepository
                ')
             ->setParameter('preOrder', ProductOrder::PREORDER_TYPE)
             ->setParameter('unpaid', ProductOrder::STATUS_UNPAID)
-            ->setParameter('offline',  ProductOrder::CHANNEL_OFFLINE);
+            ->setParameter('offline', ProductOrder::CHANNEL_OFFLINE);
 
         // filter by payment channel
         if (!is_null($channel) && !empty($channel)) {
@@ -1225,19 +1229,27 @@ class OrderRepository extends EntityRepository
             }
         }
 
-        //order by
+        if (!is_null($refundLow)) {
+            $query->andWhere('o.actualRefundAmount >= :refundLow')
+                ->setParameter('refundLow', $refundLow);
+        }
+
+        if (!is_null($refundHigh)) {
+            $query->andWhere('o.actualRefundAmount <= :refundHigh')
+                ->setParameter('refundHigh', $refundHigh);
+        }
+
+        // refund status filter
         if ($refundStatus == ProductOrder::REFUNDED_STATUS) {
-            $query->andWhere('o.refunded = :refunded')
-                ->setParameter('refunded', true)
+            $query->andWhere('o.refunded = TRUE')
                 ->orderBy('o.modificationDate', 'DESC');
         } elseif ($refundStatus == ProductOrder::NEED_TO_REFUND) {
-            $query->andWhere('o.refunded = :refunded')
-                ->andWhere('o.needToRefund = :needed')
-                ->andWhere('o.status = :cancelled')
-                ->setParameter('refunded', false)
-                ->setParameter('needed', true)
-                ->setParameter('cancelled', ProductOrder::STATUS_CANCELLED)
+            $query->andWhere('o.refunded = FALSE')
+                ->andWhere('o.needToRefund = TRUE')
                 ->orderBy('o.modificationDate', 'ASC');
+        } elseif ($refundStatus == ProductOrder::ALL_REFUND) {
+            $query->andWhere('(o.refunded = TRUE OR o.needToRefund = TRUE)')
+                ->orderBy('o.modificationDate', 'DESC');
         } else {
             $query->orderBy('o.creationDate', 'DESC');
         }
@@ -1270,6 +1282,8 @@ class OrderRepository extends EntityRepository
      * @param $createEnd
      * @param $status
      * @param $refundStatus
+     * @param $refundLow
+     * @param $refundHigh
      *
      * @return mixed
      */
@@ -1293,7 +1307,9 @@ class OrderRepository extends EntityRepository
         $createStart,
         $createEnd,
         $status,
-        $refundStatus
+        $refundStatus,
+        $refundLow,
+        $refundHigh
     ) {
         $query = $this->createQueryBuilder('o')
             ->select('COUNT(o)')
@@ -1308,7 +1324,7 @@ class OrderRepository extends EntityRepository
                ')
             ->setParameter('preOrder', ProductOrder::PREORDER_TYPE)
             ->setParameter('unpaid', ProductOrder::STATUS_UNPAID)
-            ->setParameter('offline',  ProductOrder::CHANNEL_OFFLINE);
+            ->setParameter('offline', ProductOrder::CHANNEL_OFFLINE);
 
         // filter by payment channel
         if (!is_null($channel) && !empty($channel)) {
@@ -1464,21 +1480,24 @@ class OrderRepository extends EntityRepository
             }
         }
 
-        //order by
+        if (!is_null($refundLow)) {
+            $query->andWhere('o.actualRefundAmount >= :refundLow')
+                ->setParameter('refundLow', $refundLow);
+        }
+
+        if (!is_null($refundHigh)) {
+            $query->andWhere('o.actualRefundAmount <= :refundHigh')
+                ->setParameter('refundHigh', $refundHigh);
+        }
+
+        // refund status filter
         if ($refundStatus == ProductOrder::REFUNDED_STATUS) {
-            $query->andWhere('o.refunded = :refunded')
-                ->setParameter('refunded', true)
-                ->orderBy('o.modificationDate', 'DESC');
+            $query->andWhere('o.refunded = TRUE');
         } elseif ($refundStatus == ProductOrder::NEED_TO_REFUND) {
-            $query->andWhere('o.refunded = :refunded')
-                ->andWhere('o.needToRefund = :needed')
-                ->andWhere('o.status = :cancelled')
-                ->setParameter('refunded', false)
-                ->setParameter('needed', true)
-                ->setParameter('cancelled', ProductOrder::STATUS_CANCELLED)
-                ->orderBy('o.modificationDate', 'ASC');
-        } else {
-            $query->orderBy('o.creationDate', 'DESC');
+            $query->andWhere('o.refunded = FALSE')
+                ->andWhere('o.needToRefund = TRUE');
+        } elseif ($refundStatus == ProductOrder::ALL_REFUND) {
+            $query->andWhere('(o.refunded = TRUE OR o.needToRefund = TRUE)');
         }
 
         $result = $query->getQuery()->getSingleScalarResult();
@@ -1907,7 +1926,6 @@ class OrderRepository extends EntityRepository
             }
         }
 
-        //order by
         $query->orderBy('o.creationDate', 'DESC');
 
         $result = $query->getQuery()->getResult();
@@ -2525,5 +2543,43 @@ class OrderRepository extends EntityRepository
             ->setParameter('paid', ProductOrder::STATUS_PAID);
 
         return  $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $startDate
+     * @param $endDate
+     *
+     * @return mixed
+     */
+    public function countRefundToAccountOrders(
+        $startDate,
+        $endDate
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->select('COUNT(o.actualRefundAmount)')
+            ->where('o.refunded = TRUE')
+            ->andWhere('o.refundTo = :account')
+            ->andWhere('o.refundProcessedDate > :startDate')
+            ->andWhere('o.refundProcessedDate < :endDate')
+            ->setParameter('account', ProductOrder::REFUND_TO_ACCOUNT)
+            ->setParameter('startDate', $startDate)
+            ->setParameter('endDate', $endDate);
+
+        return (float) $query->getQuery()->getSingleScalarResult();
+    }
+
+    /**
+     * @param $ids
+     *
+     * @return array
+     */
+    public function getProductOrdersByIds(
+        $ids
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->where('o.id IN (:ids)')
+            ->setParameter('ids', $ids);
+
+        return $query->getQuery()->getResult();
     }
 }

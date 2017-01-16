@@ -64,7 +64,7 @@ class AdminLeaseController extends AdminRestController
      * @param ParamFetcherInterface $paramFetcher
      * @param int                   $id
      *
-     * @Route("/leases/{id}/export_to_pdf")
+     * @Route("/leases/export_to_pdf/{id}")
      * @Method({"GET"})
      *
      * @return Response

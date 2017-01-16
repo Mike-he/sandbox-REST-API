@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\Entity\Admin;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use Gedmo\Mapping\Annotation as Gedmo;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * AdminPositionUserBinding.
@@ -46,6 +47,7 @@ class AdminPositionUserBinding
     /**
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User")
      * @ORM\JoinColumn(name="userId", referencedColumnName="id", onDelete="CASCADE")
+     * @Serializer\Groups({"main", "admin_view"})
      */
     private $user;
 
@@ -274,13 +276,5 @@ class AdminPositionUserBinding
     public function getCreationDate()
     {
         return $this->creationDate;
-    }
-
-    /**
-     * AdminPositionUserBinding constructor.
-     */
-    public function __construct()
-    {
-        $this->creationDate = new \DateTime('now');
     }
 }

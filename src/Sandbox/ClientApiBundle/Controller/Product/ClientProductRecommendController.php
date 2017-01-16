@@ -53,6 +53,14 @@ class ClientProductRecommendController extends ProductController
      *    description="start of the page"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="exclude_company_id",
+     *    array=true,
+     *    nullable=true,
+     *    default=null,
+     *    description="exclude_company_id"
+     * )
+     *
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
@@ -71,13 +79,21 @@ class ClientProductRecommendController extends ProductController
         $cityId = $paramFetcher->get('city');
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
+        $excludeIds = $paramFetcher->get('exclude_company_id');
 
         // get city
         $city = !is_null($cityId) ? $this->getRepo('Room\RoomCity')->find($cityId) : null;
 
         // find recommend products
-        $products = $this->getRepo('Product\Product')->getProductsRecommend(
-            $userId, $city, $limit, $offset, true
+        $products = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\Product')
+            ->getProductsRecommend(
+                $userId,
+                $city,
+                $excludeIds,
+                $limit,
+                $offset,
+                true
         );
 //        $recommendCount = count($products);
 
@@ -114,6 +130,16 @@ class ClientProductRecommendController extends ProductController
                 if (!is_null($price)) {
                     $product->setBasePrice($price);
                 }
+            }
+
+            if ($type == Room::TYPE_LONG_TERM) {
+                $company = $room->getBuilding()->getCompany();
+
+                $collectionMethod = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
+                    ->getCollectionMethod($company, $type);
+
+                $product->setCollectionMethod($collectionMethod);
             }
         }
 

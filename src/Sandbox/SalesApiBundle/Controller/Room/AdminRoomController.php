@@ -6,6 +6,7 @@ use Doctrine\ORM\EntityManager;
 use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Room\RoomAttachmentBinding;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
@@ -1855,6 +1856,66 @@ class AdminRoomController extends SalesRestController
                 $start,
                 $end
             );
+        }
+
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['room_usage']));
+        $view->setData($results);
+
+        return $view;
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     * @param $id
+     *
+     * @Route("/rooms/longterm/{id}/usage")
+     * @Method({"GET"})
+     *
+     * @Annotations\QueryParam(
+     *    name="year",
+     *    nullable=false,
+     *    description=""
+     * )
+     *
+     * @return View
+     */
+    public function getLongtermRoomUsageAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        $product = $this->getRepo('Product\Product')->findOneBy(['roomId' => $id]);
+        $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
+
+        // check user permission
+        $this->checkPermissionForRoomUsage($product->getRoom()->getBuildingId());
+
+        $yearString = $paramFetcher->get('year');
+        $results = [];
+        if (!is_null($product) && !is_null($yearString) && !empty($yearString)) {
+            $productId = $product->getId();
+            $yearStart = new \DateTime($yearString);
+            $yearStart = $yearStart->modify('first day of January'.$yearString);
+            $yearStart->setTime(0, 0, 0);
+            $yearEnd = new \DateTime($yearString);
+            $yearEnd = $yearEnd->modify('last day of December'.$yearString);
+            $yearEnd->setTime(23, 59, 59);
+            $status = array(
+                Lease::LEASE_STATUS_PERFORMING,
+                Lease::LEASE_STATUS_END,
+                Lease::LEASE_STATUS_MATURED,
+                Lease::LEASE_STATUS_RECONFIRMING,
+            );
+            $results = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Lease\Lease')
+                ->getRoomUsersUsage(
+                    $productId,
+                    $yearStart,
+                    $yearEnd,
+                    $status
+                );
         }
 
         $view = new View();

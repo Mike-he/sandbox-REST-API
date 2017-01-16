@@ -905,7 +905,7 @@ class AdminOrderController extends OrderController
      *    array=false,
      *    default=null,
      *    nullable=true,
-     *    requirements="refunded|needToRefund",
+     *    requirements="{|refunded|needToRefund|all|}",
      *    strict=true,
      *    description="refund status filter for order "
      * )
@@ -938,6 +938,26 @@ class AdminOrderController extends OrderController
      *    requirements="\d+",
      *    strict=true,
      *    description="Filter by room id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="refund_amount_low",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="refund amount filter"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="refund_amount_high",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="refund amount filter"
      * )
      *
      * @Route("/orders")
@@ -976,6 +996,8 @@ class AdminOrderController extends OrderController
         $companyId = $paramFetcher->get('company');
         $buildingId = $paramFetcher->get('building');
         $roomId = $paramFetcher->get('room');
+        $refundLow = $paramFetcher->get('refund_amount_low');
+        $refundHigh = $paramFetcher->get('refund_amount_high');
 
         $limit = $pageLimit;
         $offset = ($pageIndex - 1) * $pageLimit;
@@ -1006,6 +1028,8 @@ class AdminOrderController extends OrderController
                 $createEnd,
                 $status,
                 $refundStatus,
+                $refundLow,
+                $refundHigh,
                 $limit,
                 $offset
             );
@@ -1032,7 +1056,9 @@ class AdminOrderController extends OrderController
                 $createStart,
                 $createEnd,
                 $status,
-                $refundStatus
+                $refundStatus,
+                $refundLow,
+                $refundHigh
             );
 
         $view = new View();
@@ -1527,7 +1553,9 @@ class AdminOrderController extends OrderController
             $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
 
             $productId = $order->getProductId();
-            $product = $this->getRepo('Product\Product')->find($productId);
+            $product = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\Product')
+                ->find($productId);
 
             $startDate = new \DateTime($order->getStartDate());
 
@@ -1635,9 +1663,11 @@ class AdminOrderController extends OrderController
                 $order->setPaymentDate($now);
             }
 
-            if ($product->isSalesInvoice()) {
-                $order->setSalesInvoice(true);
-            }
+            // set order drawer
+            $this->setOrderDrawer(
+                $product,
+                $order
+            );
 
             $em->persist($order);
 

@@ -10,7 +10,6 @@ use Sandbox\ApiBundle\Controller\Location\LocationController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingTagBinding;
-use Sandbox\ApiBundle\Entity\Room\RoomBuildingTypeBinding;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesBuildingPatchType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -284,9 +283,6 @@ class AdminSalesBuildingController extends LocationController
         // add building tags
         $this->addBuildingTags($building, $em);
 
-        // add building room types
-        $this->addBuildingRoomTypes($building, $em);
-
         $em->flush();
 
         return new View();
@@ -376,58 +372,6 @@ class AdminSalesBuildingController extends LocationController
             $tagBindingObject->setTag($tagEntity);
 
             $em->persist($tagBindingObject);
-        }
-    }
-
-    /**
-     * @param RoomBuilding  $building
-     * @param EntityManager $em
-     */
-    private function addBuildingRoomTypes(
-        $building,
-        $em
-    ) {
-        $types = $building->getBuildingRoomTypes();
-
-        if (is_null($types)) {
-            return;
-        }
-
-        // remove old types
-        $typeBindings = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Room\RoomBuildingTypeBinding')
-            ->findBy(array(
-                'building' => $building,
-            ));
-
-        foreach ($typeBindings as $binding) {
-            $em->remove($binding);
-        }
-
-        $em->flush();
-
-        if (empty($types)) {
-            return;
-        }
-
-        // add new types
-        foreach ($types as $type) {
-            if (!isset($type['id'])) {
-                continue;
-            }
-
-            $typeEntity = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Room\RoomTypes')
-                ->find($type['id']);
-            if (is_null($typeEntity)) {
-                continue;
-            }
-
-            $typeBindingObject = new RoomBuildingTypeBinding();
-            $typeBindingObject->setBuilding($building);
-            $typeBindingObject->setType($typeEntity);
-
-            $em->persist($typeBindingObject);
         }
     }
 

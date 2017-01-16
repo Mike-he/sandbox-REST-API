@@ -45,4 +45,19 @@ class RoomTypesRepository extends EntityRepository
 
         return $result;
     }
+
+    /**
+     * @param $keys
+     *
+     * @return array
+     */
+    public function getTypesByKeys(
+        $keys
+    ) {
+        $query = $this->createQueryBuilder('t')
+            ->where('t.name IN (:keys)')
+            ->setParameter('keys', $keys);
+
+        return $query->getQuery()->getResult();
+    }
 }

@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Entity\SalesAdmin;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * SalesCompany.
@@ -20,7 +21,7 @@ class SalesCompany
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      *
-     * @Serializer\Groups({"main", "admin", "dropdown", "client", "auth", "admin_detail", "admin_shop"})
+     * @Serializer\Groups({"main", "admin_list", "admin", "dropdown", "client", "auth", "admin_detail", "admin_shop", "admin_view"})
      */
     private $id;
 
@@ -29,52 +30,61 @@ class SalesCompany
      *
      * @ORM\Column(name="name", type="string", length=64)
      *
-     * @Serializer\Groups({"main", "admin", "auth", "dropdown", "client", "admin_detail", "client_event", "admin_shop"})
+     * @Serializer\Groups({"main", "admin_list", "admin", "auth", "dropdown", "client", "admin_detail", "client_event", "admin_shop", "admin_view"})
      */
     private $name;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="applicantName", type="string", length=64)
+     * @ORM\Column(name="contacter", type="string", length=64)
      *
-     * @Serializer\Groups({"main", "admin"})
+     * @Serializer\Groups({"main", "admin", "admin_view"})
      */
-    private $applicantName;
+    private $contacter;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="phone", type="string", length=64)
+     * @ORM\Column(name="contacter_phone", type="string", length=64)
      *
-     * @Serializer\Groups({"main", "admin"})
+     * @Serializer\Groups({"main", "admin", "admin_view"})
+     */
+    private $contacterPhone;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="phone", type="string", length=64, nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin", "admin_view"})
      */
     private $phone;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="email", type="string", length=255)
+     * @ORM\Column(name="contacter_email", type="string", length=255)
      *
-     * @Serializer\Groups({"main", "admin"})
+     * @Serializer\Groups({"main", "admin", "admin_view"})
      */
-    private $email;
+    private $contacterEmail;
 
     /**
      * @var string
      *
      * @ORM\Column(name="address", type="string", length=255)
      *
-     * @Serializer\Groups({"main", "admin"})
+     * @Serializer\Groups({"main", "admin", "admin_view"})
      */
     private $address;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="description", type="text")
+     * @ORM\Column(name="description", type="text", nullable=true)
      *
-     * @Serializer\Groups({"main", "admin"})
+     * @Serializer\Groups({"main", "admin", "admin_view"})
      */
     private $description;
 
@@ -82,63 +92,78 @@ class SalesCompany
      * @var bool
      *
      * @ORM\Column(name="banned", type="boolean", nullable=false)
-     * @Serializer\Groups({"main", "admin"})
+     * @Serializer\Groups({"main", "admin", "admin_list", "admin_view"})
      */
     private $banned = false;
 
     /**
-     * @var string
+     * @var array
      *
-     * @Serializer\Groups({"main", "admin"})
+     * @Serializer\Groups({"main", "admin", "admin_view"})
      */
-    private $admin;
+    private $admins;
 
     /**
-     * @var string
+     * @var array
      *
-     * @Serializer\Groups({"main", "admin"})
+     * @Serializer\Groups({"main", "admin", "admin_view"})
      */
-    private $coffeeAdmin;
+    private $coffeeAdmins;
 
     /**
      * @var int
      *
-     * @Serializer\Groups({"main", "admin"})
+     * @Serializer\Groups({"main", "admin", "admin_list", "admin_view"})
      */
     private $buildingCounts;
 
     /**
      * @var int
      *
-     * @Serializer\Groups({"main", "admin"})
+     * @Serializer\Groups({"main", "admin", "admin_list", "admin_view"})
      */
     private $shopCounts;
 
     /**
-     * @var string
+     * @var array
      *
      * @Serializer\Groups({"main", "admin"})
      */
     private $permissions;
 
     /**
+     * @var array
+     *
+     * @Serializer\Groups({"main", "admin", "admin_view", "admin_list"})
+     */
+    private $excludePermissions;
+
+    /**
      * @var bool
      *
-     * @Serializer\Groups({"main", "admin"})
+     * @Serializer\Groups({"main", "admin", "admin_list", "admin_view"})
      */
     private $hasPendingBuilding = false;
 
     /**
      * @var bool
      *
-     * @Serializer\Groups({"main", "admin"})
+     * @Serializer\Groups({"main", "admin", "admin_list", "admin_view"})
      */
     private $hasPendingShop = false;
 
     /**
+     * @var array
+     *
+     * @Serializer\Groups({"main", "admin_view", "admin"})
+     */
+    private $services;
+
+    /**
      * @var \DateTime
      *
-     * @ORM\Column(name="creationDate", type="datetime")
+     * @ORM\Column(name="creation_date", type="datetime")
+     * @Gedmo\Timestampable(on="create")
      *
      * @Serializer\Groups({"main", "admin"})
      */
@@ -147,7 +172,8 @@ class SalesCompany
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="modificationDate", type="datetime")
+     * @ORM\Column(name="modification_date", type="datetime")
+     * @Gedmo\Timestampable(on="update")
      *
      * @Serializer\Groups({"main", "admin"})
      */
@@ -161,6 +187,22 @@ class SalesCompany
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @return array
+     */
+    public function getServices()
+    {
+        return $this->services;
+    }
+
+    /**
+     * @param array $services
+     */
+    public function setServices($services)
+    {
+        $this->services = $services;
     }
 
     /**
@@ -188,27 +230,35 @@ class SalesCompany
     }
 
     /**
-     * Set applicantName.
-     *
-     * @param string $applicantName
-     *
-     * @return SalesCompany
+     * @return string
      */
-    public function setApplicantName($applicantName)
+    public function getContacter()
     {
-        $this->applicantName = $applicantName;
-
-        return $this;
+        return $this->contacter;
     }
 
     /**
-     * Get applicantName.
-     *
+     * @param string $contacter
+     */
+    public function setContacter($contacter)
+    {
+        $this->contacter = $contacter;
+    }
+
+    /**
      * @return string
      */
-    public function getApplicantName()
+    public function getContacterPhone()
     {
-        return $this->applicantName;
+        return $this->contacterPhone;
+    }
+
+    /**
+     * @param string $contacterPhone
+     */
+    public function setContacterPhone($contacterPhone)
+    {
+        $this->contacterPhone = $contacterPhone;
     }
 
     /**
@@ -236,27 +286,19 @@ class SalesCompany
     }
 
     /**
-     * Set email.
-     *
-     * @param string $email
-     *
-     * @return SalesCompany
+     * @return string
      */
-    public function setEmail($email)
+    public function getContacterEmail()
     {
-        $this->email = $email;
-
-        return $this;
+        return $this->contacterEmail;
     }
 
     /**
-     * Get email.
-     *
-     * @return string
+     * @param string $contacterEmail
      */
-    public function getEmail()
+    public function setContacterEmail($contacterEmail)
     {
-        return $this->email;
+        $this->contacterEmail = $contacterEmail;
     }
 
     /**
@@ -350,33 +392,33 @@ class SalesCompany
     /**
      * @return string
      */
-    public function getAdmin()
+    public function getAdmins()
     {
-        return $this->admin;
+        return $this->admins;
     }
 
     /**
-     * @param string $admin
+     * @param string $admins
      */
-    public function setAdmin($admin)
+    public function setAdmins($admins)
     {
-        $this->admin = $admin;
+        $this->admins = $admins;
     }
 
     /**
      * @return string
      */
-    public function getCoffeeAdmin()
+    public function getCoffeeAdmins()
     {
-        return $this->coffeeAdmin;
+        return $this->coffeeAdmins;
     }
 
     /**
-     * @param string $coffeeAdmin
+     * @param string $coffeeAdmins
      */
-    public function setCoffeeAdmin($coffeeAdmin)
+    public function setCoffeeAdmins($coffeeAdmins)
     {
-        $this->coffeeAdmin = $coffeeAdmin;
+        $this->coffeeAdmins = $coffeeAdmins;
     }
 
     /**
@@ -473,5 +515,21 @@ class SalesCompany
     public function setHasPendingShop($hasPendingShop)
     {
         $this->hasPendingShop = $hasPendingShop;
+    }
+
+    /**
+     * @return array
+     */
+    public function getExcludePermissions()
+    {
+        return $this->excludePermissions;
+    }
+
+    /**
+     * @param array $excludePermissions
+     */
+    public function setExcludePermissions($excludePermissions)
+    {
+        $this->excludePermissions = $excludePermissions;
     }
 }

@@ -76,6 +76,7 @@ class AdminPermissionRepository extends EntityRepository
             ->select('ep.permissionId')
             ->from('SandboxApiBundle:Admin\AdminExcludePermission', 'ep')
             ->where('ep.platform = :platform')
+            ->andWhere('ep.permissionId IS NOT NULL')
             ->setParameter('platform', $platform);
 
         if (!is_null($salesCompanyId)) {

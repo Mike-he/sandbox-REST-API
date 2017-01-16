@@ -18,6 +18,52 @@ use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 class AdminDashBoardController extends SandboxRestController
 {
     /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="startDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="startDate"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="endDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="endDate"
+     * )
+     *
+     * @Route("/dashboard/balance/refund_to_account")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getBalanceRefundToAccountAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $startDate = $paramFetcher->get('startDate');
+        $endDate = $paramFetcher->get('endDate');
+
+        $refundToAccount = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->countRefundToAccountOrders(
+                $startDate,
+                $endDate
+            );
+
+        return new View(array(
+            'refund_to_account' => $refundToAccount,
+        ));
+    }
+
+    /**
      * Get Total Number Of Users.
      *
      * @Route("/dashboard/users/total")

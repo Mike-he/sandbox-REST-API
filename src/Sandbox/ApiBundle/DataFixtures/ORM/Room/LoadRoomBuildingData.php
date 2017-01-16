@@ -5,7 +5,6 @@ namespace Sandbox\ApiBundle\DataFixtures\ORM\Room;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
-use Sandbox\ApiBundle\Entity\Room\RoomAttachment;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingAttachment;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingServices;
@@ -192,36 +191,6 @@ class LoadRoomBuildingData extends AbstractFixture implements OrderedFixtureInte
         $rba3->setCreationDate($date);
         $this->addReference('first-attachment-for-building-4', $rba3);
 
-        $ra1 = new RoomAttachment();
-        $ra1->setRoomType('meeting');
-        $ra1->setAttachmentType('office');
-        $ra1->setBuilding($rb1);
-        $ra1->setContent('http://devimage.sandbox3.cn/building/49-a448-6f2b8cf4.jpg');
-        $ra1->setFilename('49-a448-6f2b8cf4.jpg');
-        $ra1->setPreview('http://devimage.sandbox3.cn/building/49-a448-6f2b8cf4.jpg');
-        $ra1->setSize(1);
-        $ra1->setCreationDate(new \DateTime('now'));
-
-        $ra2 = new RoomAttachment();
-        $ra2->setRoomType('fixed');
-        $ra2->setAttachmentType('image/jpeg');
-        $ra2->setBuilding($rb1);
-        $ra2->setContent('http://devimage.sandbox3.cn/building/49-a448-6f2b8cf4.jpg');
-        $ra2->setFilename('49-a448-6f2b8cf4.jpg');
-        $ra2->setPreview('http://devimage.sandbox3.cn/building/49-a448-6f2b8cf4.jpg');
-        $ra2->setSize(1);
-        $ra2->setCreationDate(new \DateTime('now'));
-
-        $ra3 = new RoomAttachment();
-        $ra3->setRoomType('office');
-        $ra3->setAttachmentType('image/jpeg');
-        $ra3->setBuilding($rb1);
-        $ra3->setContent('http://devimage.sandbox3.cn/building/49-a448-6f2b8cf4.jpg');
-        $ra3->setFilename('49-a448-6f2b8cf4.jpg');
-        $ra3->setPreview('http://devimage.sandbox3.cn/building/49-a448-6f2b8cf4.jpg');
-        $ra3->setSize(1);
-        $ra3->setCreationDate(new \DateTime('now'));
-
         $manager->persist($rbt1);
         $manager->persist($rbt2);
         $manager->persist($rbs1);
@@ -240,10 +209,6 @@ class LoadRoomBuildingData extends AbstractFixture implements OrderedFixtureInte
         $manager->persist($rba1);
         $manager->persist($rba2);
         $manager->persist($rba3);
-
-        $manager->persist($ra1);
-        $manager->persist($ra2);
-        $manager->persist($ra3);
 
         $manager->flush();
     }
