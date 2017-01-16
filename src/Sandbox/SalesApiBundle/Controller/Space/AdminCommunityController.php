@@ -332,7 +332,7 @@ class AdminCommunityController extends SalesRestController
             if ($visible == true) {
                 $usingNumber = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Product\Product')
-                    ->countsProductByBuilding($building, $visible,$typeKeys);
+                    ->countsProductByBuilding($building, $visible, $typeKeys);
             }
 
             $result[] = array(

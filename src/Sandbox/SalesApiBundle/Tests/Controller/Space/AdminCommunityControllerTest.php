@@ -163,7 +163,7 @@ class AdminCommunityControllerTest extends WebTestCase
 
         $this->assertPermissionDenied();
     }
-    
+
     public function testGetRoomTypesByCommunityShouldReturnCorrectDataStructure()
     {
         $this->givenLoggedInAs('client-2', 'user-token-2');
@@ -315,7 +315,7 @@ class AdminCommunityControllerTest extends WebTestCase
                 'building_id' => $building->getId(),
                 'using_number' => 1,
                 'all_number' => 1,
-            ]
+            ],
         ];
 
         return $data;

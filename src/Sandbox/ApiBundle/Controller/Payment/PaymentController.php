@@ -111,6 +111,8 @@ class PaymentController extends DoorController
     const REFUND_SSN_NOT_FOUND_MESSAGE = 'Refund SSN Does Not Exist';
     const CHANNEL_IS_EMPTY_CODE = 400031;
     const CHANNEL_IS_EMPTY_MESSAGE = 'CHANNER CANNOT BE EMPTY';
+    const COMPANY_PROFILE_ACCOUNT_INCOMPLETE_CODE = 400032;
+    const COMPANY_PROFILE_ACCOUNT_INCOMPLETE_MESSAGE = 'Company Profile Account Incomplete';
     const PAYMENT_CHANNEL_ALIPAY_WAP = 'alipay_wap';
     const PAYMENT_CHANNEL_UPACP_WAP = 'upacp_wap';
     const PAYMENT_CHANNEL_ACCOUNT = 'account';
