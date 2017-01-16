@@ -57,6 +57,9 @@ trait LogsTrait
             case Log::OBJECT_PRODUCT_APPOINTMENT:
                 $json = $this->getProductAppointmentJson($objectId);
                 break;
+            case Log::OBJECT_WITHDRAWAL:
+                $json = $this->getWithdrawalJson($objectId);
+                break;
             default:
                 return false;
         }
@@ -68,6 +71,23 @@ trait LogsTrait
         }
 
         return false;
+    }
+
+    /**
+     * @param $objectId
+     */
+    private function getWithdrawalJson(
+        $objectId
+    ) {
+        $object = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyWithdrawals')
+            ->find($objectId);
+
+        if (is_null($object)) {
+            return;
+        }
+
+        return $this->transferToJsonWithViewGroup($object, 'admin_detail');
     }
 
     /**

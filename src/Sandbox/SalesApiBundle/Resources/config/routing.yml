@@ -132,6 +132,6 @@ sandbox_sales_admin_room_types:
 
 # Admin Withdraws /sales/admin/companies/{company_id}/withdraws
 sandbox_sales_admin_companies_withdraws:
-    resource: "@SandboxSalesApiBundle/Controller/Withdraw/AdminCompanyWithdrawController.php"
+    resource: "@SandboxSalesApiBundle/Controller/Finance/AdminCompanyWithdrawalController.php"
     type:     annotation
     prefix:   /admin

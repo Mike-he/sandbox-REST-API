@@ -1,6 +1,6 @@
 <?php
 
-namespace Sandbox\SalesApiBundle\Controller\Withdraw;
+namespace Sandbox\SalesApiBundle\Controller\Finance;
 
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;

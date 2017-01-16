@@ -24,7 +24,7 @@ class SalesCompanyWithdrawals
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
-     * @Serializer\Groups({"main", ""})
+     * @Serializer\Groups({"main", "admin_detail"})
      */
     private $id;
 
@@ -40,6 +40,7 @@ class SalesCompanyWithdrawals
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany")
      * @ORM\JoinColumn(name="sales_company_id", referencedColumnName="id")
+     * @Serializer\Groups({"main", "admin_detail"})
      */
     private $salesCompany;
 
@@ -47,6 +48,7 @@ class SalesCompanyWithdrawals
      * @var string
      *
      * @ORM\Column(name="sales_company_name", type="string", length=128)
+     * @Serializer\Groups({"main", "admin_detail"})
      */
     private $salesCompanyName;
 
@@ -54,6 +56,7 @@ class SalesCompanyWithdrawals
      * @var string
      *
      * @ORM\Column(name="bank_account_name", type="string", length=255)
+     * @Serializer\Groups({"main", "admin_detail"})
      */
     private $bankAccountName;
 
@@ -61,6 +64,7 @@ class SalesCompanyWithdrawals
      * @var string
      *
      * @ORM\Column(name="bank_account_number", type="string", length=255)
+     * @Serializer\Groups({"main", "admin_detail"})
      */
     private $bankAccountNumber;
 
@@ -69,6 +73,7 @@ class SalesCompanyWithdrawals
      * @Gedmo\Timestampable(on="create")
      *
      * @ORM\Column(name="creation_date", type="datetime")
+     * @Serializer\Groups({"main", "admin_detail"})
      */
     private $creationDate;
 
@@ -76,6 +81,7 @@ class SalesCompanyWithdrawals
      * @var float
      *
      * @ORM\Column(name="amount", type="float", precision=10, scale=2)
+     * @Serializer\Groups({"main", "admin_detail"})
      */
     private $amount;
 
@@ -91,6 +97,7 @@ class SalesCompanyWithdrawals
      * @var string
      *
      * @ORM\Column(name="status", type="string", length=16)
+     * @Serializer\Groups({"main", "admin_detail"})
      */
     private $status = self::STATUS_PENDING;
 
@@ -98,6 +105,7 @@ class SalesCompanyWithdrawals
      * @var \DateTime
      *
      * @ORM\Column(name="successTime", type="datetime", nullable=true)
+     * @Serializer\Groups({"main", "admin_detail"})
      */
     private $successTime;
 
@@ -105,6 +113,7 @@ class SalesCompanyWithdrawals
      * @var \DateTime
      *
      * @ORM\Column(name="failureTime", type="datetime", nullable=true)
+     * @Serializer\Groups({"main", "admin_detail"})
      */
     private $failureTime;
 
@@ -112,6 +121,7 @@ class SalesCompanyWithdrawals
      * @var integer
      *
      * @ORM\Column(name="salesAdminId", type="integer")
+     * @Serializer\Groups({"main", "admin_detail"})
      */
     private $salesAdminId;
 
