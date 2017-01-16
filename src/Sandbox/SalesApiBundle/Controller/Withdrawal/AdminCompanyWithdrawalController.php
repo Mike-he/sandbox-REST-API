@@ -66,15 +66,6 @@ class AdminCompanyWithdrawalController extends PaymentController
 
         //TODO: check withdrawal limit
         $amount = $withdrawal->getAmount();
-        
-
-        if (!empty($error) && !is_null($error)) {
-            return $this->customErrorView(
-                400,
-                $error['code'],
-                $error['message']
-            );
-        }
 
         $error = $this->handleWithdrawalPost(
             $company,
@@ -91,12 +82,12 @@ class AdminCompanyWithdrawalController extends PaymentController
         }
 
         // add log
-//        $this->generateAdminLogs(array(
-//            'logModule' => Log::MODULE_BUILDING,
-//            'logAction' => Log::ACTION_EDIT,
-//            'logObjectKey' => Log::OBJECT_BUILDING,
-//            'logObjectId' => $building->getId(),
-//        ));
+        $this->generateAdminLogs(array(
+            'logModule' => Log::MODULE_FINANCE,
+            'logAction' => Log::ACTION_CREATE,
+            'logObjectKey' => Log::OBJECT_WITHDRAWAL,
+            'logObjectId' => $withdrawal->getId(),
+        ));
         
         // set view
         $view = new View();
