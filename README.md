@@ -18,8 +18,7 @@ with username = "token" and password = "id of client"
 
 * run the command "bin/homestead make"
 * modify the file 'homestead.yml'
-
-All you should need to do is execute `vagrant up` from your working copy root.
+* execute 'vagrant up' from project directory
 
 ## API documentations
 
