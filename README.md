@@ -14,7 +14,7 @@ with username = "token" and password = "id of client"
 * [VirtualBox](http://www.virtualbox.org/) for full machine virtualization
 * [Vagrant](http://www.vagrantup.com/) for automatic creation and provisioning of guest VMs
 
-## Dev envirorment with Vagrant
+## Dev Environment with Vagrant
 
 * run the command "bin/homestead make"
 * modify the file 'homestead.yml'
