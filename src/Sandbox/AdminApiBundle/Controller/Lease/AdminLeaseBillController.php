@@ -103,7 +103,7 @@ class AdminLeaseBillController extends LeaseController
      *    description="amount end query"
      * )
      *
-     * @Route("/leases/bills/lists")
+     * @Route("/leases/bills/finance")
      * @Method({"GET"})
      *
      * @return View
