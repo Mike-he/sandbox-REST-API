@@ -104,7 +104,7 @@ class SalesCompanyWithdrawals
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="successTime", type="datetime", nullable=true)
+     * @ORM\Column(name="success_time", type="datetime", nullable=true)
      * @Serializer\Groups({"main", "admin_detail"})
      */
     private $successTime;
@@ -112,7 +112,7 @@ class SalesCompanyWithdrawals
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="failureTime", type="datetime", nullable=true)
+     * @ORM\Column(name="failure_time", type="datetime", nullable=true)
      * @Serializer\Groups({"main", "admin_detail"})
      */
     private $failureTime;
@@ -120,7 +120,7 @@ class SalesCompanyWithdrawals
     /**
      * @var int
      *
-     * @ORM\Column(name="salesAdminId", type="integer")
+     * @ORM\Column(name="sales_admin_id", type="integer")
      * @Serializer\Groups({"main", "admin_detail"})
      */
     private $salesAdminId;
@@ -128,7 +128,7 @@ class SalesCompanyWithdrawals
     /**
      * @var int
      *
-     * @ORM\Column(name="officialAdminId", type="integer", nullable=true)
+     * @ORM\Column(name="official_admin_id", type="integer", nullable=true)
      */
     private $officialAdminId;
 
