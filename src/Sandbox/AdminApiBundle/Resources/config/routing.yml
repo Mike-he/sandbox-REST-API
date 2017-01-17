@@ -267,7 +267,7 @@ sandbox_admin_api_finance_export:
     type:     annotation
     prefix:   /
 
-# Finance /admin/space
+# Space /admin/space
 sandbox_admin_api_space:
     resource: "@SandboxAdminApiBundle/Controller/Space/AdminCommunityController.php"
     type:     annotation
@@ -288,5 +288,11 @@ sandbox_admin_api_leases:
 # Location /admin/location
 sandbox_admin_api_location:
     resource: "@SandboxAdminApiBundle/Controller/Location/AdminLocationController.php"
+    type:     annotation
+    prefix:   /
+
+# Finance /admin/finance/offline
+sandbox_admin_api_finance_offline:
+    resource: "@SandboxAdminApiBundle/Controller/Finance/AdminFinanceOfflineController.php"
     type:     annotation
     prefix:   /
