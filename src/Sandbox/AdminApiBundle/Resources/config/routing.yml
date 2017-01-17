@@ -296,3 +296,9 @@ sandbox_admin_api_finance_offline:
     resource: "@SandboxAdminApiBundle/Controller/Finance/AdminFinanceOfflineController.php"
     type:     annotation
     prefix:   /
+
+# Finance /admin/finance/withdrawals
+sandbox_admin_api_finance_withdrawals:
+    resource: "@SandboxAdminApiBundle/Controller/Finance/AdminFinanceWithdrawalController.php"
+    type:     annotation
+    prefix:   /
