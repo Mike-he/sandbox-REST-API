@@ -15,6 +15,8 @@ class FinanceLongRentServiceBill
 {
     const TYPE_BILL_SERVICE_FEE = 'bill_service_fee';
 
+    const SERVICE_FEE_LETTER_HEAD = 'SR';
+
     /**
      * @var int
      *
@@ -41,9 +43,9 @@ class FinanceLongRentServiceBill
     /**
      * @var string
      *
-     * @ORM\Column(name="type", type="string", length=10)
+     * @ORM\Column(name="type", type="string", length=50)
      */
-    private $type = self::TYPE_BILL_SERVICE_FEE;
+    private $type;
 
     /**
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Lease\LeaseBill")
