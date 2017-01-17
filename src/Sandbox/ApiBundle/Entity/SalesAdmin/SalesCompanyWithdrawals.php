@@ -24,7 +24,7 @@ class SalesCompanyWithdrawals
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
-     * @Serializer\Groups({"main", "admin_detail"})
+     * @Serializer\Groups({"main", "admin_detail", "sales_list"})
      */
     private $id;
 
@@ -73,7 +73,7 @@ class SalesCompanyWithdrawals
      * @Gedmo\Timestampable(on="create")
      *
      * @ORM\Column(name="creation_date", type="datetime")
-     * @Serializer\Groups({"main", "admin_detail"})
+     * @Serializer\Groups({"main", "admin_detail", "sales_list"})
      */
     private $creationDate;
 
@@ -81,7 +81,7 @@ class SalesCompanyWithdrawals
      * @var float
      *
      * @ORM\Column(name="amount", type="float", precision=10, scale=2)
-     * @Serializer\Groups({"main", "admin_detail"})
+     * @Serializer\Groups({"main", "admin_detail", "sales_list"})
      */
     private $amount;
 
@@ -97,7 +97,7 @@ class SalesCompanyWithdrawals
      * @var string
      *
      * @ORM\Column(name="status", type="string", length=16)
-     * @Serializer\Groups({"main", "admin_detail"})
+     * @Serializer\Groups({"main", "admin_detail", "sales_list"})
      */
     private $status = self::STATUS_PENDING;
 
@@ -105,7 +105,7 @@ class SalesCompanyWithdrawals
      * @var \DateTime
      *
      * @ORM\Column(name="success_time", type="datetime", nullable=true)
-     * @Serializer\Groups({"main", "admin_detail"})
+     * @Serializer\Groups({"main", "admin_detail", "sales_list"})
      */
     private $successTime;
 
