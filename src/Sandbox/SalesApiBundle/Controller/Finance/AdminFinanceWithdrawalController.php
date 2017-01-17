@@ -2,6 +2,8 @@
 
 namespace Sandbox\SalesApiBundle\Controller\Finance;
 
+use FOS\RestBundle\Request\ParamFetcherInterface;
+use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Log\Log;
@@ -13,6 +15,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Knp\Component\Pager\Paginator;
+use FOS\RestBundle\Controller\Annotations;
 
 /**
  * Admin Finance Withdrawal Controller.
@@ -91,6 +95,209 @@ class AdminFinanceWithdrawalController extends PaymentController
         $view->setData(array(
             'id' => $withdrawal->getId(),
         ));
+
+        return $view;
+    }
+
+    /**
+     * Get Withdrawals.
+     *
+     * @param Request               $request      the request object
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="create_start",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="start date. Must be YYYY-mm-dd"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="create_end",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="end date. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="status",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Withdrawal Status"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="success_start",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="start date. Must be YYYY-mm-dd"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="success_end",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="end date. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many products to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="amount_start",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="amount start"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="amount_end",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="amount end"
+     * )
+     *
+     * @Route("/finance/withdrawals")
+     * @Method({"GET"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getFinanceWithdrawalsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        // check user permission
+        $this->checkAdminWithdrawPermission($this->getAdminId(), AdminPermission::OP_LEVEL_VIEW);
+
+        $adminPlatform = $this->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
+        $company = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
+            ->findOneBy([
+                'id' => $salesCompanyId,
+                'banned' => false,
+            ]);
+        $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
+
+        //filters
+        $createStart = $paramFetcher->get('create_start');
+        $createEnd = $paramFetcher->get('create_end');
+        $status = $paramFetcher->get('status');
+        $successStart = $paramFetcher->get('success_start');
+        $successEnd = $paramFetcher->get('success_end');
+        $amountStart = $paramFetcher->get('amount_start');
+        $amountEnd = $paramFetcher->get('amount_end');
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+
+        $withdrawals = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyWithdrawals')
+            ->getSalesCompanyWithdrawals(
+                $salesCompanyId,
+                $createStart,
+                $createEnd,
+                $successStart,
+                $successEnd,
+                $amountStart,
+                $amountEnd,
+                $status
+            );
+
+        $withdrawals = $this->get('serializer')->serialize(
+            $withdrawals,
+            'json',
+            SerializationContext::create()->setGroups(['sales_list'])
+        );
+        $withdrawals = json_decode($withdrawals, true);
+
+        $paginator = new Paginator();
+        $pagination = $paginator->paginate(
+            $withdrawals,
+            $pageIndex,
+            $pageLimit
+        );
+
+        return new View($pagination);
+    }
+
+    /**
+     * Get Withdrawal by Id.
+     *
+     * @param Request $request the request object
+     * @param int     $id
+     *
+     * @Route("/finance/withdrawals/{id}")
+     * @Method({"GET"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getFinanceWithdrawalByIdAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->checkAdminWithdrawPermission($this->getAdminId(), AdminPermission::OP_LEVEL_VIEW);
+
+        $adminPlatform = $this->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
+        $company = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
+            ->findOneBy([
+                'id' => $salesCompanyId,
+                'banned' => false,
+            ]);
+        $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
+
+        $withdrawal = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyWithdrawals')
+            ->findOneBy([
+                'id' => $id,
+                'salesCompanyId' => $salesCompanyId,
+            ]);
+
+        $view = new View($withdrawal);
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_detail']));
 
         return $view;
     }

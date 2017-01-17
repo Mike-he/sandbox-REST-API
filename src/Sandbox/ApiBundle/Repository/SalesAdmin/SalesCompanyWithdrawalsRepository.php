@@ -12,4 +12,85 @@ use Doctrine\ORM\EntityRepository;
  */
 class SalesCompanyWithdrawalsRepository extends EntityRepository
 {
+    /**
+     * @param $salesCompanyId
+     * @param $createStart
+     * @param $createEnd
+     * @param $successStart
+     * @param $successEnd
+     * @param $amountStart
+     * @param $amountEnd
+     * @param $status
+     *
+     * @return array
+     */
+    public function getSalesCompanyWithdrawals(
+        $salesCompanyId,
+        $createStart,
+        $createEnd,
+        $successStart,
+        $successEnd,
+        $amountStart,
+        $amountEnd,
+        $status
+    ) {
+        $query = $this->createQueryBuilder('w')
+            ->where('w.id IS NOT NULL');
+
+        if (!is_null($salesCompanyId) && !empty($salesCompanyId)) {
+            $query->andWhere('w.salesCompanyId = :companyId')
+                ->setParameter('companyId', $salesCompanyId);
+        }
+
+        if (!is_null($createStart) && !empty($createStart)) {
+            $createStart = new \DateTime($createStart);
+            $createStart->setTime(0, 0, 0);
+
+            $query->andWhere('w.creationDate >= :createStart')
+                ->setParameter('createStart', $createStart);
+        }
+
+        if (!is_null($createEnd) && !empty($createEnd)) {
+            $createEnd = new \DateTime($createEnd);
+            $createEnd->setTime(23, 59, 59);
+
+            $query->andWhere('w.creationDate <= :createEnd')
+                ->setParameter('createEnd', $createEnd);
+        }
+
+        if (!is_null($successStart) && !empty($successStart)) {
+            $successStart = new \DateTime($successStart);
+            $successStart->setTime(0, 0, 0);
+
+            $query->andWhere('w.successTime IS NOT NULL')
+                ->andWhere('w.successTime >= :successStart')
+                ->setParameter('successStart', $successStart);
+        }
+
+        if (!is_null($successEnd) && !empty($successEnd)) {
+            $successEnd = new \DateTime($successEnd);
+            $successEnd->setTime(23, 59, 59);
+
+            $query->andWhere('w.successTime IS NOT NULL')
+                ->andWhere('w.successTime <= :successEnd')
+                ->setParameter('successEnd', $successEnd);
+        }
+
+        if (!is_null($amountStart) && !empty($amountStart)) {
+            $query->andWhere('w.amount >= :amountStart')
+                ->setParameter('amountStart', $amountStart);
+        }
+
+        if (!is_null($amountEnd) && !empty($amountEnd)) {
+            $query->andWhere('w.amount <= :amountEnd')
+                ->setParameter('amountEnd', $amountEnd);
+        }
+
+        if (!is_null($status) && !empty($status)) {
+            $query->andWhere('w.status = :status')
+                ->setParameter('status', $status);
+        }
+
+        return $query->getQuery()->getResult();
+    }
 }
