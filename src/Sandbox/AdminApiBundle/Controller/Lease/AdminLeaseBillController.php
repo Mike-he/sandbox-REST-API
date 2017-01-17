@@ -7,9 +7,11 @@ use Rs\Json\Patch;
 use Sandbox\ApiBundle\Controller\Lease\LeaseController;
 use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentServiceBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBillOfflineTransfer;
 use Sandbox\ApiBundle\Form\Lease\LeaseBillOfflineTransferPatch;
+use Sandbox\ApiBundle\Traits\FinanceTrait;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -21,6 +23,8 @@ class AdminLeaseBillController extends LeaseController
 {
     const WRONG_BILL_STATUS_CODE = 400015;
     const WRONG_BILL_STATUS_MESSAGE = 'Wrong Bill Status';
+
+    use FinanceTrait;
 
     /**
      * Get Lease Bills.
@@ -204,6 +208,11 @@ class AdminLeaseBillController extends LeaseController
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();
+
+        $this->generateLongRentServiceFee(
+            $bill,
+            FinanceLongRentServiceBill::TYPE_BILL_SERVICE_FEE
+        );
 
         return new View();
     }

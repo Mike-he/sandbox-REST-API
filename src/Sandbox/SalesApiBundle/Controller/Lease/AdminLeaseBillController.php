@@ -6,7 +6,9 @@ use Knp\Component\Pager\Paginator;
 use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
 use Sandbox\ApiBundle\Constants\LeaseConstants;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentServiceBill;
 use Sandbox\ApiBundle\Entity\Log\Log;
+use Sandbox\ApiBundle\Traits\FinanceTrait;
 use Sandbox\ApiBundle\Traits\SendNotification;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use JMS\Serializer\SerializationContext;
@@ -27,6 +29,7 @@ class AdminLeaseBillController extends SalesRestController
 {
     use GenerateSerialNumberTrait;
     use SendNotification;
+    use FinanceTrait;
 
     /**
      * Get Sale offline Bills lists.
@@ -532,6 +535,11 @@ class AdminLeaseBillController extends SalesRestController
         $em = $this->getDoctrine()->getManager();
         $em->persist($bill);
         $em->flush();
+
+        $this->generateLongRentServiceFee(
+            $bill,
+            FinanceLongRentServiceBill::TYPE_BILL_SERVICE_FEE
+        );
 
         // generate log
         $this->generateAdminLogs(array(
