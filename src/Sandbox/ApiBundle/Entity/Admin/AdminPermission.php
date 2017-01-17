@@ -53,6 +53,7 @@ class AdminPermission
     const KEY_OFFICIAL_PLATFORM_ADVERTISING = 'platform.advertising';
     const KEY_OFFICIAL_PLATFORM_REFUND = 'platform.order.refund';
     const KEY_OFFICIAL_PLATFORM_FINANCE = 'platform.finance';
+    const KEY_OFFICIAL_PLATFORM_WITHDRAWAL = 'platform.withdrawal';
     const KEY_OFFICIAL_PLATFORM_SPACE = 'platform.space';
     const KEY_OFFICIAL_PLATFORM_LONG_TERM_LEASE = 'platform.long_term_lease';
     const KEY_OFFICIAL_PLATFORM_LONG_TERM_APPOINTMENT = 'platform.long_term_appointment';

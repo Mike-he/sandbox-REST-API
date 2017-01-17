@@ -12,6 +12,35 @@ use Doctrine\ORM\EntityRepository;
  */
 class SalesCompanyWithdrawalsRepository extends EntityRepository
 {
+    public function countSalesCompanyWithdrawals(
+        $salesCompanyId,
+        $createStart,
+        $createEnd,
+        $successStart,
+        $successEnd,
+        $amountStart,
+        $amountEnd,
+        $status
+    ) {
+        $query = $this->createQueryBuilder('w')
+            ->select('COUNT(w.id)')
+            ->where('w.id IS NOT NULL');
+
+        $query = $this->setWithdrawalFilter(
+            $query,
+            $salesCompanyId,
+            $createStart,
+            $createEnd,
+            $successStart,
+            $successEnd,
+            $amountStart,
+            $amountEnd,
+            $status
+        );
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
+
     /**
      * @param $salesCompanyId
      * @param $createStart
@@ -21,6 +50,8 @@ class SalesCompanyWithdrawalsRepository extends EntityRepository
      * @param $amountStart
      * @param $amountEnd
      * @param $status
+     * @param $limit
+     * @param $offset
      *
      * @return array
      */
@@ -32,11 +63,56 @@ class SalesCompanyWithdrawalsRepository extends EntityRepository
         $successEnd,
         $amountStart,
         $amountEnd,
-        $status
+        $status,
+        $limit,
+        $offset
     ) {
         $query = $this->createQueryBuilder('w')
             ->where('w.id IS NOT NULL');
 
+        $query = $this->setWithdrawalFilter(
+            $query,
+            $salesCompanyId,
+            $createStart,
+            $createEnd,
+            $successStart,
+            $successEnd,
+            $amountStart,
+            $amountEnd,
+            $status
+        );
+
+        $query->orderBy('w.creationDate', 'DESC')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset);
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param \Doctrine\ORM\QueryBuilder $query
+     * @param $salesCompanyId
+     * @param $createStart
+     * @param $createEnd
+     * @param $successStart
+     * @param $successEnd
+     * @param $amountStart
+     * @param $amountEnd
+     * @param $status
+     *
+     * @return mixed
+     */
+    private function setWithdrawalFilter(
+        $query,
+        $salesCompanyId,
+        $createStart,
+        $createEnd,
+        $successStart,
+        $successEnd,
+        $amountStart,
+        $amountEnd,
+        $status
+    ) {
         if (!is_null($salesCompanyId) && !empty($salesCompanyId)) {
             $query->andWhere('w.salesCompanyId = :companyId')
                 ->setParameter('companyId', $salesCompanyId);
@@ -91,6 +167,6 @@ class SalesCompanyWithdrawalsRepository extends EntityRepository
                 ->setParameter('status', $status);
         }
 
-        return $query->getQuery()->getResult();
+        return $query;
     }
 }
