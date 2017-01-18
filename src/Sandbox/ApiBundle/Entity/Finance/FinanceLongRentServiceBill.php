@@ -4,16 +4,17 @@ namespace Sandbox\ApiBundle\Entity\Finance;
 
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * FinanceLongRentServiceBill.
  *
  * @ORM\Table(name="finance_long_rent_service_bill")
- * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Finance\FinanceLongRentBillServiceRepository")
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Finance\FinanceLongRentServiceBillRepository")
  */
 class FinanceLongRentServiceBill
 {
-    const TYPE_BILL_SERVICE_FEE = 'bill_service_fee';
+    const TYPE_BILL_SERVICE_FEE = 'service_fee';
 
     const SERVICE_FEE_LETTER_HEAD = 'SR';
 
@@ -23,6 +24,8 @@ class FinanceLongRentServiceBill
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     *
+     * @Serializer\Groups({"main"})
      */
     private $id;
 
@@ -30,6 +33,8 @@ class FinanceLongRentServiceBill
      * @var string
      *
      * @ORM\Column(name="serial_number", type="string", length=50)
+     *
+     * @Serializer\Groups({"main"})
      */
     private $serialNumber;
 
@@ -37,6 +42,8 @@ class FinanceLongRentServiceBill
      * @var float
      *
      * @ORM\Column(name="amount", type="decimal", precision=10, scale=2)
+     *
+     * @Serializer\Groups({"main"})
      */
     private $amount;
 
@@ -44,6 +51,8 @@ class FinanceLongRentServiceBill
      * @var string
      *
      * @ORM\Column(name="type", type="string", length=50)
+     *
+     * @Serializer\Groups({"main"})
      */
     private $type;
 
@@ -59,6 +68,8 @@ class FinanceLongRentServiceBill
      * @var int
      *
      * @ORM\Column(name="company_id", type="integer")
+     *
+     * @Serializer\Groups({"main"})
      */
     private $companyId;
 
@@ -67,6 +78,8 @@ class FinanceLongRentServiceBill
      *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="creation_date", type="datetime")
+     *
+     * @Serializer\Groups({"main"})
      */
     private $creationDate;
 
@@ -75,6 +88,8 @@ class FinanceLongRentServiceBill
      *
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(name="modification_date", type="datetime")
+     *
+     * @Serializer\Groups({"main"})
      */
     private $modificationDate;
 
@@ -196,5 +211,22 @@ class FinanceLongRentServiceBill
     public function setModificationDate($modificationDate)
     {
         $this->modificationDate = $modificationDate;
+    }
+
+    /**
+     * @Serializer\VirtualProperty
+     * @Serializer\SerializedName("bill")
+     * @Serializer\Groups({"main"})
+     */
+    public function degenerateBill()
+    {
+        return [
+            'id' => $this->bill->getId(),
+            'serial_number' => $this->bill->getSerialNumber(),
+            'lease' => [
+                'id' => $this->bill->getLease()->getId(),
+                'serial_number' => $this->bill->getLease()->getSerialNumber(),
+            ],
+        ];
     }
 }

@@ -141,3 +141,9 @@ sandbox_sales_admin_finance_withdrawals:
     resource: "@SandboxSalesApiBundle/Controller/Finance/AdminFinanceWithdrawalController.php"
     type:     annotation
     prefix:   /admin
+
+# Admin Finance
+sandbox_sales_admin_finance_api:
+    resource: "@SandboxSalesApiBundle/Resources/config/finance/routing.yml"
+    type: rest
+    prefix: /admin

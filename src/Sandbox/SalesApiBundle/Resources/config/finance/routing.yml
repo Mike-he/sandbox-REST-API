@@ -1,0 +1,5 @@
+# Admin Finance Long Rent Service Bill /sales/admin/finance/long/rent/service/bill
+sandbox_sales_admin_finance_long_rent_service_bill:
+    resource: "@SandboxSalesApiBundle/Controller/Finance/AdminFinanceLongRentServiceBillController.php"
+    type:     annotation
+    prefix:   /
