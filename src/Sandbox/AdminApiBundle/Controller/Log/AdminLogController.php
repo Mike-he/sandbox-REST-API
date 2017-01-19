@@ -288,6 +288,111 @@ class AdminLogController extends LogController
     }
 
     /**
+     * @param Request $request
+     * @param int     $id
+     *
+     * @Route("/logs/{id}/diff")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getLogJsonDiffAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->checkAdminLogPermission(AdminPermission::OP_LEVEL_VIEW);
+
+        $log = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Log\Log')
+            ->find($id);
+        $this->throwNotFoundIfNull($log, self::NOT_FOUND_MESSAGE);
+
+        $view = new View();
+
+        $previousLog = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Log\Log')
+            ->getPreviousLog(
+                $id,
+                $log->getLogModule(),
+                $log->getLogObjectKey(),
+                $log->getLogObjectId()
+            );
+        if (is_null($previousLog)) {
+            return $view;
+        }
+
+        $currentJson = $log->getLogObjectJson();
+        $oldJson = $previousLog->getLogObjectJson();
+        $currentArray = json_decode($currentJson, true);
+        $oldArray = json_decode($oldJson, true);
+
+        // compare old against new log
+        $result = $this->arrayRecursiveDiff($currentArray, $oldArray);
+
+        // compare new against new log
+        $currentResult = $this->arrayRecursiveCompare($currentArray, $oldArray);
+
+        $result = array_merge($result, $currentResult);
+
+        $view->setData($result);
+
+        return $view;
+    }
+
+    /**
+     * get current element that does not exist in old.
+     *
+     * @param $currentArray
+     * @param $oldArray
+     *
+     * @return array
+     */
+    private function arrayRecursiveCompare($currentArray, $oldArray)
+    {
+        $diffArray = [];
+
+        foreach ($currentArray as $key => $val) {
+            if (!array_key_exists($key, $oldArray)) {
+                $diffArray[$key] = '';
+            }
+        }
+
+        return $diffArray;
+    }
+
+    /**
+     * get old elements that were changed and don't exist in current log.
+     *
+     * @param $currentArray
+     * @param $oldArray
+     *
+     * @return array
+     */
+    private function arrayRecursiveDiff($currentArray, $oldArray)
+    {
+        $diffArray = [];
+
+        foreach ($oldArray as $key => $val) {
+            if (array_key_exists($key, $currentArray)) {
+                if (is_array($val)) {
+                    $aRecursiveDiff = $this->arrayRecursiveDiff($currentArray[$key], $val);
+
+                    if (!empty($aRecursiveDiff)) {
+                        $diffArray[$key] = $aRecursiveDiff;
+                    }
+                } elseif (strcmp($val, $currentArray[$key]) !== 0) {
+                    $diffArray[$key] = $val;
+                }
+            } else {
+                $diffArray[$key] = $val;
+            }
+        }
+
+        return $diffArray;
+    }
+
+    /**
      * Check user permission.
      */
     private function checkAdminLogPermission(
