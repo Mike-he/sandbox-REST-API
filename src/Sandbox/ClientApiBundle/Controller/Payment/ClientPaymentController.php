@@ -216,6 +216,13 @@ class ClientPaymentController extends PaymentController
                     $channel
                 );
 
+                // add invoice amount
+                $this->postConsumeBalance(
+                    $userId,
+                    $price,
+                    $orderNumber
+                );
+
                 $orderMap = LeaseBill::BILL_MAP;
                 break;
             default:

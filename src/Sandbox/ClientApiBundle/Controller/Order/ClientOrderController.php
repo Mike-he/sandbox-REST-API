@@ -300,9 +300,9 @@ class ClientOrderController extends OrderController
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
 
-        $orders = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->getInvoiceOrdersForApp(
+        $tradeNumbers = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Invoice\TradeInvoiceView')
+            ->getNeedToInvoiceTradeNumbers(
                 $userId,
                 $limit,
                 $offset
@@ -310,7 +310,7 @@ class ClientOrderController extends OrderController
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
-        $view->setData($orders);
+        $view->setData($tradeNumbers);
 
         return $view;
     }

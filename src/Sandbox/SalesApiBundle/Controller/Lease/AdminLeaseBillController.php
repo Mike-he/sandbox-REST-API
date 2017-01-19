@@ -6,7 +6,10 @@ use Knp\Component\Pager\Paginator;
 use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
 use Sandbox\ApiBundle\Constants\LeaseConstants;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Log\Log;
+use Sandbox\ApiBundle\Entity\Room\RoomTypes;
+use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Sandbox\ApiBundle\Traits\SendNotification;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use JMS\Serializer\SerializationContext;
@@ -533,6 +536,15 @@ class AdminLeaseBillController extends SalesRestController
         $em->persist($bill);
         $em->flush();
 
+        // add invoice balance
+        if (!$bill->isSalesInvoice()) {
+            $this->postConsumeBalance(
+                $bill->getDrawee(),
+                $bill->getRevisedAmount(),
+                $bill->getSerialNumber()
+            );
+        }
+
         // generate log
         $this->generateAdminLogs(array(
             'logModule' => Log::MODULE_LEASE,
@@ -615,8 +627,8 @@ class AdminLeaseBillController extends SalesRestController
     }
 
     /**
-     * @param $lease
-     * @param $bill
+     * @param Lease     $lease
+     * @param LeaseBill $bill
      *
      * @return View
      */
@@ -637,6 +649,22 @@ class AdminLeaseBillController extends SalesRestController
         $bill->setSender($this->getUserId());
         $bill->setRevisedAmount($bill->getAmount());
         $bill->setLease($lease);
+
+        // set sales invoice
+        $salesCompany = $lease->getProduct()->getRoom()->getBuilding()->getCompany();
+        $serviceInfo = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
+            ->findOneBy(array(
+                'company' => $salesCompany,
+                'roomTypes' => RoomTypes::TYPE_NAME_LONGTERM,
+                'status' => true,
+            ));
+
+        if (!is_null($serviceInfo) &&
+            $serviceInfo->getDrawer() == SalesCompanyServiceInfos::DRAWER_SALES
+        ) {
+            $bill->setSalesInvoice(true);
+        }
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($bill);
