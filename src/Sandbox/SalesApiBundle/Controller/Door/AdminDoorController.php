@@ -91,6 +91,9 @@ class AdminDoorController extends DoorController
                 array(
                     'key' => AdminPermission::KEY_SALES_BUILDING_ACCESS,
                 ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_USER,
+                ),
             ),
             AdminPermission::OP_LEVEL_VIEW
         );
@@ -208,6 +211,9 @@ class AdminDoorController extends DoorController
                 array(
                     'key' => AdminPermission::KEY_SALES_BUILDING_ACCESS,
                 ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_USER,
+                ),
             ),
             AdminPermission::OP_LEVEL_EDIT
         );
@@ -254,6 +260,9 @@ class AdminDoorController extends DoorController
                 array(
                     'key' => AdminPermission::KEY_SALES_BUILDING_ACCESS,
                 ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_USER,
+                ),
             ),
             AdminPermission::OP_LEVEL_EDIT
         );
@@ -295,6 +304,9 @@ class AdminDoorController extends DoorController
             array(
                 array(
                     'key' => AdminPermission::KEY_SALES_BUILDING_ACCESS,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_USER,
                 ),
             ),
             AdminPermission::OP_LEVEL_EDIT
