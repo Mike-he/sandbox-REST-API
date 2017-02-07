@@ -3,3 +3,9 @@ sandbox_sales_admin_finance_long_rent_service_bill:
     resource: "@SandboxSalesApiBundle/Controller/Finance/AdminFinanceLongRentServiceBillController.php"
     type:     annotation
     prefix:   /
+
+# Admin Finance Long Rent Bill /sales/admin/finance/long/rent/bill
+sandbox_sales_admin_finance_long_rent_bill:
+    resource: "@SandboxSalesApiBundle/Controller/Finance/AdminFinanceLongRentBillController.php"
+    type:     annotation
+    prefix:   /

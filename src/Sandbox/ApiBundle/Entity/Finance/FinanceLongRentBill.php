@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Entity\Finance;
 
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * FinanceLongRentBill.
@@ -23,6 +24,8 @@ class FinanceLongRentBill
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     *
+     * @Serializer\Groups({"main"})
      */
     private $id;
 
@@ -30,6 +33,8 @@ class FinanceLongRentBill
      * @var float
      *
      * @ORM\Column(name="amount", type="decimal", precision=10, scale=2)
+     *
+     * @Serializer\Groups({"main"})
      */
     private $amount;
 
@@ -37,6 +42,8 @@ class FinanceLongRentBill
      * @var string
      *
      * @ORM\Column(name="status", type="string", length=15)
+     *
+     * @Serializer\Groups({"main"})
      */
     private $status = self::STATUS_PENDING;
 
@@ -44,6 +51,8 @@ class FinanceLongRentBill
      * @var int
      *
      * @ORM\Column(name="company_id", type="integer")
+     *
+     * @Serializer\Groups({"main"})
      */
     private $companyId;
 
@@ -52,6 +61,8 @@ class FinanceLongRentBill
      *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="creation_date", type="datetime")
+     *
+     * @Serializer\Groups({"main"})
      */
     private $creationDate;
 
@@ -60,8 +71,36 @@ class FinanceLongRentBill
      *
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(name="modification_date", type="datetime")
+     *
+     * @Serializer\Groups({"main"})
      */
     private $modificationDate;
+
+    /**
+     * @var array
+     *
+     */
+    private $attachments;
+
+    /**
+     * @ORM\OneToMany(
+     *      targetEntity="Sandbox\ApiBundle\Entity\Finance\FinanceBillAttachment",
+     *      mappedBy="bill"
+     * )
+     * @ORM\JoinColumn(name="id", referencedColumnName="bill_id")
+     *
+     */
+    private $billAttachment;
+
+    /**
+     * @ORM\OneToMany(
+     *      targetEntity="Sandbox\ApiBundle\Entity\Finance\FinanceBillInvoiceInfo",
+     *      mappedBy="bill"
+     * )
+     * @ORM\JoinColumn(name="id", referencedColumnName="bill_id")
+     *
+     */
+    private $billInvoice;
 
     /**
      * @return int
@@ -149,5 +188,53 @@ class FinanceLongRentBill
     public function setModificationDate($modificationDate)
     {
         $this->modificationDate = $modificationDate;
+    }
+
+    /**
+     * @return array
+     */
+    public function getAttachments()
+    {
+        return $this->attachments;
+    }
+
+    /**
+     * @param array $attachments
+     */
+    public function setAttachments($attachments)
+    {
+        $this->attachments = $attachments;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBillAttachment()
+    {
+        return $this->billAttachment;
+    }
+
+    /**
+     * @param mixed $billAttachment
+     */
+    public function setBillAttachment($billAttachment)
+    {
+        $this->billAttachment = $billAttachment;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBillInvoice()
+    {
+        return $this->billInvoice;
+    }
+
+    /**
+     * @param mixed $billInvoice
+     */
+    public function setBillInvoice($billInvoice)
+    {
+        $this->billInvoice = $billInvoice;
     }
 }
