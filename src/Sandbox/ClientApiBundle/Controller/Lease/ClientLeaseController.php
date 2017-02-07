@@ -255,7 +255,9 @@ class ClientLeaseController extends SandboxRestController
             $lease->setAccessNo($this->generateAccessNumber());
 
             $base = $lease->getBuilding()->getServer();
-            $roomDoors = $lease->getRoom()->getDoorControl();
+            $roomDoors = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomDoors')
+                ->findBy(['room' => $lease->getRoom()]);
 
             if (!is_null($base) && !empty($base) && !empty($roomDoors)) {
                 $this->storeDoorAccess(
@@ -421,7 +423,9 @@ class ClientLeaseController extends SandboxRestController
         $userArray = [];
         $recvUsers = [];
 
-        $roomDoors = $lease->getRoom()->getDoorControl();
+        $roomDoors = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomDoors')
+            ->findBy(['room' => $lease->getRoom()]);
 
         $invitedPeople = $lease->getInvitedPeople();
         foreach ($users as $userId) {
