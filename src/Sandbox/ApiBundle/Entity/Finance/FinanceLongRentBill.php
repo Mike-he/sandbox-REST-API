@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Entity\Finance;
 
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * FinanceLongRentBill.
@@ -23,6 +24,8 @@ class FinanceLongRentBill
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     *
+     * @Serializer\Groups({"main"})
      */
     private $id;
 
@@ -30,6 +33,8 @@ class FinanceLongRentBill
      * @var float
      *
      * @ORM\Column(name="amount", type="decimal", precision=10, scale=2)
+     *
+     * @Serializer\Groups({"main"})
      */
     private $amount;
 
@@ -37,6 +42,8 @@ class FinanceLongRentBill
      * @var string
      *
      * @ORM\Column(name="status", type="string", length=15)
+     *
+     * @Serializer\Groups({"main"})
      */
     private $status = self::STATUS_PENDING;
 
@@ -44,6 +51,8 @@ class FinanceLongRentBill
      * @var int
      *
      * @ORM\Column(name="company_id", type="integer")
+     *
+     * @Serializer\Groups({"main"})
      */
     private $companyId;
 
@@ -52,6 +61,8 @@ class FinanceLongRentBill
      *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="creation_date", type="datetime")
+     *
+     * @Serializer\Groups({"main"})
      */
     private $creationDate;
 
@@ -60,6 +71,8 @@ class FinanceLongRentBill
      *
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(name="modification_date", type="datetime")
+     *
+     * @Serializer\Groups({"main"})
      */
     private $modificationDate;
 

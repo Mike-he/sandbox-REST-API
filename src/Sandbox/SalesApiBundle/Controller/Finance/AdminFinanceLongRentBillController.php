@@ -5,9 +5,12 @@ namespace Sandbox\SalesApiBundle\Controller\Finance;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
+use Rs\Json\Patch;
+use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
 use Sandbox\ApiBundle\Entity\Finance\FinanceBillAttachment;
 use Sandbox\ApiBundle\Entity\Finance\FinanceBillInvoiceInfo;
 use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentBill;
+use Sandbox\ApiBundle\Form\Finance\FinanceBillPatchType;
 use Sandbox\ApiBundle\Form\Finance\FinanceBillPostType;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Symfony\Component\HttpFoundation\Request;
@@ -132,6 +135,13 @@ class AdminFinanceLongRentBillController extends SalesRestController
                 $amountEnd
             );
 
+        $bills = $this->get('serializer')->serialize(
+            $bills,
+            'json',
+            SerializationContext::create()->setGroups(['main'])
+        );
+        $bills = json_decode($bills, true);
+
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
             $bills,
@@ -184,6 +194,12 @@ class AdminFinanceLongRentBillController extends SalesRestController
         );
 
         $em->flush();
+
+        $response = array(
+            'id' => $bill->getId(),
+        );
+
+        return new View($response, 201);
     }
 
     /**
@@ -210,6 +226,51 @@ class AdminFinanceLongRentBillController extends SalesRestController
         $view->setData($bill);
 
         return $view;
+    }
+
+    /**
+     * Patch Bill.
+     *
+     * @param Request $request the request object
+     * @param int     $id
+     *
+     * @Route("/finance/long/rent/bills/{id}")
+     * @Method({"PATCH"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function patchBillAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+
+        $bill = $this->getDoctrine()->getRepository('SandboxApiBundle:Finance\FinanceLongRentBill')->find($id);
+        $this->throwNotFoundIfNull($bill, self::NOT_FOUND_MESSAGE);
+
+        $oldStatus = $bill->getStatus();
+
+        if ($oldStatus != FinanceLongRentBill::STATUS_PENDING) {
+            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILL_STATUS_NOT_CORRECT_MESSAGE);
+        }
+
+        $billJson = $this->container->get('serializer')->serialize($bill, 'json');
+        $patch = new Patch($billJson, $request->getContent());
+        $billJson = $patch->apply();
+        $form = $this->createForm(new FinanceBillPatchType(), $bill);
+        $form->submit(json_decode($billJson, true));
+
+        if ($bill->getStatus() != FinanceLongRentBill::STATUS_CANCELLED) {
+            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILLS_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE);
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($bill);
+        $em->flush();
+
+        return new View();
     }
 
     /**
