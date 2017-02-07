@@ -960,7 +960,9 @@ class AdminLeaseController extends SalesRestController
                     $payload['status'] == Lease::LEASE_STATUS_RECONFIRMING
                 ) {
                     $base = $lease->getBuilding()->getServer();
-                    $roomDoors = $lease->getRoom()->getDoorControl();
+                    $roomDoors = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:Room\RoomDoors')
+                        ->findBy(['room' => $lease->getRoom()]);
 
                     if (!is_null($base) && !empty($base) && !empty($roomDoors)) {
                         $this->setAccessActionToDelete($lease->getAccessNo());
@@ -1427,7 +1429,9 @@ class AdminLeaseController extends SalesRestController
         $base
     ) {
         $em = $this->getDoctrine()->getManager();
-        $roomDoors = $lease->getRoom()->getDoorControl();
+        $roomDoors = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomDoors')
+            ->findBy(['room' => $lease->getRoom()]);
 
         if (is_null($base) || empty($base) || empty($roomDoors)) {
             return;
