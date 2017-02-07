@@ -64,6 +64,32 @@ class FinanceLongRentBill
     private $modificationDate;
 
     /**
+     * @var array
+     *
+     */
+    private $attachments;
+
+    /**
+     * @ORM\OneToMany(
+     *      targetEntity="Sandbox\ApiBundle\Entity\Finance\FinanceBillAttachment",
+     *      mappedBy="bill"
+     * )
+     * @ORM\JoinColumn(name="id", referencedColumnName="bill_id")
+     *
+     */
+    private $billAttachment;
+
+    /**
+     * @ORM\OneToMany(
+     *      targetEntity="Sandbox\ApiBundle\Entity\Finance\FinanceBillInvoiceInfo",
+     *      mappedBy="bill"
+     * )
+     * @ORM\JoinColumn(name="id", referencedColumnName="bill_id")
+     *
+     */
+    private $billInvoice;
+
+    /**
      * @return int
      */
     public function getId()
@@ -149,5 +175,53 @@ class FinanceLongRentBill
     public function setModificationDate($modificationDate)
     {
         $this->modificationDate = $modificationDate;
+    }
+
+    /**
+     * @return array
+     */
+    public function getAttachments()
+    {
+        return $this->attachments;
+    }
+
+    /**
+     * @param array $attachments
+     */
+    public function setAttachments($attachments)
+    {
+        $this->attachments = $attachments;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBillAttachment()
+    {
+        return $this->billAttachment;
+    }
+
+    /**
+     * @param mixed $billAttachment
+     */
+    public function setBillAttachment($billAttachment)
+    {
+        $this->billAttachment = $billAttachment;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBillInvoice()
+    {
+        return $this->billInvoice;
+    }
+
+    /**
+     * @param mixed $billInvoice
+     */
+    public function setBillInvoice($billInvoice)
+    {
+        $this->billInvoice = $billInvoice;
     }
 }

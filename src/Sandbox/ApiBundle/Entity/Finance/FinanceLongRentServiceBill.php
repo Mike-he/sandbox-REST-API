@@ -74,6 +74,14 @@ class FinanceLongRentServiceBill
     private $companyId;
 
     /**
+     * @var float
+     *
+     * @ORM\Column(name="service_fee", type="float", precision=6, scale=3)
+     * @Serializer\Groups({"main"})
+     */
+    private $serviceFee;
+
+    /**
      * @var \DateTime
      *
      * @Gedmo\Timestampable(on="create")
@@ -179,6 +187,22 @@ class FinanceLongRentServiceBill
     public function setCompanyId($companyId)
     {
         $this->companyId = $companyId;
+    }
+
+    /**
+     * @return float
+     */
+    public function getServiceFee()
+    {
+        return $this->serviceFee;
+    }
+
+    /**
+     * @param float $serviceFee
+     */
+    public function setServiceFee($serviceFee)
+    {
+        $this->serviceFee = $serviceFee;
     }
 
     /**

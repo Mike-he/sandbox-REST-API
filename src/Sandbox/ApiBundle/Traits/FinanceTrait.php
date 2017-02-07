@@ -32,7 +32,7 @@ trait FinanceTrait
         $serialNumber = FinanceLongRentServiceBill::SERVICE_FEE_LETTER_HEAD.$date;
         $companyId = $bill->getLease()->getProduct()->getRoom()->getBuilding()->getCompany()->getId();
 
-        $amount = $this->calculateAmount($bill, $companyId);
+        $fee = $this->getCompanyServiceFee($companyId);
 
         $serviceFee = $em->getRepository('SandboxApiBundle:Finance\FinanceLongRentServiceBill')
             ->findOneBy(
@@ -43,8 +43,11 @@ trait FinanceTrait
             );
 
         if (!$serviceFee) {
+            $amount = ($bill->getRevisedAmount() * $serviceFee) / 100;
+
             $serviceFee = new FinanceLongRentServiceBill();
             $serviceFee->setSerialNumber($serialNumber);
+            $serviceFee->setServiceFee($fee);
             $serviceFee->setAmount($amount);
             $serviceFee->setType($type);
             $serviceFee->setCompanyId($companyId);
@@ -56,13 +59,11 @@ trait FinanceTrait
     }
 
     /**
-     * @param $bill
      * @param $companyId
      *
      * @return mixed
      */
-    private function calculateAmount(
-        $bill,
+    private function getCompanyServiceFee(
         $companyId
     ) {
         $serviceInfo = $this->getContainer()->get('doctrine')
@@ -72,10 +73,8 @@ trait FinanceTrait
                 Room::TYPE_LONG_TERM
             );
 
-        $serviceFee = $serviceInfo->getServiceFee() / 100;
+        $serviceFee = $serviceInfo->getServiceFee();
 
-        $amount = $bill->getRevisedAmount() * $serviceFee;
-
-        return $amount;
+        return $serviceFee;
     }
 }
