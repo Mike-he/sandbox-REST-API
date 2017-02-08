@@ -34,7 +34,7 @@ trait FinanceTrait
 
         $fee = $this->getCompanyServiceFee($companyId);
 
-        $serviceFee = $em->getRepository('SandboxApiBundle:Finance\FinanceLongRentServiceBill')
+        $serviceBill = $em->getRepository('SandboxApiBundle:Finance\FinanceLongRentServiceBill')
             ->findOneBy(
                 array(
                     'bill' => $bill,
@@ -42,18 +42,18 @@ trait FinanceTrait
                 )
             );
 
-        if (!$serviceFee) {
-            $amount = ($bill->getRevisedAmount() * $serviceFee) / 100;
+        if (!$serviceBill) {
+            $amount = ($bill->getRevisedAmount() * $fee) / 100;
 
-            $serviceFee = new FinanceLongRentServiceBill();
-            $serviceFee->setSerialNumber($serialNumber);
-            $serviceFee->setServiceFee($fee);
-            $serviceFee->setAmount($amount);
-            $serviceFee->setType($type);
-            $serviceFee->setCompanyId($companyId);
-            $serviceFee->setBill($bill);
+            $serviceBill = new FinanceLongRentServiceBill();
+            $serviceBill->setSerialNumber($serialNumber);
+            $serviceBill->setServiceFee($fee);
+            $serviceBill->setAmount($amount);
+            $serviceBill->setType($type);
+            $serviceBill->setCompanyId($companyId);
+            $serviceBill->setBill($bill);
 
-            $em->persist($serviceFee);
+            $em->persist($serviceBill);
             $em->flush();
         }
     }
