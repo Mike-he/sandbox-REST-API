@@ -9,3 +9,15 @@ sandbox_sales_admin_finance_long_rent_bill:
     resource: "@SandboxSalesApiBundle/Controller/Finance/AdminFinanceLongRentBillController.php"
     type:     annotation
     prefix:   /
+
+# Admin Finance Short Rent /sales/admin/finance/short/rent/invoice
+sandbox_sales_admin_finance_short_rent_invoice:
+    resource: "@SandboxSalesApiBundle/Controller/Finance/AdminFinanceShortRentInvoiceController.php"
+    type:     annotation
+    prefix:   /
+
+# Admin Finance Official Invoice Profile /sales/admin/finance/official/invoice/profile
+sandbox_sales_admin_finance_official_invoice_profile:
+    resource: "@SandboxSalesApiBundle/Controller/Finance/AdminFinanceOfficialInvoiceProfileController.php"
+    type:     annotation
+    prefix:   /

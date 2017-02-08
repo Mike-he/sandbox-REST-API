@@ -78,7 +78,6 @@ class FinanceLongRentBill
 
     /**
      * @var array
-     *
      */
     private $attachments;
 
@@ -88,7 +87,6 @@ class FinanceLongRentBill
      *      mappedBy="bill"
      * )
      * @ORM\JoinColumn(name="id", referencedColumnName="bill_id")
-     *
      */
     private $billAttachment;
 
@@ -98,7 +96,6 @@ class FinanceLongRentBill
      *      mappedBy="bill"
      * )
      * @ORM\JoinColumn(name="id", referencedColumnName="bill_id")
-     *
      */
     private $billInvoice;
 
