@@ -7,9 +7,11 @@ use Rs\Json\Patch;
 use Sandbox\ApiBundle\Controller\Lease\LeaseController;
 use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentServiceBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBillOfflineTransfer;
 use Sandbox\ApiBundle\Form\Lease\LeaseBillOfflineTransferPatch;
+use Sandbox\ApiBundle\Traits\FinanceTrait;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -22,140 +24,7 @@ class AdminLeaseBillController extends LeaseController
     const WRONG_BILL_STATUS_CODE = 400015;
     const WRONG_BILL_STATUS_MESSAGE = 'Wrong Bill Status';
 
-    /**
-     * Get offline Bills lists.
-     *
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
-     *
-     * @Annotations\QueryParam(
-     *    name="pageLimit",
-     *    array=false,
-     *    default="20",
-     *    nullable=true,
-     *    requirements="\d+",
-     *    strict=true,
-     *    description="How many products to return"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="pageIndex",
-     *    array=false,
-     *    default="1",
-     *    nullable=true,
-     *    requirements="\d+",
-     *    strict=true,
-     *    description="page number"
-     * )
-     *
-     *  @Annotations\QueryParam(
-     *    name="status",
-     *    default=null,
-     *    nullable=true,
-     *    description="status"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="keyword",
-     *    default=null,
-     *    nullable=true,
-     *    description="search query"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="keyword_search",
-     *    default=null,
-     *    nullable=true,
-     *    description="search query"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="send_start",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
-     *    strict=true,
-     *    description="send start date. Must be YYYY-mm-dd"
-     * )
-     *
-     *  @Annotations\QueryParam(
-     *    name="send_end",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
-     *    strict=true,
-     *    description="send end date. Must be YYYY-mm-dd"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="amount_start",
-     *    default=null,
-     *    nullable=true,
-     *    description="amount start query"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="amount_end",
-     *    default=null,
-     *    nullable=true,
-     *    description="amount end query"
-     * )
-     *
-     * @Route("/leases/bills/finance")
-     * @Method({"GET"})
-     *
-     * @return View
-     *
-     * @throws \Exception
-     */
-    public function getBillsListsAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher
-    ) {
-        // check user permission
-
-        $pageLimit = $paramFetcher->get('pageLimit');
-        $pageIndex = $paramFetcher->get('pageIndex');
-        $status = $paramFetcher->get('status');
-        $keyword = $paramFetcher->get('keyword');
-        $keywordSearch = $paramFetcher->get('keyword_search');
-        $sendStart = $paramFetcher->get('send_start');
-        $sendEnd = $paramFetcher->get('send_end');
-        $amountStart = $paramFetcher->get('amount_start');
-        $amountEnd = $paramFetcher->get('amount_end');
-
-        $bills = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
-            ->findBillsByCompany(
-                null,
-                LeaseBill::CHANNEL_OFFLINE,
-                $status,
-                $keyword,
-                $keywordSearch,
-                $sendStart,
-                $sendEnd,
-                $amountStart,
-                $amountEnd
-            );
-
-        $bills = $this->get('serializer')->serialize(
-            $bills,
-            'json',
-            SerializationContext::create()->setGroups(['lease_bill'])
-        );
-        $bills = json_decode($bills, true);
-
-        $paginator = new Paginator();
-        $pagination = $paginator->paginate(
-            $bills,
-            $pageIndex,
-            $pageLimit
-        );
-
-        return new View($pagination);
-    }
+    use FinanceTrait;
 
     /**
      * Get Lease Bills.
@@ -339,6 +208,11 @@ class AdminLeaseBillController extends LeaseController
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();
+
+        $this->generateLongRentServiceFee(
+            $bill,
+            FinanceLongRentServiceBill::TYPE_BILL_SERVICE_FEE
+        );
 
         return new View();
     }

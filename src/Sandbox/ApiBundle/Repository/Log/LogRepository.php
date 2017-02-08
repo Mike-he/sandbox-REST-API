@@ -129,4 +129,35 @@ class LogRepository extends EntityRepository
 
         return $query->getQuery()->getOneOrNullResult();
     }
+
+    /**
+     * @param $logId
+     * @param $module
+     * @param $objectKey
+     * @param $objectId
+     *
+     * @return mixed
+     *
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function getPreviousLog(
+        $logId,
+        $module,
+        $objectKey,
+        $objectId
+    ) {
+        $query = $this->createQueryBuilder('l')
+            ->where('l.logModule = :logModule')
+            ->andWhere('l.id < :logId')
+            ->andWhere('l.logObjectKey = :key')
+            ->andWhere('l.logObjectId = :objectId')
+            ->setParameter('logId', $logId)
+            ->setParameter('key', $objectKey)
+            ->setParameter('objectId', $objectId)
+            ->setParameter('logModule', $module)
+            ->setMaxResults(1)
+            ->orderBy('l.id', 'DESC');
+
+        return $query->getQuery()->getOneOrNullResult();
+    }
 }

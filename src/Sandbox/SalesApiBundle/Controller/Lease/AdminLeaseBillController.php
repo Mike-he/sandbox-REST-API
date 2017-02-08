@@ -30,6 +30,7 @@ class AdminLeaseBillController extends SalesRestController
 {
     use GenerateSerialNumberTrait;
     use SendNotification;
+    use FinanceTrait;
 
     /**
      * Get Sale offline Bills lists.

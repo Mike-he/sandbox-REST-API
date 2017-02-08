@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Entity\SalesAdmin;
 
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * SalesCompanyProfileExpress.
@@ -41,6 +42,8 @@ class SalesCompanyProfileExpress
      * @var string
      *
      * @ORM\Column(name="recipient", type="string", length=255)
+     *
+     * @Serializer\Groups({"finance"})
      */
     private $recipient;
 
@@ -48,6 +51,8 @@ class SalesCompanyProfileExpress
      * @var string
      *
      * @ORM\Column(name="phone", type="string", length=255)
+     *
+     * @Serializer\Groups({"finance"})
      */
     private $phone;
 
@@ -55,6 +60,8 @@ class SalesCompanyProfileExpress
      * @var string
      *
      * @ORM\Column(name="address", type="string", length=255)
+     *
+     * @Serializer\Groups({"finance"})
      */
     private $address;
 
@@ -62,6 +69,8 @@ class SalesCompanyProfileExpress
      * @var string
      *
      * @ORM\Column(name="zip_code", type="string", length=255)
+     *
+     * @Serializer\Groups({"finance"})
      */
     private $zipCode;
 

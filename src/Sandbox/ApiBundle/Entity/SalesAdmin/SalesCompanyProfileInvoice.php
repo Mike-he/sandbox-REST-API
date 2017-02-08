@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Entity\SalesAdmin;
 
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * SalesCompanyProfileInvoice.
@@ -41,6 +42,8 @@ class SalesCompanyProfileInvoice
      * @var string
      *
      * @ORM\Column(name="title", type="string", length=255)
+     *
+     * @Serializer\Groups({"finance"})
      */
     private $title;
 
@@ -48,6 +51,8 @@ class SalesCompanyProfileInvoice
      * @var string
      *
      * @ORM\Column(name="category", type="string", length=255)
+     *
+     * @Serializer\Groups({"finance"})
      */
     private $category;
 
@@ -55,6 +60,8 @@ class SalesCompanyProfileInvoice
      * @var string
      *
      * @ORM\Column(name="taxpayer_id", type="string", length=255)
+     *
+     * @Serializer\Groups({"finance"})
      */
     private $taxpayerId;
 
@@ -62,6 +69,8 @@ class SalesCompanyProfileInvoice
      * @var string
      *
      * @ORM\Column(name="address", type="string", length=255)
+     *
+     * @Serializer\Groups({"finance"})
      */
     private $address;
 
@@ -69,6 +78,8 @@ class SalesCompanyProfileInvoice
      * @var string
      *
      * @ORM\Column(name="phone", type="string", length=255)
+     *
+     * @Serializer\Groups({"finance"})
      */
     private $phone;
 
@@ -76,6 +87,8 @@ class SalesCompanyProfileInvoice
      * @var string
      *
      * @ORM\Column(name="bank_account_name", type="string", length=255)
+     *
+     * @Serializer\Groups({"finance"})
      */
     private $bankAccountName;
 
@@ -83,6 +96,8 @@ class SalesCompanyProfileInvoice
      * @var string
      *
      * @ORM\Column(name="bank_account_number", type="string", length=255)
+     *
+     * @Serializer\Groups({"finance"})
      */
     private $bankAccountNumber;
 
