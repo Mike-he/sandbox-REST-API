@@ -6,6 +6,7 @@ use Knp\Component\Pager\Paginator;
 use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
 use Sandbox\ApiBundle\Constants\LeaseConstants;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentServiceBill;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Room\RoomTypes;
@@ -537,6 +538,11 @@ class AdminLeaseBillController extends SalesRestController
         $em = $this->getDoctrine()->getManager();
         $em->persist($bill);
         $em->flush();
+
+        $this->generateLongRentServiceFee(
+            $bill,
+            FinanceLongRentServiceBill::TYPE_BILL_SERVICE_FEE
+        );
 
         // add invoice balance
         if (!$bill->isSalesInvoice()) {
