@@ -470,7 +470,7 @@ class ClientOrderController extends OrderController
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
-     * @GET("/orders/my/sales/invoice/selected")
+     * @GET("/bills/my/sales/invoice/selected")
      *
      * @Annotations\QueryParam(
      *    name="id",
