@@ -11,8 +11,8 @@ class FinanceLongRentBillRepository extends EntityRepository
      * @param $status
      * @param $createStart
      * @param $createEnd
-     * @param $amountStart
-     * @param $amountEnd
+     * @param null $amountStart
+     * @param null $amountEnd
      *
      * @return array
      */
@@ -21,12 +21,16 @@ class FinanceLongRentBillRepository extends EntityRepository
         $status,
         $createStart,
         $createEnd,
-        $amountStart,
-        $amountEnd
+        $amountStart = null,
+        $amountEnd = null
     ) {
         $query = $this->createQueryBuilder('b')
-            ->where('b.companyId = :company')
-            ->setParameter('company', $company);
+            ->where('1=1');
+
+        if (!is_null($company)){
+            $query->andWhere('b.companyId = :company')
+                ->setParameter('company', $company);
+        }
 
         if (!is_null($status)) {
             $query->andWhere('b.status = :status')

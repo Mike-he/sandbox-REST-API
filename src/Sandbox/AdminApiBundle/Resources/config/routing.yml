@@ -261,12 +261,6 @@ sandbox_admin_api_topup_orders:
     type:     annotation
     prefix:   /
 
-# Finance /admin/finance/export
-sandbox_admin_api_finance_export:
-    resource: "@SandboxAdminApiBundle/Controller/Finance/AdminFinanceController.php"
-    type:     annotation
-    prefix:   /
-
 # Space /admin/space
 sandbox_admin_api_space:
     resource: "@SandboxAdminApiBundle/Controller/Space/AdminCommunityController.php"
@@ -291,14 +285,8 @@ sandbox_admin_api_location:
     type:     annotation
     prefix:   /
 
-# Finance /admin/finance/offline
-sandbox_admin_api_finance_offline:
-    resource: "@SandboxAdminApiBundle/Controller/Finance/AdminFinanceOfflineController.php"
-    type:     annotation
-    prefix:   /
-
-# Finance /admin/finance/withdrawals
-sandbox_admin_api_finance_withdrawals:
-    resource: "@SandboxAdminApiBundle/Controller/Finance/AdminFinanceWithdrawalController.php"
-    type:     annotation
-    prefix:   /
+# Admin Finance
+sandbox_sales_admin_finance_api:
+    resource: "@SandboxAdminApiBundle/Resources/config/finance/routing.yml"
+    type: rest
+    prefix: /

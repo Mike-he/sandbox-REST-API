@@ -1,0 +1,22 @@
+# Finance /admin/finance/export
+sandbox_admin_api_finance_export:
+    resource: "@SandboxAdminApiBundle/Controller/Finance/AdminFinanceController.php"
+    type:     annotation
+    prefix:   /
+# Finance /admin/finance/withdrawals
+sandbox_admin_api_finance_withdrawals:
+    resource: "@SandboxAdminApiBundle/Controller/Finance/AdminFinanceWithdrawalController.php"
+    type:     annotation
+    prefix:   /
+
+# Finance /admin/finance/offline
+sandbox_admin_api_finance_offline:
+    resource: "@SandboxAdminApiBundle/Controller/Finance/AdminFinanceOfflineController.php"
+    type:     annotation
+    prefix:   /
+
+# Finance /admin/finance/long/rent/bills
+sandbox_sales_admin_finance_long_rent_bill:
+    resource: "@SandboxAdminApiBundle/Controller/Finance/AdminFinanceLongRentBillController.php"
+    type:     annotation
+    prefix:   /

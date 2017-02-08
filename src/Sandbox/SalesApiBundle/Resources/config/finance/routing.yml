@@ -1,10 +1,22 @@
-# Admin Finance Long Rent Service Bill /sales/admin/finance/long/rent/service/bill
+# Admin Finance Account
+sandbox_sales_admin_finance_account:
+    resource: "@SandboxSalesApiBundle/Controller/Finance/AdminFinanceProfilesController.php"
+    type:     annotation
+    prefix:   /
+
+# Admin Withdraws /sales/admin/finance/withdrawals
+sandbox_sales_admin_finance_withdrawals:
+    resource: "@SandboxSalesApiBundle/Controller/Finance/AdminFinanceWithdrawalController.php"
+    type:     annotation
+    prefix:   /
+
+# Admin Finance Long Rent Service Bill /sales/admin/finance/long/rent/service/bills
 sandbox_sales_admin_finance_long_rent_service_bill:
     resource: "@SandboxSalesApiBundle/Controller/Finance/AdminFinanceLongRentServiceBillController.php"
     type:     annotation
     prefix:   /
 
-# Admin Finance Long Rent Bill /sales/admin/finance/long/rent/bill
+# Admin Finance Long Rent Bill /sales/admin/finance/long/rent/bills
 sandbox_sales_admin_finance_long_rent_bill:
     resource: "@SandboxSalesApiBundle/Controller/Finance/AdminFinanceLongRentBillController.php"
     type:     annotation
