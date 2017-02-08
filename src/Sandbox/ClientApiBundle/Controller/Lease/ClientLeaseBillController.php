@@ -524,6 +524,7 @@ class ClientLeaseBillController extends PaymentController
                         'type' => $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$room->getType()),
                         'address' => $building->getCity()->getName().$building->getAddress(),
                         'collection_method' => $collectionMethod,
+                        'company' => $building->getCompanyId(),
                     ),
             'drawee' => $drawee,
             'attachment' => $attachment,

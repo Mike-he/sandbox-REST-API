@@ -285,4 +285,26 @@ class LeaseBillRepository extends EntityRepository
 
         return $result;
     }
+
+    /**
+     * @param $userId
+     * @param $ids
+     *
+     * @return array
+     */
+    public function getLeaseBillsByIds(
+        $userId,
+        $ids
+    ) {
+        $query = $this->createQueryBuilder('b')
+            ->where('b.drawee = :userId')
+            ->setParameter('userId', $userId);
+
+        if (!is_null($ids) && !empty($ids)) {
+            $query->andWhere('b.id IN (:ids)')
+                ->setParameter('ids', $ids);
+        }
+
+        return $query->getQuery()->getResult();
+    }
 }

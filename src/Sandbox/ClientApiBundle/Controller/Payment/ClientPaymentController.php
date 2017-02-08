@@ -220,9 +220,11 @@ class ClientPaymentController extends PaymentController
                     $channel
                 );
 
-                $this->generateLongRentServiceFee(
-                    $bill,
-                    FinanceLongRentServiceBill::TYPE_BILL_SERVICE_FEE
+                // add invoice amount
+                $this->postConsumeBalance(
+                    $userId,
+                    $price,
+                    $orderNumber
                 );
 
                 $orderMap = LeaseBill::BILL_MAP;
