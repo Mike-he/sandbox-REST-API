@@ -314,17 +314,40 @@ class AdminFinanceLongRentBillController extends SalesRestController
         $invoiceInfo = new FinanceBillInvoiceInfo();
         $invoiceInfo->setBill($bill);
         if ($companyInvoice) {
-            $invoiceInfo->setTitle($companyInvoice->getTitle());
-            $invoiceInfo->setCategory($companyInvoice->getCategory());
+            $invoice = $this->transferToJsonWithViewGroup(
+                $companyInvoice,
+                'finance'
+            );
+            $invoiceInfo->setInvoiceJson($invoice);
         }
 
         if ($companyExpress) {
-            $invoiceInfo->setAddress($companyExpress->getAddress());
-            $invoiceInfo->setPhone($companyExpress->getPhone());
-            $invoiceInfo->setRecipient($companyExpress->getRecipient());
-            $invoiceInfo->setZipCode($companyExpress->getZipCode());
+            $express = $this->transferToJsonWithViewGroup(
+                $companyExpress,
+                'finance'
+            );
+            $invoiceInfo->setExpressJson($express);
         }
 
         $em->persist($invoiceInfo);
+    }
+
+    /**
+     * @param $input
+     * @param $group
+     *
+     * @return mixed
+     */
+    private function transferToJsonWithViewGroup(
+        $input,
+        $group
+    ) {
+        return $this->getContainer()
+            ->get('serializer')
+            ->serialize(
+                $input,
+                'json',
+                SerializationContext::create()->setGroups([$group])
+            );
     }
 }

@@ -39,54 +39,16 @@ class FinanceBillInvoiceInfo
     /**
      * @var string
      *
-     * @ORM\Column(name="title", type="string", length=255)
-     *
-     * @Serializer\Groups({"main"})
+     * @ORM\Column(name="invoice_json", type="text")
      */
-    private $title;
+    private $invoiceJson;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="category", type="string", length=255)
+     * @ORM\Column(name="express_json", type="text")
      */
-    private $category;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="recipient", type="string", length=255)
-     *
-     * @Serializer\Groups({"main"})
-     */
-    private $recipient;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="phone", type="string", length=255)
-     *
-     * @Serializer\Groups({"main"})
-     */
-    private $phone;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="address", type="string", length=255)
-     *
-     * @Serializer\Groups({"main"})
-     */
-    private $address;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="zip_code", type="string", length=255)
-     *
-     * @Serializer\Groups({"main"})
-     */
-    private $zipCode;
+    private $expressJson;
 
     /**
      * Get id.
@@ -117,96 +79,32 @@ class FinanceBillInvoiceInfo
     /**
      * @return string
      */
-    public function getTitle()
+    public function getInvoiceJson()
     {
-        return $this->title;
+        return $this->invoiceJson;
     }
 
     /**
-     * @param string $title
+     * @param string $invoiceJson
      */
-    public function setTitle($title)
+    public function setInvoiceJson($invoiceJson)
     {
-        $this->title = $title;
-    }
-
-    /**
-     * @return string
-     */
-    public function getCategory()
-    {
-        return $this->category;
-    }
-
-    /**
-     * @param string $category
-     */
-    public function setCategory($category)
-    {
-        $this->category = $category;
+        $this->invoiceJson = $invoiceJson;
     }
 
     /**
      * @return string
      */
-    public function getRecipient()
+    public function getExpressJson()
     {
-        return $this->recipient;
+        return $this->expressJson;
     }
 
     /**
-     * @param string $recipient
+     * @param string $expressJson
      */
-    public function setRecipient($recipient)
+    public function setExpressJson($expressJson)
     {
-        $this->recipient = $recipient;
-    }
-
-    /**
-     * @return string
-     */
-    public function getPhone()
-    {
-        return $this->phone;
-    }
-
-    /**
-     * @param string $phone
-     */
-    public function setPhone($phone)
-    {
-        $this->phone = $phone;
-    }
-
-    /**
-     * @return string
-     */
-    public function getAddress()
-    {
-        return $this->address;
-    }
-
-    /**
-     * @param string $address
-     */
-    public function setAddress($address)
-    {
-        $this->address = $address;
-    }
-
-    /**
-     * @return string
-     */
-    public function getZipCode()
-    {
-        return $this->zipCode;
-    }
-
-    /**
-     * @param string $zipCode
-     */
-    public function setZipCode($zipCode)
-    {
-        $this->zipCode = $zipCode;
+        $this->expressJson = $expressJson;
     }
 }
