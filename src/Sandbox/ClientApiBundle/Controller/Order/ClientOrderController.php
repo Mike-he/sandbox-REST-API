@@ -4,6 +4,7 @@ namespace Sandbox\ClientApiBundle\Controller\Order;
 
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Controller\Order\OrderController;
+use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
 use Sandbox\ApiBundle\Entity\Order\TransferAttachment;
 use Sandbox\ApiBundle\Form\Order\OrderOfflineTransferPost;
@@ -308,11 +309,113 @@ class ClientOrderController extends OrderController
                 $offset
             );
 
-        $view = new View();
-        $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
-        $view->setData($tradeNumbers);
+        $response = array();
+        foreach ($tradeNumbers as $number) {
+            switch (substr($number, 0, 1)) {
+                case ProductOrder::LETTER_HEAD:
+                    $responseArray = $this->getProductOrderResponse($number);
+                    break;
+                case LeaseBill::LEASE_BILL_LETTER_HEAD:
+                    $responseArray = $this->getLeaseBillResponse($number);
+                    break;
+                default:
+                    break;
+            }
+
+            array_push($response, $responseArray);
+        }
+
+        $view = new View($response);
 
         return $view;
+    }
+
+    /**
+     * @param $number
+     *
+     * @return array
+     */
+    private function getProductOrderResponse(
+        $number
+    ) {
+        $order = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->findOneBy(array(
+                'orderNumber' => $number,
+            ));
+
+        return array(
+            'trade_type' => 'product_order',
+            'trade_number' => $number,
+            'room_name' => $order->getProduct()->getRoom()->getName(),
+            'payment_date' => $order->getPaymentDate(),
+            'category' => $this->getOrderInvoiceCategory($order),
+        );
+    }
+
+    /**
+     * @param $number
+     *
+     * @return array
+     */
+    private function getLeaseBillResponse(
+        $number
+    ) {
+        $bill = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->findOneBy(array(
+                'serialNumber' => $number,
+            ));
+
+        return array(
+            'trade_type' => 'lease_bill',
+            'trade_number' => $number,
+            'room_name' => $bill->getLease()->getProduct()->getRoom()->getName(),
+            'payment_date' => $bill->getPaymentDate(),
+            'category' => $this->getBillInvoiceCategory($bill),
+        );
+    }
+
+    /**
+     * @param ProductOrder $order
+     *
+     * @return mixed
+     */
+    private function getOrderInvoiceCategory(
+        $order
+    ) {
+        $roomType = $order->getProduct()->getRoom()->getType();
+        $salesCompany = $order->getProduct()->getRoom()->getBuilding()->getCompany();
+
+        $info = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
+            ->findOneBy(array(
+                'company' => $salesCompany,
+                'roomTypes' => $roomType,
+            ));
+
+        return $info->getInvoicingSubjects();
+    }
+
+    /**
+     * @param LeaseBill $bill
+     *
+     * @return mixed
+     */
+    private function getBillInvoiceCategory(
+        $bill
+    ) {
+        $roomType = $bill->getLease()->getProduct()->getRoom()->getType();
+        $salesCompany = $bill->getLease()->getProduct()->getRoom()->getBuilding()->getCompany();
+
+        $info = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
+            ->findOneBy(array(
+                'company' => $salesCompany,
+                'roomTypes' => $roomType,
+            ));
+
+        return $info->getInvoicingSubjects();
     }
 
     /**
@@ -348,9 +451,63 @@ class ClientOrderController extends OrderController
                 $ids
             );
 
-        $view = new View();
-        $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
-        $view->setData($orders);
+        $response = array();
+        foreach ($orders as $order) {
+            array_push($response, array(
+                'trade_number' => $order->getOrderNumber(),
+                'room_name' => $order->getProduct()->getRoom()->getName(),
+                'payment_date' => $order->getPaymentDate(),
+                'category' => $this->getOrderInvoiceCategory($order),
+            ));
+        }
+
+        $view = new View($response);
+
+        return $view;
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @GET("/orders/my/sales/invoice/selected")
+     *
+     * @Annotations\QueryParam(
+     *    name="id",
+     *    array=true,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="ids of bills"
+     * )
+     *
+     * @return View
+     */
+    public function getUserSalesInvoiceBillsByIdsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $userId = $this->getUserId();
+        $ids = $paramFetcher->get('id');
+
+        $bills = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->getLeaseBillsByIds(
+                $userId,
+                $ids
+            );
+
+        $response = array();
+        foreach ($bills as $bill) {
+            array_push($response, array(
+                'trade_number' => $bill->getSerialNumber(),
+                'room_name' => $bill->getLease()->getProduct()->getRoom()->getName(),
+                'payment_date' => $bill->getPaymentDate(),
+                'category' => $this->getBillInvoiceCategory($bill),
+            ));
+        }
+
+        $view = new View($response);
 
         return $view;
     }
