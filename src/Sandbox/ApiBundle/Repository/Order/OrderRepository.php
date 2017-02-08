@@ -2557,7 +2557,7 @@ class OrderRepository extends EntityRepository
         $endDate
     ) {
         $query = $this->createQueryBuilder('o')
-            ->select('COUNT(o.actualRefundAmount)')
+            ->select('SUM(o.actualRefundAmount)')
             ->where('o.refunded = TRUE')
             ->andWhere('o.refundTo = :account')
             ->andWhere('o.refundProcessedDate > :startDate')
