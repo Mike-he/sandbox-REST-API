@@ -779,6 +779,9 @@ class AdminOrderController extends OrderController
         $pageIndex = $paramFetcher->get('pageIndex');
         $roomId = $paramFetcher->get('room');
 
+        $limit = $pageLimit;
+        $offset = ($pageIndex - 1) * $pageLimit;
+
         //get my buildings list
         $myBuildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
@@ -787,9 +790,35 @@ class AdminOrderController extends OrderController
             )
         );
 
-        $query = $this->getDoctrine()
+        $orders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->getSalesOrdersForAdmin(
+                $channel,
+                $type,
+                null,
+                null,
+                null,
+                $rentFilter,
+                $startDate,
+                $endDate,
+                $payDate,
+                $payStart,
+                $payEnd,
+                $keyword,
+                $keywordSearch,
+                $myBuildingIds,
+                $createDateRange,
+                $createStart,
+                $createEnd,
+                $status,
+                $roomId,
+                $limit,
+                $offset
+            );
+
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->countSalesOrdersForAdmin(
                 $channel,
                 $type,
                 null,
@@ -811,21 +840,18 @@ class AdminOrderController extends OrderController
                 $roomId
             );
 
-        $query = $this->get('serializer')->serialize(
-            $query,
-            'json',
-            SerializationContext::create()->setGroups(['admin_detail'])
-        );
-        $query = json_decode($query, true);
-
-        $paginator = new Paginator();
-        $pagination = $paginator->paginate(
-            $query,
-            $pageIndex,
-            $pageLimit
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_detail']));
+        $view->setData(
+            array(
+                'current_page_number' => $pageIndex,
+                'num_items_per_page' => (int) $pageLimit,
+                'items' => $orders,
+                'total_count' => (int) $count,
+            )
         );
 
-        return new View($pagination);
+        return $view;
     }
 
     /**
