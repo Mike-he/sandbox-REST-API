@@ -40,21 +40,19 @@ class FinanceLongRentServiceBillRepository extends EntityRepository
         if (!is_null($keyword) && !is_null($keywordSearch)) {
             switch ($keyword) {
                 case 'service':
-                    $query->andWhere('sb.serialNumber = :number')
-                        ->setParameter('number', $keywordSearch);
+                    $query->andWhere('sb.serialNumber LIKE :search');
                     break;
                 case 'bill':
                     $query->leftJoin('sb.bill', 'b')
-                        ->andWhere('b.serialNumber = :number')
-                        ->setParameter('number', $keywordSearch);
+                        ->andWhere('b.serialNumber LIKE :search');
                     break;
                 case 'lease':
                     $query->leftJoin('sb.bill', 'b')
                         ->leftJoin('b.lease', 'l')
-                        ->andWhere('l.serialNumber = :number')
-                        ->setParameter('number', $keywordSearch);
+                        ->andWhere('l.serialNumber LIKE :search');
                     break;
             }
+            $query->setParameter('search', '%'.$keywordSearch.'%');
         }
 
         if (!is_null($createStart)) {
