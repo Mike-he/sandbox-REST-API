@@ -1635,6 +1635,19 @@ class AdminOrderController extends OrderController
                 $order
             );
 
+            // set service fee
+            $companyId = $product->getRoom()->getBuilding()->getCompanyId();
+            $serviceInfo = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
+                ->findOneBy([
+                    'companyId' => $companyId,
+                    'roomTypes' => $type,
+                ]);
+
+            if (!is_null($serviceInfo)) {
+                $order->setServiceFee($serviceInfo->getServiceFee());
+            }
+
             $em->persist($order);
 
             // store order record

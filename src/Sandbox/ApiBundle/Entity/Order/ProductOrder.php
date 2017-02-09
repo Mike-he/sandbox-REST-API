@@ -465,6 +465,29 @@ class ProductOrder
     private $seatId;
 
     /**
+     * @var float
+     *
+     * @ORM\Column(name="service_fee", type="float", precision=6, scale=3, options={"default": 0})
+     */
+    private $serviceFee = 0;
+
+    /**
+     * @return float
+     */
+    public function getServiceFee()
+    {
+        return $this->serviceFee;
+    }
+
+    /**
+     * @param float $serviceFee
+     */
+    public function setServiceFee($serviceFee)
+    {
+        $this->serviceFee = $serviceFee;
+    }
+
+    /**
      * Set seatId.
      *
      * @param int $seatId
