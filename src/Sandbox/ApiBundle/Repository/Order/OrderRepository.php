@@ -2818,4 +2818,36 @@ class OrderRepository extends EntityRepository
 
         return $result;
     }
+
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @param null $companyId
+     *
+     * @return mixed
+     */
+    public function getCompletedOrders(
+        $startDate,
+        $endDate,
+        $companyId = null
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
+            ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'r.buildingId = b.id')
+            ->select('o.discountPrice, o.serviceFee, b.companyId')
+            ->where('o.status = :completed')
+            ->andWhere('o.startDate >= :start')
+            ->andWhere('o.startDate <= :end')
+            ->setParameter('completed', ProductOrder::STATUS_COMPLETED)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        if (!is_null($companyId)) {
+            $query->andWhere('b.company = :companyId')
+                ->setParameter('companyId', $companyId);
+        }
+
+        return  $query->getQuery()->getResult();
+    }
 }

@@ -27,7 +27,7 @@ class FinanceLongRentBillRepository extends EntityRepository
         $query = $this->createQueryBuilder('b')
             ->where('1=1');
 
-        if (!is_null($company)){
+        if (!is_null($company)) {
             $query->andWhere('b.companyId = :company')
                 ->setParameter('company', $company);
         }
