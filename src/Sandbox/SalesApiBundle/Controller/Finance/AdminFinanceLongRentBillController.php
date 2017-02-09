@@ -7,6 +7,7 @@ use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Finance\FinanceBillAttachment;
 use Sandbox\ApiBundle\Entity\Finance\FinanceBillInvoiceInfo;
 use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentBill;
@@ -110,6 +111,7 @@ class AdminFinanceLongRentBillController extends SalesRestController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
+        $this->checkAdminSalesLongTermBillPermission($this->getAdminId(), AdminPermission::OP_LEVEL_VIEW);
 
         $adminPlatform = $this->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
@@ -165,6 +167,9 @@ class AdminFinanceLongRentBillController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // check user permission
+        $this->checkAdminSalesLongTermBillPermission($this->getAdminId(), AdminPermission::OP_LEVEL_EDIT);
+
         $adminPlatform = $this->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
@@ -219,6 +224,9 @@ class AdminFinanceLongRentBillController extends SalesRestController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkAdminSalesLongTermBillPermission($this->getAdminId(), AdminPermission::OP_LEVEL_VIEW);
+
         $bill = $this->getDoctrine()->getRepository('SandboxApiBundle:Finance\FinanceLongRentBill')->find($id);
         $this->throwNotFoundIfNull($bill, self::NOT_FOUND_MESSAGE);
 
@@ -246,6 +254,7 @@ class AdminFinanceLongRentBillController extends SalesRestController
         $id
     ) {
         // check user permission
+        $this->checkAdminSalesLongTermBillPermission($this->getAdminId(), AdminPermission::OP_LEVEL_EDIT);
 
         $bill = $this->getDoctrine()->getRepository('SandboxApiBundle:Finance\FinanceLongRentBill')->find($id);
         $this->throwNotFoundIfNull($bill, self::NOT_FOUND_MESSAGE);
@@ -271,6 +280,41 @@ class AdminFinanceLongRentBillController extends SalesRestController
         $em->flush();
 
         return new View();
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/finance/long/rent/bills/total/fee")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getTotalServiceFeeAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        // check user permission
+        $this->checkAdminSalesLongTermBillPermission($this->getAdminId(), AdminPermission::OP_LEVEL_VIEW);
+
+        $adminPlatform = $this->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
+        $totalFee = 1000;
+
+        $pendingFee = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Finance\FinanceLongRentBill')
+            ->sumBillAmount(
+                $salesCompanyId,
+                FinanceLongRentBill::STATUS_PENDING
+            );
+
+        $serviceFee = $totalFee - $pendingFee;
+
+        return new View(array(
+            'service_fee' => (float) $serviceFee,
+        ));
     }
 
     /**
@@ -349,5 +393,24 @@ class AdminFinanceLongRentBillController extends SalesRestController
                 'json',
                 SerializationContext::create()->setGroups([$group])
             );
+    }
+
+    /**
+     * @param $adminId
+     * @param $level
+     */
+    private function checkAdminSalesLongTermBillPermission(
+        $adminId,
+        $level
+    ) {
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $adminId,
+            array(
+                array(
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_LONG_TERM_SERVICE_BILLS,
+                ),
+            ),
+            $level
+        );
     }
 }

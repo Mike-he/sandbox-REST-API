@@ -64,4 +64,24 @@ class FinanceLongRentBillRepository extends EntityRepository
 
         return $result;
     }
+
+    /**
+     * @param $company
+     * @param $status
+     *
+     * @return mixed
+     */
+    public function sumBillAmount(
+        $company,
+        $status
+    ) {
+        $query = $this->createQueryBuilder('b')
+            ->select('SUM(b.amount)')
+            ->where('b.companyId = :company')
+            ->andWhere('b.status = :status')
+            ->setParameter('company', $company)
+            ->setParameter('status', $status);
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
 }

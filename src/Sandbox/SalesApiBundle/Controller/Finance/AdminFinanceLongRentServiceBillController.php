@@ -5,6 +5,7 @@ namespace Sandbox\SalesApiBundle\Controller\Finance;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -115,6 +116,7 @@ class AdminFinanceLongRentServiceBillController extends SalesRestController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
+        $this->checkAdminSalesLongTermBillPermission($this->getAdminId(), AdminPermission::OP_LEVEL_VIEW);
 
         $adminPlatform = $this->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
@@ -159,5 +161,24 @@ class AdminFinanceLongRentServiceBillController extends SalesRestController
         );
 
         return new View($pagination);
+    }
+
+    /**
+     * @param $adminId
+     * @param $level
+     */
+    private function checkAdminSalesLongTermBillPermission(
+        $adminId,
+        $level
+    ) {
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $adminId,
+            array(
+                array(
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_LONG_TERM_SERVICE_BILLS,
+                ),
+            ),
+            $level
+        );
     }
 }
