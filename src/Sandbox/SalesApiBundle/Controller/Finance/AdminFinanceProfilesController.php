@@ -47,6 +47,10 @@ class AdminFinanceProfilesController extends SalesRestController
                 'salesCompany' => $salesCompany,
             ));
 
+        if (is_null($account)) {
+            return new View();
+        }
+
         return new View(array(
             'id' => $account->getId(),
             'sales_company_name' => $account->getSalesCompanyName(),
@@ -187,6 +191,10 @@ class AdminFinanceProfilesController extends SalesRestController
                 'salesCompany' => $salesCompany,
             ));
 
+        if (is_null($express)) {
+            return new View();
+        }
+
         return new View(array(
             'id' => $express->getId(),
             'recipient' => $express->getRecipient(),
@@ -326,6 +334,10 @@ class AdminFinanceProfilesController extends SalesRestController
             ->findOneBy(array(
                 'salesCompany' => $salesCompany,
             ));
+
+        if (is_null($invoice)) {
+            return new View();
+        }
 
         return new View(array(
             'id' => $invoice->getId(),
