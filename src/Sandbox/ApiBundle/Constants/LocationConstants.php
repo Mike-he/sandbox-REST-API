@@ -36,14 +36,14 @@ class LocationConstants
     const QUERY_BUILDING_SERVICES = 'building_services[]';
 
     // SORT BY KEY
+    const SORT_BY_SMART = 'smart';
     const SORT_BY_DISTANCE = 'distance';
     const SORT_BY_START = 'star';
-    const SORT_BY_DEFAULT_KEY = self::SORT_BY_DISTANCE;
-//    const SORT_BY_SMART = 'smart';
+    const SORT_BY_DEFAULT_KEY = self::SORT_BY_SMART;
 
     public static $plainTextSortKeys = [
+        self::SORT_BY_SMART,
         self::SORT_BY_DISTANCE,
         self::SORT_BY_START,
-//        self::SORT_BY_SMART,
     ];
 }
