@@ -72,6 +72,7 @@ class Log
     const OBJECT_LEASE = 'lease';
     const OBJECT_LEASE_BILL = 'lease_bill';
     const OBJECT_WITHDRAWAL = 'withdrawal';
+    const OBJECT_SHORT_RENT_INVOICE_APPLICATION = 'short_rent_invoice_application';
 
     /**
      * @var int

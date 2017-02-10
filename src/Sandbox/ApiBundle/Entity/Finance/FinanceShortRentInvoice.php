@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Entity\Finance;
 
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * FinanceShortRentInvoice.
@@ -23,6 +24,7 @@ class FinanceShortRentInvoice
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @Serializer\Groups({"main", "sales_admin_detail"})
      */
     private $id;
 
@@ -30,6 +32,7 @@ class FinanceShortRentInvoice
      * @var float
      *
      * @ORM\Column(name="amount", type="float")
+     * @Serializer\Groups({"main", "sales_admin_detail"})
      */
     private $amount;
 
@@ -37,6 +40,7 @@ class FinanceShortRentInvoice
      * @var string
      *
      * @ORM\Column(name="status", type="string", length=16)
+     * @Serializer\Groups({"main", "sales_admin_detail"})
      */
     private $status = self::STATUS_INCOMPLETE;
 
@@ -44,6 +48,7 @@ class FinanceShortRentInvoice
      * @var \DateTime
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="creationDate", type="datetime")
+     * @Serializer\Groups({"main", "sales_admin_detail"})
      */
     private $creationDate;
 
