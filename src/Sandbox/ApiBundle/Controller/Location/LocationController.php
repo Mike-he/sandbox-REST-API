@@ -1193,7 +1193,7 @@ class LocationController extends SalesRestController
                 '展想',
                 '社区',
                 '会议室',
-                '独享办工桌',
+                '独享办公桌',
                 '静安',
                 '杨浦',
                 '办公室',
