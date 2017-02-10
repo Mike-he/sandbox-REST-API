@@ -15,7 +15,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Admin Finance Long Rent Bill Controller.
@@ -155,6 +154,12 @@ class AdminFinanceLongRentBillController extends SandboxRestController
         $bill = $this->getDoctrine()->getRepository('SandboxApiBundle:Finance\FinanceLongRentBill')->find($id);
         $this->throwNotFoundIfNull($bill, self::NOT_FOUND_MESSAGE);
 
+        $billInvoice = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Finance\FinanceBillInvoiceInfo')
+            ->findOneBy(array('bill' => $bill));
+
+        $bill->setBillInvoice($billInvoice);
+
         $view = new View();
         $view->setData($bill);
 
@@ -186,7 +191,11 @@ class AdminFinanceLongRentBillController extends SandboxRestController
         $oldStatus = $bill->getStatus();
 
         if ($oldStatus != FinanceLongRentBill::STATUS_PENDING) {
-            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILL_STATUS_NOT_CORRECT_MESSAGE);
+            return $this->customErrorView(
+                400,
+                CustomErrorMessagesConstants::ERROR_FINANCE_BILL_STATUS_NOT_CORRECT_CODE,
+                CustomErrorMessagesConstants::ERROR_FINANCE_BILL_STATUS_NOT_CORRECT_MESSAGE
+            );
         }
 
         $billJson = $this->container->get('serializer')->serialize($bill, 'json');
@@ -196,7 +205,11 @@ class AdminFinanceLongRentBillController extends SandboxRestController
         $form->submit(json_decode($billJson, true));
 
         if ($bill->getStatus() != FinanceLongRentBill::STATUS_PAID) {
-            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILLS_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE);
+            return $this->customErrorView(
+                400,
+                CustomErrorMessagesConstants::ERROR_FINANCE_BILLS_PAYLOAD_FORMAT_NOT_CORRECT_CODE,
+                CustomErrorMessagesConstants::ERROR_FINANCE_BILLS_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE
+            );
         }
 
         $em = $this->getDoctrine()->getManager();

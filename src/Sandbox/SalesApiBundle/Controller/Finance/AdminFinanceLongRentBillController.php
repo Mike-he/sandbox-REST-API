@@ -183,6 +183,23 @@ class AdminFinanceLongRentBillController extends SalesRestController
         }
 
         //TODO: check long rent service fee limit
+        $totalFee = 1000;
+        $pendingFee = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Finance\FinanceLongRentBill')
+            ->sumBillAmount(
+                $salesCompanyId,
+                FinanceLongRentBill::STATUS_PENDING
+            );
+
+        $amount = $bill->getAmount();
+
+        if (($totalFee - $pendingFee - $amount) < 0) {
+            return $this->customErrorView(
+                400,
+                CustomErrorMessagesConstants::ERROR_FINANCE_BILL_MORE_THAN_TOTAL_SERVICE_FEE_CODE,
+                CustomErrorMessagesConstants::ERROR_FINANCE_BILL_MORE_THAN_TOTAL_SERVICE_FEE_MESSAGE
+            );
+        }
 
         $bill->setCompanyId($salesCompanyId);
 
@@ -232,6 +249,12 @@ class AdminFinanceLongRentBillController extends SalesRestController
         $bill = $this->getDoctrine()->getRepository('SandboxApiBundle:Finance\FinanceLongRentBill')->find($id);
         $this->throwNotFoundIfNull($bill, self::NOT_FOUND_MESSAGE);
 
+        $billInvoice = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Finance\FinanceBillInvoiceInfo')
+            ->findOneBy(array('bill' => $bill));
+
+        $bill->setBillInvoice($billInvoice);
+
         $view = new View();
         $view->setData($bill);
 
@@ -264,7 +287,11 @@ class AdminFinanceLongRentBillController extends SalesRestController
         $oldStatus = $bill->getStatus();
 
         if ($oldStatus != FinanceLongRentBill::STATUS_PENDING) {
-            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILL_STATUS_NOT_CORRECT_MESSAGE);
+            return $this->customErrorView(
+                400,
+                CustomErrorMessagesConstants::ERROR_FINANCE_BILL_STATUS_NOT_CORRECT_CODE,
+                CustomErrorMessagesConstants::ERROR_FINANCE_BILL_STATUS_NOT_CORRECT_MESSAGE
+            );
         }
 
         $billJson = $this->container->get('serializer')->serialize($bill, 'json');
@@ -274,7 +301,11 @@ class AdminFinanceLongRentBillController extends SalesRestController
         $form->submit(json_decode($billJson, true));
 
         if ($bill->getStatus() != FinanceLongRentBill::STATUS_CANCELLED) {
-            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILLS_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE);
+            return $this->customErrorView(
+                400,
+                CustomErrorMessagesConstants::ERROR_FINANCE_BILLS_PAYLOAD_FORMAT_NOT_CORRECT_CODE,
+                CustomErrorMessagesConstants::ERROR_FINANCE_BILLS_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE
+            );
         }
 
         $em = $this->getDoctrine()->getManager();
@@ -345,6 +376,8 @@ class AdminFinanceLongRentBillController extends SalesRestController
     /**
      * @param $bill
      * @param $salesCompanyId
+     *
+     * @return View
      */
     private function addInvoiceInfo(
         $bill,
@@ -358,23 +391,35 @@ class AdminFinanceLongRentBillController extends SalesRestController
         $companyExpress = $em->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfileExpress')
             ->findOneBy(array('salesCompany' => $salesCompanyId));
 
-        $invoiceInfo = new FinanceBillInvoiceInfo();
-        $invoiceInfo->setBill($bill);
-        if ($companyInvoice) {
-            $invoice = $this->transferToJsonWithViewGroup(
-                $companyInvoice,
-                'finance'
+        if (!$companyInvoice) {
+            return $this->customErrorView(
+                400,
+                CustomErrorMessagesConstants::ERROR_SALES_COMPANY_INVOICE_NOT_FOUND_CODE,
+                CustomErrorMessagesConstants::ERROR_SALES_COMPANY_INVOICE_NOT_FOUND_MESSAGE
             );
-            $invoiceInfo->setInvoiceJson($invoice);
         }
 
-        if ($companyExpress) {
-            $express = $this->transferToJsonWithViewGroup(
-                $companyExpress,
-                'finance'
+        $invoice = $this->transferToJsonWithViewGroup(
+            $companyInvoice,
+            'finance'
+        );
+
+        if (!$companyExpress) {
+            return $this->customErrorView(
+                400,
+                CustomErrorMessagesConstants::ERROR_SALES_COMPANY_EXPRESS_NOT_FOUND_CODE,
+                CustomErrorMessagesConstants::ERROR_SALES_COMPANY_EXPRESS_NOT_FOUND_MESSAGE
             );
-            $invoiceInfo->setExpressJson($express);
         }
+        $express = $this->transferToJsonWithViewGroup(
+            $companyExpress,
+            'finance'
+        );
+
+        $invoiceInfo = new FinanceBillInvoiceInfo();
+        $invoiceInfo->setBill($bill);
+        $invoiceInfo->setInvoiceJson($invoice);
+        $invoiceInfo->setExpressJson($express);
 
         $em->persist($invoiceInfo);
     }

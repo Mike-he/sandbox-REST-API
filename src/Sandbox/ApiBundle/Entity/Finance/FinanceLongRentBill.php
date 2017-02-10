@@ -91,11 +91,7 @@ class FinanceLongRentBill
     private $billAttachment;
 
     /**
-     * @ORM\OneToMany(
-     *      targetEntity="Sandbox\ApiBundle\Entity\Finance\FinanceBillInvoiceInfo",
-     *      mappedBy="bill"
-     * )
-     * @ORM\JoinColumn(name="id", referencedColumnName="bill_id")
+     * @var billInvoice
      */
     private $billInvoice;
 
