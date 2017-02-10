@@ -33,7 +33,7 @@ class AdminFinanceOfficialInvoiceProfileController extends PaymentController
     ) {
         $profile = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Finance\FinanceOfficialInvoiceProfile')
-            ->find(1);
+            ->findOneBy(['current' => true]);
 
         return new View($profile);
     }

@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Finance;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * FinanceOfficialInvoiceProfile.
@@ -18,6 +19,7 @@ class FinanceOfficialInvoiceProfile
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @Serializer\Groups({"main", "sales_admin_detail"})
      */
     private $id;
 
@@ -25,6 +27,7 @@ class FinanceOfficialInvoiceProfile
      * @var string
      *
      * @ORM\Column(name="title", type="string", length=64)
+     * @Serializer\Groups({"main", "sales_admin_detail"})
      */
     private $title;
 
@@ -32,6 +35,7 @@ class FinanceOfficialInvoiceProfile
      * @var string
      *
      * @ORM\Column(name="type", type="string", length=64)
+     * @Serializer\Groups({"main", "sales_admin_detail"})
      */
     private $type;
 
@@ -39,6 +43,7 @@ class FinanceOfficialInvoiceProfile
      * @var string
      *
      * @ORM\Column(name="category", type="string", length=16)
+     * @Serializer\Groups({"main", "sales_admin_detail"})
      */
     private $category;
 
@@ -46,6 +51,7 @@ class FinanceOfficialInvoiceProfile
      * @var string
      *
      * @ORM\Column(name="taxpayer_id", type="string", length=64)
+     * @Serializer\Groups({"main", "sales_admin_detail"})
      */
     private $taxpayerId;
 
@@ -53,6 +59,7 @@ class FinanceOfficialInvoiceProfile
      * @var string
      *
      * @ORM\Column(name="bank_name", type="string", length=64)
+     * @Serializer\Groups({"main", "sales_admin_detail"})
      */
     private $bankName;
 
@@ -60,6 +67,7 @@ class FinanceOfficialInvoiceProfile
      * @var string
      *
      * @ORM\Column(name="bank_account", type="string", length=64)
+     * @Serializer\Groups({"main", "sales_admin_detail"})
      */
     private $bankAccount;
 
@@ -67,6 +75,7 @@ class FinanceOfficialInvoiceProfile
      * @var string
      *
      * @ORM\Column(name="company_info", type="text")
+     * @Serializer\Groups({"main", "sales_admin_detail"})
      */
     private $companyInfo;
 
@@ -74,6 +83,7 @@ class FinanceOfficialInvoiceProfile
      * @var string
      *
      * @ORM\Column(name="receiver", type="string", length=16)
+     * @Serializer\Groups({"main", "sales_admin_detail"})
      */
     private $receiver;
 
@@ -81,6 +91,7 @@ class FinanceOfficialInvoiceProfile
      * @var string
      *
      * @ORM\Column(name="address", type="text")
+     * @Serializer\Groups({"main", "sales_admin_detail"})
      */
     private $address;
 
@@ -88,6 +99,7 @@ class FinanceOfficialInvoiceProfile
      * @var string
      *
      * @ORM\Column(name="phone", type="string", length=64)
+     * @Serializer\Groups({"main", "sales_admin_detail"})
      */
     private $phone;
 
@@ -95,8 +107,16 @@ class FinanceOfficialInvoiceProfile
      * @var string
      *
      * @ORM\Column(name="postal_code", type="string", length=16)
+     * @Serializer\Groups({"main", "sales_admin_detail"})
      */
     private $postalCode;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="current", type="boolean")
+     */
+    private $current = true;
 
     /**
      * Get id.
@@ -106,6 +126,22 @@ class FinanceOfficialInvoiceProfile
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isCurrent()
+    {
+        return $this->current;
+    }
+
+    /**
+     * @param bool $current
+     */
+    public function setCurrent($current)
+    {
+        $this->current = $current;
     }
 
     /**

@@ -205,7 +205,7 @@ class AdminFinanceShortRentInvoiceController extends PaymentController
 
         $invoices = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Finance\FinanceShortRentInvoice')
-            ->getShortRentInvoicesByIds($salesCompanyId, $ids);
+            ->getShortRentInvoicesByIds($ids, $salesCompanyId);
 
         return new View($invoices);
     }
