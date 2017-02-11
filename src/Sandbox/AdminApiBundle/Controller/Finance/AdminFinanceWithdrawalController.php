@@ -124,7 +124,7 @@ class AdminFinanceWithdrawalController extends PaymentController
      * @Annotations\QueryParam(
      *    name="company_id",
      *    array=false,
-     *    default="1",
+     *    default=null,
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
