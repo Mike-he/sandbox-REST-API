@@ -22,11 +22,11 @@ class CustomErrorMessagesConstants
     const ERROR_CAN_NOT_MORE_THAN_TWO_COFFEE_ADMINS = 'Sorry, You can not set more than two coffee admins';
 
     // Finance
-    const ERROR_FINANCE_BILL_STATUS_NOT_CORRECT_CODE = '400001';
+    const ERROR_FINANCE_BILL_STATUS_NOT_CORRECT_CODE = 400001;
     const ERROR_FINANCE_BILL_STATUS_NOT_CORRECT_MESSAGE = 'The status of bill does not correct';
-    const ERROR_FINANCE_BILLS_PAYLOAD_FORMAT_NOT_CORRECT_CODE= '400002';
+    const ERROR_FINANCE_BILLS_PAYLOAD_FORMAT_NOT_CORRECT_CODE= 400002;
     const ERROR_FINANCE_BILLS_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE = 'The format of payload for bills does not correct';
-    const ERROR_FINANCE_BILL_MORE_THAN_TOTAL_SERVICE_FEE_CODE = '400003';
+    const ERROR_FINANCE_BILL_MORE_THAN_TOTAL_SERVICE_FEE_CODE = 400003;
     const ERROR_FINANCE_BILL_MORE_THAN_TOTAL_SERVICE_FEE_MESSAGE = 'More than the total service fees';
 
 
@@ -52,8 +52,8 @@ class CustomErrorMessagesConstants
     const ERROR_COFFEE_ADMIN_NOT_FOUND_MESSAGE = 'The coffee admin does not exist';
     const ERROR_SALES_COMPANY_NOT_FOUND_MESSAGE = 'The sales company does not exist';
     const ERROR_SALES_COMPANY_SERVICE_NOT_FOUND_MESSAGE = 'The sales company service does not exist';
-    const ERROR_SALES_COMPANY_INVOICE_NOT_FOUND_CODE = '404001';
+    const ERROR_SALES_COMPANY_INVOICE_NOT_FOUND_CODE = 404001;
     const ERROR_SALES_COMPANY_INVOICE_NOT_FOUND_MESSAGE = 'The sales company invoice does not exist';
-    const ERROR_SALES_COMPANY_EXPRESS_NOT_FOUND_CODE = '404002';
+    const ERROR_SALES_COMPANY_EXPRESS_NOT_FOUND_CODE = 404002;
     const ERROR_SALES_COMPANY_EXPRESS_NOT_FOUND_MESSAGE = 'The sales company express does not exist';
 }
