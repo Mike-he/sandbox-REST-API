@@ -73,7 +73,7 @@ trait FinanceTrait
                 Room::TYPE_LONG_TERM
             );
 
-        $serviceFee = $serviceInfo->getServiceFee();
+        $serviceFee = $serviceInfo ? $serviceInfo->getServiceFee() : 0;
 
         return $serviceFee;
     }
