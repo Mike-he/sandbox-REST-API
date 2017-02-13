@@ -183,7 +183,8 @@ class AdminFinanceLongRentBillController extends SalesRestController
         }
 
         //TODO: check long rent service fee limit
-        $totalFee = 1000;
+        $totalFee = $totalFee = $this->getTotalServiceFee($salesCompanyId);
+
         $pendingFee = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Finance\FinanceLongRentBill')
             ->sumBillAmount(
@@ -335,7 +336,7 @@ class AdminFinanceLongRentBillController extends SalesRestController
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
         //TODO: get total fee
-        $totalFee = 1000;
+        $totalFee = $this->getTotalServiceFee($salesCompanyId);
 
         $pendingFee = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Finance\FinanceLongRentBill')
@@ -441,6 +442,32 @@ class AdminFinanceLongRentBillController extends SalesRestController
                 'json',
                 SerializationContext::create()->setGroups([$group])
             );
+    }
+
+    /**
+     * @param $salesCompanyId
+     *
+     * @return mixed
+     */
+    private function getTotalServiceFee(
+        $salesCompanyId
+    ) {
+        $totalServiceFee = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Finance\FinanceLongRentServiceBill')
+            ->sumAmount(
+                $salesCompanyId
+            );
+
+        $paidFee = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Finance\FinanceLongRentBill')
+            ->sumBillAmount(
+                $salesCompanyId,
+                FinanceLongRentBill::STATUS_PAID
+            );
+
+        $serviceFee = $totalServiceFee - $paidFee;
+
+        return $serviceFee;
     }
 
     /**

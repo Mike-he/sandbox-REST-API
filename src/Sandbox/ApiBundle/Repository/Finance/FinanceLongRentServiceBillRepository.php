@@ -82,4 +82,20 @@ class FinanceLongRentServiceBillRepository extends EntityRepository
 
         return $result;
     }
+
+    /**
+     * @param $company
+     *
+     * @return mixed
+     */
+    public function sumAmount(
+        $company
+    ) {
+        $query = $this->createQueryBuilder('sb')
+            ->select('SUM(sb.amount)')
+            ->where('sb.companyId = :company')
+            ->setParameter('company', $company);
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
 }

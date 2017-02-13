@@ -111,7 +111,7 @@ class AdminFinanceShortRentInvoiceApplicationController extends PaymentControlle
                 ->getRepository('SandboxApiBundle:Finance\FinanceOfficialInvoiceProfile')
                 ->findOneBy([
                     'id' => $profileId,
-                    'current' => true
+                    'current' => true,
                 ]);
 
             if (is_null($profile)) {
