@@ -281,6 +281,8 @@ class LeaseBillRepository extends EntityRepository
                 ->setParameter('amountEnd', $amountEnd);
         }
 
+        $query->orderBy('lb.sendDate', 'DESC');
+
         $result = $query->getQuery()->getResult();
 
         return $result;
