@@ -113,8 +113,8 @@ class AdminFinanceShortRentInvoiceApplicationController extends PaymentControlle
                     'id' => $profileId,
                     'current' => true
                 ]);
-            
-            if (!is_null($profile)) {
+
+            if (is_null($profile)) {
                 return $this->setErrorArray(
                     self::OFFICIAL_INVOICE_PROFILE_CHANGED_CODE,
                     self::OFFICIAL_INVOICE_PROFILE_CHANGED_MESSAGE
