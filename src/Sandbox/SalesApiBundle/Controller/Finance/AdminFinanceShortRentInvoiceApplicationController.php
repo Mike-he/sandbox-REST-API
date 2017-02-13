@@ -119,6 +119,8 @@ class AdminFinanceShortRentInvoiceApplicationController extends PaymentControlle
                     self::OFFICIAL_INVOICE_PROFILE_CHANGED_CODE,
                     self::OFFICIAL_INVOICE_PROFILE_CHANGED_MESSAGE
                 );
+            } else {
+                $application->setOfficialProfile($profile);
             }
         }
 
