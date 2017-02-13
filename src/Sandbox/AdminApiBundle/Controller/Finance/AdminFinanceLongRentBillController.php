@@ -7,6 +7,7 @@ use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentBill;
 use Sandbox\ApiBundle\Form\Finance\FinanceBillPatchType;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
@@ -96,6 +97,7 @@ class AdminFinanceLongRentBillController extends SandboxRestController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
+        $this->checkAdminFinanceLongRentBillPermission(AdminPermission::OP_LEVEL_VIEW);
 
         //filters
         $createStart = $paramFetcher->get('create_start');
@@ -150,6 +152,7 @@ class AdminFinanceLongRentBillController extends SandboxRestController
         $id
     ) {
         // check user permission
+        $this->checkAdminFinanceLongRentBillPermission(AdminPermission::OP_LEVEL_VIEW);
 
         $bill = $this->getDoctrine()->getRepository('SandboxApiBundle:Finance\FinanceLongRentBill')->find($id);
         $this->throwNotFoundIfNull($bill, self::NOT_FOUND_MESSAGE);
@@ -184,6 +187,7 @@ class AdminFinanceLongRentBillController extends SandboxRestController
         $id
     ) {
         // check user permission
+        $this->checkAdminFinanceLongRentBillPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $bill = $this->getDoctrine()->getRepository('SandboxApiBundle:Finance\FinanceLongRentBill')->find($id);
         $this->throwNotFoundIfNull($bill, self::NOT_FOUND_MESSAGE);
@@ -217,5 +221,20 @@ class AdminFinanceLongRentBillController extends SandboxRestController
         $em->flush();
 
         return new View();
+    }
+
+    /**
+     * @param $opLevel
+     */
+    private function checkAdminFinanceLongRentBillPermission(
+        $opLevel
+    ) {
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_LONG_TERM_SERVICE_RECEIPT],
+            ],
+            $opLevel
+        );
     }
 }

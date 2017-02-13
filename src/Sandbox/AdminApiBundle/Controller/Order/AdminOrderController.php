@@ -327,13 +327,24 @@ class AdminOrderController extends OrderController
      *
      * @param Request $request
      * @param $id
+     *
+     * @return View
      */
     public function patchTransferStatusAction(
         Request $request,
         $id
     ) {
         // check user permission
-        $this->checkAdminOrderPermission($this->getAdminId(), AdminPermission::OP_LEVEL_EDIT);
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_REFUND],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_USER],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_TRANSFER_CONFIRM],
+            ],
+            AdminPermission::OP_LEVEL_EDIT
+        );
 
         $order = $this->getRepo('Order\ProductOrder')->findOneBy(
             [
@@ -1370,6 +1381,7 @@ class AdminOrderController extends OrderController
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_DASHBOARD],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_REFUND],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_SALES],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_TRANSFER_CONFIRM],
             ],
             AdminPermission::OP_LEVEL_VIEW
         );

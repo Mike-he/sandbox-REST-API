@@ -227,6 +227,7 @@ class AdminLeaseBillController extends LeaseController
             $this->getAdminId(),
             [
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_LONG_TERM_LEASE],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_TRANSFER_CONFIRM],
             ],
             $opLevel
         );

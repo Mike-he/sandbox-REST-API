@@ -6,6 +6,7 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Symfony\Component\HttpFoundation\Request;
@@ -109,6 +110,7 @@ class AdminFinanceOfflineController extends SandboxRestController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
+        $this->checkAdminFinanceOfflinePermission(AdminPermission::OP_LEVEL_VIEW);
 
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
@@ -245,6 +247,8 @@ class AdminFinanceOfflineController extends SandboxRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // check user permission
+        $this->checkAdminFinanceOfflinePermission(AdminPermission::OP_LEVEL_VIEW);
 
         //filters
         $keyword = $paramFetcher->get('keyword');
@@ -300,5 +304,20 @@ class AdminFinanceOfflineController extends SandboxRestController
         );
 
         return $view;
+    }
+
+    /**
+     * @param $opLevel
+     */
+    private function checkAdminFinanceOfflinePermission(
+        $opLevel
+    ) {
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_TRANSFER_CONFIRM],
+            ],
+            $opLevel
+        );
     }
 }
