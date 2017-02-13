@@ -60,6 +60,9 @@ class AdminPermission
     const KEY_OFFICIAL_PLATFORM_EVENT_ORDER = 'platform.event_order';
     const KEY_OFFICIAL_PLATFORM_SHOP_ORDER = 'platform.shop_order';
     const KEY_OFFICIAL_PLATFORM_TOP_UP = 'platform.top_up';
+    const KEY_OFFICIAL_PLATFORM_LONG_TERM_SERVICE_RECEIPT = 'platform.long_term_service_receipt';
+    const KEY_OFFICIAL_PLATFORM_SALES_INVOICE_CONFIRM = 'platform.sales_invoice_confirm';
+    const KEY_OFFICIAL_PLATFORM_TRANSFER_CONFIRM = 'platform.transfer_confirm';
 
     const KEY_SALES_PLATFORM_DASHBOARD = 'sales.platform.dashboard';
     const KEY_SALES_PLATFORM_ADMIN = 'sales.platform.admin';

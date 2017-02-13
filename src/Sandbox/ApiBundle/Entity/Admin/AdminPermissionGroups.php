@@ -14,6 +14,10 @@ use Gedmo\Mapping\Annotation as Gedmo;
 class AdminPermissionGroups
 {
     const GROUP_KEY_EVENT = 'activity';
+    const GROUP_KEY_TRADE = 'trade';
+    const GROUP_KEY_FINANCE = 'finance';
+    const GROUP_KEY_REFUND = 'refund';
+    const GROUP_PLATFORM_OFFICIAL = 'official';
     const GROUP_PLATFORM_SALES = 'sales';
 
     /**
