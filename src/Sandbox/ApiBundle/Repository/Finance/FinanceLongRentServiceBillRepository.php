@@ -78,6 +78,8 @@ class FinanceLongRentServiceBillRepository extends EntityRepository
                 ->setParameter('amountEnd', $amountEnd);
         }
 
+        $query->orderBy('sb.creationDate', 'DESC');
+
         $result = $query->getQuery()->getResult();
 
         return $result;
