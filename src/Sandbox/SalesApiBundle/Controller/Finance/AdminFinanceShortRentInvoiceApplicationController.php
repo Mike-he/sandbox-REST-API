@@ -105,12 +105,21 @@ class AdminFinanceShortRentInvoiceApplicationController extends PaymentControlle
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
-        $current = $application->getOfficialProfile()->isCurrent();
-        if (!$current) {
-            return $this->setErrorArray(
-                self::OFFICIAL_INVOICE_PROFILE_CHANGED_CODE,
-                self::OFFICIAL_INVOICE_PROFILE_CHANGED_MESSAGE
-            );
+        $profileId = $application->getOfficialProfileId();
+        if (!is_null($profileId) && !empty($profileId)) {
+            $profile = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Finance\FinanceOfficialInvoiceProfile')
+                ->findOneBy([
+                    'id' => $profileId,
+                    'current' => true
+                ]);
+            
+            if (!is_null($profile)) {
+                return $this->setErrorArray(
+                    self::OFFICIAL_INVOICE_PROFILE_CHANGED_CODE,
+                    self::OFFICIAL_INVOICE_PROFILE_CHANGED_MESSAGE
+                );
+            }
         }
 
         $ids = preg_replace('/[^0-9,]/', '', $invoiceIds);
