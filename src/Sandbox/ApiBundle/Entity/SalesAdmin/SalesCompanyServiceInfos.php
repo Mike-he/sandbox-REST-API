@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Entity\SalesAdmin;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * SalesCompanyServiceInfos.
@@ -47,6 +48,8 @@ class SalesCompanyServiceInfos
 
     /**
      * @var float
+     *
+     * @Assert\NotNull()
      *
      * @ORM\Column(name="service_fee", type="float", precision=6, scale=3)
      * @Serializer\Groups({"main", "admin_view"})
