@@ -833,11 +833,11 @@ class ClientOrderController extends OrderController
             );
 
             // set service fee
-            $companyId = $product->getRoom()->getBuilding()->getCompanyId();
+            $company = $product->getRoom()->getBuilding()->getCompany();
             $serviceInfo = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
                 ->findOneBy([
-                    'companyId' => $companyId,
+                    'company' => $company,
                     'roomTypes' => $type,
                 ]);
 
