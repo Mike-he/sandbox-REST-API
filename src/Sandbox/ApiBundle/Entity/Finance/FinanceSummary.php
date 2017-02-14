@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Finance;
 
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * FinanceSummary
@@ -66,6 +67,7 @@ class FinanceSummary
     /**
      * @var \DateTime
      *
+     * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="creation_date", type="datetime")
      */
     private $creationDate;

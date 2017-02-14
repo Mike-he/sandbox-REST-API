@@ -12,4 +12,71 @@ use Doctrine\ORM\EntityRepository;
  */
 class FinanceSummaryRepository extends EntityRepository
 {
+    /**
+     * @param $salesCompanyId
+     * @param $yearStart
+     * @param $yearEnd
+     * @return mixed
+     */
+    public function countFinanceSummary(
+        $salesCompanyId,
+        $yearStart,
+        $yearEnd
+    ) {
+        $query = $this->createQueryBuilder('f')
+            ->select('COUNT(f)')
+            ->where('f.companyId = :companyId')
+            ->andWhere('f.creationDate >= :start')
+            ->andWhere('f.creationDate <= :end')
+            ->setParameter('start', $yearStart)
+            ->setParameter('end', $yearEnd)
+            ->setParameter('companyId', $salesCompanyId);
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
+
+    /**
+     * @param $salesCompanyId
+     * @param $yearStart
+     * @param $yearEnd
+     * @param $limit
+     * @param $offset
+     * @return array
+     */
+    public function getFinanceSummary(
+        $salesCompanyId,
+        $yearStart,
+        $yearEnd,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('f')
+            ->where('f.companyId = :companyId')
+            ->andWhere('f.creationDate >= :start')
+            ->andWhere('f.creationDate <= :end')
+            ->setParameter('start', $yearStart)
+            ->setParameter('end', $yearEnd)
+            ->setParameter('companyId', $salesCompanyId)
+            ->orderBy('f.creationDate', 'DESC')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset);
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $salesCompanyId
+     * @return array
+     */
+    public function getFinanceSummaryYear(
+        $salesCompanyId
+    ) {
+        $query = $this->createQueryBuilder('f')
+            ->select('f.creationDate')
+            ->where('f.companyId = :companyId')
+            ->setParameter('companyId', $salesCompanyId)
+            ->orderBy('f.creationDate', 'DESC');
+
+        return $query->getQuery()->getResult();
+    }
 }
