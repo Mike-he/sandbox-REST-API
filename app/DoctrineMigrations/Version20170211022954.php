@@ -77,6 +77,16 @@ class Version20170211022954 extends AbstractMigration implements ContainerAwareI
             ));
         $officialFinancePermission->setName('财务统计权限');
 
+        $officialInvoicePermission = $em->getRepository('SandboxApiBundle:Admin\AdminPermission')
+            ->findOneBy(array(
+                'key' => AdminPermission::KEY_OFFICIAL_PLATFORM_INVOICE,
+            ));
+
+        $officialRefundPermission = $em->getRepository('SandboxApiBundle:Admin\AdminPermission')
+            ->findOneBy(array(
+                'key' => AdminPermission::KEY_OFFICIAL_PLATFORM_REFUND,
+            ));
+
         $permission1 = new AdminPermission();
         $permission1->setKey(AdminPermission::KEY_OFFICIAL_PLATFORM_LONG_TERM_SERVICE_RECEIPT);
         $permission1->setName('长租服务费收款权限');
@@ -125,6 +135,16 @@ class Version20170211022954 extends AbstractMigration implements ContainerAwareI
         $map6->setGroup($officialFinanceGroup);
         $map6->setPermission($permission3);
         $em->persist($map6);
+
+        $map7 = new AdminPermissionGroupMap();
+        $map7->setGroup($officialFinanceGroup);
+        $map7->setPermission($officialInvoicePermission);
+        $em->persist($map7);
+
+        $map8 = new AdminPermissionGroupMap();
+        $map8->setGroup($officialFinanceGroup);
+        $map8->setPermission($officialRefundPermission);
+        $em->persist($map8);
 
         $em->flush();
     }
