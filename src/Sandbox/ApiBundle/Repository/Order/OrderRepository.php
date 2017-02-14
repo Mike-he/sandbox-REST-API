@@ -2854,22 +2854,14 @@ class OrderRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('o')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
-            ->where('
-                    (
-                        (o.status != :unpaid) AND (o.paymentDate IS NOT NULL) OR 
-                        (o.type = :preOrder)
-                    )
-               ')
-            ->setParameter('preOrder', ProductOrder::PREORDER_TYPE)
-            ->setParameter('unpaid', ProductOrder::STATUS_UNPAID);
-
-        if (!is_null($channel) && !empty($channel)) {
-            $query->andWhere('o.payChannel = :channel')
-                ->setParameter('channel', $channel);
-        }
+            ->leftJoin('SandboxApiBundle:Order\OrderOfflineTransfer', 't', 'with', 't.orderId = o.id')
+            ->where('o.payChannel = :channel')
+            ->andWhere('t.id is not null')
+            ->andWhere('t.transferStatus != :unpaid')
+            ->setParameter('channel', $channel)
+            ->setParameter('unpaid', OrderOfflineTransfer::STATUS_UNPAID);
 
         if (!is_null($status)) {
-            $query->leftJoin('SandboxApiBundle:Order\OrderOfflineTransfer', 't', 'with', 't.orderId = o.id');
             switch ($status) {
                 case 'pending':
                     $query->andWhere('
@@ -2962,23 +2954,15 @@ class OrderRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('o')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
+            ->leftJoin('SandboxApiBundle:Order\OrderOfflineTransfer', 't', 'with', 't.orderId = o.id')
             ->select('COUNT(o)')
-            ->where('
-                    (
-                        (o.status != :unpaid) AND (o.paymentDate IS NOT NULL) OR 
-                        (o.type = :preOrder)
-                    )
-               ')
-            ->setParameter('preOrder', ProductOrder::PREORDER_TYPE)
-            ->setParameter('unpaid', ProductOrder::STATUS_UNPAID);
-
-        if (!is_null($channel) && !empty($channel)) {
-            $query->andWhere('o.payChannel = :channel')
-                ->setParameter('channel', $channel);
-        }
+            ->where('o.payChannel = :channel')
+            ->andWhere('t.id is not null')
+            ->andWhere('t.transferStatus != :unpaid')
+            ->setParameter('channel', $channel)
+            ->setParameter('unpaid', OrderOfflineTransfer::STATUS_UNPAID);
 
         if (!is_null($status)) {
-            $query->leftJoin('SandboxApiBundle:Order\OrderOfflineTransfer', 't', 'with', 't.orderId = o.id');
             switch ($status) {
                 case 'pending':
                     $query->andWhere('
