@@ -2,7 +2,6 @@
 
 namespace Sandbox\AdminApiBundle\Controller\SalesAdmin;
 
-use Elastica\Exception\Connection\HttpException;
 use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminExcludePermission;
@@ -482,7 +481,7 @@ class AdminSalesCompanyController extends SandboxRestController
 
         $em->beginTransaction();
 
-        try{
+        try {
             // update sales company
             $form = $this->createForm(
                 new SalesCompanyPostType(),
@@ -987,6 +986,9 @@ class AdminSalesCompanyController extends SandboxRestController
         }
 
         foreach ($admins as $adminId) {
+            if (is_null($adminId) || empty($adminId)) {
+                continue;
+            }
             $admin = $this->getUserRepo()->find($adminId);
             $this->throwNotFoundIfNull($admin, CustomErrorMessagesConstants::ERROR_ADMIN_NOT_FOUND_MESSAGE);
 
