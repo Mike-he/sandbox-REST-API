@@ -986,6 +986,9 @@ class AdminSalesCompanyController extends SandboxRestController
         }
 
         foreach ($admins as $adminId) {
+            if (is_null($adminId) || empty($adminId)) {
+                continue;
+            }
             $admin = $this->getUserRepo()->find($adminId);
             $this->throwNotFoundIfNull($admin, CustomErrorMessagesConstants::ERROR_ADMIN_NOT_FOUND_MESSAGE);
 
