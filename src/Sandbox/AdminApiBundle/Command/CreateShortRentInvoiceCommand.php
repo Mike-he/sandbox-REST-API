@@ -104,6 +104,16 @@ class CreateShortRentInvoiceCommand extends ContainerAwareCommand
             ->getRepository('SandboxApiBundle:Finance\FinanceLongRentServiceBill')
             ->getServiceBillsByMonth($firstDate, $lastDate);
 
+        foreach ($companyArray as $item) {
+            $longRentArray = [
+                'long_rent_balance' => 0,
+                'long_rent_service_balance' => 0,
+                'long_rent_count' => 0,
+            ];
+
+            array_merge($item, $longRentArray);
+        }
+
         foreach ($longRents as $longRent) {
             $companyId = $longRent->getCompanyId();
             $serviceAmount = $longRent->getAmount();
@@ -117,18 +127,10 @@ class CreateShortRentInvoiceCommand extends ContainerAwareCommand
                     'long_rent_service_balance' => $serviceAmount,
                     'long_rent_count' => 1,
                 ];
-            } elseif (!array_key_exists('long_rent_balance', $companyArray[$companyId])) {
-                $companyArray[$companyId] = [
-                    'long_rent_balance' => $incomeAmount,
-                    'long_rent_service_balance' => $serviceAmount,
-                    'long_rent_count' => 1,
-                ];
             } else {
-                $companyArray[$companyId] = [
-                    'long_rent_balance' => $incomeAmount + $companyArray[$companyId]['long_rent_balance'],
-                    'long_rent_service_balance' => $serviceAmount + $companyArray[$companyId]['long_rent_service_balance'],
-                    'long_rent_count' => 1 + $companyArray[$companyId]['long_rent_count'],
-                ];
+                $companyArray[$companyId]['long_rent_balance'] = $incomeAmount + $companyArray[$companyId]['long_rent_balance'];
+                $companyArray[$companyId]['long_rent_service_balance'] = $serviceAmount + $companyArray[$companyId]['long_rent_service_balance'];
+                $companyArray[$companyId]['long_rent_count'] = 1 + $companyArray[$companyId]['long_rent_count'];
             }
         }
 
