@@ -3,9 +3,10 @@
 namespace Sandbox\ApiBundle\Entity\Finance;
 
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
- * FinanceSummary
+ * FinanceSummary.
  *
  * @ORM\Table(name="finance_summary")
  * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Finance\FinanceSummaryRepository")
@@ -13,7 +14,7 @@ use Doctrine\ORM\Mapping as ORM;
 class FinanceSummary
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -29,7 +30,7 @@ class FinanceSummary
     private $shortRentBalance;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="short_rent_count", type="integer")
      */
@@ -43,7 +44,7 @@ class FinanceSummary
     private $longRentBalance;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="long_rent_count", type="integer")
      */
@@ -57,7 +58,7 @@ class FinanceSummary
     private $longRentBillBalance;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="long_rent_bill_count", type="integer")
      */
@@ -66,22 +67,22 @@ class FinanceSummary
     /**
      * @var \DateTime
      *
+     * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="creation_date", type="datetime")
      */
     private $creationDate;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="company_id", type="integer")
      */
     private $companyId;
 
-
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -89,9 +90,10 @@ class FinanceSummary
     }
 
     /**
-     * Set shortRentBalance
+     * Set shortRentBalance.
      *
      * @param float $shortRentBalance
+     *
      * @return FinanceSummary
      */
     public function setShortRentBalance($shortRentBalance)
@@ -102,9 +104,9 @@ class FinanceSummary
     }
 
     /**
-     * Get shortRentBalance
+     * Get shortRentBalance.
      *
-     * @return float 
+     * @return float
      */
     public function getShortRentBalance()
     {
@@ -112,9 +114,10 @@ class FinanceSummary
     }
 
     /**
-     * Set shortRentCount
+     * Set shortRentCount.
      *
-     * @param integer $shortRentCount
+     * @param int $shortRentCount
+     *
      * @return FinanceSummary
      */
     public function setShortRentCount($shortRentCount)
@@ -125,9 +128,9 @@ class FinanceSummary
     }
 
     /**
-     * Get shortRentCount
+     * Get shortRentCount.
      *
-     * @return integer 
+     * @return int
      */
     public function getShortRentCount()
     {
@@ -135,9 +138,10 @@ class FinanceSummary
     }
 
     /**
-     * Set longRentBalance
+     * Set longRentBalance.
      *
      * @param float $longRentBalance
+     *
      * @return FinanceSummary
      */
     public function setLongRentBalance($longRentBalance)
@@ -148,9 +152,9 @@ class FinanceSummary
     }
 
     /**
-     * Get longRentBalance
+     * Get longRentBalance.
      *
-     * @return float 
+     * @return float
      */
     public function getLongRentBalance()
     {
@@ -158,9 +162,10 @@ class FinanceSummary
     }
 
     /**
-     * Set longRentCount
+     * Set longRentCount.
      *
-     * @param integer $longRentCount
+     * @param int $longRentCount
+     *
      * @return FinanceSummary
      */
     public function setLongRentCount($longRentCount)
@@ -171,9 +176,9 @@ class FinanceSummary
     }
 
     /**
-     * Get longRentCount
+     * Get longRentCount.
      *
-     * @return integer 
+     * @return int
      */
     public function getLongRentCount()
     {
@@ -181,9 +186,10 @@ class FinanceSummary
     }
 
     /**
-     * Set longRentBillBalance
+     * Set longRentBillBalance.
      *
      * @param float $longRentBillBalance
+     *
      * @return FinanceSummary
      */
     public function setLongRentBillBalance($longRentBillBalance)
@@ -194,9 +200,9 @@ class FinanceSummary
     }
 
     /**
-     * Get longRentBillBalance
+     * Get longRentBillBalance.
      *
-     * @return float 
+     * @return float
      */
     public function getLongRentBillBalance()
     {
@@ -204,9 +210,10 @@ class FinanceSummary
     }
 
     /**
-     * Set longRentBillCount
+     * Set longRentBillCount.
      *
-     * @param integer $longRentBillCount
+     * @param int $longRentBillCount
+     *
      * @return FinanceSummary
      */
     public function setLongRentBillCount($longRentBillCount)
@@ -217,9 +224,9 @@ class FinanceSummary
     }
 
     /**
-     * Get longRentBillCount
+     * Get longRentBillCount.
      *
-     * @return integer 
+     * @return int
      */
     public function getLongRentBillCount()
     {
@@ -227,9 +234,10 @@ class FinanceSummary
     }
 
     /**
-     * Set creationDate
+     * Set creationDate.
      *
      * @param \DateTime $creationDate
+     *
      * @return FinanceSummary
      */
     public function setCreationDate($creationDate)
@@ -240,9 +248,9 @@ class FinanceSummary
     }
 
     /**
-     * Get creationDate
+     * Get creationDate.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getCreationDate()
     {
@@ -250,9 +258,10 @@ class FinanceSummary
     }
 
     /**
-     * Set companyId
+     * Set companyId.
      *
-     * @param integer $companyId
+     * @param int $companyId
+     *
      * @return FinanceSummary
      */
     public function setCompanyId($companyId)
@@ -263,9 +272,9 @@ class FinanceSummary
     }
 
     /**
-     * Get companyId
+     * Get companyId.
      *
-     * @return integer 
+     * @return int
      */
     public function getCompanyId()
     {
