@@ -998,6 +998,26 @@ class AdminOrderController extends OrderController
      *    description="refund amount filter"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="refund_start",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="start date. Must be YYYY-mm-dd"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="refund_end",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="end date. Must be YYYY-mm-dd"
+     * )
+     *
      * @Route("/orders")
      * @Method({"GET"})
      *
@@ -1036,6 +1056,8 @@ class AdminOrderController extends OrderController
         $roomId = $paramFetcher->get('room');
         $refundLow = $paramFetcher->get('refund_amount_low');
         $refundHigh = $paramFetcher->get('refund_amount_high');
+        $refundStart = $paramFetcher->get('refund_start');
+        $refundEnd = $paramFetcher->get('refund_end');
 
         $limit = $pageLimit;
         $offset = ($pageIndex - 1) * $pageLimit;
@@ -1068,6 +1090,8 @@ class AdminOrderController extends OrderController
                 $refundStatus,
                 $refundLow,
                 $refundHigh,
+                $refundStart,
+                $refundEnd,
                 $limit,
                 $offset
             );
@@ -1096,7 +1120,9 @@ class AdminOrderController extends OrderController
                 $status,
                 $refundStatus,
                 $refundLow,
-                $refundHigh
+                $refundHigh,
+                $refundStart,
+                $refundEnd
             );
 
         $view = new View();

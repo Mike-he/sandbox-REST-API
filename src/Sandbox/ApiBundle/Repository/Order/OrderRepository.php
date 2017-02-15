@@ -1033,6 +1033,8 @@ class OrderRepository extends EntityRepository
      * @param $refundStatus
      * @param $refundLow
      * @param $refundHigh
+     * @param $refundStart
+     * @param $refundEnd
      * @param $limit
      * @param $offset
      *
@@ -1061,6 +1063,8 @@ class OrderRepository extends EntityRepository
         $refundStatus,
         $refundLow,
         $refundHigh,
+        $refundStart,
+        $refundEnd,
         $limit,
         $offset
     ) {
@@ -1242,6 +1246,22 @@ class OrderRepository extends EntityRepository
                 ->setParameter('refundHigh', $refundHigh);
         }
 
+        if (!is_null($refundStart)) {
+            $refundStart = new \DateTime($refundStart);
+            $refundStart->setTime(00, 00, 00);
+            $query->andWhere('o.refundProcessed = TRUE')
+                ->andWhere('o.refundProcessedDate >= :refundStart')
+                ->setParameter('refundStart', $refundStart);
+        }
+
+        if (!is_null($refundEnd)) {
+            $refundEnd = new \DateTime($refundEnd);
+            $refundEnd->setTime(23, 59, 59);
+            $query->andWhere('o.refundProcessed = TRUE')
+                ->andWhere('o.refundProcessedDate <= :refundEnd')
+                ->setParameter('refundEnd', $refundEnd);
+        }
+
         // refund status filter
         if ($refundStatus == ProductOrder::REFUNDED_STATUS) {
             $query->andWhere('o.refunded = TRUE')
@@ -1287,6 +1307,8 @@ class OrderRepository extends EntityRepository
      * @param $refundStatus
      * @param $refundLow
      * @param $refundHigh
+     * @param $refundStart
+     * @param $refundEnd
      *
      * @return mixed
      */
@@ -1312,7 +1334,9 @@ class OrderRepository extends EntityRepository
         $status,
         $refundStatus,
         $refundLow,
-        $refundHigh
+        $refundHigh,
+        $refundStart,
+        $refundEnd
     ) {
         $query = $this->createQueryBuilder('o')
             ->select('COUNT(o)')
@@ -1491,6 +1515,22 @@ class OrderRepository extends EntityRepository
         if (!is_null($refundHigh)) {
             $query->andWhere('o.actualRefundAmount <= :refundHigh')
                 ->setParameter('refundHigh', $refundHigh);
+        }
+
+        if (!is_null($refundStart)) {
+            $refundStart = new \DateTime($refundStart);
+            $refundStart->setTime(00, 00, 00);
+            $query->andWhere('o.refundProcessed = TRUE')
+                ->andWhere('o.refundProcessedDate >= :refundStart')
+                ->setParameter('refundStart', $refundStart);
+        }
+
+        if (!is_null($refundEnd)) {
+            $refundEnd = new \DateTime($refundEnd);
+            $refundEnd->setTime(23, 59, 59);
+            $query->andWhere('o.refundProcessed = TRUE')
+                ->andWhere('o.refundProcessedDate <= :refundEnd')
+                ->setParameter('refundEnd', $refundEnd);
         }
 
         // refund status filter
