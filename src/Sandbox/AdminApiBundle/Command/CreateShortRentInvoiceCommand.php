@@ -117,6 +117,12 @@ class CreateShortRentInvoiceCommand extends ContainerAwareCommand
                     'long_rent_service_balance' => $serviceAmount,
                     'long_rent_count' => 1,
                 ];
+            } elseif (!array_key_exists('long_rent_balance', $companyArray[$companyId])) {
+                $companyArray[$companyId] = [
+                    'long_rent_balance' => $incomeAmount,
+                    'long_rent_service_balance' => $serviceAmount,
+                    'long_rent_count' => 1,
+                ];
             } else {
                 $companyArray[$companyId] = [
                     'long_rent_balance' => $incomeAmount + $companyArray[$companyId]['long_rent_balance'],
