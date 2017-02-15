@@ -16,7 +16,13 @@ sandbox_admin_api_finance_offline:
     prefix:   /
 
 # Finance /admin/finance/long/rent/bills
-sandbox_sales_admin_finance_long_rent_bill:
+sandbox_admin_finance_long_rent_bill:
     resource: "@SandboxAdminApiBundle/Controller/Finance/AdminFinanceLongRentBillController.php"
+    type:     annotation
+    prefix:   /
+
+# Finance Dashboard /admin/finance/cash_flow/dashboard
+sandbox_admin_finance_dashboard:
+    resource: "@SandboxAdminApiBundle/Controller/Finance/AdminFinanceDashboardController.php"
     type:     annotation
     prefix:   /
