@@ -140,11 +140,34 @@ class EventOrder
     private $modificationDate;
 
     /**
+     * @var float
+     *
+     * @ORM\Column(name="serviceFee", type="float", options={"default": 0})
+     */
+    private $serviceFee = 0;
+
+    /**
      * @var array
      *
      * @Serializer\Groups({"main", "admin_event"})
      */
     private $user;
+
+    /**
+     * @return float
+     */
+    public function getServiceFee()
+    {
+        return $this->serviceFee;
+    }
+
+    /**
+     * @param float $serviceFee
+     */
+    public function setServiceFee($serviceFee)
+    {
+        $this->serviceFee = $serviceFee;
+    }
 
     /**
      * @return array

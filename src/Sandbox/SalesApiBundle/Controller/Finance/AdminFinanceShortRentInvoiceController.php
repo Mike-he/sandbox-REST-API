@@ -222,7 +222,7 @@ class AdminFinanceShortRentInvoiceController extends PaymentController
             $adminId,
             array(
                 array(
-                    'key' => AdminPermission::KEY_SALES_PLATFORM_INVOICE,
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_MONTHLY_BILLS,
                 ),
             ),
             $level

@@ -102,19 +102,27 @@ class FinanceLongRentServiceBillRepository extends EntityRepository
     }
 
     /**
-     * @param $company
+     * @param $firstDate
+     * @param $lastDate
+     * @param null $companyId
      *
-     * @return mixed
+     * @return array
      */
     public function getServiceBillsByMonth(
         $firstDate,
-        $lastDate
+        $lastDate,
+        $companyId = null
     ) {
         $query = $this->createQueryBuilder('sb')
             ->where('sb.creationDate >= :start')
             ->andWhere('sb.creationDate <= :end')
             ->setParameter('start', $firstDate)
             ->setParameter('end', $lastDate);
+
+        if (!is_null($companyId)) {
+            $query->andWhere('sb.companyId = :companyId')
+                ->setParameter('companyId', $companyId);
+        }
 
         return $query->getQuery()->getResult();
     }
