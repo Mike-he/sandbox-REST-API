@@ -38,7 +38,13 @@ class CreateShortRentInvoiceCommand extends ContainerAwareCommand
             $lastDate
         );
 
-        $this->setFinanceSummary(
+        $companyArray = $this->setFinanceSummary(
+            $firstDate,
+            $lastDate,
+            $companyArray
+        );
+
+        $this->setEventOrderSummary(
             $em,
             $firstDate,
             $lastDate,
@@ -46,8 +52,12 @@ class CreateShortRentInvoiceCommand extends ContainerAwareCommand
         );
     }
 
-    /*
-     * set short rent invoices
+    /**
+     * @param $em
+     * @param $firstDate
+     * @param $lastDate
+     *
+     * @return array
      */
     private function setFinanceShortRentInvoice(
         $em,
@@ -91,10 +101,13 @@ class CreateShortRentInvoiceCommand extends ContainerAwareCommand
     }
 
     /**
-     * Set financeSummary.
+     * @param $firstDate
+     * @param $lastDate
+     * @param $companyArray
+     *
+     * @return mixed
      */
     private function setFinanceSummary(
-        $em,
         $firstDate,
         $lastDate,
         $companyArray
@@ -109,6 +122,8 @@ class CreateShortRentInvoiceCommand extends ContainerAwareCommand
                 'long_rent_balance' => 0,
                 'long_rent_service_balance' => 0,
                 'long_rent_count' => 0,
+                'event_order_balance' => 0,
+                'event_order_count' => 0,
             ];
 
             $companyArray[$key] = array_merge($companyArray[$key], $longRentArray);
@@ -126,11 +141,57 @@ class CreateShortRentInvoiceCommand extends ContainerAwareCommand
                     'long_rent_balance' => $incomeAmount,
                     'long_rent_service_balance' => $serviceAmount,
                     'long_rent_count' => 1,
+                    'event_order_balance' => 0,
+                    'event_order_count' => 0,
                 ];
             } else {
                 $companyArray[$companyId]['long_rent_balance'] += $incomeAmount;
                 $companyArray[$companyId]['long_rent_service_balance'] += $serviceAmount;
-                $companyArray[$companyId]['long_rent_count']++;
+                ++$companyArray[$companyId]['long_rent_count'];
+            }
+        }
+
+        return $companyArray;
+    }
+
+    /**
+     * @param $em
+     * @param $firstDate
+     * @param $lastDate
+     * @param $companyArray
+     */
+    private function setEventOrderSummary(
+        $em,
+        $firstDate,
+        $lastDate,
+        $companyArray
+    ) {
+        // event orders
+        $events = $this->getContainer()
+            ->get('doctrine')
+            ->getRepository('SandboxApiBundle:Event\EventOrder')
+            ->getSumEventOrders(
+                $firstDate,
+                $lastDate
+            );
+
+        foreach ($events as $event) {
+            $price = $event['price'];
+            $companyId = $event['salesCompanyId'];
+
+            if (!array_key_exists($companyId, $companyArray)) {
+                $companyArray[$companyId] = [
+                    'short_rent_balance' => 0,
+                    'short_rent_count' => 0,
+                    'long_rent_balance' => 0,
+                    'long_rent_service_balance' => 0,
+                    'long_rent_count' => 0,
+                    'event_order_balance' => $price,
+                    'event_order_count' => 1,
+                ];
+            } else {
+                $companyArray[$companyId]['event_order_balance'] += $price;
+                ++$companyArray[$companyId]['event_order_count'];
             }
         }
 
@@ -143,6 +204,8 @@ class CreateShortRentInvoiceCommand extends ContainerAwareCommand
             $summary->setLongRentCount((int) $value['long_rent_count']);
             $summary->setLongRentBillBalance($value['long_rent_service_balance']);
             $summary->setLongRentBillCount((int) $value['long_rent_count']);
+            $summary->setEventOrderBalance($value['event_order_balance']);
+            $summary->setEventOrderCount((int) $value['event_order_count']);
 
             $em->persist($summary);
         }

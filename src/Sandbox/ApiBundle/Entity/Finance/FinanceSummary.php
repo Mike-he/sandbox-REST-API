@@ -65,6 +65,20 @@ class FinanceSummary
     private $longRentBillCount;
 
     /**
+     * @var float
+     *
+     * @ORM\Column(name="event_order_balance", type="float")
+     */
+    private $eventOrderBalance;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="event_order_count", type="integer")
+     */
+    private $eventOrderCount;
+
+    /**
      * @var \DateTime
      *
      * @Gedmo\Timestampable(on="create")
@@ -87,6 +101,38 @@ class FinanceSummary
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @return float
+     */
+    public function getEventOrderBalance()
+    {
+        return $this->eventOrderBalance;
+    }
+
+    /**
+     * @param float $eventOrderBalance
+     */
+    public function setEventOrderBalance($eventOrderBalance)
+    {
+        $this->eventOrderBalance = $eventOrderBalance;
+    }
+
+    /**
+     * @return int
+     */
+    public function getEventOrderCount()
+    {
+        return $this->eventOrderCount;
+    }
+
+    /**
+     * @param int $eventOrderCount
+     */
+    public function setEventOrderCount($eventOrderCount)
+    {
+        $this->eventOrderCount = $eventOrderCount;
     }
 
     /**

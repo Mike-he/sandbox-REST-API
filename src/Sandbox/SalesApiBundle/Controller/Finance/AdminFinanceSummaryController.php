@@ -126,11 +126,53 @@ class AdminFinanceSummaryController extends PaymentController
      * @param Request $request
      *
      * @Method({"GET"})
+     * @Route("/finance/summary/current")
+     *
+     * @return View
+     */
+    public function getCurrentFinanceSummaryAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $this->checkAdminSalesFinanceSummaryPermission($this->getAdminId(), AdminPermission::OP_LEVEL_VIEW);
+
+        $adminPlatform = $this->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
+        $company = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
+            ->findOneBy([
+                'id' => $salesCompanyId,
+                'banned' => false,
+            ]);
+        $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
+
+        $now = new \DateTime();
+        $start = clone $now;
+        $start->modify('first day of this month');
+        $start->setTime(0, 0, 0);
+
+        $summary = $this->getShortRentAndLongRentArray(
+            $salesCompanyId,
+            $start,
+            $now
+        );
+
+        $view = new View();
+        $view->setData($summary);
+
+        return $view;
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @Method({"GET"})
      * @Route("/finance/summary/years")
      *
      * @return View
      */
-    public function getAction(
+    public function getSummaryYearsAction(
         Request $request
     ) {
         $this->checkAdminSalesFinanceSummaryPermission($this->getAdminId(), AdminPermission::OP_LEVEL_VIEW);
@@ -161,6 +203,73 @@ class AdminFinanceSummaryController extends PaymentController
         }
 
         return new View(['years' => $yearArray]);
+    }
+
+    /**
+     * @param $salesCompanyId
+     * @param $start
+     * @param $end
+     *
+     * @return array
+     */
+    private function getShortRentAndLongRentArray(
+        $salesCompanyId,
+        $start,
+        $end
+    ) {
+        // short rent orders
+        $orders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getCompletedOrders(
+                $start,
+                $end,
+                $salesCompanyId
+            );
+
+        $amount = 0;
+        foreach ($orders as $order) {
+            $amount += $order['discountPrice'] * (1 - $order['serviceFee'] / 100);
+        }
+
+        // long rent orders
+        $longRents = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Finance\FinanceLongRentServiceBill')
+            ->getServiceBillsByMonth(
+                $start,
+                $end,
+                $salesCompanyId
+            );
+
+        $serviceAmount = 0;
+        $incomeAmount = 0;
+        foreach ($longRents as $longRent) {
+            $serviceAmount += $longRent->getAmount();
+            $incomeAmount += $longRent->getBill()->getRevisedAmount();
+        }
+
+        // event orders
+        $events = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventOrder')
+            ->getSumEventOrders(
+                $start,
+                $end,
+                $salesCompanyId
+            );
+
+        $eventBalance = 0;
+        foreach ($events as $event) {
+            $eventBalance += $event['price'];
+        }
+
+        $summaryArray = [
+            'total_income' => $amount + $incomeAmount + $eventBalance,
+            'short_rent_balance' => $amount,
+            'long_rent_balance' => $incomeAmount,
+            'event_order_balance' => $eventBalance,
+            'long_rent_service_balance' => $serviceAmount,
+        ];
+
+        return $summaryArray;
     }
 
     /**
