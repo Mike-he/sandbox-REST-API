@@ -3,9 +3,11 @@
 namespace Sandbox\ApiBundle\Repository\Order;
 
 use Doctrine\ORM\EntityRepository;
+use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Room\Room;
+use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 
 class OrderRepository extends EntityRepository
 {
@@ -3056,5 +3058,377 @@ class OrderRepository extends EntityRepository
         }
 
         return  $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @param null $payChannel
+     *
+     * @return float|mixed
+     */
+    public function getIncomingTotalAmount(
+        $startDate,
+        $endDate,
+        $payChannel = null
+    ) {
+        // get product order amount
+        $productOrderAmountQuery = $this->getEntityManager()->createQueryBuilder()
+            ->from('SandboxApiBundle:Order\ProductOrder', 'o')
+            ->select('SUM(o.discountPrice)')
+            ->where('o.status = :completed')
+            ->andWhere('o.startDate >= :start')
+            ->andWhere('o.endDate <= :end')
+            ->andWhere('o.payChannel != :account')
+            ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
+            ->setParameter('completed', ProductOrder::STATUS_COMPLETED)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        if (!is_null($payChannel)) {
+            $productOrderAmountQuery->andWhere('o.payChannel = :payChannel')
+                ->setParameter('payChannel', $payChannel);
+        }
+
+        $productOrderAmount = $productOrderAmountQuery->getQuery()
+            ->getSingleScalarResult();
+        $productOrderAmount = (float) $productOrderAmount;
+
+        // get shop order amount
+        $shopOrderAmountQuery = $this->getEntityManager()->createQueryBuilder()
+            ->from('SandboxApiBundle:Shop\ShopOrder', 'so')
+            ->select('SUM(so.price)')
+            ->where('so.status = :completed')
+            ->andWhere('so.modificationDate >= :start')
+            ->andWhere('so.modificationDate <= :end')
+            ->andWhere('so.payChannel != :account')
+            ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
+            ->setParameter('completed', ShopOrder::STATUS_COMPLETED)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        if (!is_null($payChannel)) {
+            $shopOrderAmountQuery->andWhere('so.payChannel = :payChannel')
+                ->setParameter('payChannel', $payChannel);
+        }
+
+        $shopOrderAmount = $shopOrderAmountQuery->getQuery()
+            ->getSingleScalarResult();
+        $shopOrderAmount = (float) $shopOrderAmount;
+
+        // get event order amount
+        $eventOrderAmountQuery = $this->getEntityManager()->createQueryBuilder()
+            ->from('SandboxApiBundle:Event\EventOrder', 'eo')
+            ->select('SUM(eo.price)')
+            ->where('eo.status = :completed')
+            ->andWhere('eo.paymentDate >= :start')
+            ->andWhere('eo.paymentDate <= :end')
+            ->andWhere('eo.payChannel != :account')
+            ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
+            ->setParameter('completed', EventOrder::STATUS_COMPLETED)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        if (!is_null($payChannel)) {
+            $eventOrderAmountQuery->andWhere('eo.payChannel = :payChannel')
+                ->setParameter('payChannel', $payChannel);
+        }
+
+        $eventOrderAmount = $eventOrderAmountQuery->getQuery()
+            ->getSingleScalarResult();
+        $eventOrderAmount = (float) $eventOrderAmount;
+
+        // lease bill amount
+        $leaseBillAmountQuery = $this->getEntityManager()->createQueryBuilder()
+            ->from('SandboxApiBundle:Lease\LeaseBill', 'b')
+            ->select('SUM(b.revisedAmount)')
+            ->where('b.status = :completed')
+            ->andWhere('b.paymentDate >= :start')
+            ->andWhere('b.paymentDate <= :end')
+            ->andWhere('b.payChannel != :account')
+            ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
+            ->setParameter('completed', ProductOrder::STATUS_COMPLETED)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        if (!is_null($payChannel)) {
+            $leaseBillAmountQuery->andWhere('b.payChannel = :payChannel')
+                ->setParameter('payChannel', $payChannel);
+        }
+
+        $leaseBillAmount = $leaseBillAmountQuery->getQuery()
+            ->getSingleScalarResult();
+        $leaseBillAmount = (float) $leaseBillAmount;
+
+        // top up order amount
+        $topUpAmountQuery = $this->getEntityManager()->createQueryBuilder()
+            ->from('SandboxApiBundle:Order\TopUpOrder', 'to')
+            ->select('SUM(to.price)')
+            ->where('to.paymentDate >= :start')
+            ->andWhere('to.paymentDate <= :end')
+            ->andWhere('to.payChannel != :account')
+            ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        if (!is_null($payChannel)) {
+            $topUpAmountQuery->andWhere('to.payChannel = :payChannel')
+                ->setParameter('payChannel', $payChannel);
+        }
+
+        $topUpAmount = $topUpAmountQuery->getQuery()
+            ->getSingleScalarResult();
+        $topUpAmount = (float) $topUpAmount;
+
+        $totalAmount = $productOrderAmount + $shopOrderAmount + $eventOrderAmount + $leaseBillAmount + $topUpAmount;
+
+        return $totalAmount;
+    }
+
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @param null $payChannel
+     *
+     * @return float|mixed
+     */
+    public function countIncomingOrders(
+        $startDate,
+        $endDate,
+        $payChannel = null
+    ) {
+        // get product order count
+        $productOrderCountQuery = $this->getEntityManager()->createQueryBuilder()
+            ->from('SandboxApiBundle:Order\ProductOrder', 'o')
+            ->select('COUNT(o.discountPrice)')
+            ->where('o.status = :completed')
+            ->andWhere('o.startDate >= :start')
+            ->andWhere('o.endDate <= :end')
+            ->andWhere('o.payChannel != :account')
+            ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
+            ->setParameter('completed', ProductOrder::STATUS_COMPLETED)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        if (!is_null($payChannel)) {
+            $productOrderCountQuery->andWhere('o.payChannel = :payChannel')
+                ->setParameter('payChannel', $payChannel);
+        }
+
+        $productOrderCount = $productOrderCountQuery->getQuery()
+            ->getSingleScalarResult();
+        $productOrderCount = (int) $productOrderCount;
+
+        // get shop order count
+        $shopOrderCountQuery = $this->getEntityManager()->createQueryBuilder()
+            ->from('SandboxApiBundle:Shop\ShopOrder', 'so')
+            ->select('COUNT(so.price)')
+            ->where('so.status = :completed')
+            ->andWhere('so.modificationDate >= :start')
+            ->andWhere('so.modificationDate <= :end')
+            ->andWhere('so.payChannel != :account')
+            ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
+            ->setParameter('completed', ShopOrder::STATUS_COMPLETED)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        if (!is_null($payChannel)) {
+            $shopOrderCountQuery->andWhere('so.payChannel = :payChannel')
+                ->setParameter('payChannel', $payChannel);
+        }
+
+        $shopOrderCount = $shopOrderCountQuery->getQuery()
+            ->getSingleScalarResult();
+        $shopOrderCount = (int) $shopOrderCount;
+
+        // get event order count
+        $eventOrderCountQuery = $this->getEntityManager()->createQueryBuilder()
+            ->from('SandboxApiBundle:Event\EventOrder', 'eo')
+            ->select('COUNT(eo.price)')
+            ->where('eo.status = :completed')
+            ->andWhere('eo.paymentDate >= :start')
+            ->andWhere('eo.paymentDate <= :end')
+            ->andWhere('eo.payChannel != :account')
+            ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
+            ->setParameter('completed', EventOrder::STATUS_COMPLETED)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        if (!is_null($payChannel)) {
+            $eventOrderCountQuery->andWhere('eo.payChannel = :payChannel')
+                ->setParameter('payChannel', $payChannel);
+        }
+
+        $eventOrderCount = $eventOrderCountQuery->getQuery()
+            ->getSingleScalarResult();
+        $eventOrderCount = (int) $eventOrderCount;
+
+        // lease bill count
+        $leaseBillCountQuery = $this->getEntityManager()->createQueryBuilder()
+            ->from('SandboxApiBundle:Lease\LeaseBill', 'b')
+            ->select('COUNT(b.revisedAmount)')
+            ->where('b.status = :completed')
+            ->andWhere('b.paymentDate >= :start')
+            ->andWhere('b.paymentDate <= :end')
+            ->andWhere('b.payChannel != :account')
+            ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
+            ->setParameter('completed', ProductOrder::STATUS_COMPLETED)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        if (!is_null($payChannel)) {
+            $leaseBillCountQuery->andWhere('b.payChannel = :payChannel')
+                ->setParameter('payChannel', $payChannel);
+        }
+
+        $leaseBillCount = $leaseBillCountQuery->getQuery()
+            ->getSingleScalarResult();
+        $leaseBillCount = (int) $leaseBillCount;
+
+        // top up order count
+        $topUpCountQuery = $this->getEntityManager()->createQueryBuilder()
+            ->from('SandboxApiBundle:Order\TopUpOrder', 'to')
+            ->select('COUNT(to.price)')
+            ->where('to.paymentDate >= :start')
+            ->andWhere('to.paymentDate <= :end')
+            ->andWhere('to.payChannel != :account')
+            ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        if (!is_null($payChannel)) {
+            $topUpCountQuery->andWhere('to.payChannel = :payChannel')
+                ->setParameter('payChannel', $payChannel);
+        }
+
+        $topUpCount = $topUpCountQuery->getQuery()
+            ->getSingleScalarResult();
+        $topUpCount = (int) $topUpCount;
+
+        $totalCount = $productOrderCount + $shopOrderCount + $eventOrderCount + $leaseBillCount + $topUpCount;
+
+        return $totalCount;
+    }
+
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @param null $payChannel
+     *
+     * @return float
+     */
+    public function getRefundedOrderAmount(
+        $startDate,
+        $endDate,
+        $payChannel = null
+    ) {
+        // get product order amount
+        $productOrderAmountQuery = $this->getEntityManager()->createQueryBuilder()
+            ->from('SandboxApiBundle:Order\ProductOrder', 'o')
+            ->select('SUM(o.discountPrice)')
+            ->where('o.status = :refunded')
+            ->andWhere('o.startDate >= :start')
+            ->andWhere('o.endDate <= :end')
+            ->andWhere('o.payChannel != :account')
+            ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
+            ->setParameter('refunded', ProductOrder::REFUNDED_STATUS)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        if (!is_null($payChannel)) {
+            $productOrderAmountQuery->andWhere('o.payChannel = :payChannel')
+                ->setParameter('payChannel', $payChannel);
+        }
+
+        $productOrderAmount = $productOrderAmountQuery->getQuery()
+            ->getSingleScalarResult();
+        $productOrderAmount = (float) $productOrderAmount;
+
+        // get shop order amount
+        $shopOrderAmountQuery = $this->getEntityManager()->createQueryBuilder()
+            ->from('SandboxApiBundle:Shop\ShopOrder', 'so')
+            ->select('SUM(so.price)')
+            ->where('so.status = :refunded')
+            ->andWhere('so.modificationDate >= :start')
+            ->andWhere('so.modificationDate <= :end')
+            ->andWhere('so.payChannel != :account')
+            ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
+            ->setParameter('refunded', ProductOrder::REFUNDED_STATUS)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        if (!is_null($payChannel)) {
+            $shopOrderAmountQuery->andWhere('so.payChannel = :payChannel')
+                ->setParameter('payChannel', $payChannel);
+        }
+
+        $shopOrderAmount = $shopOrderAmountQuery->getQuery()
+            ->getSingleScalarResult();
+        $shopOrderAmount = (float) $shopOrderAmount;
+
+        $totalRefundedAmount = $productOrderAmount + $shopOrderAmount;
+
+        return $totalRefundedAmount;
+    }
+
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @param null $payChannel
+     *
+     * @return int
+     */
+    public function countRefundedOrders(
+        $startDate,
+        $endDate,
+        $payChannel = null
+    ) {
+        // get product order count
+        $productOrderCountQuery = $this->getEntityManager()->createQueryBuilder()
+            ->from('SandboxApiBundle:Order\ProductOrder', 'o')
+            ->select('COUNT(o.discountPrice)')
+            ->where('o.status = :refunded')
+            ->andWhere('o.startDate >= :start')
+            ->andWhere('o.endDate <= :end')
+            ->andWhere('o.payChannel != :account')
+            ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
+            ->setParameter('refunded', ProductOrder::REFUNDED_STATUS)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        if (!is_null($payChannel)) {
+            $productOrderCountQuery->andWhere('o.payChannel = :payChannel')
+                ->setParameter('payChannel', $payChannel);
+        }
+
+        $productOrderCount = $productOrderCountQuery->getQuery()
+            ->getSingleScalarResult();
+        $productOrderCount = (int) $productOrderCount;
+
+        // get shop order count
+        $shopOrderCountQuery = $this->getEntityManager()->createQueryBuilder()
+            ->from('SandboxApiBundle:Shop\ShopOrder', 'so')
+            ->select('COUNT(so.price)')
+            ->where('so.status = :refunded')
+            ->andWhere('so.modificationDate >= :start')
+            ->andWhere('so.modificationDate <= :end')
+            ->andWhere('so.payChannel != :account')
+            ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
+            ->setParameter('refunded', ProductOrder::REFUNDED_STATUS)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        if (!is_null($payChannel)) {
+            $shopOrderCountQuery->andWhere('so.payChannel = :payChannel')
+                ->setParameter('payChannel', $payChannel);
+        }
+
+        $shopOrderCount = $shopOrderCountQuery->getQuery()
+            ->getSingleScalarResult();
+        $shopOrderCount = (int) $shopOrderCount;
+
+        $totalRefundedCount = $productOrderCount + $shopOrderCount;
+
+        return $totalRefundedCount;
     }
 }
