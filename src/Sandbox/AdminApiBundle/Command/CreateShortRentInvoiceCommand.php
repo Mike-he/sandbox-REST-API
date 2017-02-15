@@ -104,14 +104,14 @@ class CreateShortRentInvoiceCommand extends ContainerAwareCommand
             ->getRepository('SandboxApiBundle:Finance\FinanceLongRentServiceBill')
             ->getServiceBillsByMonth($firstDate, $lastDate);
 
-        foreach ($companyArray as $item) {
+        foreach ($companyArray as $key => $value) {
             $longRentArray = [
                 'long_rent_balance' => 0,
                 'long_rent_service_balance' => 0,
                 'long_rent_count' => 0,
             ];
 
-            array_merge($item, $longRentArray);
+            $companyArray[$key] = array_merge($companyArray[$key], $longRentArray);
         }
 
         foreach ($longRents as $longRent) {
