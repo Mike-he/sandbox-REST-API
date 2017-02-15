@@ -1385,7 +1385,7 @@ class AdminLeaseController extends SalesRestController
             !key_exists('start_date', $billAttributes) ||
             !key_exists('end_date', $billAttributes) ||
             (gettype($billAttributes['amount']) != 'double' && gettype($billAttributes['amount']) != 'integer') ||
-            empty($billAttributes['amount']) ||
+            is_null($billAttributes['amount']) ||
             !filter_var($billAttributes['name'], FILTER_DEFAULT) ||
             !filter_var($billAttributes['description'], FILTER_DEFAULT) ||
             !preg_match('/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/', $billAttributes['start_date']) ||
