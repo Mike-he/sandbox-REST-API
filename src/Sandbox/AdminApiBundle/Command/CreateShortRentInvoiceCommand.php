@@ -67,12 +67,12 @@ class CreateShortRentInvoiceCommand extends ContainerAwareCommand
             if (!array_key_exists($companyId, $companyArray)) {
                 $companyArray[$companyId] = [
                     'short_rent_balance' => $amount,
-                    'short_rent_count' => 1
+                    'short_rent_count' => 1,
                 ];
             } else {
                 $companyArray[$companyId] = [
                     'short_rent_balance' => $amount + $companyArray[$companyId]['short_rent_balance'],
-                    'short_rent_count' => 1 + $companyArray[$companyId]['short_rent_count']
+                    'short_rent_count' => 1 + $companyArray[$companyId]['short_rent_count'],
                 ];
             }
         }
@@ -115,13 +115,13 @@ class CreateShortRentInvoiceCommand extends ContainerAwareCommand
                     'short_rent_count' => 0,
                     'long_rent_balance' => $incomeAmount,
                     'long_rent_service_balance' => $serviceAmount,
-                    'long_rent_count' => 1
+                    'long_rent_count' => 1,
                 ];
             } else {
                 $companyArray[$companyId] = [
                     'long_rent_balance' => $incomeAmount + $companyArray[$companyId]['long_rent_balance'],
                     'long_rent_service_balance' => $serviceAmount + $companyArray[$companyId]['long_rent_service_balance'],
-                    'long_rent_count' => 1 + $companyArray[$companyId]['long_rent_count']
+                    'long_rent_count' => 1 + $companyArray[$companyId]['long_rent_count'],
                 ];
             }
         }

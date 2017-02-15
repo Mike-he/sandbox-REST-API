@@ -4,6 +4,7 @@ namespace Sandbox\SalesApiBundle\Controller\Finance;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -63,7 +64,7 @@ class AdminFinanceSummaryController extends PaymentController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        //$this->checkAdminSalesInvoicePermission($this->getAdminId(), AdminPermission::OP_LEVEL_VIEW);
+        $this->checkAdminSalesFinanceSummaryPermission($this->getAdminId(), AdminPermission::OP_LEVEL_VIEW);
 
         $adminPlatform = $this->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
@@ -77,7 +78,7 @@ class AdminFinanceSummaryController extends PaymentController
         $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
 
         $year = $paramFetcher->get('year');
-        if (is_null($year) || empty($year))  {
+        if (is_null($year) || empty($year)) {
             $now = new \DateTime();
             $year = $now->format('Y');
         }
@@ -132,7 +133,7 @@ class AdminFinanceSummaryController extends PaymentController
     public function getAction(
         Request $request
     ) {
-        //$this->checkAdminSalesInvoicePermission($this->getAdminId(), AdminPermission::OP_LEVEL_VIEW);
+        $this->checkAdminSalesFinanceSummaryPermission($this->getAdminId(), AdminPermission::OP_LEVEL_VIEW);
 
         $adminPlatform = $this->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
@@ -160,5 +161,22 @@ class AdminFinanceSummaryController extends PaymentController
         }
 
         return new View(['years' => $yearArray]);
+    }
+
+    /**
+     * @param $adminId
+     * @param $opLevel
+     */
+    private function checkAdminSalesFinanceSummaryPermission(
+        $adminId,
+        $opLevel
+    ) {
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $adminId,
+            [
+                ['key' => AdminPermission::KEY_SALES_PLATFORM_FINANCIAL_SUMMARY],
+            ],
+            $opLevel
+        );
     }
 }
