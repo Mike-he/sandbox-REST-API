@@ -45,6 +45,33 @@ class AdminOrderController extends OrderController
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
+     *     name="order_number",
+     *     array=false
+     * )
+     *
+     * @Route("/orders/ids")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getOrderByOrderNumberAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $orderNumber = $paramFetcher->get('order_number');
+
+        $order = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getOrderIdsByOrderNumber($orderNumber);
+
+        return new View($order);
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
      *    name="pageLimit",
      *    array=false,
      *    default="20",
@@ -300,13 +327,24 @@ class AdminOrderController extends OrderController
      *
      * @param Request $request
      * @param $id
+     *
+     * @return View
      */
     public function patchTransferStatusAction(
         Request $request,
         $id
     ) {
         // check user permission
-        $this->checkAdminOrderPermission($this->getAdminId(), AdminPermission::OP_LEVEL_EDIT);
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_REFUND],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_USER],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_TRANSFER_CONFIRM],
+            ],
+            AdminPermission::OP_LEVEL_EDIT
+        );
 
         $order = $this->getRepo('Order\ProductOrder')->findOneBy(
             [
@@ -960,6 +998,26 @@ class AdminOrderController extends OrderController
      *    description="refund amount filter"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="refund_start",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="start date. Must be YYYY-mm-dd"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="refund_end",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="end date. Must be YYYY-mm-dd"
+     * )
+     *
      * @Route("/orders")
      * @Method({"GET"})
      *
@@ -998,6 +1056,8 @@ class AdminOrderController extends OrderController
         $roomId = $paramFetcher->get('room');
         $refundLow = $paramFetcher->get('refund_amount_low');
         $refundHigh = $paramFetcher->get('refund_amount_high');
+        $refundStart = $paramFetcher->get('refund_start');
+        $refundEnd = $paramFetcher->get('refund_end');
 
         $limit = $pageLimit;
         $offset = ($pageIndex - 1) * $pageLimit;
@@ -1030,6 +1090,8 @@ class AdminOrderController extends OrderController
                 $refundStatus,
                 $refundLow,
                 $refundHigh,
+                $refundStart,
+                $refundEnd,
                 $limit,
                 $offset
             );
@@ -1058,7 +1120,9 @@ class AdminOrderController extends OrderController
                 $status,
                 $refundStatus,
                 $refundLow,
-                $refundHigh
+                $refundHigh,
+                $refundStart,
+                $refundEnd
             );
 
         $view = new View();
@@ -1343,6 +1407,7 @@ class AdminOrderController extends OrderController
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_DASHBOARD],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_REFUND],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_SALES],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_TRANSFER_CONFIRM],
             ],
             AdminPermission::OP_LEVEL_VIEW
         );

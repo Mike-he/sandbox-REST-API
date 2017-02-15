@@ -422,12 +422,20 @@ class RoomBuildingRepository extends EntityRepository
             // sort by distance and evaluation
             switch ($sortBy) {
                 case 'smart':
+                    $buildingsQuery->orderBy('evaluation_star', 'DESC')
+                        ->addOrderBy('total_evaluation_number', 'DESC')
+                        ->addOrderBy('distance', 'ASC');
+                    break;
+                case 'distance':
+                    $buildingsQuery->orderBy('distance', 'ASC');
                     break;
                 case 'star':
                     $buildingsQuery->orderBy('rb.evaluationStar', 'DESC');
                     break;
                 default:
-                    $buildingsQuery->orderBy('distance', 'ASC');
+                    $buildingsQuery->orderBy('evaluation_star', 'DESC')
+                        ->addOrderBy('total_evaluation_number', 'DESC')
+                        ->addOrderBy('distance', 'ASC');
             }
         }
 

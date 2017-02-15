@@ -4,10 +4,12 @@ namespace Sandbox\ClientApiBundle\Controller\Payment;
 
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Event\EventOrder;
+use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentServiceBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Order\TopUpOrder;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
+use Sandbox\ApiBundle\Traits\FinanceTrait;
 use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations\Post;
@@ -29,6 +31,8 @@ class ClientPaymentController extends PaymentController
 {
     const PINGPLUSPLUS_SIGNATURE_HEADER = 'x_pingplusplus_signature';
     const PINGPLUSPLUS_RSA_PATH = '/rsa_public_key.pem';
+
+    use FinanceTrait;
 
     /**
      * @Post("/payment/webhooks")
@@ -214,6 +218,18 @@ class ClientPaymentController extends PaymentController
                 $bill = $this->setLeaseBillStatus(
                     $orderNumber,
                     $channel
+                );
+
+                $this->generateLongRentServiceFee(
+                    $bill,
+                    FinanceLongRentServiceBill::TYPE_BILL_SERVICE_FEE
+                );
+
+                // add invoice amount
+                $this->postConsumeBalance(
+                    $userId,
+                    $price,
+                    $orderNumber
                 );
 
                 $orderMap = LeaseBill::BILL_MAP;

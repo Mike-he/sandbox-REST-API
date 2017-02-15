@@ -129,3 +129,9 @@ sandbox_sales_admin_room_types:
     resource: "@SandboxSalesApiBundle/Controller/Room/AdminRoomTypeController.php"
     type:     annotation
     prefix:   /admin
+
+# Admin Finance
+sandbox_sales_admin_finance_api:
+    resource: "@SandboxSalesApiBundle/Resources/config/finance/routing.yml"
+    type: rest
+    prefix: /admin

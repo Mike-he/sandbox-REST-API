@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Repository\Lease;
 
 use Doctrine\ORM\EntityRepository;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
+use Sandbox\ApiBundle\Entity\Lease\LeaseBillOfflineTransfer;
 
 class LeaseBillRepository extends EntityRepository
 {
@@ -218,6 +219,7 @@ class LeaseBillRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('lb')
             ->leftJoin('lb.lease', 'l')
+            ->leftJoin('SandboxApiBundle:Lease\LeaseBillOfflineTransfer', 't', 'with', 't.bill = lb.id')
             ->where('1 = 1');
 
         if (!is_null($company)) {
@@ -234,8 +236,12 @@ class LeaseBillRepository extends EntityRepository
         }
 
         if (!is_null($status)) {
-            $query->andWhere('lb.status in (:status)')
-                ->setParameter('status', $status);
+            if ($status == LeaseBillOfflineTransfer::STATUS_RETURNED || $status == LeaseBillOfflineTransfer::STATUS_PENDING) {
+                $query->andWhere('t.transferStatus = :status');
+            } else {
+                $query->andWhere('lb.status in (:status)');
+            }
+            $query->setParameter('status', $status);
         }
 
         if (!is_null($keyword) && !is_null($keywordSearch)) {
@@ -275,8 +281,32 @@ class LeaseBillRepository extends EntityRepository
                 ->setParameter('amountEnd', $amountEnd);
         }
 
+        $query->orderBy('lb.sendDate', 'DESC');
+
         $result = $query->getQuery()->getResult();
 
         return $result;
+    }
+
+    /**
+     * @param $userId
+     * @param $ids
+     *
+     * @return array
+     */
+    public function getLeaseBillsByIds(
+        $userId,
+        $ids
+    ) {
+        $query = $this->createQueryBuilder('b')
+            ->where('b.drawee = :userId')
+            ->setParameter('userId', $userId);
+
+        if (!is_null($ids) && !empty($ids)) {
+            $query->andWhere('b.id IN (:ids)')
+                ->setParameter('ids', $ids);
+        }
+
+        return $query->getQuery()->getResult();
     }
 }

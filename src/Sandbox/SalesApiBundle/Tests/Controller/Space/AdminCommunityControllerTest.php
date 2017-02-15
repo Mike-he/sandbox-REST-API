@@ -292,11 +292,8 @@ class AdminCommunityControllerTest extends WebTestCase
         $this->given('first-room-type');
         $roomType1 = $this->entity;
 
-        $this->given('second-room-type');
+        $this->given('seventh-room-type');
         $roomType2 = $this->entity;
-
-        $this->given('third-room-type');
-        $roomType3 = $this->entity;
 
         $data = [
             [
@@ -316,17 +313,7 @@ class AdminCommunityControllerTest extends WebTestCase
                     ->trans(ProductOrderExport::TRANS_ROOM_TYPE.$roomType2->getName()),
                 'icon' => $roomType2->getIcon(),
                 'building_id' => $building->getId(),
-                'using_number' => 2,
-                'all_number' => 2,
-            ],
-            [
-                'id' => $roomType3->getId(),
-                'type' => $roomType3->getName(),
-                'name' => $this->getContainer()->get('translator')
-                    ->trans(ProductOrderExport::TRANS_ROOM_TYPE.$roomType3->getName()),
-                'icon' => $roomType3->getIcon(),
-                'building_id' => $building->getId(),
-                'using_number' => 0,
+                'using_number' => 1,
                 'all_number' => 1,
             ],
         ];

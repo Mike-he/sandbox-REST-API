@@ -177,7 +177,8 @@ class ClientLeaseController extends SandboxRestController
         $offset = $paramFetcher->get('offset');
         $limit = $paramFetcher->get('limit');
 
-        $leases = $this->getLeaseRepo()
+        $leases = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\Lease')
             ->getClientLeases(
                 $userId,
                 $limit,

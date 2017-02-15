@@ -53,12 +53,16 @@ class AdminPermission
     const KEY_OFFICIAL_PLATFORM_ADVERTISING = 'platform.advertising';
     const KEY_OFFICIAL_PLATFORM_REFUND = 'platform.order.refund';
     const KEY_OFFICIAL_PLATFORM_FINANCE = 'platform.finance';
+    const KEY_OFFICIAL_PLATFORM_WITHDRAWAL = 'platform.withdrawal';
     const KEY_OFFICIAL_PLATFORM_SPACE = 'platform.space';
     const KEY_OFFICIAL_PLATFORM_LONG_TERM_LEASE = 'platform.long_term_lease';
     const KEY_OFFICIAL_PLATFORM_LONG_TERM_APPOINTMENT = 'platform.long_term_appointment';
     const KEY_OFFICIAL_PLATFORM_EVENT_ORDER = 'platform.event_order';
     const KEY_OFFICIAL_PLATFORM_SHOP_ORDER = 'platform.shop_order';
     const KEY_OFFICIAL_PLATFORM_TOP_UP = 'platform.top_up';
+    const KEY_OFFICIAL_PLATFORM_LONG_TERM_SERVICE_RECEIPT = 'platform.long_term_service_receipt';
+    const KEY_OFFICIAL_PLATFORM_SALES_INVOICE_CONFIRM = 'platform.sales_invoice_confirm';
+    const KEY_OFFICIAL_PLATFORM_TRANSFER_CONFIRM = 'platform.transfer_confirm';
 
     const KEY_SALES_PLATFORM_DASHBOARD = 'sales.platform.dashboard';
     const KEY_SALES_PLATFORM_ADMIN = 'sales.platform.admin';

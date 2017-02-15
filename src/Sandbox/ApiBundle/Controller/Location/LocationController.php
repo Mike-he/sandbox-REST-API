@@ -923,7 +923,7 @@ class LocationController extends SalesRestController
      *
      * @Annotations\QueryParam(
      *    name="sort_by",
-     *    default="distance",
+     *    default="smart",
      *    nullable=true,
      *    description="smart sort"
      * )

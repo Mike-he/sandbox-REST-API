@@ -56,6 +56,9 @@ trait LogsTrait
             case Log::OBJECT_PRODUCT_APPOINTMENT:
                 $json = $this->getProductAppointmentJson($objectId);
                 break;
+            case Log::OBJECT_WITHDRAWAL:
+                $json = $this->getWithdrawalJson($objectId);
+                break;
             default:
                 return false;
         }
@@ -67,6 +70,23 @@ trait LogsTrait
         }
 
         return false;
+    }
+
+    /**
+     * @param $objectId
+     */
+    private function getWithdrawalJson(
+        $objectId
+    ) {
+        $object = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyWithdrawals')
+            ->find($objectId);
+
+        if (is_null($object)) {
+            return;
+        }
+
+        return $this->transferToJsonWithViewGroup($object, 'admin_detail');
     }
 
     /**
@@ -210,16 +230,36 @@ trait LogsTrait
     private function getAdminJson(
         $objectId
     ) {
-        $admin = $this->getContainer()
-             ->get('doctrine')
-             ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
-             ->findPositionByAdmin($objectId);
+        $adminPlatform = $this->getAdminPlatform();
+        $platform = $adminPlatform['platform'];
+        $companyId = $adminPlatform['sales_company_id'];
 
-        if (is_null($admin)) {
-            return;
+        $user = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserView')->find($objectId);
+
+        $binds = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+            ->getBindingsByUser(
+                $objectId,
+                $platform,
+                $companyId
+            );
+
+        $bindArr = array();
+        foreach ($binds as $bind) {
+            array_push($bindArr, array(
+                'position_name' => $bind->getPosition()->getName(),
+                'building_name' => $bind->getBuilding(),
+                'shop_name' => $bind->getShop(),
+            ));
         }
 
-        return $this->transferToJsonWithViewGroup($admin, 'admin');
+        $admin = array(
+            'user_id' => $objectId,
+            'user' => $user,
+            'bind' => $bindArr,
+        );
+
+        return $this->transferToJson($admin);
     }
 
     /**

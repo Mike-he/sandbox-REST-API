@@ -688,7 +688,7 @@ class AdminDoorController extends DoorController
             $this->getAdminId(),
             [
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ACCESS],
-                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_USER]
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_USER],
             ],
             $opLevel
         );

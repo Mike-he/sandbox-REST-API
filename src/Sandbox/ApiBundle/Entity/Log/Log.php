@@ -35,6 +35,7 @@ class Log
     const MODULE_PRODUCT = 'product';
     const MODULE_PRODUCT_APPOINTMENT = 'product_appointment';
     const MODULE_LEASE = 'lease';
+    const MODULE_FINANCE = 'finance';
 
     const ACTION_CREATE = 'create';
     const ACTION_DELETE = 'delete';
@@ -70,6 +71,8 @@ class Log
     const OBJECT_PRODUCT_APPOINTMENT = 'product_appointment';
     const OBJECT_LEASE = 'lease';
     const OBJECT_LEASE_BILL = 'lease_bill';
+    const OBJECT_WITHDRAWAL = 'withdrawal';
+    const OBJECT_SHORT_RENT_INVOICE_APPLICATION = 'short_rent_invoice_application';
 
     /**
      * @var int

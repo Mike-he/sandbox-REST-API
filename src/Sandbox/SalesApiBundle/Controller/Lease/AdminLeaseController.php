@@ -872,9 +872,9 @@ class AdminLeaseController extends SalesRestController
                 (gettype($payload['deposit']) != 'double' && gettype($payload['deposit']) != 'integer') ||
                 (gettype($payload['monthly_rent']) != 'double' && gettype($payload['deposit']) != 'integer') ||
                 (gettype($payload['total_rent']) != 'double' && gettype($payload['deposit']) != 'integer') ||
-                empty($payload['deposit']) ||
-                empty($payload['monthly_rent']) ||
-                empty($payload['total_rent']) ||
+                is_null($payload['deposit']) ||
+                is_null($payload['monthly_rent']) ||
+                is_null($payload['total_rent']) ||
                 empty($payload['lease_rent_types']) ||
                 !preg_match('/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/', $payload['start_date']) ||
                 !preg_match('/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/', $payload['end_date']) ||
@@ -919,12 +919,6 @@ class AdminLeaseController extends SalesRestController
         $lease,
         $em
     ) {
-        if ($payload['status'] !== Lease::LEASE_STATUS_DRAFTING) {
-            if (empty($payload['bills']['add'])) {
-                throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILLS_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE);
-            }
-        }
-
         if (!empty($payload['bills']['add'])) {
             $this->addBills($payload, $em, $lease);
         }
@@ -1275,9 +1269,9 @@ class AdminLeaseController extends SalesRestController
                     return;
                 }
 
-                throw new BadRequestHttpException(
-                    CustomErrorMessagesConstants::ERROR_LEASE_KEEP_AT_LEAST_ONE_BILL_MESSAGE
-                );
+//                throw new BadRequestHttpException(
+//                    CustomErrorMessagesConstants::ERROR_LEASE_KEEP_AT_LEAST_ONE_BILL_MESSAGE
+//                );
             }
         }
     }
@@ -1391,7 +1385,7 @@ class AdminLeaseController extends SalesRestController
             !key_exists('start_date', $billAttributes) ||
             !key_exists('end_date', $billAttributes) ||
             (gettype($billAttributes['amount']) != 'double' && gettype($billAttributes['amount']) != 'integer') ||
-            empty($billAttributes['amount']) ||
+            is_null($billAttributes['amount']) ||
             !filter_var($billAttributes['name'], FILTER_DEFAULT) ||
             !filter_var($billAttributes['description'], FILTER_DEFAULT) ||
             !preg_match('/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/', $billAttributes['start_date']) ||
