@@ -79,6 +79,7 @@ twig:
         crm_api_sales_admin_price_rule_include: "%crm_api_sales_admin_price_rule_include%"
         crm_api_sales_admin_price_rule_exclude: "%crm_api_sales_admin_price_rule_exclude%"
         crm_api_sales_admin_price_rule_info: "%crm_api_sales_admin_price_rule_info%"
+        crm_api_sales_admin_invoices: "%crm_api_sales_admin_invoices%"
         crm_api_admin_user_create: "%crm_api_admin_user_create%"
         crm_api_client_user_price_calculate: "%crm_api_client_user_price_calculate%"
         door_api_username: "%door_api_username%"

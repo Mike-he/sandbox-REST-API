@@ -309,4 +309,28 @@ class LeaseBillRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param $status
+     * @param $companyId
+     *
+     * @return mixed
+     */
+    public function countBillByCompany(
+        $status,
+        $companyId
+    ) {
+        $query = $this->createQueryBuilder('lb')
+            ->select('COUNT(lb)')
+            ->leftJoin('lb.lease', 'l')
+            ->leftJoin('l.product', 'p')
+            ->leftJoin('p.room', 'r')
+            ->leftJoin('r.building', 'b')
+            ->where('b.companyId = :companyId')
+            ->andWhere('lb.status = :status')
+            ->setParameter('companyId', $companyId)
+            ->setParameter('status', $status);
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
 }
