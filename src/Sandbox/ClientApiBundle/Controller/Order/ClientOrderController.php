@@ -433,7 +433,7 @@ class ClientOrderController extends OrderController
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
-     *    name="id",
+     *    name="number",
      *    array=true,
      *    default=null,
      *    nullable=true,
@@ -447,72 +447,22 @@ class ClientOrderController extends OrderController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $userId = $this->getUserId();
-        $ids = $paramFetcher->get('id');
-
-        $orders = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->getInvoiceOrdersForApp(
-                $userId,
-                null,
-                null,
-                $ids
-            );
+        $tradeNumbers = $paramFetcher->get('number');
 
         $response = array();
-        foreach ($orders as $order) {
-            array_push($response, array(
-                'trade_number' => $order->getOrderNumber(),
-                'room_name' => $order->getProduct()->getRoom()->getName(),
-                'payment_date' => $order->getPaymentDate(),
-                'category' => $this->getOrderInvoiceCategory($order),
-            ));
-        }
+        foreach ($tradeNumbers as $number) {
+            switch (substr($number, 0, 1)) {
+                case ProductOrder::LETTER_HEAD:
+                    $responseArray = $this->getProductOrderResponse($number);
+                    break;
+                case LeaseBill::LEASE_BILL_LETTER_HEAD:
+                    $responseArray = $this->getLeaseBillResponse($number);
+                    break;
+                default:
+                    break;
+            }
 
-        $view = new View($response);
-
-        return $view;
-    }
-
-    /**
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
-     *
-     * @GET("/bills/my/sales/invoice/selected")
-     *
-     * @Annotations\QueryParam(
-     *    name="id",
-     *    array=true,
-     *    default=null,
-     *    nullable=true,
-     *    strict=true,
-     *    description="ids of bills"
-     * )
-     *
-     * @return View
-     */
-    public function getUserSalesInvoiceBillsByIdsAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher
-    ) {
-        $userId = $this->getUserId();
-        $ids = $paramFetcher->get('id');
-
-        $bills = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
-            ->getLeaseBillsByIds(
-                $userId,
-                $ids
-            );
-
-        $response = array();
-        foreach ($bills as $bill) {
-            array_push($response, array(
-                'trade_number' => $bill->getSerialNumber(),
-                'room_name' => $bill->getLease()->getProduct()->getRoom()->getName(),
-                'payment_date' => $bill->getPaymentDate(),
-                'category' => $this->getBillInvoiceCategory($bill),
-            ));
+            array_push($response, $responseArray);
         }
 
         $view = new View($response);
