@@ -5,6 +5,7 @@ namespace Sandbox\SalesApiBundle\Controller\Finance;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -205,6 +206,59 @@ class AdminFinanceSummaryController extends PaymentController
         }
 
         return new View(['years' => $yearArray]);
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @Method({"GET"})
+     * @Route("/finance/summary/counts")
+     *
+     * @return View
+     */
+    public function getSummaryNumberCountsAction(
+        Request $request
+    ) {
+        $adminPlatform = $this->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
+        $company = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
+            ->findOneBy([
+                'id' => $salesCompanyId,
+                'banned' => false,
+            ]);
+        $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
+
+        $invoices = $this->getSalesAdminInvoices();
+        $invoiceCount = (int) $invoices['total_count'];
+
+        $billCount = (int) $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->countBillByCompany(
+                LeaseBill::STATUS_VERIFY,
+                $salesCompanyId
+            );
+
+        $shortRentAmount = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Finance\FinanceShortRentInvoice')
+            ->sumPendingShortRentInvoices($salesCompanyId);
+        if (is_null($shortRentAmount)) {
+            $shortRentAmount = 0;
+        }
+
+        //TODO: get long rent amount
+        $longRentAmount = 0;
+
+        $view = new View();
+        $view->setData([
+            'long_rent_amount' => (float) $longRentAmount,
+            'short_rent_amount' => (float) $shortRentAmount,
+            'user_invoice_count' => $invoiceCount,
+            'offline_verify_count' => $billCount,
+        ]);
+
+        return $view;
     }
 
     /**

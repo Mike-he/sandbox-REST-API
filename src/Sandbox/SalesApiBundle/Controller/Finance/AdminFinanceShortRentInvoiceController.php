@@ -152,6 +152,9 @@ class AdminFinanceShortRentInvoiceController extends PaymentController
         $pendingAmount = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Finance\FinanceShortRentInvoice')
             ->sumPendingShortRentInvoices($salesCompanyId);
+        if (is_null($pendingAmount)) {
+            $pendingAmount = 0;
+        }
 
         $view = new View();
         $view->setData(

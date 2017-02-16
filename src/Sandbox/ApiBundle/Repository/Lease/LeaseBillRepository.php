@@ -312,6 +312,9 @@ class LeaseBillRepository extends EntityRepository
         return $query->getQuery()->getResult();
     }
 
+    /**
+     * @return int
+     */
     public function countTransferComfirm()
     {
         $leaseBillComfirmCount = $this->createQueryBuilder('lb')
@@ -324,7 +327,7 @@ class LeaseBillRepository extends EntityRepository
 
         $leaseBillComfirmCount = $leaseBillComfirmCount->getQuery()
             ->getSingleScalarResult();
-        $leaseBillComfirmCount = (int) $leaseBillComfirmCount;
+        $leaseBillComfirmCount = (int)$leaseBillComfirmCount;
 
         $orderComfirmCount = $this->getEntityManager()->createQueryBuilder()
             ->from('SandboxApiBundle:Order\ProductOrder', 'o')
@@ -342,10 +345,34 @@ class LeaseBillRepository extends EntityRepository
 
         $orderComfirmCount = $orderComfirmCount->getQuery()
             ->getSingleScalarResult();
-        $orderComfirmCount = (int) $orderComfirmCount;
+        $orderComfirmCount = (int)$orderComfirmCount;
 
         $totalComfirmCount = $leaseBillComfirmCount + $orderComfirmCount;
 
         return $totalComfirmCount;
+    }
+
+    /**
+     * @param $status
+     * @param $companyId
+     *
+     * @return mixed
+     */
+    public function countBillByCompany(
+        $status,
+        $companyId
+    ) {
+        $query = $this->createQueryBuilder('lb')
+            ->select('COUNT(lb)')
+            ->leftJoin('lb.lease', 'l')
+            ->leftJoin('l.product', 'p')
+            ->leftJoin('p.room', 'r')
+            ->leftJoin('r.building', 'b')
+            ->where('b.companyId = :companyId')
+            ->andWhere('lb.status = :status')
+            ->setParameter('companyId', $companyId)
+            ->setParameter('status', $status);
+
+        return $query->getQuery()->getSingleScalarResult();
     }
 }
