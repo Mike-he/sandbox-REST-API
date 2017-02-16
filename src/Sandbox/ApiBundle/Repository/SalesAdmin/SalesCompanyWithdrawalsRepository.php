@@ -169,4 +169,21 @@ class SalesCompanyWithdrawalsRepository extends EntityRepository
 
         return $query;
     }
+
+    /**
+     * @param $status
+     *
+     * @return mixed
+     */
+    public function countPendingSalesCompanyWithdrawals(
+        $status
+    ) {
+        $query = $this->createQueryBuilder('w')
+            ->select('COUNT(w.id)')
+            ->where('w.status = :status')
+            ->setParameter('status', $status);
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
+
 }

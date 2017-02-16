@@ -4,7 +4,6 @@ namespace Sandbox\AdminApiBundle\Controller\Finance;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
-use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
@@ -108,30 +107,42 @@ class AdminFinanceLongRentBillController extends SandboxRestController
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
 
+        $offset = ($pageIndex - 1) * $pageLimit;
+
         $bills = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Finance\FinanceLongRentBill')
             ->getBillLists(
                 $company,
                 $status,
                 $createStart,
+                $createEnd,
+                null,
+                null,
+                $pageLimit,
+                $offset
+            );
+
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Finance\FinanceLongRentBill')
+            ->countBills(
+                $company,
+                $status,
+                $createStart,
                 $createEnd
             );
 
-        $bills = $this->get('serializer')->serialize(
-            $bills,
-            'json',
-            SerializationContext::create()->setGroups(['main'])
-        );
-        $bills = json_decode($bills, true);
-
-        $paginator = new Paginator();
-        $pagination = $paginator->paginate(
-            $bills,
-            $pageIndex,
-            $pageLimit
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['main']));
+        $view->setData(
+            array(
+                'current_page_number' => $pageIndex,
+                'num_items_per_page' => (int) $pageLimit,
+                'items' => $bills,
+                'total_count' => (int) $count,
+            )
         );
 
-        return new View($pagination);
+        return $view;
     }
 
     /**

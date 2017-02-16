@@ -3471,4 +3471,39 @@ class OrderRepository extends EntityRepository
 
         return $totalRefundedCount;
     }
+
+    public function countNeedToRefundOrders()
+    {
+        // get product order count
+        $productOrderCountQuery = $this->getEntityManager()->createQueryBuilder()
+            ->from('SandboxApiBundle:Order\ProductOrder', 'o')
+            ->select('COUNT(o.discountPrice)')
+            ->where('o.refunded = FALSE')
+            ->andWhere('o.needToRefund = TRUE');
+
+        $productOrderCount = $productOrderCountQuery->getQuery()
+            ->getSingleScalarResult();
+        $productOrderCount = (int) $productOrderCount;
+
+        // get shop order count
+        $shopOrderCountQuery = $this->getEntityManager()->createQueryBuilder()
+            ->from('SandboxApiBundle:Shop\ShopOrder', 'so')
+            ->select('COUNT(so.price)')
+            ->where('so.refunded = :refunded')
+            ->andWhere('so.needToRefund = :needed')
+            ->andWhere('so.status = :status')
+            ->andWhere('so.unoriginal = :unoriginal')
+            ->setParameter('unoriginal', false)
+            ->setParameter('status', ShopOrder::STATUS_REFUNDED)
+            ->setParameter('needed', true)
+            ->setParameter('refunded', false);
+
+        $shopOrderCount = $shopOrderCountQuery->getQuery()
+            ->getSingleScalarResult();
+        $shopOrderCount = (int) $shopOrderCount;
+
+        $totalRefundedCount = $productOrderCount + $shopOrderCount;
+
+        return $totalRefundedCount;
+    }
 }

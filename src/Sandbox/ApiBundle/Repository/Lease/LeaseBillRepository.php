@@ -5,6 +5,8 @@ namespace Sandbox\ApiBundle\Repository\Lease;
 use Doctrine\ORM\EntityRepository;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBillOfflineTransfer;
+use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
+use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 
 class LeaseBillRepository extends EntityRepository
 {
@@ -308,5 +310,42 @@ class LeaseBillRepository extends EntityRepository
         }
 
         return $query->getQuery()->getResult();
+    }
+
+    public function countTransferComfirm()
+    {
+        $leaseBillComfirmCount = $this->createQueryBuilder('lb')
+            ->leftJoin('SandboxApiBundle:Lease\LeaseBillOfflineTransfer', 't', 'with', 't.bill = lb.id')
+            ->select('count(lb.id)')
+            ->where('t.transferStatus = :status')
+            ->andWhere('lb.payChannel = :channel')
+            ->setParameter('channel', LeaseBill::CHANNEL_OFFLINE)
+            ->setParameter('status', LeaseBillOfflineTransfer::STATUS_PENDING);
+
+        $leaseBillComfirmCount = $leaseBillComfirmCount->getQuery()
+            ->getSingleScalarResult();
+        $leaseBillComfirmCount = (int) $leaseBillComfirmCount;
+
+        $orderComfirmCount = $this->getEntityManager()->createQueryBuilder()
+            ->from('SandboxApiBundle:Order\ProductOrder', 'o')
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
+            ->leftJoin('SandboxApiBundle:Order\OrderOfflineTransfer', 't', 'with', 't.orderId = o.id')
+            ->select('COUNT(o.id)')
+            ->where('o.payChannel = :channel')
+            ->andWhere('
+                            (t.transferStatus = :pending) OR
+                            (t.transferStatus = :verify)
+                        ')
+            ->setParameter('pending', OrderOfflineTransfer::STATUS_PENDING)
+            ->setParameter('verify', OrderOfflineTransfer::STATUS_VERIFY)
+            ->setParameter('channel', ProductOrder::CHANNEL_OFFLINE);
+
+        $orderComfirmCount = $orderComfirmCount->getQuery()
+            ->getSingleScalarResult();
+        $orderComfirmCount = (int) $orderComfirmCount;
+
+        $totalComfirmCount = $leaseBillComfirmCount + $orderComfirmCount;
+
+        return $totalComfirmCount;
     }
 }
