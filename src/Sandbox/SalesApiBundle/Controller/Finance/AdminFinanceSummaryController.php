@@ -158,6 +158,8 @@ class AdminFinanceSummaryController extends PaymentController
             $now
         );
 
+        $summary['current_month'] = $now->format('m');
+
         $view = new View();
         $view->setData($summary);
 
