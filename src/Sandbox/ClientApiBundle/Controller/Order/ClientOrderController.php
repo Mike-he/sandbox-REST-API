@@ -345,6 +345,7 @@ class ClientOrderController extends OrderController
             ));
 
         return array(
+            'trade_id' => $order->getId(),
             'company_id' => $order->getProduct()->getRoom()->getBuilding()->getCompany()->getId(),
             'company_name' => $order->getProduct()->getRoom()->getBuilding()->getCompany()->getName(),
             'trade_type' => 'product_order',
@@ -371,6 +372,7 @@ class ClientOrderController extends OrderController
             ));
 
         return array(
+            'trade_id' => $bill->getId(),
             'company_id' => $bill->getLease()->getProduct()->getRoom()->getBuilding()->getCompany()->getId(),
             'company_name' => $bill->getLease()->getProduct()->getRoom()->getBuilding()->getCompany()->getName(),
             'trade_type' => 'lease_bill',
