@@ -345,11 +345,14 @@ class ClientOrderController extends OrderController
             ));
 
         return array(
+            'company_id' => $order->getProduct()->getRoom()->getBuilding()->getCompany()->getId(),
+            'company_name' => $order->getProduct()->getRoom()->getBuilding()->getCompany()->getName(),
             'trade_type' => 'product_order',
             'trade_number' => $number,
             'room_name' => $order->getProduct()->getRoom()->getName(),
             'payment_date' => $order->getPaymentDate(),
             'category' => $this->getOrderInvoiceCategory($order),
+            'amount' => $order->getDiscountPrice(),
         );
     }
 
@@ -368,11 +371,14 @@ class ClientOrderController extends OrderController
             ));
 
         return array(
+            'company_id' => $bill->getLease()->getProduct()->getRoom()->getBuilding()->getCompany()->getId(),
+            'company_name' => $bill->getLease()->getProduct()->getRoom()->getBuilding()->getCompany()->getName(),
             'trade_type' => 'lease_bill',
             'trade_number' => $number,
             'room_name' => $bill->getLease()->getProduct()->getRoom()->getName(),
             'payment_date' => $bill->getPaymentDate(),
             'category' => $this->getBillInvoiceCategory($bill),
+            'amount' => $bill->getRevisedAmount(),
         );
     }
 
