@@ -5,6 +5,19 @@ parameters:
     database_name: sandbox_rest_db
     database_user: sandbox
     database_password: sandbox
+
+    database_host_slave1:     192.168.0.12
+    database_port_slave1:     3306
+    database_name_slave1:     sandbox_rest_db
+    database_user_slave1:     root
+    database_password_slave1: root
+
+    #database_host_slave2:     192.168.0.13
+    #database_port_slave2:     3306
+    #database_name_slave2:     sandbox_rest_db
+    #database_user_slave2:     root
+    #database_password_slave2: root
+
     mailer_transport: smtp
     mailer_host: 127.0.0.1
     mailer_user: null
