@@ -4,7 +4,6 @@ namespace Sandbox\SalesApiBundle\Controller\Finance;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
-use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
@@ -126,6 +125,8 @@ class AdminFinanceLongRentBillController extends SalesRestController
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
 
+        $offset = ($pageIndex - 1) * $pageLimit;
+
         $bills = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Finance\FinanceLongRentBill')
             ->getBillLists(
@@ -134,24 +135,34 @@ class AdminFinanceLongRentBillController extends SalesRestController
                 $createStart,
                 $createEnd,
                 $amountStart,
+                $amountEnd,
+                $pageLimit,
+                $offset
+            );
+
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Finance\FinanceLongRentBill')
+            ->countBills(
+                $salesCompanyId,
+                $status,
+                $createStart,
+                $createEnd,
+                $amountStart,
                 $amountEnd
             );
 
-        $bills = $this->get('serializer')->serialize(
-            $bills,
-            'json',
-            SerializationContext::create()->setGroups(['main'])
-        );
-        $bills = json_decode($bills, true);
-
-        $paginator = new Paginator();
-        $pagination = $paginator->paginate(
-            $bills,
-            $pageIndex,
-            $pageLimit
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['main']));
+        $view->setData(
+            array(
+                'current_page_number' => $pageIndex,
+                'num_items_per_page' => (int) $pageLimit,
+                'items' => $bills,
+                'total_count' => (int) $count,
+            )
         );
 
-        return new View($pagination);
+        return $view;
     }
 
     /**
@@ -183,7 +194,7 @@ class AdminFinanceLongRentBillController extends SalesRestController
         }
 
         //TODO: check long rent service fee limit
-        $totalFee = $totalFee = $this->getTotalServiceFee($salesCompanyId);
+        $totalFee = $this->getTotalServiceFee($salesCompanyId);
 
         $pendingFee = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Finance\FinanceLongRentBill')

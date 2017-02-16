@@ -147,4 +147,20 @@ class FinanceShortRentInvoiceApplicationRepository extends EntityRepository
 
         return $query;
     }
+
+    /**
+     * @param $status
+     *
+     * @return mixed
+     */
+    public function countPendingShortRentInvoiceApplications(
+        $status
+    ) {
+        $query = $this->createQueryBuilder('a')
+            ->select('COUNT(a.id)')
+            ->where('a.status = :status')
+            ->setParameter('status', $status);
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
 }
