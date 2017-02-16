@@ -158,6 +158,8 @@ class AdminFinanceSummaryController extends PaymentController
             $now
         );
 
+        $summary['current_month'] = $now->format('m');
+
         $view = new View();
         $view->setData($summary);
 
@@ -266,7 +268,8 @@ class AdminFinanceSummaryController extends PaymentController
             'short_rent_balance' => $amount,
             'long_rent_balance' => $incomeAmount,
             'event_order_balance' => $eventBalance,
-            'long_rent_service_balance' => $serviceAmount,
+            'total_service_bill' => $serviceAmount,
+            'long_rent_service_bill' => $serviceAmount,
         ];
 
         return $summaryArray;
