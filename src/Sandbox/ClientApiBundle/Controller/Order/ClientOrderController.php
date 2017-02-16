@@ -352,7 +352,7 @@ class ClientOrderController extends OrderController
             'room_name' => $order->getProduct()->getRoom()->getName(),
             'payment_date' => $order->getPaymentDate(),
             'category' => $this->getOrderInvoiceCategory($order),
-            'amount' => $order->getDiscountPrice(),
+            'amount' => (float) $order->getDiscountPrice(),
         );
     }
 
@@ -378,7 +378,7 @@ class ClientOrderController extends OrderController
             'room_name' => $bill->getLease()->getProduct()->getRoom()->getName(),
             'payment_date' => $bill->getPaymentDate(),
             'category' => $this->getBillInvoiceCategory($bill),
-            'amount' => $bill->getRevisedAmount(),
+            'amount' => (float) $bill->getRevisedAmount(),
         );
     }
 
