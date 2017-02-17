@@ -250,16 +250,6 @@ class AdminLeaseController extends SalesRestController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="company",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    requirements="\d+",
-     *    strict=true,
-     *    description="Filter by company id"
-     * )
-     *
-     * @Annotations\QueryParam(
      *    name="room",
      *    array=false,
      *    default=null,
@@ -278,6 +268,9 @@ class AdminLeaseController extends SalesRestController
         // check user permission
         $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_VIEW);
 
+        $adminPlatform = $this->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
         // filters
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
@@ -285,7 +278,6 @@ class AdminLeaseController extends SalesRestController
         $limit = $pageLimit;
 
         $status = $paramFetcher->get('status');
-        $companyId = $paramFetcher->get('company');
         $roomId = $paramFetcher->get('room');
 
         // search keyword and query
@@ -323,7 +315,7 @@ class AdminLeaseController extends SalesRestController
                 $rentFilter,
                 $startDate,
                 $endDate,
-                $companyId,
+                $salesCompanyId,
                 $roomId,
                 $limit,
                 $offset
