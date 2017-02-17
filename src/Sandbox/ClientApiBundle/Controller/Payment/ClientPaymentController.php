@@ -227,7 +227,7 @@ class ClientPaymentController extends PaymentController
 
                 // add invoice amount
                 $this->postConsumeBalance(
-                    $userId,
+                    $bill->getLease()->getDraweeId(),
                     $price,
                     $orderNumber
                 );

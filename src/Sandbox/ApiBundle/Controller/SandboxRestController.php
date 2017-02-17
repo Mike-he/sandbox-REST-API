@@ -929,6 +929,48 @@ class SandboxRestController extends FOSRestController
         return $result;
     }
 
+    /**
+     * @param $ruleId
+     * @param null $auth
+     *
+     * @return mixed|void
+     */
+    protected function getSalesAdminInvoices(
+        $auth = null
+    ) {
+        if (is_null($auth)) {
+            // get auth
+            $headers = array_change_key_case($_SERVER, CASE_LOWER);
+            $auth = $headers['http_authorization'];
+        }
+
+        $twig = $this->container->get('twig');
+        $globals = $twig->getGlobals();
+
+        // CRM API URL
+        $apiUrl = $globals['crm_api_url'].
+            $globals['crm_api_sales_admin_invoices'].
+            '?status[]=pending&status[]=cancelled_wait';
+
+        // init curl
+        $ch = curl_init($apiUrl);
+
+        $response = $this->callAPI(
+            $ch,
+            'GET',
+            array('Authorization: '.$auth)
+        );
+
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($httpCode != self::HTTP_STATUS_OK) {
+            return;
+        }
+
+        $result = json_decode($response, true);
+
+        return $result;
+    }
+
     //--------------------common functions--------------------//
 
     /**

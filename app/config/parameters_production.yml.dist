@@ -64,6 +64,7 @@ parameters:
     crm_api_sales_admin_price_rule_include: /sales/admin/price/rule/include/{buildingId}/{roomNo}
     crm_api_sales_admin_price_rule_exclude: /sales/admin/price/rule/exclude/{buildingId}/{roomNo}
     crm_api_sales_admin_price_rule_info: /sales/admin/price/rules/{rule_id}
+    crm_api_sales_admin_invoices: /sales/admin/invoices
     crm_api_admin_user_create: /admin/useraccounts/{userId}/create
     crm_api_client_user_price_calculate: /client/user/price/rules/{rule_id}/calculate
     door_api_username: admin
