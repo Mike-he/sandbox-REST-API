@@ -334,7 +334,7 @@ class AdminLeaseController extends SalesRestController
                 $rentFilter,
                 $startDate,
                 $endDate,
-                $companyId,
+                $salesCompanyId,
                 $roomId
             );
 
