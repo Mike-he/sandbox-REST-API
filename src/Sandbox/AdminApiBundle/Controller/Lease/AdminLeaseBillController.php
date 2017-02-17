@@ -214,6 +214,13 @@ class AdminLeaseBillController extends LeaseController
             FinanceLongRentServiceBill::TYPE_BILL_SERVICE_FEE
         );
 
+        // add invoice amount
+        $this->postConsumeBalance(
+            $bill->getLease()->getDraweeId(),
+            $bill->getRevisedAmount(),
+            $bill->getLease()->getSerialNumber()
+        );
+
         return new View();
     }
 
