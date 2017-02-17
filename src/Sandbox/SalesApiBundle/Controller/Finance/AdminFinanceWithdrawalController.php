@@ -409,7 +409,7 @@ class AdminFinanceWithdrawalController extends PaymentController
             $check = false;
         }
 
-        return new View($check);
+        return new View(array('exist'=>$check));
     }
 
     /**
