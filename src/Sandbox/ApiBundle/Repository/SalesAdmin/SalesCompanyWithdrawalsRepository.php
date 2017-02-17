@@ -185,5 +185,4 @@ class SalesCompanyWithdrawalsRepository extends EntityRepository
 
         return $query->getQuery()->getSingleScalarResult();
     }
-
 }

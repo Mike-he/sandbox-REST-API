@@ -30,6 +30,44 @@ use FOS\RestBundle\Controller\Annotations;
 class AdminFinanceWithdrawalController extends PaymentController
 {
     /**
+     * Get Wallet.
+     *
+     * @param Request $request the request object
+     * @param int     $id
+     *
+     * @Route("/finance/withdrawals/wallet")
+     * @Method({"GET"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getFinanceWithdrawalWalletAction(
+        Request $request
+    ) {
+        // check user permission
+        $this->checkAdminWithdrawPermission($this->getAdminId(), AdminPermission::OP_LEVEL_VIEW);
+
+        $adminPlatform = $this->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
+        $company = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
+            ->findOneBy([
+                'id' => $salesCompanyId,
+                'banned' => false,
+            ]);
+        $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
+
+        $wallet = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Finance\FinanceSalesWallet')
+            ->findOneBy(['companyId' => $salesCompanyId]);
+        $this->throwNotFoundIfNull($wallet, self::NOT_FOUND_MESSAGE);
+
+        return new View($wallet);
+    }
+
+    /**
      * @param Request $request
      *
      * @Method({"POST"})
@@ -63,8 +101,20 @@ class AdminFinanceWithdrawalController extends PaymentController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
-        //TODO: check withdrawal limit
+        //check withdrawal limit
         $amount = $withdrawal->getAmount();
+        $wallet = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Finance\FinanceSalesWallet')
+            ->findOneBy(['companyId' => $salesCompanyId]);
+        $this->throwNotFoundIfNull($wallet, self::NOT_FOUND_MESSAGE);
+
+        if ($amount > $wallet->getWithdrawableAmount()) {
+            return $this->customErrorView(
+                400,
+                self::INSUFFICIENT_FUNDS_CODE,
+                self::INSUFFICIENT_FUNDS_MESSAGE
+            );
+        }
 
         $error = $this->handleWithdrawalPost(
             $company,

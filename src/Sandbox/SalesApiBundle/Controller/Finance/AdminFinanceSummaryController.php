@@ -5,6 +5,7 @@ namespace Sandbox\SalesApiBundle\Controller\Finance;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -247,8 +248,26 @@ class AdminFinanceSummaryController extends PaymentController
             $shortRentAmount = 0;
         }
 
-        //TODO: get long rent amount
+        //get long rent amount
         $longRentAmount = 0;
+        $longRent = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Finance\FinanceSalesWallet')
+            ->findOneBy(['companyId' => $salesCompanyId]);
+        if (!is_null($longRent)) {
+            $longRentAmount = $longRent->getBillAmount();
+        }
+
+        $pendingLongRent = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Finance\FinanceLongRentBill')
+            ->sumBillAmount(
+                $salesCompanyId,
+                FinanceLongRentBill::STATUS_PENDING
+            );
+        if (is_null($pendingLongRent)) {
+            $pendingLongRent = 0;
+        }
+
+        $longRentAmount = $longRentAmount - $pendingLongRent;
 
         $view = new View();
         $view->setData([
