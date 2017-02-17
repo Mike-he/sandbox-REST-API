@@ -327,7 +327,7 @@ class LeaseBillRepository extends EntityRepository
 
         $leaseBillComfirmCount = $leaseBillComfirmCount->getQuery()
             ->getSingleScalarResult();
-        $leaseBillComfirmCount = (int)$leaseBillComfirmCount;
+        $leaseBillComfirmCount = (int) $leaseBillComfirmCount;
 
         $orderComfirmCount = $this->getEntityManager()->createQueryBuilder()
             ->from('SandboxApiBundle:Order\ProductOrder', 'o')
@@ -345,7 +345,7 @@ class LeaseBillRepository extends EntityRepository
 
         $orderComfirmCount = $orderComfirmCount->getQuery()
             ->getSingleScalarResult();
-        $orderComfirmCount = (int)$orderComfirmCount;
+        $orderComfirmCount = (int) $orderComfirmCount;
 
         $totalComfirmCount = $leaseBillComfirmCount + $orderComfirmCount;
 

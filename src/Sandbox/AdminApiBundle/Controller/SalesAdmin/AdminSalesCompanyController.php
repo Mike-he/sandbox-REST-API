@@ -9,6 +9,7 @@ use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionGroups;
 use Sandbox\ApiBundle\Entity\Admin\AdminPosition;
 use Sandbox\ApiBundle\Entity\Admin\AdminPositionUserBinding;
+use Sandbox\ApiBundle\Entity\Finance\FinanceSalesWallet;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
@@ -442,6 +443,10 @@ class AdminSalesCompanyController extends SandboxRestController
             $salesCompany
         );
 
+        $wallet = new FinanceSalesWallet();
+        $wallet->setCompanyId($salesCompany->getId());
+
+        $em->persist($wallet);
         $em->flush();
 
         // set view
