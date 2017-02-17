@@ -366,6 +366,53 @@ class AdminFinanceWithdrawalController extends PaymentController
     }
 
     /**
+     * Check Withdrawal Company Info.
+     *
+     * @param Request $request the request object
+     *
+     * @Route("/finance/withdrawals/check/company/profile/exist")
+     * @Method({"GET"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function checkSalesCompanyInfos(
+        Request $request
+    ) {
+        $adminPlatform = $this->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
+        $check = true;
+
+        $account = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfileAccount')
+            ->findOneBy(array('salesCompany' => $salesCompanyId));
+
+        if (!$account) {
+            $check = false;
+        }
+
+        $express = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfileExpress')
+            ->findOneBy(array('salesCompany' => $salesCompanyId));
+
+        if (!$express) {
+            $check = false;
+        }
+
+        $invoice = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfileInvoice')
+            ->findOneBy(array('salesCompany' => $salesCompanyId));
+
+        if (!$invoice) {
+            $check = false;
+        }
+
+        return new View($check);
+    }
+
+    /**
      * @param SalesCompany            $company
      * @param SalesCompanyWithdrawals $withdrawal
      * @param int                     $adminId
