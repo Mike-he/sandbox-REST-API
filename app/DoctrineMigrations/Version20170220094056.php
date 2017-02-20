@@ -10,7 +10,7 @@ use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-class Version20170220061057 extends AbstractMigration implements ContainerAwareInterface
+class Version20170220094056 extends AbstractMigration implements ContainerAwareInterface
 {
     use ContainerAwareTrait;
 
@@ -66,8 +66,8 @@ class Version20170220061057 extends AbstractMigration implements ContainerAwareI
             '重庆市' => [29.54, 106.52],
             '青岛市' => [36.08, 120.32],
             '西安市' => [34.27, 108.88],
-            '波士顿' => [0, 0],
-            '旧金山' => [0, 0],
+            '波士顿' => [42.37, -71.12],
+            '旧金山' => [37.75, -122.44],
             '天津市' => [39.15, 117.2],
             '大连市' => [38.92, 121.57],
             '哈尔滨市' => [45.73, 126.61],

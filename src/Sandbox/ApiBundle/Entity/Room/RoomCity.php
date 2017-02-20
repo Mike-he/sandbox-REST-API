@@ -148,7 +148,7 @@ class RoomCity
     /**
      * @var float
      *
-     * @ORM\Column(name="lat", type="float", precision=9, scale=6)
+     * @ORM\Column(name="lat", type="float", precision=9, scale=6, nullable=true)
      *
      * @Serializer\Groups({
      *      "main",
@@ -160,7 +160,7 @@ class RoomCity
     /**
      * @var float
      *
-     * @ORM\Column(name="lng", type="float", precision=9, scale=6)
+     * @ORM\Column(name="lng", type="float", precision=9, scale=6, nullable=true)
      *
      * @Serializer\Groups({
      *      "main",
