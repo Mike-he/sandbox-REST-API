@@ -309,4 +309,19 @@ class LeaseBillRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @return mixed
+     */
+    public function sumInvoiceBillsFees()
+    {
+        $query = $this->createQueryBuilder('b')
+            ->select('SUM(b.revisedAmount)')
+            ->where('b.salesInvoice = TRUE')
+            ->andWhere('b.invoiced = FALSE')
+            ->andWhere('b.status = :paid')
+            ->setParameter('paid', LeaseBill::STATUS_PAID);
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
 }

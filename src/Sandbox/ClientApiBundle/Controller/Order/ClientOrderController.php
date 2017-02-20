@@ -254,11 +254,23 @@ class ClientOrderController extends OrderController
     ) {
         $userId = $this->getUserId();
 
-        $amount = $this->getRepo('Order\ProductOrder')->getInvoiceOrdersAmount($userId);
+        $productAmount = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getInvoiceOrdersAmount($userId);
 
-        if (is_null($amount)) {
-            $amount = 0;
+        if (is_null($productAmount)) {
+            $productAmount = 0;
         }
+
+        $billAmount = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->sumInvoiceBillsFees();
+
+        if (is_null($billAmount)) {
+            $billAmount = 0;
+        }
+
+        $amount = $productAmount + $billAmount;
 
         return new View(['amount' => (float) $amount]);
     }
