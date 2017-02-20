@@ -56,7 +56,7 @@ trait FinanceTrait
             $em->flush();
         }
 
-        $wallet = $em->getRepository('SandboxApiBundle:Finance\FianceSalesWallet')
+        $wallet = $em->getRepository('SandboxApiBundle:Finance\FinanceSalesWallet')
             ->findOneBy(['companyId' => $companyId]);
         if (!is_null($wallet)) {
             $totalAmount = $wallet->getTotalAmount();
