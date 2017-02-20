@@ -324,7 +324,7 @@ class AdminFinanceDashboardController extends AdminRestController
             ->countTransferComfirm();
 
         $globals = $this->getGlobals();
-        $url = $globals['crm_api_url'].'/admin/dashboard/invoices/count?status=pending';
+        $url = $globals['crm_api_url'].'/admin/dashboard/invoices/count?status[]=pending&status[]=cancelled_wait';
         $invoiceCount = $this->getPedingInvoiceCount($url);
 
         $response = array(
