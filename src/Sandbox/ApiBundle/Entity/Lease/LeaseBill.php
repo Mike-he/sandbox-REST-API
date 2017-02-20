@@ -265,6 +265,8 @@ class LeaseBill
      * @var bool
      *
      * @ORM\Column(name="sales_invoice", type="boolean", nullable=false)
+     *
+     * @Serializer\Groups({"main","client","lease_bill"})
      */
     private $salesInvoice = false;
 
@@ -272,6 +274,8 @@ class LeaseBill
      * @var bool
      *
      * @ORM\Column(name="invoiced", type="boolean", nullable=false)
+     *
+     * @Serializer\Groups({"main","client","lease_bill"})
      */
     private $invoiced = false;
 
