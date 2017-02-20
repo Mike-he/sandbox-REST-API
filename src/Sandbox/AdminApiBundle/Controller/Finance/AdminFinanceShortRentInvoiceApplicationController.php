@@ -269,7 +269,7 @@ class AdminFinanceShortRentInvoiceApplicationController extends PaymentControlle
         $invoiceStatus = FinanceShortRentInvoice::STATUS_COMPLETED;
 
         if ($status == FinanceShortRentInvoiceApplication::STATUS_REVOKED) {
-            $invoiceStatus = FinanceShortRentInvoice::STATUS_INCOMPLETE;
+            $invoiceStatus = FinanceShortRentInvoice::STATUS_PENDING;
             $application->setRevokeDate($now);
         } else {
             $application->setConfirmDate($now);

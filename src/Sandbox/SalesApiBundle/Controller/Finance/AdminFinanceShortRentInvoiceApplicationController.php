@@ -398,31 +398,7 @@ class AdminFinanceShortRentInvoiceApplicationController extends PaymentControlle
         $form = $this->createForm(new FinanceShortRentInvoiceApplicationPatchType(), $application);
         $form->submit(json_decode($applicationJson, true));
 
-        $status = $application->getStatus();
-        if ($status != FinanceShortRentInvoiceApplication::STATUS_PENDING) {
-            return $this->customErrorView(
-                400,
-                self::SHORT_RENT_INVOICE_APPLICATION_WRONG_STATUS_CODE,
-                self::SHORT_RENT_INVOICE_APPLICATION_WRONG_STATUS_MESSAGE
-            );
-        }
-
-        $ids = $application->getInvoiceIds();
-        if (is_null($ids) || empty($ids)) {
-            $this->throwNotFoundIfNull($ids, self::NOT_FOUND_MESSAGE);
-        }
-        $idArray = explode(',', $ids);
-
-        $invoices = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Finance\FinanceShortRentInvoice')
-            ->getShortRentInvoicesByIds(
-                $idArray,
-                $salesCompanyId
-            );
-
-        foreach ($invoices as $invoice) {
-            $invoice->setStatus(FinanceShortRentInvoice::STATUS_PENDING);
-        }
+        $application->setStatus(FinanceShortRentInvoiceApplication::STATUS_PENDING);
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();

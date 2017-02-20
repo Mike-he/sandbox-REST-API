@@ -16,6 +16,7 @@ class FinanceShortRentInvoiceApplicationPatchType extends AbstractType
     {
         $builder
             ->add('status')
+            ->add('invoiceNo')
         ;
     }
 
