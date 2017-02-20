@@ -2855,6 +2855,24 @@ class OrderRepository extends EntityRepository
 
     /**
      * @param $ids
+     * @return array
+     */
+    public function getOrdersNumbers(
+        $ids
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->select('
+                o.id,
+                o.orderNumber
+            ')
+            ->where('o.id IN (:ids)')
+            ->setParameter('ids', $ids);
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $ids
      *
      * @return array
      */
