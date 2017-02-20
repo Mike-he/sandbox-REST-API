@@ -28,6 +28,68 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 class ClientLeaseBillController extends PaymentController
 {
     /**
+     * @param Request $request
+     * @param $id
+     *
+     * @Route("/leases/bills/{id}/invoice")
+     * @Method({"POST"})
+     *
+     * @return View
+     */
+    public function postLeaseBillInvoicedAction(
+        Request $request,
+        $id
+    ) {
+        $userId = $this->getUserId();
+
+        $bill = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->findOneBy(array(
+                'drawee' => $userId,
+                'id' => $id,
+            ));
+        $this->throwNotFoundIfNull($bill, self::NOT_FOUND_MESSAGE);
+
+        $bill->setInvoiced(true);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        return new View();
+    }
+
+    /**
+     * @param Request $request
+     * @param $id
+     *
+     * @Route("/leases/bills/{id}/invoice/cancel")
+     * @Method({"POST"})
+     *
+     * @return View
+     */
+    public function postLeaseBillInvoicedAction(
+        Request $request,
+        $id
+    ) {
+        $userId = $this->getUserId();
+
+        $bill = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->findOneBy(array(
+                'drawee' => $userId,
+                'id' => $id,
+            ));
+        $this->throwNotFoundIfNull($bill, self::NOT_FOUND_MESSAGE);
+
+        $bill->setInvoiced(true);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        return new View();
+    }
+
+    /**
      * Get all bills for current user.
      *
      * @param Request               $request
