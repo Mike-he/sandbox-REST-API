@@ -11,6 +11,25 @@ use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 class LeaseBillRepository extends EntityRepository
 {
     /**
+     * @param $ids
+     *
+     * @return array
+     */
+    public function getBillsNumbers(
+        $ids
+    ) {
+        $query = $this->createQueryBuilder('b')
+            ->select('
+                b.id,
+                b.serialNumber
+            ')
+            ->where('b.id IN (:ids)')
+            ->setParameter('ids', $ids);
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
      * @param $lease
      * @param $status
      *

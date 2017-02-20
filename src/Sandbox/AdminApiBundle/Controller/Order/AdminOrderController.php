@@ -72,6 +72,35 @@ class AdminOrderController extends OrderController
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
+     *     name="ids",
+     *     array=true
+     * )
+     *
+     * @Route("/orders/numbers")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getOrdersNumbersAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $ids = $paramFetcher->get('ids');
+
+        $numbers = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getOrdersNumbers(
+                $ids
+            );
+
+        return new View($numbers);
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
      *    name="pageLimit",
      *    array=false,
      *    default="20",

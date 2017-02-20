@@ -27,6 +27,35 @@ class AdminLeaseBillController extends LeaseController
     use FinanceTrait;
 
     /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *     name="ids",
+     *     array=true
+     * )
+     *
+     * @Route("/leases/bills/numbers")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getBillsNumbersAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $ids = $paramFetcher->get('ids');
+
+        $numbers = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->getBillsNumbers(
+                $ids
+            );
+
+        return new View($numbers);
+    }
+
+    /**
      * Get Lease Bills.
      *
      * @param Request               $request
