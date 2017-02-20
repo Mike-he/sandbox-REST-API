@@ -146,6 +146,30 @@ class RoomCity
     private $capital = false;
 
     /**
+     * @var float
+     *
+     * @ORM\Column(name="lat", type="float", precision=9, scale=6)
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "client"
+     * })
+     */
+    private $lat;
+
+    /**
+     * @var float
+     *
+     * @ORM\Column(name="lng", type="float", precision=9, scale=6)
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "client"
+     * })
+     */
+    private $lng;
+
+    /**
      * Get id.
      *
      * @return int
@@ -289,5 +313,37 @@ class RoomCity
     public function setCapital($capital)
     {
         $this->capital = $capital;
+    }
+
+    /**
+     * @return float
+     */
+    public function getLat()
+    {
+        return $this->lat;
+    }
+
+    /**
+     * @param float $lat
+     */
+    public function setLat($lat)
+    {
+        $this->lat = $lat;
+    }
+
+    /**
+     * @return float
+     */
+    public function getLng()
+    {
+        return $this->lng;
+    }
+
+    /**
+     * @param float $lng
+     */
+    public function setLng($lng)
+    {
+        $this->lng = $lng;
     }
 }
