@@ -67,7 +67,7 @@ class ClientLeaseBillController extends PaymentController
      *
      * @return View
      */
-    public function postLeaseBillInvoicedAction(
+    public function postLeaseBillInvoicedCancelAction(
         Request $request,
         $id
     ) {
