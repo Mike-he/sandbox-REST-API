@@ -2907,17 +2907,21 @@ class OrderRepository extends EntityRepository
             switch ($status) {
                 case 'pending':
                     $query->andWhere('
-                            (t.transferStatus = :pending) OR
-                            (t.transferStatus = :verify)
+                            (
+                                (t.transferStatus = :pending) OR
+                                (t.transferStatus = :verify)
+                            )
                         ')
                         ->setParameter('pending', OrderOfflineTransfer::STATUS_PENDING)
                         ->setParameter('verify', OrderOfflineTransfer::STATUS_VERIFY);
                     break;
                 case 'processed':
                     $query->andWhere('
-                            (t.transferStatus = :paid) OR
-                            (t.transferStatus = :rejectRefund) OR
-                            (t.transferStatus = :acceptRefund)
+                            (
+                                (t.transferStatus = :paid) OR
+                                (t.transferStatus = :rejectRefund) OR
+                                (t.transferStatus = :acceptRefund)
+                            )
                         ')
                         ->setParameter('paid', OrderOfflineTransfer::STATUS_PAID)
                         ->setParameter('rejectRefund', OrderOfflineTransfer::STATUS_REJECT_REFUND)
@@ -3008,17 +3012,22 @@ class OrderRepository extends EntityRepository
             switch ($status) {
                 case 'pending':
                     $query->andWhere('
-                            (t.transferStatus = :pending) OR
-                            (t.transferStatus = :verify)
+                            (
+                                (t.transferStatus = :pending) OR
+                                (t.transferStatus = :verify)
+                            )
+                            
                         ')
                         ->setParameter('pending', OrderOfflineTransfer::STATUS_PENDING)
                         ->setParameter('verify', OrderOfflineTransfer::STATUS_VERIFY);
                     break;
                 case 'processed':
                     $query->andWhere('
-                            (t.transferStatus = :paid) OR
-                            (t.transferStatus = :rejectRefund) OR
-                            (t.transferStatus = :acceptRefund)
+                            (
+                                (t.transferStatus = :paid) OR
+                                (t.transferStatus = :rejectRefund) OR
+                                (t.transferStatus = :acceptRefund)
+                            )
                         ')
                         ->setParameter('paid', OrderOfflineTransfer::STATUS_PAID)
                         ->setParameter('rejectRefund', OrderOfflineTransfer::STATUS_REJECT_REFUND)

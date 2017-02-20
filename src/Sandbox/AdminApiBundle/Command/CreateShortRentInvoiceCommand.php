@@ -208,6 +208,21 @@ class CreateShortRentInvoiceCommand extends ContainerAwareCommand
             $summary->setEventOrderCount((int) $value['event_order_count']);
 
             $em->persist($summary);
+
+            $wallet = $this->getContainer()
+                ->get('doctrine')
+                ->getRepository('SandboxApiBundle:Finance\FinanceSalesWallet')
+                ->findOneBy(['companyId' => $key]);
+
+            if (!is_null($wallet)) {
+                $shortRentAmount = $wallet->getShortRentInvoiceAmount();
+                $totalAmount = $wallet->getTotalAmount();
+                $withdrawAmount = $wallet->getWithdrawableAmount();
+
+                $wallet->setShortRentInvoiceAmount($shortRentAmount + $value['short_rent_balance']);
+                $wallet->setTotalAmount($totalAmount + $value['short_rent_balance'] + $value['event_order_balance']);
+                $wallet->setWithdrawableAmount($withdrawAmount + $value['event_order_balance']);
+            }
         }
 
         $em->flush();

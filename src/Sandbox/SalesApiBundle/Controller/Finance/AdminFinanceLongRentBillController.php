@@ -463,22 +463,13 @@ class AdminFinanceLongRentBillController extends SalesRestController
     private function getTotalServiceFee(
         $salesCompanyId
     ) {
-        $totalServiceFee = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Finance\FinanceLongRentServiceBill')
-            ->sumAmount(
-                $salesCompanyId
-            );
+        $wallet = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Finance\FinanceSalesWallet')
+            ->findOneBy(['companyId' => $salesCompanyId]);
 
-        $paidFee = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Finance\FinanceLongRentBill')
-            ->sumBillAmount(
-                $salesCompanyId,
-                FinanceLongRentBill::STATUS_PAID
-            );
+        $fee = $wallet ? $wallet->getBillAmount() : 0;
 
-        $serviceFee = $totalServiceFee - $paidFee;
-
-        return $serviceFee;
+        return $fee;
     }
 
     /**

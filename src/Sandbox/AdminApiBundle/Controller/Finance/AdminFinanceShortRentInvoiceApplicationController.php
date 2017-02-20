@@ -273,6 +273,18 @@ class AdminFinanceShortRentInvoiceApplicationController extends PaymentControlle
             $application->setRevokeDate($now);
         } else {
             $application->setConfirmDate($now);
+
+            $wallet = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Finance\FinanceSalesWallet')
+                ->findOneBy(['companyId' => $application->getCompanyId()]);
+
+            if (!is_null($wallet)) {
+                $shortRentAmount = $wallet->getShortRentInvoiceAmount();
+                $withdrawAmount = $wallet->getWithdrawableAmount();
+
+                $wallet->setShortRentInvoiceAmount($shortRentAmount - $application->getAmount());
+                $wallet->setWithdrawableAmount($withdrawAmount + $application->getAmount());
+            }
         }
 
         foreach ($invoices as $invoice) {

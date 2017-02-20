@@ -42,9 +42,8 @@ trait FinanceTrait
                 )
             );
 
+        $amount = ($bill->getRevisedAmount() * $fee) / 100;
         if (!$serviceBill) {
-            $amount = ($bill->getRevisedAmount() * $fee) / 100;
-
             $serviceBill = new FinanceLongRentServiceBill();
             $serviceBill->setSerialNumber($serialNumber);
             $serviceBill->setServiceFee($fee);
@@ -54,6 +53,20 @@ trait FinanceTrait
             $serviceBill->setBill($bill);
 
             $em->persist($serviceBill);
+            $em->flush();
+        }
+
+        $wallet = $em->getRepository('SandboxApiBundle:Finance\FianceSalesWallet')
+            ->findOneBy(['companyId' => $companyId]);
+        if (!is_null($wallet)) {
+            $totalAmount = $wallet->getTotalAmount();
+            $billAmount = $wallet->getBillAmount();
+            $withdrawAmount = $wallet->getWithdrawableAmount();
+
+            $wallet->setTotalAmount($totalAmount + $bill->getRevisedAmount());
+            $wallet->setBillAmount($billAmount + $amount);
+            $wallet->setWithdrawableAmount($withdrawAmount + $bill->getRevisedAmount() - $amount);
+
             $em->flush();
         }
     }
