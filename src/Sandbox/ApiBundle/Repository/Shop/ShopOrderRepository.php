@@ -184,6 +184,10 @@ class ShopOrderRepository extends EntityRepository
         $buildingId,
         $shopId,
         $refundStatus,
+        $refundLow = null,
+        $refundHigh = null,
+        $refundStart = null,
+        $refundEnd = null,
         $limit = null,
         $offset = null
     ) {
@@ -260,23 +264,52 @@ class ShopOrderRepository extends EntityRepository
                 ->setParameter('buildingId', $buildingId);
         }
 
-        if ($refundStatus == ProductOrder::REFUNDED_STATUS) {
-            $query->andWhere('o.refunded = :refunded')
-                ->setParameter('refunded', true)
-                ->orderBy('o.modificationDate', 'DESC');
-        } elseif ($refundStatus == ProductOrder::NEED_TO_REFUND) {
-            $query->andWhere('o.refunded = :refunded')
-                ->andWhere('o.needToRefund = :needed')
-                ->andWhere('o.status = :status')
-                ->andWhere('o.unoriginal = :unoriginal')
-                ->setParameter('unoriginal', false)
-                ->setParameter('status', ShopOrder::STATUS_REFUNDED)
-                ->setParameter('needed', true)
-                ->setParameter('refunded', false)
-                ->orderBy('o.modificationDate', 'ASC');
-        } elseif ($refundStatus == ProductOrder::ALL_REFUND) {
-            $query->andWhere('(o.refunded = TRUE OR o.needToRefund = TRUE)')
-                ->orderBy('o.modificationDate', 'DESC');
+        if (!is_null($refundStatus)) {
+            $query->andWhere('(o.refunded = TRUE OR o.needToRefund = TRUE)');
+
+            if (!is_null($refundLow) && !empty($refundLow)) {
+                $query->andWhere('o.refundAmount >= :low')
+                    ->setParameter('low', $refundLow);
+            }
+
+            if (!is_null($refundHigh) && !empty($refundHigh)) {
+                $query->andWhere('o.refundAmount <= :high')
+                    ->setParameter('high', $refundHigh);
+            }
+
+            if (!is_null($refundStart) && !empty($refundStart)) {
+                $refundStart = new \DateTime($refundStart);
+                $refundStart->setTime(0, 0, 0);
+                $query->andWhere('o.refundProcessed = TRUE')
+                    ->andWhere('o.refundProcessedDate >= :refundStart')
+                    ->setParameter('refundStart', $refundStart);
+            }
+
+            if (!is_null($refundEnd) && !empty($refundEnd)) {
+                $refundEnd = new \DateTime($refundEnd);
+                $refundEnd->setTime(23, 59, 59);
+                $query->andWhere('o.refundProcessed = TRUE')
+                    ->andWhere('o.refundProcessedDate <= :refundEnd')
+                    ->setParameter('refundEnd', $refundEnd);
+            }
+            
+            if ($refundStatus == ProductOrder::REFUNDED_STATUS) {
+                $query->andWhere('o.refunded = :refunded')
+                    ->setParameter('refunded', true)
+                    ->orderBy('o.modificationDate', 'DESC');
+            } elseif ($refundStatus == ProductOrder::NEED_TO_REFUND) {
+                $query->andWhere('o.refunded = :refunded')
+                    ->andWhere('o.needToRefund = :needed')
+                    ->andWhere('o.status = :status')
+                    ->andWhere('o.unoriginal = :unoriginal')
+                    ->setParameter('unoriginal', false)
+                    ->setParameter('status', ShopOrder::STATUS_REFUNDED)
+                    ->setParameter('needed', true)
+                    ->setParameter('refunded', false)
+                    ->orderBy('o.modificationDate', 'ASC');
+            } elseif ($refundStatus == ProductOrder::ALL_REFUND) {
+                $query->orderBy('o.modificationDate', 'DESC');
+            }
         } else {
             $query->orderBy('o.modificationDate', 'DESC');
         }
@@ -321,7 +354,11 @@ class ShopOrderRepository extends EntityRepository
         $company,
         $buildingId,
         $shopId,
-        $refundStatus
+        $refundStatus,
+        $refundLow = null,
+        $refundHigh = null,
+        $refundStart = null,
+        $refundEnd = null
     ) {
         $query = $this->createQueryBuilder('o')
             ->select('COUNT(o)')
@@ -397,20 +434,48 @@ class ShopOrderRepository extends EntityRepository
                 ->setParameter('company', $company);
         }
 
-        if ($refundStatus == ProductOrder::REFUNDED_STATUS) {
-            $query->andWhere('o.refunded = :refunded')
-                ->setParameter('refunded', true);
-        } elseif ($refundStatus == ProductOrder::NEED_TO_REFUND) {
-            $query->andWhere('o.refunded = :refunded')
-                ->andWhere('o.needToRefund = :needed')
-                ->andWhere('o.status = :status')
-                ->andWhere('o.unoriginal = :unoriginal')
-                ->setParameter('unoriginal', false)
-                ->setParameter('status', ShopOrder::STATUS_REFUNDED)
-                ->setParameter('needed', true)
-                ->setParameter('refunded', false);
-        } elseif ($refundStatus == ProductOrder::ALL_REFUND) {
+        if (!is_null($refundStatus)) {
             $query->andWhere('(o.refunded = TRUE OR o.needToRefund = TRUE)');
+
+            if (!is_null($refundLow) && !empty($refundLow)) {
+                $query->andWhere('o.refundAmount >= :low')
+                    ->setParameter('low', $refundLow);
+            }
+
+            if (!is_null($refundHigh) && !empty($refundHigh)) {
+                $query->andWhere('o.refundAmount <= :high')
+                    ->setParameter('high', $refundHigh);
+            }
+
+            if (!is_null($refundStart) && !empty($refundStart)) {
+                $refundStart = new \DateTime($refundStart);
+                $refundStart->setTime(0, 0, 0);
+                $query->andWhere('o.refundProcessed = TRUE')
+                    ->andWhere('o.refundProcessedDate >= :refundStart')
+                    ->setParameter('refundStart', $refundStart);
+            }
+
+            if (!is_null($refundEnd) && !empty($refundEnd)) {
+                $refundEnd = new \DateTime($refundEnd);
+                $refundEnd->setTime(23, 59, 59);
+                $query->andWhere('o.refundProcessed = TRUE')
+                    ->andWhere('o.refundProcessedDate <= :refundEnd')
+                    ->setParameter('refundEnd', $refundEnd);
+            }
+
+            if ($refundStatus == ProductOrder::REFUNDED_STATUS) {
+                $query->andWhere('o.refunded = :refunded')
+                    ->setParameter('refunded', true);
+            } elseif ($refundStatus == ProductOrder::NEED_TO_REFUND) {
+                $query->andWhere('o.refunded = :refunded')
+                    ->andWhere('o.needToRefund = :needed')
+                    ->andWhere('o.status = :status')
+                    ->andWhere('o.unoriginal = :unoriginal')
+                    ->setParameter('unoriginal', false)
+                    ->setParameter('status', ShopOrder::STATUS_REFUNDED)
+                    ->setParameter('needed', true)
+                    ->setParameter('refunded', false);
+            }
         }
 
         return $query->getQuery()->getSingleScalarResult();
