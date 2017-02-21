@@ -4,6 +4,7 @@ namespace Sandbox\AdminApiBundle\Controller\Order;
 
 use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
+use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
 use Sandbox\ApiBundle\Entity\User\User;
 use Rs\Json\Patch;
@@ -121,15 +122,6 @@ class AdminOrderController extends OrderController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="type",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    strict=true,
-     *    description="Filter by room type"
-     * )
-     *
-     * @Annotations\QueryParam(
      *    name="company",
      *    array=false,
      *    default=null,
@@ -140,83 +132,24 @@ class AdminOrderController extends OrderController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="orderStartDate",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
-     *    strict=true,
-     *    description="start date. Must be YYYY-mm-dd"
-     * )
-     *
-     *  @Annotations\QueryParam(
-     *    name="orderEndDate",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
-     *    strict=true,
-     *    description="end date. Must be YYYY-mm-dd"
+     *     name="trade_number",
+     *     array=false,
+     *     nullable=true,
+     *     strict=true
      * )
      *
      * @Annotations\QueryParam(
-     *    name="payStartDate",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
-     *    strict=true,
-     *    description="start date. Must be YYYY-mm-dd"
-     * )
-     *
-     *  @Annotations\QueryParam(
-     *    name="payEndDate",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
-     *    strict=true,
-     *    description="end date. Must be YYYY-mm-dd"
+     *     name="amount_min",
+     *     array=false,
+     *     nullable=true,
+     *     strict=true
      * )
      *
      * @Annotations\QueryParam(
-     *    name="rentStartDate",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
-     *    strict=true,
-     *    description="start date. Must be YYYY-mm-dd"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="rentEndDate",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
-     *    strict=true,
-     *    description="end date. Must be YYYY-mm-dd"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="invoiceStartDate",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
-     *    strict=true,
-     *    description="start date. Must be YYYY-mm-dd"
-     * )
-     *
-     *  @Annotations\QueryParam(
-     *    name="invoiceEndDate",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
-     *    strict=true,
-     *    description="end date. Must be YYYY-mm-dd"
+     *     name="amount_max",
+     *     array=false,
+     *     nullable=true,
+     *     strict=true
      * )
      *
      * @Route("/orders/sales/notinvoiced")
@@ -240,43 +173,50 @@ class AdminOrderController extends OrderController
         // filters
         $pageIndex = $paramFetcher->get('pageIndex');
         $pageLimit = $paramFetcher->get('pageLimit');
-        $type = $paramFetcher->get('type');
         $salesCompanyId = $paramFetcher->get('company');
-        $orderStartDate = $paramFetcher->get('orderStartDate');
-        $orderEndDate = $paramFetcher->get('orderEndDate');
-        $payStartDate = $paramFetcher->get('payStartDate');
-        $payEndDate = $paramFetcher->get('payEndDate');
-        $rentStartDate = $paramFetcher->get('rentStartDate');
-        $rentEndDate = $paramFetcher->get('rentEndDate');
-        $invoiceStartDate = $paramFetcher->get('invoiceStartDate');
-        $invoiceEndDate = $paramFetcher->get('invoiceEndDate');
+        $tradeNumber = $paramFetcher->get('trade_number');
+        $amountMin = $paramFetcher->get('amount_min');
+        $amountMax = $paramFetcher->get('amount_max');
 
-        $ordersQuery = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->getAdminNotInvoicedOrders(
-                $type,
-                null,
-                $orderStartDate,
-                $orderEndDate,
-                $payStartDate,
-                $payEndDate,
-                $rentStartDate,
-                $rentEndDate,
-                $invoiceStartDate,
-                $invoiceEndDate,
-                $salesCompanyId
+        $tradeNumbers = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Invoice\TradeInvoiceView')
+            ->getAdminTradeNumbers(
+                $tradeNumber
             );
 
-        $ordersQuery = $this->get('serializer')->serialize(
-            $ordersQuery,
-            'json',
-            SerializationContext::create()->setGroups(['admin_detail'])
-        );
-        $ordersQuery = json_decode($ordersQuery, true);
+        $response = array();
+        foreach ($tradeNumbers as $number) {
+            switch (substr($number, 0, 1)) {
+                case ProductOrder::LETTER_HEAD:
+                    $responseArray = $this->getProductOrderResponse($number);
+                    break;
+                case LeaseBill::LEASE_BILL_LETTER_HEAD:
+                    $responseArray = $this->getLeaseBillResponse($number);
+                    break;
+                default:
+                    $responseArray = array();
+                    break;
+            }
+
+            // filters
+            if (!is_null($salesCompanyId) && $responseArray['company_id'] != $salesCompanyId) {
+                continue;
+            }
+
+            if (!is_null($amountMin) && $responseArray['amount'] < (float) $amountMin) {
+                continue;
+            }
+
+            if (!is_null($amountMax) && $responseArray['amount'] > (float) $amountMax) {
+                continue;
+            }
+
+            array_push($response, $responseArray);
+        }
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
-            $ordersQuery,
+            $response,
             $pageIndex,
             $pageLimit
         );
