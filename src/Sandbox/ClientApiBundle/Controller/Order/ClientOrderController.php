@@ -264,7 +264,7 @@ class ClientOrderController extends OrderController
 
         $billAmount = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
-            ->sumInvoiceBillsFees();
+            ->sumInvoiceBillsFees($userId);
 
         if (is_null($billAmount)) {
             $billAmount = 0;
