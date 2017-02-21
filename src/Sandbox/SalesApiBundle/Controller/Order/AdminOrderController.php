@@ -1748,27 +1748,4 @@ class AdminOrderController extends OrderController
             throw $exception;
         }
     }
-
-    /**
-     * authenticate with web browser cookie.
-     */
-    private function authenticateAdminCookie()
-    {
-        $cookie_name = self::ADMIN_COOKIE_NAME;
-        if (!isset($_COOKIE[$cookie_name])) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-        }
-
-        $token = $_COOKIE[$cookie_name];
-        $adminToken = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserToken')
-            ->findOneBy(array(
-                'token' => $token,
-            ));
-        if (is_null($adminToken)) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-        }
-
-        return $adminToken->getUser();
-    }
 }
