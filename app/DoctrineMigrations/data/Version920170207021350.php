@@ -11,7 +11,7 @@ use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-class Version20170207021350 extends AbstractMigration implements ContainerAwareInterface
+class Version920170207021350 extends AbstractMigration implements ContainerAwareInterface
 {
     use ContainerAwareTrait;
 
@@ -20,7 +20,6 @@ class Version20170207021350 extends AbstractMigration implements ContainerAwareI
      */
     public function up(Schema $schema)
     {
-        // this up() migration is auto-generated, please modify it to your needs
 
     }
 
