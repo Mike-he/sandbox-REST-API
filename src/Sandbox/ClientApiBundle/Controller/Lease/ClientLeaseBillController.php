@@ -81,7 +81,7 @@ class ClientLeaseBillController extends PaymentController
             ));
         $this->throwNotFoundIfNull($bill, self::NOT_FOUND_MESSAGE);
 
-        $bill->setInvoiced(true);
+        $bill->setInvoiced(false);
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();
