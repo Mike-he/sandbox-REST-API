@@ -396,15 +396,20 @@ class LeaseBillRepository extends EntityRepository
     }
 
     /**
+     * @param $userId
+     *
      * @return mixed
      */
-    public function sumInvoiceBillsFees()
-    {
+    public function sumInvoiceBillsFees(
+        $userId
+    ) {
         $query = $this->createQueryBuilder('b')
             ->select('SUM(b.revisedAmount)')
             ->where('b.salesInvoice = TRUE')
             ->andWhere('b.invoiced = FALSE')
+            ->andWhere('b.drawee = :userId')
             ->andWhere('b.status = :paid')
+            ->setParameter('userId', $userId)
             ->setParameter('paid', LeaseBill::STATUS_PAID);
 
         return $query->getQuery()->getSingleScalarResult();
