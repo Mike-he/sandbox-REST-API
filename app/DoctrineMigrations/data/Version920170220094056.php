@@ -10,7 +10,7 @@ use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-class Version20170220094056 extends AbstractMigration implements ContainerAwareInterface
+class Version920170220094056 extends AbstractMigration implements ContainerAwareInterface
 {
     use ContainerAwareTrait;
 
