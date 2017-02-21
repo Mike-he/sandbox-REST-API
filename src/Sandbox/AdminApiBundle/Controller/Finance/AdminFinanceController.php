@@ -13,7 +13,6 @@ use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\View\View;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
  * Class AdminFinanceController.
@@ -54,7 +53,8 @@ class AdminFinanceController extends SandboxRestController
         ParamFetcherInterface $paramFetcher
     ) {
         //authenticate with web browser cookie
-        $adminId = $this->authenticateAdminCookie();
+        $admin = $this->authenticateAdminCookie();
+        $adminId = $admin->getId();
         $this->checkAdminFinancePermission(
             AdminPermission::OP_LEVEL_VIEW,
             $adminId,
@@ -868,28 +868,6 @@ class AdminFinanceController extends SandboxRestController
             ->setBorderStyle(\PHPExcel_Style_Border::BORDER_THIN);
 
         return $total;
-    }
-
-    /**
-     * authenticate with web browser cookie.
-     */
-    protected function authenticateAdminCookie()
-    {
-        $cookie_name = self::ADMIN_COOKIE_NAME;
-        if (!isset($_COOKIE[$cookie_name])) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-        }
-
-        $token = $_COOKIE[$cookie_name];
-        $adminToken = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserToken')
-            ->findOneBy(['token' => $token]);
-
-        if (is_null($adminToken)) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-        }
-
-        return $adminToken->getUserId();
     }
 
     /**

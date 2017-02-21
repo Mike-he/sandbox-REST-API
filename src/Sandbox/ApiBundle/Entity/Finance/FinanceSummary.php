@@ -87,6 +87,13 @@ class FinanceSummary
     private $creationDate;
 
     /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="summary_date", type="datetime")
+     */
+    private $summaryDate;
+
+    /**
      * @var int
      *
      * @ORM\Column(name="company_id", type="integer")
@@ -101,6 +108,22 @@ class FinanceSummary
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getSummaryDate()
+    {
+        return $this->summaryDate;
+    }
+
+    /**
+     * @param \DateTime $summaryDate
+     */
+    public function setSummaryDate($summaryDate)
+    {
+        $this->summaryDate = $summaryDate;
     }
 
     /**
