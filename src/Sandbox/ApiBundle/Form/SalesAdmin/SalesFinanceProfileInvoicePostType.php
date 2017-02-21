@@ -18,10 +18,10 @@ class SalesFinanceProfileInvoicePostType extends AbstractType
             ->add('title')
             ->add('category')
             ->add('taxpayer_id')
-            ->add('address')
-            ->add('phone')
-            ->add('bank_account_name')
-            ->add('bank_account_number');
+            ->add('address', null, array('required' => false))
+            ->add('phone', null, array('required' => false))
+            ->add('bank_account_name', null, array('required' => false))
+            ->add('bank_account_number', null, array('required' => false));
     }
 
     /**
