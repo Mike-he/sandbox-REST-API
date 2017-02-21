@@ -68,7 +68,7 @@ class SalesCompanyProfileInvoice
     /**
      * @var string
      *
-     * @ORM\Column(name="address", type="string", length=255)
+     * @ORM\Column(name="address", type="string", length=255, nullable=true)
      *
      * @Serializer\Groups({"finance"})
      */
@@ -77,7 +77,7 @@ class SalesCompanyProfileInvoice
     /**
      * @var string
      *
-     * @ORM\Column(name="phone", type="string", length=255)
+     * @ORM\Column(name="phone", type="string", length=255, nullable=true)
      *
      * @Serializer\Groups({"finance"})
      */
@@ -86,7 +86,7 @@ class SalesCompanyProfileInvoice
     /**
      * @var string
      *
-     * @ORM\Column(name="bank_account_name", type="string", length=255)
+     * @ORM\Column(name="bank_account_name", type="string", length=255, nullable=true)
      *
      * @Serializer\Groups({"finance"})
      */
@@ -95,7 +95,7 @@ class SalesCompanyProfileInvoice
     /**
      * @var string
      *
-     * @ORM\Column(name="bank_account_number", type="string", length=255)
+     * @ORM\Column(name="bank_account_number", type="string", length=255, nullable=true)
      *
      * @Serializer\Groups({"finance"})
      */
