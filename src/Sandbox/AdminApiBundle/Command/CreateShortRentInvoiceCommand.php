@@ -206,6 +206,7 @@ class CreateShortRentInvoiceCommand extends ContainerAwareCommand
             $summary->setLongRentBillCount((int) $value['long_rent_count']);
             $summary->setEventOrderBalance($value['event_order_balance']);
             $summary->setEventOrderCount((int) $value['event_order_count']);
+            $summary->setSummaryDate($lastDate);
 
             $em->persist($summary);
 

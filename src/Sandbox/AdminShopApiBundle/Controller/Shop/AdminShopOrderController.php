@@ -3,7 +3,6 @@
 namespace Sandbox\AdminShopApiBundle\Controller\Shop;
 
 use Rs\Json\Patch;
-use Sandbox\AdminApiBundle\Controller\Order\AdminOrderController;
 use Sandbox\AdminShopApiBundle\Data\Shop\ShopOrderPriceData;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
@@ -18,7 +17,6 @@ use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Controller\Shop\ShopController;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
@@ -716,7 +714,8 @@ class AdminShopOrderController extends ShopController
         ParamFetcherInterface $paramFetcher
     ) {
         //authenticate with web browser cookie
-        $adminId = $this->authenticateAdminCookie();
+        $admin = $this->authenticateAdminCookie();
+        $adminId = $admin->getId();
         $companyId = $paramFetcher->get('sales_company');
 
         // check user permission
@@ -813,29 +812,6 @@ class AdminShopOrderController extends ShopController
         $view->setData($order);
 
         return $view;
-    }
-
-    /**
-     * authenticate with web browser cookie.
-     */
-    private function authenticateAdminCookie()
-    {
-        $cookie_name = AdminOrderController::ADMIN_COOKIE_NAME;
-        if (!isset($_COOKIE[$cookie_name])) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-        }
-
-        $token = $_COOKIE[$cookie_name];
-        $adminToken = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserToken')
-            ->findOneBy(array(
-                'token' => $token,
-            ));
-        if (is_null($adminToken)) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-        }
-
-        return $adminToken->getUserId();
     }
 
     /**

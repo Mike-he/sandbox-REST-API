@@ -281,6 +281,72 @@ class AdminFinanceSummaryController extends PaymentController
     }
 
     /**
+     * @Annotations\QueryParam(
+     *    name="company_id",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="company id"
+     * )
+     *
+     * @Method({"GET"})
+     * @Route("/finance/summary/{id}/export")
+     *
+     * @return View
+     */
+    public function getFinanceSummaryExportAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        //authenticate with web browser cookie
+        $admin = $this->authenticateAdminCookie();
+        $adminId = $admin->getId();
+
+        $this->checkAdminSalesFinanceSummaryPermission($adminId, AdminPermission::OP_LEVEL_VIEW);
+        $companyId = 1;
+
+        $summary = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Finance\FinanceSummary')
+            ->findOneBy([
+                'id' => $id,
+                'companyId' => $companyId,
+            ]);
+        $this->throwNotFoundIfNull($summary, self::NOT_FOUND_MESSAGE);
+
+        $lastDate = $summary->getSummaryDate();
+        $firstDate = clone $lastDate;
+        $lastDate->modify('first day of this month');
+        $firstDate->setTime(0, 0, 0);
+
+        // event orders
+        $events = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventOrder')
+            ->getEventOrderSummary(
+                $firstDate,
+                $lastDate,
+                $companyId
+            );
+
+        $shortOrders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getCompletedOrderSummary(
+                $firstDate,
+                $lastDate,
+                $companyId
+            );
+
+        $longRents = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Finance\FinanceLongRentServiceBill')
+            ->getServiceBillsByMonth(
+                $firstDate,
+                $lastDate,
+                $companyId
+            );
+    }
+
+    /**
      * @param $salesCompanyId
      * @param $start
      * @param $end
