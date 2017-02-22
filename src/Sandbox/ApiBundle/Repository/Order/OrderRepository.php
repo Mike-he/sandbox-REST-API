@@ -2864,10 +2864,6 @@ class OrderRepository extends EntityRepository
         $ids
     ) {
         $query = $this->createQueryBuilder('o')
-            ->select('
-                o.id,
-                o.orderNumber
-            ')
             ->where('o.id IN (:ids)')
             ->setParameter('ids', $ids);
 

@@ -64,13 +64,22 @@ class AdminOrderController extends OrderController
     ) {
         $ids = $paramFetcher->get('ids');
 
-        $numbers = $this->getDoctrine()
+        $orders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->getOrdersNumbers(
                 $ids
             );
 
-        return new View($numbers);
+        $response = array();
+        foreach ($orders as $order) {
+            array_push($response, array(
+                'id' => $order->getId(),
+                'order_number' => $order->getOrderNumber(),
+                'company_name' => $order->getProduct()->getRoom()->getBuilding()->getCompany()->getName(),
+            ));
+        }
+
+        return new View($response);
     }
 
     /**

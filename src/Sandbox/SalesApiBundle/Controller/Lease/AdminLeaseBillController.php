@@ -54,13 +54,22 @@ class AdminLeaseBillController extends SalesRestController
     ) {
         $ids = $paramFetcher->get('ids');
 
-        $numbers = $this->getDoctrine()
+        $bills = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
             ->getBillsNumbers(
                 $ids
             );
 
-        return new View($numbers);
+        $response = array();
+        foreach ($bills as $bill) {
+            array_push($response, array(
+                'id' => $bill->getId(),
+                'bill_number' => $bill->getSerialNumber(),
+                'company_name' => $bill->getLease()->getProduct()->getRoom()->getBuilding()->getCompany()->getName(),
+            ));
+        }
+
+        return new View($response);
     }
 
     /**
