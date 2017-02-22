@@ -317,9 +317,8 @@ class AdminFinanceSummaryController extends PaymentController
         //authenticate with web browser cookie
         $admin = $this->authenticateAdminCookie();
         $adminId = $admin->getId();
-        $this->checkAdminSalesFinanceSummaryPermission($adminId, AdminPermission::OP_LEVEL_VIEW);
-
         $token = $_COOKIE[self::ADMIN_COOKIE_NAME];
+
         $userToken = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserToken')
             ->findOneBy([
@@ -339,6 +338,17 @@ class AdminFinanceSummaryController extends PaymentController
         }
 
         $companyId = $adminPlatform['sales_company_id'];
+
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $adminId,
+            [
+                ['key' => AdminPermission::KEY_SALES_PLATFORM_FINANCIAL_SUMMARY],
+            ],
+            AdminPermission::OP_LEVEL_VIEW,
+            $adminPlatform->getPlatform(),
+            $companyId
+        );
+
         $company = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
             ->findOneBy([
