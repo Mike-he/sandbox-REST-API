@@ -193,7 +193,6 @@ class AdminFinanceLongRentBillController extends SalesRestController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
-        //TODO: check long rent service fee limit
         $totalFee = $this->getTotalServiceFee($salesCompanyId);
 
         $pendingFee = $this->getDoctrine()
@@ -346,7 +345,6 @@ class AdminFinanceLongRentBillController extends SalesRestController
         $adminPlatform = $this->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
-        //TODO: get total fee
         $totalFee = $this->getTotalServiceFee($salesCompanyId);
 
         $pendingFee = $this->getDoctrine()
