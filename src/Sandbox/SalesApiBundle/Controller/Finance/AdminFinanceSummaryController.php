@@ -291,7 +291,7 @@ class AdminFinanceSummaryController extends PaymentController
      *    name="summary_id",
      *    array=false,
      *    default=null,
-     *    nullable=true,
+     *    nullable=false,
      *    strict=true,
      *    description="summary id"
      * )
