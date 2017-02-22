@@ -49,7 +49,7 @@ class TradeInvoiceViewRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('t')
             ->select('t.number')
-            ->where('t.id IS NOT NULL');
+            ->where('t.number IS NOT NULL');
 
         if (!is_null($tradeNumber)) {
             $query->andWhere('t.number LIKE :number')
