@@ -62,6 +62,9 @@ product_order:
     preorder: 后台预定
     reserve: 后台预留
   export_header:
+    commission: 佣金
+    order_category: 订单类型
+    collection_method: 收款方
     company_name: 销售方
     building_name: 社区
     order_number: 订单号
@@ -233,6 +236,9 @@ client:
     room_order: 空间订单
     shop_order: 店铺订单
     event_order: 活动订单
+    long_rent_order: 长租订单
+    short_rent_order: 秒租订单
+    sandbox: 创合社区
   account:
     invalid_phone_number: 该手机号无效
     invalid_email_address: 该邮箱无效
@@ -332,3 +338,5 @@ lease:
     lease_ended: 亲爱的创合用户，您的一份长租办公室合同已结束！感谢您一路对我们的信任与支持！期待我们下次合作！点击查看详情。
     lease_bill_unpaid_first: 亲爱的创合用户，您有
     lease_bill_unpaid_second: 笔账单在等待支付。点击查看详情。
+  order_method:
+    backend: 后台推送

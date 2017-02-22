@@ -149,6 +149,11 @@ security:
             security: false
             methods: [GET]
 
+        sales_admin_finance_summary_export:
+            pattern: ^/sales/admin/finance/summary/export$
+            security: false
+            methods: [GET]
+
         main:
             pattern: ^/
             anonymous: true
