@@ -22,6 +22,7 @@ class TradeInvoiceViewRepository extends EntityRepository
             ->select('ti.number')
             ->from('SandboxApiBundle:Invoice\TradeInvoiceView', 'ti')
             ->where('ti.userId = :userId')
+            ->andWhere('ti.salesInvoice = TRUE')
             ->setParameter('userId', $userId)
             ->orderBy('ti.creationDate', 'DESC');
 

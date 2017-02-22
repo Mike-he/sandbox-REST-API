@@ -39,6 +39,13 @@ class TradeInvoiceView
     private $userId;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="sales_invoice", type="boolean")
+     */
+    private $salesInvoice;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="creation_date", type="datetime")
@@ -93,6 +100,22 @@ class TradeInvoiceView
     public function setUserId($userId)
     {
         $this->userId = $userId;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSalesInvoice()
+    {
+        return $this->salesInvoice;
+    }
+
+    /**
+     * @param bool $salesInvoice
+     */
+    public function setSalesInvoice($salesInvoice)
+    {
+        $this->salesInvoice = $salesInvoice;
     }
 
     /**
