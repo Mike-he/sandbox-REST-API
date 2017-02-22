@@ -534,7 +534,7 @@ class AdminLeaseController extends SalesRestController
                 break;
             case Lease::LEASE_STATUS_END:
                 if (
-                    $status != Lease::LEASE_STATUS_PERFORMING
+                    $status != Lease::LEASE_STATUS_MATURED
                 ) {
                     throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE);
                 }
