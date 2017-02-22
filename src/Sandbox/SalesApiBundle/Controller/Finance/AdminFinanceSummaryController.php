@@ -337,7 +337,7 @@ class AdminFinanceSummaryController extends PaymentController
             throw new PreconditionFailedHttpException(self::PRECONDITION_NOT_SET);
         }
 
-        $companyId = $adminPlatform['sales_company_id'];
+        $companyId = $adminPlatform->getSalesCompanyId();
 
         $this->throwAccessDeniedIfAdminNotAllowed(
             $adminId,
