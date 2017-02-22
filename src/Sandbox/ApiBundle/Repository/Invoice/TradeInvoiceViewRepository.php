@@ -39,18 +39,26 @@ class TradeInvoiceViewRepository extends EntityRepository
 
     /**
      * @param $tradeNumber
+     * @param $salesInvoice
      *
      * @return array
      */
     public function getAdminTradeNumbers(
-        $tradeNumber
+        $tradeNumber,
+        $salesInvoice
     ) {
         $query = $this->createQueryBuilder('t')
-            ->select('t.number');
+            ->select('t.number')
+            ->where('t.id IS NOT NULL');
 
         if (!is_null($tradeNumber)) {
-            $query->where('t.number LIKE :number')
+            $query->andWhere('t.number LIKE :number')
                 ->setParameter('number', '%'.$tradeNumber);
+        }
+
+        if (!is_null($salesInvoice)) {
+            $query->andWhere('t.salesInvoice = :salesInvoice')
+                ->setParameter('salesInvoice', $salesInvoice);
         }
 
         $tradeNumbers = $query->getQuery()->getResult();
