@@ -587,10 +587,6 @@ class AdminLeaseController extends SalesRestController
                         $contentArray
                     );
                 } else {
-                    if (!empty($unpaidBills)) {
-                        throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_END_BILL_UNPAID_MESSAGE);
-                    }
-
                     // send Jpush notification
                     $this->generateJpushNotification(
                         [
