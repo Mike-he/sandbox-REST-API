@@ -79,9 +79,12 @@ class SalesCompanyServiceInfosRepository extends EntityRepository
     public function getAdminInvoiceCategories()
     {
         $query = $this->createQueryBuilder('s')
-            ->select('DISTINCT(s.invoicingSubjects) as category')
+            ->select('DISTINCT(s.invoicingSubjects)')
             ->where('s.invoicingSubjects IS NOT NULL');
 
-        return $query->getQuery()->getResult();
+        $categories = $query->getQuery()->getResult();
+        $categories = array_map('current', $categories);
+
+        return $categories;
     }
 }
