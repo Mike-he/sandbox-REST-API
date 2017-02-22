@@ -131,6 +131,13 @@ class AdminOrderController extends OrderController
      * )
      *
      * @Annotations\QueryParam(
+     *     name="sales_invoice",
+     *     array=false,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="company",
      *    array=false,
      *    default=null,
@@ -182,6 +189,7 @@ class AdminOrderController extends OrderController
         // filters
         $pageIndex = $paramFetcher->get('pageIndex');
         $pageLimit = $paramFetcher->get('pageLimit');
+        $salesInvoice = $paramFetcher->get('sales_invoice');
         $salesCompanyId = $paramFetcher->get('company');
         $tradeNumber = $paramFetcher->get('trade_number');
         $amountMin = $paramFetcher->get('amount_min');
@@ -190,7 +198,8 @@ class AdminOrderController extends OrderController
         $tradeNumbers = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Invoice\TradeInvoiceView')
             ->getAdminTradeNumbers(
-                $tradeNumber
+                $tradeNumber,
+                $salesInvoice
             );
 
         $response = array();
