@@ -1037,6 +1037,7 @@ class OrderController extends PaymentController
             'payment_date' => $order->getPaymentDate(),
             'category' => $this->getOrderInvoiceCategory($order),
             'amount' => (float) $order->getDiscountPrice(),
+            'sales_invoice' => $order->isSalesInvoice(),
         );
     }
 
@@ -1064,6 +1065,7 @@ class OrderController extends PaymentController
             'payment_date' => $bill->getPaymentDate(),
             'category' => $this->getBillInvoiceCategory($bill),
             'amount' => (float) $bill->getRevisedAmount(),
+            'sales_invoice' => $bill->isSalesInvoice(),
         );
     }
 
