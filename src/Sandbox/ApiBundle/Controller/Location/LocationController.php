@@ -577,7 +577,8 @@ class LocationController extends SalesRestController
         }
 
         $userId = $this->getUser() ? $this->getUserId() : null;
-        $roomWithProductNumber = $this->getRepo('Product\Product')
+        $roomWithProductNumber = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\Product')
             ->countRoomsWithProductByBuilding(
                 $building->getId(),
                 $userId
