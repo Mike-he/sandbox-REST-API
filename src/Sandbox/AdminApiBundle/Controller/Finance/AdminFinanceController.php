@@ -23,6 +23,28 @@ class AdminFinanceController extends SandboxRestController
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
+     * @Route("/finance/invoice/categories")
+     * @Method({"GET"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getFinanceInvoiceCategoryAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $categories = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
+            ->getAdminInvoiceCategories();
+
+        return new View($categories);
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
      * @Annotations\QueryParam(
      *    name="year",
      *    array=false,
