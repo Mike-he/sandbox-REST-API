@@ -1087,6 +1087,10 @@ class OrderController extends PaymentController
                 'roomTypes' => $roomType,
             ));
 
+        if (is_null($info)) {
+            return '';
+        }
+
         return $info->getInvoicingSubjects();
     }
 
@@ -1107,6 +1111,10 @@ class OrderController extends PaymentController
                 'company' => $salesCompany,
                 'roomTypes' => $roomType,
             ));
+
+        if (is_null($info)) {
+            return '';
+        }
 
         return $info->getInvoicingSubjects();
     }
