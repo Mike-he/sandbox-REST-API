@@ -19,10 +19,6 @@ class LeaseBillRepository extends EntityRepository
         $ids
     ) {
         $query = $this->createQueryBuilder('b')
-            ->select('
-                b.id,
-                b.serialNumber
-            ')
             ->where('b.id IN (:ids)')
             ->setParameter('ids', $ids);
 
