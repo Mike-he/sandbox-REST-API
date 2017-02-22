@@ -1072,6 +1072,8 @@ class OrderRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
             ->leftJoin('SandboxApiBundle:Order\ProductOrderRecord', 'por', 'WITH', 'por.orderId = o.id')
             ->leftJoin('p.room', 'r')
+            ->leftJoin('o.user', 'u')
+            ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'up.userId = u.id')
             ->where('
                     (
                         (o.status != :unpaid) AND (o.paymentDate IS NOT NULL) OR 
@@ -1195,14 +1197,18 @@ class OrderRepository extends EntityRepository
         if (!is_null($keyword) && !is_null($keywordSearch)) {
             switch ($keyword) {
                 case 'number':
-                    $query->andWhere('o.orderNumber LIKE :search')
-                        ->setParameter('search', '%'.$keywordSearch.'%');
+                    $query->andWhere('o.orderNumber LIKE :search');
                     break;
                 case 'room':
-                    $query->andWhere('r.name LIKE :search')
-                        ->setParameter('search', '%'.$keywordSearch.'%');
+                    $query->andWhere('r.name LIKE :search');
                     break;
+                case 'user':
+                    $query->andWhere('up.name LIKE :search');
+                    break;
+                default:
+                    $query->andWhere('o.orderNumber LIKE :search');
             }
+            $query->setParameter('search', '%'.$keywordSearch.'%');
         }
 
         if (!is_null($createDateRange)) {
@@ -1344,6 +1350,8 @@ class OrderRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
             ->leftJoin('SandboxApiBundle:Order\ProductOrderRecord', 'por', 'WITH', 'por.orderId = o.id')
             ->leftJoin('p.room', 'r')
+            ->leftJoin('o.user', 'u')
+            ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'up.userId = u.id')
             ->where('
                     (
                         (o.status != :unpaid) AND (o.paymentDate IS NOT NULL) OR
@@ -1467,14 +1475,18 @@ class OrderRepository extends EntityRepository
         if (!is_null($keyword) && !is_null($keywordSearch)) {
             switch ($keyword) {
                 case 'number':
-                    $query->andWhere('o.orderNumber LIKE :search')
-                        ->setParameter('search', '%'.$keywordSearch.'%');
+                    $query->andWhere('o.orderNumber LIKE :search');
                     break;
                 case 'room':
-                    $query->andWhere('r.name LIKE :search')
-                        ->setParameter('search', '%'.$keywordSearch.'%');
+                    $query->andWhere('r.name LIKE :search');
                     break;
+                case 'user':
+                    $query->andWhere('up.name LIKE :search');
+                    break;
+                default:
+                    $query->andWhere('o.orderNumber LIKE :search');
             }
+            $query->setParameter('search', '%'.$keywordSearch.'%');
         }
 
         if (!is_null($createDateRange)) {
