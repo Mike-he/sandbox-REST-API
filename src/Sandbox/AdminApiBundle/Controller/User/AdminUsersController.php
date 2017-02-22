@@ -283,6 +283,15 @@ class AdminUsersController extends DoorController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_USER],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER_RESERVE],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER_PREORDER],
+            ],
+            AdminPermission::OP_LEVEL_VIEW
+        );
 
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
