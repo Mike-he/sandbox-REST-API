@@ -51,6 +51,13 @@ class ProductType extends AbstractType
             ->add('deposit')
             ->add('rental_info')
             ->add('filename')
+            ->add(
+                'rent_type_include_ids',
+                null,
+                array(
+                    'mapped' => false,
+                )
+            )
         ;
     }
 

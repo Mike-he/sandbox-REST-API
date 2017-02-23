@@ -2,9 +2,11 @@
 
 namespace Sandbox\ApiBundle\Entity\Product;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Sandbox\ApiBundle\Entity\Lease\LeaseRentTypes;
 use Sandbox\ApiBundle\Entity\Room\Room;
 
 /**
@@ -296,10 +298,25 @@ class Product
      */
     private $collectionMethod;
 
+    /**
+     * @var LeaseRentTypes
+     *
+     * @ORM\ManyToMany(targetEntity="Sandbox\ApiBundle\Entity\Lease\LeaseRentTypes")
+     * @ORM\JoinTable(
+     *      name="product_has_rent_types",
+     *      joinColumns={@ORM\JoinColumn(name="product_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="lease_rent_types_id", referencedColumnName="id")}
+     * )
+     *
+     * @Serializer\Groups({"main", "admin_room"})
+     */
+    private $leaseRentTypes;
+
     public function __construct()
     {
         $date = new \DateTime('2099-12-30 23:59:59');
         $this->setEndDate($date);
+        $this->leaserentTypes = new ArrayCollection();
     }
 
     /**
@@ -924,5 +941,29 @@ class Product
     public function setCollectionMethod($collectionMethod)
     {
         $this->collectionMethod = $collectionMethod;
+    }
+
+    /**
+     * @return LeaseRentTypes
+     */
+    public function getLeaseRentTypes()
+    {
+        return $this->leaseRentTypes;
+    }
+
+    /**
+     * @param LeaseRentTypes $leaseRentType
+     */
+    public function addLeaseRentTypes($leaseRentType)
+    {
+        $this->leaseRentTypes[] = $leaseRentType;
+    }
+
+    /**
+     * @param LeaseRentTypes $leaseRentType
+     */
+    public function removeLeaseRentTypes($leaseRentType)
+    {
+        return $this->leaseRentTypes->removeElement($leaseRentType);
     }
 }
