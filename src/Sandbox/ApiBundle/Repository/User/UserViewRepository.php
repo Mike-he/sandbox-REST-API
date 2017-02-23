@@ -383,10 +383,11 @@ class UserViewRepository extends EntityRepository
         $query
     ) {
         $queryResults = $this->createQueryBuilder('u')
+            ->select('u.id')
             ->where('u.name LIKE :query')
             ->orWhere('u.email LIKE :query')
             ->orWhere('u.phone LIKE :query')
-            ->setParameter('query', $query.'%');
+            ->setParameter('query', '%'.$query.'%');
 
         return $queryResults->getQuery()->getResult();
     }
