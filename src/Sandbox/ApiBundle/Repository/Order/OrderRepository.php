@@ -1072,7 +1072,7 @@ class OrderRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
             ->leftJoin('SandboxApiBundle:Order\ProductOrderRecord', 'por', 'WITH', 'por.orderId = o.id')
             ->leftJoin('p.room', 'r')
-            ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'up.userId = o.userId')
+            ->leftJoin('SandboxApiBundle:User\UserView', 'u', 'WITH', 'u.id = o.userId')
             ->where('
                     (
                         (o.status != :unpaid) AND (o.paymentDate IS NOT NULL) OR 
@@ -1202,7 +1202,13 @@ class OrderRepository extends EntityRepository
                     $query->andWhere('r.name LIKE :search');
                     break;
                 case 'user':
-                    $query->andWhere('up.name LIKE :search');
+                    $query->andWhere('u.name LIKE :search');
+                    break;
+                case 'account':
+                    $query->andWhere('
+                            (u.phone LIKE :search OR 
+                            u.email LIKE :search)
+                        ');
                     break;
                 default:
                     $query->andWhere('o.orderNumber LIKE :search');
@@ -1349,7 +1355,7 @@ class OrderRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
             ->leftJoin('SandboxApiBundle:Order\ProductOrderRecord', 'por', 'WITH', 'por.orderId = o.id')
             ->leftJoin('p.room', 'r')
-            ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'up.userId = o.userId')
+            ->leftJoin('SandboxApiBundle:User\UserView', 'u', 'WITH', 'u.id = o.userId')
             ->where('
                     (
                         (o.status != :unpaid) AND (o.paymentDate IS NOT NULL) OR
@@ -1479,7 +1485,13 @@ class OrderRepository extends EntityRepository
                     $query->andWhere('r.name LIKE :search');
                     break;
                 case 'user':
-                    $query->andWhere('up.name LIKE :search');
+                    $query->andWhere('u.name LIKE :search');
+                    break;
+                case 'account':
+                    $query->andWhere('
+                            (u.phone LIKE :search OR 
+                            u.email LIKE :search)
+                        ');
                     break;
                 default:
                     $query->andWhere('o.orderNumber LIKE :search');
@@ -2924,6 +2936,7 @@ class OrderRepository extends EntityRepository
         $query = $this->createQueryBuilder('o')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
             ->leftJoin('SandboxApiBundle:Order\OrderOfflineTransfer', 't', 'with', 't.orderId = o.id')
+            ->leftJoin('SandboxApiBundle:User\UserView', 'u', 'WITH', 'u.id = o.userId')
             ->where('o.payChannel = :channel')
             ->andWhere('t.id is not null')
             ->andWhere('t.transferStatus != :unpaid')
@@ -2977,10 +2990,21 @@ class OrderRepository extends EntityRepository
         if (!is_null($keyword) && !is_null($keywordSearch)) {
             switch ($keyword) {
                 case 'number':
-                    $query->andWhere('o.orderNumber LIKE :search')
-                        ->setParameter('search', '%'.$keywordSearch.'%');
+                    $query->andWhere('o.orderNumber LIKE :search');
                     break;
+                case 'user':
+                    $query->andWhere('u.name LIKE :search');
+                    break;
+                case 'account':
+                    $query->andWhere('
+                            (u.phone LIKE :search OR 
+                            u.email LIKE :search)
+                        ');
+                    break;
+                default:
+                    $query->andWhere('o.orderNumber LIKE :search');
             }
+            $query->setParameter('search', '%'.$keywordSearch.'%');
         }
 
         if (!is_null($amountStart)) {
@@ -3028,6 +3052,7 @@ class OrderRepository extends EntityRepository
         $query = $this->createQueryBuilder('o')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
             ->leftJoin('SandboxApiBundle:Order\OrderOfflineTransfer', 't', 'with', 't.orderId = o.id')
+            ->leftJoin('SandboxApiBundle:User\UserView', 'u', 'WITH', 'u.id = o.userId')
             ->select('COUNT(o)')
             ->where('o.payChannel = :channel')
             ->andWhere('t.id is not null')
@@ -3083,10 +3108,21 @@ class OrderRepository extends EntityRepository
         if (!is_null($keyword) && !is_null($keywordSearch)) {
             switch ($keyword) {
                 case 'number':
-                    $query->andWhere('o.orderNumber LIKE :search')
-                        ->setParameter('search', '%'.$keywordSearch.'%');
+                    $query->andWhere('o.orderNumber LIKE :search');
                     break;
+                case 'user':
+                    $query->andWhere('u.name LIKE :search');
+                    break;
+                case 'account':
+                    $query->andWhere('
+                            (u.phone LIKE :search OR 
+                            u.email LIKE :search)
+                        ');
+                    break;
+                default:
+                    $query->andWhere('o.orderNumber LIKE :search');
             }
+            $query->setParameter('search', '%'.$keywordSearch.'%');
         }
 
         if (!is_null($amountStart)) {

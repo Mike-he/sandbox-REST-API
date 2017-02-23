@@ -860,4 +860,45 @@ class AdminUsersController extends DoorController
 
         return $this->getUsersByIds($ids);
     }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="name",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by name"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="account",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by phone or email"
+     * )
+     *
+     * @Route("/users/ids/search")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getSearchUserIdsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $name = $paramFetcher->get('name');
+        $account = $paramFetcher->get('account');
+
+        $userIds = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserView')
+            ->getUserIds($name, $account);
+
+        return new View($userIds);
+    }
 }

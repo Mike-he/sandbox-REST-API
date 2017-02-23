@@ -237,6 +237,7 @@ class LeaseBillRepository extends EntityRepository
         $query = $this->createQueryBuilder('lb')
             ->leftJoin('lb.lease', 'l')
             ->leftJoin('SandboxApiBundle:Lease\LeaseBillOfflineTransfer', 't', 'with', 't.bill = lb.id')
+            ->leftJoin('SandboxApiBundle:User\UserView', 'u', 'WITH', 'u.id = lb.drawee')
             ->where('1 = 1');
 
         if (!is_null($company)) {
@@ -269,6 +270,16 @@ class LeaseBillRepository extends EntityRepository
                 case 'bill':
                     $query->andWhere('lb.serialNumber LIKE :search');
                     break;
+                case 'user':
+                    $query->andWhere('u.name LIKE :search');
+                    break;
+                case 'account':
+                    $query->andWhere('
+                            (u.phone LIKE :search OR u.email LIKE :search)
+                        ');
+                    break;
+                default:
+                    $query->andWhere('l.serialNumber LIKE :search');
             }
 
             $query->setParameter('search', '%'.$keywordSearch.'%');

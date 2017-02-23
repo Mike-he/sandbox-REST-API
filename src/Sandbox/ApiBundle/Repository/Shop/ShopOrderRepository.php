@@ -194,7 +194,8 @@ class ShopOrderRepository extends EntityRepository
         $query = $this->createQueryBuilder('o')
             ->join('SandboxApiBundle:Shop\Shop', 's', 'WITH', 's.id = o.shopId')
             ->join('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'b.id = s.buildingId')
-            ->join('SandboxApiBundle:Room\RoomCity', 'c', 'WITH', 'c.id = b.cityId');
+            ->join('SandboxApiBundle:Room\RoomCity', 'c', 'WITH', 'c.id = b.cityId')
+            ->leftJoin('SandboxApiBundle:User\UserView', 'u', 'WITH', 'u.id = o.userId');
 
         if (!is_null($shopId) && !empty($shopId)) {
             $query->andWhere('o.shopId = :shopId')
@@ -219,10 +220,21 @@ class ShopOrderRepository extends EntityRepository
         if (!is_null($keyword) && !is_null($keywordSearch)) {
             switch ($keyword) {
                 case 'number':
-                    $query->andWhere('o.orderNumber LIKE :search')
-                        ->setParameter('search', '%'.$keywordSearch.'%');
+                    $query->andWhere('o.orderNumber LIKE :search');
                     break;
+                case 'user':
+                    $query->andWhere('u.name LIKE :search');
+                    break;
+                case 'account':
+                    $query->andWhere('
+                            (u.phone LIKE :search OR 
+                            u.email LIKE :search)
+                        ');
+                    break;
+                default:
+                    $query->andWhere('o.orderNumber LIKE :search');
             }
+            $query->setParameter('search', '%'.$keywordSearch.'%');
         }
 
         if (!is_null($payDate)) {
@@ -364,7 +376,8 @@ class ShopOrderRepository extends EntityRepository
             ->select('COUNT(o)')
             ->join('SandboxApiBundle:Shop\Shop', 's', 'WITH', 's.id = o.shopId')
             ->join('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'b.id = s.buildingId')
-            ->join('SandboxApiBundle:Room\RoomCity', 'c', 'WITH', 'c.id = b.cityId');
+            ->join('SandboxApiBundle:Room\RoomCity', 'c', 'WITH', 'c.id = b.cityId')
+            ->leftJoin('SandboxApiBundle:User\UserView', 'u', 'WITH', 'u.id = o.userId');
 
         if (!is_null($shopId) && !empty($shopId)) {
             $query->andWhere('o.shopId = :shopId')
@@ -389,10 +402,21 @@ class ShopOrderRepository extends EntityRepository
         if (!is_null($keyword) && !is_null($keywordSearch)) {
             switch ($keyword) {
                 case 'number':
-                    $query->andWhere('o.orderNumber LIKE :search')
-                        ->setParameter('search', '%'.$keywordSearch.'%');
+                    $query->andWhere('o.orderNumber LIKE :search');
                     break;
+                case 'user':
+                    $query->andWhere('u.name LIKE :search');
+                    break;
+                case 'account':
+                    $query->andWhere('
+                            (u.phone LIKE :search OR 
+                            u.email LIKE :search)
+                        ');
+                    break;
+                default:
+                    $query->andWhere('o.orderNumber LIKE :search');
             }
+            $query->setParameter('search', '%'.$keywordSearch.'%');
         }
 
         if (!is_null($payDate)) {

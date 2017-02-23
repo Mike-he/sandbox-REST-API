@@ -28,7 +28,8 @@ class FinanceShortRentInvoiceApplicationRepository extends EntityRepository
         $amountStart,
         $amountEnd,
         $status,
-        $salesCompanyId
+        $salesCompanyId,
+        $invoiceNo
     ) {
         $query = $this->createQueryBuilder('a')
             ->select('COUNT(a)')
@@ -41,7 +42,8 @@ class FinanceShortRentInvoiceApplicationRepository extends EntityRepository
             $amountStart,
             $amountEnd,
             $status,
-            $salesCompanyId
+            $salesCompanyId,
+            $invoiceNo
         );
 
         return $query->getQuery()->getSingleScalarResult();
@@ -67,7 +69,8 @@ class FinanceShortRentInvoiceApplicationRepository extends EntityRepository
         $status,
         $limit,
         $offset,
-        $salesCompanyId
+        $salesCompanyId,
+        $invoiceNo
     ) {
         $query = $this->createQueryBuilder('a')
             ->where('a.id IS NOT NULL');
@@ -79,7 +82,8 @@ class FinanceShortRentInvoiceApplicationRepository extends EntityRepository
             $amountStart,
             $amountEnd,
             $status,
-            $salesCompanyId
+            $salesCompanyId,
+            $invoiceNo
         );
 
         $query->orderBy('a.creationDate', 'DESC')
@@ -106,7 +110,8 @@ class FinanceShortRentInvoiceApplicationRepository extends EntityRepository
         $amountStart,
         $amountEnd,
         $status,
-        $salesCompanyId
+        $salesCompanyId,
+        $invoiceNo
     ) {
         if (!is_null($salesCompanyId)) {
             $query->andWhere('a.companyId = :companyId')
@@ -143,6 +148,11 @@ class FinanceShortRentInvoiceApplicationRepository extends EntityRepository
         if (!is_null($status) && !empty($status)) {
             $query->andWhere('a.status = :status')
                 ->setParameter('status', $status);
+        }
+
+        if (!is_null($invoiceNo) && !empty($invoiceNo)) {
+            $query->andWhere('a.invoiceNo LIKE :invoiceNo')
+                ->setParameter('invoiceNo', "%$invoiceNo%");
         }
 
         return $query;
