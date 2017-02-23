@@ -204,14 +204,14 @@ client:
     current_user_is_not_an_admin: 当前用户不是管理员
   menu:
     order: 空间预定
-    coffee: 创合店铺
-    event: 创合活动
+    coffee: 咖啡店铺
+    event: 热门活动
     location: 寻找社区
-    community: 创合秒租
+    community: 首页
     blog: 创合博客
-    message: 创合消息
+    message: 消息
     contact: 我的联系人
-    member: 创合会员
+    member: 会员
     company: 创合企业
     my_company: 我的企业
     scan_qr: 扫一扫
