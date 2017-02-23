@@ -106,7 +106,7 @@ class AdminFinanceShortRentInvoiceApplicationController extends PaymentControlle
      *    strict=true,
      *    description="company"
      * )
-     * 
+     *
      * @Annotations\QueryParam(
      *    name="invoice_no",
      *    array=false,
