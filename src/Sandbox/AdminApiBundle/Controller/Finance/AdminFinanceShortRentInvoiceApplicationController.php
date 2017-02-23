@@ -106,6 +106,15 @@ class AdminFinanceShortRentInvoiceApplicationController extends PaymentControlle
      *    strict=true,
      *    description="company"
      * )
+     * 
+     * @Annotations\QueryParam(
+     *    name="invoice_no",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="invoice number"
+     * )
      *
      * @Method({"GET"})
      * @Route("/applications")
@@ -126,6 +135,7 @@ class AdminFinanceShortRentInvoiceApplicationController extends PaymentControlle
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
         $companyId = $paramFetcher->get('company_id');
+        $invoiceNo = $paramFetcher->get('invoice_no');
 
         $offset = ($pageIndex - 1) * $pageLimit;
 
@@ -137,7 +147,8 @@ class AdminFinanceShortRentInvoiceApplicationController extends PaymentControlle
                 $amountStart,
                 $amountEnd,
                 $status,
-                $companyId
+                $companyId,
+                $invoiceNo
             );
 
         $invoices = $this->getDoctrine()
@@ -150,7 +161,8 @@ class AdminFinanceShortRentInvoiceApplicationController extends PaymentControlle
                 $status,
                 $pageLimit,
                 $offset,
-                $companyId
+                $companyId,
+                $invoiceNo
             );
 
         $view = new View();
