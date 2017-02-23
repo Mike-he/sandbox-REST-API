@@ -414,4 +414,31 @@ class UserViewRepository extends EntityRepository
 
         return $query->getResult();
     }
+
+    /**
+     * @param $name
+     * @param $account
+     *
+     * @return array
+     */
+    public function getUserIds(
+        $name,
+        $account
+    ) {
+        $query = $this->createQueryBuilder('u')
+            ->select('u.id')
+            ->where('1=1');
+
+        if (!is_null($name)) {
+            $query->andWhere('u.name LIKE :name')
+                ->setParameter('name', '%'.$name.'%');
+        }
+
+        if (!is_null($account)) {
+            $query->andWhere('(u.email LIKE :account OR u.phone LIKE :account)')
+                ->setParameter('account', '%'.$account.'%');
+        }
+
+        return $query->getQuery()->getResult();
+    }
 }
