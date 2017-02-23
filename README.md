@@ -14,7 +14,7 @@ with username = "token" and password = "id of client"
 * [VirtualBox](http://www.virtualbox.org/) for full machine virtualization
 * [Vagrant](http://www.vagrantup.com/) for automatic creation and provisioning of guest VMs
 
-## Dev Environment with Vagrant
+## Start Dev Environment
 
 * run the command "bin/homestead make"
 * modify the file 'homestead.yml'
@@ -22,4 +22,4 @@ with username = "token" and password = "id of client"
 
 ## API Documentation
 
-http://gitlab.sandbox3.cn/Sandbox/Sandbox-API-Docs
+[http://gitlab.sandbox3.cn/Sandbox/Sandbox-API-Docs](http://gitlab.sandbox3.cn/Sandbox/Sandbox-API-Docs)

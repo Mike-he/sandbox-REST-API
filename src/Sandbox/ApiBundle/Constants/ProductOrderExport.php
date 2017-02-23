@@ -25,16 +25,26 @@ class ProductOrderExport
     const USER_EMAIL = 'email';
     const PAYMENT_CHANNEL = 'channel';
     const ORDER_TYPE = 'order_type';
+    const COLLECTION_METHOD = 'collection_method';
+    const ORDER_CATEGORY = 'order_category';
+    const COMMISSION = 'commission';
+    const CREATION_DATE = 'creation_date';
 
     const TRANS_ROOM_TYPE = 'room.type.';
     const TRANS_ROOM_UNIT = 'room.unit.';
 
-    const TRANS_PRODUCT_ORDER_HEADER_BUILDING_NAME = 'product_order.export_header.building_name';
-    const TRANS_PRODUCT_ORDER_HEADER_COMPANY_NAME = 'product_order.export_header.company_name';
+    const TRANS_CLIENT_PROFILE_EVENT_ORDER = 'client.profile.event_order';
+    const TRANS_CLIENT_PROFILE_LONG_RENT_ORDER = 'client.profile.long_rent_order';
+    const TRANS_CLIENT_PROFILE_SHORT_RENT_ORDER = 'client.profile.short_rent_order';
+    const TRANS_CLIENT_PROFILE_SANDBOX = 'client.profile.sandbox';
+
     const TRANS_PRODUCT_ORDER_STATUS = 'product_order.status.';
     const TRANS_PRODUCT_ORDER_CHANNEL = 'product_order.channel.';
     const TRANS_PRODUCT_ORDER_TYPE = 'product_order.order_type.';
     const TRANS_PRODUCT_ORDER_REFUND_TO = 'product_order.refund_to.';
+
+    const TRANS_PRODUCT_ORDER_HEADER_BUILDING_NAME = 'product_order.export_header.building_name';
+    const TRANS_PRODUCT_ORDER_HEADER_COMPANY_NAME = 'product_order.export_header.company_name';
     const TRANS_PRODUCT_ORDER_HEADER_ORDER_NO = 'product_order.export_header.order_number';
     const TRANS_PRODUCT_ORDER_HEADER_PRODUCT_NAME = 'product_order.export_header.product_name';
     const TRANS_PRODUCT_ORDER_HEADER_ROOM_TYPE = 'product_order.export_header.type';
@@ -54,4 +64,7 @@ class ProductOrderExport
     const TRANS_PRODUCT_ORDER_HEADER_USER_EMAIL = 'product_order.export_header.email';
     const TRANS_PRODUCT_ORDER_HEADER_PAYMENT_CHANNEL = 'product_order.export_header.channel';
     const TRANS_PRODUCT_ORDER_HEADER_ORDER_TYPE = 'product_order.export_header.order_type';
+    const TRANS_PRODUCT_ORDER_HEADER_COMMISSION = 'product_order.export_header.commission';
+    const TRANS_PRODUCT_ORDER_HEADER_COLLECTION_METHOD = 'product_order.export_header.collection_method';
+    const TRANS_PRODUCT_ORDER_HEADER_ORDER_CATEGORY = 'product_order.export_header.order_category';
 }
