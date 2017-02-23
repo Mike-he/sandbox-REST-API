@@ -101,10 +101,6 @@ class AdminLeaseController extends AdminRestController
                 'type' => LeaseBill::TYPE_LEASE,
             ));
 
-        $drawee = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserView')
-            ->find($lease->getDrawee()->getId());
-
         $supervisor = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserView')
             ->find($lease->getSupervisor()->getId());
@@ -115,9 +111,7 @@ class AdminLeaseController extends AdminRestController
 
         $html = $this->renderView(':Leases:leases_print.html.twig', array(
             'lease' => $lease,
-            'drawee' => $drawee,
             'supervisor' => $supervisor,
-            'draweeAvatarUrl' => $this->generateAvatarUrl($drawee->getId()),
             'supervisorAvatarUrl' => $this->generateAvatarUrl($supervisor->getId()),
             'excludeTypes' => $excludeLeaseRentTypes,
             'bills' => $bills,
