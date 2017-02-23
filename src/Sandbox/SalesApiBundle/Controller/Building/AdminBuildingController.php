@@ -495,7 +495,6 @@ class AdminBuildingController extends LocationController
         return new View();
     }
 
-
     /**
      * Get definite id of building.
      *

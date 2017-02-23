@@ -5,6 +5,7 @@ namespace Sandbox\SalesApiBundle\Controller\Product;
 use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
+use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
 use Sandbox\ApiBundle\Controller\Product\ProductController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Log\Log;
@@ -13,6 +14,7 @@ use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Form\Product\ProductPatchVisibleType;
 use Sandbox\ApiBundle\Form\Product\ProductType;
+use Sandbox\ApiBundle\Traits\HasAccessToEntityRepositoryTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -41,6 +43,8 @@ class AdminProductController extends ProductController
     const NEED_SEAT_NUMBER = 'Fixed Room Needs A Seat Number';
     const PRODUCT_EXISTS = 'Product with this Room already exists';
     const ROOM_IS_FULL = 'This Room is Full';
+
+    use HasAccessToEntityRepositoryTrait;
 
     /**
      * Product.
@@ -498,6 +502,7 @@ class AdminProductController extends ProductController
         $rule_include = $form['price_rule_include_ids']->getData();
         $rule_exclude = $form['price_rule_exclude_ids']->getData();
         $seats = $form['seats']->getData();
+        $rentTypeIds = $form['rent_type_include_ids']->getData();
 
         $room = $this->getRepo('Room\Room')->find($product->getRoomId());
         $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
@@ -585,6 +590,8 @@ class AdminProductController extends ProductController
         $product->setCreationDate($now);
         $product->setModificationDate($now);
 
+        $this->handleRentTypesPost($rentTypeIds, $product);
+
         $em = $this->getDoctrine()->getManager();
         $em->persist($product);
         $em->flush();
@@ -658,6 +665,7 @@ class AdminProductController extends ProductController
 
         $rule_include = $form['price_rule_include_ids']->getData();
         $rule_exclude = $form['price_rule_exclude_ids']->getData();
+        $rentTypeIds = $form['rent_type_include_ids']->getData();
 
         $room = $this->getRepo('Room\Room')->find($product->getRoomId());
         $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
@@ -729,6 +737,8 @@ class AdminProductController extends ProductController
             $rule_include,
             $rule_exclude
         );
+
+        $this->handleRentTypesPut($rentTypeIds, $product);
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();
@@ -921,5 +931,36 @@ class AdminProductController extends ProductController
         //edit price rules
         self::postSalesPriceRule($roomNumber, $buildingId, $rule_include, 'include');
         self::postSalesPriceRule($roomNumber, $buildingId, $rule_exclude, 'exclude');
+    }
+
+    private function handleRentTypesPost(
+        $rentTypeIds,
+        $product
+    ) {
+        foreach ($rentTypeIds as $rentTypeId) {
+            $rentType = $this->getLeaseRentTypesRepo()->find($rentTypeId);
+            if (is_null($rentType)) {
+                throw new NotFoundHttpException(CustomErrorMessagesConstants::ERROR_LEASE_RENT_TYPE_NOT_FOUND_MESSAGE);
+            }
+            $product->addLeaseRentTypes($rentType);
+        }
+    }
+
+    private function handleRentTypesPut(
+        $rentTypeIds,
+        $product
+    ) {
+        $rentTypes = $product->getLeaseRentTypes();
+        foreach ($rentTypes as $rentType) {
+            $product->removeLeaseRentTypes($rentType);
+        }
+
+        foreach ($rentTypeIds as $rentTypeId) {
+            $rentType = $this->getLeaseRentTypesRepo()->find($rentTypeId);
+            if (is_null($rentType)) {
+                throw new NotFoundHttpException(CustomErrorMessagesConstants::ERROR_LEASE_RENT_TYPE_NOT_FOUND_MESSAGE);
+            }
+            $product->addLeaseRentTypes($rentType);
+        }
     }
 }
