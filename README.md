@@ -8,6 +8,7 @@ with username = "token" and password = "id of client"
 ## Useful commands
   * to start vagrant ENV `vagrant up` 
   * to ssh into the virtual machine `vagrant ssh`
+  * to close vagrant ENV `vagrant halt`
 
 ## Pre-requisites
 
