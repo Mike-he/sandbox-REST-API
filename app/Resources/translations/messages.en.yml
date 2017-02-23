@@ -208,7 +208,7 @@ client:
     coffee: Coffee
     event: Events
     location: Location
-    community: Sandbox
+    community: Home
     blog: Blogs
     message: Messages
     contact: Contacts
