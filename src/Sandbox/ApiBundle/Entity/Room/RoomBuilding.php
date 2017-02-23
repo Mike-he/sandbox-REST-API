@@ -68,7 +68,8 @@ class RoomBuilding implements JsonSerializable
      *      "admin",
      *      "shop_nearby",
      *      "client_shop",
-     *      "admin_appointment"
+     *      "admin_appointment",
+     *      "lessor"
      *  }
      * )
      */
@@ -536,7 +537,7 @@ class RoomBuilding implements JsonSerializable
      *
      * @ORM\Column(name="lessor_name", type="string", length=40)
      *
-     * @Serializer\Groups({"main", "admin_building"})
+     * @Serializer\Groups({"main", "admin_building", "lessor"})
      */
     private $lessorName;
 
@@ -545,7 +546,7 @@ class RoomBuilding implements JsonSerializable
      *
      * @ORM\Column(name="lessor_address", type="string", length=255)
      *
-     * @Serializer\Groups({"main", "admin_building"})
+     * @Serializer\Groups({"main", "admin_building", "lessor"})
      */
     private $lessorAddress;
 
@@ -554,7 +555,7 @@ class RoomBuilding implements JsonSerializable
      *
      * @ORM\Column(name="lessor_contact", type="string", length=20)
      *
-     * @Serializer\Groups({"main", "admin_building"})
+     * @Serializer\Groups({"main", "admin_building", "lessor"})
      */
     private $lessorContact;
 
@@ -563,7 +564,7 @@ class RoomBuilding implements JsonSerializable
      *
      * @ORM\Column(name="lessor_phone", type="string", length=128)
      *
-     * @Serializer\Groups({"main", "admin_building"})
+     * @Serializer\Groups({"main", "admin_building", "lessor"})
      */
     private $lessorPhone;
 
@@ -572,7 +573,7 @@ class RoomBuilding implements JsonSerializable
      *
      * @ORM\Column(name="lessor_email", type="string", length=128)
      *
-     * @Serializer\Groups({"main", "admin_building"})
+     * @Serializer\Groups({"main", "admin_building", "lessor"})
      */
     private $lessorEmail;
 
