@@ -236,7 +236,7 @@ class Product
      *
      * @ORM\Column(name="deposit", type="decimal", precision=10, scale=2, nullable=true)
      *
-     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail"})
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "client_appointment_list"})
      */
     private $deposit;
 
