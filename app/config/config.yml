@@ -76,6 +76,7 @@ twig:
         crm_api_admin_user_account_upgrade: "%crm_api_admin_user_account_upgrade%"
         crm_api_admin_price_rule_include: "%crm_api_admin_price_rule_include%"
         crm_api_admin_price_rule_exclude: "%crm_api_admin_price_rule_exclude%"
+        crm_api_admin_dashboard_balance: "%crm_api_admin_dashboard_balance%"
         crm_api_sales_admin_price_rule_include: "%crm_api_sales_admin_price_rule_include%"
         crm_api_sales_admin_price_rule_exclude: "%crm_api_sales_admin_price_rule_exclude%"
         crm_api_sales_admin_price_rule_info: "%crm_api_sales_admin_price_rule_info%"
