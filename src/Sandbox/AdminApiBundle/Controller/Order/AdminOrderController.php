@@ -1005,6 +1005,16 @@ class AdminOrderController extends OrderController
      *    description="end date. Must be YYYY-mm-dd"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="user",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by user id"
+     * )
+     *
      * @Route("/orders")
      * @Method({"GET"})
      *
@@ -1045,6 +1055,7 @@ class AdminOrderController extends OrderController
         $refundHigh = $paramFetcher->get('refund_amount_high');
         $refundStart = $paramFetcher->get('refund_start');
         $refundEnd = $paramFetcher->get('refund_end');
+        $userId = $paramFetcher->get('user');
 
         $limit = $pageLimit;
         $offset = ($pageIndex - 1) * $pageLimit;
@@ -1061,7 +1072,7 @@ class AdminOrderController extends OrderController
                 $company,
                 $building,
                 $roomId,
-                null,
+                $userId,
                 $rentFilter,
                 $startDate,
                 $endDate,
@@ -1092,7 +1103,7 @@ class AdminOrderController extends OrderController
                 $company,
                 $building,
                 $roomId,
-                null,
+                $userId,
                 $rentFilter,
                 $startDate,
                 $endDate,

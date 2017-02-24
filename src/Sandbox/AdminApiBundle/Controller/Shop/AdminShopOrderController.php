@@ -368,6 +368,16 @@ class AdminShopOrderController extends ShopController
      *    description="refund amount filter"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="user",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by user id"
+     * )
+     *
      * @Method({"GET"})
      * @Route("/shop/orders")
      *
@@ -399,6 +409,7 @@ class AdminShopOrderController extends ShopController
         $refundEnd = $paramFetcher->get('refund_end');
         $refundLow = $paramFetcher->get('refund_amount_low');
         $refundHigh = $paramFetcher->get('refund_amount_high');
+        $userId = $paramFetcher->get('user');
 
         $offset = ($pageIndex - 1) * $pageLimit;
         $limit = $pageLimit;
@@ -414,7 +425,7 @@ class AdminShopOrderController extends ShopController
                 $payEnd,
                 $keyword,
                 $keywordSearch,
-                null,
+                $userId,
                 null,
                 $companyId,
                 $buildingId,
@@ -439,7 +450,7 @@ class AdminShopOrderController extends ShopController
                 $payEnd,
                 $keyword,
                 $keywordSearch,
-                null,
+                $userId,
                 null,
                 $companyId,
                 $buildingId,
