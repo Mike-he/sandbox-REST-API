@@ -18,7 +18,7 @@ class SalesCompanyServiceInfosRepository extends EntityRepository
     ) {
         $companyService = $this->createQueryBuilder('scs')
             ->where('scs.company = :company')
-            ->andWhere('scs.roomTypes = :type')
+            ->andWhere('scs.tradeTypes = :type')
             ->andWhere('scs.status = :status')
             ->setParameter('company', $company)
             ->setParameter('type', $type)
@@ -62,7 +62,7 @@ class SalesCompanyServiceInfosRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('scs')
             ->where('scs.company = :company')
-            ->andWhere('scs.roomTypes = :type')
+            ->andWhere('scs.tradeTypes = :type')
             ->andWhere('scs.status = :status')
             ->setParameter('company', $company)
             ->setParameter('type', $type)

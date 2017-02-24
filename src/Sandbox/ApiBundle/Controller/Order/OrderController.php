@@ -995,7 +995,7 @@ class OrderController extends PaymentController
         $salesCompanyInfo = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
             ->findOneBy(array(
-                'roomTypes' => $type,
+                'tradeTypes' => $type,
                 'company' => $salesCompany,
             ));
 
@@ -1084,7 +1084,7 @@ class OrderController extends PaymentController
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
             ->findOneBy(array(
                 'company' => $salesCompany,
-                'roomTypes' => $roomType,
+                'tradeTypes' => $roomType,
             ));
 
         if (is_null($info)) {
@@ -1109,7 +1109,7 @@ class OrderController extends PaymentController
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
             ->findOneBy(array(
                 'company' => $salesCompany,
-                'roomTypes' => $roomType,
+                'tradeTypes' => $roomType,
             ));
 
         if (is_null($info)) {

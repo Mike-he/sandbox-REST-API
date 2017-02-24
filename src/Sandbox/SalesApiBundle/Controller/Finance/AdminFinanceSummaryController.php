@@ -683,7 +683,7 @@ class AdminFinanceSummaryController extends PaymentController
                 ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
                 ->findOneBy([
                     'company' => $company,
-                    'roomTypes' => $roomType,
+                    'tradeTypes' => $roomType,
                 ]);
             if (!is_null($companyServiceInfo)) {
                 $method = $companyServiceInfo->getCollectionMethod();
@@ -819,7 +819,7 @@ class AdminFinanceSummaryController extends PaymentController
                 ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
                 ->findOneBy([
                     'company' => $company,
-                    'roomTypes' => $roomType,
+                    'tradeTypes' => $roomType,
                 ]);
             if (!is_null($companyServiceInfo)) {
                 $method = $companyServiceInfo->getCollectionMethod();
