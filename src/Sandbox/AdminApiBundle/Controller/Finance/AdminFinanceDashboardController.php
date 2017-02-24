@@ -99,6 +99,7 @@ class AdminFinanceDashboardController extends AdminRestController
                 ->getRepository('SandboxApiBundle:Finance\FinanceDashboard')
                 ->findBy(array(
                     'timePeriod' => $period,
+                    'type' => FinanceDashboard::TYPE_CASH_FLOW,
                 ));
 
             foreach ($dashboard as $item) {
@@ -152,13 +153,66 @@ class AdminFinanceDashboardController extends AdminRestController
         $year = $paramFetcher->get('year');
         $month = $paramFetcher->get('month');
 
-        $startString = $year.'-'.$month.'-01';
-        $startDate = new \DateTime($startString);
-        $startDate->setTime(0, 0, 0);
+        $financeBalanceFlowDashboard = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Finance\FinanceDashboard')
+            ->findBy(array(
+                'timePeriod' => $year.'-'.$month,
+                'type' => FinanceDashboard::TYPE_BALANCE_FLOW,
+            ));
 
-        $endString = $startDate->format('Y-m-t');
-        $endDate = new \DateTime($endString);
-        $endDate->setTime(23, 59, 59);
+        $response = array();
+        foreach ($financeBalanceFlowDashboard as $item) {
+            $response = array_merge($response, array(
+                $item->getParameterKey() => $item->getParameterValue(),
+            ));
+        }
+
+        return new View($response);
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/finance/balance_flow/dashboard/list")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getFinanceBalanceFlowListAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $financeBalanceFlowDashboardTimePeriods = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Finance\FinanceDashboard')
+            ->getTimePeriods(
+                FinanceDashboard::TYPE_BALANCE_FLOW
+            );
+
+        $response = array();
+        foreach ($financeBalanceFlowDashboardTimePeriods as $period) {
+            $dashboardArray = array();
+
+            $dashboard = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Finance\FinanceDashboard')
+                ->findBy(array(
+                    'timePeriod' => $period,
+                    'type' => FinanceDashboard::TYPE_BALANCE_FLOW,
+                ));
+
+            foreach ($dashboard as $item) {
+                $dashboardArray = array_merge($dashboardArray, array(
+                    $item->getParameterKey() => $item->getParameterValue(),
+                ));
+            }
+
+            array_push($response, array(
+                'time_period' => $period,
+                'balance_flows' => $dashboardArray,
+            ));
+        }
+
+        return new View($response);
     }
 
     /**
