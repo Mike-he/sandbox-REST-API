@@ -702,7 +702,7 @@ class AdminLeaseBillController extends SalesRestController
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
             ->findOneBy(array(
                 'company' => $salesCompany,
-                'roomTypes' => RoomTypes::TYPE_NAME_LONGTERM,
+                'tradeTypes' => RoomTypes::TYPE_NAME_LONGTERM,
                 'status' => true,
             ));
 

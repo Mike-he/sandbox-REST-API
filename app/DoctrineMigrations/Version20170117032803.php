@@ -41,7 +41,7 @@ class Version20170117032803 extends AbstractMigration implements ContainerAwareI
             $serviceInfo = $em->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
                 ->findOneBy(array(
                     'company' => $salesCompany,
-                    'roomTypes' => 'longterm',
+                    'tradeTypes' => 'longterm',
                     'status' => true,
                 ));
 
