@@ -538,11 +538,10 @@ class ClientLeaseBillController extends PaymentController
         $room = $product->getRoom();
         $type = $room->getType();
         $building = $room->getBuilding();
+        $company = $building->getCompany();
 
         $collectionMethod = null;
         if ($type == Room::TYPE_LONG_TERM) {
-            $company = $building->getCompany();
-
             $collectionMethod = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
                 ->getCollectionMethod($company, $type);
@@ -593,6 +592,10 @@ class ClientLeaseBillController extends PaymentController
             'can_pay' => $this->getUserId() == $drawee ? true : false,
             'pay_channel' => $bill->getPayChannel(),
             'transfer' => $transfer,
+            'company' => array(
+                        'id' => $company->getId(),
+                        'name' => $company->getName(),
+                    ),
         );
 
         return $result;
