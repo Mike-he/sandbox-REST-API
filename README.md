@@ -21,6 +21,6 @@ with username = "token" and password = "id of client"
 * modify the file 'homestead.yml'
 * execute 'vagrant up' from project directory
 
-## API Documentations
+## API Documentation
 
 [http://gitlab.sandbox3.cn/Sandbox/Sandbox-API-Docs](http://gitlab.sandbox3.cn/Sandbox/Sandbox-API-Docs)
