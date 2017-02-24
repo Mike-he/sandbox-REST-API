@@ -363,7 +363,7 @@ class AdminShopOrderController extends ShopController
         $orders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Shop\ShopOrder')
             ->getAdminShopOrdersForBackend(
-                null,
+                $shopId,
                 $channel,
                 $status,
                 $payDate,
@@ -375,7 +375,6 @@ class AdminShopOrderController extends ShopController
                 null,
                 $companyId,
                 $buildingId,
-                $shopId,
                 $refundStatus,
                 $limit,
                 $offset
@@ -384,7 +383,7 @@ class AdminShopOrderController extends ShopController
         $count = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Shop\ShopOrder')
             ->countAdminShopOrdersForBackend(
-                null,
+                $shopId,
                 $channel,
                 $status,
                 $payDate,
@@ -396,7 +395,6 @@ class AdminShopOrderController extends ShopController
                 null,
                 $companyId,
                 $buildingId,
-                $shopId,
                 $refundStatus
             );
 
@@ -560,7 +558,7 @@ class AdminShopOrderController extends ShopController
         $orders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Shop\ShopOrder')
             ->getAdminShopOrdersForBackend(
-                null,
+                $shopId,
                 $channel,
                 $status,
                 $payDate,
@@ -572,7 +570,6 @@ class AdminShopOrderController extends ShopController
                 null,
                 $companyId,
                 $buildingId,
-                $shopId,
                 null
             );
 

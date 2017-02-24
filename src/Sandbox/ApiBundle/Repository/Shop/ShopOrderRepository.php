@@ -182,7 +182,6 @@ class ShopOrderRepository extends EntityRepository
         $cityId,
         $company,
         $buildingId,
-        $shopId,
         $refundStatus,
         $limit = null,
         $offset = null
@@ -317,7 +316,6 @@ class ShopOrderRepository extends EntityRepository
         $cityId,
         $company,
         $buildingId,
-        $shopId,
         $refundStatus
     ) {
         $query = $this->createQueryBuilder('o')
