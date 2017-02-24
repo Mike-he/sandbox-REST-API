@@ -124,6 +124,10 @@ class AdminLeaseController extends SalesRestController
             'type' => LeaseBill::TYPE_LEASE,
         ));
 
+        $drawee = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserView')
+            ->find($lease->getDrawee()->getId());
+
         $supervisor = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserView')
             ->find($lease->getSupervisor()->getId());
@@ -134,7 +138,9 @@ class AdminLeaseController extends SalesRestController
 
         $html = $this->renderView(':Leases:leases_print.html.twig', array(
             'lease' => $lease,
+            'drawee' => $drawee,
             'supervisor' => $supervisor,
+            'draweeAvatarUrl' => $this->generateAvatarUrl($drawee->getId()),
             'supervisorAvatarUrl' => $this->generateAvatarUrl($supervisor->getId()),
             'excludeTypes' => $excludeLeaseRentTypes,
             'bills' => $bills,
@@ -720,13 +726,16 @@ class AdminLeaseController extends SalesRestController
         $em = $this->getDoctrine()->getManager();
         $lease = new Lease();
 
+        if (!empty($payload['drawee'])) {
+            $drawee = $this->getUserRepo()->find($payload['drawee']);
+            $this->throwNotFoundIfNull($drawee, CustomErrorMessagesConstants::ERROR_DRAWEE_NOT_FOUND_MESSAGE);
+            $lease->setDrawee($drawee);
+        }
+
         if (!empty($payload['supervisor'])) {
             $supervisor = $this->getUserRepo()->find($payload['supervisor']);
             $this->throwNotFoundIfNull($supervisor, CustomErrorMessagesConstants::ERROR_SUPERVISOR_NOT_FOUND_MESSAGE);
             $lease->setSupervisor($supervisor);
-
-            // remove the drawee on website, so save supervisor as default drawee
-            $lease->setDrawee($supervisor);
         }
 
         $product = $this->getProductRepo()->find($payload['product']);
@@ -832,6 +841,7 @@ class AdminLeaseController extends SalesRestController
             !key_exists('purpose', $payload) ||
             !key_exists('start_date', $payload) ||
             !key_exists('end_date', $payload) ||
+            !key_exists('drawee', $payload) ||
             !key_exists('supervisor', $payload) ||
             !key_exists('product', $payload) ||
             !key_exists('product', $payload) ||
@@ -868,6 +878,7 @@ class AdminLeaseController extends SalesRestController
                 !filter_var($payload['lessor_contact'], FILTER_DEFAULT) ||
                 !filter_var($payload['purpose'], FILTER_DEFAULT) ||
                 !filter_var($payload['status'], FILTER_DEFAULT) ||
+                !filter_var($payload['drawee'], FILTER_VALIDATE_INT) ||
                 !filter_var($payload['supervisor'], FILTER_VALIDATE_INT) ||
                 !filter_var($payload['product'], FILTER_VALIDATE_INT)
             ) {
@@ -914,6 +925,12 @@ class AdminLeaseController extends SalesRestController
         $em = $this->getDoctrine()->getManager();
         $lease = $this->getLeaseRepo()->find($leaseId);
         $this->throwNotFoundIfNull($lease, CustomErrorMessagesConstants::ERROR_LEASE_NOT_FOUND_MESSAGE);
+
+        if (!empty($payload['drawee'])) {
+            $drawee = $this->getUserRepo()->find($payload['drawee']);
+            $this->throwNotFoundIfNull($drawee, CustomErrorMessagesConstants::ERROR_DRAWEE_NOT_FOUND_MESSAGE);
+            $lease->setDrawee($drawee);
+        }
 
         if (!empty($payload['supervisor'])) {
             $previousSupervisorId = $lease->getSupervisorId();
@@ -998,9 +1015,6 @@ class AdminLeaseController extends SalesRestController
             }
 
             $lease->setSupervisor($supervisor);
-
-            // remove the drawee on website, so modify the drawee when supervisor changed
-            $lease->setDrawee($supervisor);
         }
 
         $product = $this->getProductRepo()->find($payload['product']);
@@ -1242,6 +1256,10 @@ class AdminLeaseController extends SalesRestController
                 if (count($payloadBills['add']) > 0) {
                     return;
                 }
+
+//                throw new BadRequestHttpException(
+//                    CustomErrorMessagesConstants::ERROR_LEASE_KEEP_AT_LEAST_ONE_BILL_MESSAGE
+//                );
             }
         }
     }
