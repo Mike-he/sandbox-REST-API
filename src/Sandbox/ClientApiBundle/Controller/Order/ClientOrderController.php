@@ -712,7 +712,7 @@ class ClientOrderController extends OrderController
                 ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
                 ->findOneBy([
                     'company' => $company,
-                    'roomTypes' => $type,
+                    'tradeTypes' => $type,
                 ]);
 
             if (!is_null($serviceInfo)) {

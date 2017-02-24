@@ -20,6 +20,8 @@ class SalesCompanyServiceInfos
     const DRAWER_SANDBOX = 'sandbox';
     const DRAWER_SALES = 'sales';
 
+    const TRADE_TYPE_ACTIVITY = 'activity';
+
     /**
      * @var int
      *
@@ -33,10 +35,10 @@ class SalesCompanyServiceInfos
     /**
      * @var string
      *
-     * @ORM\Column(name="room_types", type="string", length=30)
+     * @ORM\Column(name="trade_types", type="string", length=30)
      * @Serializer\Groups({"main", "admin_view"})
      */
-    private $roomTypes;
+    private $tradeTypes;
 
     /**
      * @var SalesCompany
@@ -107,17 +109,17 @@ class SalesCompanyServiceInfos
     /**
      * @return string
      */
-    public function getRoomTypes()
+    public function getTradeTypes()
     {
-        return $this->roomTypes;
+        return $this->tradeTypes;
     }
 
     /**
-     * @param string $roomTypes
+     * @param string $tradeTypes
      */
-    public function setRoomTypes($roomTypes)
+    public function setTradeTypes($tradeTypes)
     {
-        $this->roomTypes = $roomTypes;
+        $this->tradeTypes = $tradeTypes;
     }
 
     /**

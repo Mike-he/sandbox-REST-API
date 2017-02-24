@@ -122,7 +122,7 @@ class AdminCommunityController extends SalesRestController
 
         $typeKeys = array();
         foreach ($salesInfos as $info) {
-            array_push($typeKeys, $info->getRoomTypes());
+            array_push($typeKeys, $info->getTradeTypes());
         }
 
         $using = $this->getBuildingInfo($companyId, $buildingIds, RoomBuilding::STATUS_ACCEPT, $typeKeys, true);
