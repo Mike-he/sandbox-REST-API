@@ -61,6 +61,7 @@ parameters:
     crm_api_admin_user_account_upgrade: /admin/useraccounts/{userId}/upgrade
     crm_api_admin_price_rule_include: /admin/price/rule/include/{buildingId}/{roomNo}
     crm_api_admin_price_rule_exclude: /admin/price/rule/exclude/{buildingId}/{roomNo}
+    crm_api_admin_dashboard_balance: /admin/dashboard/balance
     crm_api_sales_admin_price_rule_include: /sales/admin/price/rule/include/{buildingId}/{roomNo}
     crm_api_sales_admin_price_rule_exclude: /sales/admin/price/rule/exclude/{buildingId}/{roomNo}
     crm_api_sales_admin_price_rule_info: /sales/admin/price/rules/{rule_id}
