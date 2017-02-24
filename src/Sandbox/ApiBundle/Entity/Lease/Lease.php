@@ -970,7 +970,7 @@ class Lease
                 'city' => $this->product->getRoom()->getBuilding()->getCity()->getName(),
                 'attachment' => $this->product->getRoom()->degenerateAttachment(),
             ],
-            'lease_rent_types' => $this->getLeaseRentTypes()
+            'lease_rent_types' => $this->product->getLeaseRentTypes()
         ];
     }
 
