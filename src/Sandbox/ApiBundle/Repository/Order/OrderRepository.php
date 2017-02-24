@@ -2871,7 +2871,7 @@ class OrderRepository extends EntityRepository
             ->where('o.orderNumber LIKE :orderNumber')
             ->setParameter('orderNumber', $orderNumber.'%');
 
-        $result = $query->getQuery()->getScalarResult();
+        $result = $query->getQuery()->getResult();
         $result = array_map('current', $result);
 
         return $result;
