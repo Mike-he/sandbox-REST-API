@@ -1046,7 +1046,7 @@ class AdminOrderController extends OrderController
      *
      * @throws \Exception
      */
-    public function getOrdersAction(
+    public function getMyOrdersAction(
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
