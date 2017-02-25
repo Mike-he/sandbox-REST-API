@@ -108,13 +108,17 @@ class AdminFinanceWithdrawalController extends PaymentController
             ->findOneBy(['companyId' => $salesCompanyId]);
         $this->throwNotFoundIfNull($wallet, self::NOT_FOUND_MESSAGE);
 
-        if ($amount > $wallet->getWithdrawableAmount()) {
+        $current = $wallet->getWithdrawableAmount();
+
+        if ($amount > $current) {
             return $this->customErrorView(
                 400,
                 self::INSUFFICIENT_FUNDS_CODE,
                 self::INSUFFICIENT_FUNDS_MESSAGE
             );
         }
+
+        $wallet->setWithdrawableAmount($current - $amount);
 
         $error = $this->handleWithdrawalPost(
             $company,
@@ -129,6 +133,10 @@ class AdminFinanceWithdrawalController extends PaymentController
                 $error['message']
             );
         }
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($withdrawal);
+        $em->flush();
 
         // add log
         $this->generateAdminLogs(array(
@@ -452,9 +460,7 @@ class AdminFinanceWithdrawalController extends PaymentController
         $withdrawal->setBankAccountNumber($accountNumber);
         $withdrawal->setSalesAdminId($adminId);
 
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($withdrawal);
-        $em->flush();
+        return [];
     }
 
     /**

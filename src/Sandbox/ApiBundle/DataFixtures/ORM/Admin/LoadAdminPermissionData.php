@@ -283,7 +283,6 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $permission3->setMaxOpLevel('2');
         $manager->persist($permission3);
 
-
         //sales
         $p24 = new AdminPermission();
         $p24->setKey('sales.platform.dashboard');
@@ -474,7 +473,6 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $salesPermission6->setOpLevelSelect('1,2');
         $salesPermission6->setMaxOpLevel('2');
         $manager->persist($salesPermission6);
-
 
         //shop
         $p38 = new AdminPermission();
