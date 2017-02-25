@@ -179,7 +179,11 @@ class AdminCommunityController extends SalesRestController
         foreach ($UsedRoomTypes as $usedRoomType) {
             $roomType = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Room\RoomTypes')
-                ->findOneBy(array('name' => $usedRoomType->getRoomTypes()));
+                ->findOneBy(array('name' => $usedRoomType->getTradeTypes()));
+
+            if (is_null($roomType)) {
+                continue;
+            }
 
             $using_number = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Product\Product')
