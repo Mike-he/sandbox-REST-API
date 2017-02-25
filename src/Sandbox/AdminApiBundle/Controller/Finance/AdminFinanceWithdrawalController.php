@@ -278,6 +278,22 @@ class AdminFinanceWithdrawalController extends PaymentController
         $status = $withdrawal->getStatus();
         $now = new \DateTime();
         if ($status == SalesCompanyWithdrawals::STATUS_SUCCESSFUL) {
+            $wallet = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Finance\FinanceSalesWallet')
+                ->findOneBy([
+                    'companyId' => $company
+                ]);
+            $this->throwNotFoundIfNull($wallet, self::NOT_FOUND_MESSAGE);
+
+            $current = $wallet->getWithdrawableAmount();
+            $amount = $current - $withdrawal->getAmount();
+
+            if ($amount < 0) {
+                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            }
+
+            $wallet->setWithdrawableAmount($amount);
+
             $withdrawal->setSuccessTime($now);
         } elseif ($status == SalesCompanyWithdrawals::STATUS_FAILED) {
             $withdrawal->setFailureTime($now);
