@@ -21,13 +21,12 @@ class CreateShortRentInvoiceCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $now = new \DateTime();
-        $now->modify('-3 day');
 
         $firstDate = clone $now;
-        $firstDate->modify('first day of this month');
+        $firstDate->modify('first day of last month');
         $firstDate->setTime(0, 0, 0);
         $lastDate = clone $now;
-        $lastDate->modify('last day of this month');
+        $lastDate->modify('last day of last month');
         $lastDate->setTime(23, 59, 59);
 
         $em = $this->getContainer()->get('doctrine')->getManager();
