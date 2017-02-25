@@ -15,7 +15,7 @@ class ServiceInfoPostType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('room_types')
+            ->add('trade_types')
             ->add('service_fee')
             ->add('collection_method')
             ->add('drawer')

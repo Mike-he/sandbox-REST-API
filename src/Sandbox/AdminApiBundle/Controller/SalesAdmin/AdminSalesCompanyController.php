@@ -1025,7 +1025,7 @@ class AdminSalesCompanyController extends SandboxRestController
             $service = $this->getSalesCompanyServiceInfosRepo()
                 ->findOneBy(
                     array(
-                        'tradeTypes' => $serviceInfo['room_types'],
+                        'tradeTypes' => $serviceInfo['trade_types'],
                         'company' => $salesCompany,
                     )
                 );
@@ -1039,7 +1039,7 @@ class AdminSalesCompanyController extends SandboxRestController
                 $this->hideAllProductsByRoomType(
                     $salesCompany,
                     $serviceInfo['status'],
-                    $service->getRoomTypes()
+                    $service->getTradeTypes()
                 );
             }
 

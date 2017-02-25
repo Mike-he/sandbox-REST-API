@@ -20,7 +20,7 @@ class SalesCompanyServiceInfos
     const DRAWER_SANDBOX = 'sandbox';
     const DRAWER_SALES = 'sales';
 
-    const TRADE_TYPE_ACTIVITY = 'activity';
+    const TRADE_TYPE_SPACE = 'space';
 
     /**
      * @var int
