@@ -2,7 +2,13 @@ parameters:
     database_driver: pdo_mysql
     database_host: rdsuz7cpk5r23ytx02t0.mysql.rds.aliyuncs.com
     database_port: '3306'
-    database_name: staging_rest_api_db
+
+    # production data
+    database_name: staging_rest_api_db_pro
+
+    # staging data
+    #database_name: staging_rest_api_db
+
     database_user: staging_rest
     database_password: S3deb0x_2016
     mailer_transport: smtp
