@@ -590,7 +590,7 @@ trait FinanceTrait
             ->countTopUpOrder(
                 $startDate,
                 $endDate,
-                ProductOrder::CHANNEL_ALIPAY
+                ProductOrder::CHANNEL_UNIONPAY
             );
         $upacpTopUpCountDashboard = new FinanceDashboard();
         $upacpTopUpCountDashboard->setTimePeriod($year.'-'.$month);
