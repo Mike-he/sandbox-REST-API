@@ -12,7 +12,7 @@ trait GenerateSerialNumberTrait
     public function generateSerialNumber(
         $letter
     ) {
-        $date = round(microtime(true) * 1000);
+        $date = round(microtime(true) * 1000).rand(1000, 9999);
 
         return $letter.$date;
     }
