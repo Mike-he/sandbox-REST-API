@@ -586,6 +586,20 @@ trait FinanceTrait
         $wxTopUpCountDashboard->setType(FinanceDashboard::TYPE_BALANCE_FLOW);
         $em->persist($wxTopUpCountDashboard);
 
+        $wxPubTopUpCount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->countTopUpOrder(
+                $startDate,
+                $endDate,
+                ProductOrder::CHANNEL_WECHAT
+            );
+        $wxPubTopUpCountDashboard = new FinanceDashboard();
+        $wxPubTopUpCountDashboard->setTimePeriod($year.'-'.$month);
+        $wxPubTopUpCountDashboard->setParameterKey('wx_pub_top_up_count');
+        $wxPubTopUpCountDashboard->setParameterValue((string) $wxPubTopUpCount);
+        $wxPubTopUpCountDashboard->setType(FinanceDashboard::TYPE_BALANCE_FLOW);
+        $em->persist($wxPubTopUpCountDashboard);
+
         $alipayTopUpCount = $this->getContainer()->get('doctrine')
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->countTopUpOrder(
