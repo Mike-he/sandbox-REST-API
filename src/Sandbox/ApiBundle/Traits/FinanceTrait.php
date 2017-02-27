@@ -522,7 +522,7 @@ trait FinanceTrait
             ->getTopUpAmount(
                 $startDate,
                 $endDate,
-                ProductOrder::CHANNEL_ALIPAY
+                ProductOrder::CHANNEL_UNIONPAY
             );
         $upacpTopUpAmountDashboard = new FinanceDashboard();
         $upacpTopUpAmountDashboard->setTimePeriod($year.'-'.$month);
