@@ -416,12 +416,8 @@ class LeaseBillRepository extends EntityRepository
             ->andWhere('b.invoiced = FALSE')
             ->andWhere('b.drawee = :userId')
             ->andWhere('b.status = :paid')
-            ->andWhere('b.payChannel != :offline')
-            ->andWhere('b.payChannel != :sales_offline')
             ->setParameter('userId', $userId)
-            ->setParameter('paid', LeaseBill::STATUS_PAID)
-            ->setParameter('offline', LeaseBill::CHANNEL_OFFLINE)
-            ->setParameter('sales_offline', LeaseBill::CHANNEL_SALES_OFFLINE);
+            ->setParameter('paid', LeaseBill::STATUS_PAID);
 
         return $query->getQuery()->getSingleScalarResult();
     }
