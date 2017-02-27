@@ -1924,7 +1924,7 @@ class AdminOrderController extends OrderController
             $serviceInfo = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
                 ->findOneBy([
-                    'companyId' => $companyId,
+                    'company' => $companyId,
                     'tradeTypes' => $type,
                 ]);
 
