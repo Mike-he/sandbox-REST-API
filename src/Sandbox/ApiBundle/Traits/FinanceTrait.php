@@ -329,7 +329,7 @@ trait FinanceTrait
         $wxPubRefundedAmountDashboard->setParameterKey('refunded_wx_pub_amount');
         $wxPubRefundedAmountDashboard->setParameterValue((string) $wxPubRefundedAmount);
         $wxPubRefundedAmountDashboard->setType(FinanceDashboard::TYPE_CASH_FLOW);
-        $em->persist($wxRefundedAmountDashboard);
+        $em->persist($wxPubRefundedAmountDashboard);
 
         $alipayRefundedAmount = $this->getContainer()->get('doctrine')
             ->getRepository('SandboxApiBundle:Order\ProductOrder')

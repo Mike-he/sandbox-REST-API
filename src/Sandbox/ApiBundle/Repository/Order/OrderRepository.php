@@ -3222,6 +3222,7 @@ class OrderRepository extends EntityRepository
             ->andWhere('o.paymentDate >= :start')
             ->andWhere('o.paymentDate <= :end')
             ->andWhere('o.payChannel != :account')
+            ->andWhere('o.refundTo IS NULL')
             ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
             ->setParameter('start', $startDate)
             ->setParameter('end', $endDate);
@@ -3339,6 +3340,7 @@ class OrderRepository extends EntityRepository
             ->andWhere('o.paymentDate >= :start')
             ->andWhere('o.paymentDate <= :end')
             ->andWhere('o.payChannel != :account')
+            ->andWhere('o.refundTo IS NULL')
             ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
             ->setParameter('start', $startDate)
             ->setParameter('end', $endDate);

@@ -419,12 +419,9 @@ class AdminLeaseBillController extends SalesRestController
         $bill->setSendDate(new \DateTime());
         $bill->setSender($this->getUserId());
 
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($bill);
-        $em->flush();
-
         if ($oldStatus == LeaseBill::STATUS_PENDING) {
-            $billsAmount = $em->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            $billsAmount = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Lease\LeaseBill')
                 ->countBills(
                     $bill->getLease(),
                     null,
@@ -444,7 +441,14 @@ class AdminLeaseBillController extends SalesRestController
                 $contentArray,
                 ' '.$billsAmount.' '
             );
+
+            // set sales invoice
+            $this->setLeaseBillInvoice($bill);
         }
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($bill);
+        $em->flush();
 
         // generate log
         $this->generateAdminLogs(array(
@@ -638,6 +642,9 @@ class AdminLeaseBillController extends SalesRestController
             $bill->setSender($this->getUserId());
             $bill->setReviser($this->getUserId());
 
+            // set sales invoice
+            $this->setLeaseBillInvoice($bill);
+
             $em->persist($bill);
             $em->flush();
 
@@ -697,20 +704,7 @@ class AdminLeaseBillController extends SalesRestController
         $bill->setLease($lease);
 
         // set sales invoice
-        $salesCompany = $lease->getProduct()->getRoom()->getBuilding()->getCompany();
-        $serviceInfo = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
-            ->findOneBy(array(
-                'company' => $salesCompany,
-                'tradeTypes' => RoomTypes::TYPE_NAME_LONGTERM,
-                'status' => true,
-            ));
-
-        if (!is_null($serviceInfo) &&
-            $serviceInfo->getDrawer() == SalesCompanyServiceInfos::DRAWER_SALES
-        ) {
-            $bill->setSalesInvoice(true);
-        }
+        $this->setLeaseBillInvoice($bill);
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($bill);
@@ -750,6 +744,31 @@ class AdminLeaseBillController extends SalesRestController
         );
 
         return new View($response, 201);
+    }
+
+    /**
+     * @param LeaseBill $bill
+     */
+    private function setLeaseBillInvoice(
+        $bill
+    ) {
+        $lease = $bill->getLease();
+        $salesCompany = $lease->getProduct()->getRoom()->getBuilding()->getCompany();
+        $serviceInfo = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
+            ->findOneBy(array(
+                'company' => $salesCompany,
+                'tradeTypes' => RoomTypes::TYPE_NAME_LONGTERM,
+                'status' => true,
+            ));
+
+        if (!is_null($serviceInfo) &&
+            $serviceInfo->getDrawer() == SalesCompanyServiceInfos::DRAWER_SALES
+        ) {
+            $bill->setSalesInvoice(true);
+        }
+
+        return;
     }
 
     /**
