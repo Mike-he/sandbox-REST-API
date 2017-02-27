@@ -408,6 +408,14 @@ class AdminOrderController extends OrderController
                 if ($price > 0) {
                     $order->setNeedToRefund(true);
 
+                    $this->postBalanceChange(
+                        $userId,
+                        0,
+                        $orderNumber,
+                        $channel,
+                        $price
+                    );
+
                     if ($refundChannel == ProductOrder::CHANNEL_ACCOUNT) {
                         $balance = $this->postBalanceChange(
                             $userId,
