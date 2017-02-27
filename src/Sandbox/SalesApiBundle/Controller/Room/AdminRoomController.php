@@ -1686,6 +1686,7 @@ class AdminRoomController extends SalesRestController
             $product = $this->getRepo('Product\Product')->findOneBy(
                 [
                     'roomId' => $id,
+                    'isDeleted' => false
                 ]
             );
             $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
@@ -1752,7 +1753,10 @@ class AdminRoomController extends SalesRestController
         $id
     ) {
         $product = $this->getRepo('Product\Product')->findOneBy(
-            ['roomId' => $id]
+            [
+                'roomId' => $id,
+                'isDeleted' => false
+            ]
         );
         $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
 
@@ -1836,7 +1840,10 @@ class AdminRoomController extends SalesRestController
         ParamFetcherInterface $paramFetcher,
         $id
     ) {
-        $product = $this->getRepo('Product\Product')->findOneBy(['roomId' => $id]);
+        $product = $this->getRepo('Product\Product')->findOneBy([
+            'roomId' => $id,
+            'isDeleted' => false
+        ]);
         $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
 
         // check user permission
@@ -1886,7 +1893,10 @@ class AdminRoomController extends SalesRestController
         ParamFetcherInterface $paramFetcher,
         $id
     ) {
-        $product = $this->getRepo('Product\Product')->findOneBy(['roomId' => $id]);
+        $product = $this->getRepo('Product\Product')->findOneBy([
+            'roomId' => $id,
+            'isDeleted' => false
+        ]);
         $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
 
         // check user permission
