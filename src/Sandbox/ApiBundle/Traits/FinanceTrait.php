@@ -502,6 +502,21 @@ trait FinanceTrait
         $wxTopUpAmountDashboard->setType(FinanceDashboard::TYPE_BALANCE_FLOW);
         $em->persist($wxTopUpAmountDashboard);
 
+        $wxPubTopUpAmount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getTopUpAmount(
+                $startDate,
+                $endDate,
+                ProductOrder::CHANNEL_WECHAT_PUB
+            );
+
+        $wxPubTopUpAmountDashboard = new FinanceDashboard();
+        $wxPubTopUpAmountDashboard->setTimePeriod($year.'-'.$month);
+        $wxPubTopUpAmountDashboard->setParameterKey('wx_pub_top_up_amount');
+        $wxPubTopUpAmountDashboard->setParameterValue((string) $wxPubTopUpAmount);
+        $wxPubTopUpAmountDashboard->setType(FinanceDashboard::TYPE_BALANCE_FLOW);
+        $em->persist($wxPubTopUpAmountDashboard);
+
         $alipayTopUpAmount = $this->getContainer()->get('doctrine')
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->getTopUpAmount(
