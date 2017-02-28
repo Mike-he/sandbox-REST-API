@@ -98,10 +98,11 @@ class CreateShortRentInvoiceCommand extends ContainerAwareCommand
         $lastDate,
         $companyArray
     ) {
-        $longRents = $this->getContainer()
+        // long rent orders
+        $longBills = $this->getContainer()
             ->get('doctrine')
-            ->getRepository('SandboxApiBundle:Finance\FinanceLongRentServiceBill')
-            ->getServiceBillsByMonth($firstDate, $lastDate);
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->findBillsByDates($firstDate, $lastDate);
 
         foreach ($companyArray as $key => $value) {
             $longRentArray = [
@@ -115,10 +116,21 @@ class CreateShortRentInvoiceCommand extends ContainerAwareCommand
             $companyArray[$key] = array_merge($companyArray[$key], $longRentArray);
         }
 
-        foreach ($longRents as $longRent) {
-            $companyId = $longRent->getCompanyId();
-            $serviceAmount = $longRent->getAmount();
-            $incomeAmount = $longRent->getBill()->getRevisedAmount();
+        foreach ($longBills as $longBill) {
+            $incomeAmount = $longBill->getRevisedAmount();
+            $serviceAmount = 0;
+
+            $serviceBill = $this->getContainer()
+                ->get('doctrine')
+                ->getRepository('SandboxApiBundle:Finance\FinanceLongRentServiceBill')
+                ->findOneBy([
+                    'bill' => $longBill,
+                ]);
+            if (!is_null($serviceBill)) {
+                $serviceAmount = $serviceBill->getAmount();
+            }
+
+            $companyId = $longBill->getLease()->getBuilding()->getCompanyId();
 
             if (!array_key_exists($companyId, $companyArray)) {
                 $companyArray[$companyId] = [

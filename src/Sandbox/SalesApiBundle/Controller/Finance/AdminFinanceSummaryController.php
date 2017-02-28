@@ -991,9 +991,9 @@ class AdminFinanceSummaryController extends PaymentController
         }
 
         // long rent orders
-        $longRents = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Finance\FinanceLongRentServiceBill')
-            ->getServiceBillsByMonth(
+        $longBills = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->findBillsByDates(
                 $start,
                 $end,
                 $salesCompanyId
@@ -1001,9 +1001,17 @@ class AdminFinanceSummaryController extends PaymentController
 
         $serviceAmount = 0;
         $incomeAmount = 0;
-        foreach ($longRents as $longRent) {
-            $serviceAmount += $longRent->getAmount();
-            $incomeAmount += $longRent->getBill()->getRevisedAmount();
+        foreach ($longBills as $longBill) {
+            $incomeAmount += $longBill->getRevisedAmount();
+
+            $serviceBill = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Finance\FinanceLongRentServiceBill')
+                ->findOneBy([
+                    'bill' => $longBill,
+                ]);
+            if (!is_null($serviceBill)) {
+                $serviceAmount += $serviceBill->getAmount();
+            }
         }
 
         // event orders
