@@ -607,6 +607,38 @@ class AdminLeaseBillController extends SalesRestController
     }
 
     /**
+     * Get Sale offline Bills lists.
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/bills/my_bills")
+     * @Method({"GET"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getMyBillsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        // check user permission
+
+        $adminPlatform = $this->getAdminPlatform();
+        $company = $adminPlatform['sales_company_id'];
+
+        $bills = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->findBillNumbersByCompany(
+                $company,
+                LeaseBill::STATUS_PAID
+            );
+
+        return new View($bills);
+    }
+
+    /**
      * @param $payloads
      */
     private function handleBatchPush(

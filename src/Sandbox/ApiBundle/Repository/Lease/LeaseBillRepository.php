@@ -421,4 +421,33 @@ class LeaseBillRepository extends EntityRepository
 
         return $query->getQuery()->getSingleScalarResult();
     }
+
+    /**
+     * @param $company
+     * @param $status
+     *
+     * @return array
+     */
+    public function findBillNumbersByCompany(
+        $company,
+        $status
+    ) {
+        $query = $this->createQueryBuilder('lb')
+            ->select('lb.serialNumber')
+            ->leftJoin('lb.lease', 'l')
+            ->leftJoin('l.product', 'p')
+            ->leftJoin('p.room', 'r')
+            ->leftJoin('r.building', 'b')
+            ->where('b.company = :company')
+            ->setParameter('company', $company);
+
+        if (!is_null($status)) {
+            $query->andWhere('lb.status = :status')
+                ->setParameter('status', $status);
+        }
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
 }
