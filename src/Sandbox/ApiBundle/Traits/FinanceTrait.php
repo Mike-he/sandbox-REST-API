@@ -69,7 +69,9 @@ trait FinanceTrait
 
             $wallet->setBillAmount($billAmount + $amount);
 
-            if ($channel != LeaseBill::CHANNEL_SALES_OFFLINE) {
+            if ($channel == LeaseBill::CHANNEL_SALES_OFFLINE) {
+                $wallet->setWithdrawableAmount($withdrawAmount - $amount);
+            } else {
                 $wallet->setTotalAmount($totalAmount + $bill->getRevisedAmount());
                 $wallet->setWithdrawableAmount($withdrawAmount + $bill->getRevisedAmount() - $amount);
             }
