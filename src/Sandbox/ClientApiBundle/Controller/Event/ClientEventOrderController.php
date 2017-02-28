@@ -283,7 +283,7 @@ class ClientEventOrderController extends PaymentController
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
             ->findOneBy(array(
                 'tradeTypes' => SalesCompanyServiceInfos::TRADE_TYPE_ACTIVITY,
-                'company' => $event->getSalesCompany(),
+                'company' => $event->getSalesCompanyId(),
                 'status' => true,
             ));
         if (!is_null($serviceInfo)) {
