@@ -630,7 +630,7 @@ class AdminLeaseBillController extends SalesRestController
 
         $bills = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
-            ->findBillNumbersByCompany(
+            ->findNumbersForSalesInvoice(
                 $company,
                 LeaseBill::STATUS_PAID
             );
