@@ -669,14 +669,14 @@ class ClientUserRegistrationController extends UserRegistrationController
      */
     public function createVirtualUsersAction()
     {
-        $segments = [130, 131, 132, 134, 135, 136, 137, 138, 139, 150, 151, 152, 155, 156, 157, 133, 153, 189, 186, 170];
+        $segments = [161, 162];
         $phones = [];
         $password = '202CB962AC59075B964B07152D234B70'; // pwd: 123
 
         $em = $this->getDoctrine()->getManager();
 
         foreach ($segments as $segment) {
-            for ($i = 0; $i < 10; $i++) {
+            for ($i = 0; $i < 100; $i++) {
                 $randomNum = random_int(1000, 9999);
                 $phone = $segment.'0000'.$randomNum;
                 $phones[] = $phone;
