@@ -7,6 +7,7 @@ use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentServiceBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Room\Room;
+use Sandbox\ApiBundle\Constants\FinanceDashboardConstants;
 
 /**
  * Finance Trait.
@@ -101,10 +102,10 @@ trait FinanceTrait
     }
 
     /**
-     * @param $year
-     * @param $month
-     * @param $startDate
-     * @param $endDate
+     * @param string    $year
+     * @param string    $month
+     * @param \DateTime $startDate
+     * @param \DateTime $endDate
      */
     private function generateFinanceDashboardSummary(
         $year,
@@ -115,12 +116,9 @@ trait FinanceTrait
         // cash flow part
         $em = $this->getContainer()->get('doctrine')->getManager();
 
-        $incomingTotalAmount = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->getIncomingTotalAmount(
-                $startDate,
-                $endDate
-            );
+        $cashDashboard = $this->generateCashFlowArray($startDate, $now);
+
+        $incomingTotalAmount = $cashDashboard[FinanceDashboardConstants::INCOMING_TOTAL_AMOUNT];
 
         $incomingTotalAmountDashboard = new FinanceDashboard();
         $incomingTotalAmountDashboard->setTimePeriod($year.'-'.$month);
@@ -129,13 +127,7 @@ trait FinanceTrait
         $incomingTotalAmountDashboard->setType(FinanceDashboard::TYPE_CASH_FLOW);
         $em->persist($incomingTotalAmountDashboard);
 
-        $wxIncomingAmount = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->getIncomingTotalAmount(
-                $startDate,
-                $endDate,
-                ProductOrder::CHANNEL_WECHAT
-            );
+        $wxIncomingAmount = $cashDashboard[FinanceDashboardConstants::INCOMING_WX_AMOUNT];
 
         $wxIncomingAmountDashboard = new FinanceDashboard();
         $wxIncomingAmountDashboard->setTimePeriod($year.'-'.$month);
@@ -144,13 +136,7 @@ trait FinanceTrait
         $wxIncomingAmountDashboard->setType(FinanceDashboard::TYPE_CASH_FLOW);
         $em->persist($wxIncomingAmountDashboard);
 
-        $wxPubIncomingAmount = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->getIncomingTotalAmount(
-                $startDate,
-                $endDate,
-                ProductOrder::CHANNEL_WECHAT_PUB
-            );
+        $wxPubIncomingAmount = $cashDashboard[FinanceDashboardConstants::INCOMING_WX_PUB_AMOUNT];
 
         $wxPubIncomingAmountDashboard = new FinanceDashboard();
         $wxPubIncomingAmountDashboard->setTimePeriod($year.'-'.$month);
@@ -159,13 +145,7 @@ trait FinanceTrait
         $wxPubIncomingAmountDashboard->setType(FinanceDashboard::TYPE_CASH_FLOW);
         $em->persist($wxPubIncomingAmountDashboard);
 
-        $alipayIncomingAmount = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->getIncomingTotalAmount(
-                $startDate,
-                $endDate,
-                ProductOrder::CHANNEL_ALIPAY
-            );
+        $alipayIncomingAmount = $cashDashboard[FinanceDashboardConstants::INCOMING_ALIPAY_AMOUNT];
 
         $alipayIncomingAmountDashboard = new FinanceDashboard();
         $alipayIncomingAmountDashboard->setTimePeriod($year.'-'.$month);
@@ -174,13 +154,7 @@ trait FinanceTrait
         $alipayIncomingAmountDashboard->setType(FinanceDashboard::TYPE_CASH_FLOW);
         $em->persist($alipayIncomingAmountDashboard);
 
-        $upacpIncomingAmount = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->getIncomingTotalAmount(
-                $startDate,
-                $endDate,
-                ProductOrder::CHANNEL_UNIONPAY
-            );
+        $upacpIncomingAmount = $cashDashboard[FinanceDashboardConstants::INCOMING_UPACP_AMOUNT];
 
         $upacpIncomingAmountDashboard = new FinanceDashboard();
         $upacpIncomingAmountDashboard->setTimePeriod($year.'-'.$month);
@@ -189,13 +163,7 @@ trait FinanceTrait
         $upacpIncomingAmountDashboard->setType(FinanceDashboard::TYPE_CASH_FLOW);
         $em->persist($upacpIncomingAmountDashboard);
 
-        $offlineIncomingAmount = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->getIncomingTotalAmount(
-                $startDate,
-                $endDate,
-                ProductOrder::CHANNEL_OFFLINE
-            );
+        $offlineIncomingAmount = $cashDashboard[FinanceDashboardConstants::INCOMING_OFFLINE_AMOUNT];
 
         $offlineIncomingAmountDashboard = new FinanceDashboard();
         $offlineIncomingAmountDashboard->setTimePeriod($year.'-'.$month);
@@ -204,12 +172,7 @@ trait FinanceTrait
         $offlineIncomingAmountDashboard->setType(FinanceDashboard::TYPE_CASH_FLOW);
         $em->persist($offlineIncomingAmountDashboard);
 
-        $incomingTotalCount = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->countIncomingOrders(
-                $startDate,
-                $endDate
-            );
+        $incomingTotalCount = $cashDashboard[FinanceDashboardConstants::INCOMING_TOTAL_COUNT];
 
         $incomingTotalCountDashboard = new FinanceDashboard();
         $incomingTotalCountDashboard->setTimePeriod($year.'-'.$month);
@@ -218,13 +181,7 @@ trait FinanceTrait
         $incomingTotalCountDashboard->setType(FinanceDashboard::TYPE_CASH_FLOW);
         $em->persist($incomingTotalCountDashboard);
 
-        $wxIncomingCount = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->countIncomingOrders(
-                $startDate,
-                $endDate,
-                ProductOrder::CHANNEL_WECHAT
-            );
+        $wxIncomingCount = $cashDashboard[FinanceDashboardConstants::INCOMING_WX_COUNT];
 
         $wxIncomingCountDashboard = new FinanceDashboard();
         $wxIncomingCountDashboard->setTimePeriod($year.'-'.$month);
@@ -233,13 +190,7 @@ trait FinanceTrait
         $wxIncomingCountDashboard->setType(FinanceDashboard::TYPE_CASH_FLOW);
         $em->persist($wxIncomingCountDashboard);
 
-        $wxPubIncomingCount = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->countIncomingOrders(
-                $startDate,
-                $endDate,
-                ProductOrder::CHANNEL_WECHAT_PUB
-            );
+        $wxPubIncomingCount = $cashDashboard[FinanceDashboardConstants::INCOMING_WX_PUB_COUNT];
 
         $wxPubIncomingCountDashboard = new FinanceDashboard();
         $wxPubIncomingCountDashboard->setTimePeriod($year.'-'.$month);
@@ -248,13 +199,7 @@ trait FinanceTrait
         $wxPubIncomingCountDashboard->setType(FinanceDashboard::TYPE_CASH_FLOW);
         $em->persist($wxPubIncomingCountDashboard);
 
-        $alipayIncomingCount = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->countIncomingOrders(
-                $startDate,
-                $endDate,
-                ProductOrder::CHANNEL_ALIPAY
-            );
+        $alipayIncomingCount = $cashDashboard[FinanceDashboardConstants::INCOMING_ALIPAY_COUNT];
 
         $alipayIncomingCountDashboard = new FinanceDashboard();
         $alipayIncomingCountDashboard->setTimePeriod($year.'-'.$month);
@@ -263,13 +208,7 @@ trait FinanceTrait
         $alipayIncomingCountDashboard->setType(FinanceDashboard::TYPE_CASH_FLOW);
         $em->persist($alipayIncomingCountDashboard);
 
-        $upacpIncomingCount = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->countIncomingOrders(
-                $startDate,
-                $endDate,
-                ProductOrder::CHANNEL_UNIONPAY
-            );
+        $upacpIncomingCount = $cashDashboard[FinanceDashboardConstants::INCOMING_UPACP_COUNT];
 
         $upacpIncomingCountDashboard = new FinanceDashboard();
         $upacpIncomingCountDashboard->setTimePeriod($year.'-'.$month);
@@ -278,13 +217,7 @@ trait FinanceTrait
         $upacpIncomingCountDashboard->setType(FinanceDashboard::TYPE_CASH_FLOW);
         $em->persist($upacpIncomingCountDashboard);
 
-        $offlineIncomingCount = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->countIncomingOrders(
-                $startDate,
-                $endDate,
-                ProductOrder::CHANNEL_OFFLINE
-            );
+        $offlineIncomingCount = $cashDashboard[FinanceDashboardConstants::INCOMING_OFFLINE_COUNT];
 
         $offlineIncomingCountDashboard = new FinanceDashboard();
         $offlineIncomingCountDashboard->setTimePeriod($year.'-'.$month);
@@ -294,12 +227,7 @@ trait FinanceTrait
         $em->persist($offlineIncomingCountDashboard);
 
         // refund amount
-        $totalRefundedAmount = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->getRefundedOrderAmount(
-                $startDate,
-                $endDate
-            );
+        $totalRefundedAmount = $cashDashboard[FinanceDashboardConstants::REFUNDED_TOTAL_AMOUNT];
 
         $totalRefundedAmountDashboard = new FinanceDashboard();
         $totalRefundedAmountDashboard->setTimePeriod($year.'-'.$month);
@@ -308,13 +236,7 @@ trait FinanceTrait
         $totalRefundedAmountDashboard->setType(FinanceDashboard::TYPE_CASH_FLOW);
         $em->persist($totalRefundedAmountDashboard);
 
-        $wxRefundedAmount = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->getRefundedOrderAmount(
-                $startDate,
-                $endDate,
-                ProductOrder::CHANNEL_WECHAT
-            );
+        $wxRefundedAmount = $cashDashboard[FinanceDashboardConstants::REFUNDED_WX_AMOUNT];
 
         $wxRefundedAmountDashboard = new FinanceDashboard();
         $wxRefundedAmountDashboard->setTimePeriod($year.'-'.$month);
@@ -323,13 +245,7 @@ trait FinanceTrait
         $wxRefundedAmountDashboard->setType(FinanceDashboard::TYPE_CASH_FLOW);
         $em->persist($wxRefundedAmountDashboard);
 
-        $wxPubRefundedAmount = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->getRefundedOrderAmount(
-                $startDate,
-                $endDate,
-                ProductOrder::CHANNEL_WECHAT_PUB
-            );
+        $wxPubRefundedAmount = $cashDashboard[FinanceDashboardConstants::REFUNDED_WX_PUB_AMOUNT];
 
         $wxPubRefundedAmountDashboard = new FinanceDashboard();
         $wxPubRefundedAmountDashboard->setTimePeriod($year.'-'.$month);
@@ -338,13 +254,7 @@ trait FinanceTrait
         $wxPubRefundedAmountDashboard->setType(FinanceDashboard::TYPE_CASH_FLOW);
         $em->persist($wxPubRefundedAmountDashboard);
 
-        $alipayRefundedAmount = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->getRefundedOrderAmount(
-                $startDate,
-                $endDate,
-                ProductOrder::CHANNEL_ALIPAY
-            );
+        $alipayRefundedAmount = $cashDashboard[FinanceDashboardConstants::REFUNDED_ALIPAY_AMOUNT];
 
         $alipayRefundedAmountDashboard = new FinanceDashboard();
         $alipayRefundedAmountDashboard->setTimePeriod($year.'-'.$month);
@@ -353,13 +263,7 @@ trait FinanceTrait
         $alipayRefundedAmountDashboard->setType(FinanceDashboard::TYPE_CASH_FLOW);
         $em->persist($alipayRefundedAmountDashboard);
 
-        $upacpRefundedAmount = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->getRefundedOrderAmount(
-                $startDate,
-                $endDate,
-                ProductOrder::CHANNEL_UNIONPAY
-            );
+        $upacpRefundedAmount = $cashDashboard[FinanceDashboardConstants::REFUNDED_UPACP_AMOUNT];
 
         $upacpRefundedAmountDashboard = new FinanceDashboard();
         $upacpRefundedAmountDashboard->setTimePeriod($year.'-'.$month);
@@ -368,13 +272,7 @@ trait FinanceTrait
         $upacpRefundedAmountDashboard->setType(FinanceDashboard::TYPE_CASH_FLOW);
         $em->persist($upacpRefundedAmountDashboard);
 
-        $offlineRefundedAmount = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->getRefundedOrderAmount(
-                $startDate,
-                $endDate,
-                ProductOrder::CHANNEL_OFFLINE
-            );
+        $offlineRefundedAmount = $cashDashboard[FinanceDashboardConstants::REFUNDED_OFFLINE_AMOUNT];
 
         $offlineRefundedAmountDashboard = new FinanceDashboard();
         $offlineRefundedAmountDashboard->setTimePeriod($year.'-'.$month);
@@ -383,12 +281,7 @@ trait FinanceTrait
         $offlineRefundedAmountDashboard->setType(FinanceDashboard::TYPE_CASH_FLOW);
         $em->persist($offlineRefundedAmountDashboard);
 
-        $totalRefundedCount = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->countRefundedOrders(
-                $startDate,
-                $endDate
-            );
+        $totalRefundedCount = $cashDashboard[FinanceDashboardConstants::REFUNDED_TOTAL_COUNT];
 
         $totalRefundedCountDashboard = new FinanceDashboard();
         $totalRefundedCountDashboard->setTimePeriod($year.'-'.$month);
@@ -397,13 +290,7 @@ trait FinanceTrait
         $totalRefundedCountDashboard->setType(FinanceDashboard::TYPE_CASH_FLOW);
         $em->persist($totalRefundedCountDashboard);
 
-        $wxRefundedCount = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->countRefundedOrders(
-                $startDate,
-                $endDate,
-                ProductOrder::CHANNEL_WECHAT
-            );
+        $wxRefundedCount = $cashDashboard[FinanceDashboardConstants::REFUNDED_WX_COUNT];
 
         $wxRefundedCountDashboard = new FinanceDashboard();
         $wxRefundedCountDashboard->setTimePeriod($year.'-'.$month);
@@ -412,13 +299,7 @@ trait FinanceTrait
         $wxRefundedCountDashboard->setType(FinanceDashboard::TYPE_CASH_FLOW);
         $em->persist($wxRefundedCountDashboard);
 
-        $wxPubRefundedCount = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->countRefundedOrders(
-                $startDate,
-                $endDate,
-                ProductOrder::CHANNEL_WECHAT_PUB
-            );
+        $wxPubRefundedCount = $cashDashboard[FinanceDashboardConstants::REFUNDED_WX_PUB_COUNT];
 
         $wxPubRefundedCountDashboard = new FinanceDashboard();
         $wxPubRefundedCountDashboard->setTimePeriod($year.'-'.$month);
@@ -427,13 +308,7 @@ trait FinanceTrait
         $wxPubRefundedCountDashboard->setType(FinanceDashboard::TYPE_CASH_FLOW);
         $em->persist($wxPubRefundedCountDashboard);
 
-        $alipayRefundedCount = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->countRefundedOrders(
-                $startDate,
-                $endDate,
-                ProductOrder::CHANNEL_ALIPAY
-            );
+        $alipayRefundedCount = $cashDashboard[FinanceDashboardConstants::REFUNDED_ALIPAY_COUNT];
 
         $alipayRefundedCountDashboard = new FinanceDashboard();
         $alipayRefundedCountDashboard->setTimePeriod($year.'-'.$month);
@@ -442,13 +317,7 @@ trait FinanceTrait
         $alipayRefundedCountDashboard->setType(FinanceDashboard::TYPE_CASH_FLOW);
         $em->persist($alipayRefundedCountDashboard);
 
-        $upacpRefundedCount = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->countRefundedOrders(
-                $startDate,
-                $endDate,
-                ProductOrder::CHANNEL_UNIONPAY
-            );
+        $upacpRefundedCount = $cashDashboard[FinanceDashboardConstants::REFUNDED_UPACP_COUNT];
 
         $upacpRefundedCountDashboard = new FinanceDashboard();
         $upacpRefundedCountDashboard->setTimePeriod($year.'-'.$month);
@@ -457,13 +326,7 @@ trait FinanceTrait
         $upacpRefundedCountDashboard->setType(FinanceDashboard::TYPE_CASH_FLOW);
         $em->persist($upacpRefundedCountDashboard);
 
-        $offlineRefundedCount = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->countRefundedOrders(
-                $startDate,
-                $endDate,
-                ProductOrder::CHANNEL_OFFLINE
-            );
+        $offlineRefundedCount = $cashDashboard[FinanceDashboardConstants::REFUNDED_OFFLINE_COUNT];
 
         $offlineRefundedCountDashboard = new FinanceDashboard();
         $offlineRefundedCountDashboard->setTimePeriod($year.'-'.$month);
@@ -475,17 +338,17 @@ trait FinanceTrait
         $sumAmountDashboard = new FinanceDashboard();
         $sumAmountDashboard->setTimePeriod($year.'-'.$month);
         $sumAmountDashboard->setParameterKey('sum_amount');
-        $sumAmountDashboard->setParameterValue((string) $incomingTotalAmount - $totalRefundedAmount);
+        $sumAmountDashboard->setParameterValue((string) $cashDashboard[FinanceDashboardConstants::SUM_AMOUNT]);
         $sumAmountDashboard->setType(FinanceDashboard::TYPE_CASH_FLOW);
         $em->persist($sumAmountDashboard);
 
         // balance flow part
-        $topUpTotalAmount = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->getTopUpAmount(
-                $startDate,
-                $endDate
-            );
+        $balanceDashboard = $this->generateBalanceFlowArray(
+            $startDate,
+            $endDate
+        );
+
+        $topUpTotalAmount = $balanceDashboard[FinanceDashboardConstants::TOTAL_TOP_UP_AMOUNT];
 
         $topUpTotalAmountDashboard = new FinanceDashboard();
         $topUpTotalAmountDashboard->setTimePeriod($year.'-'.$month);
@@ -494,13 +357,7 @@ trait FinanceTrait
         $topUpTotalAmountDashboard->setType(FinanceDashboard::TYPE_BALANCE_FLOW);
         $em->persist($topUpTotalAmountDashboard);
 
-        $wxTopUpAmount = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->getTopUpAmount(
-                $startDate,
-                $endDate,
-                ProductOrder::CHANNEL_WECHAT
-            );
+        $wxTopUpAmount = $balanceDashboard[FinanceDashboardConstants::WX_TOPUP_AMOUNT];
 
         $wxTopUpAmountDashboard = new FinanceDashboard();
         $wxTopUpAmountDashboard->setTimePeriod($year.'-'.$month);
@@ -509,13 +366,7 @@ trait FinanceTrait
         $wxTopUpAmountDashboard->setType(FinanceDashboard::TYPE_BALANCE_FLOW);
         $em->persist($wxTopUpAmountDashboard);
 
-        $wxPubTopUpAmount = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->getTopUpAmount(
-                $startDate,
-                $endDate,
-                ProductOrder::CHANNEL_WECHAT_PUB
-            );
+        $wxPubTopUpAmount = $balanceDashboard[FinanceDashboardConstants::WX_PUB_TOP_UP_AMOUNT];
 
         $wxPubTopUpAmountDashboard = new FinanceDashboard();
         $wxPubTopUpAmountDashboard->setTimePeriod($year.'-'.$month);
@@ -524,13 +375,7 @@ trait FinanceTrait
         $wxPubTopUpAmountDashboard->setType(FinanceDashboard::TYPE_BALANCE_FLOW);
         $em->persist($wxPubTopUpAmountDashboard);
 
-        $alipayTopUpAmount = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->getTopUpAmount(
-                $startDate,
-                $endDate,
-                ProductOrder::CHANNEL_ALIPAY
-            );
+        $alipayTopUpAmount = $balanceDashboard[FinanceDashboardConstants::ALIPAY_TOP_UP_AMOUNT];
 
         $alipayTopUpAmountDashboard = new FinanceDashboard();
         $alipayTopUpAmountDashboard->setTimePeriod($year.'-'.$month);
@@ -539,13 +384,8 @@ trait FinanceTrait
         $alipayTopUpAmountDashboard->setType(FinanceDashboard::TYPE_BALANCE_FLOW);
         $em->persist($alipayTopUpAmountDashboard);
 
-        $upacpTopUpAmount = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->getTopUpAmount(
-                $startDate,
-                $endDate,
-                ProductOrder::CHANNEL_UNIONPAY
-            );
+        $upacpTopUpAmount = $balanceDashboard[FinanceDashboardConstants::UPACP_TOP_UP_AMOUNT];
+
         $upacpTopUpAmountDashboard = new FinanceDashboard();
         $upacpTopUpAmountDashboard->setTimePeriod($year.'-'.$month);
         $upacpTopUpAmountDashboard->setParameterKey('upacp_top_up_amount');
@@ -553,12 +393,8 @@ trait FinanceTrait
         $upacpTopUpAmountDashboard->setType(FinanceDashboard::TYPE_BALANCE_FLOW);
         $em->persist($upacpTopUpAmountDashboard);
 
-        $refundToAccountAmount = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->getRefundedToBalanceAmount(
-                $startDate,
-                $endDate
-            );
+        $refundToAccountAmount = $balanceDashboard[FinanceDashboardConstants::REFUND_TO_ACCOUNT_AMOUNT];
+
         $refundToAccountAmountDashboard = new FinanceDashboard();
         $refundToAccountAmountDashboard->setTimePeriod($year.'-'.$month);
         $refundToAccountAmountDashboard->setParameterKey('refund_to_account_amount');
@@ -566,12 +402,8 @@ trait FinanceTrait
         $refundToAccountAmountDashboard->setType(FinanceDashboard::TYPE_BALANCE_FLOW);
         $em->persist($refundToAccountAmountDashboard);
 
-        $topUpTotalCount = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->countTopUpOrder(
-                $startDate,
-                $endDate
-            );
+        $topUpTotalCount = $balanceDashboard[FinanceDashboardConstants::TOTAL_TOP_UP_COUNT];
+
         $topUpTotalCountDashboard = new FinanceDashboard();
         $topUpTotalCountDashboard->setTimePeriod($year.'-'.$month);
         $topUpTotalCountDashboard->setParameterKey('total_top_up_count');
@@ -579,13 +411,8 @@ trait FinanceTrait
         $topUpTotalCountDashboard->setType(FinanceDashboard::TYPE_BALANCE_FLOW);
         $em->persist($topUpTotalCountDashboard);
 
-        $wxTopUpCount = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->countTopUpOrder(
-                $startDate,
-                $endDate,
-                ProductOrder::CHANNEL_WECHAT
-            );
+        $wxTopUpCount = $balanceDashboard[FinanceDashboardConstants::WX_TOP_UP_COUNT];
+
         $wxTopUpCountDashboard = new FinanceDashboard();
         $wxTopUpCountDashboard->setTimePeriod($year.'-'.$month);
         $wxTopUpCountDashboard->setParameterKey('wx_top_up_count');
@@ -593,13 +420,8 @@ trait FinanceTrait
         $wxTopUpCountDashboard->setType(FinanceDashboard::TYPE_BALANCE_FLOW);
         $em->persist($wxTopUpCountDashboard);
 
-        $wxPubTopUpCount = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->countTopUpOrder(
-                $startDate,
-                $endDate,
-                ProductOrder::CHANNEL_WECHAT_PUB
-            );
+        $wxPubTopUpCount = $balanceDashboard[FinanceDashboardConstants::WX_PUB_TOP_UP_COUNT];
+
         $wxPubTopUpCountDashboard = new FinanceDashboard();
         $wxPubTopUpCountDashboard->setTimePeriod($year.'-'.$month);
         $wxPubTopUpCountDashboard->setParameterKey('wx_pub_top_up_count');
@@ -607,13 +429,8 @@ trait FinanceTrait
         $wxPubTopUpCountDashboard->setType(FinanceDashboard::TYPE_BALANCE_FLOW);
         $em->persist($wxPubTopUpCountDashboard);
 
-        $alipayTopUpCount = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->countTopUpOrder(
-                $startDate,
-                $endDate,
-                ProductOrder::CHANNEL_ALIPAY
-            );
+        $alipayTopUpCount = $balanceDashboard[FinanceDashboardConstants::ALIPAY_TOP_UP_COUNT];
+
         $alipayTopUpCountDashboard = new FinanceDashboard();
         $alipayTopUpCountDashboard->setTimePeriod($year.'-'.$month);
         $alipayTopUpCountDashboard->setParameterKey('alipay_top_up_count');
@@ -621,13 +438,8 @@ trait FinanceTrait
         $alipayTopUpCountDashboard->setType(FinanceDashboard::TYPE_BALANCE_FLOW);
         $em->persist($alipayTopUpCountDashboard);
 
-        $upacpTopUpCount = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->countTopUpOrder(
-                $startDate,
-                $endDate,
-                ProductOrder::CHANNEL_UNIONPAY
-            );
+        $upacpTopUpCount = $balanceDashboard[FinanceDashboardConstants::UPACP_TOP_UP_COUNT];
+
         $upacpTopUpCountDashboard = new FinanceDashboard();
         $upacpTopUpCountDashboard->setTimePeriod($year.'-'.$month);
         $upacpTopUpCountDashboard->setParameterKey('upacp_top_up_count');
@@ -635,12 +447,8 @@ trait FinanceTrait
         $upacpTopUpCountDashboard->setType(FinanceDashboard::TYPE_BALANCE_FLOW);
         $em->persist($upacpTopUpCountDashboard);
 
-        $refundToAccountCount = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->countRefundedToBalance(
-                $startDate,
-                $endDate
-            );
+        $refundToAccountCount = $balanceDashboard[FinanceDashboardConstants::REFUND_TO_ACCOUNT_COUNT];
+
         $refundToAccountCountDashboard = new FinanceDashboard();
         $refundToAccountCountDashboard->setTimePeriod($year.'-'.$month);
         $refundToAccountCountDashboard->setParameterKey('refund_to_account_count');
@@ -648,12 +456,8 @@ trait FinanceTrait
         $refundToAccountCountDashboard->setType(FinanceDashboard::TYPE_BALANCE_FLOW);
         $em->persist($refundToAccountCountDashboard);
 
-        $spaceOrderExpendAmount = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->spaceOrderByAccountAmount(
-                $startDate,
-                $endDate
-            );
+        $spaceOrderExpendAmount = $balanceDashboard[FinanceDashboardConstants::SPACE_EXPEND_AMOUNT];
+
         $spaceOrderExpendAmountDashboard = new FinanceDashboard();
         $spaceOrderExpendAmountDashboard->setTimePeriod($year.'-'.$month);
         $spaceOrderExpendAmountDashboard->setParameterKey('space_expend_amount');
@@ -661,12 +465,8 @@ trait FinanceTrait
         $spaceOrderExpendAmountDashboard->setType(FinanceDashboard::TYPE_BALANCE_FLOW);
         $em->persist($spaceOrderExpendAmountDashboard);
 
-        $shopOrderExpendAmount = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->shopOrderByAccountAmount(
-                $startDate,
-                $endDate
-            );
+        $shopOrderExpendAmount = $balanceDashboard[FinanceDashboardConstants::SHOP_EXPEND_AMOUNT];
+
         $shopOrderExpendAmountDashboard = new FinanceDashboard();
         $shopOrderExpendAmountDashboard->setTimePeriod($year.'-'.$month);
         $shopOrderExpendAmountDashboard->setParameterKey('shop_expend_amount');
@@ -674,12 +474,8 @@ trait FinanceTrait
         $shopOrderExpendAmountDashboard->setType(FinanceDashboard::TYPE_BALANCE_FLOW);
         $em->persist($shopOrderExpendAmountDashboard);
 
-        $activityOrderExpendAmount = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->activityOrderByAccountAmount(
-                $startDate,
-                $endDate
-            );
+        $activityOrderExpendAmount = $balanceDashboard[FinanceDashboardConstants::ACTIVITY_EXPEND_AMOUNT];
+
         $activityOrderExpendAmountDashboard = new FinanceDashboard();
         $activityOrderExpendAmountDashboard->setTimePeriod($year.'-'.$month);
         $activityOrderExpendAmountDashboard->setParameterKey('activity_expend_amount');
@@ -687,7 +483,7 @@ trait FinanceTrait
         $activityOrderExpendAmountDashboard->setType(FinanceDashboard::TYPE_BALANCE_FLOW);
         $em->persist($activityOrderExpendAmountDashboard);
 
-        $totalExpendAmount = $spaceOrderExpendAmount + $shopOrderExpendAmount + $activityOrderExpendAmount;
+        $totalExpendAmount = $balanceDashboard[FinanceDashboardConstants::TOTAL_EXPEND_AMOUNT];
 
         $totalExpendAmountDashboard = new FinanceDashboard();
         $totalExpendAmountDashboard->setTimePeriod($year.'-'.$month);
@@ -696,12 +492,8 @@ trait FinanceTrait
         $totalExpendAmountDashboard->setType(FinanceDashboard::TYPE_BALANCE_FLOW);
         $em->persist($totalExpendAmountDashboard);
 
-        $spaceOrderExpendCount = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->countSpaceOrderByAccount(
-                $startDate,
-                $endDate
-            );
+        $spaceOrderExpendCount = $balanceDashboard[FinanceDashboardConstants::SPACE_EXPEND_COUNT];
+
         $spaceOrderExpendCountDashboard = new FinanceDashboard();
         $spaceOrderExpendCountDashboard->setTimePeriod($year.'-'.$month);
         $spaceOrderExpendCountDashboard->setParameterKey('space_expend_count');
@@ -709,12 +501,8 @@ trait FinanceTrait
         $spaceOrderExpendCountDashboard->setType(FinanceDashboard::TYPE_BALANCE_FLOW);
         $em->persist($spaceOrderExpendCountDashboard);
 
-        $shopOrderExpendCount = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->countShopOrderByAccount(
-                $startDate,
-                $endDate
-            );
+        $shopOrderExpendCount = $balanceDashboard[FinanceDashboardConstants::SHOP_EXPEND_COUNT];
+
         $shopOrderExpendCountDashboard = new FinanceDashboard();
         $shopOrderExpendCountDashboard->setTimePeriod($year.'-'.$month);
         $shopOrderExpendCountDashboard->setParameterKey('shop_expend_count');
@@ -722,12 +510,8 @@ trait FinanceTrait
         $shopOrderExpendCountDashboard->setType(FinanceDashboard::TYPE_BALANCE_FLOW);
         $em->persist($shopOrderExpendCountDashboard);
 
-        $activityOrderExpendCount = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->countActivityOrderByAccount(
-                $startDate,
-                $endDate
-            );
+        $activityOrderExpendCount = $balanceDashboard[FinanceDashboardConstants::ACTIVITY_EXPEND_COUNT];
+
         $activityOrderExpendCountDashboard = new FinanceDashboard();
         $activityOrderExpendCountDashboard->setTimePeriod($year.'-'.$month);
         $activityOrderExpendCountDashboard->setParameterKey('activity_expend_count');
@@ -735,7 +519,7 @@ trait FinanceTrait
         $activityOrderExpendCountDashboard->setType(FinanceDashboard::TYPE_BALANCE_FLOW);
         $em->persist($activityOrderExpendCountDashboard);
 
-        $totalExpendCount = $spaceOrderExpendCount + $shopOrderExpendCount + $activityOrderExpendCount;
+        $totalExpendCount = $balanceDashboard[FinanceDashboardConstants::TOTAL_EXPEND_COUNT];
 
         $totalExpendCountDashboard = new FinanceDashboard();
         $totalExpendCountDashboard->setTimePeriod($year.'-'.$month);
@@ -745,10 +529,8 @@ trait FinanceTrait
         $em->persist($totalExpendCountDashboard);
 
         // add last total balance
-        $lastTotalBalance = $this->getLastTotalBalance(
-            $startDate,
-            $endDate
-        );
+        $lastTotalBalance = $balanceDashboard[FinanceDashboardConstants::TOTAL_BALANCE];
+
         $lastTotalBalanceDashboard = new FinanceDashboard();
         $lastTotalBalanceDashboard->setTimePeriod($year.'-'.$month);
         $lastTotalBalanceDashboard->setParameterKey('total_balance');
@@ -756,7 +538,434 @@ trait FinanceTrait
         $lastTotalBalanceDashboard->setType(FinanceDashboard::TYPE_BALANCE_FLOW);
         $em->persist($lastTotalBalanceDashboard);
 
+        $beforeLastMonthTotalBalance = $balanceDashboard[FinanceDashboardConstants::LAST_MONTH_TOTAL_BALANCE];
+
+        $beforeLastMonthTotalBalanceDashboard = new FinanceDashboard();
+        $beforeLastMonthTotalBalanceDashboard->setTimePeriod($year.'-'.$month);
+        $beforeLastMonthTotalBalanceDashboard->setParameterKey('last_month_total_balance');
+        $beforeLastMonthTotalBalanceDashboard->setParameterValue((string) $beforeLastMonthTotalBalance);
+        $beforeLastMonthTotalBalanceDashboard->setType(FinanceDashboard::TYPE_BALANCE_FLOW);
+        $em->persist($beforeLastMonthTotalBalanceDashboard);
+
         $em->flush();
+    }
+
+    /**
+     * @param $startDate
+     * @param $endDate
+     *
+     * @return array
+     */
+    private function generateCashFlowArray(
+        $startDate,
+        $endDate
+    ) {
+        $incomingTotalAmount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getIncomingTotalAmount(
+                $startDate,
+                $endDate
+            );
+
+        $wxIncomingAmount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getIncomingTotalAmount(
+                $startDate,
+                $endDate,
+                ProductOrder::CHANNEL_WECHAT
+            );
+
+        $wxPubIncomingAmount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getIncomingTotalAmount(
+                $startDate,
+                $endDate,
+                ProductOrder::CHANNEL_WECHAT_PUB
+            );
+
+        $alipayIncomingAmount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getIncomingTotalAmount(
+                $startDate,
+                $endDate,
+                ProductOrder::CHANNEL_ALIPAY
+            );
+
+        $upacpIncomingAmount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getIncomingTotalAmount(
+                $startDate,
+                $endDate,
+                ProductOrder::CHANNEL_UNIONPAY
+            );
+
+        $offlineIncomingAmount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getIncomingTotalAmount(
+                $startDate,
+                $endDate,
+                ProductOrder::CHANNEL_OFFLINE
+            );
+
+        $incomingTotalCount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->countIncomingOrders(
+                $startDate,
+                $endDate
+            );
+
+        $wxIncomingCount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->countIncomingOrders(
+                $startDate,
+                $endDate,
+                ProductOrder::CHANNEL_WECHAT
+            );
+
+        $wxPubIncomingCount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->countIncomingOrders(
+                $startDate,
+                $endDate,
+                ProductOrder::CHANNEL_WECHAT_PUB
+            );
+
+        $alipayIncomingCount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->countIncomingOrders(
+                $startDate,
+                $endDate,
+                ProductOrder::CHANNEL_ALIPAY
+            );
+
+        $upacpIncomingCount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->countIncomingOrders(
+                $startDate,
+                $endDate,
+                ProductOrder::CHANNEL_UNIONPAY
+            );
+
+        $offlineIncomingCount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->countIncomingOrders(
+                $startDate,
+                $endDate,
+                ProductOrder::CHANNEL_OFFLINE
+            );
+
+        $totalRefundedAmount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getRefundedOrderAmount(
+                $startDate,
+                $endDate
+            );
+
+        $wxRefundedAmount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getRefundedOrderAmount(
+                $startDate,
+                $endDate,
+                ProductOrder::CHANNEL_WECHAT
+            );
+
+        $wxPubRefundedAmount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getRefundedOrderAmount(
+                $startDate,
+                $endDate,
+                ProductOrder::CHANNEL_WECHAT_PUB
+            );
+
+        $alipayRefundedAmount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getRefundedOrderAmount(
+                $startDate,
+                $endDate,
+                ProductOrder::CHANNEL_ALIPAY
+            );
+
+        $upacpRefundedAmount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getRefundedOrderAmount(
+                $startDate,
+                $endDate,
+                ProductOrder::CHANNEL_UNIONPAY
+            );
+
+        $offlineRefundedAmount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getRefundedOrderAmount(
+                $startDate,
+                $endDate,
+                ProductOrder::CHANNEL_OFFLINE
+            );
+
+        $totalRefundedCount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->countRefundedOrders(
+                $startDate,
+                $endDate
+            );
+
+        $wxRefundedCount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->countRefundedOrders(
+                $startDate,
+                $endDate,
+                ProductOrder::CHANNEL_WECHAT
+            );
+
+        $wxPubRefundedCount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->countRefundedOrders(
+                $startDate,
+                $endDate,
+                ProductOrder::CHANNEL_WECHAT_PUB
+            );
+
+        $alipayRefundedCount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->countRefundedOrders(
+                $startDate,
+                $endDate,
+                ProductOrder::CHANNEL_ALIPAY
+            );
+
+        $upacpRefundedCount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->countRefundedOrders(
+                $startDate,
+                $endDate,
+                ProductOrder::CHANNEL_UNIONPAY
+            );
+
+        $offlineRefundedCount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->countRefundedOrders(
+                $startDate,
+                $endDate,
+                ProductOrder::CHANNEL_OFFLINE
+            );
+
+        $sumAmount = $incomingTotalAmount - $totalRefundedAmount;
+
+        return array(
+            FinanceDashboardConstants::INCOMING_TOTAL_AMOUNT => $incomingTotalAmount,
+            FinanceDashboardConstants::INCOMING_WX_AMOUNT => $wxIncomingAmount,
+            FinanceDashboardConstants::INCOMING_WX_PUB_AMOUNT => $wxPubIncomingAmount,
+            FinanceDashboardConstants::INCOMING_ALIPAY_AMOUNT => $alipayIncomingAmount,
+            FinanceDashboardConstants::INCOMING_UPACP_AMOUNT => $upacpIncomingAmount,
+            FinanceDashboardConstants::INCOMING_OFFLINE_AMOUNT => $offlineIncomingAmount,
+            FinanceDashboardConstants::INCOMING_TOTAL_COUNT => $incomingTotalCount,
+            FinanceDashboardConstants::INCOMING_WX_COUNT => $wxIncomingCount,
+            FinanceDashboardConstants::INCOMING_WX_PUB_COUNT => $wxPubIncomingCount,
+            FinanceDashboardConstants::INCOMING_ALIPAY_COUNT => $alipayIncomingCount,
+            FinanceDashboardConstants::INCOMING_UPACP_COUNT => $upacpIncomingCount,
+            FinanceDashboardConstants::INCOMING_OFFLINE_COUNT => $offlineIncomingCount,
+            FinanceDashboardConstants::REFUNDED_TOTAL_AMOUNT => $totalRefundedAmount,
+            FinanceDashboardConstants::REFUNDED_WX_AMOUNT => $wxRefundedAmount,
+            FinanceDashboardConstants::REFUNDED_WX_PUB_AMOUNT => $wxPubRefundedAmount,
+            FinanceDashboardConstants::REFUNDED_ALIPAY_AMOUNT => $alipayRefundedAmount,
+            FinanceDashboardConstants::REFUNDED_UPACP_AMOUNT => $upacpRefundedAmount,
+            FinanceDashboardConstants::REFUNDED_OFFLINE_AMOUNT => $offlineRefundedAmount,
+            FinanceDashboardConstants::REFUNDED_TOTAL_COUNT => $totalRefundedCount,
+            FinanceDashboardConstants::REFUNDED_WX_COUNT => $wxRefundedCount,
+            FinanceDashboardConstants::REFUNDED_WX_PUB_COUNT => $wxPubRefundedCount,
+            FinanceDashboardConstants::REFUNDED_ALIPAY_COUNT => $alipayRefundedCount,
+            FinanceDashboardConstants::REFUNDED_UPACP_COUNT => $upacpRefundedCount,
+            FinanceDashboardConstants::REFUNDED_OFFLINE_COUNT => $offlineRefundedCount,
+            FinanceDashboardConstants::SUM_AMOUNT => $sumAmount,
+        );
+    }
+
+    /**
+     * @param \DateTime $startDate
+     * @param \DateTime $endDate
+     *
+     * @return array
+     */
+    private function generateBalanceFlowArray(
+        $startDate,
+        $endDate
+    ) {
+        $topUpTotalAmount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getTopUpAmount(
+                $startDate,
+                $endDate
+            );
+
+        $wxTopUpAmount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getTopUpAmount(
+                $startDate,
+                $endDate,
+                ProductOrder::CHANNEL_WECHAT
+            );
+
+        $wxPubTopUpAmount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getTopUpAmount(
+                $startDate,
+                $endDate,
+                ProductOrder::CHANNEL_WECHAT_PUB
+            );
+
+        $alipayTopUpAmount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getTopUpAmount(
+                $startDate,
+                $endDate,
+                ProductOrder::CHANNEL_ALIPAY
+            );
+
+        $upacpTopUpAmount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getTopUpAmount(
+                $startDate,
+                $endDate,
+                ProductOrder::CHANNEL_UNIONPAY
+            );
+
+        $refundToAccountAmount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getRefundedToBalanceAmount(
+                $startDate,
+                $endDate
+            );
+
+        $topUpTotalCount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->countTopUpOrder(
+                $startDate,
+                $endDate
+            );
+
+        $wxTopUpCount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->countTopUpOrder(
+                $startDate,
+                $endDate,
+                ProductOrder::CHANNEL_WECHAT
+            );
+
+        $wxPubTopUpCount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->countTopUpOrder(
+                $startDate,
+                $endDate,
+                ProductOrder::CHANNEL_WECHAT_PUB
+            );
+
+        $alipayTopUpCount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->countTopUpOrder(
+                $startDate,
+                $endDate,
+                ProductOrder::CHANNEL_ALIPAY
+            );
+
+        $upacpTopUpCount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->countTopUpOrder(
+                $startDate,
+                $endDate,
+                ProductOrder::CHANNEL_UNIONPAY
+            );
+
+        $refundToAccountCount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->countRefundedToBalance(
+                $startDate,
+                $endDate
+            );
+
+        $spaceOrderExpendAmount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->spaceOrderByAccountAmount(
+                $startDate,
+                $endDate
+            );
+
+        $shopOrderExpendAmount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->shopOrderByAccountAmount(
+                $startDate,
+                $endDate
+            );
+
+        $activityOrderExpendAmount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->activityOrderByAccountAmount(
+                $startDate,
+                $endDate
+            );
+
+        $totalExpendAmount = $spaceOrderExpendAmount + $shopOrderExpendAmount + $activityOrderExpendAmount;
+
+        $spaceOrderExpendCount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->countSpaceOrderByAccount(
+                $startDate,
+                $endDate
+            );
+
+        $shopOrderExpendCount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->countShopOrderByAccount(
+                $startDate,
+                $endDate
+            );
+
+        $activityOrderExpendCount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->countActivityOrderByAccount(
+                $startDate,
+                $endDate
+            );
+
+        $totalExpendCount = $spaceOrderExpendCount + $shopOrderExpendCount + $activityOrderExpendCount;
+
+        $lastTotalBalance = $this->getLastTotalBalance(
+            $startDate,
+            $endDate
+        );
+
+        $startDateBefore = clone $startDate;
+        $startDateBefore->modify('-1 month');
+        $endStringBefore = $startDateBefore->format('Y-m-t');
+        $endDateBefore = new \DateTime($endStringBefore);
+
+        $beforeLastMonthTotalBalance = $this->getLastTotalBalance(
+            $startDateBefore,
+            $endDateBefore
+        );
+
+        return array(
+            FinanceDashboardConstants::TOTAL_TOP_UP_AMOUNT => $topUpTotalAmount,
+            FinanceDashboardConstants::WX_TOPUP_AMOUNT => $wxTopUpAmount,
+            FinanceDashboardConstants::WX_PUB_TOP_UP_AMOUNT => $wxPubTopUpAmount,
+            FinanceDashboardConstants::ALIPAY_TOP_UP_AMOUNT => $alipayTopUpAmount,
+            FinanceDashboardConstants::UPACP_TOP_UP_AMOUNT => $upacpTopUpAmount,
+            FinanceDashboardConstants::REFUND_TO_ACCOUNT_AMOUNT => $refundToAccountAmount,
+            FinanceDashboardConstants::TOTAL_TOP_UP_COUNT => $topUpTotalCount,
+            FinanceDashboardConstants::WX_TOP_UP_COUNT => $wxTopUpCount,
+            FinanceDashboardConstants::WX_PUB_TOP_UP_COUNT => $wxPubTopUpCount,
+            FinanceDashboardConstants::ALIPAY_TOP_UP_COUNT => $alipayTopUpCount,
+            FinanceDashboardConstants::UPACP_TOP_UP_COUNT => $upacpTopUpCount,
+            FinanceDashboardConstants::REFUND_TO_ACCOUNT_COUNT => $refundToAccountCount,
+            FinanceDashboardConstants::SPACE_EXPEND_AMOUNT => $spaceOrderExpendAmount,
+            FinanceDashboardConstants::SHOP_EXPEND_AMOUNT => $spaceOrderExpendAmount,
+            FinanceDashboardConstants::ACTIVITY_EXPEND_AMOUNT => $activityOrderExpendAmount,
+            FinanceDashboardConstants::TOTAL_EXPEND_AMOUNT => $totalExpendAmount,
+            FinanceDashboardConstants::SPACE_EXPEND_COUNT => $spaceOrderExpendCount,
+            FinanceDashboardConstants::SHOP_EXPEND_COUNT => $shopOrderExpendCount,
+            FinanceDashboardConstants::ACTIVITY_EXPEND_COUNT => $activityOrderExpendCount,
+            FinanceDashboardConstants::TOTAL_EXPEND_COUNT => $totalExpendCount,
+            FinanceDashboardConstants::TOTAL_BALANCE => $lastTotalBalance,
+            FinanceDashboardConstants::LAST_MONTH_TOTAL_BALANCE => $beforeLastMonthTotalBalance,
+        );
     }
 
     /**

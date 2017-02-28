@@ -7,8 +7,10 @@ use FOS\RestBundle\View\View;
 use Sandbox\AdminApiBundle\Controller\AdminRestController;
 use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentBill;
 use Sandbox\ApiBundle\Entity\Finance\FinanceShortRentInvoiceApplication;
+use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyWithdrawals;
 use Sandbox\ApiBundle\Entity\Finance\FinanceDashboard;
+use Sandbox\ApiBundle\Traits\FinanceTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -19,29 +21,11 @@ use FOS\RestBundle\Controller\Annotations;
  */
 class AdminFinanceDashboardController extends AdminRestController
 {
+    use FinanceTrait;
+
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
-     *
-     * @Annotations\QueryParam(
-     *    name="year",
-     *    array=false,
-     *    default=null,
-     *    nullable=false,
-     *    requirements="\d+",
-     *    strict=true,
-     *    description=""
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="month",
-     *    array=false,
-     *    default=null,
-     *    nullable=false,
-     *    requirements="\d+",
-     *    strict=true,
-     *    description=""
-     * )
      *
      * @Route("/finance/cash_flow/dashboard")
      * @Method({"GET"})
@@ -52,22 +36,12 @@ class AdminFinanceDashboardController extends AdminRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $year = $paramFetcher->get('year');
-        $month = $paramFetcher->get('month');
+        $now = new \DateTime();
+        $startString = $now->format('Y-m').'-01';
+        $startDate = new \DateTime($startString);
+        $startDate->setTime(0, 0, 0);
 
-        $financeCashFlowDashboard = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Finance\FinanceDashboard')
-            ->findBy(array(
-                'timePeriod' => $year.'-'.$month,
-                'type' => FinanceDashboard::TYPE_CASH_FLOW,
-            ));
-
-        $response = array();
-        foreach ($financeCashFlowDashboard as $item) {
-            $response = array_merge($response, array(
-                $item->getParameterKey() => $item->getParameterValue(),
-            ));
-        }
+        $response = $this->generateCashFlowArray($startDate, $now);
 
         return new View($response);
     }
@@ -121,26 +95,6 @@ class AdminFinanceDashboardController extends AdminRestController
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
-     * @Annotations\QueryParam(
-     *    name="year",
-     *    array=false,
-     *    default=null,
-     *    nullable=false,
-     *    requirements="\d+",
-     *    strict=true,
-     *    description=""
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="month",
-     *    array=false,
-     *    default=null,
-     *    nullable=false,
-     *    requirements="\d+",
-     *    strict=true,
-     *    description=""
-     * )
-     *
      * @Route("/finance/balance_flow/dashboard")
      * @Method({"GET"})
      *
@@ -150,22 +104,12 @@ class AdminFinanceDashboardController extends AdminRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $year = $paramFetcher->get('year');
-        $month = $paramFetcher->get('month');
+        $now = new \DateTime();
+        $startString = $now->format('Y-m').'-01';
+        $startDate = new \DateTime($startString);
+        $startDate->setTime(0, 0, 0);
 
-        $financeBalanceFlowDashboard = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Finance\FinanceDashboard')
-            ->findBy(array(
-                'timePeriod' => $year.'-'.$month,
-                'type' => FinanceDashboard::TYPE_BALANCE_FLOW,
-            ));
-
-        $response = array();
-        foreach ($financeBalanceFlowDashboard as $item) {
-            $response = array_merge($response, array(
-                $item->getParameterKey() => $item->getParameterValue(),
-            ));
-        }
+        $response = $this->generateBalanceFlowArray($startDate, $now);
 
         return new View($response);
     }
