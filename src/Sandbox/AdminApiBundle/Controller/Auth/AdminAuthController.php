@@ -49,6 +49,7 @@ class AdminAuthController extends AuthController
             return new View(array(
                 'id' => $this->getUser()->getUserId(),
                 'client_id' => $this->getUser()->getClientId(),
+                'xmpp_username' => $this->getUser()->getMyUser()->getXmppUsername(),
             ));
         }
 
@@ -93,6 +94,8 @@ class AdminAuthController extends AuthController
                     'name' => $admin->getName(),
                     'phone' => $admin->getPhone(),
                     'is_super_admin' => $condition,
+                    'client_id' => $this->getUser()->getClientId(),
+                    'xmpp_username' => $this->getUser()->getMyUser()->getXmppUsername(),
                 ],
             )
         );
