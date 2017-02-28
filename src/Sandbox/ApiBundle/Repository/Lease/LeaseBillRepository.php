@@ -11,6 +11,36 @@ use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 class LeaseBillRepository extends EntityRepository
 {
     /**
+     * @param $start
+     * @param $end
+     * @param $salesCompanyId
+     *
+     * @return array
+     */
+    public function findBillsByDates(
+        $start,
+        $end,
+        $salesCompanyId = null
+    ) {
+        $query = $this->createQueryBuilder('lb')
+            ->where('lb.paymentDate >= :start')
+            ->andWhere('lb.paymentDate <= :end')
+            ->setParameter('start', $start)
+            ->setParameter('end', $end);
+
+        if (!is_null($salesCompanyId)) {
+            $query->leftJoin('lb.lease', 'l')
+                ->leftJoin('l.product', 'p')
+                ->leftJoin('p.room', 'r')
+                ->leftJoin('r.building', 'b')
+                ->andWhere('b.company = :company')
+                ->setParameter('company', $salesCompanyId);
+        }
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
      * @param $ids
      *
      * @return array
