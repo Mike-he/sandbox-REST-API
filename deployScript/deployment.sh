@@ -10,6 +10,9 @@ sudo cp app/config/parameter_production.yml app/config/parameter.yml
 
 sudo cp -r web/image/ /data/openfire/  # synchronous images files
 
+# https://crm.sandbox3.cn/admin/invoices/sync  (sync order number)
+
+
 ## Version 2.3.3
 #
 #sudo cp -r web/image/ /data/openfire/  # synchronous images files
