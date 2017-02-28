@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Traits;
 
 use Sandbox\ApiBundle\Entity\Finance\FinanceDashboard;
 use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentServiceBill;
+use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Room\Room;
 
@@ -55,22 +56,26 @@ trait FinanceTrait
             $serviceBill->setBill($bill);
 
             $em->persist($serviceBill);
-            $em->flush();
         }
 
+        $channel = $bill->getPayChannel();
         $wallet = $em->getRepository('SandboxApiBundle:Finance\FinanceSalesWallet')
             ->findOneBy(['companyId' => $companyId]);
+
         if (!is_null($wallet)) {
             $totalAmount = $wallet->getTotalAmount();
             $billAmount = $wallet->getBillAmount();
             $withdrawAmount = $wallet->getWithdrawableAmount();
 
-            $wallet->setTotalAmount($totalAmount + $bill->getRevisedAmount());
             $wallet->setBillAmount($billAmount + $amount);
-            $wallet->setWithdrawableAmount($withdrawAmount + $bill->getRevisedAmount() - $amount);
 
-            $em->flush();
+            if ($channel != LeaseBill::CHANNEL_SALES_OFFLINE) {
+                $wallet->setTotalAmount($totalAmount + $bill->getRevisedAmount());
+                $wallet->setWithdrawableAmount($withdrawAmount + $bill->getRevisedAmount() - $amount);
+            }
         }
+
+        $em->flush();
     }
 
     /**

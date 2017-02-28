@@ -288,8 +288,10 @@ class AdminFinanceWithdrawalController extends PaymentController
             $this->throwNotFoundIfNull($wallet, self::NOT_FOUND_MESSAGE);
 
             $current = $wallet->getWithdrawableAmount();
+            $total = $wallet->getTotalAmount();
 
             $wallet->setWithdrawableAmount($current + $withdrawal->getAmount());
+            $wallet->setTotalAmount($total + $withdrawal->getAmount());
 
             $withdrawal->setFailureTime($now);
         }

@@ -118,7 +118,10 @@ class AdminFinanceWithdrawalController extends PaymentController
             );
         }
 
+        $total = $wallet->getTotalAmount();
+
         $wallet->setWithdrawableAmount($current - $amount);
+        $wallet->setTotalAmount($total - $amount);
 
         $error = $this->handleWithdrawalPost(
             $company,

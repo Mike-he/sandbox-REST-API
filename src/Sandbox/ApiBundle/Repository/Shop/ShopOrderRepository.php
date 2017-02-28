@@ -303,7 +303,7 @@ class ShopOrderRepository extends EntityRepository
                     ->andWhere('o.refundProcessedDate <= :refundEnd')
                     ->setParameter('refundEnd', $refundEnd);
             }
-            
+
             if ($refundStatus == ProductOrder::REFUNDED_STATUS) {
                 $query->andWhere('o.refunded = :refunded')
                     ->setParameter('refunded', true)

@@ -1686,7 +1686,7 @@ class AdminRoomController extends SalesRestController
             $product = $this->getRepo('Product\Product')->findOneBy(
                 [
                     'roomId' => $id,
-                    'isDeleted' => false
+                    'isDeleted' => false,
                 ]
             );
             $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
@@ -1755,7 +1755,7 @@ class AdminRoomController extends SalesRestController
         $product = $this->getRepo('Product\Product')->findOneBy(
             [
                 'roomId' => $id,
-                'isDeleted' => false
+                'isDeleted' => false,
             ]
         );
         $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
@@ -1842,7 +1842,7 @@ class AdminRoomController extends SalesRestController
     ) {
         $product = $this->getRepo('Product\Product')->findOneBy([
             'roomId' => $id,
-            'isDeleted' => false
+            'isDeleted' => false,
         ]);
         $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
 
@@ -1895,7 +1895,7 @@ class AdminRoomController extends SalesRestController
     ) {
         $product = $this->getRepo('Product\Product')->findOneBy([
             'roomId' => $id,
-            'isDeleted' => false
+            'isDeleted' => false,
         ]);
         $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
 

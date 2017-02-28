@@ -29,7 +29,7 @@ class FinanceShortRentInvoiceApplicationRepository extends EntityRepository
         $amountEnd,
         $status,
         $salesCompanyId,
-        $invoiceNo
+        $invoiceNo = null
     ) {
         $query = $this->createQueryBuilder('a')
             ->select('COUNT(a)')
@@ -70,7 +70,7 @@ class FinanceShortRentInvoiceApplicationRepository extends EntityRepository
         $limit,
         $offset,
         $salesCompanyId,
-        $invoiceNo
+        $invoiceNo = null
     ) {
         $query = $this->createQueryBuilder('a')
             ->where('a.id IS NOT NULL');

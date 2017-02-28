@@ -46,7 +46,6 @@ class FinanceShortRentInvoice
 
     /**
      * @var \DateTime
-     * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="creationDate", type="datetime")
      * @Serializer\Groups({"main", "sales_admin_detail"})
      */
