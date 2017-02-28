@@ -1115,8 +1115,7 @@ class OrderRepository extends EntityRepository
         }
 
         if (!is_null($company)) {
-            $query->leftJoin('p.room', 'r')
-                ->leftJoin('r.building', 'b')
+            $query->leftJoin('r.building', 'b')
                 ->andWhere('b.company = :company')
                 ->setParameter('company', $company);
         }
@@ -1398,8 +1397,7 @@ class OrderRepository extends EntityRepository
         }
 
         if (!is_null($company)) {
-            $query->leftJoin('p.room', 'r')
-                ->leftJoin('r.building', 'b')
+            $query->leftJoin('r.building', 'b')
                 ->andWhere('b.company = :company')
                 ->setParameter('company', $company);
         }
