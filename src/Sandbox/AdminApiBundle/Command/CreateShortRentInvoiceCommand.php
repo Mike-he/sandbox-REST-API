@@ -32,7 +32,6 @@ class CreateShortRentInvoiceCommand extends ContainerAwareCommand
         $em = $this->getContainer()->get('doctrine')->getManager();
 
         $companyArray = $this->setFinanceShortRentInvoice(
-            $em,
             $firstDate,
             $lastDate
         );
@@ -52,14 +51,12 @@ class CreateShortRentInvoiceCommand extends ContainerAwareCommand
     }
 
     /**
-     * @param $em
      * @param $firstDate
      * @param $lastDate
      *
      * @return array
      */
     private function setFinanceShortRentInvoice(
-        $em,
         $firstDate,
         $lastDate
     ) {
@@ -85,16 +82,6 @@ class CreateShortRentInvoiceCommand extends ContainerAwareCommand
                 ];
             }
         }
-
-        foreach ($companyArray as $key => $value) {
-            $invoice = new FinanceShortRentInvoice();
-            $invoice->setAmount($value['short_rent_balance']);
-            $invoice->setCompanyId((int) $key);
-
-            $em->persist($invoice);
-        }
-
-        $em->flush();
 
         return $companyArray;
     }
@@ -207,6 +194,12 @@ class CreateShortRentInvoiceCommand extends ContainerAwareCommand
             $summary->setEventOrderCount((int) $value['event_order_count']);
             $summary->setSummaryDate($lastDate);
 
+            $invoice = new FinanceShortRentInvoice();
+            $invoice->setAmount($value['short_rent_balance'] + $value['event_order_balance']);
+            $invoice->setCompanyId((int) $key);
+            $invoice->setCreationDate($lastDate);
+
+            $em->persist($invoice);
             $em->persist($summary);
 
             $wallet = $this->getContainer()
@@ -217,11 +210,9 @@ class CreateShortRentInvoiceCommand extends ContainerAwareCommand
             if (!is_null($wallet)) {
                 $shortRentAmount = $wallet->getShortRentInvoiceAmount();
                 $totalAmount = $wallet->getTotalAmount();
-                $withdrawAmount = $wallet->getWithdrawableAmount();
 
-                $wallet->setShortRentInvoiceAmount($shortRentAmount + $value['short_rent_balance']);
+                $wallet->setShortRentInvoiceAmount($shortRentAmount + $value['short_rent_balance'] + $value['event_order_balance']);
                 $wallet->setTotalAmount($totalAmount + $value['short_rent_balance'] + $value['event_order_balance']);
-                $wallet->setWithdrawableAmount($withdrawAmount + $value['event_order_balance']);
             }
         }
 
