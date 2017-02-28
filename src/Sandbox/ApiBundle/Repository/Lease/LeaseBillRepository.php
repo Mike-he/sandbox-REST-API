@@ -428,7 +428,7 @@ class LeaseBillRepository extends EntityRepository
      *
      * @return array
      */
-    public function findBillNumbersByCompany(
+    public function findNumbersForSalesInvoice(
         $company,
         $status
     ) {
@@ -439,6 +439,7 @@ class LeaseBillRepository extends EntityRepository
             ->leftJoin('p.room', 'r')
             ->leftJoin('r.building', 'b')
             ->where('b.company = :company')
+            ->andWhere('lb.salesInvoice = TRUE')
             ->setParameter('company', $company);
 
         if (!is_null($status)) {
