@@ -116,7 +116,7 @@ trait FinanceTrait
         // cash flow part
         $em = $this->getContainer()->get('doctrine')->getManager();
 
-        $cashDashboard = $this->generateCashFlowArray($startDate, $now);
+        $cashDashboard = $this->generateCashFlowArray($startDate, $endDate);
 
         $incomingTotalAmount = $cashDashboard[FinanceDashboardConstants::INCOMING_TOTAL_AMOUNT];
 
