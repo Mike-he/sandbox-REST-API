@@ -591,7 +591,7 @@ trait FinanceTrait
             ->countTopUpOrder(
                 $startDate,
                 $endDate,
-                ProductOrder::CHANNEL_WECHAT
+                ProductOrder::CHANNEL_WECHAT_PUB
             );
         $wxPubTopUpCountDashboard = new FinanceDashboard();
         $wxPubTopUpCountDashboard->setTimePeriod($year.'-'.$month);
