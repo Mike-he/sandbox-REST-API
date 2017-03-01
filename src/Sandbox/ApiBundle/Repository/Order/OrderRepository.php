@@ -3188,8 +3188,8 @@ class OrderRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
             ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'r.buildingId = b.id')
             ->where('o.status = :completed')
-            ->andWhere('o.paymentDate >= :start')
-            ->andWhere('o.paymentDate <= :end')
+            ->andWhere('o.startDate >= :start')
+            ->andWhere('o.startDate <= :end')
             ->setParameter('completed', ProductOrder::STATUS_COMPLETED)
             ->setParameter('start', $startDate)
             ->setParameter('end', $endDate);
