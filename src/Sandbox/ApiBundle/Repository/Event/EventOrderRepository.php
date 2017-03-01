@@ -484,4 +484,25 @@ class EventOrderRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param $startDate
+     * @param $endDate
+     *
+     * @return array
+     */
+    public function getOfficialEventOrders(
+        $startDate,
+        $endDate
+    ) {
+        $eventOrderQuery = $this->createQueryBuilder('eo')
+            ->where('eo.paymentDate >= :start')
+            ->andWhere('eo.paymentDate <= :end')
+            ->andWhere('eo.payChannel != :account')
+            ->setParameter('account', EventOrder::CHANNEL_ACCOUNT)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        return $eventOrderQuery->getQuery()->getResult();
+    }
 }

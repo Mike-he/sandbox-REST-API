@@ -3174,6 +3174,28 @@ class OrderRepository extends EntityRepository
     /**
      * @param $startDate
      * @param $endDate
+     *
+     * @return mixed
+     */
+    public function getOfficialAdminCompletedOrderSummary(
+        $startDate,
+        $endDate
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->where('o.paymentDate >= :start')
+            ->andWhere('o.paymentDate <= :end')
+            ->andWhere('o.payChannel != :account')
+            ->andWhere('o.refundTo IS NULL')
+            ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        return  $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $startDate
+     * @param $endDate
      * @param null $companyId
      *
      * @return mixed
@@ -3218,7 +3240,7 @@ class OrderRepository extends EntityRepository
         $productOrderAmountQuery = $this->getEntityManager()->createQueryBuilder()
             ->from('SandboxApiBundle:Order\ProductOrder', 'o')
             ->select('SUM(o.discountPrice)')
-            ->andWhere('o.paymentDate >= :start')
+            ->where('o.paymentDate >= :start')
             ->andWhere('o.paymentDate <= :end')
             ->andWhere('o.payChannel != :account')
             ->andWhere('o.refundTo IS NULL')
@@ -3239,7 +3261,7 @@ class OrderRepository extends EntityRepository
         $shopOrderAmountQuery = $this->getEntityManager()->createQueryBuilder()
             ->from('SandboxApiBundle:Shop\ShopOrder', 'so')
             ->select('SUM(so.price)')
-            ->andWhere('so.paymentDate >= :start')
+            ->where('so.paymentDate >= :start')
             ->andWhere('so.paymentDate <= :end')
             ->andWhere('so.payChannel != :account')
             ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
@@ -3259,7 +3281,7 @@ class OrderRepository extends EntityRepository
         $eventOrderAmountQuery = $this->getEntityManager()->createQueryBuilder()
             ->from('SandboxApiBundle:Event\EventOrder', 'eo')
             ->select('SUM(eo.price)')
-            ->andWhere('eo.paymentDate >= :start')
+            ->where('eo.paymentDate >= :start')
             ->andWhere('eo.paymentDate <= :end')
             ->andWhere('eo.payChannel != :account')
             ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
@@ -3279,7 +3301,7 @@ class OrderRepository extends EntityRepository
         $leaseBillAmountQuery = $this->getEntityManager()->createQueryBuilder()
             ->from('SandboxApiBundle:Lease\LeaseBill', 'b')
             ->select('SUM(b.revisedAmount)')
-            ->andWhere('b.paymentDate >= :start')
+            ->where('b.paymentDate >= :start')
             ->andWhere('b.paymentDate <= :end')
             ->andWhere('b.payChannel != :account')
             ->andWhere('b.payChannel != :salesOffline')
@@ -3338,7 +3360,7 @@ class OrderRepository extends EntityRepository
         $productOrderCountQuery = $this->getEntityManager()->createQueryBuilder()
             ->from('SandboxApiBundle:Order\ProductOrder', 'o')
             ->select('COUNT(o.discountPrice)')
-            ->andWhere('o.paymentDate >= :start')
+            ->where('o.paymentDate >= :start')
             ->andWhere('o.paymentDate <= :end')
             ->andWhere('o.payChannel != :account')
             ->andWhere('o.refundTo IS NULL')

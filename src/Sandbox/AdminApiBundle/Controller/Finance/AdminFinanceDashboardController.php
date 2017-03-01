@@ -85,21 +85,21 @@ class AdminFinanceDashboardController extends AdminRestController
         // get orders
         $events = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Event\EventOrder')
-            ->getEventOrderSummary(
+            ->getOfficialEventOrders(
                 $startDate,
                 $endDate
             );
 
         $shortOrders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->getCompletedOrderSummary(
+            ->getOfficialAdminCompletedOrderSummary(
                 $startDate,
                 $endDate
             );
 
         $longBills = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
-            ->findBillsByDates(
+            ->getOfficialAdminBills(
                 $startDate,
                 $endDate
             );
