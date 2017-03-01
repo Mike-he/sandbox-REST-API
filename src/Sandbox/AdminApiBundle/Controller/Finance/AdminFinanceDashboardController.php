@@ -130,8 +130,11 @@ class AdminFinanceDashboardController extends AdminRestController
         $startString = $now->format('Y-m').'-01';
         $startDate = new \DateTime($startString);
         $startDate->setTime(0, 0, 0);
+        $endString = $now->format('Y-m-t');
+        $endDate = new \DateTime($endString);
+        $endDate->setTime(23, 59, 59);
 
-        $response = $this->generateCashFlowArray($startDate, $now);
+        $response = $this->generateCashFlowArray($startDate, $endDate);
 
         return new View($response);
     }
