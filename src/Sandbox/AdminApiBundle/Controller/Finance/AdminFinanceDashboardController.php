@@ -10,6 +10,7 @@ use Sandbox\ApiBundle\Entity\Finance\FinanceShortRentInvoiceApplication;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyWithdrawals;
 use Sandbox\ApiBundle\Entity\Finance\FinanceDashboard;
+use Sandbox\ApiBundle\Traits\FinanceExportTraits;
 use Sandbox\ApiBundle\Traits\FinanceTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -22,6 +23,95 @@ use FOS\RestBundle\Controller\Annotations;
 class AdminFinanceDashboardController extends AdminRestController
 {
     use FinanceTrait;
+    use FinanceExportTraits;
+
+    /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="year",
+     *    array=false,
+     *    default=null,
+     *    nullable=false,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description=""
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="month",
+     *    array=false,
+     *    default=null,
+     *    nullable=false,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description=""
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="language",
+     *    default="zh",
+     *    nullable=true,
+     *    requirements="(zh|en)",
+     *    strict=true,
+     *    description="export language"
+     * )
+     *
+     * @Method({"GET"})
+     * @Route("/finance/cash_flow/export")
+     *
+     * @return View
+     */
+    public function getFinanceExportAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        //authenticate with web browser cookie
+        $this->authenticateAdminCookie();
+
+        $year = $paramFetcher->get('year');
+        $month = $paramFetcher->get('month');
+        $language = $paramFetcher->get('language');
+
+        $startString = $year.'-'.$month.'-01';
+        $startDate = new \DateTime($startString);
+        $startDate->setTime(0, 0, 0);
+
+        $endString = $startDate->format('Y-m-t');
+        $endDate = new \DateTime($endString);
+        $endDate->setTime(23, 59, 59);
+
+        // get orders
+        $events = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventOrder')
+            ->getEventOrderSummary(
+                $startDate,
+                $endDate
+            );
+
+        $shortOrders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getCompletedOrderSummary(
+                $startDate,
+                $endDate
+            );
+
+        $longBills = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->findBillsByDates(
+                $startDate,
+                $endDate
+            );
+
+        return $this->getFinanceSummaryExport(
+            $startDate,
+            $language,
+            $events,
+            $shortOrders,
+            $longBills
+        );
+    }
 
     /**
      * @param Request               $request
