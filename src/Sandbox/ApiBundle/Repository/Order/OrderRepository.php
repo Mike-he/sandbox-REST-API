@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Repository\Order;
 
 use Doctrine\ORM\EntityRepository;
 use Sandbox\ApiBundle\Entity\Event\EventOrder;
+use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Room\Room;
@@ -3187,8 +3188,8 @@ class OrderRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
             ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'r.buildingId = b.id')
             ->where('o.status = :completed')
-            ->andWhere('o.startDate >= :start')
-            ->andWhere('o.startDate <= :end')
+            ->andWhere('o.paymentDate >= :start')
+            ->andWhere('o.paymentDate <= :end')
             ->setParameter('completed', ProductOrder::STATUS_COMPLETED)
             ->setParameter('start', $startDate)
             ->setParameter('end', $endDate);
@@ -3281,7 +3282,9 @@ class OrderRepository extends EntityRepository
             ->andWhere('b.paymentDate >= :start')
             ->andWhere('b.paymentDate <= :end')
             ->andWhere('b.payChannel != :account')
+            ->andWhere('b.payChannel != :salesOffline')
             ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
+            ->setParameter('salesOffline', LeaseBill::CHANNEL_SALES_OFFLINE)
             ->setParameter('start', $startDate)
             ->setParameter('end', $endDate);
 
@@ -3400,12 +3403,12 @@ class OrderRepository extends EntityRepository
         $leaseBillCountQuery = $this->getEntityManager()->createQueryBuilder()
             ->from('SandboxApiBundle:Lease\LeaseBill', 'b')
             ->select('COUNT(b.revisedAmount)')
-            ->where('b.status = :completed')
             ->andWhere('b.paymentDate >= :start')
             ->andWhere('b.paymentDate <= :end')
             ->andWhere('b.payChannel != :account')
+            ->andWhere('b.payChannel != :salesOffline')
             ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
-            ->setParameter('completed', ProductOrder::STATUS_COMPLETED)
+            ->setParameter('salesOffline', LeaseBill::CHANNEL_SALES_OFFLINE)
             ->setParameter('start', $startDate)
             ->setParameter('end', $endDate);
 
