@@ -3185,7 +3185,7 @@ class OrderRepository extends EntityRepository
             ->where('o.paymentDate >= :start')
             ->andWhere('o.paymentDate <= :end')
             ->andWhere('o.payChannel != :account')
-            ->andWhere('o.refundTo IS NULL')
+            ->andWhere('(o.refundTo IS NULL OR o.refundTo = :account)')
             ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
             ->setParameter('start', $startDate)
             ->setParameter('end', $endDate);
@@ -3243,7 +3243,7 @@ class OrderRepository extends EntityRepository
             ->where('o.paymentDate >= :start')
             ->andWhere('o.paymentDate <= :end')
             ->andWhere('o.payChannel != :account')
-            ->andWhere('o.refundTo IS NULL')
+            ->andWhere('(o.refundTo IS NULL OR o.refundTo = :account)')
             ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
             ->setParameter('start', $startDate)
             ->setParameter('end', $endDate);
@@ -3326,6 +3326,7 @@ class OrderRepository extends EntityRepository
             ->where('to.paymentDate >= :start')
             ->andWhere('to.paymentDate <= :end')
             ->andWhere('to.payChannel != :account')
+            ->andWhere('to.refundToAccount = FALSE')
             ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
             ->setParameter('start', $startDate)
             ->setParameter('end', $endDate);
@@ -3363,7 +3364,7 @@ class OrderRepository extends EntityRepository
             ->where('o.paymentDate >= :start')
             ->andWhere('o.paymentDate <= :end')
             ->andWhere('o.payChannel != :account')
-            ->andWhere('o.refundTo IS NULL')
+            ->andWhere('(o.refundTo IS NULL OR o.refundTo = :account)')
             ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
             ->setParameter('start', $startDate)
             ->setParameter('end', $endDate);
@@ -3450,6 +3451,7 @@ class OrderRepository extends EntityRepository
             ->where('to.paymentDate >= :start')
             ->andWhere('to.paymentDate <= :end')
             ->andWhere('to.payChannel != :account')
+            ->andWhere('to.refundToAccount = FALSE')
             ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
             ->setParameter('start', $startDate)
             ->setParameter('end', $endDate);

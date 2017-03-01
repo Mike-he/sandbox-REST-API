@@ -466,7 +466,8 @@ class AdminOrderController extends OrderController
                                 $userId,
                                 $price,
                                 $TopUpOrderNumber,
-                                $channel
+                                $channel,
+                                true
                             );
                         }
                     }
