@@ -1120,7 +1120,8 @@ class ClientOrderController extends OrderController
                             $userId,
                             $price,
                             $orderNumber,
-                            $channel
+                            $channel,
+                            true
                         );
                     }
                 }

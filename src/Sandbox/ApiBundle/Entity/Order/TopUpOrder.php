@@ -85,6 +85,15 @@ class TopUpOrder
     private $paymentDate;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="refund_to_account", type="boolean", options={"default": 0})
+     *
+     * @Serializer\Groups({"main", "admin_order", "client_order"})
+     */
+    private $refundToAccount = false;
+
+    /**
      * Get id.
      *
      * @return int
@@ -260,6 +269,22 @@ class TopUpOrder
     public function getPaymentDate()
     {
         return $this->paymentDate;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isRefundToAccount()
+    {
+        return $this->refundToAccount;
+    }
+
+    /**
+     * @param bool $refundToAccount
+     */
+    public function setRefundToAccount($refundToAccount)
+    {
+        $this->refundToAccount = $refundToAccount;
     }
 
     public function __construct()

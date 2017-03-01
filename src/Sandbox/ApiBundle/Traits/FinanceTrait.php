@@ -956,7 +956,7 @@ trait FinanceTrait
             FinanceDashboardConstants::UPACP_TOP_UP_COUNT => $upacpTopUpCount,
             FinanceDashboardConstants::REFUND_TO_ACCOUNT_COUNT => $refundToAccountCount,
             FinanceDashboardConstants::SPACE_EXPEND_AMOUNT => $spaceOrderExpendAmount,
-            FinanceDashboardConstants::SHOP_EXPEND_AMOUNT => $spaceOrderExpendAmount,
+            FinanceDashboardConstants::SHOP_EXPEND_AMOUNT => $shopOrderExpendAmount,
             FinanceDashboardConstants::ACTIVITY_EXPEND_AMOUNT => $activityOrderExpendAmount,
             FinanceDashboardConstants::TOTAL_EXPEND_AMOUNT => $totalExpendAmount,
             FinanceDashboardConstants::SPACE_EXPEND_COUNT => $spaceOrderExpendCount,

@@ -11,6 +11,29 @@ use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 class LeaseBillRepository extends EntityRepository
 {
     /**
+     * @param $startDate
+     * @param $endDate
+     *
+     * @return array
+     */
+    public function getOfficialAdminBills(
+        $startDate,
+        $endDate
+    ) {
+        $leaseBillQuery = $this->createQueryBuilder('b')
+            ->where('b.paymentDate >= :start')
+            ->andWhere('b.paymentDate <= :end')
+            ->andWhere('b.payChannel != :account')
+            ->andWhere('b.payChannel != :salesOffline')
+            ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
+            ->setParameter('salesOffline', LeaseBill::CHANNEL_SALES_OFFLINE)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        return $leaseBillQuery->getQuery()->getResult();
+    }
+
+    /**
      * @param $start
      * @param $end
      * @param $salesCompanyId
