@@ -13,6 +13,7 @@ use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
+use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Sandbox\ApiBundle\Entity\User\User;
@@ -177,7 +178,8 @@ class ClientLeaseController extends SandboxRestController
         $offset = $paramFetcher->get('offset');
         $limit = $paramFetcher->get('limit');
 
-        $leases = $this->getLeaseRepo()
+        $leases = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\Lease')
             ->getClientLeases(
                 $userId,
                 $limit,
@@ -292,7 +294,20 @@ class ClientLeaseController extends SandboxRestController
             }
         }
 
-        $lease->setStatus($payload['status']);
+        // If the lease has been executed, when the state 'reconfirming' is reconfirmed
+        // the lease status should be changed to 'performing'
+        $log = $this->getLogsRepo()->findOneBy(array(
+            'logModule' => Log::MODULE_LEASE,
+            'logAction' => Log::ACTION_PERFORMING,
+            'logObjectId' => $lease->getId()
+        ));
+
+        if (!is_null($log)) {
+            $lease->setStatus(Lease::LEASE_STATUS_PERFORMING);
+        } else {
+            $lease->setStatus($payload['status']);
+        }
+
         $lease->setConformedDate(new \DateTime('now'));
         $em->flush();
 

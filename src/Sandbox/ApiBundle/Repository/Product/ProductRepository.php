@@ -1142,6 +1142,7 @@ class ProductRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
             ->where('r.building = :building')
             ->andWhere('p.isDeleted = FALSE')
+            ->andWhere('p.visible = TRUE')
             ->setParameter('building', $building);
 
         if (!is_null($userId)) {

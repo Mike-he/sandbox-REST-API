@@ -4,6 +4,7 @@ namespace Sandbox\ClientApiBundle\Controller\Order;
 
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Controller\Order\OrderController;
+use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
 use Sandbox\ApiBundle\Entity\Order\TransferAttachment;
 use Sandbox\ApiBundle\Form\Order\OrderOfflineTransferPost;
@@ -253,11 +254,23 @@ class ClientOrderController extends OrderController
     ) {
         $userId = $this->getUserId();
 
-        $amount = $this->getRepo('Order\ProductOrder')->getInvoiceOrdersAmount($userId);
+        $productAmount = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getInvoiceOrdersAmount($userId);
 
-        if (is_null($amount)) {
-            $amount = 0;
+        if (is_null($productAmount)) {
+            $productAmount = 0;
         }
+
+        $billAmount = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->sumInvoiceBillsFees($userId);
+
+        if (is_null($billAmount)) {
+            $billAmount = 0;
+        }
+
+        $amount = $productAmount + $billAmount;
 
         return new View(['amount' => (float) $amount]);
     }
@@ -300,17 +313,31 @@ class ClientOrderController extends OrderController
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
 
-        $orders = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->getInvoiceOrdersForApp(
+        $tradeNumbers = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Invoice\TradeInvoiceView')
+            ->getNeedToInvoiceTradeNumbers(
                 $userId,
                 $limit,
                 $offset
             );
 
-        $view = new View();
-        $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
-        $view->setData($orders);
+        $response = array();
+        foreach ($tradeNumbers as $number) {
+            switch (substr($number, 0, 1)) {
+                case ProductOrder::LETTER_HEAD:
+                    $responseArray = $this->getProductOrderResponse($number);
+                    break;
+                case LeaseBill::LEASE_BILL_LETTER_HEAD:
+                    $responseArray = $this->getLeaseBillResponse($number);
+                    break;
+                default:
+                    break;
+            }
+
+            array_push($response, $responseArray);
+        }
+
+        $view = new View($response);
 
         return $view;
     }
@@ -322,7 +349,7 @@ class ClientOrderController extends OrderController
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
-     *    name="id",
+     *    name="number",
      *    array=true,
      *    default=null,
      *    nullable=true,
@@ -336,21 +363,25 @@ class ClientOrderController extends OrderController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $userId = $this->getUserId();
-        $ids = $paramFetcher->get('id');
+        $tradeNumbers = $paramFetcher->get('number');
 
-        $orders = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->getInvoiceOrdersForApp(
-                $userId,
-                null,
-                null,
-                $ids
-            );
+        $response = array();
+        foreach ($tradeNumbers as $number) {
+            switch (substr($number, 0, 1)) {
+                case ProductOrder::LETTER_HEAD:
+                    $responseArray = $this->getProductOrderResponse($number);
+                    break;
+                case LeaseBill::LEASE_BILL_LETTER_HEAD:
+                    $responseArray = $this->getLeaseBillResponse($number);
+                    break;
+                default:
+                    break;
+            }
 
-        $view = new View();
-        $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
-        $view->setData($orders);
+            array_push($response, $responseArray);
+        }
+
+        $view = new View($response);
 
         return $view;
     }
@@ -674,6 +705,19 @@ class ClientOrderController extends OrderController
                 $product,
                 $order
             );
+
+            // set service fee
+            $company = $product->getRoom()->getBuilding()->getCompany();
+            $serviceInfo = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
+                ->findOneBy([
+                    'company' => $company,
+                    'tradeTypes' => $type,
+                ]);
+
+            if (!is_null($serviceInfo)) {
+                $order->setServiceFee($serviceInfo->getServiceFee());
+            }
 
             $em->persist($order);
 
@@ -1076,7 +1120,8 @@ class ClientOrderController extends OrderController
                             $userId,
                             $price,
                             $orderNumber,
-                            $channel
+                            $channel,
+                            true
                         );
                     }
                 }

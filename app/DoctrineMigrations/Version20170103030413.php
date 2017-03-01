@@ -23,7 +23,6 @@ class Version20170103030413 extends AbstractMigration implements ContainerAwareI
     public function up(Schema $schema)
     {
         // this up() migration is auto-generated, please modify it to your needs
-
     }
 
     public function postUp(Schema $schema)
@@ -36,6 +35,8 @@ class Version20170103030413 extends AbstractMigration implements ContainerAwareI
                 'platform' => 'sales',
             ));
         $em->remove($salesInvoiceGroup);
+        $em->flush();
+        $em->clear();
 
         $salesFinanceGroup = new AdminPermissionGroups();
         $salesFinanceGroup->setGroupKey('finance');
@@ -147,6 +148,5 @@ class Version20170103030413 extends AbstractMigration implements ContainerAwareI
     public function down(Schema $schema)
     {
         // this down() migration is auto-generated, please modify it to your needs
-
     }
 }

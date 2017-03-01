@@ -82,6 +82,5 @@ class Version20161213162922 extends AbstractMigration implements ContainerAwareI
     public function down(Schema $schema)
     {
         // this down() migration is auto-generated, please modify it to your needs
-
     }
 }

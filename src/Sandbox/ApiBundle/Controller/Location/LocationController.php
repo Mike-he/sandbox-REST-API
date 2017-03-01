@@ -577,7 +577,8 @@ class LocationController extends SalesRestController
         }
 
         $userId = $this->getUser() ? $this->getUserId() : null;
-        $roomWithProductNumber = $this->getRepo('Product\Product')
+        $roomWithProductNumber = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\Product')
             ->countRoomsWithProductByBuilding(
                 $building->getId(),
                 $userId
@@ -775,6 +776,8 @@ class LocationController extends SalesRestController
                 'name' => $name,
                 'key' => $city->getKey(),
                 'capital' => $city->isCapital(),
+                'latitude' => $city->getLat(),
+                'longitude' => $city->getLng(),
             );
             array_push($citiesArray, $cityArray);
         }
@@ -923,7 +926,7 @@ class LocationController extends SalesRestController
      *
      * @Annotations\QueryParam(
      *    name="sort_by",
-     *    default="distance",
+     *    default="smart",
      *    nullable=true,
      *    description="smart sort"
      * )

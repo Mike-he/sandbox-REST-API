@@ -423,4 +423,86 @@ class EventOrderRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param $start
+     * @param $end
+     * @param null $salesCompanyId
+     *
+     * @return array
+     */
+    public function getSumEventOrders(
+        $start,
+        $end,
+        $salesCompanyId = null
+    ) {
+        $query = $this->createQueryBuilder('eo')
+            ->leftJoin('SandboxApiBundle:Event\Event', 'e', 'WITH', 'eo.eventId = e.id')
+            ->select('(eo.price - eo.serviceFee) as price, e.salesCompanyId')
+            ->where('eo.status = :paid OR eo.status = :completed')
+            ->andWhere('eo.paymentDate >= :start')
+            ->andWhere('eo.paymentDate <= :end')
+            ->setParameter('start', $start)
+            ->setParameter('end', $end)
+            ->setParameter('completed', EventOrder::STATUS_COMPLETED)
+            ->setParameter('paid', EventOrder::STATUS_PAID);
+
+        if (!is_null($salesCompanyId)) {
+            $query->andWhere('e.salesCompanyId = :companyId')
+                ->setParameter('companyId', $salesCompanyId);
+        }
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $start
+     * @param $end
+     * @param null $salesCompanyId
+     *
+     * @return array
+     */
+    public function getEventOrderSummary(
+        $start,
+        $end,
+        $salesCompanyId = null
+    ) {
+        $query = $this->createQueryBuilder('eo')
+            ->leftJoin('SandboxApiBundle:Event\Event', 'e', 'WITH', 'eo.eventId = e.id')
+            ->where('eo.status = :paid OR eo.status = :completed')
+            ->andWhere('eo.paymentDate >= :start')
+            ->andWhere('eo.paymentDate <= :end')
+            ->setParameter('start', $start)
+            ->setParameter('end', $end)
+            ->setParameter('completed', EventOrder::STATUS_COMPLETED)
+            ->setParameter('paid', EventOrder::STATUS_PAID);
+
+        if (!is_null($salesCompanyId)) {
+            $query->andWhere('e.salesCompanyId = :companyId')
+                ->setParameter('companyId', $salesCompanyId);
+        }
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $startDate
+     * @param $endDate
+     *
+     * @return array
+     */
+    public function getOfficialEventOrders(
+        $startDate,
+        $endDate
+    ) {
+        $eventOrderQuery = $this->createQueryBuilder('eo')
+            ->where('eo.paymentDate >= :start')
+            ->andWhere('eo.paymentDate <= :end')
+            ->andWhere('eo.payChannel != :account')
+            ->setParameter('account', EventOrder::CHANNEL_ACCOUNT)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        return $eventOrderQuery->getQuery()->getResult();
+    }
 }

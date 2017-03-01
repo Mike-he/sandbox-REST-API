@@ -496,6 +496,48 @@ class AdminBuildingController extends LocationController
     }
 
     /**
+     * Get definite id of building.
+     *
+     * @param Request $request
+     * @param int     $id
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     200 = "Returned when successful"
+     *   }
+     * )
+     *
+     * @Route("/buildings/{id}/lessor")
+     * @Method({"GET"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getBuildingLessorAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+
+        // get a building
+        $building = $this->getRepo('Room\RoomBuilding')->findOneBy(array(
+            'id' => $id,
+            'isDeleted' => false,
+        ));
+        $this->throwNotFoundIfNull($building, self::NOT_FOUND_MESSAGE);
+
+        // set view
+        $view = new View($building);
+        $view->setSerializationContext(
+            SerializationContext::create()->setGroups(array('lessor'))
+        );
+
+        return $view;
+    }
+
+    /**
      * @param string       $statusOld
      * @param string       $visibleOld
      * @param RoomBuilding $building

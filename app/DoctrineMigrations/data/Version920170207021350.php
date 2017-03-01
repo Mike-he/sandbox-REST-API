@@ -20,7 +20,6 @@ class Version920170207021350 extends AbstractMigration implements ContainerAware
      */
     public function up(Schema $schema)
     {
-        // this up() migration is auto-generated, please modify it to your needs
 
     }
 

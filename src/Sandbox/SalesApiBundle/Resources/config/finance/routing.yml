@@ -1,0 +1,53 @@
+# Admin Finance Account
+sandbox_sales_admin_finance_account:
+    resource: "@SandboxSalesApiBundle/Controller/Finance/AdminFinanceProfilesController.php"
+    type:     annotation
+    prefix:   /
+
+# Admin Withdraws /sales/admin/finance/withdrawals
+sandbox_sales_admin_finance_withdrawals:
+    resource: "@SandboxSalesApiBundle/Controller/Finance/AdminFinanceWithdrawalController.php"
+    type:     annotation
+    prefix:   /
+
+# Admin Finance Long Rent Service Bill /sales/admin/finance/long/rent/service/bills
+sandbox_sales_admin_finance_long_rent_service_bill:
+    resource: "@SandboxSalesApiBundle/Controller/Finance/AdminFinanceLongRentServiceBillController.php"
+    type:     annotation
+    prefix:   /
+
+# Admin Finance Long Rent Bill /sales/admin/finance/long/rent/bills
+sandbox_sales_admin_finance_long_rent_bill:
+    resource: "@SandboxSalesApiBundle/Controller/Finance/AdminFinanceLongRentBillController.php"
+    type:     annotation
+    prefix:   /
+
+# Admin Finance Short Rent /sales/admin/finance/short/rent/invoice
+sandbox_sales_admin_finance_short_rent_invoice:
+    resource: "@SandboxSalesApiBundle/Controller/Finance/AdminFinanceShortRentInvoiceController.php"
+    type:     annotation
+    prefix:   /
+
+# Admin Finance Short Rent /sales/admin/finance/short/rent/invoice/application
+sandbox_sales_admin_finance_short_rent_invoice_application:
+    resource: "@SandboxSalesApiBundle/Controller/Finance/AdminFinanceShortRentInvoiceApplicationController.php"
+    type:     annotation
+    prefix:   /finance/short/rent/invoice
+
+# Admin Finance Official Invoice Profile /sales/admin/finance/official/invoice/profile
+sandbox_sales_admin_finance_official_invoice_profile:
+    resource: "@SandboxSalesApiBundle/Controller/Finance/AdminFinanceOfficialInvoiceProfileController.php"
+    type:     annotation
+    prefix:   /
+
+# Admin Finance Summary /sales/admin/finance/summary
+sandbox_sales_admin_finance_summary:
+    resource: "@SandboxSalesApiBundle/Controller/Finance/AdminFinanceSummaryController.php"
+    type:     annotation
+    prefix:   /
+
+# Admin Finance Invoice /sales/admin/finance/invoice
+sandbox_sales_admin_finance_invoice:
+    resource: "@SandboxSalesApiBundle/Controller/Finance/AdminFinanceInvoiceController.php"
+    type:     annotation
+    prefix:   /

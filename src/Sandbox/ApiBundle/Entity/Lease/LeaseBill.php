@@ -262,6 +262,24 @@ class LeaseBill
     private $remark;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="sales_invoice", type="boolean", nullable=false)
+     *
+     * @Serializer\Groups({"main","client","lease_bill"})
+     */
+    private $salesInvoice = false;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="invoiced", type="boolean", nullable=false)
+     *
+     * @Serializer\Groups({"main","client","lease_bill"})
+     */
+    private $invoiced = false;
+
+    /**
      * @return int
      */
     public function getId()
@@ -643,5 +661,37 @@ class LeaseBill
     public function setRemark($remark)
     {
         $this->remark = $remark;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSalesInvoice()
+    {
+        return $this->salesInvoice;
+    }
+
+    /**
+     * @param bool $salesInvoice
+     */
+    public function setSalesInvoice($salesInvoice)
+    {
+        $this->salesInvoice = $salesInvoice;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isInvoiced()
+    {
+        return $this->invoiced;
+    }
+
+    /**
+     * @param bool $invoiced
+     */
+    public function setInvoiced($invoiced)
+    {
+        $this->invoiced = $invoiced;
     }
 }

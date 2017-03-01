@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Entity\SalesAdmin;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * SalesCompanyServiceInfos.
@@ -19,6 +20,8 @@ class SalesCompanyServiceInfos
     const DRAWER_SANDBOX = 'sandbox';
     const DRAWER_SALES = 'sales';
 
+    const TRADE_TYPE_ACTIVITY = 'activity';
+
     /**
      * @var int
      *
@@ -32,10 +35,10 @@ class SalesCompanyServiceInfos
     /**
      * @var string
      *
-     * @ORM\Column(name="room_types", type="string", length=30)
+     * @ORM\Column(name="trade_types", type="string", length=30)
      * @Serializer\Groups({"main", "admin_view"})
      */
-    private $roomTypes;
+    private $tradeTypes;
 
     /**
      * @var SalesCompany
@@ -47,6 +50,8 @@ class SalesCompanyServiceInfos
 
     /**
      * @var float
+     *
+     * @Assert\NotNull()
      *
      * @ORM\Column(name="service_fee", type="float", precision=6, scale=3)
      * @Serializer\Groups({"main", "admin_view"})
@@ -104,17 +109,17 @@ class SalesCompanyServiceInfos
     /**
      * @return string
      */
-    public function getRoomTypes()
+    public function getTradeTypes()
     {
-        return $this->roomTypes;
+        return $this->tradeTypes;
     }
 
     /**
-     * @param string $roomTypes
+     * @param string $tradeTypes
      */
-    public function setRoomTypes($roomTypes)
+    public function setTradeTypes($tradeTypes)
     {
-        $this->roomTypes = $roomTypes;
+        $this->tradeTypes = $tradeTypes;
     }
 
     /**

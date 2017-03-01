@@ -21,7 +21,6 @@ class Version20161220020143 extends AbstractMigration implements ContainerAwareI
      */
     public function up(Schema $schema)
     {
-
     }
 
     public function postUp(Schema $schema)
@@ -31,7 +30,7 @@ class Version20161220020143 extends AbstractMigration implements ContainerAwareI
         $roomType = $em
             ->getRepository('SandboxApiBundle:Room\RoomTypes')
             ->findOneBy(array(
-                'name' => Room::TYPE_LONG_TERM
+                'name' => Room::TYPE_LONG_TERM,
             ));
 
         $typeUnit = new RoomTypeUnit();
@@ -47,6 +46,5 @@ class Version20161220020143 extends AbstractMigration implements ContainerAwareI
      */
     public function down(Schema $schema)
     {
-
     }
 }

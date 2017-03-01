@@ -53,7 +53,7 @@ class AdminRoomTypeController extends SalesRestController
 
         $typeKeys = array();
         foreach ($salesInfos as $info) {
-            array_push($typeKeys, $info->getRoomTypes());
+            array_push($typeKeys, $info->getTradeTypes());
         }
 
         $types = $this->getDoctrine()

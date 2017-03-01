@@ -52,7 +52,7 @@ class ClientUserSalesInvoiceCategoryController extends SalesRestController
                 ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
                 ->findBy(array(
                     'company' => $salesCompany,
-                    'roomTypes' => $roomType,
+                    'tradeTypes' => $roomType,
                 ));
 
             $orderArray = array(

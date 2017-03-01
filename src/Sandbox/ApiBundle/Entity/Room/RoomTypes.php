@@ -16,6 +16,14 @@ class RoomTypes
     const TYPE_SECONDS = 'seconds';
     const TYPE_LONG = 'long';
 
+    const TYPE_NAME_OFFICE = 'office';
+    const TYPE_NAME_MEETING = 'meeting';
+    const TYPE_NAME_FIXED = 'fixed';
+    const TYPE_NAME_FLEXIBLE = 'flexible';
+    const TYPE_NAME_STUDIO = 'studio';
+    const TYPE_NAME_SPACE = 'space';
+    const TYPE_NAME_LONGTERM = 'longterm';
+
     /**
      * @var int
      *

@@ -19,6 +19,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p1->setMaxOpLevel(2);
         $p1->setOpLevelSelect('1,2');
         $this->addReference('platform-order', $p1);
+        $manager->persist($p1);
 
         $p2 = new AdminPermission();
         $p2->setKey('platform.user');
@@ -28,6 +29,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p2->setMaxOpLevel(3);
         $p2->setOpLevelSelect('1,2,3');
         $this->addReference('platform-user', $p2);
+        $manager->persist($p2);
 
         $p3 = new AdminPermission();
         $p3->setKey('platform.admin');
@@ -37,6 +39,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p3->setMaxOpLevel(2);
         $p3->setOpLevelSelect('1,2');
         $this->addReference('platform-admin', $p3);
+        $manager->persist($p3);
 
         $p4 = new AdminPermission();
         $p4->setKey('platform.announcement');
@@ -46,6 +49,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p4->setMaxOpLevel(2);
         $p4->setOpLevelSelect('1,2');
         $this->addReference('platform-announcement', $p4);
+        $manager->persist($p4);
 
         $p5 = new AdminPermission();
         $p5->setKey('platform.dashboard');
@@ -55,6 +59,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p5->setMaxOpLevel(1);
         $p5->setOpLevelSelect('1');
         $this->addReference('platform-dashboard', $p5);
+        $manager->persist($p5);
 
         $p6 = new AdminPermission();
         $p6->setKey('platform.event');
@@ -64,6 +69,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p6->setMaxOpLevel(2);
         $p6->setOpLevelSelect('1,2');
         $this->addReference('platform-event', $p6);
+        $manager->persist($p6);
 
         $p7 = new AdminPermission();
         $p7->setKey('platform.banner');
@@ -73,6 +79,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p7->setMaxOpLevel(2);
         $p7->setOpLevelSelect('1,2');
         $this->addReference('platform-banner', $p7);
+        $manager->persist($p7);
 
         $p8 = new AdminPermission();
         $p8->setKey('platform.news');
@@ -82,6 +89,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p8->setMaxOpLevel(2);
         $p8->setOpLevelSelect('1,2');
         $this->addReference('platform-news', $p8);
+        $manager->persist($p8);
 
         $p9 = new AdminPermission();
         $p9->setKey('platform.message');
@@ -91,6 +99,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p9->setMaxOpLevel(2);
         $p9->setOpLevelSelect('1,2');
         $this->addReference('platform-message', $p9);
+        $manager->persist($p9);
 
         $p10 = new AdminPermission();
         $p10->setKey('platform.verify');
@@ -100,6 +109,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p10->setMaxOpLevel(2);
         $p10->setOpLevelSelect('1,2');
         $this->addReference('platform-verify', $p10);
+        $manager->persist($p10);
 
         $p11 = new AdminPermission();
         $p11->setKey('platform.sales');
@@ -108,6 +118,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p11->setLevel('global');
         $p11->setMaxOpLevel(3);
         $p11->setOpLevelSelect('1,2,3');
+        $manager->persist($p11);
 
         $p12 = new AdminPermission();
         $p12->setKey('platform.invoice');
@@ -116,6 +127,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p12->setLevel('global');
         $p12->setMaxOpLevel(2);
         $p12->setOpLevelSelect('1,2');
+        $manager->persist($p12);
 
         $p13 = new AdminPermission();
         $p13->setKey('platform.access');
@@ -124,6 +136,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p13->setLevel('global');
         $p13->setMaxOpLevel(2);
         $p13->setOpLevelSelect('1,2');
+        $manager->persist($p13);
 
         $space = new AdminPermission();
         $space->setKey('platform.space');
@@ -133,6 +146,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $space->setMaxOpLevel(2);
         $space->setOpLevelSelect('1,2');
         $this->addReference('platform-space', $space);
+        $manager->persist($space);
 
         $building = new AdminPermission();
         $building->setKey('platform.building');
@@ -141,6 +155,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $building->setLevel('global');
         $building->setMaxOpLevel(2);
         $building->setOpLevelSelect('1,2');
+        $manager->persist($building);
 
         $room = new AdminPermission();
         $room->setKey('platform.room');
@@ -149,6 +164,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $room->setLevel('global');
         $room->setMaxOpLevel(2);
         $room->setOpLevelSelect('1,2');
+        $manager->persist($room);
 
         $product = new AdminPermission();
         $product->setKey('platform.product');
@@ -157,6 +173,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $product->setLevel('global');
         $product->setMaxOpLevel(2);
         $product->setOpLevelSelect('1,2');
+        $manager->persist($product);
 
         $preorder = new AdminPermission();
         $preorder->setKey('platform.order.preorder');
@@ -165,6 +182,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $preorder->setLevel('global');
         $preorder->setMaxOpLevel(2);
         $preorder->setOpLevelSelect('2');
+        $manager->persist($preorder);
 
         $reserve = new AdminPermission();
         $reserve->setKey('platform.order.reserve');
@@ -173,6 +191,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $reserve->setLevel('global');
         $reserve->setMaxOpLevel(2);
         $reserve->setOpLevelSelect('2');
+        $manager->persist($reserve);
 
         $p16 = new AdminPermission();
         $p16->setKey('platform.price');
@@ -181,6 +200,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p16->setLevel('global');
         $p16->setMaxOpLevel(2);
         $p16->setOpLevelSelect('1,2');
+        $manager->persist($p16);
 
         $p18 = new AdminPermission();
         $p18->setKey('platform.bulletin');
@@ -189,6 +209,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p18->setLevel('global');
         $p18->setMaxOpLevel(2);
         $p18->setOpLevelSelect('1,2');
+        $manager->persist($p18);
 
         $p21 = new AdminPermission();
         $p21->setKey('platform.product.appointment');
@@ -197,6 +218,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p21->setLevel('global');
         $p21->setMaxOpLevel(2);
         $p21->setOpLevelSelect('1,2');
+        $manager->persist($p21);
 
         $p22 = new AdminPermission();
         $p22->setKey('platform.log');
@@ -205,6 +227,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p22->setLevel('global');
         $p22->setMaxOpLevel(2);
         $p22->setOpLevelSelect('1,2');
+        $manager->persist($p22);
 
         $p23 = new AdminPermission();
         $p23->setKey('platform.advertising');
@@ -213,6 +236,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p23->setLevel('global');
         $p23->setMaxOpLevel(2);
         $p23->setOpLevelSelect('1,2');
+        $manager->persist($p23);
 
         $p46 = new AdminPermission();
         $p46->setKey('platform.order.refund');
@@ -221,6 +245,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p46->setLevel('global');
         $p46->setMaxOpLevel(2);
         $p46->setOpLevelSelect('2');
+        $manager->persist($p46);
 
         $p47 = new AdminPermission();
         $p47->setKey('platform.finance');
@@ -229,7 +254,36 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p47->setLevel('global');
         $p47->setMaxOpLevel(2);
         $p47->setOpLevelSelect('1,2');
+        $manager->persist($p47);
 
+        $permission1 = new AdminPermission();
+        $permission1->setKey(AdminPermission::KEY_OFFICIAL_PLATFORM_LONG_TERM_SERVICE_RECEIPT);
+        $permission1->setName('长租服务费收款权限');
+        $permission1->setPlatform(AdminPermission::PERMISSION_PLATFORM_OFFICIAL);
+        $permission1->setLevel(AdminPermission::PERMISSION_LEVEL_GLOBAL);
+        $permission1->setOpLevelSelect('1,2');
+        $permission1->setMaxOpLevel('2');
+        $manager->persist($permission1);
+
+        $permission2 = new AdminPermission();
+        $permission2->setKey(AdminPermission::KEY_OFFICIAL_PLATFORM_SALES_INVOICE_CONFIRM);
+        $permission2->setName('秒租发票确认权限');
+        $permission2->setPlatform(AdminPermission::PERMISSION_PLATFORM_OFFICIAL);
+        $permission2->setLevel(AdminPermission::PERMISSION_LEVEL_GLOBAL);
+        $permission2->setOpLevelSelect('1,2');
+        $permission2->setMaxOpLevel('2');
+        $manager->persist($permission2);
+
+        $permission3 = new AdminPermission();
+        $permission3->setKey(AdminPermission::KEY_OFFICIAL_PLATFORM_TRANSFER_CONFIRM);
+        $permission3->setName('线下汇款审核权限');
+        $permission3->setPlatform(AdminPermission::PERMISSION_PLATFORM_OFFICIAL);
+        $permission3->setLevel(AdminPermission::PERMISSION_LEVEL_GLOBAL);
+        $permission3->setOpLevelSelect('1,2');
+        $permission3->setMaxOpLevel('2');
+        $manager->persist($permission3);
+
+        //sales
         $p24 = new AdminPermission();
         $p24->setKey('sales.platform.dashboard');
         $p24->setName('控制台管理');
@@ -237,6 +291,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p24->setLevel('global');
         $p24->setMaxOpLevel(1);
         $p24->setOpLevelSelect('1');
+        $manager->persist($p24);
 
         $p25 = new AdminPermission();
         $p25->setKey('sales.platform.admin');
@@ -245,6 +300,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p25->setLevel('global');
         $p25->setMaxOpLevel(2);
         $p25->setOpLevelSelect('1,2');
+        $manager->persist($p25);
 
         $p26 = new AdminPermission();
         $p26->setKey('sales.platform.building');
@@ -253,6 +309,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p26->setLevel('global');
         $p26->setMaxOpLevel(2);
         $p26->setOpLevelSelect('2');
+        $manager->persist($p26);
 
         $p27 = new AdminPermission();
         $p27->setKey('sales.platform.invoice');
@@ -261,6 +318,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p27->setLevel('global');
         $p27->setMaxOpLevel(2);
         $p27->setOpLevelSelect('1,2');
+        $manager->persist($p27);
 
         $p28 = new AdminPermission();
         $p28->setKey('sales.platform.event');
@@ -269,6 +327,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p28->setLevel('global');
         $p28->setMaxOpLevel(2);
         $p28->setOpLevelSelect('1,2');
+        $manager->persist($p28);
 
         $p29 = new AdminPermission();
         $p29->setKey('sales.building.price');
@@ -277,6 +336,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p29->setLevel('specify');
         $p29->setMaxOpLevel(2);
         $p29->setOpLevelSelect('1,2');
+        $manager->persist($p29);
 
         $p30 = new AdminPermission();
         $p30->setKey('sales.building.order');
@@ -285,6 +345,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p30->setLevel('specify');
         $p30->setMaxOpLevel(2);
         $p30->setOpLevelSelect('1,2');
+        $manager->persist($p30);
 
         $salesSpace = new AdminPermission();
         $salesSpace->setKey('sales.building.space');
@@ -294,6 +355,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $salesSpace->setMaxOpLevel(2);
         $salesSpace->setOpLevelSelect('2');
         $this->addReference('sales-building-space', $salesSpace);
+        $manager->persist($salesSpace);
 
         $salesBuilding = new AdminPermission();
         $salesBuilding->setKey('sales.building.building');
@@ -302,6 +364,8 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $salesBuilding->setLevel('specify');
         $salesBuilding->setMaxOpLevel(2);
         $salesBuilding->setOpLevelSelect('1,2');
+        $manager->persist($salesBuilding);
+
         $salesRoom = new AdminPermission();
         $salesRoom->setKey('sales.building.room');
         $salesRoom->setName('空间设置');
@@ -309,6 +373,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $salesRoom->setLevel('specify');
         $salesRoom->setMaxOpLevel(2);
         $salesRoom->setOpLevelSelect('1,2');
+        $manager->persist($salesRoom);
 
         $salesProduct = new AdminPermission();
         $salesProduct->setKey('sales.building.product');
@@ -317,6 +382,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $salesProduct->setLevel('specify');
         $salesProduct->setMaxOpLevel(2);
         $salesProduct->setOpLevelSelect('1,2');
+        $manager->persist($salesProduct);
 
         $salesReserve = new AdminPermission();
         $salesReserve->setKey('sales.building.order.reserve');
@@ -325,6 +391,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $salesReserve->setLevel('specify');
         $salesReserve->setMaxOpLevel(2);
         $salesReserve->setOpLevelSelect('2');
+        $manager->persist($salesReserve);
 
         $salesPreorder = new AdminPermission();
         $salesPreorder->setKey('sales.building.order.preorder');
@@ -333,6 +400,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $salesPreorder->setLevel('specify');
         $salesPreorder->setMaxOpLevel(2);
         $salesPreorder->setOpLevelSelect('2');
+        $manager->persist($salesPreorder);
 
         $p34 = new AdminPermission();
         $p34->setKey('sales.building.user');
@@ -341,6 +409,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p34->setLevel('specify');
         $p34->setMaxOpLevel(2);
         $p34->setOpLevelSelect('1,2');
+        $manager->persist($p34);
 
         $p37 = new AdminPermission();
         $p37->setKey('sales.building.access');
@@ -349,7 +418,63 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p37->setLevel('specify');
         $p37->setMaxOpLevel(2);
         $p37->setOpLevelSelect('1,2');
+        $manager->persist($p37);
 
+        $salesPermission1 = new AdminPermission();
+        $salesPermission1->setKey(AdminPermission::KEY_SALES_PLATFORM_LONG_TERM_SERVICE_BILLS);
+        $salesPermission1->setName('长租服务费账单权限');
+        $salesPermission1->setPlatform('sales');
+        $salesPermission1->setLevel('global');
+        $salesPermission1->setOpLevelSelect('1,2');
+        $salesPermission1->setMaxOpLevel('2');
+        $manager->persist($salesPermission1);
+
+        $salesPermission2 = new AdminPermission();
+        $salesPermission2->setKey(AdminPermission::KEY_SALES_PLATFORM_MONTHLY_BILLS);
+        $salesPermission2->setName('秒租月结账单权限');
+        $salesPermission2->setPlatform('sales');
+        $salesPermission2->setLevel('global');
+        $salesPermission2->setOpLevelSelect('1,2');
+        $salesPermission2->setMaxOpLevel('2');
+        $manager->persist($salesPermission2);
+
+        $salesPermission3 = new AdminPermission();
+        $salesPermission3->setKey(AdminPermission::KEY_SALES_PLATFORM_FINANCIAL_SUMMARY);
+        $salesPermission3->setName('财务汇总权限');
+        $salesPermission3->setPlatform('sales');
+        $salesPermission3->setLevel('global');
+        $salesPermission3->setOpLevelSelect('1,2');
+        $salesPermission3->setMaxOpLevel('2');
+        $manager->persist($salesPermission3);
+
+        $salesPermission4 = new AdminPermission();
+        $salesPermission4->setKey(AdminPermission::KEY_SALES_PLATFORM_WITHDRAWAL);
+        $salesPermission4->setName('提现权限');
+        $salesPermission4->setPlatform('sales');
+        $salesPermission4->setLevel('global');
+        $salesPermission4->setOpLevelSelect('1,2');
+        $salesPermission4->setMaxOpLevel('2');
+        $manager->persist($salesPermission4);
+
+        $salesPermission5 = new AdminPermission();
+        $salesPermission5->setKey(AdminPermission::KEY_SALES_PLATFORM_AUDIT);
+        $salesPermission5->setName('线下支付审核权限');
+        $salesPermission5->setPlatform('sales');
+        $salesPermission5->setLevel('global');
+        $salesPermission5->setOpLevelSelect('1,2');
+        $salesPermission5->setMaxOpLevel('2');
+        $manager->persist($salesPermission5);
+
+        $salesPermission6 = new AdminPermission();
+        $salesPermission6->setKey(AdminPermission::KEY_SALES_PLATFORM_ACCOUNT);
+        $salesPermission6->setName('企业账户管理权限');
+        $salesPermission6->setPlatform('sales');
+        $salesPermission6->setLevel('global');
+        $salesPermission6->setOpLevelSelect('1,2');
+        $salesPermission6->setMaxOpLevel('2');
+        $manager->persist($salesPermission6);
+
+        //shop
         $p38 = new AdminPermission();
         $p38->setKey('shop.platform.dashboard');
         $p38->setName('控制台管理');
@@ -357,6 +482,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p38->setLevel('global');
         $p38->setMaxOpLevel(1);
         $p38->setOpLevelSelect('1');
+        $manager->persist($p38);
 
         $p39 = new AdminPermission();
         $p39->setKey('shop.platform.admin');
@@ -365,6 +491,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p39->setLevel('global');
         $p39->setMaxOpLevel(2);
         $p39->setOpLevelSelect('1,2');
+        $manager->persist($p39);
 
         $p40 = new AdminPermission();
         $p40->setKey('shop.platform.shop');
@@ -373,6 +500,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p40->setLevel('global');
         $p40->setMaxOpLevel(2);
         $p40->setOpLevelSelect('1,2');
+        $manager->persist($p40);
 
         $p41 = new AdminPermission();
         $p41->setKey('shop.platform.spec');
@@ -381,6 +509,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p41->setLevel('global');
         $p41->setMaxOpLevel(2);
         $p41->setOpLevelSelect('1,2');
+        $manager->persist($p41);
 
         $p42 = new AdminPermission();
         $p42->setKey('shop.shop.shop');
@@ -389,6 +518,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p42->setLevel('specify');
         $p42->setMaxOpLevel(2);
         $p42->setOpLevelSelect('1,2');
+        $manager->persist($p42);
 
         $p43 = new AdminPermission();
         $p43->setKey('shop.shop.order');
@@ -397,6 +527,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p43->setLevel('specify');
         $p43->setMaxOpLevel(2);
         $p43->setOpLevelSelect('1,2');
+        $manager->persist($p43);
 
         $p44 = new AdminPermission();
         $p44->setKey('shop.shop.product');
@@ -405,6 +536,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p44->setLevel('specify');
         $p44->setMaxOpLevel(2);
         $p44->setOpLevelSelect('1,2');
+        $manager->persist($p44);
 
         $p45 = new AdminPermission();
         $p45->setKey('shop.shop.kitchen');
@@ -413,60 +545,6 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p45->setLevel('specify');
         $p45->setMaxOpLevel(2);
         $p45->setOpLevelSelect('1,2');
-
-        //official
-        $manager->persist($p1);
-        $manager->persist($p2);
-        $manager->persist($p3);
-        $manager->persist($p4);
-        $manager->persist($p5);
-        $manager->persist($p6);
-        $manager->persist($p7);
-        $manager->persist($p8);
-        $manager->persist($p9);
-        $manager->persist($p10);
-        $manager->persist($p11);
-        $manager->persist($p12);
-        $manager->persist($p13);
-        $manager->persist($space);
-        $manager->persist($building);
-        $manager->persist($room);
-        $manager->persist($product);
-        $manager->persist($reserve);
-        $manager->persist($preorder);
-        $manager->persist($p16);
-        $manager->persist($p18);
-        $manager->persist($p21);
-        $manager->persist($p22);
-        $manager->persist($p23);
-        $manager->persist($p46);
-        $manager->persist($p47);
-
-        //sales
-        $manager->persist($p24);
-        $manager->persist($p25);
-        $manager->persist($p26);
-        $manager->persist($p27);
-        $manager->persist($p28);
-        $manager->persist($p29);
-        $manager->persist($p30);
-        $manager->persist($salesSpace);
-        $manager->persist($salesBuilding);
-        $manager->persist($salesRoom);
-        $manager->persist($salesProduct);
-        $manager->persist($salesReserve);
-        $manager->persist($salesPreorder);
-        $manager->persist($p34);
-        $manager->persist($p37);
-
-        //shop
-        $manager->persist($p38);
-        $manager->persist($p39);
-        $manager->persist($p40);
-        $manager->persist($p41);
-        $manager->persist($p42);
-        $manager->persist($p43);
-        $manager->persist($p44);
         $manager->persist($p45);
 
         $manager->flush();

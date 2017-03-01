@@ -283,6 +283,15 @@ class AdminUsersController extends DoorController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_USER],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER_RESERVE],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER_PREORDER],
+            ],
+            AdminPermission::OP_LEVEL_VIEW
+        );
 
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
@@ -823,5 +832,73 @@ class AdminUsersController extends DoorController
         $em->flush();
 
         return new View();
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="id",
+     *    array=true,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by id"
+     * )
+     *
+     * @Route("/open/users")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getOpenUsersAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $ids = $paramFetcher->get('id');
+
+        return $this->getUsersByIds($ids);
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="name",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by name"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="account",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by phone or email"
+     * )
+     *
+     * @Route("/users/ids/search")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getSearchUserIdsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $name = $paramFetcher->get('name');
+        $account = $paramFetcher->get('account');
+
+        $userIds = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserView')
+            ->getUserIds($name, $account);
+
+        return new View($userIds);
     }
 }

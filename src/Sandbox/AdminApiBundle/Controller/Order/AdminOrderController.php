@@ -4,6 +4,7 @@ namespace Sandbox\AdminApiBundle\Controller\Order;
 
 use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
+use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
 use Sandbox\ApiBundle\Entity\User\User;
 use Rs\Json\Patch;
@@ -45,6 +46,71 @@ class AdminOrderController extends OrderController
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
+     *     name="order_number",
+     *     array=false
+     * )
+     *
+     * @Route("/orders/ids")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getOrderByOrderNumberAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $orderNumber = $paramFetcher->get('order_number');
+
+        $order = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getOrderIdsByOrderNumber($orderNumber);
+
+        return new View($order);
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *     name="ids",
+     *     array=true
+     * )
+     *
+     * @Route("/orders/numbers")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getOrdersNumbersAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $ids = $paramFetcher->get('ids');
+
+        $orders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getOrdersNumbers(
+                $ids
+            );
+
+        $response = array();
+        foreach ($orders as $order) {
+            array_push($response, array(
+                'id' => $order->getId(),
+                'order_number' => $order->getOrderNumber(),
+                'company_name' => $order->getProduct()->getRoom()->getBuilding()->getCompany()->getName(),
+            ));
+        }
+
+        return new View($response);
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
      *    name="pageLimit",
      *    array=false,
      *    default="20",
@@ -65,12 +131,10 @@ class AdminOrderController extends OrderController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="type",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    strict=true,
-     *    description="Filter by room type"
+     *     name="sales_invoice",
+     *     array=false,
+     *     nullable=true,
+     *     strict=true
      * )
      *
      * @Annotations\QueryParam(
@@ -84,83 +148,24 @@ class AdminOrderController extends OrderController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="orderStartDate",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
-     *    strict=true,
-     *    description="start date. Must be YYYY-mm-dd"
-     * )
-     *
-     *  @Annotations\QueryParam(
-     *    name="orderEndDate",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
-     *    strict=true,
-     *    description="end date. Must be YYYY-mm-dd"
+     *     name="trade_number",
+     *     array=false,
+     *     nullable=true,
+     *     strict=true
      * )
      *
      * @Annotations\QueryParam(
-     *    name="payStartDate",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
-     *    strict=true,
-     *    description="start date. Must be YYYY-mm-dd"
-     * )
-     *
-     *  @Annotations\QueryParam(
-     *    name="payEndDate",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
-     *    strict=true,
-     *    description="end date. Must be YYYY-mm-dd"
+     *     name="amount_min",
+     *     array=false,
+     *     nullable=true,
+     *     strict=true
      * )
      *
      * @Annotations\QueryParam(
-     *    name="rentStartDate",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
-     *    strict=true,
-     *    description="start date. Must be YYYY-mm-dd"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="rentEndDate",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
-     *    strict=true,
-     *    description="end date. Must be YYYY-mm-dd"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="invoiceStartDate",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
-     *    strict=true,
-     *    description="start date. Must be YYYY-mm-dd"
-     * )
-     *
-     *  @Annotations\QueryParam(
-     *    name="invoiceEndDate",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
-     *    strict=true,
-     *    description="end date. Must be YYYY-mm-dd"
+     *     name="amount_max",
+     *     array=false,
+     *     nullable=true,
+     *     strict=true
      * )
      *
      * @Route("/orders/sales/notinvoiced")
@@ -184,43 +189,52 @@ class AdminOrderController extends OrderController
         // filters
         $pageIndex = $paramFetcher->get('pageIndex');
         $pageLimit = $paramFetcher->get('pageLimit');
-        $type = $paramFetcher->get('type');
+        $salesInvoice = $paramFetcher->get('sales_invoice');
         $salesCompanyId = $paramFetcher->get('company');
-        $orderStartDate = $paramFetcher->get('orderStartDate');
-        $orderEndDate = $paramFetcher->get('orderEndDate');
-        $payStartDate = $paramFetcher->get('payStartDate');
-        $payEndDate = $paramFetcher->get('payEndDate');
-        $rentStartDate = $paramFetcher->get('rentStartDate');
-        $rentEndDate = $paramFetcher->get('rentEndDate');
-        $invoiceStartDate = $paramFetcher->get('invoiceStartDate');
-        $invoiceEndDate = $paramFetcher->get('invoiceEndDate');
+        $tradeNumber = $paramFetcher->get('trade_number');
+        $amountMin = $paramFetcher->get('amount_min');
+        $amountMax = $paramFetcher->get('amount_max');
 
-        $ordersQuery = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->getAdminNotInvoicedOrders(
-                $type,
-                null,
-                $orderStartDate,
-                $orderEndDate,
-                $payStartDate,
-                $payEndDate,
-                $rentStartDate,
-                $rentEndDate,
-                $invoiceStartDate,
-                $invoiceEndDate,
-                $salesCompanyId
+        $tradeNumbers = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Invoice\TradeInvoiceView')
+            ->getAdminTradeNumbers(
+                $tradeNumber,
+                $salesInvoice
             );
 
-        $ordersQuery = $this->get('serializer')->serialize(
-            $ordersQuery,
-            'json',
-            SerializationContext::create()->setGroups(['admin_detail'])
-        );
-        $ordersQuery = json_decode($ordersQuery, true);
+        $response = array();
+        foreach ($tradeNumbers as $number) {
+            switch (substr($number, 0, 1)) {
+                case ProductOrder::LETTER_HEAD:
+                    $responseArray = $this->getProductOrderResponse($number);
+                    break;
+                case LeaseBill::LEASE_BILL_LETTER_HEAD:
+                    $responseArray = $this->getLeaseBillResponse($number);
+                    break;
+                default:
+                    $responseArray = array();
+                    break;
+            }
+
+            // filters
+            if (!is_null($salesCompanyId) && $responseArray['company_id'] != $salesCompanyId) {
+                continue;
+            }
+
+            if (!is_null($amountMin) && $responseArray['amount'] < (float) $amountMin) {
+                continue;
+            }
+
+            if (!is_null($amountMax) && $responseArray['amount'] > (float) $amountMax) {
+                continue;
+            }
+
+            array_push($response, $responseArray);
+        }
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
-            $ordersQuery,
+            $response,
             $pageIndex,
             $pageLimit
         );
@@ -300,13 +314,24 @@ class AdminOrderController extends OrderController
      *
      * @param Request $request
      * @param $id
+     *
+     * @return View
      */
     public function patchTransferStatusAction(
         Request $request,
         $id
     ) {
         // check user permission
-        $this->checkAdminOrderPermission($this->getAdminId(), AdminPermission::OP_LEVEL_EDIT);
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_REFUND],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_USER],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_TRANSFER_CONFIRM],
+            ],
+            AdminPermission::OP_LEVEL_EDIT
+        );
 
         $order = $this->getRepo('Order\ProductOrder')->findOneBy(
             [
@@ -441,7 +466,8 @@ class AdminOrderController extends OrderController
                                 $userId,
                                 $price,
                                 $TopUpOrderNumber,
-                                $channel
+                                $channel,
+                                true
                             );
                         }
                     }
@@ -968,6 +994,36 @@ class AdminOrderController extends OrderController
      *    description="refund amount filter"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="refund_start",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="start date. Must be YYYY-mm-dd"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="refund_end",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="end date. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="user",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by user id"
+     * )
+     *
      * @Route("/orders")
      * @Method({"GET"})
      *
@@ -1006,6 +1062,9 @@ class AdminOrderController extends OrderController
         $roomId = $paramFetcher->get('room');
         $refundLow = $paramFetcher->get('refund_amount_low');
         $refundHigh = $paramFetcher->get('refund_amount_high');
+        $refundStart = $paramFetcher->get('refund_start');
+        $refundEnd = $paramFetcher->get('refund_end');
+        $userId = $paramFetcher->get('user');
 
         $limit = $pageLimit;
         $offset = ($pageIndex - 1) * $pageLimit;
@@ -1022,7 +1081,7 @@ class AdminOrderController extends OrderController
                 $company,
                 $building,
                 $roomId,
-                null,
+                $userId,
                 $rentFilter,
                 $startDate,
                 $endDate,
@@ -1038,6 +1097,8 @@ class AdminOrderController extends OrderController
                 $refundStatus,
                 $refundLow,
                 $refundHigh,
+                $refundStart,
+                $refundEnd,
                 $limit,
                 $offset
             );
@@ -1051,7 +1112,7 @@ class AdminOrderController extends OrderController
                 $company,
                 $building,
                 $roomId,
-                null,
+                $userId,
                 $rentFilter,
                 $startDate,
                 $endDate,
@@ -1066,7 +1127,9 @@ class AdminOrderController extends OrderController
                 $status,
                 $refundStatus,
                 $refundLow,
-                $refundHigh
+                $refundHigh,
+                $refundStart,
+                $refundEnd
             );
 
         $view = new View();
@@ -1351,6 +1414,7 @@ class AdminOrderController extends OrderController
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_DASHBOARD],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_REFUND],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_SALES],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_TRANSFER_CONFIRM],
             ],
             AdminPermission::OP_LEVEL_VIEW
         );
@@ -1823,29 +1887,6 @@ class AdminOrderController extends OrderController
         }
 
         return new View();
-    }
-
-    /**
-     * authenticate with web browser cookie.
-     */
-    protected function authenticateAdminCookie()
-    {
-        $cookie_name = self::ADMIN_COOKIE_NAME;
-        if (!isset($_COOKIE[$cookie_name])) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-        }
-
-        $token = $_COOKIE[$cookie_name];
-        $adminToken = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserToken')
-            ->findOneBy(array(
-                'token' => $token,
-            ));
-        if (is_null($adminToken)) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-        }
-
-        return $adminToken->getUser();
     }
 
     /**

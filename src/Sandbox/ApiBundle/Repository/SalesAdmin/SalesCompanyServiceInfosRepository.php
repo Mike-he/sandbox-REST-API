@@ -18,7 +18,7 @@ class SalesCompanyServiceInfosRepository extends EntityRepository
     ) {
         $companyService = $this->createQueryBuilder('scs')
             ->where('scs.company = :company')
-            ->andWhere('scs.roomTypes = :type')
+            ->andWhere('scs.tradeTypes = :type')
             ->andWhere('scs.status = :status')
             ->setParameter('company', $company)
             ->setParameter('type', $type)
@@ -48,5 +48,43 @@ class SalesCompanyServiceInfosRepository extends EntityRepository
         $result = $query->getQuery()->getResult();
 
         return $result;
+    }
+
+    /**
+     * @param $company
+     * @param $type
+     *
+     * @return mixed
+     */
+    public function getCompanyServiceByType(
+        $company,
+        $type
+    ) {
+        $query = $this->createQueryBuilder('scs')
+            ->where('scs.company = :company')
+            ->andWhere('scs.tradeTypes = :type')
+            ->andWhere('scs.status = :status')
+            ->setParameter('company', $company)
+            ->setParameter('type', $type)
+            ->setParameter('status', true);
+
+        $result = $query->getQuery()->getSingleResult();
+
+        return $result;
+    }
+
+    /**
+     * @return array
+     */
+    public function getAdminInvoiceCategories()
+    {
+        $query = $this->createQueryBuilder('s')
+            ->select('DISTINCT(s.invoicingSubjects)')
+            ->where('s.invoicingSubjects IS NOT NULL');
+
+        $categories = $query->getQuery()->getResult();
+        $categories = array_map('current', $categories);
+
+        return $categories;
     }
 }

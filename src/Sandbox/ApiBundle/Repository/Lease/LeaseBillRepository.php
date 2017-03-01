@@ -4,9 +4,80 @@ namespace Sandbox\ApiBundle\Repository\Lease;
 
 use Doctrine\ORM\EntityRepository;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
+use Sandbox\ApiBundle\Entity\Lease\LeaseBillOfflineTransfer;
+use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
+use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 
 class LeaseBillRepository extends EntityRepository
 {
+    /**
+     * @param $startDate
+     * @param $endDate
+     *
+     * @return array
+     */
+    public function getOfficialAdminBills(
+        $startDate,
+        $endDate
+    ) {
+        $leaseBillQuery = $this->createQueryBuilder('b')
+            ->where('b.paymentDate >= :start')
+            ->andWhere('b.paymentDate <= :end')
+            ->andWhere('b.payChannel != :account')
+            ->andWhere('b.payChannel != :salesOffline')
+            ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
+            ->setParameter('salesOffline', LeaseBill::CHANNEL_SALES_OFFLINE)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        return $leaseBillQuery->getQuery()->getResult();
+    }
+
+    /**
+     * @param $start
+     * @param $end
+     * @param $salesCompanyId
+     *
+     * @return array
+     */
+    public function findBillsByDates(
+        $start,
+        $end,
+        $salesCompanyId = null
+    ) {
+        $query = $this->createQueryBuilder('lb')
+            ->where('lb.paymentDate >= :start')
+            ->andWhere('lb.paymentDate <= :end')
+            ->setParameter('start', $start)
+            ->setParameter('end', $end);
+
+        if (!is_null($salesCompanyId)) {
+            $query->leftJoin('lb.lease', 'l')
+                ->leftJoin('l.product', 'p')
+                ->leftJoin('p.room', 'r')
+                ->leftJoin('r.building', 'b')
+                ->andWhere('b.company = :company')
+                ->setParameter('company', $salesCompanyId);
+        }
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $ids
+     *
+     * @return array
+     */
+    public function getBillsNumbers(
+        $ids
+    ) {
+        $query = $this->createQueryBuilder('b')
+            ->where('b.id IN (:ids)')
+            ->setParameter('ids', $ids);
+
+        return $query->getQuery()->getResult();
+    }
+
     /**
      * @param $lease
      * @param $status
@@ -218,6 +289,8 @@ class LeaseBillRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('lb')
             ->leftJoin('lb.lease', 'l')
+            ->leftJoin('SandboxApiBundle:Lease\LeaseBillOfflineTransfer', 't', 'with', 't.bill = lb.id')
+            ->leftJoin('SandboxApiBundle:User\UserView', 'u', 'WITH', 'u.id = lb.drawee')
             ->where('1 = 1');
 
         if (!is_null($company)) {
@@ -234,8 +307,12 @@ class LeaseBillRepository extends EntityRepository
         }
 
         if (!is_null($status)) {
-            $query->andWhere('lb.status in (:status)')
-                ->setParameter('status', $status);
+            if ($status == LeaseBillOfflineTransfer::STATUS_RETURNED || $status == LeaseBillOfflineTransfer::STATUS_PENDING) {
+                $query->andWhere('t.transferStatus = :status');
+            } else {
+                $query->andWhere('lb.status in (:status)');
+            }
+            $query->setParameter('status', $status);
         }
 
         if (!is_null($keyword) && !is_null($keywordSearch)) {
@@ -246,6 +323,16 @@ class LeaseBillRepository extends EntityRepository
                 case 'bill':
                     $query->andWhere('lb.serialNumber LIKE :search');
                     break;
+                case 'user':
+                    $query->andWhere('u.name LIKE :search');
+                    break;
+                case 'account':
+                    $query->andWhere('
+                            (u.phone LIKE :search OR u.email LIKE :search)
+                        ');
+                    break;
+                default:
+                    $query->andWhere('l.serialNumber LIKE :search');
             }
 
             $query->setParameter('search', '%'.$keywordSearch.'%');
@@ -273,6 +360,144 @@ class LeaseBillRepository extends EntityRepository
         if (!is_null($amountEnd)) {
             $query->andWhere('lb.revisedAmount <= :amountEnd')
                 ->setParameter('amountEnd', $amountEnd);
+        }
+
+        $query->orderBy('lb.sendDate', 'DESC');
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
+
+    /**
+     * @param $userId
+     * @param $ids
+     *
+     * @return array
+     */
+    public function getLeaseBillsByIds(
+        $userId,
+        $ids
+    ) {
+        $query = $this->createQueryBuilder('b')
+            ->where('b.drawee = :userId')
+            ->setParameter('userId', $userId);
+
+        if (!is_null($ids) && !empty($ids)) {
+            $query->andWhere('b.id IN (:ids)')
+                ->setParameter('ids', $ids);
+        }
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @return int
+     */
+    public function countTransferComfirm()
+    {
+        $leaseBillComfirmCount = $this->createQueryBuilder('lb')
+            ->leftJoin('SandboxApiBundle:Lease\LeaseBillOfflineTransfer', 't', 'with', 't.bill = lb.id')
+            ->select('count(lb.id)')
+            ->where('t.transferStatus = :status')
+            ->andWhere('lb.payChannel = :channel')
+            ->setParameter('channel', LeaseBill::CHANNEL_OFFLINE)
+            ->setParameter('status', LeaseBillOfflineTransfer::STATUS_PENDING);
+
+        $leaseBillComfirmCount = $leaseBillComfirmCount->getQuery()
+            ->getSingleScalarResult();
+        $leaseBillComfirmCount = (int) $leaseBillComfirmCount;
+
+        $orderComfirmCount = $this->getEntityManager()->createQueryBuilder()
+            ->from('SandboxApiBundle:Order\ProductOrder', 'o')
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
+            ->leftJoin('SandboxApiBundle:Order\OrderOfflineTransfer', 't', 'with', 't.orderId = o.id')
+            ->select('COUNT(o.id)')
+            ->where('o.payChannel = :channel')
+            ->andWhere('
+                            (t.transferStatus = :pending) OR
+                            (t.transferStatus = :verify)
+                        ')
+            ->setParameter('pending', OrderOfflineTransfer::STATUS_PENDING)
+            ->setParameter('verify', OrderOfflineTransfer::STATUS_VERIFY)
+            ->setParameter('channel', ProductOrder::CHANNEL_OFFLINE);
+
+        $orderComfirmCount = $orderComfirmCount->getQuery()
+            ->getSingleScalarResult();
+        $orderComfirmCount = (int) $orderComfirmCount;
+
+        $totalComfirmCount = $leaseBillComfirmCount + $orderComfirmCount;
+
+        return $totalComfirmCount;
+    }
+
+    /**
+     * @param $status
+     * @param $companyId
+     *
+     * @return mixed
+     */
+    public function countBillByCompany(
+        $status,
+        $companyId
+    ) {
+        $query = $this->createQueryBuilder('lb')
+            ->select('COUNT(lb)')
+            ->leftJoin('lb.lease', 'l')
+            ->leftJoin('l.product', 'p')
+            ->leftJoin('p.room', 'r')
+            ->leftJoin('r.building', 'b')
+            ->where('b.companyId = :companyId')
+            ->andWhere('lb.status = :status')
+            ->setParameter('companyId', $companyId)
+            ->setParameter('status', $status);
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
+
+    /**
+     * @param $userId
+     *
+     * @return mixed
+     */
+    public function sumInvoiceBillsFees(
+        $userId
+    ) {
+        $query = $this->createQueryBuilder('b')
+            ->select('SUM(b.revisedAmount)')
+            ->where('b.salesInvoice = TRUE')
+            ->andWhere('b.invoiced = FALSE')
+            ->andWhere('b.drawee = :userId')
+            ->andWhere('b.status = :paid')
+            ->setParameter('userId', $userId)
+            ->setParameter('paid', LeaseBill::STATUS_PAID);
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
+
+    /**
+     * @param $company
+     * @param $status
+     *
+     * @return array
+     */
+    public function findNumbersForSalesInvoice(
+        $company,
+        $status
+    ) {
+        $query = $this->createQueryBuilder('lb')
+            ->select('lb.serialNumber')
+            ->leftJoin('lb.lease', 'l')
+            ->leftJoin('l.product', 'p')
+            ->leftJoin('p.room', 'r')
+            ->leftJoin('r.building', 'b')
+            ->where('b.company = :company')
+            ->andWhere('lb.salesInvoice = TRUE')
+            ->setParameter('company', $company);
+
+        if (!is_null($status)) {
+            $query->andWhere('lb.status = :status')
+                ->setParameter('status', $status);
         }
 
         $result = $query->getQuery()->getResult();

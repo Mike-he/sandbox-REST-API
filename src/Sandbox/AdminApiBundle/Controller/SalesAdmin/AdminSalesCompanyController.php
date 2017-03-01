@@ -2,7 +2,6 @@
 
 namespace Sandbox\AdminApiBundle\Controller\SalesAdmin;
 
-use Elastica\Exception\Connection\HttpException;
 use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminExcludePermission;
@@ -10,6 +9,7 @@ use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionGroups;
 use Sandbox\ApiBundle\Entity\Admin\AdminPosition;
 use Sandbox\ApiBundle\Entity\Admin\AdminPositionUserBinding;
+use Sandbox\ApiBundle\Entity\Finance\FinanceSalesWallet;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
@@ -443,6 +443,10 @@ class AdminSalesCompanyController extends SandboxRestController
             $salesCompany
         );
 
+        $wallet = new FinanceSalesWallet();
+        $wallet->setCompanyId($salesCompany->getId());
+
+        $em->persist($wallet);
         $em->flush();
 
         // set view
@@ -482,7 +486,7 @@ class AdminSalesCompanyController extends SandboxRestController
 
         $em->beginTransaction();
 
-        try{
+        try {
             // update sales company
             $form = $this->createForm(
                 new SalesCompanyPostType(),
@@ -987,6 +991,9 @@ class AdminSalesCompanyController extends SandboxRestController
         }
 
         foreach ($admins as $adminId) {
+            if (is_null($adminId) || empty($adminId)) {
+                continue;
+            }
             $admin = $this->getUserRepo()->find($adminId);
             $this->throwNotFoundIfNull($admin, CustomErrorMessagesConstants::ERROR_ADMIN_NOT_FOUND_MESSAGE);
 
@@ -1018,7 +1025,7 @@ class AdminSalesCompanyController extends SandboxRestController
             $service = $this->getSalesCompanyServiceInfosRepo()
                 ->findOneBy(
                     array(
-                        'roomTypes' => $serviceInfo['room_types'],
+                        'tradeTypes' => $serviceInfo['trade_types'],
                         'company' => $salesCompany,
                     )
                 );
@@ -1032,7 +1039,7 @@ class AdminSalesCompanyController extends SandboxRestController
                 $this->hideAllProductsByRoomType(
                     $salesCompany,
                     $serviceInfo['status'],
-                    $service->getRoomTypes()
+                    $service->getTradeTypes()
                 );
             }
 

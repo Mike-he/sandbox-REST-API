@@ -68,7 +68,8 @@ class RoomBuilding implements JsonSerializable
      *      "admin",
      *      "shop_nearby",
      *      "client_shop",
-     *      "admin_appointment"
+     *      "admin_appointment",
+     *      "lessor"
      *  }
      * )
      */
@@ -530,6 +531,51 @@ class RoomBuilding implements JsonSerializable
      * @Serializer\Groups({"main", "client"})
      */
     private $allowWxShare = false;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="lessor_name", type="string", length=40)
+     *
+     * @Serializer\Groups({"main", "admin_building", "lessor"})
+     */
+    private $lessorName;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="lessor_address", type="string", length=255)
+     *
+     * @Serializer\Groups({"main", "admin_building", "lessor"})
+     */
+    private $lessorAddress;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="lessor_contact", type="string", length=20)
+     *
+     * @Serializer\Groups({"main", "admin_building", "lessor"})
+     */
+    private $lessorContact;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="lessor_phone", type="string", length=128)
+     *
+     * @Serializer\Groups({"main", "admin_building", "lessor"})
+     */
+    private $lessorPhone;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="lessor_email", type="string", length=128)
+     *
+     * @Serializer\Groups({"main", "admin_building", "lessor"})
+     */
+    private $lessorEmail;
 
     /**
      * Get id.
@@ -1465,5 +1511,85 @@ class RoomBuilding implements JsonSerializable
     public function setAllowWxShare($allowWxShare)
     {
         $this->allowWxShare = $allowWxShare;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLessorName()
+    {
+        return $this->lessorName;
+    }
+
+    /**
+     * @param string $lessorName
+     */
+    public function setLessorName($lessorName)
+    {
+        $this->lessorName = $lessorName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLessorAddress()
+    {
+        return $this->lessorAddress;
+    }
+
+    /**
+     * @param string $lessorAddress
+     */
+    public function setLessorAddress($lessorAddress)
+    {
+        $this->lessorAddress = $lessorAddress;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLessorContact()
+    {
+        return $this->lessorContact;
+    }
+
+    /**
+     * @param string $lessorContact
+     */
+    public function setLessorContact($lessorContact)
+    {
+        $this->lessorContact = $lessorContact;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLessorPhone()
+    {
+        return $this->lessorPhone;
+    }
+
+    /**
+     * @param string $lessorPhone
+     */
+    public function setLessorPhone($lessorPhone)
+    {
+        $this->lessorPhone = $lessorPhone;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLessorEmail()
+    {
+        return $this->lessorEmail;
+    }
+
+    /**
+     * @param string $lessorEmail
+     */
+    public function setLessorEmail($lessorEmail)
+    {
+        $this->lessorEmail = $lessorEmail;
     }
 }

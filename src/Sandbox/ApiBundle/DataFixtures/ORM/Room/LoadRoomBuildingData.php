@@ -64,6 +64,11 @@ class LoadRoomBuildingData extends AbstractFixture implements OrderedFixtureInte
         $rb1->setStatus('accept');
         $rb1->setVisible(true);
         $rb1->setCompany($sc1);
+        $rb1->setLessorName('name');
+        $rb1->setLessorAddress('address');
+        $rb1->setLessorPhone('12345678');
+        $rb1->setLessorContact('sandbox');
+        $rb1->setLessorEmail('account@sandbox3.cn');
         $this->addReference('room-building-for-data-structure', $rb1);
 
         $rb2 = new RoomBuilding();
@@ -82,6 +87,11 @@ class LoadRoomBuildingData extends AbstractFixture implements OrderedFixtureInte
         $rb2->setStatus('accept');
         $rb2->setVisible(true);
         $rb2->setCompany($sc1);
+        $rb2->setLessorName('name');
+        $rb2->setLessorAddress('address');
+        $rb2->setLessorPhone('12345678');
+        $rb2->setLessorContact('sandbox');
+        $rb2->setLessorEmail('account@sandbox3.cn');
         $this->addReference('room-building-without-room', $rb2);
 
         $rb3 = new RoomBuilding();
@@ -100,6 +110,11 @@ class LoadRoomBuildingData extends AbstractFixture implements OrderedFixtureInte
         $rb3->setStatus('accept');
         $rb3->setVisible(true);
         $rb3->setCompany($sc1);
+        $rb3->setLessorName('name');
+        $rb3->setLessorAddress('address');
+        $rb3->setLessorPhone('12345678');
+        $rb3->setLessorContact('sandbox');
+        $rb3->setLessorEmail('account@sandbox3.cn');
 
         $rb4 = new RoomBuilding();
         $rb4->setCity($this->getReference('beijing'));
@@ -118,6 +133,11 @@ class LoadRoomBuildingData extends AbstractFixture implements OrderedFixtureInte
         $rb4->setStatus('accept');
         $rb4->setVisible(true);
         $rb4->setCompany($sc1);
+        $rb4->setLessorName('name');
+        $rb4->setLessorAddress('address');
+        $rb4->setLessorPhone('12345678');
+        $rb4->setLessorContact('sandbox');
+        $rb4->setLessorEmail('account@sandbox3.cn');
 
         $rb5 = new RoomBuilding();
         $rb5->setCity($this->getReference('shanghai'));
@@ -130,6 +150,11 @@ class LoadRoomBuildingData extends AbstractFixture implements OrderedFixtureInte
         $rb5->setLat('31.216193');
         $rb5->setLng('121.632682');
         $rb5->setCompany($sc1);
+        $rb5->setLessorName('name');
+        $rb5->setLessorAddress('address');
+        $rb5->setLessorPhone('12345678');
+        $rb5->setLessorContact('sandbox');
+        $rb5->setLessorEmail('account@sandbox3.cn');
         $this->addReference('room-building-for-pengding-1', $rb5);
 
         $rb6 = new RoomBuilding();
@@ -144,6 +169,11 @@ class LoadRoomBuildingData extends AbstractFixture implements OrderedFixtureInte
         $rb6->setLng('121.632682');
         $rb6->setStatus('accept');
         $rb6->setCompany($sc1);
+        $rb6->setLessorName('name');
+        $rb6->setLessorAddress('address');
+        $rb6->setLessorPhone('12345678');
+        $rb6->setLessorContact('sandbox');
+        $rb6->setLessorEmail('account@sandbox3.cn');
         $this->addReference('room-building-for-accept-invisible-1', $rb6);
 
         $rb7 = new RoomBuilding();
@@ -159,6 +189,11 @@ class LoadRoomBuildingData extends AbstractFixture implements OrderedFixtureInte
         $rb7->setStatus('banned');
         $rb7->setVisible(true);
         $rb7->setCompany($sc1);
+        $rb7->setLessorName('name');
+        $rb7->setLessorAddress('address');
+        $rb7->setLessorPhone('12345678');
+        $rb7->setLessorContact('sandbox');
+        $rb7->setLessorEmail('account@sandbox3.cn');
         $this->addReference('room-building-for-banned-1', $rb7);
 
         $rba1 = new RoomBuildingAttachment();

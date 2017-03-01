@@ -16,7 +16,6 @@ use Sandbox\ApiBundle\Entity\Shop\Shop;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
 use Knp\Component\Pager\Paginator;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
  * Admin ShopOrder Controller.
@@ -324,9 +323,59 @@ class AdminShopOrderController extends ShopController
      *    array=false,
      *    default=null,
      *    nullable=true,
-     *    requirements="refunded|needToRefund",
+     *    requirements="refunded|needToRefund|all",
      *    strict=true,
      *    description="refund status filter for order "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="refund_start",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="filter for refund process start. Must be YYYY-mm-dd"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="refund_end",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="filter for refund process end. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="refund_amount_low",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="refund amount filter"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="refund_amount_high",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="refund amount filter"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="user",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by user id"
      * )
      *
      * @Method({"GET"})
@@ -356,6 +405,11 @@ class AdminShopOrderController extends ShopController
         $payEnd = $paramFetcher->get('pay_end');
         $status = $paramFetcher->get('status');
         $refundStatus = $paramFetcher->get('refundStatus');
+        $refundStart = $paramFetcher->get('refund_start');
+        $refundEnd = $paramFetcher->get('refund_end');
+        $refundLow = $paramFetcher->get('refund_amount_low');
+        $refundHigh = $paramFetcher->get('refund_amount_high');
+        $userId = $paramFetcher->get('user');
 
         $offset = ($pageIndex - 1) * $pageLimit;
         $limit = $pageLimit;
@@ -371,11 +425,15 @@ class AdminShopOrderController extends ShopController
                 $payEnd,
                 $keyword,
                 $keywordSearch,
-                null,
+                $userId,
                 null,
                 $companyId,
                 $buildingId,
                 $refundStatus,
+                $refundLow,
+                $refundHigh,
+                $refundStart,
+                $refundEnd,
                 $limit,
                 $offset
             );
@@ -391,11 +449,15 @@ class AdminShopOrderController extends ShopController
                 $payEnd,
                 $keyword,
                 $keywordSearch,
-                null,
+                $userId,
                 null,
                 $companyId,
                 $buildingId,
-                $refundStatus
+                $refundStatus,
+                $refundLow,
+                $refundHigh,
+                $refundStart,
+                $refundEnd
             );
 
         $view = new View();
@@ -632,24 +694,5 @@ class AdminShopOrderController extends ShopController
             $opLevel,
             $platform
         );
-    }
-
-    /**
-     * authenticate with web browser cookie.
-     */
-    private function authenticateAdminCookie()
-    {
-        $cookie_name = self::ADMIN_COOKIE_NAME;
-        if (!isset($_COOKIE[$cookie_name])) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-        }
-
-        $token = $_COOKIE[$cookie_name];
-        $adminToken = $this->getRepo('User\UserToken')->findOneByToken($token);
-        if (is_null($adminToken)) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-        }
-
-        return $adminToken->getUser();
     }
 }

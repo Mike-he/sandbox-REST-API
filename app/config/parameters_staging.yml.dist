@@ -2,7 +2,13 @@ parameters:
     database_driver: pdo_mysql
     database_host: rdsuz7cpk5r23ytx02t0.mysql.rds.aliyuncs.com
     database_port: '3306'
-    database_name: staging_rest_api_db
+
+    # production data
+    database_name: staging_rest_api_db_pro
+
+    # staging data
+    #database_name: staging_rest_api_db
+
     database_user: staging_rest
     database_password: S3deb0x_2016
     mailer_transport: smtp
@@ -61,9 +67,11 @@ parameters:
     crm_api_admin_user_account_upgrade: /admin/useraccounts/{userId}/upgrade
     crm_api_admin_price_rule_include: /admin/price/rule/include/{buildingId}/{roomNo}
     crm_api_admin_price_rule_exclude: /admin/price/rule/exclude/{buildingId}/{roomNo}
+    crm_api_admin_dashboard_balance: /admin/dashboard/balance
     crm_api_sales_admin_price_rule_include: /sales/admin/price/rule/include/{buildingId}/{roomNo}
     crm_api_sales_admin_price_rule_exclude: /sales/admin/price/rule/exclude/{buildingId}/{roomNo}
     crm_api_sales_admin_price_rule_info: /sales/admin/price/rules/{rule_id}
+    crm_api_sales_admin_invoices: /sales/admin/invoices
     crm_api_admin_user_create: /admin/useraccounts/{userId}/create
     crm_api_client_user_price_calculate: /client/user/price/rules/{rule_id}/calculate
     door_api_username: admin

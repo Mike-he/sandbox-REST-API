@@ -10,6 +10,7 @@ use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Sandbox\ApiBundle\Entity\Event\Event;
 use Sandbox\ApiBundle\Entity\Event\EventOrderCheck;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
+use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
@@ -275,6 +276,19 @@ class ClientEventOrderController extends PaymentController
             $order->setStatus(EventOrder::STATUS_PAID);
         } else {
             $order->setStatus(EventOrder::STATUS_UNPAID);
+        }
+
+        // set service fee
+        $serviceInfo = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
+            ->findOneBy(array(
+                'tradeTypes' => SalesCompanyServiceInfos::TRADE_TYPE_ACTIVITY,
+                'company' => $event->getSalesCompanyId(),
+                'status' => true,
+            ));
+        if (!is_null($serviceInfo)) {
+            $activityServiceFee = $event->getPrice() * $serviceInfo->getServiceFee() / 100;
+            $order->setServiceFee((float) $activityServiceFee);
         }
 
         $em->persist($order);

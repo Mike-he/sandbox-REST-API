@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\Controller\Order;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
+use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Order\ProductOrderCheck;
 use Sandbox\ApiBundle\Entity\Order\ProductOrderRecord;
@@ -994,7 +995,7 @@ class OrderController extends PaymentController
         $salesCompanyInfo = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
             ->findOneBy(array(
-                'roomTypes' => $type,
+                'tradeTypes' => $type,
                 'company' => $salesCompany,
             ));
 
@@ -1010,5 +1011,113 @@ class OrderController extends PaymentController
         $order->setSalesInvoice(true);
 
         return;
+    }
+
+    /**
+     * @param $number
+     *
+     * @return array
+     */
+    protected function getProductOrderResponse(
+        $number
+    ) {
+        $order = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->findOneBy(array(
+                'orderNumber' => $number,
+            ));
+
+        return array(
+            'trade_id' => $order->getId(),
+            'company_id' => $order->getProduct()->getRoom()->getBuilding()->getCompany()->getId(),
+            'company_name' => $order->getProduct()->getRoom()->getBuilding()->getCompany()->getName(),
+            'trade_type' => 'product_order',
+            'trade_number' => $number,
+            'trade_name' => '',
+            'room_name' => $order->getProduct()->getRoom()->getName(),
+            'payment_date' => $order->getPaymentDate(),
+            'category' => $this->getOrderInvoiceCategory($order),
+            'amount' => (float) $order->getDiscountPrice(),
+            'sales_invoice' => $order->isSalesInvoice(),
+        );
+    }
+
+    /**
+     * @param $number
+     *
+     * @return array
+     */
+    protected function getLeaseBillResponse(
+        $number
+    ) {
+        $bill = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->findOneBy(array(
+                'serialNumber' => $number,
+            ));
+
+        return array(
+            'trade_id' => $bill->getId(),
+            'company_id' => $bill->getLease()->getProduct()->getRoom()->getBuilding()->getCompany()->getId(),
+            'company_name' => $bill->getLease()->getProduct()->getRoom()->getBuilding()->getCompany()->getName(),
+            'trade_type' => 'lease_bill',
+            'trade_number' => $number,
+            'trade_name' => $bill->getName(),
+            'room_name' => $bill->getLease()->getProduct()->getRoom()->getName(),
+            'payment_date' => $bill->getPaymentDate(),
+            'category' => $this->getBillInvoiceCategory($bill),
+            'amount' => (float) $bill->getRevisedAmount(),
+            'sales_invoice' => $bill->isSalesInvoice(),
+        );
+    }
+
+    /**
+     * @param ProductOrder $order
+     *
+     * @return mixed
+     */
+    private function getOrderInvoiceCategory(
+        $order
+    ) {
+        $roomType = $order->getProduct()->getRoom()->getType();
+        $salesCompany = $order->getProduct()->getRoom()->getBuilding()->getCompany();
+
+        $info = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
+            ->findOneBy(array(
+                'company' => $salesCompany,
+                'tradeTypes' => $roomType,
+            ));
+
+        if (is_null($info)) {
+            return '';
+        }
+
+        return $info->getInvoicingSubjects();
+    }
+
+    /**
+     * @param LeaseBill $bill
+     *
+     * @return mixed
+     */
+    private function getBillInvoiceCategory(
+        $bill
+    ) {
+        $roomType = $bill->getLease()->getProduct()->getRoom()->getType();
+        $salesCompany = $bill->getLease()->getProduct()->getRoom()->getBuilding()->getCompany();
+
+        $info = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
+            ->findOneBy(array(
+                'company' => $salesCompany,
+                'tradeTypes' => $roomType,
+            ));
+
+        if (is_null($info)) {
+            return '';
+        }
+
+        return $info->getInvoicingSubjects();
     }
 }

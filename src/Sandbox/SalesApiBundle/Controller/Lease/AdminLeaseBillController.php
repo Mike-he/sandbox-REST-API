@@ -6,7 +6,12 @@ use Knp\Component\Pager\Paginator;
 use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
 use Sandbox\ApiBundle\Constants\LeaseConstants;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentServiceBill;
+use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Log\Log;
+use Sandbox\ApiBundle\Entity\Room\RoomTypes;
+use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
+use Sandbox\ApiBundle\Traits\FinanceTrait;
 use Sandbox\ApiBundle\Traits\SendNotification;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use JMS\Serializer\SerializationContext;
@@ -27,6 +32,45 @@ class AdminLeaseBillController extends SalesRestController
 {
     use GenerateSerialNumberTrait;
     use SendNotification;
+    use FinanceTrait;
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *     name="ids",
+     *     array=true
+     * )
+     *
+     * @Route("/leases/bills/numbers")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getBillsNumbersAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $ids = $paramFetcher->get('ids');
+
+        $bills = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->getBillsNumbers(
+                $ids
+            );
+
+        $response = array();
+        foreach ($bills as $bill) {
+            array_push($response, array(
+                'id' => $bill->getId(),
+                'bill_number' => $bill->getSerialNumber(),
+                'company_name' => $bill->getLease()->getProduct()->getRoom()->getBuilding()->getCompany()->getName(),
+            ));
+        }
+
+        return new View($response);
+    }
 
     /**
      * Get Sale offline Bills lists.
@@ -375,12 +419,9 @@ class AdminLeaseBillController extends SalesRestController
         $bill->setSendDate(new \DateTime());
         $bill->setSender($this->getUserId());
 
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($bill);
-        $em->flush();
-
         if ($oldStatus == LeaseBill::STATUS_PENDING) {
-            $billsAmount = $em->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            $billsAmount = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Lease\LeaseBill')
                 ->countBills(
                     $bill->getLease(),
                     null,
@@ -400,7 +441,14 @@ class AdminLeaseBillController extends SalesRestController
                 $contentArray,
                 ' '.$billsAmount.' '
             );
+
+            // set sales invoice
+            $this->setLeaseBillInvoice($bill);
         }
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($bill);
+        $em->flush();
 
         // generate log
         $this->generateAdminLogs(array(
@@ -533,6 +581,20 @@ class AdminLeaseBillController extends SalesRestController
         $em->persist($bill);
         $em->flush();
 
+        $this->generateLongRentServiceFee(
+            $bill,
+            FinanceLongRentServiceBill::TYPE_BILL_SERVICE_FEE
+        );
+
+        // add invoice balance
+        if (!$bill->isSalesInvoice()) {
+            $this->postConsumeBalance(
+                $bill->getDrawee(),
+                $bill->getRevisedAmount(),
+                $bill->getSerialNumber()
+            );
+        }
+
         // generate log
         $this->generateAdminLogs(array(
             'logModule' => Log::MODULE_LEASE,
@@ -542,6 +604,38 @@ class AdminLeaseBillController extends SalesRestController
         ));
 
         return new View();
+    }
+
+    /**
+     * Get Sale offline Bills lists.
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/bills/my_bills")
+     * @Method({"GET"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getMyBillsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        // check user permission
+
+        $adminPlatform = $this->getAdminPlatform();
+        $company = $adminPlatform['sales_company_id'];
+
+        $bills = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->findNumbersForSalesInvoice(
+                $company,
+                LeaseBill::STATUS_PAID
+            );
+
+        return new View($bills);
     }
 
     /**
@@ -580,6 +674,9 @@ class AdminLeaseBillController extends SalesRestController
             $bill->setSender($this->getUserId());
             $bill->setReviser($this->getUserId());
 
+            // set sales invoice
+            $this->setLeaseBillInvoice($bill);
+
             $em->persist($bill);
             $em->flush();
 
@@ -615,8 +712,8 @@ class AdminLeaseBillController extends SalesRestController
     }
 
     /**
-     * @param $lease
-     * @param $bill
+     * @param Lease     $lease
+     * @param LeaseBill $bill
      *
      * @return View
      */
@@ -637,6 +734,9 @@ class AdminLeaseBillController extends SalesRestController
         $bill->setSender($this->getUserId());
         $bill->setRevisedAmount($bill->getAmount());
         $bill->setLease($lease);
+
+        // set sales invoice
+        $this->setLeaseBillInvoice($bill);
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($bill);
@@ -679,6 +779,31 @@ class AdminLeaseBillController extends SalesRestController
     }
 
     /**
+     * @param LeaseBill $bill
+     */
+    private function setLeaseBillInvoice(
+        $bill
+    ) {
+        $lease = $bill->getLease();
+        $salesCompany = $lease->getProduct()->getRoom()->getBuilding()->getCompany();
+        $serviceInfo = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
+            ->findOneBy(array(
+                'company' => $salesCompany,
+                'tradeTypes' => RoomTypes::TYPE_NAME_LONGTERM,
+                'status' => true,
+            ));
+
+        if (!is_null($serviceInfo) &&
+            $serviceInfo->getDrawer() == SalesCompanyServiceInfos::DRAWER_SALES
+        ) {
+            $bill->setSalesInvoice(true);
+        }
+
+        return;
+    }
+
+    /**
      * @param $opLevel
      */
     private function checkAdminLeasePermission(
@@ -688,6 +813,7 @@ class AdminLeaseBillController extends SalesRestController
             $this->getAdminId(),
             [
                 ['key' => AdminPermission::KEY_SALES_BUILDING_LONG_TERM_LEASE],
+                ['key' => AdminPermission::KEY_SALES_PLATFORM_AUDIT],
             ],
             $opLevel
         );

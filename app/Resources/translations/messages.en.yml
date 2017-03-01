@@ -62,6 +62,9 @@ product_order:
     preorder: Pre-Order
     reserve: Reserve
   export_header:
+    commission: Commission
+    order_category: Order Category
+    collection_method: Collection Method
     company_name: Sales Company
     building_name: Commuity
     order_number: Order Number
@@ -234,6 +237,9 @@ client:
     room_order: Room Order
     shop_order: Shop Order
     event_order: Event Order
+    long_rent_order: Long Term Order
+    short_rent_order: Short Term Order
+    sandbox: Sandbox3
   account:
     invalid_phone_number: Invalid phone number.
     invalid_email_address: Invalid email address.
@@ -333,3 +339,5 @@ lease:
     lease_ended: Dear user, your leasing contract has been completed! Thanks for your trust and support. Click to view details.
     lease_bill_unpaid_first: Dear user,
     lease_bill_unpaid_second: bill(s) is(are) waiting for payment. Click to view details.
+  order_method:
+      backend: Backend

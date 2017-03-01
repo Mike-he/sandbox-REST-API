@@ -122,7 +122,7 @@ class AdminCommunityController extends SalesRestController
 
         $typeKeys = array();
         foreach ($salesInfos as $info) {
-            array_push($typeKeys, $info->getRoomTypes());
+            array_push($typeKeys, $info->getTradeTypes());
         }
 
         $using = $this->getBuildingInfo($companyId, $buildingIds, RoomBuilding::STATUS_ACCEPT, $typeKeys, true);
@@ -179,7 +179,11 @@ class AdminCommunityController extends SalesRestController
         foreach ($UsedRoomTypes as $usedRoomType) {
             $roomType = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Room\RoomTypes')
-                ->findOneBy(array('name' => $usedRoomType->getRoomTypes()));
+                ->findOneBy(array('name' => $usedRoomType->getTradeTypes()));
+
+            if (is_null($roomType)) {
+                continue;
+            }
 
             $using_number = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Product\Product')
@@ -332,7 +336,7 @@ class AdminCommunityController extends SalesRestController
             if ($visible == true) {
                 $usingNumber = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Product\Product')
-                    ->countsProductByBuilding($building, $visible,$typeKeys);
+                    ->countsProductByBuilding($building, $visible, $typeKeys);
             }
 
             $result[] = array(

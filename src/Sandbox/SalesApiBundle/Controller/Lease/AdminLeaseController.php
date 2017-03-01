@@ -250,16 +250,6 @@ class AdminLeaseController extends SalesRestController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="company",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    requirements="\d+",
-     *    strict=true,
-     *    description="Filter by company id"
-     * )
-     *
-     * @Annotations\QueryParam(
      *    name="room",
      *    array=false,
      *    default=null,
@@ -278,6 +268,9 @@ class AdminLeaseController extends SalesRestController
         // check user permission
         $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_VIEW);
 
+        $adminPlatform = $this->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
         // filters
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
@@ -285,7 +278,6 @@ class AdminLeaseController extends SalesRestController
         $limit = $pageLimit;
 
         $status = $paramFetcher->get('status');
-        $companyId = $paramFetcher->get('company');
         $roomId = $paramFetcher->get('room');
 
         // search keyword and query
@@ -323,7 +315,7 @@ class AdminLeaseController extends SalesRestController
                 $rentFilter,
                 $startDate,
                 $endDate,
-                $companyId,
+                $salesCompanyId,
                 $roomId,
                 $limit,
                 $offset
@@ -342,7 +334,7 @@ class AdminLeaseController extends SalesRestController
                 $rentFilter,
                 $startDate,
                 $endDate,
-                $companyId,
+                $salesCompanyId,
                 $roomId
             );
 
@@ -435,7 +427,10 @@ class AdminLeaseController extends SalesRestController
         $payload = json_decode($request->getContent(), true);
 
         $lease = $this->getLeaseRepo()->find($id);
-        $this->throwNotFoundIfNull($lease, CustomErrorMessagesConstants::ERROR_LEASE_NOT_FOUND_MESSAGE);
+        $this->throwNotFoundIfNull(
+            $lease,
+            CustomErrorMessagesConstants::ERROR_LEASE_NOT_FOUND_MESSAGE
+        );
 
         $em = $this->getDoctrine()->getManager();
 
@@ -542,9 +537,13 @@ class AdminLeaseController extends SalesRestController
                 break;
             case Lease::LEASE_STATUS_END:
                 if (
-                    $status != Lease::LEASE_STATUS_PERFORMING
+                    $status != Lease::LEASE_STATUS_MATURED &&
+                    $status != Lease::LEASE_STATUS_PERFORMING &&
+                    $status != Lease::LEASE_STATUS_RECONFIRMING
                 ) {
-                    throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE);
+                    throw new BadRequestHttpException(
+                        CustomErrorMessagesConstants::ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE
+                    );
                 }
 
                 $unpaidBills = $this->getLeaseBillRepo()->findBy(array(
@@ -595,10 +594,6 @@ class AdminLeaseController extends SalesRestController
                         $contentArray
                     );
                 } else {
-                    if (!empty($unpaidBills)) {
-                        throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_END_BILL_UNPAID_MESSAGE);
-                    }
-
                     // send Jpush notification
                     $this->generateJpushNotification(
                         [
@@ -872,9 +867,9 @@ class AdminLeaseController extends SalesRestController
                 (gettype($payload['deposit']) != 'double' && gettype($payload['deposit']) != 'integer') ||
                 (gettype($payload['monthly_rent']) != 'double' && gettype($payload['deposit']) != 'integer') ||
                 (gettype($payload['total_rent']) != 'double' && gettype($payload['deposit']) != 'integer') ||
-                empty($payload['deposit']) ||
-                empty($payload['monthly_rent']) ||
-                empty($payload['total_rent']) ||
+                is_null($payload['deposit']) ||
+                is_null($payload['monthly_rent']) ||
+                is_null($payload['total_rent']) ||
                 empty($payload['lease_rent_types']) ||
                 !preg_match('/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/', $payload['start_date']) ||
                 !preg_match('/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/', $payload['end_date']) ||
@@ -919,12 +914,6 @@ class AdminLeaseController extends SalesRestController
         $lease,
         $em
     ) {
-        if ($payload['status'] !== Lease::LEASE_STATUS_DRAFTING) {
-            if (empty($payload['bills']['add'])) {
-                throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILLS_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE);
-            }
-        }
-
         if (!empty($payload['bills']['add'])) {
             $this->addBills($payload, $em, $lease);
         }
@@ -1275,9 +1264,9 @@ class AdminLeaseController extends SalesRestController
                     return;
                 }
 
-                throw new BadRequestHttpException(
-                    CustomErrorMessagesConstants::ERROR_LEASE_KEEP_AT_LEAST_ONE_BILL_MESSAGE
-                );
+//                throw new BadRequestHttpException(
+//                    CustomErrorMessagesConstants::ERROR_LEASE_KEEP_AT_LEAST_ONE_BILL_MESSAGE
+//                );
             }
         }
     }
@@ -1391,7 +1380,7 @@ class AdminLeaseController extends SalesRestController
             !key_exists('start_date', $billAttributes) ||
             !key_exists('end_date', $billAttributes) ||
             (gettype($billAttributes['amount']) != 'double' && gettype($billAttributes['amount']) != 'integer') ||
-            empty($billAttributes['amount']) ||
+            is_null($billAttributes['amount']) ||
             !filter_var($billAttributes['name'], FILTER_DEFAULT) ||
             !filter_var($billAttributes['description'], FILTER_DEFAULT) ||
             !preg_match('/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/', $billAttributes['start_date']) ||
@@ -1471,29 +1460,6 @@ class AdminLeaseController extends SalesRestController
         }
 
         return;
-    }
-
-    /**
-     * authenticate with web browser cookie.
-     */
-    private function authenticateAdminCookie()
-    {
-        $cookie_name = self::ADMIN_COOKIE_NAME;
-        if (!isset($_COOKIE[$cookie_name])) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-        }
-
-        $token = $_COOKIE[$cookie_name];
-        $adminToken = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserToken')
-            ->findOneBy(array(
-                'token' => $token,
-            ));
-        if (is_null($adminToken)) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-        }
-
-        return $adminToken->getUser();
     }
 
     private function setAppointmentStatusToAccepted(
