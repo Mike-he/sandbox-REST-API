@@ -296,13 +296,13 @@ class ClientLeaseController extends SandboxRestController
 
         // If the lease has been executed, when the state 'reconfirming' is reconfirmed
         // the lease status should be changed to 'performing'
-        $logs = $this->getLogsRepo()->findBy(array(
+        $log = $this->getLogsRepo()->findOneBy(array(
             'logModule' => Log::MODULE_LEASE,
             'logAction' => Log::ACTION_PERFORMING,
             'logObjectId' => $lease->getId()
         ));
 
-        if (count($logs)) {
+        if (!is_null($log)) {
             $lease->setStatus(Lease::LEASE_STATUS_PERFORMING);
         } else {
             $lease->setStatus($payload['status']);
