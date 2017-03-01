@@ -153,8 +153,13 @@ trait FinanceExportTraits
 
         foreach ($events as $event) {
             $buildingId = $event->getEvent()->getBuildingId();
-            $building = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')->find($buildingId);
-            $buildingName = $building ? $building->getName() : null;
+
+            if (is_null($buildingId)) {
+                $buildingName = null;
+            } else {
+                $building = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')->find($buildingId);
+                $buildingName = $building ? $building->getName() : null;
+            }
 
             $orderNumber = $event->getOrderNumber();
 
