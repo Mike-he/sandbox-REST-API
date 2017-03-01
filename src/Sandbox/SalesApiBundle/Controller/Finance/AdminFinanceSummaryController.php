@@ -390,9 +390,9 @@ class AdminFinanceSummaryController extends PaymentController
                 $companyId
             );
 
-        $longOrders = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Finance\FinanceLongRentServiceBill')
-            ->getServiceBillsByMonth(
+        $longBills = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->findBillsByDates(
                 $firstDate,
                 $lastDate,
                 $companyId
@@ -402,7 +402,7 @@ class AdminFinanceSummaryController extends PaymentController
             $company,
             $events,
             $shortOrders,
-            $longOrders,
+            $longBills,
             $firstDate,
             $language
         );
@@ -424,7 +424,7 @@ class AdminFinanceSummaryController extends PaymentController
         $company,
         $events,
         $shortOrders,
-        $longOrders,
+        $longBills,
         $firstDate,
         $language
     ) {
@@ -450,7 +450,7 @@ class AdminFinanceSummaryController extends PaymentController
         $longBody = $this->setLongOrderArray(
             $companyName,
             $company,
-            $longOrders,
+            $longBills,
             $language
         );
 
@@ -773,7 +773,7 @@ class AdminFinanceSummaryController extends PaymentController
     private function setLongOrderArray(
         $companyName,
         $company,
-        $longOrders,
+        $longBills,
         $language
     ) {
         $longBody = [];
@@ -792,16 +792,15 @@ class AdminFinanceSummaryController extends PaymentController
             $language
         );
 
-        foreach ($longOrders as $order) {
-            $bill = $order->getBill();
-            $lease = $bill->getLease();
+        foreach ($longBills as $longBill) {
+            $lease = $longBill->getLease();
             $product = $lease->getProduct();
             $room = $product->getRoom();
             $building = $room->getBuilding();
             $buildingName = $building->getName();
             $city = $building->getCity();
 
-            $orderNumber = $bill->getSerialNumber();
+            $orderNumber = $longBill->getSerialNumber();
 
             $productName = $city->getName().
                 $buildingName.
@@ -839,30 +838,40 @@ class AdminFinanceSummaryController extends PaymentController
                 $language
             );
 
-            $price = $bill->getAmount();
+            $price = $longBill->getAmount();
 
-            $actualAmount = $bill->getRevisedAmount();
+            $actualAmount = $longBill->getRevisedAmount();
 
             $income = $actualAmount;
 
-            $commission = $order->getAmount();
+            $commission = 0;
 
-            $leasingTime = $bill->getStartDate()->format('Y-m-d H:i:s')
+            $serviceBill = $this->getContainer()
+                ->get('doctrine')
+                ->getRepository('SandboxApiBundle:Finance\FinanceLongRentServiceBill')
+                ->findOneBy([
+                    'bill' => $longBill,
+                ]);
+            if (!is_null($serviceBill)) {
+                $commission = $serviceBill->getAmount();
+            }
+
+            $leasingTime = $longBill->getStartDate()->format('Y-m-d H:i:s')
                 .' - '
-                .$bill->getEndDate()->format('Y-m-d H:i:s');
+                .$longBill->getEndDate()->format('Y-m-d H:i:s');
 
-            $creationDate = $bill->getCreationDate()->format('Y-m-d H:i:s');
+            $creationDate = $longBill->getCreationDate()->format('Y-m-d H:i:s');
 
-            $payDate = $bill->getPaymentDate()->format('Y-m-d H:i:s');
+            $payDate = $longBill->getPaymentDate()->format('Y-m-d H:i:s');
 
             $status = $this->get('translator')->trans(
-                ProductOrderExport::TRANS_PRODUCT_ORDER_STATUS.$bill->getStatus(),
+                ProductOrderExport::TRANS_PRODUCT_ORDER_STATUS.$longBill->getStatus(),
                 array(),
                 null,
                 $language
             );
 
-            $type = $bill->getOrderMethod();
+            $type = $longBill->getOrderMethod();
             $orderType = $this->get('translator')->trans(
                 LeaseConstants::TRANS_LEASE_BILL_ORDER_METHOD.$type,
                 array(),
