@@ -427,7 +427,10 @@ class AdminLeaseController extends SalesRestController
         $payload = json_decode($request->getContent(), true);
 
         $lease = $this->getLeaseRepo()->find($id);
-        $this->throwNotFoundIfNull($lease, CustomErrorMessagesConstants::ERROR_LEASE_NOT_FOUND_MESSAGE);
+        $this->throwNotFoundIfNull(
+            $lease,
+            CustomErrorMessagesConstants::ERROR_LEASE_NOT_FOUND_MESSAGE
+        );
 
         $em = $this->getDoctrine()->getManager();
 
@@ -534,9 +537,13 @@ class AdminLeaseController extends SalesRestController
                 break;
             case Lease::LEASE_STATUS_END:
                 if (
-                    $status != Lease::LEASE_STATUS_MATURED
+                    $status != Lease::LEASE_STATUS_MATURED ||
+                    $status != Lease::LEASE_STATUS_PERFORMING ||
+                    $status != Lease::LEASE_STATUS_RECONFIRMING
                 ) {
-                    throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE);
+                    throw new BadRequestHttpException(
+                        CustomErrorMessagesConstants::ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE
+                    );
                 }
 
                 $unpaidBills = $this->getLeaseBillRepo()->findBy(array(
