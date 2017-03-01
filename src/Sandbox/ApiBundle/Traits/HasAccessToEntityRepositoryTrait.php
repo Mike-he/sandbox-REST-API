@@ -69,4 +69,10 @@ trait HasAccessToEntityRepositoryTrait
         return $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos');
     }
+
+    private function getLogsRepo()
+    {
+        return $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Log\Log');
+    }
 }
