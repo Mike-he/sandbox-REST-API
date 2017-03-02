@@ -376,7 +376,7 @@ class OrderRepository extends EntityRepository
                         up.name LIKE :search OR
                         c.name LIKE :search OR
                         b.name LIKE :search OR
-                        r.type LIKE :search
+                        r.name LIKE :search
                     )'
                 )
                     ->setParameter('search', "%$search%");
