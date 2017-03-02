@@ -492,6 +492,8 @@ class ClientOrderController extends OrderController
         $offset = $paramFetcher->get('offset');
         $search = $paramFetcher->get('search');
 
+        $roomUrl = $this->getGlobal('room_mobile_url');
+
         $orders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->getUserCurrentOrders(
@@ -521,7 +523,7 @@ class ClientOrderController extends OrderController
                 'date' => "$start - $end",
                 'address' => $order['address'],
                 'attachment' => $attachment,
-                'url' => 'https://mobile.sandbox3.cn/book?ptype=detail&productid='.$order['productId'].'&btype='.$order['type'],
+                'url' => "$roomUrl/book?ptype=detail&productid=".$order['productId'].'&btype='.$order['type'],
                 'creation_date' => $order['creationDate'],
             ];
 
@@ -556,7 +558,7 @@ class ClientOrderController extends OrderController
                 'date' => "$start - $end",
                 'address' => $lease['address'],
                 'attachment' => $attachment,
-                'url' => 'https://mobile.sandbox3.cn/book?ptype=detail&productid='.$lease['productId'].'&btype='.$lease['type'],
+                'url' => "$roomUrl/book?ptype=detail&productid=".$lease['productId'].'&btype='.$lease['type'],
                 'creation_date' => $lease['creationDate'],
             ];
 
