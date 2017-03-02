@@ -616,7 +616,7 @@ class AdminLeaseController extends SalesRestController
 
         $em->flush();
 
-        if ($lease->getStatus() == Lease::LEASE_STATUS_CONFIRMED) {
+        if ($payload['status'] == Lease::LEASE_STATUS_CONFIRMING) {
             $this->setAppointmentStatusToAccepted($lease);
         }
 
@@ -813,6 +813,8 @@ class AdminLeaseController extends SalesRestController
                 null,
                 $contentArray
             );
+
+            $this->setAppointmentStatusToAccepted($lease);
         }
 
         // generate log
@@ -1196,7 +1198,7 @@ class AdminLeaseController extends SalesRestController
 
         $em->flush();
 
-        if ($lease->getStatus() == Lease::LEASE_STATUS_CONFIRMED) {
+        if ($payload['status'] == Lease::LEASE_STATUS_CONFIRMING) {
             $this->setAppointmentStatusToAccepted($lease);
         }
 
@@ -1464,15 +1466,6 @@ class AdminLeaseController extends SalesRestController
         $lease
     ) {
         $em = $this->getDoctrine()->getManager();
-
-        // set product visible to false
-        $product = $lease->getProduct();
-        if (!is_null($product)) {
-            $product->setVisible(false);
-            $product->setAppointment(false);
-
-            $em->flush();
-        }
 
         // set appointment status to accepted
         $appointment = $lease->getProductAppointment();
