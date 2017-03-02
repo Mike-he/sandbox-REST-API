@@ -492,7 +492,7 @@ class ClientOrderController extends OrderController
         $offset = $paramFetcher->get('offset');
         $search = $paramFetcher->get('search');
 
-        $roomUrl = $this->getGlobal('room_mobile_url');
+        $roomUrl = $this->getParameter('room_mobile_url');
 
         $orders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
