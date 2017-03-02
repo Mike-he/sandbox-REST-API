@@ -27,6 +27,7 @@ return array(
     'Symfony\\Bridge\\Monolog\\' => array($vendorDir . '/symfony/symfony/src/Symfony/Bridge/Monolog'),
     'Symfony\\Bridge\\Doctrine\\' => array($vendorDir . '/symfony/symfony/src/Symfony/Bridge/Doctrine'),
     'Stof\\DoctrineExtensionsBundle\\' => array($vendorDir . '/stof/doctrine-extensions-bundle'),
+    'Snc\\RedisBundle\\' => array($vendorDir . '/snc/redis-bundle'),
     'Psr\\Log\\' => array($vendorDir . '/psr/log/Psr/Log'),
     'Pingpp\\' => array($vendorDir . '/pingplusplus/pingpp-php/lib'),
     'Negotiation\\' => array($vendorDir . '/willdurand/negotiation/src/Negotiation'),
