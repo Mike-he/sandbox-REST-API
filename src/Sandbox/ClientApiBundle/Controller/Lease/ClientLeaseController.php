@@ -229,13 +229,6 @@ class ClientLeaseController extends SandboxRestController
     ) {
         $payload = json_decode($request->getContent(), true);
 
-        if (
-            !key_exists('status', $payload) ||
-            !filter_var($payload['status'], FILTER_DEFAULT)
-        ) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
-
         $lease = $this->getDoctrine()->getRepository('SandboxApiBundle:Lease\Lease')->find($id);
         $this->throwNotFoundIfNull($lease, CustomErrorMessagesConstants::ERROR_LEASE_NOT_FOUND_MESSAGE);
 
@@ -291,6 +284,13 @@ class ClientLeaseController extends SandboxRestController
                         $lease->getEndDate()
                     );
                 }
+            }
+
+            // set product invisible and can't be appointed
+            $product = $lease->getProduct();
+            if (!is_null($product)) {
+                $product->setVisible(false);
+                $product->setAppointment(false);
             }
         }
 
