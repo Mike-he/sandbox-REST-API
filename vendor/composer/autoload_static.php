@@ -58,6 +58,7 @@ class ComposerStaticInit42c73cf4dec95db6e30a2f354aa5457f
         'P' => 
         array (
             'Psr\\Log\\' => 8,
+            'Predis\\' => 7,
             'Pingpp\\' => 7,
         ),
         'N' => 
@@ -204,6 +205,10 @@ class ComposerStaticInit42c73cf4dec95db6e30a2f354aa5457f
         'Psr\\Log\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/log/Psr/Log',
+        ),
+        'Predis\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/predis/predis/src',
         ),
         'Pingpp\\' => 
         array (
