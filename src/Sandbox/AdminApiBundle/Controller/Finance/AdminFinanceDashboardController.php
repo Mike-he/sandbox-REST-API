@@ -7,7 +7,6 @@ use FOS\RestBundle\View\View;
 use Sandbox\AdminApiBundle\Controller\AdminRestController;
 use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentBill;
 use Sandbox\ApiBundle\Entity\Finance\FinanceShortRentInvoiceApplication;
-use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyWithdrawals;
 use Sandbox\ApiBundle\Entity\Finance\FinanceDashboard;
 use Sandbox\ApiBundle\Traits\FinanceExportTraits;
@@ -26,7 +25,7 @@ class AdminFinanceDashboardController extends AdminRestController
     use FinanceExportTraits;
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(

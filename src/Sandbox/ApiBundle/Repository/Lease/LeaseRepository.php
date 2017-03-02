@@ -328,4 +328,49 @@ class LeaseRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param $userId
+     * @param $search
+     *
+     * @return array
+     */
+    public function getCurrentLeases(
+        $userId,
+        $search
+    ) {
+        $query = $this->createQueryBuilder('l')
+            ->select('l.startDate, l.endDate, up.name as username, b.address, r.name, r.type, p.roomId, p.id as productId, l.creationDate')
+            ->leftJoin('l.supervisor', 'u')
+            ->leftJoin('u.userProfile', 'up')
+            ->leftJoin('l.product', 'p')
+            ->leftJoin('p.room', 'r')
+            ->leftJoin('r.building', 'b')
+            ->leftJoin('r.city', 'c')
+            ->leftJoin('l.invitedPeople', 'i')
+            ->where(
+                '(
+                    l.supervisor = :userId OR
+                    l.drawee = :userId OR
+                    i.id = :userId
+                )'
+            )
+            ->andWhere('l.status = :status')
+            ->setParameter('status', Lease::LEASE_STATUS_PERFORMING)
+            ->setParameter('userId', $userId);
+
+        if (!is_null($search)) {
+            $query->andWhere(
+                '(
+                    up.name LIKE :search OR
+                    c.name LIKE :search OR
+                    b.name LIKE :search OR
+                    r.type LIKE :search
+                )'
+            )
+                ->setParameter('search', "%$search%");
+        }
+
+        return $query->getQuery()->getResult();
+    }
 }

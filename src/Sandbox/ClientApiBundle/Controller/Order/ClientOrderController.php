@@ -492,30 +492,85 @@ class ClientOrderController extends OrderController
         $offset = $paramFetcher->get('offset');
         $search = $paramFetcher->get('search');
 
-        $orders = $this->getRepo('Order\ProductOrder')->getUserCurrentOrders(
-            $userId,
-            $limit,
-            $offset,
-            $search
-        );
+        $orders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getUserCurrentOrders(
+                $userId,
+                $search
+            );
 
+        $finalArray = [];
         foreach ($orders as $order) {
-            $room = $order->getProduct()->getRoom();
-            $roomType = $room->getType();
+            $room = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\Room')
+                ->find($order['roomId']);
 
-            if ($roomType == Room::TYPE_LONG_TERM) {
-                $roomType = Room::TYPE_OFFICE;
+            $attachment = '';
+            if (!is_null($room)) {
+                $attachment = $room->degenerateAttachment();
             }
 
-            $type = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$roomType);
-            $room->setTypeDescription($type);
+            $type = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$order['type']);
+            $start = $order['startDate']->format('Y-m-d h:i:s');
+            $end = $order['endDate']->format('Y-m-d h:i:s');
+
+            $currentArray = [
+                'username' => $order['username'],
+                'room_name' => $order['name'],
+                'room_type' => $type,
+                'date' => "$start - $end",
+                'address' => $order['address'],
+                'attachment' => $attachment,
+                'url' => 'https://mobile.sandbox3.cn/book?ptype=detail&productid='.$order['productId'].'&btype='.$order['type'],
+                'creation_date' => $order['creationDate'],
+            ];
+
+            array_push($finalArray, $currentArray);
         }
 
-        $view = new View();
-        $view->setSerializationContext(SerializationContext::create()->setGroups(['current_order']));
-        $view->setData($orders);
+        $leases = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\Lease')
+            ->getCurrentLeases(
+                $userId,
+                $search
+            );
 
-        return $view;
+        foreach ($leases as $lease) {
+            $room = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\Room')
+                ->find($lease['roomId']);
+
+            $attachment = '';
+            if (!is_null($room)) {
+                $attachment = $room->degenerateAttachment();
+            }
+
+            $type = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$lease['type']);
+            $start = $lease['startDate']->format('Y-m-d h:i:s');
+            $end = $lease['endDate']->format('Y-m-d h:i:s');
+
+            $currentArray = [
+                'username' => $lease['username'],
+                'room_name' => $lease['name'],
+                'room_type' => $type,
+                'date' => "$start - $end",
+                'address' => $lease['address'],
+                'attachment' => $attachment,
+                'url' => 'https://mobile.sandbox3.cn/book?ptype=detail&productid='.$lease['productId'].'&btype='.$lease['type'],
+                'creation_date' => $lease['creationDate'],
+            ];
+
+            array_push($finalArray, $currentArray);
+        }
+
+        foreach ($finalArray as $key => $row) {
+            $current[$key] = $row['creation_date'];
+        }
+
+        array_multisort($current, SORT_DESC, $finalArray);
+        $finalArray = array_slice($finalArray, $offset, $limit);
+
+        return new View($finalArray);
     }
 
     /**
