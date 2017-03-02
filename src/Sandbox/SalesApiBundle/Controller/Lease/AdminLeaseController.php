@@ -616,7 +616,7 @@ class AdminLeaseController extends SalesRestController
 
         $em->flush();
 
-        if ($lease->getStatus() == Lease::LEASE_STATUS_CONFIRMED) {
+        if ($payload['status'] == Lease::LEASE_STATUS_CONFIRMING) {
             $this->setAppointmentStatusToAccepted($lease);
         }
 
@@ -813,6 +813,8 @@ class AdminLeaseController extends SalesRestController
                 null,
                 $contentArray
             );
+
+            $this->setAppointmentStatusToAccepted($lease);
         }
 
         // generate log
@@ -1196,7 +1198,7 @@ class AdminLeaseController extends SalesRestController
 
         $em->flush();
 
-        if ($lease->getStatus() == Lease::LEASE_STATUS_CONFIRMED) {
+        if ($payload['status'] == Lease::LEASE_STATUS_CONFIRMING) {
             $this->setAppointmentStatusToAccepted($lease);
         }
 
