@@ -161,7 +161,7 @@ trait FinanceOfficialExportTraits
         );
 
         foreach ($events as $event) {
-            $companyId = $event->getEvent()->getCompanyId();
+            $companyId = $event->getEvent()->getSalesCompanyId();
 
             if (is_null($companyId)) {
                 $companyName = null;
