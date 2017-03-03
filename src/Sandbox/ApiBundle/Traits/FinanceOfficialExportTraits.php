@@ -68,6 +68,7 @@ trait FinanceOfficialExportTraits
             );
 
             $phpExcelObject->setActiveSheetIndex(0)->fromArray($eventBody, ' ', "A$row");
+            $row = $phpExcelObject->getActiveSheet()->getHighestRow() + 3;
         }
 
         if (!is_null($shopOrders) && !empty($shopOrders)) {
@@ -77,6 +78,7 @@ trait FinanceOfficialExportTraits
             );
 
             $phpExcelObject->setActiveSheetIndex(0)->fromArray($shopBody, ' ', "A$row");
+            $row = $phpExcelObject->getActiveSheet()->getHighestRow() + 3;
         }
 
         if (!is_null($topUpOrders) && !empty($topUpOrders)) {
@@ -193,7 +195,7 @@ trait FinanceOfficialExportTraits
 
             $actualAmount = $price;
 
-            $income = $actualAmount - $actualAmount * $event->getServiceFee();
+            $income = $actualAmount - $actualAmount * $event->getServiceFee() / 100;
 
             $leasingTime = $event->getEvent()->getEventStartDate()->format('Y-m-d H:i:s')
                 .' - '
@@ -334,7 +336,7 @@ trait FinanceOfficialExportTraits
 
             $refundAmount = $order->getActualRefundAmount();
 
-            $income = $actualAmount - $actualAmount * $order->getServiceFee();
+            $income = $actualAmount - $actualAmount * $order->getServiceFee() / 100;
 
             $leasingTime = $order->getStartDate()->format('Y-m-d H:i:s')
                 .' - '

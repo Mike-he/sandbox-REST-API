@@ -185,7 +185,7 @@ trait FinanceSalesExportTraits
 
             $actualAmount = $price;
 
-            $income = $actualAmount - $actualAmount * $event->getServiceFee();
+            $income = $actualAmount - $actualAmount * $event->getServiceFee() / 100;
 
             $leasingTime = $event->getEvent()->getEventStartDate()->format('Y-m-d H:i:s')
                 .' - '
@@ -309,7 +309,7 @@ trait FinanceSalesExportTraits
 
             $actualAmount = $order->getDiscountPrice();
 
-            $income = $actualAmount - $actualAmount * $order->getServiceFee();
+            $income = $actualAmount - $actualAmount * $order->getServiceFee() / 100;
 
             $leasingTime = $order->getStartDate()->format('Y-m-d H:i:s')
                 .' - '
