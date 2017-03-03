@@ -909,7 +909,7 @@ trait FinanceTrait
 
         $accountRefundToAccountCount = $this->getContainer()->get('doctrine')
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->countRefundedToBalance(
+            ->countTopUpOrder(
                 $startDate,
                 $endDate,
                 ProductOrder::CHANNEL_ACCOUNT
