@@ -835,6 +835,14 @@ trait FinanceTrait
                 $endDate
             );
 
+        $accountRefundToAccountAmount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getTopUpAmount(
+                $startDate,
+                $endDate,
+                ProductOrder::CHANNEL_ACCOUNT
+            );
+
         $topUpTotalCount = $this->getContainer()->get('doctrine')
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->countTopUpOrder(
@@ -879,6 +887,14 @@ trait FinanceTrait
             ->countRefundedToBalance(
                 $startDate,
                 $endDate
+            );
+
+        $accountRefundToAccountCount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->countRefundedToBalance(
+                $startDate,
+                $endDate,
+                ProductOrder::CHANNEL_ACCOUNT
             );
 
         $spaceOrderExpendAmount = $this->getContainer()->get('doctrine')
@@ -949,12 +965,14 @@ trait FinanceTrait
             FinanceDashboardConstants::ALIPAY_TOP_UP_AMOUNT => $alipayTopUpAmount,
             FinanceDashboardConstants::UPACP_TOP_UP_AMOUNT => $upacpTopUpAmount,
             FinanceDashboardConstants::REFUND_TO_ACCOUNT_AMOUNT => $refundToAccountAmount,
+            FinanceDashboardConstants::ACCOUNT_REFUND_TO_ACCOUNT_AMOUNT => $accountRefundToAccountAmount,
             FinanceDashboardConstants::TOTAL_TOP_UP_COUNT => $topUpTotalCount,
             FinanceDashboardConstants::WX_TOP_UP_COUNT => $wxTopUpCount,
             FinanceDashboardConstants::WX_PUB_TOP_UP_COUNT => $wxPubTopUpCount,
             FinanceDashboardConstants::ALIPAY_TOP_UP_COUNT => $alipayTopUpCount,
             FinanceDashboardConstants::UPACP_TOP_UP_COUNT => $upacpTopUpCount,
             FinanceDashboardConstants::REFUND_TO_ACCOUNT_COUNT => $refundToAccountCount,
+            FinanceDashboardConstants::ACCOUNT_REFUND_TO_ACCOUNT_COUNT => $accountRefundToAccountCount,
             FinanceDashboardConstants::SPACE_EXPEND_AMOUNT => $spaceOrderExpendAmount,
             FinanceDashboardConstants::SHOP_EXPEND_AMOUNT => $shopOrderExpendAmount,
             FinanceDashboardConstants::ACTIVITY_EXPEND_AMOUNT => $activityOrderExpendAmount,
