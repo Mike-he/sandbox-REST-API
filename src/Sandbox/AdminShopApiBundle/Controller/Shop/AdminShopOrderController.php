@@ -687,7 +687,7 @@ class AdminShopOrderController extends ShopController
      * @Annotations\QueryParam(
      *    name="platform",
      *    array=false,
-     *    default=null,
+     *    default="backend",
      *    nullable=true,
      *    strict=true,
      *    description="Filter coffee backend or kitchen ipad"
