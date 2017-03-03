@@ -53,10 +53,12 @@ class ComposerStaticInit42c73cf4dec95db6e30a2f354aa5457f
             'Symfony\\Bridge\\Monolog\\' => 23,
             'Symfony\\Bridge\\Doctrine\\' => 24,
             'Stof\\DoctrineExtensionsBundle\\' => 30,
+            'Snc\\RedisBundle\\' => 16,
         ),
         'P' => 
         array (
             'Psr\\Log\\' => 8,
+            'Predis\\' => 7,
             'Pingpp\\' => 7,
         ),
         'N' => 
@@ -196,9 +198,17 @@ class ComposerStaticInit42c73cf4dec95db6e30a2f354aa5457f
         array (
             0 => __DIR__ . '/..' . '/stof/doctrine-extensions-bundle',
         ),
+        'Snc\\RedisBundle\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/snc/redis-bundle',
+        ),
         'Psr\\Log\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/log/Psr/Log',
+        ),
+        'Predis\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/predis/predis/src',
         ),
         'Pingpp\\' => 
         array (

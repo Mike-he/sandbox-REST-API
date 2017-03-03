@@ -299,7 +299,7 @@ class ClientLeaseController extends SandboxRestController
         $log = $this->getLogsRepo()->findOneBy(array(
             'logModule' => Log::MODULE_LEASE,
             'logAction' => Log::ACTION_PERFORMING,
-            'logObjectId' => $lease->getId()
+            'logObjectId' => $lease->getId(),
         ));
 
         if (!is_null($log)) {

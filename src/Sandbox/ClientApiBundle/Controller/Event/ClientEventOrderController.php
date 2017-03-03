@@ -287,8 +287,7 @@ class ClientEventOrderController extends PaymentController
                 'status' => true,
             ));
         if (!is_null($serviceInfo)) {
-            $activityServiceFee = $event->getPrice() * $serviceInfo->getServiceFee() / 100;
-            $order->setServiceFee((float) $activityServiceFee);
+            $order->setServiceFee($serviceInfo->getServiceFee());
         }
 
         $em->persist($order);

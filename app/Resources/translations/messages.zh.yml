@@ -238,6 +238,7 @@ client:
     event_order: 活动订单
     long_rent_order: 长租订单
     short_rent_order: 秒租订单
+    top_up_order: 充值订单
     sandbox: 创合社区
   account:
     invalid_phone_number: 该手机号无效

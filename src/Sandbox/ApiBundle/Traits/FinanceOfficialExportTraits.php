@@ -5,10 +5,12 @@ namespace Sandbox\ApiBundle\Traits;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Constants\EventOrderExport;
 use Sandbox\ApiBundle\Constants\LeaseConstants;
+use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
+use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
-trait FinanceExportTraits
+trait FinanceOfficialExportTraits
 {
     /**
      * @param $firstDate
@@ -16,6 +18,7 @@ trait FinanceExportTraits
      * @param $events
      * @param $shortOrders
      * @param $longBills
+     * @param $shopOrders
      *
      * @return mixed
      */
@@ -24,66 +27,74 @@ trait FinanceExportTraits
         $language,
         $events,
         $shortOrders,
-        $longBills
+        $longBills,
+        $shopOrders,
+        $topUpOrders
     ) {
         $phpExcelObject = new \PHPExcel();
         $phpExcelObject->getProperties()->setTitle('Finance Summary');
 
-        $eventBody = $this->setEventArray(
-            $events,
-            $language
-        );
-
-        $shortBody = $this->setShortOrderArray(
-            $shortOrders,
-            $language
-        );
-
-        $longBody = $this->setLongOrderArray(
-            $longBills,
-            $language
-        );
-
-        $headers = [
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_COLLECTION_METHOD, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_BUILDING_NAME, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_CATEGORY, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_NO, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_PRODUCT_NAME, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ROOM_TYPE, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_USER_ID, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_BASE_PRICE, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_UNIT_PRICE, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_AMOUNT, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_DISCOUNT_PRICE, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ACTUAL_AMOUNT, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_COMMISSION, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_LEASING_TIME, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_TIME, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_PAYMENT_TIME, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_STATUS, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_TYPE, array(), null, $language),
-        ];
+        $headers = $this->getOfficialExcelHeaders($language);
 
         //Fill data
         $phpExcelObject->setActiveSheetIndex(0)->fromArray($headers, ' ', 'A1');
         $row = $phpExcelObject->getActiveSheet()->getHighestRow() + 1;
 
-        if (!empty($shortBody)) {
+        // set sheet body
+        if (!is_null($shortOrders) && !empty($shortOrders)) {
+            $shortBody = $this->setShortOrderArray(
+                $shortOrders,
+                $language
+            );
+
             $phpExcelObject->setActiveSheetIndex(0)->fromArray($shortBody, ' ', "A$row");
             $row = $phpExcelObject->getActiveSheet()->getHighestRow() + 3;
         }
 
-        if (!empty($longBody)) {
+        if (!is_null($longBills) && !empty($longBills)) {
+            $longBody = $this->setLongOrderArray(
+                $longBills,
+                $language
+            );
+
             $phpExcelObject->setActiveSheetIndex(0)->fromArray($longBody, ' ', "A$row");
             $row = $phpExcelObject->getActiveSheet()->getHighestRow() + 3;
         }
 
-        if (!empty($eventBody)) {
+        if (!is_null($events) && !empty($events)) {
+            $eventBody = $this->setEventArray(
+                $events,
+                $language
+            );
+
             $phpExcelObject->setActiveSheetIndex(0)->fromArray($eventBody, ' ', "A$row");
+            $row = $phpExcelObject->getActiveSheet()->getHighestRow() + 3;
         }
 
-        $phpExcelObject->getActiveSheet()->getStyle('A1:R1')->getFont()->setBold(true);
+        if (!is_null($shopOrders) && !empty($shopOrders)) {
+            $shopBody = $this->setShopOrderArray(
+                $shopOrders,
+                $language
+            );
+
+            $phpExcelObject->setActiveSheetIndex(0)->fromArray($shopBody, ' ', "A$row");
+            $row = $phpExcelObject->getActiveSheet()->getHighestRow() + 3;
+        }
+
+        if (!is_null($topUpOrders) && !empty($topUpOrders)) {
+            $topUpBody = $this->setTopUpOrderArray(
+                $topUpOrders,
+                $language
+            );
+
+            $phpExcelObject->setActiveSheetIndex(0)->fromArray($topUpBody, ' ', "A$row");
+        }
+
+        $phpExcelObject->getActiveSheet()->getStyle('A1:V1')->getFont()->setBold(true);
+        $phpExcelObject->getActiveSheet()->getStyle('F2:F'.$phpExcelObject->getActiveSheet()->getHighestRow())
+            ->getAlignment()->setWrapText(true);
+        $phpExcelObject->getActiveSheet()->getStyle('G2:G'.$phpExcelObject->getActiveSheet()->getHighestRow())
+            ->getAlignment()->setWrapText(true);
 
         //set column dimension
         for ($col = ord('a'); $col <= ord('o'); ++$col) {
@@ -152,6 +163,15 @@ trait FinanceExportTraits
         );
 
         foreach ($events as $event) {
+            $companyId = $event->getEvent()->getSalesCompanyId();
+
+            if (is_null($companyId)) {
+                $companyName = null;
+            } else {
+                $company = $this->getDoctrine()->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')->find($companyId);
+                $companyName = $company ? $company->getName() : null;
+            }
+
             $buildingId = $event->getEvent()->getBuildingId();
 
             if (is_null($buildingId)) {
@@ -175,7 +195,7 @@ trait FinanceExportTraits
 
             $actualAmount = $price;
 
-            $income = $actualAmount - $actualAmount * $event->getServiceFee();
+            $income = $actualAmount - $actualAmount * $event->getServiceFee() / 100;
 
             $leasingTime = $event->getEvent()->getEventStartDate()->format('Y-m-d H:i:s')
                 .' - '
@@ -192,7 +212,19 @@ trait FinanceExportTraits
                 $language
             );
 
+            $paymentChannel = $event->getPayChannel();
+
+            if (!is_null($paymentChannel)) {
+                $paymentChannel = $this->get('translator')->trans(
+                    ProductOrderExport::TRANS_PRODUCT_ORDER_CHANNEL.$paymentChannel,
+                    array(),
+                    null,
+                    $language
+                );
+            }
+
             $body = $this->getExportBody(
+                $companyName,
                 $collection,
                 $buildingName,
                 $orderCategory,
@@ -204,12 +236,15 @@ trait FinanceExportTraits
                 $unit,
                 $price,
                 $actualAmount,
+                null,
                 $income,
                 $commission,
                 $leasingTime,
                 $creationDate,
                 $payDate,
                 $status,
+                null,
+                $paymentChannel,
                 $orderType
             );
 
@@ -299,7 +334,9 @@ trait FinanceExportTraits
 
             $actualAmount = $order->getDiscountPrice();
 
-            $income = $actualAmount - $actualAmount * $order->getServiceFee();
+            $refundAmount = $order->getActualRefundAmount();
+
+            $income = $actualAmount - $actualAmount * $order->getServiceFee() / 100;
 
             $leasingTime = $order->getStartDate()->format('Y-m-d H:i:s')
                 .' - '
@@ -316,6 +353,33 @@ trait FinanceExportTraits
                 $language
             );
 
+            $paymentChannel = $order->getPayChannel();
+            $refundChannel = $order->getRefundTo();
+
+            if (!is_null($paymentChannel)) {
+                $paymentChannel = $this->get('translator')->trans(
+                    ProductOrderExport::TRANS_PRODUCT_ORDER_CHANNEL.$paymentChannel,
+                    array(),
+                    null,
+                    $language
+                );
+
+                if ($order->getStatus() == ProductOrder::STATUS_CANCELLED) {
+                    if (is_null($refundChannel)) {
+                        $refundChannel = ProductOrder::REFUND_TO_ORIGIN;
+                    } else {
+                        $refundChannel = ProductOrder::REFUND_TO_ACCOUNT;
+                    }
+
+                    $refundChannel = $this->get('translator')->trans(
+                        ProductOrderExport::TRANS_PRODUCT_ORDER_REFUND_TO.$refundChannel,
+                        array(),
+                        null,
+                        $language
+                    );
+                }
+            }
+
             $type = $order->getType();
             if (is_null($type) || empty($type)) {
                 $type = 'user';
@@ -329,6 +393,7 @@ trait FinanceExportTraits
             );
 
             $body = $this->getExportBody(
+                $companyName,
                 $collection,
                 $buildingName,
                 $orderCategory,
@@ -340,12 +405,15 @@ trait FinanceExportTraits
                 $unit,
                 $price,
                 $actualAmount,
+                $refundAmount,
                 $income,
                 $commission,
                 $leasingTime,
                 $creationDate,
                 $payDate,
                 $status,
+                $refundChannel,
+                $paymentChannel,
                 $orderType
             );
 
@@ -471,7 +539,19 @@ trait FinanceExportTraits
                 $language
             );
 
+            $paymentChannel = $longBill->getPayChannel();
+
+            if (!is_null($paymentChannel)) {
+                $paymentChannel = $this->get('translator')->trans(
+                    ProductOrderExport::TRANS_PRODUCT_ORDER_CHANNEL.$paymentChannel,
+                    array(),
+                    null,
+                    $language
+                );
+            }
+
             $body = $this->getExportBody(
+                $companyName,
                 $collection,
                 $buildingName,
                 $orderCategory,
@@ -483,12 +563,15 @@ trait FinanceExportTraits
                 $unit,
                 $price,
                 $actualAmount,
+                null,
                 $income,
                 $commission,
                 $leasingTime,
                 $creationDate,
                 $payDate,
                 $status,
+                null,
+                $paymentChannel,
                 $orderType
             );
 
@@ -499,6 +582,235 @@ trait FinanceExportTraits
     }
 
     /**
+     * @param $shopOrders
+     * @param $language
+     *
+     * @return array
+     */
+    private function setShopOrderArray(
+        $shopOrders,
+        $language
+    ) {
+        $shopBody = array();
+
+        $collection = $this->get('translator')->trans(
+            ProductOrderExport::TRANS_CLIENT_PROFILE_SANDBOX,
+            array(),
+            null,
+            $language
+        );
+
+        $orderCategory = $this->get('translator')->trans(
+            ProductOrderExport::TRANS_CLIENT_PROFILE_SHOP_ORDER,
+            array(),
+            null,
+            $language
+        );
+
+        foreach ($shopOrders as $shopOrder) {
+            $building = $shopOrder->getShop()->getBuilding();
+            $company = $building->getCompany();
+            $companyName = $company->getName();
+            $buildingName = $building->getName();
+            $orderNumber = $shopOrder->getOrderNumber();
+
+            $shopOrderProducts = $this->getContainer()
+                ->get('doctrine')
+                ->getRepository('SandboxApiBundle:Shop\ShopOrderProduct')
+                ->findBy(array(
+                    'order' => $shopOrder,
+                ));
+
+            $productName = '';
+            $productType = '';
+            foreach ($shopOrderProducts as $product) {
+                $productJson = $product->getShopProductInfo();
+                $productArray = json_decode($productJson, true);
+
+                $productName .= $productArray['name']."\n";
+                $productType .= $productArray['menu']['name']."\n";
+            }
+
+            $actualAmount = $shopOrder->getPrice();
+            $refundAmount = $shopOrder->getRefundAmount();
+
+            $payDate = $shopOrder->getPaymentDate()->format('Y-m-d H:i:s');
+
+            $status = $this->get('translator')->trans(
+                ProductOrderExport::TRANS_SHOP_ORDER_STATUS.$shopOrder->getStatus(),
+                array(),
+                null,
+                $language
+            );
+
+            $orderType = $this->get('translator')->trans(
+                ProductOrderExport::TRANS_PRODUCT_ORDER_TYPE.'user',
+                array(),
+                null,
+                $language
+            );
+
+            $paymentChannel = $shopOrder->getPayChannel();
+            $refundChannel = null;
+
+            if (!is_null($paymentChannel)) {
+                $paymentChannel = $this->get('translator')->trans(
+                    ProductOrderExport::TRANS_PRODUCT_ORDER_CHANNEL.$paymentChannel,
+                    array(),
+                    null,
+                    $language
+                );
+
+                if ($shopOrder->getStatus() == ShopOrder::STATUS_REFUNDED) {
+                    $refundChannel = $refundChannel = ProductOrder::REFUND_TO_ORIGIN;
+                    $refundChannel = $this->get('translator')->trans(
+                        ProductOrderExport::TRANS_PRODUCT_ORDER_REFUND_TO.$refundChannel,
+                        array(),
+                        null,
+                        $language
+                    );
+                }
+            }
+
+            $body = $this->getExportBody(
+                $companyName,
+                $collection,
+                $buildingName,
+                $orderCategory,
+                $orderNumber,
+                trim($productName),
+                trim($productType),
+                null,
+                null,
+                null,
+                null,
+                $actualAmount,
+                $refundAmount,
+                $actualAmount,
+                null,
+                null,
+                null,
+                $payDate,
+                $status,
+                $refundChannel,
+                $paymentChannel,
+                $orderType
+            );
+
+            $shopBody[] = $body;
+        }
+
+        return $shopBody;
+    }
+
+    /**
+     * @param $topUpOrders
+     * @param $language
+     *
+     * @return array
+     */
+    private function setTopUpOrderArray(
+        $topUpOrders,
+        $language
+    ) {
+        $topUpBody = array();
+
+        $collection = $this->get('translator')->trans(
+            ProductOrderExport::TRANS_CLIENT_PROFILE_SANDBOX,
+            array(),
+            null,
+            $language
+        );
+
+        $orderCategory = $this->get('translator')->trans(
+            ProductOrderExport::TRANS_CLIENT_PROFILE_TOP_UP,
+            array(),
+            null,
+            $language
+        );
+
+        foreach ($topUpOrders as $order) {
+            $orderNumber = $order->getOrderNumber();
+            $actualAmount = $order->getPrice();
+            $creationDate = $order->getCreationDate();
+            $payDate = $order->getPaymentDate();
+
+            $paymentChannel = $order->getPayChannel();
+
+            if (!is_null($paymentChannel)) {
+                $paymentChannel = $this->get('translator')->trans(
+                    ProductOrderExport::TRANS_PRODUCT_ORDER_CHANNEL.$paymentChannel,
+                    array(),
+                    null,
+                    $language
+                );
+            }
+
+            $body = $this->getExportBody(
+                $collection,
+                $collection,
+                null,
+                $orderCategory,
+                $orderNumber,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                $actualAmount,
+                null,
+                $actualAmount,
+                null,
+                null,
+                $creationDate,
+                $payDate,
+                null,
+                null,
+                $paymentChannel,
+                null
+            );
+
+            $topUpBody[] = $body;
+        }
+
+        return $topUpBody;
+    }
+
+    /**
+     * @return array
+     */
+    private function getOfficialExcelHeaders(
+        $language
+    ) {
+        return [
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_COMPANY_NAME, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_COLLECTION_METHOD, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_BUILDING_NAME, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_CATEGORY, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_NO, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_PRODUCT_NAME, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ROOM_TYPE, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_USER_ID, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_BASE_PRICE, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_UNIT_PRICE, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_AMOUNT, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_DISCOUNT_PRICE, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_REFUND_AMOUNT, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ACTUAL_AMOUNT, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_COMMISSION, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_LEASING_TIME, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_TIME, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_PAYMENT_TIME, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_STATUS, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_REFUND_TO, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_PAYMENT_CHANNEL, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_TYPE, array(), null, $language),
+        ];
+    }
+
+    /**
+     * @param $companyName
      * @param $collection
      * @param $buildingName
      * @param $orderCategory
@@ -510,17 +822,21 @@ trait FinanceExportTraits
      * @param $unit
      * @param $price
      * @param $actualAmount
+     * @param $refundAmount
      * @param $income
      * @param $commission
      * @param $leasingTime
      * @param $creationDate
      * @param $payDate
      * @param $status
+     * @param $refundTo
+     * @param $payChannel
      * @param $orderType
      *
      * @return array
      */
     private function getExportBody(
+        $companyName,
         $collection,
         $buildingName,
         $orderCategory,
@@ -532,16 +848,20 @@ trait FinanceExportTraits
         $unit,
         $price,
         $actualAmount,
+        $refundAmount,
         $income,
         $commission,
         $leasingTime,
         $creationDate,
         $payDate,
         $status,
+        $refundTo,
+        $payChannel,
         $orderType
     ) {
         // set excel body
         $body = array(
+            ProductOrderExport::COMPANY_NAME => $companyName,
             ProductOrderExport::COLLECTION_METHOD => $collection,
             ProductOrderExport::BUILDING_NAME => $buildingName,
             ProductOrderExport::ORDER_CATEGORY => $orderCategory,
@@ -553,91 +873,18 @@ trait FinanceExportTraits
             ProductOrderExport::UNIT_PRICE => $unit,
             ProductOrderExport::AMOUNT => $price,
             ProductOrderExport::DISCOUNT_PRICE => $actualAmount,
+            ProductOrderExport::REFUND_AMOUNT => $refundAmount,
             ProductOrderExport::ACTUAL_AMOUNT => $income,
             ProductOrderExport::COMMISSION => $commission,
             ProductOrderExport::LEASING_TIME => $leasingTime,
             ProductOrderExport::CREATION_DATE => $creationDate,
             ProductOrderExport::PAYMENT_TIME => $payDate,
             ProductOrderExport::ORDER_STATUS => $status,
+            ProductOrderExport::REFUND_TO => $refundTo,
+            ProductOrderExport::PAYMENT_CHANNEL => $payChannel,
             ProductOrderExport::ORDER_TYPE => $orderType,
         );
 
         return $body;
-    }
-
-    /**
-     * @param $salesCompanyId
-     * @param $start
-     * @param $end
-     *
-     * @return array
-     */
-    private function getShortRentAndLongRentArray(
-        $salesCompanyId,
-        $start,
-        $end
-    ) {
-        // short rent orders
-        $orders = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->getCompletedOrders(
-                $start,
-                $end,
-                $salesCompanyId
-            );
-
-        $amount = 0;
-        foreach ($orders as $order) {
-            $amount += $order['discountPrice'] * (1 - $order['serviceFee'] / 100);
-        }
-
-        // long rent orders
-        $longBills = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
-            ->findBillsByDates(
-                $start,
-                $end,
-                $salesCompanyId
-            );
-
-        $serviceAmount = 0;
-        $incomeAmount = 0;
-        foreach ($longBills as $longBill) {
-            $incomeAmount += $longBill->getRevisedAmount();
-
-            $serviceBill = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Finance\FinanceLongRentServiceBill')
-                ->findOneBy([
-                    'bill' => $longBill,
-                ]);
-            if (!is_null($serviceBill)) {
-                $serviceAmount += $serviceBill->getAmount();
-            }
-        }
-
-        // event orders
-        $events = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Event\EventOrder')
-            ->getSumEventOrders(
-                $start,
-                $end,
-                $salesCompanyId
-            );
-
-        $eventBalance = 0;
-        foreach ($events as $event) {
-            $eventBalance += $event['price'];
-        }
-
-        $summaryArray = [
-            'total_income' => $amount + $incomeAmount + $eventBalance,
-            'short_rent_balance' => $amount,
-            'long_rent_balance' => $incomeAmount,
-            'event_order_balance' => $eventBalance,
-            'total_service_bill' => $serviceAmount,
-            'long_rent_service_bill' => $serviceAmount,
-        ];
-
-        return $summaryArray;
     }
 }

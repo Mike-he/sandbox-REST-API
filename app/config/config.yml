@@ -159,6 +159,10 @@ doctrine:
         entity_managers:
             default:
                 auto_mapping: true
+                # enable metadata caching
+#                metadata_cache_driver: redis
+#                # enable query caching
+#                query_cache_driver: redis
                 dql:
                     datetime_functions:
                         date: DoctrineExtensions\Query\Mysql\Date
@@ -366,3 +370,27 @@ knp_snappy:
         enabled:    true
         binary:     /usr/bin/wkhtmltoimage
         options:    []
+
+#snc_redis:
+#    # configure predis as client
+#    clients:
+#        default:
+#            type: predis
+#            alias: default
+#            dsn: redis://139.224.210.135
+#        doctrine:
+#            type: predis
+#            alias: doctrine
+#            dsn: redis://139.224.210.135
+#    # configure doctrine caching
+#    doctrine:
+#        metadata_cache:
+#            client: doctrine
+#            entity_manager: default
+#            document_manager: default
+#        result_cache:
+#            client: doctrine
+#            entity_manager: [default]
+#        query_cache:
+#            client: doctrine
+#            entity_manager: default

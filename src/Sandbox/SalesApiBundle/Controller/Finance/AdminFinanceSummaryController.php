@@ -7,7 +7,7 @@ use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
-use Sandbox\ApiBundle\Traits\FinanceExportTraits;
+use Sandbox\ApiBundle\Traits\FinanceSalesExportTraits;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -27,7 +27,7 @@ use Symfony\Component\HttpKernel\Exception\PreconditionFailedHttpException;
  */
 class AdminFinanceSummaryController extends PaymentController
 {
-    use FinanceExportTraits;
+    use FinanceSalesExportTraits;
 
     /**
      * @param Request $request
@@ -403,6 +403,82 @@ class AdminFinanceSummaryController extends PaymentController
             $shortOrders,
             $longBills
         );
+    }
+
+    /**
+     * @param $salesCompanyId
+     * @param $start
+     * @param $end
+     *
+     * @return array
+     */
+    private function getShortRentAndLongRentArray(
+        $salesCompanyId,
+        $start,
+        $end
+    ) {
+        // short rent orders
+        $orders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getCompletedOrders(
+                $start,
+                $end,
+                $salesCompanyId
+            );
+
+        $amount = 0;
+        foreach ($orders as $order) {
+            $amount += $order['discountPrice'] * (1 - $order['serviceFee'] / 100);
+        }
+
+        // long rent orders
+        $longBills = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->findBillsByDates(
+                $start,
+                $end,
+                $salesCompanyId
+            );
+
+        $serviceAmount = 0;
+        $incomeAmount = 0;
+        foreach ($longBills as $longBill) {
+            $incomeAmount += $longBill->getRevisedAmount();
+
+            $serviceBill = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Finance\FinanceLongRentServiceBill')
+                ->findOneBy([
+                    'bill' => $longBill,
+                ]);
+            if (!is_null($serviceBill)) {
+                $serviceAmount += $serviceBill->getAmount();
+            }
+        }
+
+        // event orders
+        $events = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventOrder')
+            ->getSumEventOrders(
+                $start,
+                $end,
+                $salesCompanyId
+            );
+
+        $eventBalance = 0;
+        foreach ($events as $event) {
+            $eventBalance += $event['price'];
+        }
+
+        $summaryArray = [
+            'total_income' => $amount + $incomeAmount + $eventBalance,
+            'short_rent_balance' => $amount,
+            'long_rent_balance' => $incomeAmount,
+            'event_order_balance' => $eventBalance,
+            'total_service_bill' => $serviceAmount,
+            'long_rent_service_bill' => $serviceAmount,
+        ];
+
+        return $summaryArray;
     }
 
     /**

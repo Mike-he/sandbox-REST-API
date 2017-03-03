@@ -47,7 +47,9 @@ class ShopController extends ShopRestController
      */
     public function getShopOrderExport(
         $orders,
-        $language
+        $language,
+        $start,
+        $end
     ) {
         $phpExcelObject = new \PHPExcel();
         $phpExcelObject->getProperties()->setTitle('Sandbox Shop Orders');

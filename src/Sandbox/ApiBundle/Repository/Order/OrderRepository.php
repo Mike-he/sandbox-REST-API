@@ -343,12 +343,11 @@ class OrderRepository extends EntityRepository
      */
     public function getUserCurrentOrders(
         $userId,
-        $limit,
-        $offset,
         $search
     ) {
         $now = new \DateTime();
         $query = $this->createQueryBuilder('o')
+            ->select('o.startDate, o.endDate, up.name as username, b.address, r.name, r.type, p.roomId, o.productId, o.creationDate')
             ->leftJoin('SandboxApiBundle:Order\InvitedPeople', 'i', 'WITH', 'i.orderId = o.id')
             ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'up.userId = o.userId')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
@@ -377,18 +376,13 @@ class OrderRepository extends EntityRepository
                         up.name LIKE :search OR
                         c.name LIKE :search OR
                         b.name LIKE :search OR
-                        r.type LIKE :search
+                        r.name LIKE :search
                     )'
                 )
                     ->setParameter('search', "%$search%");
         }
 
-        $query = $query->orderBy('o.modificationDate', 'DESC')
-                ->setMaxResults($limit)
-                ->setFirstResult($offset)
-                ->getQuery();
-
-        return $query->getResult();
+        return $query->getQuery()->getResult();
     }
 
     /**
@@ -3325,9 +3319,7 @@ class OrderRepository extends EntityRepository
             ->select('SUM(to.price)')
             ->where('to.paymentDate >= :start')
             ->andWhere('to.paymentDate <= :end')
-            ->andWhere('to.payChannel != :account')
             ->andWhere('to.refundToAccount = FALSE')
-            ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
             ->setParameter('start', $startDate)
             ->setParameter('end', $endDate);
 

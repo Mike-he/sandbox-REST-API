@@ -239,6 +239,7 @@ client:
     event_order: Event Order
     long_rent_order: Long Term Order
     short_rent_order: Short Term Order
+    top_up_order: Top Up Order
     sandbox: Sandbox3
   account:
     invalid_phone_number: Invalid phone number.

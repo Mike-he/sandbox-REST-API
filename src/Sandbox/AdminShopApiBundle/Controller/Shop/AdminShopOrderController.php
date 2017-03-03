@@ -771,7 +771,7 @@ class AdminShopOrderController extends ShopController
             null
         );
 
-        return $this->getShopOrderExport($orders, $language);
+        return $this->getShopOrderExport($orders, $language, $start, $end);
     }
 
     /**

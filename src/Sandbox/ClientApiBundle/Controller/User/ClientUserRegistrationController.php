@@ -676,7 +676,7 @@ class ClientUserRegistrationController extends UserRegistrationController
         $em = $this->getDoctrine()->getManager();
 
         foreach ($segments as $segment) {
-            for ($i = 0; $i < 100; $i++) {
+            for ($i = 0; $i < 100; ++$i) {
                 $randomNum = random_int(1000, 9999);
                 $phone = $segment.'0000'.$randomNum;
                 $phones[] = $phone;
