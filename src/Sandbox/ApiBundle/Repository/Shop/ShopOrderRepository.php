@@ -194,7 +194,8 @@ class ShopOrderRepository extends EntityRepository
             ->join('SandboxApiBundle:Shop\Shop', 's', 'WITH', 's.id = o.shopId')
             ->join('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'b.id = s.buildingId')
             ->join('SandboxApiBundle:Room\RoomCity', 'c', 'WITH', 'c.id = b.cityId')
-            ->leftJoin('SandboxApiBundle:User\UserView', 'u', 'WITH', 'u.id = o.userId');
+            ->leftJoin('SandboxApiBundle:User\UserView', 'u', 'WITH', 'u.id = o.userId')
+            ->where('o.unoriginal = FALSE');
 
         if (!is_null($shopId) && !empty($shopId)) {
             $query->andWhere('o.shopId = :shopId')
