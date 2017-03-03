@@ -122,4 +122,24 @@ class TopUpOrderRepository extends EntityRepository
 
         return $query->getQuery()->getSingleScalarResult();
     }
+
+    /**
+     * @param $startDate
+     * @param $endDate
+     *
+     * @return array
+     */
+    public function getOfficialTopUpOrders(
+        $startDate,
+        $endDate
+    ) {
+        $topUpOrdersQuery = $this->createQueryBuilder('to')
+            ->where('to.paymentDate >= :start')
+            ->andWhere('to.paymentDate <= :end')
+            ->andWhere('to.refundToAccount = FALSE')
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        return $topUpOrdersQuery->getQuery()->getResult();
+    }
 }
