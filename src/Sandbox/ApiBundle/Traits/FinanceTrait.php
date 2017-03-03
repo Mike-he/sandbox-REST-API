@@ -402,6 +402,15 @@ trait FinanceTrait
         $refundToAccountAmountDashboard->setType(FinanceDashboard::TYPE_BALANCE_FLOW);
         $em->persist($refundToAccountAmountDashboard);
 
+        $accountRefundToAccountAmount = $balanceDashboard[FinanceDashboardConstants::ACCOUNT_REFUND_TO_ACCOUNT_AMOUNT];
+
+        $accountRefundToAccountAmountDashboard = new FinanceDashboard();
+        $accountRefundToAccountAmountDashboard->setTimePeriod($year.'-'.$month);
+        $accountRefundToAccountAmountDashboard->setParameterKey(FinanceDashboardConstants::ACCOUNT_REFUND_TO_ACCOUNT_AMOUNT);
+        $accountRefundToAccountAmountDashboard->setParameterValue((string) $accountRefundToAccountAmount);
+        $accountRefundToAccountAmountDashboard->setType(FinanceDashboard::TYPE_BALANCE_FLOW);
+        $em->persist($accountRefundToAccountAmountDashboard);
+
         $topUpTotalCount = $balanceDashboard[FinanceDashboardConstants::TOTAL_TOP_UP_COUNT];
 
         $topUpTotalCountDashboard = new FinanceDashboard();
@@ -455,6 +464,15 @@ trait FinanceTrait
         $refundToAccountCountDashboard->setParameterValue((string) $refundToAccountCount);
         $refundToAccountCountDashboard->setType(FinanceDashboard::TYPE_BALANCE_FLOW);
         $em->persist($refundToAccountCountDashboard);
+
+        $accountRefundToAccountCount = $balanceDashboard[FinanceDashboardConstants::ACCOUNT_REFUND_TO_ACCOUNT_AMOUNT];
+
+        $accountRefundToAccountCountDashboard = new FinanceDashboard();
+        $accountRefundToAccountCountDashboard->setTimePeriod($year.'-'.$month);
+        $accountRefundToAccountCountDashboard->setParameterKey(FinanceDashboardConstants::ACCOUNT_REFUND_TO_ACCOUNT_AMOUNT);
+        $accountRefundToAccountCountDashboard->setParameterValue((string) $accountRefundToAccountCount);
+        $accountRefundToAccountCountDashboard->setType(FinanceDashboard::TYPE_BALANCE_FLOW);
+        $em->persist($accountRefundToAccountCountDashboard);
 
         $spaceOrderExpendAmount = $balanceDashboard[FinanceDashboardConstants::SPACE_EXPEND_AMOUNT];
 
