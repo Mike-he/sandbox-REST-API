@@ -465,11 +465,11 @@ trait FinanceTrait
         $refundToAccountCountDashboard->setType(FinanceDashboard::TYPE_BALANCE_FLOW);
         $em->persist($refundToAccountCountDashboard);
 
-        $accountRefundToAccountCount = $balanceDashboard[FinanceDashboardConstants::ACCOUNT_REFUND_TO_ACCOUNT_AMOUNT];
+        $accountRefundToAccountCount = $balanceDashboard[FinanceDashboardConstants::ACCOUNT_REFUND_TO_ACCOUNT_COUNT];
 
         $accountRefundToAccountCountDashboard = new FinanceDashboard();
         $accountRefundToAccountCountDashboard->setTimePeriod($year.'-'.$month);
-        $accountRefundToAccountCountDashboard->setParameterKey(FinanceDashboardConstants::ACCOUNT_REFUND_TO_ACCOUNT_AMOUNT);
+        $accountRefundToAccountCountDashboard->setParameterKey(FinanceDashboardConstants::ACCOUNT_REFUND_TO_ACCOUNT_COUNT);
         $accountRefundToAccountCountDashboard->setParameterValue((string) $accountRefundToAccountCount);
         $accountRefundToAccountCountDashboard->setType(FinanceDashboard::TYPE_BALANCE_FLOW);
         $em->persist($accountRefundToAccountCountDashboard);
