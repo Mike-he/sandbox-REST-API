@@ -228,7 +228,7 @@ class AdminShopController extends ShopController
                     'key' => AdminPermission::KEY_SHOP_PLATFORM_SHOP,
                 ),
             ),
-            AdminPermission::OP_LEVEL_EDIT
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         $shop = $this->getRepo('Shop\Shop')->getShopById($id);
