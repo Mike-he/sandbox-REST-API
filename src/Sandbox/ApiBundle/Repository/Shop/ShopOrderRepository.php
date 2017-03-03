@@ -29,6 +29,7 @@ class ShopOrderRepository extends EntityRepository
             ->where('so.paymentDate >= :start')
             ->andWhere('so.paymentDate <= :end')
             ->andWhere('so.payChannel != :account')
+            ->andWhere('so.unoriginal = FALSE')
             ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
             ->setParameter('start', $startDate)
             ->setParameter('end', $endDate);
