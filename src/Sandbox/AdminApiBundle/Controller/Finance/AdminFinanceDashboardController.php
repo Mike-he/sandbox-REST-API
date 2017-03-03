@@ -9,7 +9,7 @@ use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentBill;
 use Sandbox\ApiBundle\Entity\Finance\FinanceShortRentInvoiceApplication;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyWithdrawals;
 use Sandbox\ApiBundle\Entity\Finance\FinanceDashboard;
-use Sandbox\ApiBundle\Traits\FinanceExportTraits;
+use Sandbox\ApiBundle\Traits\FinanceOfficialExportTraits;
 use Sandbox\ApiBundle\Traits\FinanceTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -22,7 +22,7 @@ use FOS\RestBundle\Controller\Annotations;
 class AdminFinanceDashboardController extends AdminRestController
 {
     use FinanceTrait;
-    use FinanceExportTraits;
+    use FinanceOfficialExportTraits;
 
     /**
      * @param Request               $request
@@ -103,12 +103,28 @@ class AdminFinanceDashboardController extends AdminRestController
                 $endDate
             );
 
+        $shopOrders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Shop\ShopOrder')
+            ->getOfficialAdminShopOrders(
+                $startDate,
+                $endDate
+            );
+
+        $topUpOrders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\TopUpOrder')
+            ->getOfficialTopUpOrders(
+                $startDate,
+                $endDate
+            );
+
         return $this->getFinanceSummaryExport(
             $startDate,
             $language,
             $events,
             $shortOrders,
-            $longBills
+            $longBills,
+            $shopOrders,
+            $topUpOrders
         );
     }
 

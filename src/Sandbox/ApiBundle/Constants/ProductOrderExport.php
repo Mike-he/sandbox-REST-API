@@ -36,12 +36,16 @@ class ProductOrderExport
     const TRANS_CLIENT_PROFILE_EVENT_ORDER = 'client.profile.event_order';
     const TRANS_CLIENT_PROFILE_LONG_RENT_ORDER = 'client.profile.long_rent_order';
     const TRANS_CLIENT_PROFILE_SHORT_RENT_ORDER = 'client.profile.short_rent_order';
+    const TRANS_CLIENT_PROFILE_SHOP_ORDER = 'client.profile.shop_order';
+    const TRANS_CLIENT_PROFILE_TOP_UP = 'client.profile.top_up_order';
     const TRANS_CLIENT_PROFILE_SANDBOX = 'client.profile.sandbox';
 
     const TRANS_PRODUCT_ORDER_STATUS = 'product_order.status.';
     const TRANS_PRODUCT_ORDER_CHANNEL = 'product_order.channel.';
     const TRANS_PRODUCT_ORDER_TYPE = 'product_order.order_type.';
     const TRANS_PRODUCT_ORDER_REFUND_TO = 'product_order.refund_to.';
+
+    const TRANS_SHOP_ORDER_STATUS = 'shop_order.status.';
 
     const TRANS_PRODUCT_ORDER_HEADER_BUILDING_NAME = 'product_order.export_header.building_name';
     const TRANS_PRODUCT_ORDER_HEADER_COMPANY_NAME = 'product_order.export_header.company_name';

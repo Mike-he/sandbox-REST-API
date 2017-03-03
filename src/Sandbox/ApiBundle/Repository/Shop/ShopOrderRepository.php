@@ -16,6 +16,27 @@ use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 class ShopOrderRepository extends EntityRepository
 {
     /**
+     * @param $startDate
+     * @param $endDate
+     *
+     * @return array
+     */
+    public function getOfficialAdminShopOrders(
+        $startDate,
+        $endDate
+    ) {
+        $shopOrderQuery = $this->createQueryBuilder('so')
+            ->where('so.paymentDate >= :start')
+            ->andWhere('so.paymentDate <= :end')
+            ->andWhere('so.payChannel != :account')
+            ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        return $shopOrderQuery->getQuery()->getResult();
+    }
+
+    /**
      * @param $shopId
      * @param $status
      * @param $start

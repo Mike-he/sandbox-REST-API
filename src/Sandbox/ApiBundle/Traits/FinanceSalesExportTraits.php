@@ -8,7 +8,7 @@ use Sandbox\ApiBundle\Constants\LeaseConstants;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
-trait FinanceExportTraits
+trait FinanceSalesExportTraits
 {
     /**
      * @param $firstDate
@@ -29,57 +29,39 @@ trait FinanceExportTraits
         $phpExcelObject = new \PHPExcel();
         $phpExcelObject->getProperties()->setTitle('Finance Summary');
 
-        $eventBody = $this->setEventArray(
-            $events,
-            $language
-        );
-
-        $shortBody = $this->setShortOrderArray(
-            $shortOrders,
-            $language
-        );
-
-        $longBody = $this->setLongOrderArray(
-            $longBills,
-            $language
-        );
-
-        $headers = [
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_COLLECTION_METHOD, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_BUILDING_NAME, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_CATEGORY, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_NO, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_PRODUCT_NAME, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ROOM_TYPE, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_USER_ID, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_BASE_PRICE, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_UNIT_PRICE, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_AMOUNT, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_DISCOUNT_PRICE, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ACTUAL_AMOUNT, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_COMMISSION, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_LEASING_TIME, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_TIME, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_PAYMENT_TIME, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_STATUS, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_TYPE, array(), null, $language),
-        ];
+        $headers = $this->getSalesExcelHeaders($language);
 
         //Fill data
         $phpExcelObject->setActiveSheetIndex(0)->fromArray($headers, ' ', 'A1');
         $row = $phpExcelObject->getActiveSheet()->getHighestRow() + 1;
 
-        if (!empty($shortBody)) {
+        // set sheet body
+        if (!is_null($shortOrders) && !empty($shortOrders)) {
+            $shortBody = $this->setShortOrderArray(
+                $shortOrders,
+                $language
+            );
+
             $phpExcelObject->setActiveSheetIndex(0)->fromArray($shortBody, ' ', "A$row");
             $row = $phpExcelObject->getActiveSheet()->getHighestRow() + 3;
         }
 
-        if (!empty($longBody)) {
+        if (!is_null($longBills) && !empty($longBills)) {
+            $longBody = $this->setLongOrderArray(
+                $longBills,
+                $language
+            );
+
             $phpExcelObject->setActiveSheetIndex(0)->fromArray($longBody, ' ', "A$row");
             $row = $phpExcelObject->getActiveSheet()->getHighestRow() + 3;
         }
 
-        if (!empty($eventBody)) {
+        if (!is_null($events) && !empty($events)) {
+            $eventBody = $this->setEventArray(
+                $events,
+                $language
+            );
+
             $phpExcelObject->setActiveSheetIndex(0)->fromArray($eventBody, ' ', "A$row");
         }
 
@@ -112,6 +94,34 @@ trait FinanceExportTraits
         $response->headers->set('Content-Disposition', $dispositionHeader);
 
         return $response;
+    }
+
+    /**
+     * @return array
+     */
+    private function getSalesExcelHeaders(
+        $language
+    ) {
+        return [
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_COLLECTION_METHOD, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_BUILDING_NAME, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_CATEGORY, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_NO, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_PRODUCT_NAME, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ROOM_TYPE, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_USER_ID, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_BASE_PRICE, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_UNIT_PRICE, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_AMOUNT, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_DISCOUNT_PRICE, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ACTUAL_AMOUNT, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_COMMISSION, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_LEASING_TIME, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_TIME, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_PAYMENT_TIME, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_STATUS, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_TYPE, array(), null, $language),
+        ];
     }
 
     /**
@@ -563,81 +573,5 @@ trait FinanceExportTraits
         );
 
         return $body;
-    }
-
-    /**
-     * @param $salesCompanyId
-     * @param $start
-     * @param $end
-     *
-     * @return array
-     */
-    private function getShortRentAndLongRentArray(
-        $salesCompanyId,
-        $start,
-        $end
-    ) {
-        // short rent orders
-        $orders = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->getCompletedOrders(
-                $start,
-                $end,
-                $salesCompanyId
-            );
-
-        $amount = 0;
-        foreach ($orders as $order) {
-            $amount += $order['discountPrice'] * (1 - $order['serviceFee'] / 100);
-        }
-
-        // long rent orders
-        $longBills = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
-            ->findBillsByDates(
-                $start,
-                $end,
-                $salesCompanyId
-            );
-
-        $serviceAmount = 0;
-        $incomeAmount = 0;
-        foreach ($longBills as $longBill) {
-            $incomeAmount += $longBill->getRevisedAmount();
-
-            $serviceBill = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Finance\FinanceLongRentServiceBill')
-                ->findOneBy([
-                    'bill' => $longBill,
-                ]);
-            if (!is_null($serviceBill)) {
-                $serviceAmount += $serviceBill->getAmount();
-            }
-        }
-
-        // event orders
-        $events = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Event\EventOrder')
-            ->getSumEventOrders(
-                $start,
-                $end,
-                $salesCompanyId
-            );
-
-        $eventBalance = 0;
-        foreach ($events as $event) {
-            $eventBalance += $event['price'];
-        }
-
-        $summaryArray = [
-            'total_income' => $amount + $incomeAmount + $eventBalance,
-            'short_rent_balance' => $amount,
-            'long_rent_balance' => $incomeAmount,
-            'event_order_balance' => $eventBalance,
-            'total_service_bill' => $serviceAmount,
-            'long_rent_service_bill' => $serviceAmount,
-        ];
-
-        return $summaryArray;
     }
 }

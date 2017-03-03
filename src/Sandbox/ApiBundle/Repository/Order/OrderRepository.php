@@ -3319,9 +3319,7 @@ class OrderRepository extends EntityRepository
             ->select('SUM(to.price)')
             ->where('to.paymentDate >= :start')
             ->andWhere('to.paymentDate <= :end')
-            ->andWhere('to.payChannel != :account')
             ->andWhere('to.refundToAccount = FALSE')
-            ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
             ->setParameter('start', $startDate)
             ->setParameter('end', $endDate);
 
