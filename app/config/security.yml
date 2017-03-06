@@ -164,6 +164,11 @@ security:
             security: false
             methods: [GET]
 
+        client_user_check:
+            pattern: ^/client/auth/user_check$
+            security: false
+            methods: [POST]
+
         main:
             pattern: ^/
             anonymous: true
