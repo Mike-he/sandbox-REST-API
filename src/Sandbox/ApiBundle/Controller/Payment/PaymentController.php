@@ -1263,13 +1263,15 @@ class PaymentController extends DoorController
      * @param string $orderNumber
      * @param string $channel
      * @param bool   $refundToAccount
+     * @param string $refundNumber
      */
     public function setTopUpOrder(
         $userId,
         $price,
         $orderNumber,
         $channel,
-        $refundToAccount = false
+        $refundToAccount = false,
+        $refundNumber = null
     ) {
         $order = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\TopUpOrder')
@@ -1281,6 +1283,7 @@ class PaymentController extends DoorController
             $order->setOrderNumber($orderNumber);
             $order->setPrice($price);
             $order->setRefundToAccount($refundToAccount);
+            $order->setRefundNumber($refundNumber);
         }
 
         $this->storePayChannel(
