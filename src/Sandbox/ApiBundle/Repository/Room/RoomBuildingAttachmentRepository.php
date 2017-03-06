@@ -16,4 +16,24 @@ class RoomBuildingAttachmentRepository extends EntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * @param $company
+     *
+     * @return array
+     */
+    public function findAttachmentByCompany(
+        $company
+    ) {
+        $query = $this->createQueryBuilder('rba')
+            ->select('rba.content')
+            ->leftJoin('rba.building', 'b')
+            ->where('b.company = :company')
+            ->setParameter('company', $company)
+            ->orderBy('b.id', 'ASC');
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
 }

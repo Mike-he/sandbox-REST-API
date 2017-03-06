@@ -117,12 +117,17 @@ class AdminAuthController extends AuthController
             ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
             ->findPositionByAdmin($myAdminId);
 
+        $platform = $this->handlePositionData($positions);
+
+        $companyInfo = $this->handleCompanyData($positions);
+
         // response
         $view = new View();
 
         return $view->setData(
             array(
-                'platform' => $this->handlePositionData($positions),
+                'platform' => $platform,
+                'company' => $companyInfo,
             )
         );
     }
