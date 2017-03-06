@@ -29,6 +29,7 @@ use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Form\Order\OrderType;
 use JMS\Serializer\SerializationContext;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Rest controller for Client Orders.
@@ -1113,21 +1114,25 @@ class ClientOrderController extends OrderController
                 $this->throwNotFoundIfNull($existTransfer, self::NOT_FOUND_MESSAGE);
 
                 $transferStatus = $existTransfer->getTransferStatus();
-                if ($transferStatus == OrderOfflineTransfer::STATUS_UNPAID) {
+
+                // cancel order , check actual refund amount
+                if (in_array($transferStatus, array(
+                    OrderOfflineTransfer::STATUS_UNPAID,
+                    OrderOfflineTransfer::STATUS_PENDING,
+                    OrderOfflineTransfer::STATUS_RETURNED,
+                ))) {
                     $order->setStatus(ProductOrder::STATUS_CANCELLED);
                     $order->setCancelledDate(new \DateTime());
                     $order->setModificationDate(new \DateTime());
-                } else {
+                } elseif ($transferStatus == OrderOfflineTransfer::STATUS_PAID) {
                     $existTransfer->setTransferStatus(OrderOfflineTransfer::STATUS_VERIFY);
 
                     if ($refundChannel == ProductOrder::CHANNEL_ACCOUNT) {
                         $order->setRefundTo(ProductOrder::REFUND_TO_ACCOUNT);
                     }
+                } else {
+                    throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
                 }
-            } else {
-                $order->setStatus(ProductOrder::STATUS_CANCELLED);
-                $order->setCancelledDate(new \DateTime());
-                $order->setModificationDate(new \DateTime());
             }
 
             $em = $this->getDoctrine()->getManager();
