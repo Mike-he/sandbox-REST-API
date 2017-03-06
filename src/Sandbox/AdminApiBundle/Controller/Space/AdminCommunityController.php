@@ -193,14 +193,22 @@ class AdminCommunityController extends SandboxRestController
      *    description="search spaces"
      * )
      *
-     * @Route("/communities/{id}/spaces")
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    default=null,
+     *    nullable=true,
+     *    array=false,
+     *    description="id of building"
+     * )
+     *
+     * @Route("/communities/spaces")
      * @Method({"GET"})
      *
      * @return View
      */
     public function getSpacesByCommunityIdAction(
-        ParamFetcherInterface $paramFetcher,
-        $id
+        Request $request,
+        ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
         $this->checkAdminCommunityPermissions(AdminPermission::OP_LEVEL_VIEW);
@@ -211,10 +219,12 @@ class AdminCommunityController extends SandboxRestController
         $roomType = $paramFetcher->get('room_types');
         $visible = $paramFetcher->get('visible');
         $query = $paramFetcher->get('query');
+        $building = $paramFetcher->get('building');
 
         $spaces = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\Room')
-            ->findSpacesByBuilding($id,
+            ->findSpacesByBuilding(
+                $building,
                 $pageLimit,
                 $offset,
                 $roomType,
