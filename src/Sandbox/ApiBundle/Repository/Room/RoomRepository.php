@@ -660,6 +660,7 @@ class RoomRepository extends EntityRepository
      * @return array
      */
     public function findSpacesByBuilding(
+        $salesCompanyId,
         $buildingId,
         $pageLimit,
         $offset,
@@ -684,6 +685,11 @@ class RoomRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'r.id = p.roomId')
             ->where('r.isDeleted = FALSE')
             ->orderBy('r.id', 'DESC');
+
+        if (!is_null($salesCompanyId)) {
+            $query->andWhere('b.company = :company')
+                ->setParameter('company', $salesCompanyId);
+        }
 
         if (!is_null($buildingId)) {
             $query->andWhere('r.building = :buildingId')

@@ -224,6 +224,7 @@ class AdminCommunityController extends SandboxRestController
         $spaces = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\Room')
             ->findSpacesByBuilding(
+                null,
                 $building,
                 $pageLimit,
                 $offset,

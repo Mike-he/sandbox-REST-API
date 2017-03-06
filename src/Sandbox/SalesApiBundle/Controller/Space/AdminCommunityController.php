@@ -285,6 +285,9 @@ class AdminCommunityController extends SalesRestController
         // check user permission
         $this->checkAdminCommunityPermissions(AdminPermission::OP_LEVEL_VIEW);
 
+        $adminPlatform = $this->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
         $offset = ($pageIndex - 1) * $pageLimit;
@@ -296,6 +299,7 @@ class AdminCommunityController extends SalesRestController
         $spaces = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\Room')
             ->findSpacesByBuilding(
+                $salesCompanyId,
                 $building,
                 $pageLimit,
                 $offset,
