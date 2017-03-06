@@ -649,6 +649,16 @@ class RoomRepository extends EntityRepository
         return $query->getQuery()->getSingleScalarResult();
     }
 
+    /**
+     * @param $buildingId
+     * @param $pageLimit
+     * @param $offset
+     * @param $roomTypes
+     * @param $visible
+     * @param $search
+     *
+     * @return array
+     */
     public function findSpacesByBuilding(
         $buildingId,
         $pageLimit,
@@ -663,17 +673,22 @@ class RoomRepository extends EntityRepository
                     r.id, 
                     r.name, 
                     r.buildingId as building_id,
+                    b.name as building_name,
                     r.type,
                     rt.type as rent_type,
                     r.area, 
                     r.allowedPeople as allowed_people
             ')
+            ->leftJoin('r.building', 'b')
             ->leftJoin('SandboxApiBundle:Room\RoomTypes', 'rt', 'WITH', 'r.type = rt.name')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'r.id = p.roomId')
-            ->where('r.building = :buildingId')
-            ->andWhere('r.isDeleted = FALSE')
-            ->setParameter('buildingId', $buildingId)
+            ->where('r.isDeleted = FALSE')
             ->orderBy('r.id', 'DESC');
+
+        if (!is_null($buildingId)) {
+            $query->andWhere('r.building = :buildingId')
+                ->setParameter('buildingId', $buildingId);
+        }
 
         if (!empty($roomTypes)) {
             $query->andWhere('r.type IN (:types)')
@@ -690,10 +705,11 @@ class RoomRepository extends EntityRepository
                 ->setParameter('search', '%'.$search.'%');
         }
 
-        return $query
-            ->setFirstResult($offset)
-            ->setMaxResults($pageLimit)
-            ->getQuery()
-            ->getResult();
+        $query = $query->setFirstResult($offset)
+                ->setMaxResults($pageLimit);
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
     }
 }
