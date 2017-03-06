@@ -6,6 +6,8 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Controller\User\UserLoginController;
 use Sandbox\ApiBundle\Entity\Auth\Auth;
 use Sandbox\ApiBundle\Entity\Error\Error;
+use Sandbox\ApiBundle\Entity\User\User;
+use Sandbox\ApiBundle\Form\User\UserCheckType;
 use Sandbox\ClientApiBundle\Data\User\UserLoginData;
 use Sandbox\ClientApiBundle\Form\User\UserLoginType;
 use Symfony\Component\HttpFoundation\Request;
@@ -177,6 +179,63 @@ class ClientUserLoginController extends UserLoginController
         $view->setSerializationContext(SerializationContext::create()->setGroups(array('login')));
 
         return $view;
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/user_check")
+     * @Method({"POST"})
+     *
+     * @return View
+     */
+    public function checkUserValidationAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        // check authorization
+        $this->checkAuthorization();
+
+        $user = new User();
+
+        $form = $this->createForm(new UserCheckType(), $user);
+        $form->handleRequest($request);
+
+        if (!$form->isValid()) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $phoneCode = $user->getPhoneCode();
+        $phone = $user->getPhone();
+        $email = $user->getEmail();
+
+        if (!is_null($phoneCode) && !is_null($phone)) {
+            $filters = array(
+                'phone' => $phone,
+                'phoneCode' => $phoneCode,
+            );
+        } elseif (!is_null($email)) {
+            $filters = array(
+                'email' => $email,
+            );
+        } else {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $sandboxUser = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\User')
+            ->findOneBy($filters);
+
+        if (is_null($sandboxUser)) {
+            return new View(array(
+                'user_exist' => false,
+            ));
+        }
+
+        return new View(array(
+            'user_exist' => true,
+        ));
     }
 
     /**

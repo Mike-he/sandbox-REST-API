@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\Controller\ThirdParty;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Constants\WeChatConstants;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Sandbox\ApiBundle\Controller\User\UserLoginController;
 use Sandbox\ApiBundle\Entity\ThirdParty\WeChatShares;
 use Sandbox\ApiBundle\Traits\CurlUtil;
 use Sandbox\ApiBundle\Form\ThirdParty\ThirdPartyWeChatShareType;
@@ -15,7 +16,7 @@ use FOS\RestBundle\View\View;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
-class WeChatShareController extends SandboxRestController
+class WeChatShareController extends UserLoginController
 {
     use CurlUtil;
 
@@ -112,33 +113,6 @@ class WeChatShareController extends SandboxRestController
             'signature' => $signature,
             'timestamp' => $data['timestamp'],
         ));
-    }
-
-    /**
-     * Check authorization.
-     */
-    private function checkAuthorization()
-    {
-        $twig = $this->container->get('twig');
-        $globals = $twig->getGlobals();
-
-        $authKey = $globals['sandbox_auth_key'];
-
-        $headerKey = self::SANDBOX_CLIENT_LOGIN_HEADER;
-
-        $headers = array_change_key_case($_SERVER, CASE_LOWER);
-
-        if (!array_key_exists($headerKey, $headers)) {
-            throw new UnauthorizedHttpException(self::UNAUTHED_API_CALL);
-        }
-
-        $auth = $headers[$headerKey];
-
-        if ($auth != md5($authKey)) {
-            throw new UnauthorizedHttpException(self::UNAUTHED_API_CALL);
-        }
-
-        return;
     }
 
     /**
