@@ -10,6 +10,7 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations\Get;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 /**
  * Rest controller for Admin TopUpOrders.
@@ -171,6 +172,119 @@ class AdminTopUpOrderController extends PaymentController
     }
 
     /**
+     * Get all top orders To Export.
+     *
+     * @Annotations\QueryParam(
+     *    name="language",
+     *    default="zh",
+     *    nullable=true,
+     *    requirements="(zh|en)",
+     *    strict=true,
+     *    description="export language"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="channel",
+     *    default=null,
+     *    nullable=true,
+     *    array=true,
+     *    description="payment channel"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="keyword",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="keyword_search",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pay_date",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="filter for payment start. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pay_start",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="filter for payment start. Must be YYYY-mm-dd"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="pay_end",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="filter for payment end. Must be YYYY-mm-dd"
+     * )
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Get("/topup/orders/export")
+     *
+     * @throws \Exception
+     *
+     * @return View
+     */
+    public function getExcelTopUpOrdersAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        //authenticate with web browser cookie
+        $admin = $this->authenticateAdminCookie();
+        $adminId = $admin->getId();
+
+        // check user permission
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $adminId,
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER],
+            ],
+            AdminPermission::OP_LEVEL_VIEW,
+            AdminPermission::PERMISSION_PLATFORM_OFFICIAL
+        );
+
+        $language = $paramFetcher->get('language');
+        $channel = $paramFetcher->get('channel');
+        $payDate = $paramFetcher->get('pay_date');
+        $payStart = $paramFetcher->get('pay_start');
+        $payEnd = $paramFetcher->get('pay_end');
+        $keyword = $paramFetcher->get('keyword');
+        $keywordSearch = $paramFetcher->get('keyword_search');
+
+        $orders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\TopUpOrder')
+            ->getTopUpOrdersToExport(
+                $channel,
+                $payDate,
+                $payStart,
+                $payEnd,
+                $keyword,
+                $keywordSearch
+            );
+
+        return $this->getTopOrderExport($orders, $language);
+    }
+
+    /**
      * @Get("/topup/orders/{orderNumber}")
      *
      * @param Request $request
@@ -238,5 +352,105 @@ class AdminTopUpOrderController extends PaymentController
         $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_order']));
 
         return $view;
+    }
+
+    /**
+     * @param array  $orders
+     * @param string $language
+     *
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse
+     *
+     * @throws \PHPExcel_Exception
+     */
+    private function getTopOrderExport(
+        $orders,
+        $language
+    ) {
+        $phpExcelObject = new \PHPExcel();
+        $phpExcelObject->getProperties()->setTitle('Sandbox Orders');
+        $excelBody = array();
+
+//        $payments = $this->getDoctrine()->getRepository('SandboxApiBundle:Payment\Payment')->findAll();
+//        $payChannel = array();
+//        foreach ($payments as $payment) {
+//            $payChannel[$payment->getChannel()] = $payment->getName();
+//        }
+
+        // set excel body
+        foreach ($orders as $order) {
+            $user = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserView')->find($order->getUserId());
+
+            // set excel body
+            $body = array(
+                'payment_date' => $order->getPaymentDate()->format('Y-m-d H:i:s'),
+                'order_number' => $order->getOrderNumber(),
+                'source' => $order->isRefundToAccount() ? '退款到余额' : '充值',
+                'refund_order_number' => $order->getRefundNumber(),
+                'username' => $this->filterEmoji($user->getName()),
+                'account' => $user->getPhone() ? $user->getPhone() : $user->getEmail(),
+                'pay_channel' => $order->getPayChannel(),
+                'price' => $order->getPrice(),
+            );
+
+            $excelBody[] = $body;
+        }
+
+        $headers = [
+            '充值时间',
+            '充值订单号',
+            '充值来源',
+            '退款订单号',
+            '用户昵称',
+            '用户账号',
+            '支付渠道',
+            '充值金额',
+        ];
+
+        //Fill data
+        $phpExcelObject->setActiveSheetIndex(0)->fromArray($headers, ' ', 'A1');
+        $phpExcelObject->setActiveSheetIndex(0)->fromArray($excelBody, ' ', 'A2');
+
+        $phpExcelObject->getActiveSheet()->getStyle('A1:G1')->getFont()->setBold(true);
+
+        //set column dimension
+        for ($col = ord('a'); $col <= ord('h'); ++$col) {
+            $phpExcelObject->setActiveSheetIndex(0)->getColumnDimension(chr($col))->setAutoSize(true);
+        }
+        $phpExcelObject->getActiveSheet()->setTitle('充值导表');
+
+        // Set active sheet index to the first sheet, so Excel opens this as the first sheet
+        $phpExcelObject->setActiveSheetIndex(0);
+
+        // create the writer
+        $writer = $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel5');
+        // create the response
+        $response = $this->get('phpexcel')->createStreamedResponse($writer);
+
+        $date = new \DateTime('now');
+        $stringDate = $date->format('Y-m-d H:i:s');
+
+        // adding headers
+        $dispositionHeader = $response->headers->makeDisposition(
+            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+            'topup_orders_'.$stringDate.'.xls'
+        );
+        $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
+        $response->headers->set('Pragma', 'public');
+        $response->headers->set('Cache-Control', 'maxage=1');
+        $response->headers->set('Content-Disposition', $dispositionHeader);
+
+        return $response;
+    }
+
+    private function filterEmoji($str)
+    {
+        $str = preg_replace_callback(
+            '/./u',
+            function (array $match) {
+                return strlen($match[0]) >= 4 ? '' : $match[0];
+            },
+            $str);
+
+        return $str;
     }
 }

@@ -159,6 +159,11 @@ security:
             security: false
             methods: [GET]
 
+        admin_order_topup_order_export:
+            pattern: ^/admin/topup/orders/export$
+            security: false
+            methods: [GET]
+
         main:
             pattern: ^/
             anonymous: true
