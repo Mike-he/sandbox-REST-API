@@ -254,8 +254,8 @@ class ShopController extends ShopRestController
             $body = array(
                 'menu_name' => $item['menu_name'],
                 'name' => $item['name'],
-                'amount' => $item['amount'].'个',
-                'price' => round($item['price'], 2).'元',
+                'amount' => $item['amount'],
+                'price' => round((float) $item['price'], 2).'元',
             );
 
             $bodyArray[] = $body;
