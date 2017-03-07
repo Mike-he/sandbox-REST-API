@@ -1863,4 +1863,22 @@ class SandboxRestController extends FOSRestController
             error_log('generate log went wrong!');
         }
     }
+
+    /**
+     * @param $str
+     *
+     * @return mixed
+     */
+    protected function filterEmoji(
+        $str
+    ) {
+        $str = preg_replace_callback(
+            '/./u',
+            function (array $match) {
+                return strlen($match[0]) >= 4 ? '' : $match[0];
+            },
+            $str);
+
+        return $str;
+    }
 }

@@ -504,4 +504,30 @@ class LeaseBillRepository extends EntityRepository
 
         return $result;
     }
+
+    /**
+     * @param $company
+     *
+     * @return array
+     */
+    public function findEffectiveBills(
+        $company
+    ) {
+        $query = $this->createQueryBuilder('lb')
+            ->where('lb.status != :status')
+            ->setParameter('status', LeaseBill::STATUS_PENDING);
+
+        if (!is_null($company)) {
+            $query->leftJoin('lb.lease', 'l')
+                ->leftJoin('l.product', 'p')
+                ->leftJoin('p.room', 'r')
+                ->leftJoin('r.building', 'b')
+                ->andWhere('b.company = :company')
+                ->setParameter('company', $company);
+        }
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
 }

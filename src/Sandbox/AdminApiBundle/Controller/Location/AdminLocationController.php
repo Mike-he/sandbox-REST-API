@@ -24,7 +24,7 @@ use JMS\Serializer\SerializationContext;
 class AdminLocationController extends AdminRestController
 {
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Get("/location/cities")

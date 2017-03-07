@@ -26,7 +26,9 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\PreconditionFailedHttpException;
 
 class AdminLeaseBillController extends SalesRestController
 {
@@ -70,6 +72,62 @@ class AdminLeaseBillController extends SalesRestController
         }
 
         return new View($response);
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/leases/bills/export")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function exportBillsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        //authenticate with web browser cookie
+        $admin = $this->authenticateAdminCookie();
+        $adminId = $admin->getId();
+        $token = $_COOKIE[self::ADMIN_COOKIE_NAME];
+
+        $userToken = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserToken')
+            ->findOneBy([
+                'userId' => $adminId,
+                'token' => $token,
+            ]);
+        $this->throwNotFoundIfNull($userToken, self::NOT_FOUND_MESSAGE);
+
+        $adminPlatform = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPlatform')
+            ->findOneBy(array(
+                'userId' => $adminId,
+                'clientId' => $userToken->getClientId(),
+            ));
+        if (is_null($adminPlatform)) {
+            throw new PreconditionFailedHttpException(self::PRECONDITION_NOT_SET);
+        }
+
+        $companyId = $adminPlatform->getSalesCompanyId();
+
+        // check user permission
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $adminId,
+            [
+                ['key' => AdminPermission::KEY_SALES_BUILDING_LONG_TERM_LEASE],
+            ],
+            AdminPermission::OP_LEVEL_VIEW,
+            AdminPermission::PERMISSION_PLATFORM_SALES,
+            $companyId
+        );
+
+        $bills = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->findEffectiveBills($companyId);
+
+        return $this->getBillExport($bills);
     }
 
     /**
@@ -801,6 +859,141 @@ class AdminLeaseBillController extends SalesRestController
         }
 
         return;
+    }
+
+    /**
+     * @param array $bills
+     *
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse
+     *
+     * @throws \PHPExcel_Exception
+     */
+    private function getBillExport(
+        $bills
+    ) {
+        $phpExcelObject = new \PHPExcel();
+        $phpExcelObject->getProperties()->setTitle('Sandbox Orders');
+        $excelBody = array();
+
+        $status = array(
+            LeaseBill::STATUS_UNPAID => '未付款',
+            LeaseBill::STATUS_PAID => '已付款',
+            LeaseBill::STATUS_VERIFY => '待确认',
+        );
+
+        // set excel body
+        foreach ($bills as $bill) {
+            $room = $bill->getLease()->getProduct()->getRoom();
+            $building = $room->getBuilding();
+            $company = $building->getCompany();
+
+            $companyService = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
+                ->findOneBy(array('company' => $company));
+
+            if ($companyService->getCollectionMethod() == SalesCompanyServiceInfos::COLLECTION_METHOD_SANDBOX) {
+                $collectionMethod = '创合收款';
+            } else {
+                $collectionMethod = $company->getName();
+            }
+
+            $payments = $this->getDoctrine()->getRepository('SandboxApiBundle:Payment\Payment')->findAll();
+            $payChannel = array();
+            foreach ($payments as $payment) {
+                $payChannel[$payment->getChannel()] = $payment->getName();
+            }
+            $payChannel[LeaseBill::CHANNEL_SALES_OFFLINE] = '线下支付';
+
+            $drawee = null;
+            $account = null;
+            if ($bill->getDrawee()) {
+                $user = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserView')->find($bill->getDrawee());
+                $drawee = $this->filterEmoji($user->getName());
+                $account = $user->getPhone() ? $user->getPhone() : $user->getEmail();
+            }
+
+            // set excel body
+            $body = array(
+                'lease_serial_number' => $bill->getLease()->getSerialNumber(),
+                'serial_number' => $bill->getSerialNumber(),
+                'name' => $bill->getName(),
+                'bill_date' => $bill->getStartDate()->format('Y-m-d').' - '.$bill->getEndDate()->format('Y-m-d'),
+                'send_date' => $bill->getSendDate() ? $bill->getSendDate()->format('Y-m-d H:i:s') : '',
+                'payment_date' => $bill->getPaymentDate() ? $bill->getPaymentDate()->format('Y-m-d H:i:s') : '',
+                'amount' => '￥'.$bill->getAmount(),
+                'revised_amount' => $bill->getRevisedAmount() ? '￥'.$bill->getRevisedAmount() : '',
+                'status' => $status[$bill->getStatus()],
+                'collection_method' => $collectionMethod,
+                'pay_channel' => $bill->getPayChannel() ? $payChannel[$bill->getPayChannel()] : '',
+                'remark' => $bill->getRemark(),
+                'sales_invoice' => $bill->isSalesInvoice() ? $company->getName() : '创合开票',
+                'sales_company' => $company->getName(),
+                'building_name' => $building->getName(),
+                'room_name' => $room->getName(),
+                'room_type' => '长租办公室',
+                'drawee' => $drawee,
+                'account' => $account,
+            );
+
+            $excelBody[] = $body;
+        }
+
+        $headers = [
+            '合同号',
+            '账单号',
+            '账单名称',
+            '账单时间段',
+            '账单推送时间',
+            '付款时间',
+            '账单原价',
+            '实收款',
+            '账单状态',
+            '收款方',
+            '支付渠道',
+            '收款备注（销售方）',
+            '开票方',
+            '销售方',
+            '社区',
+            '空间名称',
+            '空间类型',
+            '付款人昵称',
+            '付款人账号',
+        ];
+
+        //Fill data
+        $phpExcelObject->setActiveSheetIndex(0)->fromArray($headers, ' ', 'A1');
+        $phpExcelObject->setActiveSheetIndex(0)->fromArray($excelBody, ' ', 'A2');
+
+        $phpExcelObject->getActiveSheet()->getStyle('A1:G1')->getFont()->setBold(true);
+
+        //set column dimension
+        for ($col = ord('a'); $col <= ord('s'); ++$col) {
+            $phpExcelObject->setActiveSheetIndex(0)->getColumnDimension(chr($col))->setAutoSize(true);
+        }
+        $phpExcelObject->getActiveSheet()->setTitle('账单导表');
+
+        // Set active sheet index to the first sheet, so Excel opens this as the first sheet
+        $phpExcelObject->setActiveSheetIndex(0);
+
+        // create the writer
+        $writer = $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel5');
+        // create the response
+        $response = $this->get('phpexcel')->createStreamedResponse($writer);
+
+        $date = new \DateTime('now');
+        $stringDate = $date->format('Y-m-d H:i:s');
+
+        // adding headers
+        $dispositionHeader = $response->headers->makeDisposition(
+            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+            'bills_'.$stringDate.'.xls'
+        );
+        $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
+        $response->headers->set('Pragma', 'public');
+        $response->headers->set('Cache-Control', 'maxage=1');
+        $response->headers->set('Content-Disposition', $dispositionHeader);
+
+        return $response;
     }
 
     /**

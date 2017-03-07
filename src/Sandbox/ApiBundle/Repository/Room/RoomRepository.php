@@ -650,6 +650,7 @@ class RoomRepository extends EntityRepository
     }
 
     /**
+     * @param $salesCompanyId
      * @param $buildingId
      * @param $pageLimit
      * @param $offset

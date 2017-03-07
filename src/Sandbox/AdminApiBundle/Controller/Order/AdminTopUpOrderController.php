@@ -370,11 +370,11 @@ class AdminTopUpOrderController extends PaymentController
         $phpExcelObject->getProperties()->setTitle('Sandbox Orders');
         $excelBody = array();
 
-//        $payments = $this->getDoctrine()->getRepository('SandboxApiBundle:Payment\Payment')->findAll();
-//        $payChannel = array();
-//        foreach ($payments as $payment) {
-//            $payChannel[$payment->getChannel()] = $payment->getName();
-//        }
+        $payments = $this->getDoctrine()->getRepository('SandboxApiBundle:Payment\Payment')->findAll();
+        $payChannel = array();
+        foreach ($payments as $payment) {
+            $payChannel[$payment->getChannel()] = $payment->getName();
+        }
 
         // set excel body
         foreach ($orders as $order) {
@@ -385,11 +385,11 @@ class AdminTopUpOrderController extends PaymentController
                 'payment_date' => $order->getPaymentDate()->format('Y-m-d H:i:s'),
                 'order_number' => $order->getOrderNumber(),
                 'source' => $order->isRefundToAccount() ? '退款到余额' : '充值',
+                'pay_channel' => $payChannel[$order->getPayChannel()],
+                'price' => $order->getPrice(),
                 'refund_order_number' => $order->getRefundNumber(),
                 'username' => $this->filterEmoji($user->getName()),
                 'account' => $user->getPhone() ? $user->getPhone() : $user->getEmail(),
-                'pay_channel' => $order->getPayChannel(),
-                'price' => $order->getPrice(),
             );
 
             $excelBody[] = $body;
@@ -399,11 +399,11 @@ class AdminTopUpOrderController extends PaymentController
             '充值时间',
             '充值订单号',
             '充值来源',
+            '支付渠道',
+            '充值金额',
             '退款订单号',
             '用户昵称',
             '用户账号',
-            '支付渠道',
-            '充值金额',
         ];
 
         //Fill data
@@ -440,17 +440,5 @@ class AdminTopUpOrderController extends PaymentController
         $response->headers->set('Content-Disposition', $dispositionHeader);
 
         return $response;
-    }
-
-    private function filterEmoji($str)
-    {
-        $str = preg_replace_callback(
-            '/./u',
-            function (array $match) {
-                return strlen($match[0]) >= 4 ? '' : $match[0];
-            },
-            $str);
-
-        return $str;
     }
 }
