@@ -978,6 +978,15 @@ class LocationController extends SalesRestController
                 $building['location'] = $district->getName();
                 unset($building['district_id']);
             }
+
+            $roomCount = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\Product')
+                ->countRoomsWithProductByBuilding(
+                    $building['id'],
+                    null
+                );
+
+            $building['room_count'] = $roomCount;
         }
 
         return $buildings;
