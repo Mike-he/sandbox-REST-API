@@ -237,7 +237,7 @@ class ShopController extends ShopRestController
         $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow(1, $phpExcelObject->getActiveSheet()->getHighestRow(), $orderCount.'笔');
 
         $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow(0, $phpExcelObject->getActiveSheet()->getHighestRow() + 1, '总金销售额');
-        $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow(1, $phpExcelObject->getActiveSheet()->getHighestRow(), $total.'元');
+        $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow(1, $phpExcelObject->getActiveSheet()->getHighestRow(), round($total, 2).'元');
 
         $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow(0, $phpExcelObject->getActiveSheet()->getHighestRow() + 1, '退款订单数量');
         $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow(1, $phpExcelObject->getActiveSheet()->getHighestRow(), $refundOrderCount.'笔');
@@ -255,7 +255,7 @@ class ShopController extends ShopRestController
                 'menu_name' => $item['menu_name'],
                 'name' => $item['name'],
                 'amount' => $item['amount'].'个',
-                'price' => $item['price'].'元',
+                'price' => round($item['price'], 2).'元',
             );
 
             $bodyArray[] = $body;
