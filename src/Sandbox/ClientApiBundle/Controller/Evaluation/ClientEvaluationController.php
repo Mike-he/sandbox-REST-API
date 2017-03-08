@@ -3,6 +3,7 @@
 namespace Sandbox\ClientApiBundle\Controller\Evaluation;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
+use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Controller\Evaluation\EvaluationController;
 use Sandbox\ApiBundle\Entity\Evaluation\Evaluation;
 use Sandbox\ApiBundle\Entity\Evaluation\EvaluationAttachment;
@@ -437,8 +438,34 @@ class ClientEvaluationController extends EvaluationController
             ));
         $userName = !is_null($userProfile) ? $userProfile->getName() : null;
 
+        $building = $evaluation->getBuilding();
+        $buildingCity = $building->getCity()->getName();
+        $buildingDistrict = $building->getDistrict() ? $building->getDistrict()->getName() : null;
+
+        $attachments = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomBuildingAttachment')
+            ->findOneBy(array('building' => $building->getId()));
+
         $productOrder = $evaluation->getProductOrder();
-        $productOrderRoomName = !is_null($productOrder) ? $productOrder->getProduct()->getRoom()->getName() : null;
+
+        $orderId = null;
+        $productOrderRoomName = null;
+        $roomType = null;
+        $roomAttachment = null;
+        if ($productOrder) {
+            $orderId = $productOrder->getId();
+            $roomId = $productOrder->getProduct()->getRoom()->getId();
+            $productOrderRoomName = $productOrder->getProduct()->getRoom()->getName();
+
+            $type = $productOrder->getProduct()->getRoom()->getType();
+            $roomType = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$type);
+
+            $roomAttachmentBinding = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomAttachmentBinding')
+                ->findOneBy(array('room' => $roomId));
+
+            $roomAttachment = $roomAttachmentBinding ? $roomAttachmentBinding->getAttachmentId()->getContent() : null;
+        }
 
         $data = [
             'id' => $evaluation->getId(),
@@ -449,8 +476,16 @@ class ClientEvaluationController extends EvaluationController
                 'id' => $evaluation->getUser()->getId(),
                 'name' => $userName,
             ],
-            'room_name' => $productOrderRoomName,
             'creation_date' => $evaluation->getCreationDate(),
+            'building_id' => $building->getId(),
+            'building_name' => $building->getName(),
+            'building_city' => $buildingCity.' '.$buildingDistrict,
+            'building_attachment' => $attachments ? $attachments->getContent() : null,
+            'order_id' => $orderId,
+            'room_name' => $productOrderRoomName,
+            'room_type' => $roomType,
+            'room_attachment' => $roomAttachment,
+
         ];
 
         $attachments = $evaluation->getEvaluationAttachments();
