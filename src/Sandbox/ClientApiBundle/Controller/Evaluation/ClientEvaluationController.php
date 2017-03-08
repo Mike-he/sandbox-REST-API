@@ -407,14 +407,14 @@ class ClientEvaluationController extends EvaluationController
 
         if (!is_null($attachments) && !empty($attachments)) {
             foreach ($attachments as $attachment) {
-                $evaluationAttachemnt = new EvaluationAttachment();
-                $evaluationAttachemnt->setEvaluation($evaluation);
-                $evaluationAttachemnt->setContent($attachment['content']);
-                $evaluationAttachemnt->setAttachmentType($attachment['attachment_type']);
-                $evaluationAttachemnt->setFilename($attachment['filename']);
-                $evaluationAttachemnt->setPreview($attachment['preview']);
-                $evaluationAttachemnt->setSize($attachment['size']);
-                $em->persist($evaluationAttachemnt);
+                $evaluationAttachment = new EvaluationAttachment();
+                $evaluationAttachment->setEvaluation($evaluation);
+                $evaluationAttachment->setContent($attachment['content']);
+                $evaluationAttachment->setAttachmentType($attachment['attachment_type']);
+                $evaluationAttachment->setFilename($attachment['filename']);
+                $evaluationAttachment->setPreview($attachment['preview']);
+                $evaluationAttachment->setSize($attachment['size']);
+                $em->persist($evaluationAttachment);
             }
         }
     }
@@ -442,7 +442,7 @@ class ClientEvaluationController extends EvaluationController
         $buildingCity = $building->getCity()->getName();
         $buildingDistrict = $building->getDistrict() ? $building->getDistrict()->getName() : null;
 
-        $attachments = $this->getDoctrine()
+        $buildingAttachments = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\RoomBuildingAttachment')
             ->findOneBy(array('building' => $building->getId()));
 
@@ -467,6 +467,17 @@ class ClientEvaluationController extends EvaluationController
             $roomAttachment = $roomAttachmentBinding ? $roomAttachmentBinding->getAttachmentId()->getContent() : null;
         }
 
+        $attachments = $evaluation->getEvaluationAttachments();
+        $attachmentsArray = array();
+        foreach ($attachments as $attachment) {
+            array_push($attachmentsArray, array(
+                'content' => $attachment->getContent(),
+                'attachment_type' => $attachment->getAttachmentType(),
+                'filename' => $attachment->getFilename(),
+                'size' => $attachment->getSize(),
+            ));
+        }
+
         $data = [
             'id' => $evaluation->getId(),
             'type' => $evaluation->getType(),
@@ -480,26 +491,13 @@ class ClientEvaluationController extends EvaluationController
             'building_id' => $building->getId(),
             'building_name' => $building->getName(),
             'building_city' => $buildingCity.' '.$buildingDistrict,
-            'building_attachment' => $attachments ? $attachments->getContent() : null,
+            'building_attachment' => $buildingAttachments ? $buildingAttachments->getContent() : null,
             'order_id' => $orderId,
             'room_name' => $productOrderRoomName,
             'room_type' => $roomType,
             'room_attachment' => $roomAttachment,
-
+            'evaluation_attachments' => $attachmentsArray,
         ];
-
-        $attachments = $evaluation->getEvaluationAttachments();
-        $attachmentsArray = array();
-        foreach ($attachments as $attachment) {
-            array_push($attachmentsArray, array(
-                'content' => $attachment->getContent(),
-                'attachment_type' => $attachment->getAttachmentType(),
-                'filename' => $attachment->getFilename(),
-                'size' => $attachment->getSize(),
-            ));
-        }
-
-        $data = array_merge($data, array('evaluation_attachments' => $attachmentsArray));
 
         return $data;
     }
