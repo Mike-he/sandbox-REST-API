@@ -259,9 +259,10 @@ class MenuController extends SandboxRestController
             ->getRepository('SandboxApiBundle:Parameter\Parameter')
             ->findOneBy(array('key' => 'banner_top'));
         $menuArray = json_decode($menuJson, true);
-        $bannerCarouselMenu = array();
-        $iconsMenu = array();
-        $bannerMenu = array();
+        array_pop($menuArray);
+
+        $response = array();
+
         foreach ($menuArray as $menu) {
             switch ($menu['type']) {
                 case 'bannerCarousel':
@@ -269,20 +270,18 @@ class MenuController extends SandboxRestController
                     if (!empty($menu['hidden_asserts'])) {
                         $items = $this->handleBannerCarousel($items, $menu['hidden_asserts'], $bannerTop);
                     }
-                    $bannerCarouselMenu = array(
-                        'type' => 'bannerCarousel',
-                        'items' => $items,
-                    );
+
+                    $menu['hidden_asserts'] = null;
+                    $menu['items'] = $items;
                     break;
                 case 'icons':
                     $items = array();
                     if (!empty($menu['hidden_asserts'])) {
                         $items = $this->handleIcons($items, $menu['hidden_asserts']);
                     }
-                    $iconsMenu = array(
-                        'type' => 'icons',
-                        'items' => $items,
-                    );
+
+                    $menu['hidden_asserts'] = null;
+                    $menu['items'] = array_merge($menu['items'], $items);
                     break;
                 case 'banner':
                     if (!empty($menu['hidden_asserts'])) {
@@ -295,13 +294,17 @@ class MenuController extends SandboxRestController
                     }
                     break;
                 default:
+                    break;
+            }
+
+            array_push($response, $menu);
+
+            if (isset($bannerMenu)) {
+                $response = array_merge($response, $bannerMenu);
             }
         }
-        $newMenuArray = array($bannerCarouselMenu, $iconsMenu);
 
-        $finalArray = array_merge($newMenuArray, $bannerMenu);
-
-        return json_encode($finalArray);
+        return json_encode($response);
     }
 
     /**
