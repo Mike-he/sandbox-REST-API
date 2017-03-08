@@ -60,6 +60,8 @@ class ClientEvaluationController extends EvaluationController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $language = $request->getPreferredLanguage(array('zh', 'en'));
+
         if (!$this->isAuthProvided()) {
             return new View(array(
                 'able_to_create_building_evaluation' => false,
@@ -93,7 +95,7 @@ class ClientEvaluationController extends EvaluationController
 
         return new View(array(
             'able_to_create_building_evaluation' => $ableToCreateBuildingEvaluation,
-            'evaluation' => $this->buildDataConstruct($lastEvaluation),
+            'evaluation' => $this->buildDataConstruct($lastEvaluation, $language),
         ));
     }
 
@@ -167,6 +169,7 @@ class ClientEvaluationController extends EvaluationController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $language = $request->getPreferredLanguage(array('zh', 'en'));
         $minStar = $paramFetcher->get('min_star');
         $maxStar = $paramFetcher->get('max_star');
         $buildingId = $paramFetcher->get('building');
@@ -188,7 +191,7 @@ class ClientEvaluationController extends EvaluationController
 
         $response = array();
         foreach ($evaluations as $evaluation) {
-            $data = $this->buildDataConstruct($evaluation);
+            $data = $this->buildDataConstruct($evaluation, $language);
 
             array_push($response, $data);
         }
@@ -236,6 +239,8 @@ class ClientEvaluationController extends EvaluationController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $language = $request->getPreferredLanguage(array('zh', 'en'));
+
         $userId = $this->getUserId();
         $orderId = $paramFetcher->get('order_id');
 
@@ -257,7 +262,7 @@ class ClientEvaluationController extends EvaluationController
 
         $response = array();
         foreach ($evaluations as $evaluation) {
-            $data = $this->buildDataConstruct($evaluation);
+            $data = $this->buildDataConstruct($evaluation, $language);
 
             array_push($response, $data);
         }
@@ -425,7 +430,8 @@ class ClientEvaluationController extends EvaluationController
      * @return array
      */
     private function buildDataConstruct(
-        $evaluation
+        $evaluation,
+        $language
     ) {
         if (is_null($evaluation)) {
             return null;
@@ -448,10 +454,10 @@ class ClientEvaluationController extends EvaluationController
 
         $productOrder = $evaluation->getProductOrder();
 
-        $orderId = null;
         $productOrderRoomName = null;
         $roomType = null;
         $roomAttachment = null;
+        $orderDetailUrl = null;
         if ($productOrder) {
             $orderId = $productOrder->getId();
             $roomId = $productOrder->getProduct()->getRoom()->getId();
@@ -465,6 +471,8 @@ class ClientEvaluationController extends EvaluationController
                 ->findOneBy(array('room' => $roomId));
 
             $roomAttachment = $roomAttachmentBinding ? $roomAttachmentBinding->getAttachmentId()->getContent() : null;
+
+            $orderDetailUrl = $this->getParameter('room_mobile_url').'/order?ptype=order&orderid='.$orderId.'&lang='.$language;
         }
 
         $attachments = $evaluation->getEvaluationAttachments();
@@ -492,10 +500,10 @@ class ClientEvaluationController extends EvaluationController
             'building_name' => $building->getName(),
             'building_city' => $buildingCity.' '.$buildingDistrict,
             'building_attachment' => $buildingAttachments ? $buildingAttachments->getContent() : null,
-            'order_id' => $orderId,
             'room_name' => $productOrderRoomName,
             'room_type' => $roomType,
             'room_attachment' => $roomAttachment,
+            'order_detail_url' => $orderDetailUrl,
             'evaluation_attachments' => $attachmentsArray,
         ];
 
