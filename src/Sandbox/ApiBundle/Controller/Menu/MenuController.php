@@ -259,7 +259,6 @@ class MenuController extends SandboxRestController
             ->getRepository('SandboxApiBundle:Parameter\Parameter')
             ->findOneBy(array('key' => 'banner_top'));
         $menuArray = json_decode($menuJson, true);
-        array_pop($menuArray);
 
         $response = array();
 
@@ -296,6 +295,7 @@ class MenuController extends SandboxRestController
                 default:
                     break;
             }
+            array_pop($menuArray);
 
             array_push($response, $menu);
 
