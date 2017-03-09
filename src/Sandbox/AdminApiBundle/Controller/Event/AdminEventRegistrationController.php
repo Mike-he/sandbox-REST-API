@@ -102,11 +102,33 @@ class AdminEventRegistrationController extends SandboxRestController
             $em->flush();
 
             if ($registration->getStatus() == EventRegistration::STATUS_ACCEPTED) {
-                $this->sendXmppEventNotification(
-                    $user,
-                    $registration->getEvent(),
-                    EventRegistration::ACTION_ACCEPT
+                $contentArray = array(
+                    'type' => 'event',
+                    'action' => EventRegistration::ACTION_ACCEPT,
+                    'event' => array(
+                        'id' => $registration->getEvent()->getId(),
+                        'name' => $registration->getEvent()->getName(),
+                    ),
                 );
+
+                $zhData = $this->getJpushData(
+                    [$user->getId()],
+                    ['lang_zh'],
+                    null,
+                    '展想创合',
+                    $contentArray
+                );
+
+                $enData = $this->getJpushData(
+                    [$user->getId()],
+                    ['lang_en'],
+                    null,
+                    'Sandbox3',
+                    $contentArray
+                );
+
+                $this->sendJpushNotification($zhData);
+                $this->sendJpushNotification($enData);
             }
         }
 
