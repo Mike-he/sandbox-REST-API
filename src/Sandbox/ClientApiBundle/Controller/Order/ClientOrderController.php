@@ -1124,7 +1124,7 @@ class ClientOrderController extends OrderController
                         $order->setRefundTo(ProductOrder::REFUND_TO_ACCOUNT);
                     }
                 }
-            } else {
+            } elseif (is_null($channel)) {
                 $order->setStatus(ProductOrder::STATUS_CANCELLED);
                 $order->setCancelledDate(new \DateTime());
                 $order->setModificationDate(new \DateTime());
