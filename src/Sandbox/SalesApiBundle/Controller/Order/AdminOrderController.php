@@ -1074,6 +1074,7 @@ class AdminOrderController extends OrderController
             $this->getAdminId(),
             array(
                 AdminPermission::KEY_SALES_BUILDING_ORDER,
+                AdminPermission::KEY_SALES_PLATFORM_INVOICE,
             )
         );
 
