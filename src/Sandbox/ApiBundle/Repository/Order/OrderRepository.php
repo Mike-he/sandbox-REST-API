@@ -2493,10 +2493,11 @@ class OrderRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
             ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'r.buildingId = b.id')
             ->select('count(o.id) as number , SUM(o.discountPrice) as price')
-            ->where('o.status = :paid')
+            ->where('(o.status = :paid or o.status = :cancelled)')
             ->andWhere('o.paymentDate >= :start')
             ->andWhere('o.paymentDate <= :end')
             ->setParameter('paid', ProductOrder::STATUS_PAID)
+            ->setParameter('cancelled', ProductOrder::STATUS_CANCELLED)
             ->setParameter('start', $startDate)
             ->setParameter('end', $endDate);
 
@@ -2623,14 +2624,16 @@ class OrderRepository extends EntityRepository
     }
 
     /**
+     * @param $status
      * @param $startDate
      * @param $endDate
      * @param null $payChannel
      * @param null $buildingId
+     * @param null $companyId
      * @param null $limit
      * @param null $offset
      *
-     * @return array
+     * @return array|void
      */
     public function getOrdersList(
         $status,
@@ -2649,10 +2652,11 @@ class OrderRepository extends EntityRepository
 
         switch ($status) {
             case ProductOrder::STATUS_PAID:
-                $query->where('o.status = :paid')
+                $query->where('(o.status = :paid or o.status = :cancelled)')
                     ->andWhere('o.paymentDate >= :start')
                     ->andWhere('o.paymentDate <= :end')
                     ->setParameter('paid', ProductOrder::STATUS_PAID)
+                    ->setParameter('cancelled', ProductOrder::STATUS_CANCELLED)
                     ->setParameter('start', $startDate)
                     ->setParameter('end', $endDate);
                 break;

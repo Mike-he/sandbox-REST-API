@@ -3,6 +3,7 @@
 namespace Sandbox\AdminApiBundle\Controller\DashBoard;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
+use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -813,6 +814,8 @@ class AdminDashBoardController extends SandboxRestController
 
         }
 
+        $orders = null;
+        $count = 0;
         if (!is_null($status)) {
             $orders = $repo->getOrdersList(
                 $status,
@@ -832,10 +835,15 @@ class AdminDashBoardController extends SandboxRestController
                 $building,
                 $companyId
             );
-        } else {
-            $orders = null;
-            $count = 0;
+
+            $orders = $this->get('serializer')->serialize(
+                $orders,
+                'json',
+                SerializationContext::create()->setGroups(['main'])
+            );
+            $orders = json_decode($orders, true);
         }
+
         $view = new View();
         $view->setData(
             array(
