@@ -2,6 +2,7 @@
 
 namespace Sandbox\AdminApiBundle\Controller\Admin;
 
+use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Admin\Admin;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
@@ -251,6 +252,13 @@ class AdminAdminsController extends SandboxRestController
                     $platform,
                     $companyId
                 );
+
+            $bind = $this->get('serializer')->serialize(
+                $bind,
+                'json',
+                SerializationContext::create()->setGroups(['admin_position_bind_view'])
+            );
+            $bind = json_decode($bind, true);
 
             $result[] = array(
                 'user_id' => $userId['userId'],

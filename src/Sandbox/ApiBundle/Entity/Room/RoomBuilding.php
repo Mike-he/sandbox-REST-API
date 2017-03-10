@@ -69,7 +69,8 @@ class RoomBuilding implements JsonSerializable
      *      "shop_nearby",
      *      "client_shop",
      *      "admin_appointment",
-     *      "lessor"
+     *      "lessor",
+     *      "admin_position_bind_view"
      *  }
      * )
      */
@@ -180,7 +181,8 @@ class RoomBuilding implements JsonSerializable
      *      "client_order",
      *      "shop_nearby",
      *      "client_shop",
-     *      "admin_appointment"
+     *      "admin_appointment",
+     *      "admin_position_bind_view"
      *  }
      * )
      */

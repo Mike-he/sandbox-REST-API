@@ -24,7 +24,7 @@ class AdminPosition
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
-     * @Serializer\Groups({"main", "admin"})
+     * @Serializer\Groups({"main", "admin", "admin_bind_view"})
      */
     private $id;
 
@@ -32,7 +32,7 @@ class AdminPosition
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=64)
-     * @Serializer\Groups({"main", "admin"})
+     * @Serializer\Groups({"main", "admin", "admin_bind_view"})
      */
     private $name;
 
@@ -55,7 +55,7 @@ class AdminPosition
      * @var string
      *
      * @ORM\Column(name="platform", type="string", length=64)
-     * @Serializer\Groups({"main", "admin"})
+     * @Serializer\Groups({"main", "admin", "admin_position_bind_view"})
      */
     private $platform;
 
@@ -63,7 +63,7 @@ class AdminPosition
      * @var int
      *
      * @ORM\Column(name="salesCompanyId", type="integer", nullable=true)
-     * @Serializer\Groups({"main", "admin"})
+     * @Serializer\Groups({"main", "admin", "admin_position_bind_view"})
      */
     private $salesCompanyId;
 

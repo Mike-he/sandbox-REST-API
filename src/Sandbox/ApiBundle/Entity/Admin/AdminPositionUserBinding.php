@@ -32,6 +32,7 @@ class AdminPositionUserBinding
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @Serializer\Groups({"admin_position_bind_view"})
      */
     private $id;
 
@@ -41,12 +42,15 @@ class AdminPositionUserBinding
      * @ORM\Column(name="userId", type="integer")
      *
      * @Assert\NotBlank()
+     *
+     * @Serializer\Groups({"admin_position_bind_view"})
      */
     private $userId;
 
     /**
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User")
      * @ORM\JoinColumn(name="userId", referencedColumnName="id", onDelete="CASCADE")
+     *
      * @Serializer\Groups({"main", "admin_view"})
      */
     private $user;
@@ -57,12 +61,16 @@ class AdminPositionUserBinding
      * @ORM\Column(name="positionId", type="integer")
      *
      * @Assert\NotBlank()
+     *
+     * @Serializer\Groups({"admin_position_bind_view"})
      */
     private $positionId;
 
     /**
      * @ORM\ManyToOne(targetEntity="AdminPosition")
      * @ORM\JoinColumn(name="positionId", referencedColumnName="id", onDelete="CASCADE")
+     *
+     * @Serializer\Groups({"admin_position_bind_view"})
      */
     private $position;
 
@@ -70,12 +78,15 @@ class AdminPositionUserBinding
      * @var int
      *
      * @ORM\Column(name="buildingId", type="integer", nullable=true)
+     *
+     * @Serializer\Groups({"admin_position_bind_view"})
      */
     private $buildingId;
 
     /**
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomBuilding")
      * @ORM\JoinColumn(name="buildingId", referencedColumnName="id", onDelete="SET NULL")
+     *
      */
     private $building;
 
@@ -83,12 +94,16 @@ class AdminPositionUserBinding
      * @var int
      *
      * @ORM\Column(name="shopId", type="integer", nullable=true)
+     *
+     * @Serializer\Groups({"admin_position_bind_view"})
      */
     private $shopId;
 
     /**
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Shop\Shop")
      * @ORM\JoinColumn(name="shopId", referencedColumnName="id", onDelete="SET NULL")
+     *
+     * @Serializer\Groups({"admin_position_bind_view"})
      */
     private $shop;
 
@@ -97,6 +112,8 @@ class AdminPositionUserBinding
      *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="creationDate", type="datetime")
+     *
+     * @Serializer\Groups({"admin_position_bind_view"})
      */
     private $creationDate;
 
