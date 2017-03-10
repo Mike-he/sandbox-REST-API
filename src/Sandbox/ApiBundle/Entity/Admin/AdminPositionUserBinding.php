@@ -87,6 +87,7 @@ class AdminPositionUserBinding
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomBuilding")
      * @ORM\JoinColumn(name="buildingId", referencedColumnName="id", onDelete="SET NULL")
      *
+     * @Serializer\Groups({"admin_position_bind_view"})
      */
     private $building;
 
