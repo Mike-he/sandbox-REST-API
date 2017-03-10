@@ -105,7 +105,7 @@ class AdminPermission
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Serializer\Groups({"main", "login", "admin", "auth", "admin_basic"})
+     * @Serializer\Groups({"main", "login", "admin", "auth", "admin_basic", "admin_position_bind_view"})
      */
     private $id;
 
@@ -113,7 +113,7 @@ class AdminPermission
      * @var string
      *
      * @ORM\Column(name="`key`", type="string", length=128, nullable=false)
-     * @Serializer\Groups({"main", "login", "admin", "auth", "admin_basic"})
+     * @Serializer\Groups({"main", "login", "admin", "auth", "admin_basic", "admin_position_bind_view"})
      */
     private $key;
 
@@ -121,7 +121,7 @@ class AdminPermission
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=64, nullable=false)
-     * @Serializer\Groups({"main", "login", "admin", "auth", "admin_basic"})
+     * @Serializer\Groups({"main", "login", "admin", "auth", "admin_basic", "admin_position_bind_view"})
      */
     private $name;
 

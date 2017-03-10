@@ -19,7 +19,7 @@ class AdminPositionPermissionMap
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
-     * @Serializer\Groups({"main", "admin"})
+     * @Serializer\Groups({"main", "admin", "admin_position_bind_view"})
      */
     private $id;
 
@@ -46,7 +46,7 @@ class AdminPositionPermissionMap
     /**
      * @ORM\ManyToOne(targetEntity="AdminPermission")
      * @ORM\JoinColumn(name="permissionId", referencedColumnName="id", onDelete="CASCADE")
-     * @Serializer\Groups({"main", "admin"})
+     * @Serializer\Groups({"main", "admin", "admin_position_bind_view"})
      */
     private $permission;
 
@@ -54,7 +54,7 @@ class AdminPositionPermissionMap
      * @var int
      *
      * @ORM\Column(name="opLevel", type="integer")
-     * @Serializer\Groups({"main", "admin"})
+     * @Serializer\Groups({"main", "admin", "admin_position_bind_view"})
      */
     private $opLevel;
 
