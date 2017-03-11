@@ -15,6 +15,7 @@ use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Form\Order\OrderOfflineTransferPost;
 use Sandbox\ApiBundle\Form\Order\OrderReserveType;
 use Sandbox\ApiBundle\Form\Order\PatchOrderRejectedType;
+use Sandbox\ApiBundle\Form\Order\PreOrderPriceType;
 use Sandbox\ApiBundle\Form\Order\PreOrderType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -1590,7 +1591,7 @@ class AdminOrderController extends OrderController
                     'building_id' => $buildingId,
                 ),
             ),
-            AdminPermission::OP_LEVEL_VIEW
+            AdminPermission::OP_LEVEL_EDIT
         );
 
         $existTransfer = $this->getDoctrine()
@@ -1977,5 +1978,62 @@ class AdminOrderController extends OrderController
 
             throw $exception;
         }
+    }
+
+    /**
+     * @Route("/orders/{id}/preorder")
+     * @Method({"PATCH"})
+     *
+     * @param Request $request
+     * @param $id
+     *
+     * @return View
+     */
+    public function patchPreOrderPriceAction(
+        Request $request,
+        $id
+    ) {
+        $order = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->findOneBy([
+                'id' => $id,
+                'status' => ProductOrder::STATUS_UNPAID,
+                'type' => ProductOrder::PREORDER_TYPE
+            ]);
+        $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
+
+        $buildingId = $order->getProduct()->getRoom()->getBuildingId();
+
+        // check user permission
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            array(
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER,
+                    'building_id' => $buildingId,
+                ),
+            ),
+            AdminPermission::OP_LEVEL_EDIT
+        );
+
+        // bind data
+        $orderJson = $this->container->get('serializer')->serialize($order, 'json');
+        $patch = new Patch($orderJson, $request->getContent());
+        $orderJson = $patch->apply();
+
+        $form = $this->createForm(new PreOrderPriceType(), $order);
+        $form->submit(json_decode($orderJson, true));
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        $this->generateAdminLogs(array(
+            'logModule' => Log::MODULE_ROOM_ORDER,
+            'logAction' => Log::ACTION_EDIT,
+            'logObjectKey' => Log::OBJECT_ROOM_ORDER,
+            'logObjectId' => $id,
+        ));
+
+        return new View();
     }
 }
