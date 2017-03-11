@@ -481,6 +481,31 @@ class ProductOrder
     private $editComment;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="edit_admin_id", type="integer", nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_detail", "admin_order"})
+     */
+    private $editAdminId;
+
+    /**
+     * @return int
+     */
+    public function getEditAdminId()
+    {
+        return $this->editAdminId;
+    }
+
+    /**
+     * @param int $editAdminId
+     */
+    public function setEditAdminId($editAdminId)
+    {
+        $this->editAdminId = $editAdminId;
+    }
+
+    /**
      * @return string
      */
     public function getEditComment()

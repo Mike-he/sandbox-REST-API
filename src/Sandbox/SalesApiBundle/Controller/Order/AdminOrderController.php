@@ -2024,6 +2024,8 @@ class AdminOrderController extends OrderController
         $form = $this->createForm(new PreOrderPriceType(), $order);
         $form->submit(json_decode($orderJson, true));
 
+        $order->setEditAdminId($this->getAdminId());
+
         $em = $this->getDoctrine()->getManager();
         $em->flush();
 
