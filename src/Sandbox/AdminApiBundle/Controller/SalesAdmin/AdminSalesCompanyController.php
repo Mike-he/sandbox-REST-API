@@ -174,7 +174,14 @@ class AdminSalesCompanyController extends SandboxRestController
         $search = $paramFetcher->get('query');
 
         // check user permission
-        $this->checkSalesAdminPermission(AdminPermission::OP_LEVEL_VIEW);
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_SALES],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_SALES_MONITORING],
+            ],
+            AdminPermission::OP_LEVEL_VIEW
+        );
 
         $salesCompanies = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
