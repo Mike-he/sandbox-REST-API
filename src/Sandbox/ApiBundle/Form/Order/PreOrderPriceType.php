@@ -14,7 +14,7 @@ class PreOrderPriceType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('discount_price');
+        $builder->add('discountPrice');
     }
 
     /**
