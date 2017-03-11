@@ -402,7 +402,7 @@ trait FinanceSalesExportTraits
 
             $orderNumber = $longBill->getSerialNumber();
 
-            $productName = $room->Name();
+            $productName = $room->getName();
 
             $roomType = $room->getType();
             $roomType = $this->get('translator')->trans(
