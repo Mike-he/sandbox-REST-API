@@ -79,6 +79,16 @@ class AdminAuthController extends AuthController
                 $platform,
                 $salesCompanyId
             );
+
+            // set sales platform monitoring permissions
+            $salesPlatformMonitoringPermissions = $this->getSalesPlatformMonitoringPermissions(
+                $platform,
+                $salesCompanyId
+            );
+
+            if (!is_null($salesPlatformMonitoringPermissions) && !empty($salesPlatformMonitoringPermissions)) {
+                $permissions = array_merge($permissions, $salesPlatformMonitoringPermissions);
+            }
         }
 
         $admin = $this->getDoctrine()
@@ -157,7 +167,12 @@ class AdminAuthController extends AuthController
             $salesCompanyId
         );
 
-        if ($isSuper) {
+        // check permission by sales monitoring permission
+        $hasSalesMonitoringPermission = $this->checkSalesMonitoringPermission(
+            $platform
+        );
+
+        if ($isSuper || $hasSalesMonitoringPermission) {
             $groups = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Admin\AdminPermissionGroups')
                 ->getPermissionGroupByPlatform(
