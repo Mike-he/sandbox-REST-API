@@ -51,6 +51,11 @@ trait HandleArrayTrait
         return $keysValue;
     }
 
+    /**
+     * @param $array
+     *
+     * @return array
+     */
     public function remove_duplicate($array)
     {
         $result = array();

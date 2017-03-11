@@ -66,7 +66,8 @@ class RoomCityRepository extends EntityRepository
     /**
      * @return array
      */
-    public function getLocationCities() {
+    public function getLocationCities()
+    {
         $query = $this->createQueryBuilder('c')
             ->select('
                 c as city,
