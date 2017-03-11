@@ -269,9 +269,7 @@ trait FinanceSalesExportTraits
             $orderNumber = $order->getOrderNumber();
 
             $productInfo = json_decode($order->getProductInfo(), true);
-            $productName = $productInfo['room']['city']['name'].
-                $productInfo['room']['building']['name'].
-                $productInfo['room']['number'];
+            $productName = $productInfo['room']['name'];
 
             $roomType = $productInfo['room']['type'];
             $roomType = $this->get('translator')->trans(
@@ -404,9 +402,7 @@ trait FinanceSalesExportTraits
 
             $orderNumber = $longBill->getSerialNumber();
 
-            $productName = $city->getName().
-                $buildingName.
-                $room->getNumber();
+            $productName = $room->Name();
 
             $roomType = $room->getType();
             $roomType = $this->get('translator')->trans(
