@@ -972,6 +972,7 @@ class OrderController extends PaymentController
         $productOrderInfo->setProductInfo($productInfo);
 
         $em->persist($productOrderInfo);
+        $em->flush();
     }
 
     /**
