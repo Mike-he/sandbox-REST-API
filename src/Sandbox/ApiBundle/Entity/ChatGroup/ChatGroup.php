@@ -77,6 +77,29 @@ class ChatGroup
      */
     private $members;
 
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="company_id", type="integer", nullable=false)
+     */
+    private $companyId;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="building_id", type="integer", nullable=false)
+     */
+    private $buildingId;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="tag", type="string", length=16, options={"default": "service"})
+     */
+    private $tag = 'service';
+
+
     /**
      * Get id.
      *
