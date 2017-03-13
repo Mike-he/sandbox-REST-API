@@ -1939,7 +1939,83 @@ class AdminRoomController extends SalesRestController
     }
 
     /**
-     * @param $product
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="room_type",
+     *    array=false,
+     *    nullable=false,
+     *    description="Filter by room type"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="start",
+     *    nullable=false,
+     *    description=""
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="end",
+     *    nullable=false,
+     *    description=""
+     * )
+     *
+     * @Route("/rooms/usage")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getRoomUsageAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        // check user permission
+
+        $roomType = $paramFetcher->get('room_type');
+        $startString = $paramFetcher->get('start');
+        $endString = $paramFetcher->get('end');
+
+        $start = new \DateTime($startString);
+        $start->setTime(0, 0, 0);
+        $end = new \DateTime($endString);
+        $end->setTime(23, 59, 59);
+
+        switch ($roomType) {
+            case Room::TYPE_MEETING:
+                $results = array();
+                break;
+            case Room::TYPE_OFFICE:
+                $results = array();
+                break;
+            case Room::TYPE_FIXED:
+                $results = array();
+                break;
+            case Room::TYPE_FLEXIBLE:
+                $results = array();
+                break;
+            case Room::TYPE_SPACE:
+                $results = array();
+                break;
+            case Room::TYPE_STUDIO:
+                $results = array();
+                break;
+            case Room::TYPE_LONG_TERM:
+                $results = array();
+                break;
+            default:
+                $results = array();
+        }
+
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['room_usage']));
+        $view->setData($results);
+
+        return $view;
+    }
+
+    /**
+     * @param $buildingId
      */
     private function checkPermissionForRoomUsage(
         $buildingId
