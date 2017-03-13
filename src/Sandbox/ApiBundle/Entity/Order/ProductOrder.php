@@ -490,6 +490,28 @@ class ProductOrder
     private $editAdminId;
 
     /**
+     * @var ProductOrderInfo
+     *
+     * @ORM\OneToOne(
+     *      targetEntity="Sandbox\ApiBundle\Entity\Order\ProductOrderInfo",
+     *      mappedBy="order"
+     * )
+     *
+     * @Serializer\Exclude
+     */
+    private $info;
+
+    /**
+     * @Serializer\VirtualProperty
+     * @Serializer\SerializedName("info")
+     * @Serializer\Groups({"main", "client", "admin_detail", "admin_order", "client_evaluation"})
+     */
+    public function degenerateProduct()
+    {
+        return $this->info->getProductInfo();
+    }
+
+    /**
      * @return int
      */
     public function getEditAdminId()
