@@ -792,6 +792,12 @@ class ClientOrderController extends OrderController
                 $product
             );
 
+            $this->storeProductOrderInfo(
+                $em,
+                $product,
+                $order
+            );
+
             $em->flush();
 
             $view = new View();
