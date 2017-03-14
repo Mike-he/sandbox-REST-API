@@ -140,4 +140,4 @@ sandbox_api_lease_rent_types:
 sandbox_api_version_check:
     resource: "@SandboxApiBundle/Controller/Version/ClientVersionCheckController.php"
     type:     annotation
-    prefix:   /client
+    prefix:   /
