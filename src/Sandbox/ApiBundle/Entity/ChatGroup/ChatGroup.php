@@ -17,6 +17,7 @@ use JMS\Serializer\Annotation as Serializer;
 class ChatGroup
 {
     const XMPP_SERVICE = 'conference';
+    const TAG_SERVICE = 'service';
 
     /**
      * @var int
@@ -77,7 +78,6 @@ class ChatGroup
      */
     private $members;
 
-
     /**
      * @var int
      *
@@ -97,8 +97,7 @@ class ChatGroup
      *
      * @ORM\Column(name="tag", type="string", length=16, options={"default": "service"})
      */
-    private $tag = 'service';
-
+    private $tag = self::TAG_SERVICE;
 
     /**
      * Get id.

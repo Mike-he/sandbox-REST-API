@@ -12,7 +12,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * @ORM\Table(name="room_building_service_member")
  * @ORM\Entity()
  */
-class roomBuildingServiceMember
+class RoomBuildingServiceMember
 {
     /**
      * @var int
