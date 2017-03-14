@@ -57,7 +57,7 @@ class ClientCustomerServiceController extends ChatGroupController
         // get building
         $data = json_decode($request->getContent(), true);
         if (!isset($data['tag'])) {
-            throw new BadRequestHttpException();
+            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_CUSTOMER_SERVICE_PAYLOAD_NOT_CORRECT_CODE);
         }
 
         $building = $this->getRoomBuildingRepo()

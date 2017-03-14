@@ -29,6 +29,9 @@ class CustomErrorMessagesConstants
     const ERROR_FINANCE_BILL_MORE_THAN_TOTAL_SERVICE_FEE_CODE = 400003;
     const ERROR_FINANCE_BILL_MORE_THAN_TOTAL_SERVICE_FEE_MESSAGE = 'More than the total service fees';
 
+    // CUSTOMER SERVICE
+    const ERROR_CUSTOMER_SERVICE_PAYLOAD_NOT_CORRECT_CODE = 'The format of payload for customer service does not correct';
+
     // 404 NOT FOUND MESSAGE
     // LEASE
     const ERROR_LEASE_NOT_FOUND_MESSAGE = 'The lease does not exist';

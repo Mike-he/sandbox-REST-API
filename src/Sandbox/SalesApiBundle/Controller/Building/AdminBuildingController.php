@@ -1013,7 +1013,6 @@ class AdminBuildingController extends LocationController
                 continue;
             }
 
-            //check user is company admin
             $admin = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
                 ->findOneBy(['userId' => $userId]);
@@ -1021,15 +1020,9 @@ class AdminBuildingController extends LocationController
                 continue;
             }
 
-            $position = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Admin\AdminPosition')
-                ->findOneBy([
-                    'id' => $admin->getPositionId(),
-                    'platform' => AdminPosition::PLATFORM_SALES,
-                    'salesCompanyId' => $companyId,
-                    'isHidden' => false,
-                ]);
-            if (is_null($position)) {
+            //check user is company admin
+            $isAdmin = $this->checkUserIsAdmin($admin, $companyId);
+            if (!$isAdmin) {
                 continue;
             }
 
@@ -1578,20 +1571,30 @@ class AdminBuildingController extends LocationController
         $em->flush();
     }
 
-    private function addCustomerService($building, $customerServices, $em)
-    {
+    private function addCustomerService(
+        $building,
+        $customerServices,
+        $em
+    ) {
         if (isset($customerServices[RoomBuildingServiceMember::SERVICE])) {
-            foreach ($customerServices['service'] as $service) {
+            foreach ($customerServices['service'] as $userId) {
+                $admin = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                    ->findOneBy(['userId' => $userId]);
+                if (is_null($admin)) {
+                    continue;
+                }
 
-                $user = $this->getUserRepo()->findOneById($service);
-                if (is_null($user)) {
-                    throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_CUSTOMER_SERVICE_NOT_FOUND_MESSAGE);
+                //check user is company admin
+                $isAdmin = $this->checkUserIsAdmin($userId, $building->getCompanyId());
+                if (!$isAdmin) {
+                    continue;
                 }
 
                 $customerService = $this->getServiceMemberRepo()->findOneBy(
                     array(
                         'buildingId' => $building->getId(),
-                        'userId' => $user->getId(),
+                        'userId' => $admin->getId(),
                         'tag' => RoomBuildingServiceMember::SERVICE
                     )
                 );
@@ -1601,10 +1604,28 @@ class AdminBuildingController extends LocationController
 
                 $customerService = new RoomBuildingServiceMember();
                 $customerService->setBuildingId($building->getId());
-                $customerService->setUserId($user->getId());
+                $customerService->setUserId($admin->getId());
 
                 $em->persist($customerService);
             }
         }
+    }
+
+    protected function checkUserIsAdmin($admin, $companyId)
+    {
+        $position = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+            ->findOneBy([
+                'id' => $admin->getPositionId(),
+                'platform' => AdminPosition::PLATFORM_SALES,
+                'salesCompanyId' => $companyId,
+                'isHidden' => false,
+            ]);
+
+        if (is_null($position)) {
+            return false;
+        }
+
+        return true;
     }
 }
