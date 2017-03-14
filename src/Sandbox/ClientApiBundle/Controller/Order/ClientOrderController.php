@@ -1184,7 +1184,8 @@ class ClientOrderController extends OrderController
                             $price,
                             $orderNumber,
                             $channel,
-                            true
+                            true,
+                            $order->getOrderNumber()
                         );
                     }
                 }
