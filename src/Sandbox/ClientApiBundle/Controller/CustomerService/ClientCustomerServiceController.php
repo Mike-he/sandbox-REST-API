@@ -7,7 +7,6 @@ use Sandbox\ApiBundle\Controller\ChatGroup\ChatGroupController;
 use Sandbox\ApiBundle\Entity\ChatGroup\ChatGroup;
 use Sandbox\ApiBundle\Entity\ChatGroup\ChatGroupMember;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingServiceMember;
-use Sandbox\ApiBundle\Traits\HandleXmppChatGroupTrait;
 use Sandbox\ApiBundle\Traits\HasAccessToEntityRepositoryTrait;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
@@ -44,7 +43,7 @@ class ClientCustomerServiceController extends ChatGroupController
          * 4. get customer services of the building
          * 5. create chat group
          * 6. save chat group members
-         * 7. create openfire chat group
+         * 7. create openfire chat group.
          */
         $myUserId = $this->getUserId();
         $myUser = $this->getRepo('User\User')->find($myUserId);
@@ -71,7 +70,7 @@ class ClientCustomerServiceController extends ChatGroupController
         $customerServices = $this->getServiceMemberRepo()->findBy(
             array(
                 'buildingId' => $building->getId(),
-                'tag' => $data['tag']
+                'tag' => $data['tag'],
             )
         );
 

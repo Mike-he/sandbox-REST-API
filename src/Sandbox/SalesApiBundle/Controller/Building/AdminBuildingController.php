@@ -2,7 +2,6 @@
 
 namespace Sandbox\SalesApiBundle\Controller\Building;
 
-use Doctrine\DBAL\Types\VarDateTimeType;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
@@ -31,7 +30,6 @@ use Sandbox\ApiBundle\Form\Room\RoomBuildingCompanyPutType;
 use Sandbox\ApiBundle\Form\Room\RoomBuildingPostType;
 use Sandbox\ApiBundle\Form\Room\RoomBuildingPutType;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesBuildingPatchVisibleType;
-use Sandbox\ApiBundle\Traits\HasAccessToEntityRepositoryTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -955,9 +953,9 @@ class AdminBuildingController extends LocationController
         $services = $building->getCustomerServices();
         $buildingId = $building->getId();
         $companyId = $building->getCompanyId();
-        $chatGroup = $this->getDoctrine()
+        $chatGroups = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:ChatGroup\ChatGroup')
-            ->findOneBy([
+            ->findBy([
                 'buildingId' => $buildingId,
                 'tag' => ChatGroup::TAG_SERVICE,
             ]);
@@ -968,7 +966,7 @@ class AdminBuildingController extends LocationController
                 $services,
                 $companyId,
                 $buildingId,
-                $chatGroup
+                $chatGroups
             );
         }
 
@@ -977,7 +975,7 @@ class AdminBuildingController extends LocationController
                 $em,
                 $services,
                 $buildingId,
-                $chatGroup
+                $chatGroups
             );
         }
     }
@@ -987,17 +985,19 @@ class AdminBuildingController extends LocationController
      * @param array         $services
      * @param int           $companyId
      * @param int           $buildingId
-     * @param ChatGroup     $chatGroup
+     * @param array         $chatGroups
      */
     private function addChatGroupMembers(
         $em,
         $services,
         $companyId,
         $buildingId,
-        $chatGroup
+        $chatGroups
     ) {
         $addServices = $services['add'];
-        $addMembers = [];
+        $addGroups = [];
+
+        $addServices = array_unique($addServices, SORT_REGULAR);
 
         foreach ($addServices as $addService) {
             $userId = $addService['user_id'];
@@ -1013,16 +1013,13 @@ class AdminBuildingController extends LocationController
                 continue;
             }
 
-            $admin = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
-                ->findOneBy(['userId' => $userId]);
-            if (is_null($admin)) {
-                continue;
-            }
-
             //check user is company admin
-            $isAdmin = $this->checkUserIsAdmin($admin, $companyId);
-            if (!$isAdmin) {
+            $positions = $this->checkUserIsAdmin(
+                $userId,
+                $companyId
+            );
+
+            if (empty($positions)) {
                 continue;
             }
 
@@ -1045,34 +1042,48 @@ class AdminBuildingController extends LocationController
             $em->persist($newMember);
 
             //add member to chat group
-            if (is_null($chatGroup)) {
-                continue;
+            foreach ($chatGroups as $chatGroup) {
+                $groupMember = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:ChatGroup\ChatGroupMember')
+                    ->findOneBy([
+                        'chatGroup' => $chatGroup,
+                        'user' => $user,
+                    ]);
+                if (!is_null($groupMember)) {
+                    continue;
+                }
+
+                $newGroupMember = new ChatGroupMember();
+                $newGroupMember->setChatGroup($chatGroup);
+                $newGroupMember->setUser($user);
+                $newGroupMember->setAddBy($this->getUser());
+
+                $em->persist($newGroupMember);
+
+                $groupId = $chatGroup->getId();
+
+                if (!array_key_exists($groupId, $addGroups)) {
+                    $addGroups = [
+                        "$groupId" => [$user],
+                    ];
+                } else {
+                    array_push($addGroups["$groupId"], $user);
+                }
             }
-
-            $groupMember = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:ChatGroup\ChatGroupMember')
-                ->findOneBy([
-                    'chatGroup' => $chatGroup,
-                    'user' => $user,
-                ]);
-            if (!is_null($groupMember)) {
-                continue;
-            }
-
-            $newGroupMember = new ChatGroupMember();
-            $newGroupMember->setChatGroup($chatGroup);
-            $newGroupMember->setUser($user);
-            $newGroupMember->setAddBy($this->getUser());
-
-            array_push($addMembers, $user);
         }
 
-        // call openfire
-        if (!empty($addMembers)) {
+        $em->flush();
+
+        foreach ($addGroups as $key => $vals) {
+            $group = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:ChatGroup\ChatGroup')
+                ->find($key);
+
+            // call openfire
             $this->handleXmppChatGroupMember(
-                $chatGroup,
-                $chatGroup->getCreator(),
-                $addMembers,
+                $group,
+                $group->getCreator(),
+                $vals,
                 'POST'
             );
         }
@@ -1082,16 +1093,18 @@ class AdminBuildingController extends LocationController
      * @param EntityManager $em
      * @param array         $services
      * @param int           $buildingId
-     * @param ChatGroup     $chatGroup
+     * @param array         $chatGroups
      */
     private function removeChatGroupMembers(
         $em,
         $services,
         $buildingId,
-        $chatGroup
+        $chatGroups
     ) {
         $removeServices = $services['remove'];
-        $removeMembers = [];
+        $removeGroups = [];
+
+        $removeServices = array_unique($removeServices, SORT_REGULAR);
 
         foreach ($removeServices as $removeService) {
             $userId = $removeService['user_id'];
@@ -1110,35 +1123,47 @@ class AdminBuildingController extends LocationController
             $em->remove($member);
 
             //remove member from chat group
-            if (is_null($chatGroup)) {
-                continue;
+            foreach ($chatGroups as $chatGroup) {
+                if ($userId == $chatGroup->getCreatorId()) {
+                    continue;
+                }
+
+                $groupMember = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:ChatGroup\ChatGroupMember')
+                    ->findOneBy([
+                        'chatGroup' => $chatGroup,
+                        'user' => $userId,
+                    ]);
+                if (is_null($groupMember)) {
+                    continue;
+                }
+
+                $em->remove($groupMember);
+
+                $groupId = $chatGroup->getId();
+
+                if (!array_key_exists($groupId, $removeGroups)) {
+                    $removeGroups = [
+                        "$groupId" => [$groupMember->getUser()],
+                    ];
+                } else {
+                    array_push($removeGroups["$groupId"], $groupMember->getUser());
+                }
             }
-
-            if ($userId == $chatGroup->getCreatorId()) {
-                continue;
-            }
-
-            $groupMember = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:ChatGroup\ChatGroupMember')
-                ->findOneBy([
-                    'chatGroup' => $chatGroup,
-                    'user' => $userId,
-                ]);
-            if (is_null($groupMember)) {
-                continue;
-            }
-
-            $em->remove($groupMember);
-
-            array_push($removeMembers, $groupMember->getUser());
         }
 
-        if (!empty($removeMembers)) {
+        $em->flush();
+
+        foreach ($removeGroups as $key => $vals) {
+            $group = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:ChatGroup\ChatGroup')
+                ->find($key);
+
             // call openfire
             $this->handleXmppChatGroupMember(
-                $chatGroup,
-                $chatGroup->getCreator(),
-                $removeMembers,
+                $group,
+                $group->getCreator(),
+                $vals,
                 'DELETE'
             );
         }
@@ -1577,7 +1602,9 @@ class AdminBuildingController extends LocationController
         $em
     ) {
         if (isset($customerServices[RoomBuildingServiceMember::SERVICE])) {
-            foreach ($customerServices['service'] as $userId) {
+            $addServices = array_unique($customerServices['service'], SORT_REGULAR);
+            
+            foreach ($addServices as $userId) {
                 $admin = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
                     ->findOneBy(['userId' => $userId]);
@@ -1586,8 +1613,11 @@ class AdminBuildingController extends LocationController
                 }
 
                 //check user is company admin
-                $isAdmin = $this->checkUserIsAdmin($userId, $building->getCompanyId());
-                if (!$isAdmin) {
+                $positions = $this->checkUserIsAdmin(
+                    $userId,
+                    $building->getCompanyId()
+                );
+                if (empty($positions)) {
                     continue;
                 }
 
@@ -1596,6 +1626,7 @@ class AdminBuildingController extends LocationController
                         'buildingId' => $building->getId(),
                         'userId' => $admin->getId(),
                         'tag' => RoomBuildingServiceMember::SERVICE
+
                     )
                 );
                 if (!is_null($customerService)) {
@@ -1611,21 +1642,38 @@ class AdminBuildingController extends LocationController
         }
     }
 
-    protected function checkUserIsAdmin($admin, $companyId)
-    {
-        $position = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Admin\AdminPosition')
-            ->findOneBy([
-                'id' => $admin->getPositionId(),
-                'platform' => AdminPosition::PLATFORM_SALES,
-                'salesCompanyId' => $companyId,
-                'isHidden' => false,
-            ]);
+    /**
+     * @param $userId
+     * @param $companyId
+     * @return array
+     */
+    protected function checkUserIsAdmin(
+        $userId,
+        $companyId
+    ) {
+        $positions = [];
 
-        if (is_null($position)) {
-            return false;
+        //check user is company admin
+        $admins = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+            ->findBy(['userId' => $userId]);
+
+        foreach ($admins as $admin) {
+            $position = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+                ->findOneBy([
+                    'id' => $admin->getPositionId(),
+                    'platform' => AdminPosition::PLATFORM_SALES,
+                    'salesCompanyId' => $companyId,
+                    'isHidden' => false,
+                ]);
+            if (is_null($position)) {
+                continue;
+            }
+
+            array_push($positions, $position);
         }
 
-        return true;
+        return $positions;
     }
 }
