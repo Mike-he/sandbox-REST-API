@@ -55,4 +55,6 @@ class CustomErrorMessagesConstants
     const ERROR_SALES_COMPANY_INVOICE_NOT_FOUND_MESSAGE = 'The sales company invoice does not exist';
     const ERROR_SALES_COMPANY_EXPRESS_NOT_FOUND_CODE = 404002;
     const ERROR_SALES_COMPANY_EXPRESS_NOT_FOUND_MESSAGE = 'The sales company express does not exist';
+    const ERROR_CUSTOMER_SERVICE_NOT_FOUND_MESSAGE = 'The customer service does not exist';
+    const ERROR_SALES_COMPANY_ROOM_BUILDING_NOT_FOUND_MESSAGE = 'The building does not exist';
 }

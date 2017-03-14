@@ -2,10 +2,12 @@
 
 namespace Sandbox\SalesApiBundle\Controller\Building;
 
+use Doctrine\DBAL\Types\VarDateTimeType;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
+use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
 use Sandbox\ApiBundle\Controller\Location\LocationController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPosition;
@@ -29,6 +31,7 @@ use Sandbox\ApiBundle\Form\Room\RoomBuildingCompanyPutType;
 use Sandbox\ApiBundle\Form\Room\RoomBuildingPostType;
 use Sandbox\ApiBundle\Form\Room\RoomBuildingPutType;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesBuildingPatchVisibleType;
+use Sandbox\ApiBundle\Traits\HasAccessToEntityRepositoryTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -725,6 +728,8 @@ class AdminBuildingController extends LocationController
         $phones = $building->getPhones();
         $buildingAttachments = $building->getBuildingAttachments();
         $buildingCompany = $building->getBuildingCompany();
+        $customerServicesIds = $building->getCustomerServices();
+
         $salesCompany = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
             ->find($adminPlatform['sales_company_id']);
@@ -791,6 +796,13 @@ class AdminBuildingController extends LocationController
         $this->addBuildingServices(
             $building,
             $buildingServices,
+            $em
+        );
+
+        // add customer services
+        $this->addCustomerService(
+            $building,
+            $customerServicesIds,
             $em
         );
 
@@ -1564,5 +1576,35 @@ class AdminBuildingController extends LocationController
         }
 
         $em->flush();
+    }
+
+    private function addCustomerService($building, $customerServices, $em)
+    {
+        if (isset($customerServices[RoomBuildingServiceMember::SERVICE])) {
+            foreach ($customerServices['service'] as $service) {
+
+                $user = $this->getUserRepo()->findOneById($service);
+                if (is_null($user)) {
+                    throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_CUSTOMER_SERVICE_NOT_FOUND_MESSAGE);
+                }
+
+                $customerService = $this->getServiceMemberRepo()->findOneBy(
+                    array(
+                        'buildingId' => $building->getId(),
+                        'userId' => $user->getId(),
+                        'tag' => RoomBuildingServiceMember::SERVICE
+                    )
+                );
+                if (!is_null($customerService)) {
+                    continue;
+                }
+
+                $customerService = new RoomBuildingServiceMember();
+                $customerService->setBuildingId($building->getId());
+                $customerService->setUserId($user->getId());
+
+                $em->persist($customerService);
+            }
+        }
     }
 }

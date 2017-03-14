@@ -151,7 +151,7 @@ class ChatGroupController extends SandboxRestController
      *
      * @return array
      */
-    private function setMemberJidArray(
+    protected function setMemberJidArray(
         $user,
         $domain
     ) {

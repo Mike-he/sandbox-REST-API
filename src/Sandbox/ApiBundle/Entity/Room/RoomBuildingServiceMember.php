@@ -14,6 +14,8 @@ use Gedmo\Mapping\Annotation as Gedmo;
  */
 class RoomBuildingServiceMember
 {
+    const SERVICE = 'service';
+
     /**
      * @var int
      *
@@ -52,7 +54,7 @@ class RoomBuildingServiceMember
      *
      * @ORM\Column(name="tag", type="string", length=16, options={"default": "service"})
      */
-    private $tag = 'service';
+    private $tag = self::SERVICE;
 
     /**
      * @return int
