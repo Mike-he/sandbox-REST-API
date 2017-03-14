@@ -135,3 +135,9 @@ sandbox_sales_admin_finance_api:
     resource: "@SandboxSalesApiBundle/Resources/config/finance/routing.yml"
     type: rest
     prefix: /admin
+
+# Admin Sales Company
+sandbox_sales_admin_sales_company_api:
+    resource: "@SandboxSalesApiBundle/Controller/Space/AdminSpaceSalesCompanyController.php"
+    type:     annotation
+    prefix:   /admin
