@@ -316,6 +316,7 @@ class AdminLeaseBillController extends LeaseController
             LeaseBill::STATUS_UNPAID => '未付款',
             LeaseBill::STATUS_PAID => '已付款',
             LeaseBill::STATUS_VERIFY => '待确认',
+            LeaseBill::STATUS_CANCELLED => '已取消',
         );
 
         // set excel body
