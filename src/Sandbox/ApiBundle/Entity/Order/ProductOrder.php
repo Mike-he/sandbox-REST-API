@@ -289,11 +289,14 @@ class ProductOrder
     private $isRenew = false;
 
     /**
-     * @var string
+     * @var ProductOrderInfo
      *
-     * @ORM\Column(name="productInfo", type="text", nullable=false)
+     * @ORM\OneToOne(
+     *      targetEntity="Sandbox\ApiBundle\Entity\Order\ProductOrderInfo",
+     *      mappedBy="order"
+     * )
      *
-     * @Serializer\Groups({"main", "client", "admin_detail", "admin_order", "client_evaluation"})
+     * @Serializer\Exclude
      */
     private $productInfo;
 
@@ -490,23 +493,11 @@ class ProductOrder
     private $editAdminId;
 
     /**
-     * @var ProductOrderInfo
-     *
-     * @ORM\OneToOne(
-     *      targetEntity="Sandbox\ApiBundle\Entity\Order\ProductOrderInfo",
-     *      mappedBy="order"
-     * )
-     *
-     * @Serializer\Exclude
-     */
-    private $info;
-
-    /**
      * @Serializer\VirtualProperty
-     * @Serializer\SerializedName("info")
+     * @Serializer\SerializedName("productInfo")
      * @Serializer\Groups({"main", "client", "admin_detail", "admin_order", "client_evaluation"})
      */
-    public function degenerateProduct()
+    public function degenerateProductInfo()
     {
         return $this->info->getProductInfo();
     }

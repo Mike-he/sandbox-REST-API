@@ -22,7 +22,7 @@ class ProductOrderInfo
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Order\ProductOrder")
+     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Order\ProductOrder")
      * @ORM\JoinColumn(name="order_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $order;
