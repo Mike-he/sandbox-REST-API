@@ -114,7 +114,7 @@ class AdminEventRegistrationController extends SandboxRestController
                 $zhData = $this->getJpushData(
                     [$user->getId()],
                     ['lang_zh'],
-                    null,
+                    '',
                     '展想创合',
                     $contentArray
                 );
@@ -122,7 +122,7 @@ class AdminEventRegistrationController extends SandboxRestController
                 $enData = $this->getJpushData(
                     [$user->getId()],
                     ['lang_en'],
-                    null,
+                    '',
                     'Sandbox3',
                     $contentArray
                 );
