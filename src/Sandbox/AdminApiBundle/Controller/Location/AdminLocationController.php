@@ -4,6 +4,7 @@ namespace Sandbox\AdminApiBundle\Controller\Location;
 
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\AdminApiBundle\Controller\AdminRestController;
+use Sandbox\ApiBundle\Entity\Room\RoomCity;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations;
