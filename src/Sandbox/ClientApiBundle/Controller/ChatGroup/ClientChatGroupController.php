@@ -124,7 +124,7 @@ class ClientChatGroupController extends ChatGroupController
             }
         }
 
-        $chatGroup->setName($name);
+        $chatGroup->setName($chatGroupName);
         $em->persist($chatGroup);
 
         // save to db

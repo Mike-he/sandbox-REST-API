@@ -96,9 +96,9 @@ class ChatGroup
     /**
      * @var string
      *
-     * @ORM\Column(name="tag", type="string", length=16, options={"default": "service"})
+     * @ORM\Column(name="tag", type="string", length=16, nullable=true)
      */
-    private $tag = self::TAG_SERVICE;
+    private $tag;
 
     /**
      * Get id.
