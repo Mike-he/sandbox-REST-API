@@ -1053,10 +1053,11 @@ class AdminBuildingController extends LocationController
                     continue;
                 }
 
+
                 $newGroupMember = new ChatGroupMember();
                 $newGroupMember->setChatGroup($chatGroup);
                 $newGroupMember->setUser($user);
-                $newGroupMember->setAddBy($this->getUser());
+                $newGroupMember->setAddBy($this->getUser()->getMyUser());
 
                 $em->persist($newGroupMember);
 
