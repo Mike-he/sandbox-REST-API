@@ -57,7 +57,7 @@ class OrderController extends PaymentController
             // set product name
             $productName = $productInfo['room']['city']['name'].
                 $productInfo['room']['building']['name'].
-                $productInfo['room']['number'];
+                $productInfo['room']['name'];
 
             // set product type
             $productTypeKey = $productInfo['room']['type'];
