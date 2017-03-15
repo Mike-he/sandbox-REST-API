@@ -22,6 +22,7 @@ class RoomBuildingServiceMember
      * @ORM\Id
      * @ORM\Column(name="id", type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
+     *
      */
     private $id;
 
@@ -29,6 +30,8 @@ class RoomBuildingServiceMember
      * @var int
      *
      * @ORM\Column(name="user_id", type="integer", nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_building"})
      */
     private $userId;
 
@@ -44,8 +47,6 @@ class RoomBuildingServiceMember
      *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="creationDate", type="datetime")
-     *
-     * @Serializer\Groups({"main", "admin_building"})
      */
     private $creationDate;
 
@@ -53,6 +54,8 @@ class RoomBuildingServiceMember
      * @var string
      *
      * @ORM\Column(name="tag", type="string", length=16, options={"default": "service"})
+     *
+     * @Serializer\Groups({"main", "admin_building"})
      */
     private $tag = self::SERVICE;
 

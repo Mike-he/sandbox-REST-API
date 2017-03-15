@@ -22,7 +22,8 @@ class ChatGroupRepository extends EntityRepository
                   cg.id,
                   cg.name,
                   cg.creatorId AS creator_id,
-                  cgm.mute
+                  cgm.mute,
+                  cg.tag
                 FROM SandboxApiBundle:ChatGroup\ChatGroup cg
                 LEFT JOIN SandboxApiBundle:ChatGroup\ChatGroupMember cgm
                 WITH cg = cgm.chatGroup

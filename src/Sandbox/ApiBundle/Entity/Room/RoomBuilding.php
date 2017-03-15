@@ -581,6 +581,8 @@ class RoomBuilding implements JsonSerializable
 
     /**
      * @var array
+     * 
+     * @Serializer\Groups({"main", "admin_building"})
      */
     private $customerServices;
 

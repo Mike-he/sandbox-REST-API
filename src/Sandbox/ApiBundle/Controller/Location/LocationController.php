@@ -634,6 +634,13 @@ class LocationController extends SalesRestController
             }
         }
 
+        $members = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomBuildingServiceMember')
+            ->findBy([
+                'buildingId' => $building->getId()
+            ]);
+        $building->setCustomerServices($members);
+
         return $building;
     }
 
