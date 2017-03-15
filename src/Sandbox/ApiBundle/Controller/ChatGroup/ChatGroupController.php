@@ -89,7 +89,8 @@ class ChatGroupController extends SandboxRestController
      * @return mixed|void
      */
     protected function createXmppChatGroup(
-        $chatGroup
+        $chatGroup,
+        $serviceType = ChatGroup::XMPP_SERVICE
     ) {
         try {
             // get globals
@@ -98,13 +99,13 @@ class ChatGroupController extends SandboxRestController
 
             $domain = $globals['xmpp_domain'];
             $id = $chatGroup->getId();
-            $jid = "$id".'@'.ChatGroup::XMPP_SERVICE.'.'.$domain;
+            $jid = "$id".'@'.$serviceType.'.'.$domain;
             $owner = $chatGroup->getCreator()->getXmppUsername().'@'.$domain;
             $members = $this->addMembers($chatGroup, $domain);
 
             // request json
             $jsonDataArray = array(
-                'service' => ChatGroup::XMPP_SERVICE,
+                'service' => $serviceType,
                 'jid' => $jid,
                 'name' => $chatGroup->getName(),
                 'owner' => $owner,
@@ -254,7 +255,13 @@ class ChatGroupController extends SandboxRestController
 
             $domain = $globals['xmpp_domain'];
             $id = $chatGroup->getId();
-            $jid = "$id".'@'.ChatGroup::XMPP_SERVICE.'.'.$domain;
+            $type = ChatGroup::XMPP_SERVICE;
+
+            if (!is_null($chatGroup->getTag())) {
+                $type = ChatGroup::XMPP_CUSTOMER_SERVICE;
+            }
+
+            $jid = "$id".'@'.$type.'.'.$domain;
             $actor = $user->getXmppUsername().'@'.$domain;
 
             $room = array('jid' => $jid);
@@ -342,7 +349,13 @@ class ChatGroupController extends SandboxRestController
 
             $domain = $globals['xmpp_domain'];
             $id = $chatGroup->getId();
-            $targetJid = "$id".'@'.ChatGroup::XMPP_SERVICE.'.'.$domain;
+            $type = ChatGroup::XMPP_SERVICE;
+
+            if (!is_null($chatGroup->getTag())) {
+                $type = ChatGroup::XMPP_CUSTOMER_SERVICE;
+            }
+
+            $targetJid = "$id".'@'.$type.'.'.$domain;
             $userJid = $user->getXmppUsername().'@'.$domain;
 
             // request json
