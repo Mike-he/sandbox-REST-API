@@ -87,7 +87,7 @@ class ClientCustomerServiceController extends ChatGroupController
 
         // create new chat group
         $em = $this->getDoctrine()->getManager();
-        $chatGroupName = $company->getName();
+        $chatGroupName = $building->getName();
 
         $chatGroup = new ChatGroup();
         $chatGroup->setCreator($myUser);
