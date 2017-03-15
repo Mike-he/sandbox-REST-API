@@ -293,6 +293,11 @@ class ClientChatGroupController extends ChatGroupController
         // get chatGroup
         $chatGroup = $this->getRepo('ChatGroup\ChatGroup')->find($id);
         $this->throwNotFoundIfNull($chatGroup, self::NOT_FOUND_MESSAGE);
+        
+        $tag = $chatGroup->getTag();
+        if (!is_null($tag)) {
+            throw new AccessDeniedHttpException();
+        }
 
         // bind data
         $chatGroupJson = $this->container->get('serializer')->serialize($chatGroup, 'json');
@@ -342,6 +347,11 @@ class ClientChatGroupController extends ChatGroupController
         $chatGroup = $this->getRepo('ChatGroup\ChatGroup')->find($id);
         if (is_null($chatGroup)) {
             return new View();
+        }
+
+        $tag = $chatGroup->getTag();
+        if (!is_null($tag)) {
+            throw new AccessDeniedHttpException();
         }
 
         // only chat group creator is allowed to remove it

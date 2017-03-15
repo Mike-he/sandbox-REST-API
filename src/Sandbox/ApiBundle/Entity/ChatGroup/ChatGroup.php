@@ -81,14 +81,14 @@ class ChatGroup
     /**
      * @var int
      *
-     * @ORM\Column(name="company_id", type="integer", nullable=false)
+     * @ORM\Column(name="company_id", type="integer", nullable=true)
      */
     private $companyId;
 
     /**
      * @var int
      *
-     * @ORM\Column(name="building_id", type="integer", nullable=false)
+     * @ORM\Column(name="building_id", type="integer", nullable=true)
      */
     private $buildingId;
 
