@@ -270,7 +270,8 @@ class SandboxRestController extends FOSRestController
         } else {
             // check permission by sales monitoring permission
             $hasSalesMonitoringPermission = $this->checkSalesMonitoringPermission(
-                $platform
+                $platform,
+                $adminId
             );
 
             if ($opLevel == AdminPermission::OP_LEVEL_VIEW && $hasSalesMonitoringPermission) {
@@ -1925,17 +1926,21 @@ class SandboxRestController extends FOSRestController
 
     /**
      * @param $platform
+     * @param $adminId
      *
      * @return bool
      */
     protected function checkSalesMonitoringPermission(
-        $platform
+        $platform,
+        $adminId = null
     ) {
         if ($platform == AdminPermission::PERMISSION_PLATFORM_OFFICIAL) {
             return false;
         }
 
-        $adminId = $this->getAdminId();
+        if (is_null($adminId)) {
+            $adminId = $this->getAdminId();
+        }
 
         $isOfficialSuperAdmin = $this->hasSuperAdminPosition(
             $adminId,

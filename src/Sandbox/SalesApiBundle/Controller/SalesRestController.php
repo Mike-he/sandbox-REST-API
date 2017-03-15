@@ -43,7 +43,8 @@ class SalesRestController extends SandboxRestController
 
         // check permission by sales monitoring permission
         $hasSalesMonitoringPermission = $this->checkSalesMonitoringPermission(
-            $platform
+            $platform,
+            $adminId
         );
 
         if ($isSuperAdmin || $hasSalesMonitoringPermission) {
