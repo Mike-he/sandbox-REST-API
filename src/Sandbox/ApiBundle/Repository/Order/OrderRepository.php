@@ -1198,11 +1198,11 @@ class OrderRepository extends EntityRepository
                 case 'user':
                     $query->andWhere('u.name LIKE :search');
                     break;
-                case 'account':
-                    $query->andWhere('
-                            (u.phone LIKE :search OR 
-                            u.email LIKE :search)
-                        ');
+                case 'phone':
+                    $query->andWhere('u.phone LIKE :search');
+                    break;
+                case 'email':
+                    $query->andWhere('u.email LIKE :search');
                     break;
                 default:
                     $query->andWhere('o.orderNumber LIKE :search');
@@ -1480,11 +1480,11 @@ class OrderRepository extends EntityRepository
                 case 'user':
                     $query->andWhere('u.name LIKE :search');
                     break;
-                case 'account':
-                    $query->andWhere('
-                            (u.phone LIKE :search OR 
-                            u.email LIKE :search)
-                        ');
+                case 'phone':
+                    $query->andWhere('u.phone LIKE :search');
+                    break;
+                case 'email':
+                    $query->andWhere('u.email LIKE :search');
                     break;
                 default:
                     $query->andWhere('o.orderNumber LIKE :search');
@@ -1830,6 +1830,7 @@ class OrderRepository extends EntityRepository
             ->leftJoin('o.product', 'p')
             ->leftJoin('p.room', 'r')
             ->leftJoin('SandboxApiBundle:Order\ProductOrderRecord', 'por', 'WITH', 'por.orderId = o.id')
+            ->leftJoin('SandboxApiBundle:User\UserView', 'u', 'WITH', 'u.id = o.userId')
             ->where('
                     (
                         (o.status != :unpaid) AND 
@@ -1948,14 +1949,24 @@ class OrderRepository extends EntityRepository
         if (!is_null($keyword) && !is_null($keywordSearch)) {
             switch ($keyword) {
                 case 'number':
-                    $query->andWhere('o.orderNumber LIKE :search')
-                        ->setParameter('search', '%'.$keywordSearch.'%');
+                    $query->andWhere('o.orderNumber LIKE :search');
                     break;
                 case 'room':
-                    $query->andWhere('r.name LIKE :search')
-                        ->setParameter('search', '%'.$keywordSearch.'%');
+                    $query->andWhere('r.name LIKE :search');
                     break;
+                case 'user':
+                    $query->andWhere('u.name LIKE :search');
+                    break;
+                case 'phone':
+                    $query->andWhere('u.phone LIKE :search');
+                    break;
+                case 'email':
+                    $query->andWhere('u.email LIKE :search');
+                    break;
+                default:
+                    $query->andWhere('o.orderNumber LIKE :search');
             }
+            $query->setParameter('search', '%'.$keywordSearch.'%');
         }
 
         if (!is_null($createDateRange)) {
@@ -2049,6 +2060,7 @@ class OrderRepository extends EntityRepository
             ->leftJoin('o.product', 'p')
             ->leftJoin('p.room', 'r')
             ->leftJoin('SandboxApiBundle:Order\ProductOrderRecord', 'por', 'WITH', 'por.orderId = o.id')
+            ->leftJoin('SandboxApiBundle:User\UserView', 'u', 'WITH', 'u.id = o.userId')
             ->where('
                     (
                         (o.status != :unpaid) AND 
@@ -2167,14 +2179,24 @@ class OrderRepository extends EntityRepository
         if (!is_null($keyword) && !is_null($keywordSearch)) {
             switch ($keyword) {
                 case 'number':
-                    $query->andWhere('o.orderNumber LIKE :search')
-                        ->setParameter('search', '%'.$keywordSearch.'%');
+                    $query->andWhere('o.orderNumber LIKE :search');
                     break;
                 case 'room':
-                    $query->andWhere('r.name LIKE :search')
-                        ->setParameter('search', '%'.$keywordSearch.'%');
+                    $query->andWhere('r.name LIKE :search');
                     break;
+                case 'user':
+                    $query->andWhere('u.name LIKE :search');
+                    break;
+                case 'phone':
+                    $query->andWhere('u.phone LIKE :search');
+                    break;
+                case 'email':
+                    $query->andWhere('u.email LIKE :search');
+                    break;
+                default:
+                    $query->andWhere('o.orderNumber LIKE :search');
             }
+            $query->setParameter('search', '%'.$keywordSearch.'%');
         }
 
         if (!is_null($createDateRange)) {
@@ -2471,10 +2493,11 @@ class OrderRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
             ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'r.buildingId = b.id')
             ->select('count(o.id) as number , SUM(o.discountPrice) as price')
-            ->where('o.status = :paid')
+            ->where('(o.status = :paid or o.status = :cancelled)')
             ->andWhere('o.paymentDate >= :start')
             ->andWhere('o.paymentDate <= :end')
             ->setParameter('paid', ProductOrder::STATUS_PAID)
+            ->setParameter('cancelled', ProductOrder::STATUS_CANCELLED)
             ->setParameter('start', $startDate)
             ->setParameter('end', $endDate);
 
@@ -2601,14 +2624,16 @@ class OrderRepository extends EntityRepository
     }
 
     /**
+     * @param $status
      * @param $startDate
      * @param $endDate
      * @param null $payChannel
      * @param null $buildingId
+     * @param null $companyId
      * @param null $limit
      * @param null $offset
      *
-     * @return array
+     * @return array|void
      */
     public function getOrdersList(
         $status,
@@ -2627,10 +2652,11 @@ class OrderRepository extends EntityRepository
 
         switch ($status) {
             case ProductOrder::STATUS_PAID:
-                $query->where('o.status = :paid')
+                $query->where('(o.status = :paid or o.status = :cancelled)')
                     ->andWhere('o.paymentDate >= :start')
                     ->andWhere('o.paymentDate <= :end')
                     ->setParameter('paid', ProductOrder::STATUS_PAID)
+                    ->setParameter('cancelled', ProductOrder::STATUS_CANCELLED)
                     ->setParameter('start', $startDate)
                     ->setParameter('end', $endDate);
                 break;

@@ -308,7 +308,7 @@ class Product
      *      inverseJoinColumns={@ORM\JoinColumn(name="lease_rent_types_id", referencedColumnName="id")}
      * )
      *
-     * @Serializer\Groups({"main", "admin_room", "admin_appointment"})
+     * @Serializer\Groups({"main", "admin_room", "admin_appointment", "client"})
      */
     private $leaseRentTypes;
 

@@ -24,7 +24,7 @@ class AdminPosition
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
-     * @Serializer\Groups({"main", "admin"})
+     * @Serializer\Groups({"main", "admin", "admin_position_bind_view"})
      */
     private $id;
 
@@ -32,7 +32,7 @@ class AdminPosition
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=64)
-     * @Serializer\Groups({"main", "admin"})
+     * @Serializer\Groups({"main", "admin", "admin_position_bind_view"})
      */
     private $name;
 
@@ -133,7 +133,7 @@ class AdminPosition
      *      mappedBy="position"
      * )
      * @ORM\JoinColumn(name="id", referencedColumnName="positionId", onDelete="CASCADE")
-     * @Serializer\Groups({"main", "admin"})
+     * @Serializer\Groups({"main", "admin", "admin_position_bind_view"})
      */
     private $permissionMappings;
 

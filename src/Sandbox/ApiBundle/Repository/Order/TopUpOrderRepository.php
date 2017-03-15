@@ -142,4 +142,70 @@ class TopUpOrderRepository extends EntityRepository
 
         return $topUpOrdersQuery->getQuery()->getResult();
     }
+
+    /**
+     * @param $channel
+     * @param $payDate
+     * @param $payStart
+     * @param $payEnd
+     * @param $keyword
+     * @param $keywordSearch
+     *
+     * @return array
+     */
+    public function getTopUpOrdersToExport(
+        $channel,
+        $payDate,
+        $payStart,
+        $payEnd,
+        $keyword,
+        $keywordSearch
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->where('o.id IS NOT NULL');
+
+        // filter by payment channel
+        if (!is_null($channel) && !empty($channel)) {
+            $query->andWhere('o.payChannel in (:channel)')
+                ->setParameter('channel', $channel);
+        }
+
+        if (!is_null($payDate)) {
+            $payDateStart = new \DateTime($payDate);
+            $payDateEnd = new \DateTime($payDate);
+            $payDateEnd->setTime(23, 59, 59);
+
+            $query->andWhere('o.paymentDate >= :payStart')
+                ->andWhere('o.paymentDate <= :payEnd')
+                ->setParameter('payStart', $payDateStart)
+                ->setParameter('payEnd', $payDateEnd);
+        } else {
+            if (!is_null($payStart)) {
+                $payStart = new \DateTime($payStart);
+                $payStart->setTime(0, 0, 0);
+                $query->andWhere('o.paymentDate >= :payStart')
+                    ->setParameter('payStart', $payStart);
+            }
+
+            if (!is_null($payEnd)) {
+                $payEnd = new \DateTime($payEnd);
+                $payEnd->setTime(23, 59, 59);
+                $query->andWhere('o.paymentDate <= :payEnd')
+                    ->setParameter('payEnd', $payEnd);
+            }
+        }
+
+        if (!is_null($keyword) && !is_null($keywordSearch)) {
+            switch ($keyword) {
+                case 'number':
+                    $query->andWhere('o.orderNumber LIKE :search')
+                        ->setParameter('search', '%'.$keywordSearch.'%');
+                    break;
+            }
+        }
+
+        $query->orderBy('o.creationDate', 'DESC');
+
+        return $query->getQuery()->getResult();
+    }
 }

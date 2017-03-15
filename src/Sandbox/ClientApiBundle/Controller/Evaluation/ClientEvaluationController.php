@@ -3,6 +3,7 @@
 namespace Sandbox\ClientApiBundle\Controller\Evaluation;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
+use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Controller\Evaluation\EvaluationController;
 use Sandbox\ApiBundle\Entity\Evaluation\Evaluation;
 use Sandbox\ApiBundle\Entity\Evaluation\EvaluationAttachment;
@@ -406,14 +407,14 @@ class ClientEvaluationController extends EvaluationController
 
         if (!is_null($attachments) && !empty($attachments)) {
             foreach ($attachments as $attachment) {
-                $evaluationAttachemnt = new EvaluationAttachment();
-                $evaluationAttachemnt->setEvaluation($evaluation);
-                $evaluationAttachemnt->setContent($attachment['content']);
-                $evaluationAttachemnt->setAttachmentType($attachment['attachment_type']);
-                $evaluationAttachemnt->setFilename($attachment['filename']);
-                $evaluationAttachemnt->setPreview($attachment['preview']);
-                $evaluationAttachemnt->setSize($attachment['size']);
-                $em->persist($evaluationAttachemnt);
+                $evaluationAttachment = new EvaluationAttachment();
+                $evaluationAttachment->setEvaluation($evaluation);
+                $evaluationAttachment->setContent($attachment['content']);
+                $evaluationAttachment->setAttachmentType($attachment['attachment_type']);
+                $evaluationAttachment->setFilename($attachment['filename']);
+                $evaluationAttachment->setPreview($attachment['preview']);
+                $evaluationAttachment->setSize($attachment['size']);
+                $em->persist($evaluationAttachment);
             }
         }
     }
@@ -437,21 +438,36 @@ class ClientEvaluationController extends EvaluationController
             ));
         $userName = !is_null($userProfile) ? $userProfile->getName() : null;
 
-        $productOrder = $evaluation->getProductOrder();
-        $productOrderRoomName = !is_null($productOrder) ? $productOrder->getProduct()->getRoom()->getName() : null;
+        $building = $evaluation->getBuilding();
+        $buildingCity = $building->getCity()->getName();
+        $buildingDistrict = $building->getDistrict() ? $building->getDistrict()->getName() : null;
 
-        $data = [
-            'id' => $evaluation->getId(),
-            'type' => $evaluation->getType(),
-            'total_star' => $evaluation->getTotalStar(),
-            'comment' => $evaluation->getComment(),
-            'user' => [
-                'id' => $evaluation->getUser()->getId(),
-                'name' => $userName,
-            ],
-            'room_name' => $productOrderRoomName,
-            'creation_date' => $evaluation->getCreationDate(),
-        ];
+        $buildingAttachments = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomBuildingAttachment')
+            ->findOneBy(array('building' => $building->getId()));
+
+        $productOrder = $evaluation->getProductOrder();
+
+        $productOrderRoomName = null;
+        $roomType = null;
+        $roomAttachment = null;
+        $roomDetailUrl = null;
+        if ($productOrder) {
+            $productId = $productOrder->getProductId();
+            $roomId = $productOrder->getProduct()->getRoom()->getId();
+            $productOrderRoomName = $productOrder->getProduct()->getRoom()->getName();
+
+            $type = $productOrder->getProduct()->getRoom()->getType();
+            $roomType = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$type);
+
+            $roomAttachmentBinding = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomAttachmentBinding')
+                ->findOneBy(array('room' => $roomId));
+
+            $roomAttachment = $roomAttachmentBinding ? $roomAttachmentBinding->getAttachmentId()->getContent() : null;
+
+            $roomDetailUrl = $this->getParameter('room_mobile_url').'/book?ptype=detail&productid='.$productId.'&btype='.$type;
+        }
 
         $attachments = $evaluation->getEvaluationAttachments();
         $attachmentsArray = array();
@@ -464,7 +480,26 @@ class ClientEvaluationController extends EvaluationController
             ));
         }
 
-        $data = array_merge($data, array('evaluation_attachments' => $attachmentsArray));
+        $data = [
+            'id' => $evaluation->getId(),
+            'type' => $evaluation->getType(),
+            'total_star' => $evaluation->getTotalStar(),
+            'comment' => $evaluation->getComment(),
+            'user' => [
+                'id' => $evaluation->getUser()->getId(),
+                'name' => $userName,
+            ],
+            'creation_date' => $evaluation->getCreationDate(),
+            'building_id' => $building->getId(),
+            'building_name' => $building->getName(),
+            'building_city' => $buildingCity.' '.$buildingDistrict,
+            'building_attachment' => $buildingAttachments ? $buildingAttachments->getContent() : null,
+            'room_name' => $productOrderRoomName,
+            'room_type' => $roomType,
+            'room_attachment' => $roomAttachment,
+            'order_detail_url' => $roomDetailUrl,
+            'evaluation_attachments' => $attachmentsArray,
+        ];
 
         return $data;
     }

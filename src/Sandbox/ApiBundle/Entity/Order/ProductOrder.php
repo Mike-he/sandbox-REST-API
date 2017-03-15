@@ -472,6 +472,56 @@ class ProductOrder
     private $serviceFee = 0;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="edit_comment", type="text", nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_detail", "admin_order"})
+     */
+    private $editComment;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="edit_admin_id", type="integer", nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_detail", "admin_order"})
+     */
+    private $editAdminId;
+
+    /**
+     * @return int
+     */
+    public function getEditAdminId()
+    {
+        return $this->editAdminId;
+    }
+
+    /**
+     * @param int $editAdminId
+     */
+    public function setEditAdminId($editAdminId)
+    {
+        $this->editAdminId = $editAdminId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEditComment()
+    {
+        return $this->editComment;
+    }
+
+    /**
+     * @param string $editComment
+     */
+    public function setEditComment($editComment)
+    {
+        $this->editComment = $editComment;
+    }
+
+    /**
      * @return float
      */
     public function getServiceFee()

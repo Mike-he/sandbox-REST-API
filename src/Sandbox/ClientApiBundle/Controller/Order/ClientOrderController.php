@@ -794,6 +794,12 @@ class ClientOrderController extends OrderController
 
             $em->flush();
 
+            $this->storeProductOrderInfo(
+                $em,
+                $product,
+                $order
+            );
+
             $view = new View();
             $view->setData(
                 ['order_id' => $order->getId()]
@@ -1124,7 +1130,7 @@ class ClientOrderController extends OrderController
                         $order->setRefundTo(ProductOrder::REFUND_TO_ACCOUNT);
                     }
                 }
-            } else {
+            } elseif (is_null($channel)) {
                 $order->setStatus(ProductOrder::STATUS_CANCELLED);
                 $order->setCancelledDate(new \DateTime());
                 $order->setModificationDate(new \DateTime());
@@ -1178,7 +1184,8 @@ class ClientOrderController extends OrderController
                             $price,
                             $orderNumber,
                             $channel,
-                            true
+                            true,
+                            $order->getOrderNumber()
                         );
                     }
                 }

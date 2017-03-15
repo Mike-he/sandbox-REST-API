@@ -5,7 +5,6 @@ namespace Sandbox\ApiBundle\Controller\Location;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingServices;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingTag;
-use Sandbox\ApiBundle\Entity\Room\RoomCity;
 use Sandbox\ApiBundle\Traits\HandleCoordinateTrait;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Symfony\Component\HttpFoundation\Request;
@@ -43,99 +42,43 @@ class LocationController extends SalesRestController
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
-     * @Annotations\QueryParam(
-     *    name="permission",
-     *    default=null,
-     *    nullable=false,
-     *    description="permission key"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="op",
-     *    default=1,
-     *    nullable=true,
-     *    description="op level"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="all",
-     *    default=null,
-     *    nullable=true,
-     *    description="tag of all"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="sales_company",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    description="id of sales admin"
-     * )
-     *
      * @return View
      */
     public function getCitiesAction(
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $user = $this->getUser();
-
-        $all = $paramFetcher->get('all');
-        $permissionArray = $paramFetcher->get('permission');
-        $salesCompanyId = $paramFetcher->get('sales_company');
-
         $language = $request->getPreferredLanguage(array('zh', 'en'));
 
-        // filter by sales admin
-        $cities = null;
-        if (!is_null($salesCompanyId)) {
-            $cities = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Room\RoomCity')
-                ->getSalesRoomCityByCompanyId($salesCompanyId);
-        } else {
-            // get all cities
-            $cities = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Room\RoomCity')
-                ->findBy(
-                    array('level' => RoomCity::LEVEL_CITY),
-                    array('capital' => 'desc')
-                );
-        }
+        $cities = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomCity')
+            ->getLocationCities();
 
-        if (!is_null($user) && is_null($all)) {
-            $userId = $user->getUserId();
-            $clientId = $user->getClientId();
+        $length = count($cities);
 
-            $adminPlatform = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Admin\AdminPlatform')
-                ->findOneBy(array(
-                    'userId' => $userId,
-                    'clientId' => $clientId,
-                ));
-
-            // response for client
-            if (is_null($adminPlatform)) {
-                $cities = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:Room\RoomCity')
-                    ->findBy(array(
-                        'level' => RoomCity::LEVEL_CITY,
-                    ));
-                $citiesArray = $this->generateCitiesArray(
-                    $cities,
-                    $language
-                );
-
-                return new View($citiesArray);
+        // sort city by building count
+        for ($i = 1; $i < $length; ++$i) {
+            for ($j = $length - 1; $j >= $i; --$j) {
+                if ($cities[$j]['building_count'] > $cities[$j - 1]['building_count']) {
+                    $tmp = $cities[$j];
+                    $cities[$j] = $cities[$j - 1];
+                    $cities[$j - 1] = $tmp;
+                }
             }
         }
 
+        $citiesArray = array();
+        foreach ($cities as $city) {
+            array_push($citiesArray, $city['city']);
+        }
+
         // generate cities array
-        $citiesArray = $this->generateCitiesArray(
-            $cities,
+        $response = $this->generateCitiesArray(
+            $citiesArray,
             $language
         );
 
-        return new View($citiesArray);
+        return new View($response);
     }
 
     /**
@@ -1035,6 +978,15 @@ class LocationController extends SalesRestController
                 $building['location'] = $district->getName();
                 unset($building['district_id']);
             }
+
+            $roomCount = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\Product')
+                ->countRoomsWithProductByBuilding(
+                    $building['id'],
+                    null
+                );
+
+            $building['room_count'] = $roomCount;
         }
 
         return $buildings;

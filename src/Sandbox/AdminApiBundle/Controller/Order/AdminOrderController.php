@@ -467,7 +467,8 @@ class AdminOrderController extends OrderController
                                 $price,
                                 $TopUpOrderNumber,
                                 $channel,
-                                true
+                                true,
+                                $orderNumber
                             );
                         }
                     }

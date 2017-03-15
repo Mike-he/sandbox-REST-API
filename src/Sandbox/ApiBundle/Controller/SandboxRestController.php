@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\Controller;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\View\View;
 use Sandbox\ApiBundle\Controller\Door\DoorController;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Auth\Auth;
 use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Form\Log\LogType;
@@ -267,6 +268,16 @@ class SandboxRestController extends FOSRestController
                 }
             }
         } else {
+            // check permission by sales monitoring permission
+            $hasSalesMonitoringPermission = $this->checkSalesMonitoringPermission(
+                $platform,
+                $adminId
+            );
+
+            if ($opLevel == AdminPermission::OP_LEVEL_VIEW && $hasSalesMonitoringPermission) {
+                return;
+            }
+
             // if common admin, than get my permissions list
             $myPermissions = $this->getMyAdminPermissions(
                 $adminId,
@@ -279,31 +290,26 @@ class SandboxRestController extends FOSRestController
                 $buildingId = isset($permissionKey['building_id']) ? $permissionKey['building_id'] : null;
                 $shopId = isset($permissionKey['shop_id']) ? $permissionKey['shop_id'] : null;
 
-                $pass = false;
                 foreach ($myPermissions as $myPermission) {
                     if ($permissionKey['key'] == $myPermission['key']
                         && $opLevel <= $myPermission['op_level']
                     ) {
-                        $pass = true;
-                    }
-
-                    if (!is_null($buildingId)) {
-                        if ($buildingId == $myPermission['building_id']) {
-                            $pass = true;
-                        } else {
-                            $pass = false;
+                        if (!is_null($buildingId)) {
+                            if ($buildingId == $myPermission['building_id']) {
+                                return;
+                            } else {
+                                continue;
+                            }
                         }
-                    }
 
-                    if (!is_null($shopId)) {
-                        if ($shopId == $myPermission['shop_id']) {
-                            $pass = true;
-                        } else {
-                            $pass = false;
+                        if (!is_null($shopId)) {
+                            if ($shopId == $myPermission['shop_id']) {
+                                return;
+                            } else {
+                                continue;
+                            }
                         }
-                    }
 
-                    if ($pass) {
                         return;
                     }
                 }
@@ -385,7 +391,7 @@ class SandboxRestController extends FOSRestController
     protected function hasSuperAdminPosition(
         $adminId,
         $platform,
-        $salesCompanyId
+        $salesCompanyId = null
     ) {
         $superAdminPositionBindings = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
@@ -413,7 +419,7 @@ class SandboxRestController extends FOSRestController
     protected function getMyAdminPermissions(
         $adminId,
         $platform,
-        $salesCompanyId
+        $salesCompanyId = null
     ) {
         $commonAdminPositionBindings = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
@@ -443,7 +449,6 @@ class SandboxRestController extends FOSRestController
                     'shop_id' => $binding->getShopId(),
                     'name' => $permission->getName(),
                     'id' => $permission->getId(),
-                    'position_id' => $position->getId(),
                 );
 
                 array_push($myPermissions, $permissionArray);
@@ -1862,5 +1867,114 @@ class SandboxRestController extends FOSRestController
         } catch (\Exception $e) {
             error_log('generate log went wrong!');
         }
+    }
+
+    /**
+     * @param $str
+     *
+     * @return mixed
+     */
+    protected function filterEmoji(
+        $str
+    ) {
+        $str = preg_replace_callback(
+            '/./u',
+            function (array $match) {
+                return strlen($match[0]) >= 4 ? '' : $match[0];
+            },
+            $str);
+
+        return $str;
+    }
+
+    /**
+     * @param $platform
+     * @param $salesCompanyId
+     *
+     * @return array
+     */
+    protected function getSalesPlatformMonitoringPermissions(
+        $platform,
+        $salesCompanyId
+    ) {
+        // check has sales monitoring permission
+        $hasSalesMonitoringPermission = $this->checkSalesMonitoringPermission(
+            $platform
+        );
+
+        if (!$hasSalesMonitoringPermission) {
+            return null;
+        }
+
+        // get my sales permissions
+        $salesPlatformMonitoringPermissions = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPermission')
+            ->findSuperAdminPermissionsByPlatform(
+                $platform,
+                $salesCompanyId
+            );
+
+        $salesPlatformMonitoringPermissionsArray = array();
+        foreach ($salesPlatformMonitoringPermissions as $permission) {
+            $permission['op_level'] = 1;
+
+            array_push($salesPlatformMonitoringPermissionsArray, $permission);
+        }
+
+        return $salesPlatformMonitoringPermissionsArray;
+    }
+
+    /**
+     * @param $platform
+     * @param $adminId
+     *
+     * @return bool
+     */
+    protected function checkSalesMonitoringPermission(
+        $platform,
+        $adminId = null
+    ) {
+        if ($platform == AdminPermission::PERMISSION_PLATFORM_OFFICIAL) {
+            return false;
+        }
+
+        if (is_null($adminId)) {
+            $adminId = $this->getAdminId();
+        }
+
+        $isOfficialSuperAdmin = $this->hasSuperAdminPosition(
+            $adminId,
+            AdminPermission::PERMISSION_PLATFORM_OFFICIAL
+        );
+
+        if ($isOfficialSuperAdmin) {
+            return true;
+        }
+
+        $myOfficialPermissions = $this->getMyAdminPermissions(
+            $adminId,
+            AdminPermission::PERMISSION_PLATFORM_OFFICIAL
+        );
+
+        $salesMonitoringPermission = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPermission')
+            ->findOneBy(array(
+                'key' => AdminPermission::KEY_OFFICIAL_PLATFORM_SALES_MONITORING,
+            ));
+
+        $salesMonitoringPermissionArray = array(
+            'key' => $salesMonitoringPermission->getKey(),
+            'op_level' => $salesMonitoringPermission->getMaxOpLevel(),
+            'name' => $salesMonitoringPermission->getName(),
+            'id' => $salesMonitoringPermission->getId(),
+            'building_id' => null,
+            'shop_id' => null,
+        );
+
+        if (in_array($salesMonitoringPermissionArray, $myOfficialPermissions)) {
+            return true;
+        }
+
+        return false;
     }
 }

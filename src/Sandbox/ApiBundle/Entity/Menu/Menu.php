@@ -19,6 +19,9 @@ class Menu
     const POSITION_PROFILE = 'profile';
     const POSITION_HOME = 'home';
 
+    const PLATFORM_IPHONE = 'iphone';
+    const PLATFORM_ANDROID = 'android';
+
     /**
      * @var int
      *

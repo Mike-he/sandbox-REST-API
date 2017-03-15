@@ -8,6 +8,7 @@ use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Order\ProductOrderCheck;
+use Sandbox\ApiBundle\Entity\Order\ProductOrderInfo;
 use Sandbox\ApiBundle\Entity\Order\ProductOrderRecord;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Entity\Room\Room;
@@ -56,7 +57,7 @@ class OrderController extends PaymentController
             // set product name
             $productName = $productInfo['room']['city']['name'].
                 $productInfo['room']['building']['name'].
-                $productInfo['room']['number'];
+                $productInfo['room']['name'];
 
             // set product type
             $productTypeKey = $productInfo['room']['type'];
@@ -946,6 +947,31 @@ class OrderController extends PaymentController
         );
 
         $em->remove($orderCheck);
+        $em->flush();
+    }
+
+    /**
+     * @param $em
+     * @param $product
+     * @param $order
+     */
+    protected function storeProductOrderInfo(
+        $em,
+        $product,
+        $order
+    ) {
+        $orderId = $order->getId();
+
+        $productInfo = $this->storeRoomInfo(
+            $product,
+            $order->getSeatId()
+        );
+
+        $productOrderInfo = new ProductOrderInfo();
+        $productOrderInfo->setOrderId($orderId);
+        $productOrderInfo->setProductInfo($productInfo);
+
+        $em->persist($productOrderInfo);
         $em->flush();
     }
 

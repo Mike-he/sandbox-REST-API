@@ -36,6 +36,61 @@ trait HandleAdminLoginDataTrait
         return $platform;
     }
 
+    /**
+     * @param $positions
+     *
+     * @return array
+     */
+    private function handleCompanyData(
+        $positions
+    ) {
+        $shopCompanies = array();
+        $salesCompanies = array();
+        foreach ($positions as $position) {
+            switch ($position['platform']) {
+                case 'shop':
+                    $shopCompanies[] = $position['sales_company_id'];
+                    break;
+                case 'sales':
+                    $salesCompanies[] = $position['sales_company_id'];
+                    break;
+            }
+        }
+
+        $salesInfo = array();
+        $salesCompanies = array_unique($salesCompanies);
+        foreach ($salesCompanies as $salesCompany) {
+            $attachment = $this->getContainer()->get('doctrine')
+                ->getRepository('SandboxApiBundle:Room\RoomBuildingAttachment')
+                ->findAttachmentByCompany($salesCompany);
+
+            $salesInfo[] = array(
+                'sales_company_id' => $salesCompany,
+                'content' => $attachment ? $attachment[0]['content'] : '',
+            );
+        }
+
+        $shopInfo = array();
+        $shopCompanies = array_unique($shopCompanies);
+        foreach ($shopCompanies as $shopCompany) {
+            $attachment = $this->getContainer()->get('doctrine')
+                ->getRepository('SandboxApiBundle:Shop\ShopAttachment')
+                ->findAttachmentByCompany($shopCompany);
+
+            $shopInfo[] = array(
+                'sales_company_id' => $shopCompany,
+                'content' => $attachment ? $attachment[0]['content'] : '',
+            );
+        }
+
+        $company = array(
+            'sales' => $salesInfo,
+            'shop' => $shopInfo,
+        );
+
+        return $company;
+    }
+
     private function handlePermissionData($permissions)
     {
         $data = array();

@@ -94,6 +94,14 @@ class TopUpOrder
     private $refundToAccount = false;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="refund_number", type="string", length=128, nullable=true)
+     * @Serializer\Groups({"main", "admin_order", "client_order"})
+     */
+    private $refundNumber;
+
+    /**
      * Get id.
      *
      * @return int
@@ -285,6 +293,22 @@ class TopUpOrder
     public function setRefundToAccount($refundToAccount)
     {
         $this->refundToAccount = $refundToAccount;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRefundNumber()
+    {
+        return $this->refundNumber;
+    }
+
+    /**
+     * @param string $refundNumber
+     */
+    public function setRefundNumber($refundNumber)
+    {
+        $this->refundNumber = $refundNumber;
     }
 
     public function __construct()

@@ -394,3 +394,10 @@ knp_snappy:
 #        query_cache:
 #            client: doctrine
 #            entity_manager: default
+
+
+#openfire:
+#    url: '%openfire_url%'
+#    secret: '%openfire_secret%'
+#    servicename: '%openfire_servicename%'
+#    servername: '%openfire_servername%'

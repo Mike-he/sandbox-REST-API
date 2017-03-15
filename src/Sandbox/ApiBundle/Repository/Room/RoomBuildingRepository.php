@@ -298,6 +298,19 @@ class RoomBuildingRepository extends EntityRepository
         return $query->getQuery()->getResult();
     }
 
+    /**
+     * @param $cityId
+     * @param $queryText
+     * @param $roomTypes
+     * @param $sortBy
+     * @param $buildingTags
+     * @param $buildingServices
+     * @param $lng
+     * @param $lat
+     * @param null $excludeIds
+     *
+     * @return array
+     */
     public function searchBuildings(
         $cityId,
         $queryText,

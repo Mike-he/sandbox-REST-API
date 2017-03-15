@@ -4,6 +4,7 @@ namespace Sandbox\AdminApiBundle\Controller\Location;
 
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\AdminApiBundle\Controller\AdminRestController;
+use Sandbox\ApiBundle\Entity\Room\RoomCity;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations;
@@ -23,6 +24,32 @@ use JMS\Serializer\SerializationContext;
  */
 class AdminLocationController extends AdminRestController
 {
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Get("/location/cities")
+     *
+     * @return View
+     */
+    public function getCitiesAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $cities = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomCity')
+            ->findBy(array(
+                'level' => RoomCity::LEVEL_CITY,
+            ));
+
+        // generate cities array
+        $citiesArray = $this->generateCitiesArray(
+            $cities
+        );
+
+        return new View($citiesArray);
+    }
+
     /**
      * @Get("/location/buildings")
      *
@@ -68,5 +95,31 @@ class AdminLocationController extends AdminRestController
         $view->setData($buildings);
 
         return $view;
+    }
+
+    /**
+     * @param $cities
+     *
+     * @return array
+     */
+    protected function generateCitiesArray(
+        $cities
+    ) {
+        if (is_null($cities) || empty($cities)) {
+            return array();
+        }
+
+        $citiesArray = array();
+        foreach ($cities as $city) {
+            $name = $city->getName();
+
+            $cityArray = array(
+                'id' => $city->getId(),
+                'name' => $name,
+            );
+            array_push($citiesArray, $cityArray);
+        }
+
+        return $citiesArray;
     }
 }

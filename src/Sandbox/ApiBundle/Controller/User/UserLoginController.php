@@ -14,6 +14,7 @@ use Doctrine\ORM\EntityManager;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Sandbox\ApiBundle\Entity\Error\Error;
 use Sandbox\ApiBundle\Entity\ThirdParty\WeChat;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 /**
  * User Login Controller.
@@ -301,5 +302,32 @@ class UserLoginController extends SandboxRestController
         }
 
         return $user;
+    }
+
+    /**
+     * Check authorization.
+     */
+    protected function checkAuthorization()
+    {
+        $twig = $this->container->get('twig');
+        $globals = $twig->getGlobals();
+
+        $authKey = $globals['sandbox_auth_key'];
+
+        $headerKey = self::SANDBOX_CLIENT_LOGIN_HEADER;
+
+        $headers = array_change_key_case($_SERVER, CASE_LOWER);
+
+        if (!array_key_exists($headerKey, $headers)) {
+            throw new UnauthorizedHttpException(self::UNAUTHED_API_CALL);
+        }
+
+        $auth = $headers[$headerKey];
+
+        if ($auth != md5($authKey)) {
+            throw new UnauthorizedHttpException(self::UNAUTHED_API_CALL);
+        }
+
+        return;
     }
 }
