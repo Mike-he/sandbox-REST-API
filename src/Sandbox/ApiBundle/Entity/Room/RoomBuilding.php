@@ -580,6 +580,13 @@ class RoomBuilding implements JsonSerializable
     private $lessorEmail;
 
     /**
+     * @var array
+     *
+     * @Serializer\Groups({"main", "admin_building"})
+     */
+    private $customerServices;
+
+    /**
      * Get id.
      *
      * @return int
@@ -1593,5 +1600,21 @@ class RoomBuilding implements JsonSerializable
     public function setLessorEmail($lessorEmail)
     {
         $this->lessorEmail = $lessorEmail;
+    }
+
+    /**
+     * @return array
+     */
+    public function getCustomerServices()
+    {
+        return $this->customerServices;
+    }
+
+    /**
+     * @param array $customerServices
+     */
+    public function setCustomerServices($customerServices)
+    {
+        $this->customerServices = $customerServices;
     }
 }

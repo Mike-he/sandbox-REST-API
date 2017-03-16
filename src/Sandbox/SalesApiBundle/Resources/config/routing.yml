@@ -141,3 +141,9 @@ sandbox_sales_admin_sales_company_api:
     resource: "@SandboxSalesApiBundle/Controller/Space/AdminSpaceSalesCompanyController.php"
     type:     annotation
     prefix:   /admin
+
+# Admin ChatGroup
+sandbox_sales_admin_chatgroups:
+    resource: "@SandboxSalesApiBundle/Controller/ChatGroup/AdminChatGroupController.php"
+    type: annotation
+    prefix: /admin

@@ -371,3 +371,9 @@ sandbox_client_api_user_invoice_categories:
     resource: "@SandboxClientApiBundle/Controller/User/ClientUserSalesInvoiceCategoryController.php"
     type:     annotation
     prefix:   /
+
+# User Customer Service
+sandbox_client_api_customer_service:
+    resource: "@SandboxClientApiBundle/Controller/CustomerService/ClientCustomerServiceController.php"
+    type:     annotation
+    prefix:   /

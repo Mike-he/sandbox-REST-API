@@ -75,4 +75,16 @@ trait HasAccessToEntityRepositoryTrait
         return $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Log\Log');
     }
+
+    private function getServiceMemberRepo()
+    {
+        return $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomBuildingServiceMember');
+    }
+
+    private function getRoomBuildingRepo()
+    {
+        return $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomBuilding');
+    }
 }
