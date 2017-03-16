@@ -139,5 +139,5 @@ sandbox_sales_admin_finance_api:
 # Admin ChatGroup
 sandbox_sales_admin_chatgroups:
     resource: "@SandboxSalesApiBundle/Controller/ChatGroup/AdminChatGroupController.php"
-    type: rest
+    type: annotation
     prefix: /admin
