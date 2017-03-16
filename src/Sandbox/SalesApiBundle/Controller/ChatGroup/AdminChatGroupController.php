@@ -107,6 +107,15 @@ class AdminChatGroupController extends ChatGroupController
                 $companyId,
                 $userId
             );
+        if (is_null($chatGroup) || empty($chatGroup)) {
+            return new View();
+        }
+
+        $members = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:ChatGroup\ChatGroupMember')
+            ->getChatGroupMembersByGroup($chatGroup['id']);
+
+        $chatGroup['group_members'] = $members;
 
         return new View($chatGroup);
     }
