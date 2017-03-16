@@ -122,9 +122,11 @@ class ChatGroupRepository extends EntityRepository
                 g.tag,
                 g.buildingId,
                 g.creatorId,
-                up.name as creator_name
+                up.name as creator_name,
+                gm
             ')
             ->leftJoin('SandboxApiBundle:Room\RoomBuildingServiceMember', 'm', 'WITH', 'm.buildingId = g.buildingId')
+            ->leftJoin('SandboxApiBundle:ChatGroup\ChatGroupMember', 'gm', 'WITH', 'gm.chatGroup = g.id')
             ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'u.id = g.creatorId')
             ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'u.id = up.userId')
             ->where('g.id = :id')
