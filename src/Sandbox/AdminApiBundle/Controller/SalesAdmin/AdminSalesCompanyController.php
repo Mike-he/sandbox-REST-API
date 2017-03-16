@@ -150,7 +150,15 @@ class AdminSalesCompanyController extends SandboxRestController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="query",
+     *    name="keyword",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    description="search keyword"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="keyword_search",
      *    array=false,
      *    default=null,
      *    nullable=true,
@@ -171,7 +179,8 @@ class AdminSalesCompanyController extends SandboxRestController
         $banned = $paramFetcher->get('banned');
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
-        $search = $paramFetcher->get('query');
+        $keyword = $paramFetcher->get('keyword');
+        $keywordSearch = $paramFetcher->get('keyword_search');
 
         // check user permission
         $this->throwAccessDeniedIfAdminNotAllowed(
@@ -187,7 +196,8 @@ class AdminSalesCompanyController extends SandboxRestController
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
             ->getCompanyList(
                 $banned,
-                $search
+                $keyword,
+                $keywordSearch
             );
 
         foreach ($salesCompanies as $company) {
