@@ -111,3 +111,5 @@ parameters:
     mobile_url: https://m.sandbox3.cn
     room_mobile_url: https://mobile.sandbox3.cn
     orders_url: https://orders.sandbox3.cn
+    coffee_url: https://coffee.sandbox3.cn
+    invoice_url: https://invoice.sandbox3.cn

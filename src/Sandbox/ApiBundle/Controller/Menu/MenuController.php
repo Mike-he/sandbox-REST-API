@@ -55,6 +55,13 @@ class MenuController extends SandboxRestController
     const CLIENT_MENU_SETTING = 'client.menu.setting';
     const ROOM_TYPE = 'room.type.';
 
+    const URL_IMAGE = '{{image}}';
+    const URL_COFFEE = '{{coffee}}';
+    const URL_M = '{{m}}';
+    const URL_MOBILE = '{{mobile}}';
+    const URL_ORDERS = '{{orders}}';
+    const URL_INVOICE = '{{invoice}}';
+
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
@@ -177,11 +184,32 @@ class MenuController extends SandboxRestController
                 return new View();
         }
 
+        // translate
         foreach ($items as $item) {
             $translate = $this->get('translator')->trans($item);
             $menuJson = preg_replace('/'.$item.'/', "$translate", $menuJson);
         }
 
+        // replace url
+        $urlImage = $this->container->getParameter('image_url');
+        $menuJson = preg_replace('/'.self::URL_IMAGE.'/', "$urlImage", $menuJson);
+
+        $urlCoffee = $this->container->getParameter('coffee_url');
+        $menuJson = preg_replace('/'.self::URL_COFFEE.'/', "$urlCoffee", $menuJson);
+
+        $urlM = $this->container->getParameter('mobile_url');
+        $menuJson = preg_replace('/'.self::URL_M.'/', "$urlM", $menuJson);
+
+        $urlMobile = $this->container->getParameter('room_mobile_url');
+        $menuJson = preg_replace('/'.self::URL_MOBILE.'/', "$urlMobile", $menuJson);
+
+        $urlOrders = $this->container->getParameter('orders_url');
+        $menuJson = preg_replace('/'.self::URL_ORDERS.'/', "$urlOrders", $menuJson);
+
+        $urlInvoice = $this->container->getParameter('invoice_url');
+        $menuJson = preg_replace('/'.self::URL_INVOICE.'/', "$urlInvoice", $menuJson);
+
+        // return view
         $view = new View();
 
         $menuHash = hash('sha256', $menuJson);
