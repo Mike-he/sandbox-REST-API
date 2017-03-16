@@ -79,14 +79,12 @@ class ChatGroupRepository extends EntityRepository
         $search
     ) {
         $query = $this->createQueryBuilder('g')
-            ->select('
-                (   
-                    g.name,
-                    g.tag,
-                    g.buildingId,
-                    g.creatorId,
-                    up.name
-                )
+            ->select(' 
+                g.name,
+                g.tag,
+                g.buildingId,
+                g.creatorId,
+                up.name as creator_name
             ')
             ->leftJoin('SandboxApiBundle:Room\RoomBuildingServiceMember', 'm', 'WITH', 'm.buildingId = g.buildingId')
             ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'u.id = g.creatorId')
@@ -118,13 +116,11 @@ class ChatGroupRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('g')
             ->select('
-                (   
-                    g.name,
-                    g.tag,
-                    g.buildingId,
-                    g.creatorId,
-                    up.name
-                )
+                g.name,
+                g.tag,
+                g.buildingId,
+                g.creatorId,
+                up.name as creator_name
             ')
             ->leftJoin('SandboxApiBundle:Room\RoomBuildingServiceMember', 'm', 'WITH', 'm.buildingId = g.buildingId')
             ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'u.id = g.creatorId')
