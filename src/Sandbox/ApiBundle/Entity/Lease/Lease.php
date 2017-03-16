@@ -388,6 +388,25 @@ class Lease
      */
     private $conformedDate;
 
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="is_auto", type="boolean")
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $isAuto = false;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="plan_day", type="integer", nullable=true)
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $planDay;
+
+
     public function __construct()
     {
         $this->leaserentTypes = new ArrayCollection();
@@ -1181,5 +1200,37 @@ class Lease
             },
             $this->invitedPeople->toArray()
         );
+    }
+
+    /**
+     * @return bool
+     */
+    public function isIsAuto()
+    {
+        return $this->isAuto;
+    }
+
+    /**
+     * @param bool $isAuto
+     */
+    public function setIsAuto($isAuto)
+    {
+        $this->isAuto = $isAuto;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPlanDay()
+    {
+        return $this->planDay;
+    }
+
+    /**
+     * @param int $planDay
+     */
+    public function setPlanDay($planDay)
+    {
+        $this->planDay = $planDay;
     }
 }

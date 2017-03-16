@@ -773,6 +773,8 @@ class AdminLeaseController extends SalesRestController
         $lease->setTotalRent($payload['total_rent']);
         $lease->setOtherExpenses($payload['other_expenses']);
         $lease->setSupplementaryTerms($payload['supplementary_terms']);
+        $lease->setIsAuto($payload['is_auto']);
+        $lease->setPlanDay($payload['plan_day']);
 
         // If lease create from product appointment
         if (
@@ -1045,6 +1047,8 @@ class AdminLeaseController extends SalesRestController
         $lease->setModificationDate(new \DateTime('now'));
         $lease->setOtherExpenses($payload['other_expenses']);
         $lease->setSupplementaryTerms($payload['supplementary_terms']);
+        $lease->setIsAuto($payload['is_auto']);
+        $lease->setPlanDay($payload['plan_day']);
 
         // If lease created by product appointment
         if (
