@@ -941,13 +941,16 @@ class OrderController extends PaymentController
             $orderCheck
         );
 
+        $em->remove($orderCheck);
+
+        $em->persist($order);
+
         $this->storeProductOrderInfo(
             $em,
             $product,
             $order
         );
 
-        $em->remove($orderCheck);
         $em->flush();
     }
 
