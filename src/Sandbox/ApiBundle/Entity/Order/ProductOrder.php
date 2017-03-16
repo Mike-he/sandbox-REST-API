@@ -499,7 +499,7 @@ class ProductOrder
      */
     public function degenerateProductInfo()
     {
-        return $this->info->getProductInfo();
+        return $this->productInfo->getProductInfo();
     }
 
     /**
