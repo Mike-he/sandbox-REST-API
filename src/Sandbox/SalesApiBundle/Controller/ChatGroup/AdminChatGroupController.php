@@ -107,7 +107,7 @@ class AdminChatGroupController extends ChatGroupController
                 $companyId,
                 $userId
             );
-        if (is_null($chatGroup)) {
+        if (is_null($chatGroup) || empty($chatGroup)) {
             return new View();
         }
 

@@ -54,7 +54,7 @@ class ChatGroupMemberRepository extends EntityRepository
                       AND u.banned = FALSE
                 '
             )
-            ->setParameter('chatGroup', $chatGroup);
+            ->setParameter('chatGroup', $chatGroup['id']);
 
         return $query->getResult();
     }
