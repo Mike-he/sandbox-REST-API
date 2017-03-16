@@ -56,6 +56,54 @@ class AdminBuildingController extends LocationController
     const ROOM_FLOOR_BAK = '.bak';
 
     /**
+     * @Route("/buildings/{id}/room/room/attachment")
+     * @Method({"POST"})
+     *
+     * @param Request $request
+     * @param int     $id
+     *
+     * @return Response
+     */
+    public function postRoomAttachmentAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            array(
+                ['key' => AdminPermission::KEY_SALES_BUILDING_SPACE],
+                ['key' => AdminPermission::KEY_SALES_BUILDING_BUILDING],
+                ['key' => AdminPermission::KEY_SALES_PLATFORM_BUILDING],
+            ),
+            AdminPermission::OP_LEVEL_EDIT
+        );
+
+        $em = $this->getDoctrine()->getManager();
+
+        $building = $em->getRepository('SandboxApiBundle:Room\RoomBuilding')->find($id);
+        $this->throwNotFoundIfNull($building, self::NOT_FOUND_MESSAGE);
+
+        $payload = json_decode($request->getContent(), true);
+
+        $attachments = $payload['room_attachments'];
+
+        foreach ($attachments as $attachment) {
+            $roomAttachment = new RoomAttachment();
+            $form = $this->createForm(new RoomAttachmentPostType(), $roomAttachment);
+            $form->submit($attachment, true);
+
+            $roomAttachment->setBuilding($building);
+            $roomAttachment->setCreationDate(new \DateTime('now'));
+            $em->persist($roomAttachment);
+        }
+
+        $em->flush();
+
+        return new View();
+    }
+
+    /**
      * @Route("/buildings/{id}/sync")
      * @Method({"POST"})
      *
