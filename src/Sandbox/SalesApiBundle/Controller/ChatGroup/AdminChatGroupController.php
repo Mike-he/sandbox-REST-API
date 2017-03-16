@@ -1,6 +1,6 @@
 <?php
 
-namespace Sandbox\SaleApiBundle\Controller\ChatGroup;
+namespace Sandbox\SalesApiBundle\Controller\ChatGroup;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Controller\ChatGroup\ChatGroupController;
