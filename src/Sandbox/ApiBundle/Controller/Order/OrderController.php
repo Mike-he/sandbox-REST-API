@@ -578,18 +578,12 @@ class OrderController extends PaymentController
             $orderCheck
         );
 
-        $productInfo = $this->storeRoomInfo(
-            $product,
-            $order->getSeatId()
-        );
-
         $order->setOrderNumber($orderNumber);
         $order->setProduct($product);
         $order->setStartDate($startDate);
         $order->setEndDate($endDate);
         $order->setUser($user);
         $order->setLocation('location');
-        $order->setProductInfo($productInfo);
     }
 
     /**
@@ -896,6 +890,7 @@ class OrderController extends PaymentController
      * @param $startDate
      * @param $endDate
      * @param $user
+     * @param $type
      *
      * @return array
      */
@@ -946,6 +941,12 @@ class OrderController extends PaymentController
             $orderCheck
         );
 
+        $this->storeProductOrderInfo(
+            $em,
+            $product,
+            $order
+        );
+
         $em->remove($orderCheck);
         $em->flush();
     }
@@ -960,19 +961,16 @@ class OrderController extends PaymentController
         $product,
         $order
     ) {
-        $orderId = $order->getId();
-
         $productInfo = $this->storeRoomInfo(
             $product,
             $order->getSeatId()
         );
 
         $productOrderInfo = new ProductOrderInfo();
-        $productOrderInfo->setOrderId($orderId);
+        $productOrderInfo->setOrder($order);
         $productOrderInfo->setProductInfo($productInfo);
 
         $em->persist($productOrderInfo);
-        $em->flush();
     }
 
     /**

@@ -794,12 +794,6 @@ class ClientOrderController extends OrderController
 
             $em->flush();
 
-            $this->storeProductOrderInfo(
-                $em,
-                $product,
-                $order
-            );
-
             $view = new View();
             $view->setData(
                 ['order_id' => $order->getId()]
