@@ -85,7 +85,7 @@ class ChatGroupRepository extends EntityRepository
                     g.tag,
                     g.buildingId,
                     g.creatorId,
-                    up.name as creator_name
+                    up.name
                 )
             ')
             ->leftJoin('SandboxApiBundle:Room\RoomBuildingServiceMember', 'm', 'WITH', 'm.buildingId = g.buildingId')
@@ -123,7 +123,7 @@ class ChatGroupRepository extends EntityRepository
                     g.tag,
                     g.buildingId,
                     g.creatorId,
-                    up.name as creator_name
+                    up.name
                 )
             ')
             ->leftJoin('SandboxApiBundle:Room\RoomBuildingServiceMember', 'm', 'WITH', 'm.buildingId = g.buildingId')
