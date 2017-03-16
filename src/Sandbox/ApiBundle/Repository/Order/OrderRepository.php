@@ -3987,4 +3987,34 @@ class OrderRepository extends EntityRepository
 
         return $eventOrderCount;
     }
+
+    /**
+     * @param $productId
+     * @param $start
+     * @param $end
+     *
+     * @return array
+     */
+    public function getRoomUsersUsage(
+        $productId,
+        $start,
+        $end
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->where('o.productId = :productId')
+            ->andWhere('o.rejected = FALSE')
+            ->andWhere('(o.status = :paid OR o.status = :completed)')
+            ->andWhere('
+                (o.startDate <= :start AND o.endDate > :start) OR
+                (o.startDate < :end AND o.endDate >= :end) OR
+                (o.startDate >= :start AND o.endDate <= :end)
+            ')
+            ->setParameter('productId', $productId)
+            ->setParameter('start', $start)
+            ->setParameter('end', $end)
+            ->setParameter('paid', ProductOrder::STATUS_PAID)
+            ->setParameter('completed', ProductOrder::STATUS_COMPLETED);
+
+        return $query->getQuery()->getResult();
+    }
 }
