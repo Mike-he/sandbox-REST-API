@@ -663,17 +663,10 @@ class AdminUsersController extends DoorController
         Request $request,
         $id
     ) {
-        // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
-            $this->getAdminId(),
-            [
-                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_USER],
-            ],
-            AdminPermission::OP_LEVEL_EDIT
-        );
-
         // get user Entity
-        $user = $this->getRepo('User\User')->find($id);
+        $user = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\User')
+            ->find($id);
         $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
 
         $form = $this->createForm(new UserType(), $user);
