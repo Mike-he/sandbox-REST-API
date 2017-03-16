@@ -1312,4 +1312,35 @@ class ProductRepository extends EntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * @param $company
+     * @param $type
+     *
+     * @return array
+     */
+    public function findProductIdsByRoomType(
+        $company,
+        $type
+    ) {
+        $query = $this->createQueryBuilder('p')
+            ->select('
+                    p.id,
+                    p.basePrice as base_price,
+                    p.unitPrice as unit_price,
+                    r.name as room_name
+                ')
+            ->leftJoin('p.room', 'r')
+            ->leftJoin('r.building', 'b')
+            ->where('p.isDeleted = FALSE')
+            ->andWhere('r.isDeleted = FALSE')
+            ->andWhere('b.company = :company')
+            ->andWhere('r.type = :type')
+            ->setParameter('company', $company)
+            ->setParameter('type', $type);
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
 }
