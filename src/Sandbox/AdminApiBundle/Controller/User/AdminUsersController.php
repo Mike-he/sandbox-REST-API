@@ -680,7 +680,6 @@ class AdminUsersController extends DoorController
         $form->handleRequest($request);
 
         // authorized user
-        $user->setAuthorized(true);
         $user->setModificationDate(new \DateTime('now'));
 
         // set authorized admin
