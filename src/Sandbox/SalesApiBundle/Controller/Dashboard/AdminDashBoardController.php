@@ -145,6 +145,12 @@ class AdminDashBoardController extends SalesRestController
                 $orderList = $this->handleOrders($orders);
         }
 
+        $attachment = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomAttachmentBinding')
+            ->findAttachmentsByRoom($product['room_id'], 1);
+
+        $product['attachment'] = $attachment;
+
         $result = array(
             'product' => $product,
             'orders' => $orderList,
