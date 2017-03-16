@@ -79,7 +79,8 @@ class ChatGroupRepository extends EntityRepository
         $search
     ) {
         $query = $this->createQueryBuilder('g')
-            ->select(' 
+            ->select('
+                g.id,
                 g.name,
                 g.tag,
                 g.buildingId,
@@ -116,6 +117,7 @@ class ChatGroupRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('g')
             ->select('
+                g.id,
                 g.name,
                 g.tag,
                 g.buildingId,
