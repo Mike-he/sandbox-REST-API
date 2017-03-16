@@ -65,4 +65,77 @@ class ChatGroupRepository extends EntityRepository
 
         return $query->getSingleResult();
     }
+
+    /**
+     * @param int    $companyId
+     * @param int    $userId
+     * @param string $search
+     *
+     * @return array
+     */
+    public function getAdminChatGroups(
+        $companyId,
+        $userId,
+        $search
+    ) {
+        $query = $this->createQueryBuilder('g')
+            ->select('
+                (   
+                    g.name,
+                    g.tag,
+                    g.buildingId,
+                    g.creatorId,
+                    up.name as creator_name
+                )
+            ')
+            ->leftJoin('SandboxApiBundle:Room\RoomBuildingServiceMember', 'm', 'WITH', 'm.buildingId = g.buildingId')
+            ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'u.id = g.creatorId')
+            ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'u.id = up.userId')
+            ->where('g.companyId = :companyId')
+            ->andWhere('m.userId = :userId')
+            ->andWhere('u.email LIKE :search OR u.phone LIKE :search OR up.name LIKE :search')
+            ->setParameter('companyId', $companyId)
+            ->setParameter('search', "%$search%")
+            ->setParameter('userId', $userId)
+            ->orderBy('g.creationDate', 'DESC');
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $id
+     * @param $companyId
+     * @param $userId
+     *
+     * @return mixed
+     *
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function getAdminChatGroupById(
+        $id,
+        $companyId,
+        $userId
+    ) {
+        $query = $this->createQueryBuilder('g')
+            ->select('
+                (   
+                    g.name,
+                    g.tag,
+                    g.buildingId,
+                    g.creatorId,
+                    up.name as creator_name
+                )
+            ')
+            ->leftJoin('SandboxApiBundle:Room\RoomBuildingServiceMember', 'm', 'WITH', 'm.buildingId = g.buildingId')
+            ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'u.id = g.creatorId')
+            ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'u.id = up.userId')
+            ->where('g.id = :id')
+            ->andWhere('g.companyId = :companyId')
+            ->andWhere('m.userId = :userId')
+            ->setParameter('companyId', $companyId)
+            ->setParameter('id', $id)
+            ->setParameter('userId', $userId);
+
+        return $query->getQuery()->getOneOrNullResult();
+    }
 }

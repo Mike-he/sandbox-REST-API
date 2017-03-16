@@ -135,3 +135,9 @@ sandbox_sales_admin_finance_api:
     resource: "@SandboxSalesApiBundle/Resources/config/finance/routing.yml"
     type: rest
     prefix: /admin
+
+# Admin ChatGroup
+sandbox_sales_admin_chatgroups:
+    resource: "@SandboxSalesApiBundle/Controller/ChatGroup/AdminChatGroupController.php"
+    type: rest
+    prefix: /admin

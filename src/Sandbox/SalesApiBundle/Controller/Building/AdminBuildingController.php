@@ -6,7 +6,6 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
-use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
 use Sandbox\ApiBundle\Controller\Location\LocationController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPosition;
@@ -1053,7 +1052,6 @@ class AdminBuildingController extends LocationController
                     continue;
                 }
 
-
                 $newGroupMember = new ChatGroupMember();
                 $newGroupMember->setChatGroup($chatGroup);
                 $newGroupMember->setUser($user);
@@ -1604,7 +1602,7 @@ class AdminBuildingController extends LocationController
     ) {
         if (isset($customerServices[RoomBuildingServiceMember::SERVICE])) {
             $addServices = array_unique($customerServices['service'], SORT_REGULAR);
-            
+
             foreach ($addServices as $userId) {
                 $admin = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
@@ -1626,7 +1624,7 @@ class AdminBuildingController extends LocationController
                     array(
                         'buildingId' => $building->getId(),
                         'userId' => $admin->getId(),
-                        'tag' => RoomBuildingServiceMember::SERVICE
+                        'tag' => RoomBuildingServiceMember::SERVICE,
 
                     )
                 );
@@ -1646,6 +1644,7 @@ class AdminBuildingController extends LocationController
     /**
      * @param $userId
      * @param $companyId
+     *
      * @return array
      */
     protected function checkUserIsAdmin(

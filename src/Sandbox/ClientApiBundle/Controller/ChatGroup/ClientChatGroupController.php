@@ -293,7 +293,7 @@ class ClientChatGroupController extends ChatGroupController
         // get chatGroup
         $chatGroup = $this->getRepo('ChatGroup\ChatGroup')->find($id);
         $this->throwNotFoundIfNull($chatGroup, self::NOT_FOUND_MESSAGE);
-        
+
         $tag = $chatGroup->getTag();
         if (!is_null($tag)) {
             throw new AccessDeniedHttpException();

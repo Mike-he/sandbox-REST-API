@@ -10,7 +10,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * service member.
  *
  * @ORM\Table(name="room_building_service_member")
- * @ORM\Entity()
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Room\RoomBuildingServiceMemberRepository")
  */
 class RoomBuildingServiceMember
 {
@@ -22,7 +22,6 @@ class RoomBuildingServiceMember
      * @ORM\Id
      * @ORM\Column(name="id", type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
-     *
      */
     private $id;
 
