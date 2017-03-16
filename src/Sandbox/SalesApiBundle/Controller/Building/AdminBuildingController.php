@@ -56,7 +56,7 @@ class AdminBuildingController extends LocationController
     const ROOM_FLOOR_BAK = '.bak';
 
     /**
-     * @Route("/buildings/{id}/room/room/attachment")
+     * @Route("/buildings/{id}/room/attachment")
      * @Method({"POST"})
      *
      * @param Request $request
