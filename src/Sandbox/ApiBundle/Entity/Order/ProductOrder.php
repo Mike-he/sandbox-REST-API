@@ -494,7 +494,7 @@ class ProductOrder
 
     /**
      * @Serializer\VirtualProperty
-     * @Serializer\SerializedName("productInfo")
+     * @Serializer\SerializedName("product_info")
      * @Serializer\Groups({"main", "client", "admin_detail", "admin_order", "client_evaluation"})
      */
     public function degenerateProductInfo()
