@@ -1998,7 +1998,7 @@ class AdminOrderController extends OrderController
             ->findOneBy([
                 'id' => $id,
                 'status' => ProductOrder::STATUS_UNPAID,
-                'type' => ProductOrder::PREORDER_TYPE
+                'type' => ProductOrder::PREORDER_TYPE,
             ]);
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
 

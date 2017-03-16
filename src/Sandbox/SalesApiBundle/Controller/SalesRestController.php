@@ -2,10 +2,10 @@
 
 namespace Sandbox\SalesApiBundle\Controller;
 
-use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Sandbox\ApiBundle\Controller\ChatGroup\ChatGroupController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 
-class SalesRestController extends SandboxRestController
+class SalesRestController extends ChatGroupController
 {
     const SALES_BUILDING_PERMISSION_PREFIX = 'sales.building';
 

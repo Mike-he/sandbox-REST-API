@@ -55,6 +55,11 @@ class ClientChatGroupMemberController extends ClientChatGroupController
         $chatGroup = $this->getRepo('ChatGroup\ChatGroup')->find($id);
         $this->throwNotFoundIfNull($chatGroup, self::NOT_FOUND_MESSAGE);
 
+        $tag = $chatGroup->getTag();
+        if (!is_null($tag)) {
+            throw new AccessDeniedHttpException();
+        }
+
         $members = $this->getRepo('ChatGroup\ChatGroupMember')->getChatGroupMembers($chatGroup);
         if (is_null($members) || empty($members)) {
             return new View();
@@ -97,6 +102,11 @@ class ClientChatGroupMemberController extends ClientChatGroupController
         // get chatGroup
         $chatGroup = $this->getRepo('ChatGroup\ChatGroup')->find($id);
         $this->throwNotFoundIfNull($chatGroup, self::NOT_FOUND_MESSAGE);
+
+        $tag = $chatGroup->getTag();
+        if (!is_null($tag)) {
+            throw new AccessDeniedHttpException();
+        }
 
         //add member
         $em = $this->getDoctrine()->getManager();
@@ -172,6 +182,11 @@ class ClientChatGroupMemberController extends ClientChatGroupController
         // get chat group
         $chatGroup = $this->getRepo('ChatGroup\ChatGroup')->find($id);
         $this->throwNotFoundIfNull($chatGroup, self::NOT_FOUND_MESSAGE);
+
+        $tag = $chatGroup->getTag();
+        if (!is_null($tag)) {
+            throw new AccessDeniedHttpException();
+        }
 
         $memberIds = $paramFetcher->get('id');
 

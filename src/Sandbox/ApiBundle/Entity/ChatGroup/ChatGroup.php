@@ -17,6 +17,8 @@ use JMS\Serializer\Annotation as Serializer;
 class ChatGroup
 {
     const XMPP_SERVICE = 'conference';
+    const XMPP_CUSTOMER_SERVICE = 'conference';
+    const TAG_SERVICE = 'service';
 
     /**
      * @var int
@@ -76,6 +78,27 @@ class ChatGroup
      * @Serializer\Groups({"chatgroup"})
      */
     private $members;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="company_id", type="integer", nullable=true)
+     */
+    private $companyId;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="building_id", type="integer", nullable=true)
+     */
+    private $buildingId;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="tag", type="string", length=16, nullable=true)
+     */
+    private $tag;
 
     /**
      * Get id.
@@ -208,5 +231,53 @@ class ChatGroup
         $now = new \DateTime('now');
         $this->setCreationDate($now);
         $this->setModificationDate($now);
+    }
+
+    /**
+     * @return int
+     */
+    public function getCompanyId()
+    {
+        return $this->companyId;
+    }
+
+    /**
+     * @param int $companyId
+     */
+    public function setCompanyId($companyId)
+    {
+        $this->companyId = $companyId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBuildingId()
+    {
+        return $this->buildingId;
+    }
+
+    /**
+     * @param mixed $buildingId
+     */
+    public function setBuildingId($buildingId)
+    {
+        $this->buildingId = $buildingId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTag()
+    {
+        return $this->tag;
+    }
+
+    /**
+     * @param string $tag
+     */
+    public function setTag($tag)
+    {
+        $this->tag = $tag;
     }
 }
