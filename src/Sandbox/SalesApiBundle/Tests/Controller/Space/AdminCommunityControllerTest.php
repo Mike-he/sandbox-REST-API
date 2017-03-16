@@ -1,6 +1,6 @@
 <?php
 
-namespace Sandbox\SaleApiBundle\Tests\Controller\Space;
+namespace Sandbox\SalesApiBundle\Controller\Space;
 
 use AllanSimon\TestHelpers\ApiHelpersTrait;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
