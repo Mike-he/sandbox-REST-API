@@ -147,3 +147,9 @@ sandbox_sales_admin_finance_api:
     resource: "@SandboxSalesApiBundle/Resources/config/finance/routing.yml"
     type: rest
     prefix: /admin
+
+# Admin Dashboard
+sandbox_sales_admin_dashboard_api:
+    resource: "@SandboxSalesApiBundle/Controller/Dashboard/AdminDashBoardController.php"
+    type:     annotation
+    prefix:   /admin
