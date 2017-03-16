@@ -39,8 +39,17 @@ class SalesCompanyRepository extends EntityRepository
 
         if (!is_null($keyword) && !is_null($keywordSearch)) {
             switch ($keyword) {
-                case 'name':
+                case 'company':
                     $query->andWhere('sc.name LIKE :search');
+                    break;
+                case 'building':
+                    $query->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'sc.id = b.companyId')
+                        ->andWhere('b.name LIKE :search');
+                    break;
+                case 'shop':
+                    $query->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'sc.id = b.companyId')
+                        ->leftJoin('SandboxApiBundle:Shop\Shop', 's', 'WITH', 'b.id = s.buildingId')
+                        ->andWhere('s.name LIKE :search');
                     break;
                 default:
                     $query->andWhere('sc.name LIKE :search');
