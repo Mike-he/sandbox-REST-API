@@ -289,11 +289,13 @@ class AdminLeaseBillController extends LeaseController
         );
 
         // add invoice amount
-        $this->postConsumeBalance(
-            $bill->getLease()->getDraweeId(),
-            $bill->getRevisedAmount(),
-            $bill->getLease()->getSerialNumber()
-        );
+        if (!$bill->isSalesInvoice()) {
+            $this->postConsumeBalance(
+                $bill->getLease()->getDraweeId(),
+                $bill->getRevisedAmount(),
+                $bill->getLease()->getSerialNumber()
+            );
+        }
 
         return new View();
     }
