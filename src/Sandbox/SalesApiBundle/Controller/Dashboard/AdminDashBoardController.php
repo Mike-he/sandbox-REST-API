@@ -178,6 +178,7 @@ class AdminDashBoardController extends SalesRestController
             }
 
             $result[] = array(
+                'order_id' => $order->getId(),
                 'start_date' => $order->getStartDate(),
                 'end_date' => $order->getEndDate(),
                 'user' => $order->getUserId(),
@@ -220,6 +221,7 @@ class AdminDashBoardController extends SalesRestController
 
             foreach ($days as $day) {
                 $result[] = array(
+                    'order_id' => $order->getId(),
                     'date' => $day->format('Y-m-d'),
                     'user' => $user,
                     'appointed_user' => $appointed,
@@ -242,6 +244,7 @@ class AdminDashBoardController extends SalesRestController
         $result = array();
         foreach ($leases as $lease) {
             $result[] = array(
+                'lease_id' => $lease->getId(),
                 'start_date' => $lease->getStartDate(),
                 'end_date' => $lease->getEndDate(),
                 'user' => $lease->getSupervisorId(),

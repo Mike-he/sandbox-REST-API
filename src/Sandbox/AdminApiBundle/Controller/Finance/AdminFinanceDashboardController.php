@@ -309,7 +309,7 @@ class AdminFinanceDashboardController extends AdminRestController
 
         $globals = $this->getGlobals();
         $url = $globals['crm_api_url'].'/admin/dashboard/invoices/count?status[]=pending&status[]=cancelled_wait';
-        $invoiceCount = $this->getPedingInvoiceCount($url);
+        $invoiceCount = $this->getPendingInvoiceCount($url);
 
         $response = array(
             'long_rent_bills_count' => (int) $longRentBillsCount,
@@ -328,7 +328,7 @@ class AdminFinanceDashboardController extends AdminRestController
      *
      * @return mixed|void
      */
-    private function getPedingInvoiceCount(
+    private function getPendingInvoiceCount(
         $url
     ) {
         // init curl
