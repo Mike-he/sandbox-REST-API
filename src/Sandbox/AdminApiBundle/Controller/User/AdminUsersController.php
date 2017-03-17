@@ -271,6 +271,12 @@ class AdminUsersController extends DoorController
      *    description="sort direction"
      * )
      *
+     * @Annotations\QueryParam(
+     *     name="pendingAuth",
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
      * @Route("/users/search")
      * @Method({"GET"})
      *
@@ -301,20 +307,17 @@ class AdminUsersController extends DoorController
         $query = $paramFetcher->get('query');
         $sortBy = $paramFetcher->get('sortBy');
         $direction = $paramFetcher->get('direction');
+        $pendingAuth = (bool) $paramFetcher->get('pendingAuth');
 
-        // TODO Another better way to search the users by query, but it needs to find out the bug and fix it yet
-//        // find all users who have the query in any of their mapped fields
-//        $finder = $this->container->get('fos_elastica.finder.search.user');
+        $userIds = null;
+        if ($pendingAuth) {
+            $crmUrl = $this->container->getParameter('crm_api_url');
+            $url = $crmUrl.'/admin/user/ids/pending_auth';
+            $ch = curl_init($url);
 
-//        $multiMatchQuery = new \Elastica\Query\MultiMatch();
-
-//        $multiMatchQuery->setQuery($query);
-//        $multiMatchQuery->setType('phrase_prefix');
-//        $multiMatchQuery->setFields(array('email', 'phone'));
-
-//        $results = $finder->createPaginatorAdapter($multiMatchQuery);
-
-//        $paginator = $this->get('knp_paginator');
+            $result = $this->callAPI($ch, 'GET');
+            $userIds = json_decode($result, true);
+        }
 
         $results = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserView')
@@ -325,7 +328,8 @@ class AdminUsersController extends DoorController
                 $sortBy,
                 $direction,
                 $offset,
-                $pageLimit
+                $pageLimit,
+                $userIds
             );
 
         // get total count
@@ -334,7 +338,8 @@ class AdminUsersController extends DoorController
             ->countUsers(
                 $banned,
                 $authorized,
-                $query
+                $query,
+                $userIds
             );
 
         foreach ($results as $user) {
