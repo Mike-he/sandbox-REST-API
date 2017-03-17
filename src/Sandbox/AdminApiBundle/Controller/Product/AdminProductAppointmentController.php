@@ -190,7 +190,8 @@ class AdminProductAppointmentController extends SandboxRestController
             $startDate,
             $endDate,
             $pageIndex,
-            $pageLimit
+            $pageLimit,
+            $userId
         );
     }
 
