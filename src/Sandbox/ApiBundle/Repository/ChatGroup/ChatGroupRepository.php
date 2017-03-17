@@ -27,7 +27,7 @@ class ChatGroupRepository extends EntityRepository
                 FROM SandboxApiBundle:ChatGroup\ChatGroup cg
                 LEFT JOIN SandboxApiBundle:ChatGroup\ChatGroupMember cgm
                 WITH cg = cgm.chatGroup
-                WHERE (cgm.user = :myUser or cg.creatorId = :myUser)
+                WHERE cgm.user = :myUser
                 '
             )
             ->setParameter('myUser', $myUser);

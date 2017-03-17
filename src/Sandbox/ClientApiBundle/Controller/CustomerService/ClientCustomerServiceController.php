@@ -102,7 +102,7 @@ class ClientCustomerServiceController extends ChatGroupController
         }
 
         // get services group members
-        $members = [];
+        $members = [$myUser];
         foreach ($customerServices as $customerService) {
             $memberId = $customerService->getUserId();
             $member = $this->getDoctrine()
