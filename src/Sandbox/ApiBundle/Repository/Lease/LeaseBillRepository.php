@@ -530,4 +530,29 @@ class LeaseBillRepository extends EntityRepository
 
         return $result;
     }
+
+    /**
+     * @param $lease
+     * @param $date
+     *
+     * @return array
+     */
+    public function getNeedAutoPushBills(
+        $lease,
+        $date
+    ) {
+        $query = $this->createQueryBuilder('lb')
+            ->where('lb.lease = :lease')
+            ->andWhere('lb.status = :status')
+            ->andWhere('lb.type = :type')
+            ->andWhere('lb.startDate <= :start')
+            ->setParameter('lease', $lease)
+            ->setParameter('status', LeaseBill::STATUS_PENDING)
+            ->setParameter('type', LeaseBill::TYPE_LEASE)
+            ->setParameter('start', $date);
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
 }

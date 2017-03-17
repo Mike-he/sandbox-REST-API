@@ -773,8 +773,14 @@ class AdminLeaseController extends SalesRestController
         $lease->setTotalRent($payload['total_rent']);
         $lease->setOtherExpenses($payload['other_expenses']);
         $lease->setSupplementaryTerms($payload['supplementary_terms']);
-        $lease->setIsAuto($payload['is_auto']);
-        $lease->setPlanDay($payload['plan_day']);
+
+        if ($payload['is_auto']) {
+            $lease->setIsAuto($payload['is_auto']);
+        }
+
+        if ($payload['plan_day']) {
+            $lease->setPlanDay($payload['plan_day']);
+        }
 
         // If lease create from product appointment
         if (
@@ -1047,8 +1053,14 @@ class AdminLeaseController extends SalesRestController
         $lease->setModificationDate(new \DateTime('now'));
         $lease->setOtherExpenses($payload['other_expenses']);
         $lease->setSupplementaryTerms($payload['supplementary_terms']);
-        $lease->setIsAuto($payload['is_auto']);
-        $lease->setPlanDay($payload['plan_day']);
+
+        if ($payload['is_auto']) {
+            $lease->setIsAuto($payload['is_auto']);
+        }
+
+        if ($payload['plan_day']) {
+            $lease->setPlanDay($payload['plan_day']);
+        }
 
         // If lease created by product appointment
         if (
@@ -1499,6 +1511,7 @@ class AdminLeaseController extends SalesRestController
             }
         }
 
+        $product = $lease->getProduct();
         if (!is_null($product)) {
             $this->generateAdminLogs(array(
                 'logModule' => Log::MODULE_PRODUCT,
