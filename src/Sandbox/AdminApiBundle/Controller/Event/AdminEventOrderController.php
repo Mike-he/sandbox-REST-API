@@ -141,6 +141,15 @@ class AdminEventOrderController extends AdminOrderController
      *    description="Filter by building id"
      * )
      *
+     * @Annotations\QueryParam(
+     *     name="user",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     requirements="\d+",
+     *     strict=true
+     * )
+     *
      * @Route("/events/orders")
      * @Method({"GET"})
      *
@@ -166,6 +175,7 @@ class AdminEventOrderController extends AdminOrderController
         $createEnd = $paramFetcher->get('create_end');
         $companyId = $paramFetcher->get('company');
         $buildingId = $paramFetcher->get('building');
+        $userId = $paramFetcher->get('user');
 
         $company = !is_null($companyId) ? $this->getDoctrine()->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')->find($companyId) : null;
         $building = !is_null($buildingId) ? $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')->find($buildingId) : null;
@@ -184,7 +194,8 @@ class AdminEventOrderController extends AdminOrderController
                 $payEnd,
                 $createDateRange,
                 $createStart,
-                $createEnd
+                $createEnd,
+                $userId
             );
 
         // set event dates

@@ -101,6 +101,7 @@ class EventOrderRepository extends EntityRepository
      * @param $createDateRange
      * @param $createStart
      * @param $createEnd
+     * @param $userId
      *
      * @return array
      */
@@ -116,7 +117,8 @@ class EventOrderRepository extends EntityRepository
         $payEnd,
         $createDateRange,
         $createStart,
-        $createEnd
+        $createEnd,
+        $userId = null
     ) {
         $query = $this->createQueryBuilder('eo')
             ->leftJoin('SandboxApiBundle:Event\Event', 'e', 'WITH', 'e.id = eo.eventId')
@@ -216,6 +218,11 @@ class EventOrderRepository extends EntityRepository
                 $query->andWhere('e.eventStartDate <= :createEnd')
                     ->setParameter('createEnd', $createEnd);
             }
+        }
+
+        if (!is_null($userId)) {
+            $query->andWhere('eo.userId = :userId')
+                ->setParameter('userId', $userId);
         }
 
         // order by

@@ -131,6 +131,15 @@ class AdminProductAppointmentController extends SandboxRestController
      *    description="appointment end date"
      * )
      *
+     * @Annotations\QueryParam(
+     *     name="user",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     requirements="\d+",
+     *     strict=true
+     * )
+     *
      * @Route("/products/appointments/list")
      * @Method({"GET"})
      *
@@ -163,6 +172,9 @@ class AdminProductAppointmentController extends SandboxRestController
         $rentFilter = $paramFetcher->get('rent_filter');
         $startDate = $paramFetcher->get('start_date');
         $endDate = $paramFetcher->get('end_date');
+
+        // user filter
+        $userId = $paramFetcher->get('user');
 
         return $this->handleProductAppointmentList(
             $buildingId,
@@ -232,6 +244,7 @@ class AdminProductAppointmentController extends SandboxRestController
      * @param $endDate
      * @param $pageIndex
      * @param $pageLimit
+     * @param $userId
      *
      * @return View
      */
@@ -249,7 +262,8 @@ class AdminProductAppointmentController extends SandboxRestController
         $startDate,
         $endDate,
         $pageIndex,
-        $pageLimit
+        $pageLimit,
+        $userId
     ) {
         $offset = ($pageIndex - 1) * $pageLimit;
         $limit = $pageLimit;
@@ -273,7 +287,8 @@ class AdminProductAppointmentController extends SandboxRestController
                 $startDate,
                 $endDate,
                 $companyId,
-                $roomId
+                $roomId,
+                $userId
             );
 
         $appointments = $this->getDoctrine()
@@ -292,7 +307,8 @@ class AdminProductAppointmentController extends SandboxRestController
                 $limit,
                 $offset,
                 $companyId,
-                $roomId
+                $roomId,
+                $userId
             );
 
         foreach ($appointments as $appointment) {

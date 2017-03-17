@@ -44,6 +44,7 @@ class ProductAppointmentRepository extends EntityRepository
      * @param $endDate
      * @param $companyId
      * @param $roomId
+     * @param $userId
      *
      * @return int
      */
@@ -59,7 +60,8 @@ class ProductAppointmentRepository extends EntityRepository
         $startDate,
         $endDate,
         $companyId = null,
-        $roomId = null
+        $roomId = null,
+        $userId = null
     ) {
         $query = $this->createQueryBuilder('a')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = a.productId')
@@ -80,7 +82,8 @@ class ProductAppointmentRepository extends EntityRepository
             $startDate,
             $endDate,
             $companyId,
-            $roomId
+            $roomId,
+            $userId
         );
 
         return (int) $query->getQuery()->getSingleScalarResult();
@@ -118,7 +121,8 @@ class ProductAppointmentRepository extends EntityRepository
         $limit,
         $offset,
         $companyId = null,
-        $roomId = null
+        $roomId = null,
+        $userId = null
     ) {
         $query = $this->createQueryBuilder('a')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = a.productId')
@@ -141,7 +145,8 @@ class ProductAppointmentRepository extends EntityRepository
             $startDate,
             $endDate,
             $companyId,
-            $roomId
+            $roomId,
+            $userId
         );
 
         return $query->getQuery()->getResult();
@@ -161,6 +166,7 @@ class ProductAppointmentRepository extends EntityRepository
      * @param $endDate
      * @param $companyId
      * @param $roomId
+     * @param $userId
      *
      * @return mixed
      */
@@ -177,7 +183,8 @@ class ProductAppointmentRepository extends EntityRepository
         $startDate,
         $endDate,
         $companyId,
-        $roomId
+        $roomId,
+        $userId = null
     ) {
         if (!is_null($myBuildingIds) && !empty($myBuildingIds)) {
             $query->andWhere('r.buildingId IN (:buildingIds)')
@@ -290,6 +297,11 @@ class ProductAppointmentRepository extends EntityRepository
 
             $query->setParameter('startDate', $startDate)
                 ->setParameter('endDate', $endDate);
+        }
+
+        if (!is_null($userId)) {
+            $query->andWhere('a.userId = :userId')
+                ->setParameter('userId', $userId);
         }
 
         return $query;
