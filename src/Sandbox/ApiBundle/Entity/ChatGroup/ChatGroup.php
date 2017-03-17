@@ -18,7 +18,6 @@ class ChatGroup
 {
     const XMPP_SERVICE = 'conference';
     const XMPP_CUSTOMER_SERVICE = 'customerservice';
-    const TAG_SERVICE = 'service';
 
     /**
      * @var int
