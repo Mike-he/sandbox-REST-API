@@ -295,6 +295,9 @@ class AdminLeaseBillController extends LeaseController
                 $bill->getRevisedAmount(),
                 $bill->getLease()->getSerialNumber()
             );
+            
+            $bill->setInvoiced(true);
+            $em->flush();
         }
 
         return new View();
