@@ -226,11 +226,18 @@ class ClientPaymentController extends PaymentController
                 );
 
                 // add invoice amount
-                $this->postConsumeBalance(
-                    $bill->getLease()->getDraweeId(),
-                    $price,
-                    $orderNumber
-                );
+                if (!$bill->isSalesInvoice()) {
+                    $this->postConsumeBalance(
+                        $bill->getLease()->getDraweeId(),
+                        $price,
+                        $orderNumber
+                    );
+
+                    $bill->setInvoiced(true);
+
+                    $em = $this->getDoctrine()->getManager();
+                    $em->flush();
+                }
 
                 $orderMap = LeaseBill::BILL_MAP;
                 break;
