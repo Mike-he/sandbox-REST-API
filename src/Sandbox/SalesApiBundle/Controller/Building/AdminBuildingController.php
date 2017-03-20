@@ -1629,7 +1629,7 @@ class AdminBuildingController extends LocationController
                     array(
                         'buildingId' => $building->getId(),
                         'userId' => $admin->getId(),
-                        'tag' => $key
+                        'tag' => $key,
                     )
                 );
                 if (!is_null($customerService)) {

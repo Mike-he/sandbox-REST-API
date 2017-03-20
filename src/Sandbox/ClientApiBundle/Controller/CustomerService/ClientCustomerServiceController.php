@@ -6,7 +6,6 @@ use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
 use Sandbox\ApiBundle\Controller\ChatGroup\ChatGroupController;
 use Sandbox\ApiBundle\Entity\ChatGroup\ChatGroup;
 use Sandbox\ApiBundle\Entity\ChatGroup\ChatGroupMember;
-use Sandbox\ApiBundle\Entity\Room\RoomBuildingServiceMember;
 use Sandbox\ApiBundle\Traits\HasAccessToEntityRepositoryTrait;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
@@ -90,7 +89,7 @@ class ClientCustomerServiceController extends ChatGroupController
             ->findOneBy([
                 'buildingId' => $building->getId(),
                 'creatorId' => $myUserId,
-                'tag' => $tag
+                'tag' => $tag,
             ]);
 
         if (!is_null($existChatGroup)) {
@@ -98,7 +97,11 @@ class ClientCustomerServiceController extends ChatGroupController
             $id = $existChatGroup->getId();
             $jid = "$id@$tag.$domain";
 
-            return new View(['group_jid' => $jid]);
+            return new View([
+                'id' => $id,
+                'name' => $existChatGroup->getName(),
+                'group_jid' => $jid,
+            ]);
         }
 
         // get services group members
@@ -109,7 +112,7 @@ class ClientCustomerServiceController extends ChatGroupController
                 ->getRepository('SandboxApiBundle:User\User')
                 ->findOneBy([
                     'id' => $memberId,
-                    'banned' => false
+                    'banned' => false,
                 ]);
 
             if (is_null($member)) {
