@@ -153,3 +153,9 @@ sandbox_sales_admin_dashboard_api:
     resource: "@SandboxSalesApiBundle/Controller/Dashboard/AdminDashBoardController.php"
     type:     annotation
     prefix:   /admin
+
+# User Profile
+sandbox_amin_api_user_profile:
+    resource: "@SandboxSalesApiBundle/Controller/User/AdminUserProfileController.php"
+    type:     annotation
+    prefix:   /
