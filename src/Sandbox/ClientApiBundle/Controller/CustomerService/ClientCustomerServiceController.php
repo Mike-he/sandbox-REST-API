@@ -93,14 +93,9 @@ class ClientCustomerServiceController extends ChatGroupController
             ]);
 
         if (!is_null($existChatGroup)) {
-            $domain = $this->getGlobal('xmpp_domain');
-            $id = $existChatGroup->getId();
-            $jid = "$id@$tag.$domain";
-
             return new View([
-                'id' => $id,
+                'id' => $existChatGroup->getId(),
                 'name' => $existChatGroup->getName(),
-                'group_jid' => $jid,
             ]);
         }
 
