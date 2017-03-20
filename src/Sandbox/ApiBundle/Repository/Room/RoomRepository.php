@@ -747,7 +747,8 @@ class RoomRepository extends EntityRepository
                     r.type,
                     rt.type as rent_type,
                     r.area, 
-                    r.allowedPeople as allowed_people
+                    r.allowedPeople as allowed_people,
+                    p.sortTime
             ')
             ->leftJoin('r.building', 'b')
             ->leftJoin('b.company', 'c')
