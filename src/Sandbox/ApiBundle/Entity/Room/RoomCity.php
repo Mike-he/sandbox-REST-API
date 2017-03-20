@@ -170,6 +170,18 @@ class RoomCity
     private $lng;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="code", type="string",nullable=true)
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "client"
+     * })
+     */
+    private $code;
+
+    /**
      * Get id.
      *
      * @return int
@@ -345,5 +357,21 @@ class RoomCity
     public function setLng($lng)
     {
         $this->lng = $lng;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCode()
+    {
+        return $this->code;
+    }
+
+    /**
+     * @param string $code
+     */
+    public function setCode($code)
+    {
+        $this->code = $code;
     }
 }
