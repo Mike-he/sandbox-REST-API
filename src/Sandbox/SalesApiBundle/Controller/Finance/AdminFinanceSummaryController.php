@@ -500,18 +500,27 @@ class AdminFinanceSummaryController extends PaymentController
 
     /**
      * @param $url
+     * @param null $auth
      *
      * @return mixed|void
      */
     private function getPendingInvoiceCount(
-        $url
+        $url,
+        $auth = null
     ) {
+        if (is_null($auth)) {
+            // get auth
+            $headers = array_change_key_case($_SERVER, CASE_LOWER);
+            $auth = $headers['http_authorization'];
+        }
+
         // init curl
         $ch = curl_init($url);
 
         $response = $this->callAPI(
             $ch,
-            'GET'
+            'GET',
+            array('Authorization: '.$auth)
         );
 
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
