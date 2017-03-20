@@ -2,7 +2,7 @@
 
 namespace Sandbox\AdminApiBundle\Controller\Product;
 
-use Knp\Component\Pager\Paginator;
+use JMS\Serializer\SerializationContext;
 use Sandbox\AdminApiBundle\Data\Product\ProductRecommendPosition;
 use Sandbox\AdminApiBundle\Form\Product\ProductRecommendPositionType;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
@@ -10,6 +10,7 @@ use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\Room\RoomCity;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
+use Sandbox\ApiBundle\Traits\HandleSpacesDataTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -31,6 +32,8 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  */
 class AdminProductRecommendController extends AdminProductController
 {
+    use HandleSpacesDataTrait;
+
     /**
      * Get products recommend.
      *
@@ -42,24 +45,6 @@ class AdminProductRecommendController extends AdminProductController
      *   statusCodes = {
      *     200 = "Returned when successful"
      *  }
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="city",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    strict=true,
-     *    description="Filter by city id"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="building",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    strict=true,
-     *    description="Filter by building id"
      * )
      *
      * @Annotations\QueryParam(
@@ -82,13 +67,6 @@ class AdminProductRecommendController extends AdminProductController
      *    description="page number "
      * )
      *
-     * @Annotations\QueryParam(
-     *    name="query",
-     *    default=null,
-     *    nullable=true,
-     *    description="search query"
-     * )
-     *
      * @Route("/products/recommend")
      * @Method({"GET"})
      *
@@ -106,34 +84,35 @@ class AdminProductRecommendController extends AdminProductController
         // filters
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
-        $cityId = $paramFetcher->get('city');
-        $buildingId = $paramFetcher->get('building');
+        $offset = ($pageIndex - 1) * $pageLimit;
 
-        // search by name and number
-        $search = $paramFetcher->get('query');
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\Room')
+            ->countRecommendedSpaces();
 
-        $city = !is_null($cityId) ? $this->getRepo('Room\RoomCity')->find($cityId) : null;
-        $building = !is_null($buildingId) ? $this->getRepo('Room\RoomBuilding')->find($buildingId) : null;
+        $spaces = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\Room')
+            ->findRecommendedSpaces(
+                $pageLimit,
+                $offset
+            );
 
-        $query = $this->getRepo('Product\Product')->getAdminProducts(
-            null,
-            $city,
-            $building,
-            null,
-            'sortTime',
-            'DESC',
-            $search,
-            true
+        $spaces = $this->handleSpacesData($spaces);
+
+        $view = new View();
+        $view->setData(
+            array(
+                'current_page_number' => $pageIndex,
+                'num_items_per_page' => (int) $pageLimit,
+                'items' => $spaces,
+                'total_count' => (int) $count,
+            )
+        );
+        $view->setSerializationContext(
+            SerializationContext::create()->setGroups(['admin_spaces'])
         );
 
-        $paginator = new Paginator();
-        $pagination = $paginator->paginate(
-            $query,
-            $pageIndex,
-            $pageLimit
-        );
-
-        return new View($pagination);
+        return $view;
     }
 
     /**
@@ -281,7 +260,13 @@ class AdminProductRecommendController extends AdminProductController
         }
 
         foreach ($productIds as $productId) {
-            $product = $this->getRepo('Product\Product')->find($productId);
+            $product = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\Product')
+                ->findOneBy([
+                    'id' => $productId,
+                    'visible' => true,
+                    'isDeleted' => false,
+                ]);
             if (is_null($product)) {
                 continue;
             }

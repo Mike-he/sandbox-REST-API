@@ -406,7 +406,6 @@ class Lease
      */
     private $planDay;
 
-
     public function __construct()
     {
         $this->leaserentTypes = new ArrayCollection();

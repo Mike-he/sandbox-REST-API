@@ -425,15 +425,15 @@ class ProductRepository extends EntityRepository
         $direction,
         $search,
         $recommend,
-        $companyId,
-        $floor,
-        $minSeat,
-        $maxSeat,
-        $minArea,
-        $maxArea,
-        $minPrice,
-        $maxPrice,
-        $annualRent
+        $companyId = null,
+        $floor = null,
+        $minSeat = null,
+        $maxSeat = null,
+        $minArea = null,
+        $maxArea = null,
+        $minPrice = null,
+        $maxPrice = null,
+        $annualRent = null
     ) {
         $notFirst = false;
         $parameters = [];

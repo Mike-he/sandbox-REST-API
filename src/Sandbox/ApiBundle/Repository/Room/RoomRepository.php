@@ -721,4 +721,85 @@ class RoomRepository extends EntityRepository
 
         return $result;
     }
+
+    /**
+     * @param $pageLimit
+     * @param $offset
+     * @param null $buildingId
+     * @param bool $salesRecommend
+     *
+     * @return array
+     */
+    public function findRecommendedSpaces(
+        $pageLimit,
+        $offset,
+        $buildingId = null,
+        $salesRecommend = false
+    ) {
+        $query = $this->createQueryBuilder('r')
+            ->select('
+                distinct
+                    r.id, 
+                    r.name, 
+                    r.buildingId as building_id,
+                    b.name as building_name,
+                    c.name as sales_company_name,
+                    r.type,
+                    rt.type as rent_type,
+                    r.area, 
+                    r.allowedPeople as allowed_people
+            ')
+            ->leftJoin('r.building', 'b')
+            ->leftJoin('b.company', 'c')
+            ->leftJoin('SandboxApiBundle:Room\RoomTypes', 'rt', 'WITH', 'r.type = rt.name')
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'r.id = p.roomId')
+            ->where('r.isDeleted = FALSE')
+            ->andWhere('p.visible = TRUE');
+
+        if (!is_null($buildingId)) {
+            $query->andWhere('r.building = :buildingId')
+                ->setParameter('buildingId', $buildingId);
+        }
+
+        if ($salesRecommend) {
+        } else {
+            $query->andWhere('p.recommend = TRUE')
+                ->orderBy('p.sortTime', 'DESC');
+        }
+
+        $query = $query->setFirstResult($offset)
+            ->setMaxResults($pageLimit);
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param null $buildingId
+     * @param bool $salesRecommend
+     *
+     * @return array
+     */
+    public function countRecommendedSpaces(
+        $buildingId = null,
+        $salesRecommend = false
+    ) {
+        $query = $this->createQueryBuilder('r')
+            ->select('COUNT(r)')
+            ->leftJoin('r.building', 'b')
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'r.id = p.roomId')
+            ->where('r.isDeleted = FALSE')
+            ->andWhere('p.visible = TRUE');
+
+        if (!is_null($buildingId)) {
+            $query->andWhere('r.building = :buildingId')
+                ->setParameter('buildingId', $buildingId);
+        }
+
+        if ($salesRecommend) {
+        } else {
+            $query->andWhere('p.recommend = TRUE');
+        }
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
 }
