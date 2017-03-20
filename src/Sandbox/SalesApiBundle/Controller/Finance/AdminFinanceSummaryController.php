@@ -235,8 +235,8 @@ class AdminFinanceSummaryController extends PaymentController
             ]);
         $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
 
-        $invoices = $this->getSalesAdminInvoices();
-        $invoiceCount = (int) $invoices['total_count'];
+        $url = $this->getParameter('crm_api_url').'/sales/admin/invoices/count?status[]=pending&status[]=cancelled_wait';
+        $invoiceCount = $this->getPendingInvoiceCount($url);
 
         $billCount = (int) $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
@@ -496,5 +496,31 @@ class AdminFinanceSummaryController extends PaymentController
             ],
             $opLevel
         );
+    }
+
+    /**
+     * @param $url
+     *
+     * @return mixed|void
+     */
+    private function getPendingInvoiceCount(
+        $url
+    ) {
+        // init curl
+        $ch = curl_init($url);
+
+        $response = $this->callAPI(
+            $ch,
+            'GET'
+        );
+
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($httpCode != self::HTTP_STATUS_OK) {
+            return;
+        }
+
+        $result = json_decode($response, true);
+
+        return $result;
     }
 }
