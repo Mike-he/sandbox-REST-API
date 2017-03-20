@@ -775,6 +775,16 @@ class AdminOrderController extends OrderController
      *    description="Filter by room id"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="user",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by user id"
+     * )
+     *
      * @Route("/orders")
      * @Method({"GET"})
      *
@@ -817,6 +827,7 @@ class AdminOrderController extends OrderController
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
         $roomId = $paramFetcher->get('room');
+        $userId = $paramFetcher->get('user');
 
         $limit = $pageLimit;
         $offset = ($pageIndex - 1) * $pageLimit;
@@ -852,7 +863,8 @@ class AdminOrderController extends OrderController
                 $status,
                 $roomId,
                 $limit,
-                $offset
+                $offset,
+                $userId
             );
 
         $count = $this->getDoctrine()
@@ -876,7 +888,8 @@ class AdminOrderController extends OrderController
                 $createStart,
                 $createEnd,
                 $status,
-                $roomId
+                $roomId,
+                $userId
             );
 
         $view = new View();

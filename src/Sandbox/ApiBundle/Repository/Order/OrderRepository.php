@@ -1800,6 +1800,7 @@ class OrderRepository extends EntityRepository
      * @param $room
      * @param $limit
      * @param $offset
+     * @param $userId
      *
      * @return array
      */
@@ -1824,7 +1825,8 @@ class OrderRepository extends EntityRepository
         $status,
         $room,
         $limit = null,
-        $offset = null
+        $offset = null,
+        $userId = null
     ) {
         $query = $this->createQueryBuilder('o')
             ->leftJoin('o.product', 'p')
@@ -2001,6 +2003,12 @@ class OrderRepository extends EntityRepository
             }
         }
 
+        // filter by user
+        if (!is_null($userId)) {
+            $query->andWhere('o.userId = :userId')
+                ->setParameter('userId', $userId);
+        }
+
         $query->orderBy('o.creationDate', 'DESC');
 
         $query->setMaxResults($limit)
@@ -2031,6 +2039,7 @@ class OrderRepository extends EntityRepository
      * @param $createEnd
      * @param $status
      * @param $room
+     * @param $userId
      *
      * @return array
      */
@@ -2053,7 +2062,8 @@ class OrderRepository extends EntityRepository
         $createStart,
         $createEnd,
         $status,
-        $room
+        $room,
+        $userId = null
     ) {
         $query = $this->createQueryBuilder('o')
             ->select('COUNT(o)')
@@ -2229,6 +2239,12 @@ class OrderRepository extends EntityRepository
                 $query->andWhere('o.creationDate <= :createEnd')
                     ->setParameter('createEnd', $createEnd);
             }
+        }
+
+        // filter by user
+        if (!is_null($userId)) {
+            $query->andWhere('o.userId = :userId')
+                ->setParameter('userId', $userId);
         }
 
         $query->orderBy('o.creationDate', 'DESC');

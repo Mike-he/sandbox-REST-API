@@ -259,6 +259,16 @@ class AdminLeaseController extends SalesRestController
      *    description="Filter by room id"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="user",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by user id"
+     * )
+     *
      * @return View
      */
     public function getLeasesAction(
@@ -294,6 +304,8 @@ class AdminLeaseController extends SalesRestController
         $startDate = $paramFetcher->get('start_date');
         $endDate = $paramFetcher->get('end_date');
 
+        $userId = $paramFetcher->get('user');
+
         //get my buildings list
         $myBuildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
@@ -318,7 +330,8 @@ class AdminLeaseController extends SalesRestController
                 $salesCompanyId,
                 $roomId,
                 $limit,
-                $offset
+                $offset,
+                $userId
             );
 
         $count = $this->getDoctrine()
@@ -335,7 +348,8 @@ class AdminLeaseController extends SalesRestController
                 $startDate,
                 $endDate,
                 $salesCompanyId,
-                $roomId
+                $roomId,
+                $userId
             );
 
         foreach ($leases as $lease) {

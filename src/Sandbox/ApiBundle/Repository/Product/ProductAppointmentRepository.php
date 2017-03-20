@@ -104,6 +104,7 @@ class ProductAppointmentRepository extends EntityRepository
      * @param $offset
      * @param null $companyId
      * @param null $roomId
+     * @param $userId
      *
      * @return mixed
      */

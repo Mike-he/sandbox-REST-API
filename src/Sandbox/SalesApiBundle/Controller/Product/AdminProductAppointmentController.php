@@ -152,6 +152,16 @@ class AdminProductAppointmentController extends AdminProductController
      *    description="appointment end date"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="user",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by user id"
+     * )
+     *
      * @Route("/appointments/list")
      * @Method({"GET"})
      *
@@ -196,6 +206,8 @@ class AdminProductAppointmentController extends AdminProductController
         $startDate = $paramFetcher->get('start_date');
         $endDate = $paramFetcher->get('end_date');
 
+        $userId = $paramFetcher->get('user');
+
         // get my buildings list
         $myBuildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
@@ -227,7 +239,8 @@ class AdminProductAppointmentController extends AdminProductController
             $endDate,
             $pageIndex,
             $pageLimit,
-            $roomId
+            $roomId,
+            $userId
         );
     }
 
@@ -390,6 +403,7 @@ class AdminProductAppointmentController extends AdminProductController
      * @param $pageIndex
      * @param $pageLimit
      * @param $roomId
+     * @param $userId
      *
      * @return View
      */
@@ -407,7 +421,8 @@ class AdminProductAppointmentController extends AdminProductController
         $endDate,
         $pageIndex,
         $pageLimit,
-        $roomId
+        $roomId,
+        $userId
     ) {
         $offset = ($pageIndex - 1) * $pageLimit;
         $limit = $pageLimit;
@@ -430,7 +445,8 @@ class AdminProductAppointmentController extends AdminProductController
                 $startDate,
                 $endDate,
                 null,
-                $roomId
+                $roomId,
+                $userId
             );
 
         $appointments = $this->getDoctrine()
@@ -449,7 +465,8 @@ class AdminProductAppointmentController extends AdminProductController
                 $limit,
                 $offset,
                 null,
-                $roomId
+                $roomId,
+                $userId
             );
 
         foreach ($appointments as $appointment) {
