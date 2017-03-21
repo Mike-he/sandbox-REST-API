@@ -1825,8 +1825,7 @@ class OrderRepository extends EntityRepository
         $status,
         $room,
         $limit = null,
-        $offset = null,
-        $userId = null
+        $offset = null
     ) {
         $query = $this->createQueryBuilder('o')
             ->leftJoin('o.product', 'p')

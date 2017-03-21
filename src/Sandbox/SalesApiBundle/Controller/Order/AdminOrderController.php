@@ -847,7 +847,7 @@ class AdminOrderController extends OrderController
                 $type,
                 null,
                 null,
-                null,
+                $userId
                 $rentFilter,
                 $startDate,
                 $endDate,
@@ -863,8 +863,7 @@ class AdminOrderController extends OrderController
                 $status,
                 $roomId,
                 $limit,
-                $offset,
-                $userId
+                $offset
             );
 
         $count = $this->getDoctrine()

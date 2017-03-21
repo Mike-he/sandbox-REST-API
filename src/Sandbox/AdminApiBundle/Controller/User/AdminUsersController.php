@@ -589,7 +589,7 @@ class AdminUsersController extends DoorController
         );
 
         // get user
-        $user = $this->getRepo('User\User')->find($id);
+        $user = $this->getDoctrine()->getRepository('SandboxApiBundle:User\User')->find($id);
         $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
         $banned = $user->isBanned();
 
@@ -611,6 +611,10 @@ class AdminUsersController extends DoorController
                 ],
                 AdminPermission::OP_LEVEL_USER_BANNED
             );
+        }
+
+        if ($updateBanned) {
+            $user->setBannedDate(new \DateTime('now'));
         }
 
         // update to db
@@ -863,7 +867,7 @@ class AdminUsersController extends DoorController
      * @param ParamFetcherInterface $paramFetcher
      * @param int                   $userId
      *
-     * @Route("/open/users/{userId}/last_login")
+     * @Route("/open/users/{userId}/extra_info")
      * @Method({"GET"})
      *
      * @return View
@@ -873,18 +877,17 @@ class AdminUsersController extends DoorController
         ParamFetcherInterface $paramFetcher,
         $userId
     ) {
-        $userToken = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserToken')
+        $userToken = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserToken')
             ->getLastLoginUser($userId);
 
-        $lastLoginDate = null;
+        $lastLoginDate = !is_null($userToken) ? $userToken->getModificationDate() : null;
 
-        if (!is_null($userToken)) {
-            $lastLoginDate = $userToken->getModificationDate();
-        }
+        $user = $this->getDoctrine()->getRepository('SandboxApiBundle:User\User')->find($userId);
+        $bannedDate = !is_null($user) ? $user->getBannedDate() : null;
 
         return new View(array(
             'last_login_date' => $lastLoginDate,
+            'banned_date' => $bannedDate,
         ));
     }
 

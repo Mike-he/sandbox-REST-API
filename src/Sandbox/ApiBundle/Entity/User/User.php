@@ -160,6 +160,14 @@ class User implements UserInterface
     private $userProfile;
 
     /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="banned_date", type="datetime", nullable=true)
+     * @Serializer\Groups({"main"})
+     */
+    private $bannedDate;
+
+    /**
      * Get id.
      *
      * @return int
@@ -550,5 +558,21 @@ class User implements UserInterface
     public function setUserProfile($userProfile)
     {
         $this->userProfile = $userProfile;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getBannedDate()
+    {
+        return $this->bannedDate;
+    }
+
+    /**
+     * @param \DateTime $bannedDate
+     */
+    public function setBannedDate($bannedDate)
+    {
+        $this->bannedDate = $bannedDate;
     }
 }
