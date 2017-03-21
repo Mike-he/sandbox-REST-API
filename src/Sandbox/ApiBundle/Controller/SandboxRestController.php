@@ -1962,6 +1962,10 @@ class SandboxRestController extends FOSRestController
                 'key' => AdminPermission::KEY_OFFICIAL_PLATFORM_SALES_MONITORING,
             ));
 
+        if (is_null($salesMonitoringPermission)) {
+            return false;
+        }
+
         $salesMonitoringPermissionArray = array(
             'key' => $salesMonitoringPermission->getKey(),
             'op_level' => $salesMonitoringPermission->getMaxOpLevel(),

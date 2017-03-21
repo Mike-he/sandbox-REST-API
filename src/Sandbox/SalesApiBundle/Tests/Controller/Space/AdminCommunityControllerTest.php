@@ -12,7 +12,7 @@ class AdminCommunityControllerTest extends WebTestCase
     use ApiHelpersTrait;
     use CommonTestsUtilsTrait;
 
-    const SPACE_FIELDS_AMOUNT = 10;
+    const SPACE_FIELDS_AMOUNT = 12;
 
     public function setUp()
     {
@@ -180,7 +180,7 @@ class AdminCommunityControllerTest extends WebTestCase
 
     private function performSalesGetSpacesByCommunity($id, $limit = 5, $roomType = null)
     {
-        $this->performGET('/sales/admin/space/communities/'.$id.'/spaces?&pageIndex=1&pageLimit='.$limit.$roomType);
+        $this->performGET('/sales/admin/space/communities/spaces?building='.$id.'&pageIndex=1&pageLimit='.$limit.$roomType);
     }
 
     private function performSalesGetCommunities()

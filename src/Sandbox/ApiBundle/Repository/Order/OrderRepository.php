@@ -1800,7 +1800,6 @@ class OrderRepository extends EntityRepository
      * @param $room
      * @param $limit
      * @param $offset
-     * @param $userId
      *
      * @return array
      */
@@ -2002,12 +2001,6 @@ class OrderRepository extends EntityRepository
             }
         }
 
-        // filter by user
-        if (!is_null($userId)) {
-            $query->andWhere('o.userId = :userId')
-                ->setParameter('userId', $userId);
-        }
-
         $query->orderBy('o.creationDate', 'DESC');
 
         $query->setMaxResults($limit)
@@ -2038,7 +2031,6 @@ class OrderRepository extends EntityRepository
      * @param $createEnd
      * @param $status
      * @param $room
-     * @param $userId
      *
      * @return array
      */
@@ -2061,8 +2053,7 @@ class OrderRepository extends EntityRepository
         $createStart,
         $createEnd,
         $status,
-        $room,
-        $userId = null
+        $room
     ) {
         $query = $this->createQueryBuilder('o')
             ->select('COUNT(o)')

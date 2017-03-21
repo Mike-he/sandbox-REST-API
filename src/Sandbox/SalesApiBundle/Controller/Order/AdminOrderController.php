@@ -847,7 +847,7 @@ class AdminOrderController extends OrderController
                 $type,
                 null,
                 null,
-                $userId
+                $userId,
                 $rentFilter,
                 $startDate,
                 $endDate,
@@ -873,7 +873,7 @@ class AdminOrderController extends OrderController
                 $type,
                 null,
                 null,
-                null,
+                $userId,
                 $rentFilter,
                 $startDate,
                 $endDate,
@@ -887,8 +887,7 @@ class AdminOrderController extends OrderController
                 $createStart,
                 $createEnd,
                 $status,
-                $roomId,
-                $userId
+                $roomId
             );
 
         $view = new View();

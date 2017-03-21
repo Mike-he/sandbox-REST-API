@@ -15,14 +15,15 @@ class LocationControllerTest extends WebTestCase
     use CommonTestsUtilsTrait;
     use HandleCoordinateTrait;
 
-    const LOCATION_IN_SHANGHAI_LAT = 31.216193;
-    const LOCATION_IN_SHANGHAI_LNG = 121.632682;
+    const LOCATION_IN_SHANGHAI_LAT = 31.216;
+    const LOCATION_IN_SHANGHAI_LNG = 121.632;
     const LOCATION_IN_BEIJING_LAT = 39.97758;
     const LOCATION_IN_BEIJING_LNG = 116.366549;
     const NON_EXIST_CITY = 0;
     const SHANGHAI_PUDONG_DISTRICT = '浦东新区';
     const COMMUNITIES_FILTER_FIELDS_AMOUNT = 3;
-    const COMMUNITIES_SEARCH_FIELDS_AMOUNT = 9;
+    const COMMUNITIES_SEARCH_FIELDS_AMOUNT = 10;
+    const ROOM_ACCOUNT = 0;
 
     public function setUp()
     {
@@ -103,10 +104,10 @@ class LocationControllerTest extends WebTestCase
             self::LOCATION_IN_SHANGHAI_LNG
         );
 
-        $this->given('room-building-for-data-structure');
+        $this->given('room-building-3');
         $roomBuilding = $this->entity;
 
-        $this->given('first-attachment-for-building-1');
+        $this->given('first-attachment-for-building-3');
         $roomBuildingAttachment = $this->entity;
         $cover = $roomBuildingAttachment->getContent();
 
@@ -130,6 +131,7 @@ class LocationControllerTest extends WebTestCase
                 $roomBuilding->getOrderEvaluationNumber() +
                 $roomBuilding->getBuildingEvaluationNumber()
             ),
+            'room_count' => self::ROOM_ACCOUNT,
         ];
 
         $this->assertResponseFirstItemContainsCorrectDataFields($data);
@@ -276,9 +278,14 @@ class LocationControllerTest extends WebTestCase
                         'queryParamKey' => 'sort_by',
                         'items' => [
                             [
+                                'name' => 'Smart Sorting',
+                                'key' => 'smart',
+                                'selected' => true,
+                            ],
+                            [
                                 'name' => 'Distance',
                                 'key' => 'distance',
-                                'selected' => true,
+                                'selected' => false,
                             ],
                             [
                                 'name' => 'Stars',
