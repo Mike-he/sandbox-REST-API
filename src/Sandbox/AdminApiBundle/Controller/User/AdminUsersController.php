@@ -861,6 +861,36 @@ class AdminUsersController extends DoorController
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
+     * @param int                   $userId
+     *
+     * @Route("/open/users/{userId}/last_login")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getOpenUsersLastLoginAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $userId
+    ) {
+        $userToken = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserToken')
+            ->getLastLoginUser($userId);
+
+        $lastLoginDate = null;
+
+        if (!is_null($userToken)) {
+            $lastLoginDate = $userToken->getModificationDate();
+        }
+
+        return new View(array(
+            'last_login_date' => $lastLoginDate,
+        ));
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
      *    name="name",
