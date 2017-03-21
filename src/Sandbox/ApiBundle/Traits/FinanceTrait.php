@@ -31,7 +31,7 @@ trait FinanceTrait
     ) {
         $em = $this->getContainer()->get('doctrine')->getManager();
 
-        $date = round(microtime(true) * 1000);
+        $date = round(microtime(true) * 1000).rand(1000, 9999);
 
         $serialNumber = FinanceLongRentServiceBill::SERVICE_FEE_LETTER_HEAD.$date;
         $companyId = $bill->getLease()->getProduct()->getRoom()->getBuilding()->getCompany()->getId();
