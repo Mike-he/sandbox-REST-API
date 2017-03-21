@@ -364,6 +364,15 @@ abstract class WebTestCase extends BaseWebTestCase
         $om = $registry->getManager($omName);
         $type = $registry->getName();
 
+        $connection = $om->getConnection();
+
+        $mysql = ($registry->getName() === 'ORM'
+            && $connection->getDatabasePlatform() instanceof MySqlPlatform);
+
+        if ($mysql) {
+            $connection->query('SET FOREIGN_KEY_CHECKS=0');
+        }
+
         $executorClass = 'PHPCR' === $type && class_exists('Doctrine\Bundle\PHPCRBundle\DataFixtures\PHPCRExecutor')
             ? 'Doctrine\Bundle\PHPCRBundle\DataFixtures\PHPCRExecutor'
             : 'Doctrine\\Common\\DataFixtures\\Executor\\'.$type.'Executor';
@@ -459,6 +468,10 @@ abstract class WebTestCase extends BaseWebTestCase
             copy($name, $backup);
 
             $this->postReferenceSave($om, $executor, $backup);
+        }
+
+        if ($mysql) {
+            $connection->query('SET FOREIGN_KEY_CHECKS=1');
         }
 
         return $executor;
