@@ -172,7 +172,7 @@ class SpaceControllerTest extends WebTestCase
             'lessor_email' => 'test@sandbox3.cn',
             'customer_services' => array(
                 'add' => array(),
-                'remove'=> array(),
+                'remove' => array(),
             ),
         );
     }

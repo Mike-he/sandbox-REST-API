@@ -763,6 +763,8 @@ class RoomRepository extends EntityRepository
         }
 
         if ($salesRecommend) {
+            $query->andWhere('p.salesRecommend = TRUE')
+                ->orderBy('p.salesSortTime', 'DESC');
         } else {
             $query->andWhere('p.recommend = TRUE')
                 ->orderBy('p.sortTime', 'DESC');
@@ -797,6 +799,7 @@ class RoomRepository extends EntityRepository
         }
 
         if ($salesRecommend) {
+            $query->andWhere('p.salesRecommend = TRUE');
         } else {
             $query->andWhere('p.recommend = TRUE');
         }
