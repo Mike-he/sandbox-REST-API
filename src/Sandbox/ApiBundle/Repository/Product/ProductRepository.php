@@ -1330,7 +1330,8 @@ class ProductRepository extends EntityRepository
                     p.unitPrice as unit_price,
                     p.visible,
                     r.id as room_id,
-                    r.name as room_name
+                    r.name as room_name,
+                    r.type as room_type
                 ')
             ->leftJoin('p.room', 'r')
             ->leftJoin('r.building', 'b')

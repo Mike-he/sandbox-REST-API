@@ -151,6 +151,25 @@ class AdminDashBoardController extends SalesRestController
 
         $product['attachment'] = $attachment;
 
+        if ($product['room_type'] == Room::TYPE_FIXED) {
+            $seats = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomFixed')
+                ->findBy(array(
+                    'room' => $product['room_id'],
+                ));
+
+            $productSeats = array();
+            foreach ($seats as $seat) {
+                $productSeats[] = array(
+                    'id' => $seat->getId(),
+                    'seat_number' => $seat->getSeatNumber(),
+                    'base_price' => (float) $seat->getBasePrice(),
+                );
+            }
+
+            $product['seats'] = $productSeats;
+        }
+
         $result = array(
             'product' => $product,
             'orders' => $orderList,
@@ -226,7 +245,6 @@ class AdminDashBoardController extends SalesRestController
                     'user' => $user,
                     'appointed_user' => $appointed,
                     'invited_people' => $invited,
-                    'seat_id' => $order->getSeatId(),
                 );
             }
         }
