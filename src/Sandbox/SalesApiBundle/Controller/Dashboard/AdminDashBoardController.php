@@ -226,6 +226,7 @@ class AdminDashBoardController extends SalesRestController
                     'user' => $user,
                     'appointed_user' => $appointed,
                     'invited_people' => $invited,
+                    'seat_id' => $order->getSeatId(),
                 );
             }
         }
