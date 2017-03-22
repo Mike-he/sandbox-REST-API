@@ -259,6 +259,16 @@ class AdminLeaseController extends SalesRestController
      *    description="Filter by room id"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="user",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by user id"
+     * )
+     *
      * @return View
      */
     public function getLeasesAction(
@@ -294,6 +304,8 @@ class AdminLeaseController extends SalesRestController
         $startDate = $paramFetcher->get('start_date');
         $endDate = $paramFetcher->get('end_date');
 
+        $userId = $paramFetcher->get('user');
+
         //get my buildings list
         $myBuildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
@@ -318,7 +330,8 @@ class AdminLeaseController extends SalesRestController
                 $salesCompanyId,
                 $roomId,
                 $limit,
-                $offset
+                $offset,
+                $userId
             );
 
         $count = $this->getDoctrine()
@@ -335,7 +348,8 @@ class AdminLeaseController extends SalesRestController
                 $startDate,
                 $endDate,
                 $salesCompanyId,
-                $roomId
+                $roomId,
+                $userId
             );
 
         foreach ($leases as $lease) {
@@ -774,6 +788,14 @@ class AdminLeaseController extends SalesRestController
         $lease->setOtherExpenses($payload['other_expenses']);
         $lease->setSupplementaryTerms($payload['supplementary_terms']);
 
+        if ($payload['is_auto']) {
+            $lease->setIsAuto($payload['is_auto']);
+        }
+
+        if ($payload['plan_day']) {
+            $lease->setPlanDay($payload['plan_day']);
+        }
+
         // If lease create from product appointment
         if (
             isset($payload['product_appointment'])
@@ -1045,6 +1067,14 @@ class AdminLeaseController extends SalesRestController
         $lease->setModificationDate(new \DateTime('now'));
         $lease->setOtherExpenses($payload['other_expenses']);
         $lease->setSupplementaryTerms($payload['supplementary_terms']);
+
+        if ($payload['is_auto']) {
+            $lease->setIsAuto($payload['is_auto']);
+        }
+
+        if ($payload['plan_day']) {
+            $lease->setPlanDay($payload['plan_day']);
+        }
 
         // If lease created by product appointment
         if (
@@ -1495,6 +1525,7 @@ class AdminLeaseController extends SalesRestController
             }
         }
 
+        $product = $lease->getProduct();
         if (!is_null($product)) {
             $this->generateAdminLogs(array(
                 'logModule' => Log::MODULE_PRODUCT,

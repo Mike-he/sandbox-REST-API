@@ -30,4 +30,10 @@ class ProductOrderMessage
 
     const CANCEL_ORDER_MESSAGE_PART1 = 'product_order.push_message.appoint_cancel_first';
     const CANCEL_ORDER_MESSAGE_PART2 = 'product_order.push_message.appoint_cancel_second';
+
+    const ORDER_PREORDER_MESSAGE = 'product_order.push_message.order_preorder';
+
+    const ORDER_CHANGE_PRICE_MESSAGE = 'product_order.push_message.order_change_price';
+    const ORDER_ADMIN_CANCELLED_MESSAGE = 'product_order.push_message.order_admin_cancelled';
+    const ORDER_TRANSFER_RETURNED_MESSAGE = 'product_order.push_message.order_transfer_returned';
 }

@@ -30,6 +30,10 @@ trait HandleCoordinateTrait
                 cos($radFirstLatitude) * cos($radSecondLatitude) *
                 pow(sin($distanceLongitudes / 2), 2)));
 
-        return $angle * 6371;
+        $s = $angle * 6371;
+
+        $s = round($s, 3);
+
+        return $s;
     }
 }

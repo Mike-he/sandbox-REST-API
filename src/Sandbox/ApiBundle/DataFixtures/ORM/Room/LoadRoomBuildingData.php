@@ -73,6 +73,7 @@ class LoadRoomBuildingData extends AbstractFixture implements OrderedFixtureInte
 
         $rb2 = new RoomBuilding();
         $rb2->setCity($this->getReference('shanghai'));
+        $rb2->setDistrict($this->getReference('pudongxinqu'));
         $rb2->setName('展想广场2');
         $rb2->setAddress('浦东新区祖冲之路2290, 2#楼');
         $rb2->setAvatar('http://devimage.sandbox3.cn/building/55ca4ac7-89d8-4c49-a448-83946f2b8cf4.jpg');
@@ -96,6 +97,7 @@ class LoadRoomBuildingData extends AbstractFixture implements OrderedFixtureInte
 
         $rb3 = new RoomBuilding();
         $rb3->setCity($this->getReference('shanghai'));
+        $rb3->setDistrict($this->getReference('pudongxinqu'));
         $rb3->setName('展想广场3');
         $rb3->setAddress('浦东新区祖冲之路2290, 3#楼');
         $rb3->setAvatar('http://devimage.sandbox3.cn/building/55ca4ac7-89d8-4c49-a448-83946f2b8cf4.jpg');
@@ -115,6 +117,7 @@ class LoadRoomBuildingData extends AbstractFixture implements OrderedFixtureInte
         $rb3->setLessorPhone('12345678');
         $rb3->setLessorContact('sandbox');
         $rb3->setLessorEmail('account@sandbox3.cn');
+        $this->addReference('room-building-3', $rb3);
 
         $rb4 = new RoomBuilding();
         $rb4->setCity($this->getReference('beijing'));
@@ -208,23 +211,33 @@ class LoadRoomBuildingData extends AbstractFixture implements OrderedFixtureInte
 
         $rba2 = new RoomBuildingAttachment();
         $rba2->setBuilding($rb1);
-        $rba2->setContent('http://devimage.sandbox3.cn/building/a448-83946f2b8cf4.jpg');
+        $rba2->setContent('http://devimage.sandbox3.cn/building/a448-83946f2b8c11.jpg');
         $rba2->setAttachmentType('jpg');
         $rba2->setFilename('cover');
         $rba2->setSize(1020);
-        $rba2->setPreview('http://devimage.sandbox3.cn/building/49-a448-83946f2b8cf4.jpg');
+        $rba2->setPreview('http://devimage.sandbox3.cn/building/49-a448-83946f2b8c11.jpg');
         $rba2->setCreationDate($date);
         $this->addReference('second-attachment-for-building-1', $rba2);
 
         $rba3 = new RoomBuildingAttachment();
-        $rba3->setBuilding($rb4);
-        $rba3->setContent('http://devimage.sandbox3.cn/building/a3946f2b8cf4.jpg');
+        $rba3->setBuilding($rb3);
+        $rba3->setContent('http://devimage.sandbox3.cn/building/a448-83946f2b8c11.jpg');
         $rba3->setAttachmentType('jpg');
         $rba3->setFilename('cover');
-        $rba3->setSize(1023);
-        $rba3->setPreview('http://devimage.sandbox3.cn/building/49-a448-6f2b8cf4.jpg');
+        $rba3->setSize(1020);
+        $rba3->setPreview('http://devimage.sandbox3.cn/building/49-a448-83946f2b8c11.jpg');
         $rba3->setCreationDate($date);
-        $this->addReference('first-attachment-for-building-4', $rba3);
+        $this->addReference('first-attachment-for-building-3', $rba3);
+
+        $rba4 = new RoomBuildingAttachment();
+        $rba4->setBuilding($rb4);
+        $rba4->setContent('http://devimage.sandbox3.cn/building/a3946f2b8cf4.jpg');
+        $rba4->setAttachmentType('jpg');
+        $rba4->setFilename('cover');
+        $rba4->setSize(1023);
+        $rba4->setPreview('http://devimage.sandbox3.cn/building/49-a448-6f2b8cf4.jpg');
+        $rba4->setCreationDate($date);
+        $this->addReference('first-attachment-for-building-4', $rba4);
 
         $manager->persist($rbt1);
         $manager->persist($rbt2);
@@ -244,6 +257,7 @@ class LoadRoomBuildingData extends AbstractFixture implements OrderedFixtureInte
         $manager->persist($rba1);
         $manager->persist($rba2);
         $manager->persist($rba3);
+        $manager->persist($rba4);
 
         $manager->flush();
     }

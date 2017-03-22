@@ -80,6 +80,7 @@ class UserViewRepository extends EntityRepository
      * @param $direction
      * @param $offset
      * @param $limit
+     * @param $userIds
      *
      * @return array
      */
@@ -90,7 +91,8 @@ class UserViewRepository extends EntityRepository
         $sortBy,
         $direction,
         $offset,
-        $limit
+        $limit,
+        $userIds
     ) {
         $queryResults = $this->createQueryBuilder('u')
             ->where('u.id LIKE :query')
@@ -120,6 +122,11 @@ class UserViewRepository extends EntityRepository
             $queryResults->orderBy('u.'.$sortBy, $direction);
         }
 
+        if (!is_null($userIds)) {
+            $queryResults->andWhere('u.id IN (:userIds)')
+                ->setParameter('userIds', $userIds);
+        }
+
         return $queryResults->getQuery()->getResult();
     }
 
@@ -142,13 +149,15 @@ class UserViewRepository extends EntityRepository
      * @param $banned
      * @param $authorized
      * @param $query
+     * @param $userIds
      *
      * @return int
      */
     public function countUsers(
         $banned,
         $authorized,
-        $query
+        $query,
+        $userIds
     ) {
         $queryResults = $this->createQueryBuilder('u')
             ->select('COUNT(u)')
@@ -168,6 +177,11 @@ class UserViewRepository extends EntityRepository
         if (!is_null($authorized)) {
             $queryResults->andWhere('u.authorized = :authorized')
                 ->setParameter('authorized', $authorized);
+        }
+
+        if (!is_null($userIds)) {
+            $queryResults->andWhere('u.id IN (:userIds)')
+                ->setParameter('userIds', $userIds);
         }
 
         return (int) $queryResults->getQuery()->getSingleScalarResult();

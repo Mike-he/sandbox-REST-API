@@ -256,6 +256,15 @@ class AdminLeaseController extends AdminRestController
      *    description="Filter by company id"
      * )
      *
+     * @Annotations\QueryParam(
+     *     name="user",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     requirements="\d+",
+     *     strict=true
+     * )
+     *
      * @return View
      */
     public function getLeasesAction(
@@ -290,6 +299,9 @@ class AdminLeaseController extends AdminRestController
         $startDate = $paramFetcher->get('start_date');
         $endDate = $paramFetcher->get('end_date');
 
+        // filter by user
+        $userId = $paramFetcher->get('user');
+
         $buildingIds = null;
         if (!is_null($buildingId)) {
             $buildingIds = array((int) $buildingId);
@@ -311,7 +323,8 @@ class AdminLeaseController extends AdminRestController
                 $companyId,
                 $roomId,
                 $limit,
-                $offset
+                $offset,
+                $userId
             );
 
         $count = $this->getDoctrine()
@@ -328,7 +341,8 @@ class AdminLeaseController extends AdminRestController
                 $startDate,
                 $endDate,
                 $companyId,
-                $roomId
+                $roomId,
+                $userId
             );
 
         foreach ($leases as $lease) {

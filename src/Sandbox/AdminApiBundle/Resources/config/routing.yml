@@ -285,6 +285,12 @@ sandbox_admin_api_location:
     type:     annotation
     prefix:   /
 
+# User Profile
+sandbox_amin_api_user_profile:
+    resource: "@SandboxAdminApiBundle/Controller/User/AdminUserProfileController.php"
+    type:     annotation
+    prefix:   /
+
 # Admin Finance
 sandbox_sales_admin_finance_api:
     resource: "@SandboxAdminApiBundle/Resources/config/finance/routing.yml"

@@ -4,6 +4,7 @@ namespace Sandbox\AdminApiBundle\Controller\Lease;
 
 use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
+use Sandbox\ApiBundle\Constants\LeaseConstants;
 use Sandbox\ApiBundle\Controller\Lease\LeaseController;
 use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
@@ -13,6 +14,7 @@ use Sandbox\ApiBundle\Entity\Lease\LeaseBillOfflineTransfer;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Sandbox\ApiBundle\Form\Lease\LeaseBillOfflineTransferPatch;
 use Sandbox\ApiBundle\Traits\FinanceTrait;
+use Sandbox\ApiBundle\Traits\SendNotification;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -26,6 +28,7 @@ class AdminLeaseBillController extends LeaseController
     const WRONG_BILL_STATUS_CODE = 400015;
     const WRONG_BILL_STATUS_MESSAGE = 'Wrong Bill Status';
 
+    use SendNotification;
     use FinanceTrait;
 
     /**
@@ -277,6 +280,20 @@ class AdminLeaseBillController extends LeaseController
                         self::WRONG_BILL_STATUS_MESSAGE
                     );
                 }
+
+                $leaseId = $bill->getLease()->getId();
+                $urlParam = 'ptype=billsList&status=unpaid&leasesId='.$leaseId;
+                $contentArray = $this->generateLeaseContentArray($urlParam);
+                // send Jpush notification
+                $this->generateJpushNotification(
+                    [
+                        $bill->getLease()->getDraweeId(),
+                    ],
+                    LeaseConstants::LEASE_BILL_TRANSFER_RETURNED_MESSAGE,
+                    null,
+                    $contentArray
+                );
+
                 break;
         }
 
@@ -295,7 +312,7 @@ class AdminLeaseBillController extends LeaseController
                 $bill->getRevisedAmount(),
                 $bill->getLease()->getSerialNumber()
             );
-            
+
             $bill->setInvoiced(true);
             $em->flush();
         }

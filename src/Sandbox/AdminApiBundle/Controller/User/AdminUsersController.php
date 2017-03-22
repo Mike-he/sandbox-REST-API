@@ -271,6 +271,12 @@ class AdminUsersController extends DoorController
      *    description="sort direction"
      * )
      *
+     * @Annotations\QueryParam(
+     *     name="pendingAuth",
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
      * @Route("/users/search")
      * @Method({"GET"})
      *
@@ -301,20 +307,17 @@ class AdminUsersController extends DoorController
         $query = $paramFetcher->get('query');
         $sortBy = $paramFetcher->get('sortBy');
         $direction = $paramFetcher->get('direction');
+        $pendingAuth = (bool) $paramFetcher->get('pendingAuth');
 
-        // TODO Another better way to search the users by query, but it needs to find out the bug and fix it yet
-//        // find all users who have the query in any of their mapped fields
-//        $finder = $this->container->get('fos_elastica.finder.search.user');
+        $userIds = null;
+        if ($pendingAuth) {
+            $crmUrl = $this->container->getParameter('crm_api_url');
+            $url = $crmUrl.'/admin/user/ids/pending_auth';
+            $ch = curl_init($url);
 
-//        $multiMatchQuery = new \Elastica\Query\MultiMatch();
-
-//        $multiMatchQuery->setQuery($query);
-//        $multiMatchQuery->setType('phrase_prefix');
-//        $multiMatchQuery->setFields(array('email', 'phone'));
-
-//        $results = $finder->createPaginatorAdapter($multiMatchQuery);
-
-//        $paginator = $this->get('knp_paginator');
+            $result = $this->callAPI($ch, 'GET');
+            $userIds = json_decode($result, true);
+        }
 
         $results = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserView')
@@ -325,7 +328,8 @@ class AdminUsersController extends DoorController
                 $sortBy,
                 $direction,
                 $offset,
-                $pageLimit
+                $pageLimit,
+                $userIds
             );
 
         // get total count
@@ -334,7 +338,8 @@ class AdminUsersController extends DoorController
             ->countUsers(
                 $banned,
                 $authorized,
-                $query
+                $query,
+                $userIds
             );
 
         foreach ($results as $user) {
@@ -584,7 +589,7 @@ class AdminUsersController extends DoorController
         );
 
         // get user
-        $user = $this->getRepo('User\User')->find($id);
+        $user = $this->getDoctrine()->getRepository('SandboxApiBundle:User\User')->find($id);
         $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
         $banned = $user->isBanned();
 
@@ -606,6 +611,10 @@ class AdminUsersController extends DoorController
                 ],
                 AdminPermission::OP_LEVEL_USER_BANNED
             );
+        }
+
+        if ($updateBanned) {
+            $user->setBannedDate(new \DateTime('now'));
         }
 
         // update to db
@@ -663,24 +672,16 @@ class AdminUsersController extends DoorController
         Request $request,
         $id
     ) {
-        // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
-            $this->getAdminId(),
-            [
-                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_USER],
-            ],
-            AdminPermission::OP_LEVEL_EDIT
-        );
-
         // get user Entity
-        $user = $this->getRepo('User\User')->find($id);
+        $user = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\User')
+            ->find($id);
         $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
 
         $form = $this->createForm(new UserType(), $user);
         $form->handleRequest($request);
 
         // authorized user
-        $user->setAuthorized(true);
         $user->setModificationDate(new \DateTime('now'));
 
         // set authorized admin
@@ -859,6 +860,35 @@ class AdminUsersController extends DoorController
         $ids = $paramFetcher->get('id');
 
         return $this->getUsersByIds($ids);
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     * @param int                   $userId
+     *
+     * @Route("/open/users/{userId}/extra_info")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getOpenUsersLastLoginAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $userId
+    ) {
+        $userToken = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserToken')
+            ->getLastLoginUser($userId);
+
+        $lastLoginDate = !is_null($userToken) ? $userToken->getModificationDate() : null;
+
+        $user = $this->getDoctrine()->getRepository('SandboxApiBundle:User\User')->find($userId);
+        $bannedDate = !is_null($user) ? $user->getBannedDate() : null;
+
+        return new View(array(
+            'last_login_date' => $lastLoginDate,
+            'banned_date' => $bannedDate,
+        ));
     }
 
     /**

@@ -106,6 +106,10 @@ product_order:
     appoint_second: ”，you can use Sandbox3 card to open the room
     appoint_cancel_first: Your authorization for “
     appoint_cancel_second: ” has been removed
+    order_preorder: Administrator has pushed a new order fou you, click to view.
+    order_change_price: Price of an order has been changed, click to view.
+    order_admin_cancelled: Your order has been cancelled, click to view.
+    order_transfer_returned: A remittance receipt has been returned, click to view.
 
 shop_order:
   channel:
@@ -340,5 +344,6 @@ lease:
     lease_ended: Dear user, your leasing contract has been completed! Thanks for your trust and support. Click to view details.
     lease_bill_unpaid_first: Dear user,
     lease_bill_unpaid_second: bill(s) is(are) waiting for payment. Click to view details.
+    lease_bill_transfer_returned: A remittance receipt has been returned, click to view.
   order_method:
       backend: Backend

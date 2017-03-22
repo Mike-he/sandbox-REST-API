@@ -2,6 +2,7 @@
 
 namespace Sandbox\ApiBundle\Traits;
 
+use Sandbox\ApiBundle\Constants\LeaseConstants;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Log\Log;
@@ -172,6 +173,45 @@ trait LeaseTrait
 
         if ($httpCode == '404') {
             return 'https://property.sandbox3.cn/img/head.png';
+        }
+    }
+
+    /**
+     * @param $lease
+     * @param $date
+     */
+    private function autoPushBills(
+        $lease,
+        $date
+    ) {
+        $em = $this->getContainer()->get('doctrine')->getManager();
+
+        $bills = $em->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->getNeedAutoPushBills($lease, $date);
+
+        foreach ($bills as $bill) {
+            $bill->setStatus(LeaseBill::STATUS_UNPAID);
+            $bill->setRevisedAmount($bill->getAmount());
+            $bill->setOrderMethod(LeaseBill::ORDER_METHOD_AUTO);
+            $bill->setSendDate(new \DateTime());
+
+            $em->persist($bill);
+            $em->flush();
+
+            $billsAmount = 1;
+            $leaseId = $lease->getId();
+            $urlParam = 'ptype=billsList&status=unpaid&leasesId='.$leaseId;
+            $contentArray = $this->generateLeaseContentArray($urlParam);
+            // send Jpush notification
+            $this->generateJpushNotification(
+                [
+                    $lease->getDraweeId(),
+                ],
+                LeaseConstants::LEASE_BILL_UNPAID_MESSAGE_PART1,
+                LeaseConstants::LEASE_BILL_UNPAID_MESSAGE_PART2,
+                $contentArray,
+                ' '.$billsAmount.' '
+            );
         }
     }
 }

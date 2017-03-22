@@ -2231,6 +2231,12 @@ class OrderRepository extends EntityRepository
             }
         }
 
+        // filter by user
+        if (!is_null($userId)) {
+            $query->andWhere('o.userId = :userId')
+                ->setParameter('userId', $userId);
+        }
+
         $query->orderBy('o.creationDate', 'DESC');
 
         $result = $query->getQuery()->getSingleScalarResult();

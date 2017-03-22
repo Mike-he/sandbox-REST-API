@@ -775,6 +775,16 @@ class AdminOrderController extends OrderController
      *    description="Filter by room id"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="user",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by user id"
+     * )
+     *
      * @Route("/orders")
      * @Method({"GET"})
      *
@@ -817,6 +827,7 @@ class AdminOrderController extends OrderController
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
         $roomId = $paramFetcher->get('room');
+        $userId = $paramFetcher->get('user');
 
         $limit = $pageLimit;
         $offset = ($pageIndex - 1) * $pageLimit;
@@ -836,7 +847,7 @@ class AdminOrderController extends OrderController
                 $type,
                 null,
                 null,
-                null,
+                $userId,
                 $rentFilter,
                 $startDate,
                 $endDate,
@@ -862,7 +873,7 @@ class AdminOrderController extends OrderController
                 $type,
                 null,
                 null,
-                null,
+                $userId,
                 $rentFilter,
                 $startDate,
                 $endDate,
@@ -1741,6 +1752,16 @@ class AdminOrderController extends OrderController
             $em->flush();
         }
 
+        // send message
+        $this->sendXmppProductOrderNotification(
+            null,
+            null,
+            ProductOrder::ACTION_CANCELLED,
+            null,
+            [$order],
+            ProductOrderMessage::ORDER_ADMIN_CANCELLED_MESSAGE
+        );
+
         $this->generateAdminLogs(array(
             'logModule' => $module,
             'logAction' => Log::ACTION_CANCEL,
@@ -1957,6 +1978,16 @@ class AdminOrderController extends OrderController
                 $this->setDoorAccessForSingleOrder($order, $em);
             }
 
+            // send message
+            $this->sendXmppProductOrderNotification(
+                null,
+                null,
+                ProductOrder::PREORDER_TYPE,
+                null,
+                [$order],
+                ProductOrderMessage::ORDER_PREORDER_MESSAGE
+            );
+
             $this->generateAdminLogs(array(
                 'logModule' => Log::MODULE_ORDER_PREORDER,
                 'logAction' => Log::ACTION_CREATE,
@@ -2028,6 +2059,16 @@ class AdminOrderController extends OrderController
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();
+
+        // send message
+        $this->sendXmppProductOrderNotification(
+            null,
+            null,
+            ProductOrder::ACTION_CHANGE_PRICE,
+            null,
+            [$order],
+            ProductOrderMessage::ORDER_CHANGE_PRICE_MESSAGE
+        );
 
         $this->generateAdminLogs(array(
             'logModule' => Log::MODULE_ROOM_ORDER,

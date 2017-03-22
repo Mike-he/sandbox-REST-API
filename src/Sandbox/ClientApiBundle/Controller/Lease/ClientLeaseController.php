@@ -21,6 +21,7 @@ use Sandbox\ApiBundle\Traits\DoorAccessTrait;
 use Sandbox\ApiBundle\Traits\GenerateSerialNumberTrait;
 use Sandbox\ApiBundle\Traits\HasAccessToEntityRepositoryTrait;
 use Sandbox\ApiBundle\Traits\LeaseNotificationTrait;
+use Sandbox\ApiBundle\Traits\LeaseTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -34,6 +35,7 @@ class ClientLeaseController extends SandboxRestController
     use DoorAccessTrait;
     use LeaseNotificationTrait;
     use GenerateSerialNumberTrait;
+    use LeaseTrait;
 
     /**
      * @param Request               $request
@@ -310,6 +312,12 @@ class ClientLeaseController extends SandboxRestController
 
         $lease->setConformedDate(new \DateTime('now'));
         $em->flush();
+
+        // aout push bills
+        if ($lease->isIsAuto()) {
+            $now = new \DateTime();
+            $this->autoPushBills($lease, $now);
+        }
 
         return new View();
     }

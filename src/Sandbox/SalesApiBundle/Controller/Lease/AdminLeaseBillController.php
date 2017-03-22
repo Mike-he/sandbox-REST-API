@@ -598,7 +598,7 @@ class AdminLeaseBillController extends SalesRestController
      *
      * @throws \Exception
      */
-    public function PatchCollectionActioon(
+    public function PatchCollectionAction(
         Request $request,
         $id
     ) {

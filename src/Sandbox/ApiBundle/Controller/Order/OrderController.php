@@ -555,6 +555,12 @@ class OrderController extends PaymentController
         $roomRecord->setRoomType($room->getType());
 
         $em->persist($roomRecord);
+
+        $this->storeProductOrderInfo(
+            $em,
+            $product,
+            $order
+        );
     }
 
     /**
@@ -942,15 +948,6 @@ class OrderController extends PaymentController
         );
 
         $em->remove($orderCheck);
-
-        $em->persist($order);
-
-        $this->storeProductOrderInfo(
-            $em,
-            $product,
-            $order
-        );
-
         $em->flush();
     }
 
