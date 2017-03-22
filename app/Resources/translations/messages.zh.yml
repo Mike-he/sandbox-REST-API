@@ -343,6 +343,6 @@ lease:
     lease_ended: 亲爱的创合用户，您的一份长租办公室合同已结束！感谢您一路对我们的信任与支持！期待我们下次合作！点击查看详情。
     lease_bill_unpaid_first: 亲爱的创合用户，您有
     lease_bill_unpaid_second: 笔账单在等待支付。点击查看详情。
-    lease_bill_transfer_returned: 您的订单线下汇款凭证被退回，需要您重新上传，点击查看
+    lease_bill_transfer_returned: 您的账单线下汇款凭证被退回，需要您重新上传，点击查看
   order_method:
     backend: 后台推送

@@ -409,7 +409,7 @@ class AdminOrderController extends OrderController
                     ProductOrder::ACTION_RETURNED,
                     null,
                     [$order],
-                    ProductOrderMessage::ORDER_ADMIN_CANCELLED_MESSAGE
+                    ProductOrderMessage::ORDER_TRANSFER_RETURNED_MESSAGE
                 );
 
                 break;
