@@ -718,47 +718,40 @@ class ProductRepository extends EntityRepository
     public function findSwapProduct(
         $product,
         $action,
-        $city,
-        $building
+        $building = null
     ) {
         $queryStr = 'SELECT p FROM SandboxApiBundle:Product\Product p';
-
-        if (!is_null($city) || !is_null($building)) {
-            $queryStr = $queryStr.' LEFT JOIN Room r WITH p.roomId = r.id';
-        }
-
-        $queryStr = $queryStr.' WHERE p.recommend = :recommend';
-
-        if (!is_null($city)) {
-            $queryStr = $queryStr.' AND r.city = :city';
-        }
-
-        if (!is_null($building)) {
-            $queryStr = $queryStr.' AND r.building = :building';
-        }
+        $queryStr = $queryStr.' LEFT JOIN Room r WITH p.roomId = r.id';
 
         // operator
         $operator = '>';
         if ($action == ProductRecommendPosition::ACTION_DOWN) {
             $operator = '<';
         }
-        $queryStr = $queryStr.' AND p.sortTime '.$operator.' :sortTime';
 
         // order by
         $orderBy = 'ASC';
         if ($action == ProductRecommendPosition::ACTION_DOWN) {
             $orderBy = 'DESC';
         }
-        $queryStr = $queryStr.' ORDER BY p.sortTime '.$orderBy;
+
+        if (!is_null($building)) {
+            $queryStr = $queryStr.' WHERE p.salesRecommend = :recommend AND r.building = :building';
+            $queryStr = $queryStr.' AND p.salesSortTime '.$operator.' :sortTime';
+            $queryStr = $queryStr.' ORDER BY p.salesSortTime '.$orderBy;
+
+            $sortTime = $product->getSalesSortTime();
+        } else {
+            $queryStr = $queryStr.' WHERE p.recommend = :recommend';
+            $queryStr = $queryStr.' AND p.sortTime '.$operator.' :sortTime';
+            $queryStr = $queryStr.' ORDER BY p.sortTime '.$orderBy;
+
+            $sortTime = $product->getSortTime();
+        }
 
         // set parameters
         $query = $this->getEntityManager()->createQuery($queryStr);
-        $query->setParameter('recommend', true);
-        $query->setParameter('sortTime', $product->getSortTime());
-
-        if (!is_null($city)) {
-            $query->setParameter('city', $city);
-        }
+        $query->setParameter('recommend', true)->setParameter('sortTime', $sortTime);
 
         if (!is_null($building)) {
             $query->setParameter('building', $building);

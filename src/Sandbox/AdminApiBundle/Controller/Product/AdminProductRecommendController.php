@@ -296,19 +296,13 @@ class AdminProductRecommendController extends AdminProductController
         $position
     ) {
         $action = $position->getAction();
-        $cityId = $position->getCityId();
-        $buildingId = $position->getBuildingId();
-
-        // find city and building
-        $city = !is_null($cityId) ? $this->getRepo('Room\RoomCity')->find($cityId) : null;
-        $building = !is_null($buildingId) ? $this->getRepo('Room\RoomBuilding')->find($buildingId) : null;
 
         // move product
         if ($action == ProductRecommendPosition::ACTION_TOP) {
             $this->topProduct($product);
         } elseif ($action == ProductRecommendPosition::ACTION_UP
             || $action == ProductRecommendPosition::ACTION_DOWN) {
-            $this->moveProduct($product, $action, $city, $building);
+            $this->moveProduct($product, $action);
         }
 
         return new View();
@@ -336,16 +330,16 @@ class AdminProductRecommendController extends AdminProductController
      */
     private function moveProduct(
         $product,
-        $action,
-        $city,
-        $building
+        $action
     ) {
         $swapProduct = $this->getRepo('Product\Product')->findSwapProduct(
             $product,
-            $action,
-            $city,
-            $building
+            $action
         );
+
+        if (is_null($swapProduct)) {
+            return;
+        }
 
         // swap
         $productSortTime = $product->getSortTime();

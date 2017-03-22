@@ -312,11 +312,61 @@ class Product
      */
     private $leaseRentTypes;
 
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="sales_recommend", type="boolean")
+     *
+     * @Serializer\Groups({"main", "admin_room", "admin_detail"})
+     */
+    private $salesRecommend = false;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="sales_sort_time", type="string", length=15, nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_room", "admin_detail"})
+     */
+    private $salesSortTime;
+
     public function __construct()
     {
         $date = new \DateTime('2099-12-30 23:59:59');
         $this->setEndDate($date);
         $this->leaserentTypes = new ArrayCollection();
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSalesRecommend()
+    {
+        return $this->salesRecommend;
+    }
+
+    /**
+     * @param bool $salesRecommend
+     */
+    public function setSalesRecommend($salesRecommend)
+    {
+        $this->salesRecommend = $salesRecommend;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSalesSortTime()
+    {
+        return $this->salesSortTime;
+    }
+
+    /**
+     * @param string $salesSortTime
+     */
+    public function setSalesSortTime($salesSortTime)
+    {
+        $this->salesSortTime = $salesSortTime;
     }
 
     /**
