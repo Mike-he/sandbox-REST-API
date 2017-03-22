@@ -4,6 +4,7 @@ namespace Sandbox\AdminApiBundle\Controller\Order;
 
 use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
+use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
 use Sandbox\ApiBundle\Entity\User\User;
@@ -400,6 +401,16 @@ class AdminOrderController extends OrderController
                         self::WRONG_ORDER_STATUS_MESSAGE
                     );
                 }
+
+                // send message
+                $this->sendXmppProductOrderNotification(
+                    null,
+                    null,
+                    ProductOrder::ACTION_RETURNED,
+                    null,
+                    [$order],
+                    ProductOrderMessage::ORDER_ADMIN_CANCELLED_MESSAGE
+                );
 
                 break;
             case OrderOfflineTransfer::STATUS_REJECT_REFUND:
@@ -1765,6 +1776,16 @@ class AdminOrderController extends OrderController
                 $this->setDoorAccessForSingleOrder($order, $em);
             }
 
+            // send message
+            $this->sendXmppProductOrderNotification(
+                null,
+                null,
+                ProductOrder::PREORDER_TYPE,
+                null,
+                [$order],
+                ProductOrderMessage::ORDER_PREORDER_MESSAGE
+            );
+
             $view = new View();
             $view->setData(
                 ['order_id' => $order->getId()]
@@ -1886,6 +1907,16 @@ class AdminOrderController extends OrderController
             $em = $this->getDoctrine()->getManager();
             $em->flush();
         }
+
+        // send message
+        $this->sendXmppProductOrderNotification(
+            null,
+            null,
+            ProductOrder::ACTION_CANCELLED,
+            null,
+            [$order],
+            ProductOrderMessage::ORDER_ADMIN_CANCELLED_MESSAGE
+        );
 
         return new View();
     }

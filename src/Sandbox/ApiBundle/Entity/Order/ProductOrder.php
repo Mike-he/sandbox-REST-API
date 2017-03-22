@@ -44,6 +44,9 @@ class ProductOrder
     const ACTION_ACCEPTED = 'accepted';
     const ACTION_REJECTED = 'rejected';
     const ACTION_OFFICE_ORDER = 'office_order';
+    const ACTION_CHANGE_PRICE = 'change_price';
+    const ACTION_CANCELLED = 'cancelled';
+    const ACTION_RETURNED = 'returned';
     const LETTER_HEAD = 'P';
     const ENTITY_PATH = 'Order\ProductOrder';
     const REFUNDED_STATUS = 'refunded';

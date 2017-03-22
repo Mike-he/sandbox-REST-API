@@ -1752,6 +1752,16 @@ class AdminOrderController extends OrderController
             $em->flush();
         }
 
+        // send message
+        $this->sendXmppProductOrderNotification(
+            null,
+            null,
+            ProductOrder::ACTION_CANCELLED,
+            null,
+            [$order],
+            ProductOrderMessage::ORDER_ADMIN_CANCELLED_MESSAGE
+        );
+
         $this->generateAdminLogs(array(
             'logModule' => $module,
             'logAction' => Log::ACTION_CANCEL,
@@ -1968,6 +1978,16 @@ class AdminOrderController extends OrderController
                 $this->setDoorAccessForSingleOrder($order, $em);
             }
 
+            // send message
+            $this->sendXmppProductOrderNotification(
+                null,
+                null,
+                ProductOrder::PREORDER_TYPE,
+                null,
+                [$order],
+                ProductOrderMessage::ORDER_PREORDER_MESSAGE
+            );
+
             $this->generateAdminLogs(array(
                 'logModule' => Log::MODULE_ORDER_PREORDER,
                 'logAction' => Log::ACTION_CREATE,
@@ -2039,6 +2059,16 @@ class AdminOrderController extends OrderController
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();
+
+        // send message
+        $this->sendXmppProductOrderNotification(
+            null,
+            null,
+            ProductOrder::ACTION_CHANGE_PRICE,
+            null,
+            [$order],
+            ProductOrderMessage::ORDER_CHANGE_PRICE_MESSAGE
+        );
 
         $this->generateAdminLogs(array(
             'logModule' => Log::MODULE_ROOM_ORDER,
