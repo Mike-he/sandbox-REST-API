@@ -90,7 +90,7 @@ class Room
      * @var \Sandbox\ApiBundle\Entity\Room\RoomBuilding
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomBuilding")
-     * @ORM\JoinColumn(name="buildingId", referencedColumnName="id")
+     * @ORM\JoinColumn(name="buildingId", referencedColumnName="id", onDelete="CASCADE")
      *
      * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "current_order", "client_appointment_detail"})
      */
@@ -108,7 +108,7 @@ class Room
      * @var \Sandbox\ApiBundle\Entity\Room\RoomFloor
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomFloor")
-     * @ORM\JoinColumn(name="floorId", referencedColumnName="id")
+     * @ORM\JoinColumn(name="floorId", referencedColumnName="id", onDelete="CASCADE")
      *
      * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "current_order"})
      */
