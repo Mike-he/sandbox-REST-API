@@ -8,6 +8,7 @@ use Sandbox\ApiBundle\Entity\Admin\Admin;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesUser;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\User\UserView;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -247,6 +248,38 @@ class AdminUsersController extends DoorController
      * )
      *
      * @Annotations\QueryParam(
+     *     name="card",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="dateType",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="startDate",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="endDate",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="query",
      *    default=null,
      *    description="search query"
@@ -308,15 +341,22 @@ class AdminUsersController extends DoorController
         $sortBy = $paramFetcher->get('sortBy');
         $direction = $paramFetcher->get('direction');
         $pendingAuth = (bool) $paramFetcher->get('pendingAuth');
+        $bindCard = $paramFetcher->get('card');
+        $dateType = $paramFetcher->get('dateType');
+        $startDate = $paramFetcher->get('startDate');
+        $endDate = $paramFetcher->get('endDate');
 
         $userIds = null;
         if ($pendingAuth) {
-            $crmUrl = $this->container->getParameter('crm_api_url');
-            $url = $crmUrl.'/admin/user/ids/pending_auth';
-            $ch = curl_init($url);
+            $userIds = $this->getPendingAuthUserIds();
+        }
 
-            $result = $this->callAPI($ch, 'GET');
-            $userIds = json_decode($result, true);
+        if (!is_null($dateType)) {
+            $userIds = $this->getUserIdByDate(
+                $dateType,
+                $startDate,
+                $endDate
+            );
         }
 
         $results = $this->getDoctrine()
@@ -329,7 +369,11 @@ class AdminUsersController extends DoorController
                 $direction,
                 $offset,
                 $pageLimit,
-                $userIds
+                $userIds,
+                $bindCard,
+                $dateType,
+                $startDate,
+                $endDate
             );
 
         // get total count
@@ -382,6 +426,26 @@ class AdminUsersController extends DoorController
         }
 
         return new View($results);
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/users/pending_auth_count")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function pendingAuthUsersAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $userIds = $this->getPendingAuthUserIds();
+
+        return new View(array(
+            'pending_auth_users_count' => count($userIds),
+        ));
     }
 
     /**
@@ -930,5 +994,51 @@ class AdminUsersController extends DoorController
             ->getUserIds($name, $account);
 
         return new View($userIds);
+    }
+
+    /**
+     * @return mixed
+     */
+    private function getPendingAuthUserIds()
+    {
+        $crmUrl = $this->container->getParameter('crm_api_url');
+        $url = $crmUrl.'/admin/user/ids/search?pendinguth=1';
+        $ch = curl_init($url);
+
+        $result = $this->callAPI($ch, 'GET');
+        $userIds = json_decode($result, true);
+
+        return $userIds;
+    }
+
+    /**
+     * @param $dateType
+     * @param $startDate
+     * @param $endDate
+     *
+     * @return array
+     */
+    private function getUserIdByDate(
+        $dateType,
+        $startDate,
+        $endDate
+    ) {
+        if ($dateType == UserView::DATE_TYPE_REGISTRATION) {
+            return null;
+        }
+
+        $crmUrl = $this->container->getParameter('crm_api_url');
+        $url = $crmUrl.'/admin/user/ids/search?dateType='.$dateType;
+
+        $url = is_null($startDate) ? $url : $url.'&startDate='.$startDate;
+        $url = is_null($endDate) ? $url : $url.'&endDate='.$endDate;
+
+        $ch = curl_init($url);
+        var_dump($url);exit;
+
+        $result = $this->callAPI($ch, 'GET');
+        $userIds = json_decode($result, true);
+
+        return $userIds;
     }
 }

@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Repository\User;
 
 use Doctrine\ORM\EntityRepository;
+use Sandbox\ApiBundle\Entity\User\UserView;
 
 class UserViewRepository extends EntityRepository
 {
@@ -81,6 +82,7 @@ class UserViewRepository extends EntityRepository
      * @param $offset
      * @param $limit
      * @param $userIds
+     * @param $bindCard
      *
      * @return array
      */
@@ -92,7 +94,11 @@ class UserViewRepository extends EntityRepository
         $direction,
         $offset,
         $limit,
-        $userIds
+        $userIds,
+        $bindCard,
+        $dateType,
+        $startDate,
+        $endDate
     ) {
         $queryResults = $this->createQueryBuilder('u')
             ->where('u.id LIKE :query')
@@ -125,6 +131,29 @@ class UserViewRepository extends EntityRepository
         if (!is_null($userIds)) {
             $queryResults->andWhere('u.id IN (:userIds)')
                 ->setParameter('userIds', $userIds);
+        }
+
+        if (!is_null($bindCard)) {
+            $bindCard = (bool) $bindCard;
+
+            if ($bindCard) {
+                $queryResults->andWhere('u.cardNo IS NOT NULL');
+            } else {
+                $queryResults->andWhere('u.cardNo IS NULL');
+            }
+        }
+
+        // filter by user registration date
+        if (!is_null($dateType) && $dateType == UserView::DATE_TYPE_REGISTRATION) {
+            if (!is_null($startDate)) {
+                $queryResults->andWhere('u.userRegistrationDate >= :startDate')
+                    ->setParameter('startDate', $startDate);
+            }
+
+            if (!is_null($endDate)) {
+                $queryResults->andWhere('u.userRegistrationDate <= :endDate')
+                    ->setParameter('endDate', $endDate);
+            }
         }
 
         return $queryResults->getQuery()->getResult();

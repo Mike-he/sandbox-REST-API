@@ -15,6 +15,10 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class UserView
 {
+    const DATE_TYPE_AUTHORIZED = 'authorized_date';
+    const DATE_TYPE_REGISTRATION = 'registration_date';
+    const DATE_TYPE_BIND_CARD = 'bind_card_date';
+
     /**
      * @var int
      *
