@@ -17,8 +17,7 @@ use JMS\Serializer\Annotation as Serializer;
 class ChatGroup
 {
     const XMPP_SERVICE = 'conference';
-    const XMPP_CUSTOMER_SERVICE = 'conference';
-    const TAG_SERVICE = 'service';
+    const XMPP_CUSTOMER_SERVICE = 'customerservice';
 
     /**
      * @var int

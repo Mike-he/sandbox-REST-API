@@ -6,7 +6,6 @@ use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
 use Sandbox\ApiBundle\Controller\ChatGroup\ChatGroupController;
 use Sandbox\ApiBundle\Entity\ChatGroup\ChatGroup;
 use Sandbox\ApiBundle\Entity\ChatGroup\ChatGroupMember;
-use Sandbox\ApiBundle\Entity\Room\RoomBuildingServiceMember;
 use Sandbox\ApiBundle\Traits\HasAccessToEntityRepositoryTrait;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
@@ -14,6 +13,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Client Customer Service Controller.
@@ -56,30 +56,65 @@ class ClientCustomerServiceController extends ChatGroupController
         // get building
         $data = json_decode($request->getContent(), true);
         if (!isset($data['tag'])) {
-            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_CUSTOMER_SERVICE_PAYLOAD_NOT_CORRECT_CODE);
+            throw new BadRequestHttpException(
+                CustomErrorMessagesConstants::ERROR_CUSTOMER_SERVICE_PAYLOAD_NOT_CORRECT_CODE
+            );
         }
+
+        $tag = $data['tag'];
 
         $building = $this->getRoomBuildingRepo()
             ->find($data['building_id']);
 
         if (is_null($building)) {
-            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_SALES_COMPANY_ROOM_BUILDING_NOT_FOUND_MESSAGE);
+            throw new BadRequestHttpException(
+                CustomErrorMessagesConstants::ERROR_SALES_COMPANY_ROOM_BUILDING_NOT_FOUND_MESSAGE
+            );
         }
 
         // get customer services
         $customerServices = $this->getServiceMemberRepo()->findBy(
             array(
                 'buildingId' => $building->getId(),
-                'tag' => $data['tag'],
+                'tag' => $tag,
             )
         );
 
+        if (empty($customerServices)) {
+            throw new NotFoundHttpException(self::NOT_FOUND_MESSAGE);
+        }
+
+        $existChatGroup = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:ChatGroup\ChatGroup')
+            ->findOneBy([
+                'buildingId' => $building->getId(),
+                'creatorId' => $myUserId,
+                'tag' => $tag,
+            ]);
+
+        if (!is_null($existChatGroup)) {
+            return new View([
+                'id' => $existChatGroup->getId(),
+                'name' => $existChatGroup->getName(),
+            ]);
+        }
+
         // get services group members
-        $members = [];
-        $tag = RoomBuildingServiceMember::SERVICE;
+        $members = [$myUser];
         foreach ($customerServices as $customerService) {
             $memberId = $customerService->getUserId();
-            $members[] = $this->getUserRepo()->find($memberId);
+            $member = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\User')
+                ->findOneBy([
+                    'id' => $memberId,
+                    'banned' => false,
+                ]);
+
+            if (is_null($member)) {
+                continue;
+            }
+
+            $members[] = $member;
         }
 
         // get company
@@ -114,11 +149,12 @@ class ClientCustomerServiceController extends ChatGroupController
         // create chat group in Openfire
         $this->createXmppChatGroup(
             $chatGroup,
-            ChatGroup::XMPP_CUSTOMER_SERVICE
+            $tag
         );
 
         // response
         $view = new View();
+        $view->setStatusCode(201);
         $view->setData(array(
             'id' => $chatGroup->getId(),
             'name' => $chatGroupName,

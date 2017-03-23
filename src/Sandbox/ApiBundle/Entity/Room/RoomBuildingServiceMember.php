@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\Entity\Room;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Sandbox\ApiBundle\Entity\ChatGroup\ChatGroup;
 
 /**
  * service member.
@@ -14,8 +15,6 @@ use Gedmo\Mapping\Annotation as Gedmo;
  */
 class RoomBuildingServiceMember
 {
-    const SERVICE = 'service';
-
     /**
      * @var int
      *
@@ -56,7 +55,7 @@ class RoomBuildingServiceMember
      *
      * @Serializer\Groups({"main", "admin_building"})
      */
-    private $tag = self::SERVICE;
+    private $tag = ChatGroup::XMPP_CUSTOMER_SERVICE;
 
     /**
      * @return int

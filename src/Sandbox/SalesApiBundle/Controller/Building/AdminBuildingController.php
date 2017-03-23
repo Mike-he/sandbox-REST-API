@@ -1002,10 +1002,7 @@ class AdminBuildingController extends LocationController
         $companyId = $building->getCompanyId();
         $chatGroups = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:ChatGroup\ChatGroup')
-            ->findBy([
-                'buildingId' => $buildingId,
-                'tag' => ChatGroup::TAG_SERVICE,
-            ]);
+            ->findBy(['buildingId' => $buildingId]);
 
         if (array_key_exists('add', $services)) {
             $this->addChatGroupMembers(
@@ -1100,6 +1097,10 @@ class AdminBuildingController extends LocationController
                     continue;
                 }
 
+                if ($chatGroup->getTag() !== $tag) {
+                    continue;
+                }
+
                 $newGroupMember = new ChatGroupMember();
                 $newGroupMember->setChatGroup($chatGroup);
                 $newGroupMember->setUser($user);
@@ -1182,6 +1183,10 @@ class AdminBuildingController extends LocationController
                         'user' => $userId,
                     ]);
                 if (is_null($groupMember)) {
+                    continue;
+                }
+
+                if ($chatGroup->getTag() !== $tag) {
                     continue;
                 }
 
@@ -1648,8 +1653,8 @@ class AdminBuildingController extends LocationController
         $customerServices,
         $em
     ) {
-        if (isset($customerServices[RoomBuildingServiceMember::SERVICE])) {
-            $addServices = array_unique($customerServices['service'], SORT_REGULAR);
+        foreach ($customerServices as $key => $val) {
+            $addServices = array_unique($val, SORT_REGULAR);
 
             foreach ($addServices as $userId) {
                 $admin = $this->getDoctrine()
@@ -1672,8 +1677,7 @@ class AdminBuildingController extends LocationController
                     array(
                         'buildingId' => $building->getId(),
                         'userId' => $admin->getId(),
-                        'tag' => RoomBuildingServiceMember::SERVICE,
-
+                        'tag' => $key,
                     )
                 );
                 if (!is_null($customerService)) {
