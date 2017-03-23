@@ -1034,7 +1034,7 @@ class AdminUsersController extends DoorController
     private function getPendingAuthUserIds()
     {
         $crmUrl = $this->container->getParameter('crm_api_url');
-        $url = $crmUrl.'/admin/user/ids/search?pendinguth=1';
+        $url = $crmUrl.'/admin/user/ids/search?pendingAuth=1';
         $ch = curl_init($url);
 
         $result = $this->callAPI($ch, 'GET');
