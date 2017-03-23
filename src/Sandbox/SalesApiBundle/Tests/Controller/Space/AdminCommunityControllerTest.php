@@ -224,6 +224,7 @@ class AdminCommunityControllerTest extends WebTestCase
                 'start_date' => $product->getStartDate()->format("Y-m-d\TH:i:sO"),
                 'base_price' => $product->getBasePrice(),
                 'recommend' => $product->isRecommend(),
+                'sales_recommend' => $product->isSalesRecommend(),
             ],
         ];
 
@@ -278,6 +279,7 @@ class AdminCommunityControllerTest extends WebTestCase
                     ],
                 ],
                 'recommend' => $product->isRecommend(),
+                'sales_recommend' => $product->isSalesRecommend(),
             ],
         ];
 
