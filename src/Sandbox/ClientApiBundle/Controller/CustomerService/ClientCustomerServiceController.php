@@ -201,6 +201,11 @@ class ClientCustomerServiceController extends ChatGroupController
             ->getRepository('SandboxApiBundle:Room\RoomBuildingServiceMember')
             ->getServicesByBuilding($buildingId);
 
-        return new View($customerServices);
+        $services = [];
+        foreach ($customerServices as $customerService) {
+            array_push($services, $customerService['tag']);
+        }
+
+        return new View($services);
     }
 }
