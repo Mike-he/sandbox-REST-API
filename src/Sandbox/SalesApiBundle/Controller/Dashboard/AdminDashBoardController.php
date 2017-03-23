@@ -41,6 +41,20 @@ class AdminDashBoardController extends SalesRestController
      *    description=""
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    array=false,
+     *    nullable=false,
+     *    description="Filter by building"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="query",
+     *    array=false,
+     *    nullable=false,
+     *    description=""
+     * )
+     *
      * @Route("/dashboard/rooms/usage")
      * @Method({"GET"})
      *
@@ -59,6 +73,8 @@ class AdminDashBoardController extends SalesRestController
         $roomType = $paramFetcher->get('room_type');
         $startString = $paramFetcher->get('start');
         $endString = $paramFetcher->get('end');
+        $building = $paramFetcher->get('building');
+        $query = $paramFetcher->get('query');
 
         $start = new \DateTime($startString);
         $start->setTime(0, 0, 0);
@@ -69,7 +85,9 @@ class AdminDashBoardController extends SalesRestController
             ->getRepository('SandboxApiBundle:Product\Product')
             ->findProductIdsByRoomType(
                 $salesCompanyId,
-                $roomType
+                $roomType,
+                $building,
+                $query
             );
 
         $usages = array();

@@ -1199,6 +1199,9 @@ class ProductRepository extends EntityRepository
     /**
      * @param $buildingId
      * @param $userId
+     * @param $limit
+     * @param $offset
+     * @param $includeIds
      *
      * @return array
      */
@@ -1309,12 +1312,16 @@ class ProductRepository extends EntityRepository
     /**
      * @param $company
      * @param $type
+     * @param $building
+     * @param $search
      *
      * @return array
      */
     public function findProductIdsByRoomType(
         $company,
-        $type
+        $type,
+        $building,
+        $search
     ) {
         $query = $this->createQueryBuilder('p')
             ->select('
@@ -1334,6 +1341,16 @@ class ProductRepository extends EntityRepository
             ->andWhere('r.type = :type')
             ->setParameter('company', $company)
             ->setParameter('type', $type);
+
+        if ($building) {
+            $query->andWhere('b.id = :building')
+                ->setParameter('building', $building);
+        }
+
+        if ($search) {
+            $query->andWhere('r.name LIKE :search')
+                ->setParameter('search', '%'.$search.'%');
+        }
 
         $result = $query->getQuery()->getResult();
 
