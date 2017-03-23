@@ -237,6 +237,8 @@ class UserViewRepository extends EntityRepository
                     ->setParameter('endDate', $endDate);
             }
         }
+
+        return $queryResults;
     }
 
     /**
@@ -487,6 +489,8 @@ class UserViewRepository extends EntityRepository
                 $queryResults->andWhere('u.cardNo IS NULL');
             }
         }
+
+        return $queryResults;
     }
 
     /**
