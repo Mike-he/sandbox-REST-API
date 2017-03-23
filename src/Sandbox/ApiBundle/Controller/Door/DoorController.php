@@ -2,6 +2,7 @@
 
 namespace Sandbox\ApiBundle\Controller\Door;
 
+use Sandbox\ApiBundle\Entity\User\UserView;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 
 /**
