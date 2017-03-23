@@ -76,20 +76,25 @@ class UserViewRepository extends EntityRepository
     /**
      * @param $banned
      * @param $authorized
-     * @param $query
      * @param $sortBy
      * @param $direction
      * @param $offset
      * @param $limit
      * @param $userIds
      * @param $bindCard
+     * @param $dateType
+     * @param $startDate
+     * @param $endDate
+     * @param $name
+     * @param $phone
+     * @param $email
+     * @param $id
      *
      * @return array
      */
     public function searchUser(
         $banned,
         $authorized,
-        $query,
         $sortBy,
         $direction,
         $offset,
@@ -98,16 +103,34 @@ class UserViewRepository extends EntityRepository
         $bindCard,
         $dateType,
         $startDate,
-        $endDate
+        $endDate,
+        $name,
+        $phone,
+        $email,
+        $id
     ) {
         $queryResults = $this->createQueryBuilder('u')
-            ->where('u.id LIKE :query')
-            ->orWhere('u.name LIKE :query')
-            ->orWhere('u.email LIKE :query')
-            ->orWhere('u.phone LIKE :query')
-            ->orWhere('u.cardNo LIKE :query')
-            ->orWhere('u.credentialNo LIKE :query')
-            ->setParameter('query', $query.'%');
+            ->where('u.id IS NOT NULL');
+
+        if (!is_null($name)) {
+            $queryResults->andWhere('u.name LIKE :name')
+                ->setParameter('name', $name.'%');
+        }
+
+        if (!is_null($phone)) {
+            $queryResults->andWhere('u.phone LIKE :phone')
+                ->setParameter('phone', $phone.'%');
+        }
+
+        if (!is_null($email)) {
+            $queryResults->andWhere('u.email LIKE :email')
+                ->setParameter('email', $email.'%');
+        }
+
+        if (!is_null($id)) {
+            $queryResults->andWhere('u.id LIKE :id')
+                ->setParameter('id', $id.'%');
+        }
 
         if (!is_null($offset) && !is_null($limit)) {
             $queryResults->setFirstResult($offset)

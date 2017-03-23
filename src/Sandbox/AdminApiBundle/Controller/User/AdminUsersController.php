@@ -280,9 +280,24 @@ class AdminUsersController extends DoorController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="query",
+     *    name="name",
      *    default=null,
      *    description="search query"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="phone",
+     *    default=null
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="email",
+     *    default=null
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="id",
+     *    default=null
      * )
      *
      * @Annotations\QueryParam(
@@ -337,7 +352,6 @@ class AdminUsersController extends DoorController
         $offset = ($pageIndex - 1) * $pageLimit;
         $banned = $paramFetcher->get('banned');
         $authorized = $paramFetcher->get('authorized');
-        $query = $paramFetcher->get('query');
         $sortBy = $paramFetcher->get('sortBy');
         $direction = $paramFetcher->get('direction');
         $pendingAuth = (bool) $paramFetcher->get('pendingAuth');
@@ -345,6 +359,10 @@ class AdminUsersController extends DoorController
         $dateType = $paramFetcher->get('dateType');
         $startDate = $paramFetcher->get('startDate');
         $endDate = $paramFetcher->get('endDate');
+        $name = $paramFetcher->get('name');
+        $phone = $paramFetcher->get('phone');
+        $email = $paramFetcher->get('email');
+        $id = $paramFetcher->get('id');
 
         $userIds = null;
         if ($pendingAuth) {
@@ -364,7 +382,6 @@ class AdminUsersController extends DoorController
             ->searchUser(
                 $banned,
                 $authorized,
-                $query,
                 $sortBy,
                 $direction,
                 $offset,
@@ -373,7 +390,11 @@ class AdminUsersController extends DoorController
                 $bindCard,
                 $dateType,
                 $startDate,
-                $endDate
+                $endDate,
+                $name,
+                $phone,
+                $email,
+                $id
             );
 
         // get total count
