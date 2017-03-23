@@ -197,6 +197,7 @@ class AdminUsersController extends DoorController
         $startDate = $paramFetcher->get('startDate');
         $endDate = $paramFetcher->get('endDate');
         $name = $paramFetcher->get('name');
+        $query = $paramFetcher->get('query');
 
         // get sales users
         $userIds = $this->getMySalesUserIds();
@@ -224,7 +225,8 @@ class AdminUsersController extends DoorController
                 $userIds,
                 $offset,
                 $pageLimit,
-                $bindCard
+                $bindCard,
+                $query
             );
 
         // get total count
@@ -239,7 +241,8 @@ class AdminUsersController extends DoorController
                 $userIds,
                 $offset,
                 $pageLimit,
-                $bindCard
+                $bindCard,
+                $query
             );
 
         return new View(array(

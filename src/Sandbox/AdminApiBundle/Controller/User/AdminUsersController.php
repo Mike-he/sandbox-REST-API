@@ -301,6 +301,12 @@ class AdminUsersController extends DoorController
      * )
      *
      * @Annotations\QueryParam(
+     *    name="query",
+     *    default=null,
+     *    description="search query"
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="sortBy",
      *    array=false,
      *    default=null,
@@ -363,6 +369,7 @@ class AdminUsersController extends DoorController
         $phone = $paramFetcher->get('phone');
         $email = $paramFetcher->get('email');
         $id = $paramFetcher->get('id');
+        $search = $paramFetcher->get('query');
 
         $userIds = null;
         if ($pendingAuth) {
@@ -394,7 +401,8 @@ class AdminUsersController extends DoorController
                 $name,
                 $phone,
                 $email,
-                $id
+                $id,
+                $search
             );
 
         // get total count
@@ -415,7 +423,8 @@ class AdminUsersController extends DoorController
                 $name,
                 $phone,
                 $email,
-                $id
+                $id,
+                $search
             );
 
         foreach ($results as $user) {

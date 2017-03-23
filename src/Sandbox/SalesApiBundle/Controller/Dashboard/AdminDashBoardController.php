@@ -2,6 +2,7 @@
 
 namespace Sandbox\SalesApiBundle\Controller\Dashboard;
 
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sandbox\ApiBundle\Entity\Room\Room;
@@ -40,6 +41,22 @@ class AdminDashBoardController extends SalesRestController
      *    description=""
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    description="Filter by building"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="query",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    description=""
+     * )
+     *
      * @Route("/dashboard/rooms/usage")
      * @Method({"GET"})
      *
@@ -50,6 +67,7 @@ class AdminDashBoardController extends SalesRestController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
+        $this->checkAdminDashboardPermissions(AdminPermission::OP_LEVEL_VIEW);
 
         $adminPlatform = $this->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
@@ -57,6 +75,8 @@ class AdminDashBoardController extends SalesRestController
         $roomType = $paramFetcher->get('room_type');
         $startString = $paramFetcher->get('start');
         $endString = $paramFetcher->get('end');
+        $building = $paramFetcher->get('building');
+        $query = $paramFetcher->get('query');
 
         $start = new \DateTime($startString);
         $start->setTime(0, 0, 0);
@@ -67,7 +87,9 @@ class AdminDashBoardController extends SalesRestController
             ->getRepository('SandboxApiBundle:Product\Product')
             ->findProductIdsByRoomType(
                 $salesCompanyId,
-                $roomType
+                $roomType,
+                $building,
+                $query
             );
 
         $usages = array();
@@ -272,5 +294,20 @@ class AdminDashBoardController extends SalesRestController
         }
 
         return $result;
+    }
+
+    /**
+     * @param $opLevel
+     */
+    private function checkAdminDashboardPermissions(
+        $opLevel
+    ) {
+        $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->getAdminId(),
+            [
+                ['key' => AdminPermission::KEY_SALES_PLATFORM_DASHBOARD],
+            ],
+            $opLevel
+        );
     }
 }
