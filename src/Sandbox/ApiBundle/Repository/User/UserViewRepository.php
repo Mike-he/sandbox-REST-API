@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Repository\User;
 
 use Doctrine\ORM\EntityRepository;
+use Sandbox\ApiBundle\Entity\User\UserView;
 
 class UserViewRepository extends EntityRepository
 {
@@ -75,33 +76,61 @@ class UserViewRepository extends EntityRepository
     /**
      * @param $banned
      * @param $authorized
-     * @param $query
      * @param $sortBy
      * @param $direction
      * @param $offset
      * @param $limit
      * @param $userIds
+     * @param $bindCard
+     * @param $dateType
+     * @param $startDate
+     * @param $endDate
+     * @param $name
+     * @param $phone
+     * @param $email
+     * @param $id
      *
      * @return array
      */
     public function searchUser(
         $banned,
         $authorized,
-        $query,
         $sortBy,
         $direction,
         $offset,
         $limit,
-        $userIds
+        $userIds,
+        $bindCard,
+        $dateType,
+        $startDate,
+        $endDate,
+        $name,
+        $phone,
+        $email,
+        $id
     ) {
         $queryResults = $this->createQueryBuilder('u')
-            ->where('u.id LIKE :query')
-            ->orWhere('u.name LIKE :query')
-            ->orWhere('u.email LIKE :query')
-            ->orWhere('u.phone LIKE :query')
-            ->orWhere('u.cardNo LIKE :query')
-            ->orWhere('u.credentialNo LIKE :query')
-            ->setParameter('query', $query.'%');
+            ->where('u.id IS NOT NULL');
+
+        if (!is_null($name)) {
+            $queryResults->andWhere('u.name LIKE :name')
+                ->setParameter('name', $name.'%');
+        }
+
+        if (!is_null($phone)) {
+            $queryResults->andWhere('u.phone LIKE :phone')
+                ->setParameter('phone', $phone.'%');
+        }
+
+        if (!is_null($email)) {
+            $queryResults->andWhere('u.email LIKE :email')
+                ->setParameter('email', $email.'%');
+        }
+
+        if (!is_null($id)) {
+            $queryResults->andWhere('u.id LIKE :id')
+                ->setParameter('id', $id.'%');
+        }
 
         if (!is_null($offset) && !is_null($limit)) {
             $queryResults->setFirstResult($offset)
@@ -125,6 +154,29 @@ class UserViewRepository extends EntityRepository
         if (!is_null($userIds)) {
             $queryResults->andWhere('u.id IN (:userIds)')
                 ->setParameter('userIds', $userIds);
+        }
+
+        if (!is_null($bindCard)) {
+            $bindCard = (bool) $bindCard;
+
+            if ($bindCard) {
+                $queryResults->andWhere('u.cardNo IS NOT NULL');
+            } else {
+                $queryResults->andWhere('u.cardNo IS NULL');
+            }
+        }
+
+        // filter by user registration date
+        if (!is_null($dateType) && $dateType == UserView::DATE_TYPE_REGISTRATION) {
+            if (!is_null($startDate)) {
+                $queryResults->andWhere('u.userRegistrationDate >= :startDate')
+                    ->setParameter('startDate', $startDate);
+            }
+
+            if (!is_null($endDate)) {
+                $queryResults->andWhere('u.userRegistrationDate <= :endDate')
+                    ->setParameter('endDate', $endDate);
+            }
         }
 
         return $queryResults->getQuery()->getResult();
