@@ -12,7 +12,6 @@ class ProductRecommendPositionType extends AbstractType
     {
         $builder
             ->add('action')
-            ->add('building_id')
         ;
     }
 

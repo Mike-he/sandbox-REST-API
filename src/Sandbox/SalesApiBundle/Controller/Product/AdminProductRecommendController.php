@@ -392,7 +392,7 @@ class AdminProductRecommendController extends AdminProductController
         $position
     ) {
         $action = $position->getAction();
-        $buildingId = $position->getBuildingId();
+        $buildingId = $product->getRoom()->getBuildingId();
 
         $building = !is_null($buildingId) ? $this->getRepo('Room\RoomBuilding')->find($buildingId) : null;
 
