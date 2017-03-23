@@ -376,6 +376,9 @@ class AdminProductController extends ProductController
                     'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_RESERVE,
                     'building_id' => $buildingId,
                 ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_DASHBOARD,
+                ),
             ),
             AdminPermission::OP_LEVEL_VIEW
         );

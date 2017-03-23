@@ -179,6 +179,9 @@ class AdminUsersController extends DoorController
                 array(
                     'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_RESERVE,
                 ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_DASHBOARD,
+                ),
             ),
             AdminPermission::OP_LEVEL_VIEW
         );
