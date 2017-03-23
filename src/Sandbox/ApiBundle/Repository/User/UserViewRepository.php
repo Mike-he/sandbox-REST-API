@@ -119,8 +119,6 @@ class UserViewRepository extends EntityRepository
             $authorized,
             $sortBy,
             $direction,
-            $offset,
-            $limit,
             $userIds,
             $bindCard,
             $dateType,
@@ -132,6 +130,11 @@ class UserViewRepository extends EntityRepository
             $id
         );
 
+        if (!is_null($offset) && !is_null($limit)) {
+            $queryResults->setFirstResult($offset)
+                ->setMaxResults($limit);
+        }
+
         return $queryResults->getQuery()->getResult();
     }
 
@@ -141,8 +144,6 @@ class UserViewRepository extends EntityRepository
      * @param $authorized
      * @param $sortBy
      * @param $direction
-     * @param $offset
-     * @param $limit
      * @param $userIds
      * @param $bindCard
      * @param $dateType
@@ -159,8 +160,6 @@ class UserViewRepository extends EntityRepository
         $authorized,
         $sortBy,
         $direction,
-        $offset,
-        $limit,
         $userIds,
         $bindCard,
         $dateType,
@@ -189,11 +188,6 @@ class UserViewRepository extends EntityRepository
         if (!is_null($id)) {
             $queryResults->andWhere('u.id LIKE :id')
                 ->setParameter('id', $id.'%');
-        }
-
-        if (!is_null($offset) && !is_null($limit)) {
-            $queryResults->setFirstResult($offset)
-                ->setMaxResults($limit);
         }
 
         if (!is_null($banned)) {
@@ -302,8 +296,6 @@ class UserViewRepository extends EntityRepository
             $authorized,
             $sortBy,
             $direction,
-            $offset,
-            $limit,
             $userIds,
             $bindCard,
             $dateType,
@@ -425,8 +417,6 @@ class UserViewRepository extends EntityRepository
             $sortBy,
             $direction,
             $userIds,
-            $offset,
-            $pageLimit,
             $bindCard
         );
 
@@ -441,8 +431,6 @@ class UserViewRepository extends EntityRepository
      * @param $sortBy
      * @param $direction
      * @param $userIds
-     * @param $offset
-     * @param $pageLimit
      * @param $bindCard
      */
     private function searchUsersForSales(
@@ -453,8 +441,6 @@ class UserViewRepository extends EntityRepository
         $sortBy,
         $direction,
         $userIds,
-        $offset,
-        $pageLimit,
         $bindCard
     ) {
         // filters by query
@@ -528,8 +514,6 @@ class UserViewRepository extends EntityRepository
             $sortBy,
             $direction,
             $userIds,
-            $offset,
-            $pageLimit,
             $bindCard
         );
 
