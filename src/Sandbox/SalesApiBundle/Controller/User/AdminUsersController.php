@@ -6,6 +6,7 @@ use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesUser;
+use Sandbox\ApiBundle\Entity\User\UserView;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -118,6 +119,36 @@ class AdminUsersController extends DoorController
      *    description="sort direction"
      * )
      *
+     * @Annotations\QueryParam(
+     *     name="card",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="startDate",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="endDate",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="name",
+     *    default=null,
+     *    description="search query"
+     * )
+     *
      * @Route("/users/search")
      * @Method({"GET"})
      *
@@ -157,38 +188,39 @@ class AdminUsersController extends DoorController
         $offset = ($pageIndex - 1) * $pageLimit;
         $banned = $paramFetcher->get('banned');
         $authorized = $paramFetcher->get('authorized');
-        $query = $paramFetcher->get('query');
         $sortBy = $paramFetcher->get('sortBy');
         $direction = $paramFetcher->get('direction');
-
-        // Another better way to search the users by query, but it needs to find out the bug and fix it yet
-//        // find all users who have the query in any of their mapped fields
-//        $finder = $this->container->get('fos_elastica.finder.search.user');
-
-//        $multiMatchQuery = new \Elastica\Query\MultiMatch();
-
-//        $multiMatchQuery->setQuery($query);
-//        $multiMatchQuery->setType('phrase_prefix');
-//        $multiMatchQuery->setFields(array('email', 'phone'));
-
-//        $results = $finder->createPaginatorAdapter($multiMatchQuery);
-
-//        $paginator = $this->get('knp_paginator');
+        $bindCard = $paramFetcher->get('card');
+        $dateType = UserView::DATE_TYPE_BIND_CARD;
+        $startDate = $paramFetcher->get('startDate');
+        $endDate = $paramFetcher->get('endDate');
+        $name = $paramFetcher->get('name');
 
         // get sales users
         $userIds = $this->getMySalesUserIds();
+
+        if (!is_null($dateType)) {
+            $bindCardUserIds = $this->getUserIdByDate(
+                $dateType,
+                $startDate,
+                $endDate
+            );
+
+            $userIds = array_intersect($userIds, $bindCardUserIds);
+        }
 
         $results = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserView')
             ->searchSalesUser(
                 $banned,
                 $authorized,
-                $query,
+                $name,
                 $sortBy,
                 $direction,
                 $userIds,
                 $offset,
-                $pageLimit
+                $pageLimit,
+                $bindCard
             );
 
         // get total count
@@ -197,8 +229,13 @@ class AdminUsersController extends DoorController
             ->countSalesUsers(
                 $banned,
                 $authorized,
-                $query,
-                $userIds
+                $name,
+                $sortBy,
+                $direction,
+                $userIds,
+                $offset,
+                $pageLimit,
+                $bindCard
             );
 
         return new View(array(
