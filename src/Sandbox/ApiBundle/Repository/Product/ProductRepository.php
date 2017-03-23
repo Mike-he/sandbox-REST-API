@@ -721,7 +721,7 @@ class ProductRepository extends EntityRepository
         $building = null
     ) {
         $queryStr = 'SELECT p FROM SandboxApiBundle:Product\Product p';
-        $queryStr = $queryStr.' LEFT JOIN Room r WITH p.roomId = r.id';
+        $queryStr = $queryStr.' LEFT JOIN SandboxApiBundle:Room\Room r WITH p.roomId = r.id';
 
         // operator
         $operator = '>';
@@ -759,7 +759,7 @@ class ProductRepository extends EntityRepository
 
         $query->setMaxResults(1);
 
-        return $query->getSingleResult();
+        return $query->getOneOrNullResult();
     }
 
     /**
