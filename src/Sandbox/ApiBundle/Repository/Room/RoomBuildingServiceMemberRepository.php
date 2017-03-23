@@ -12,17 +12,13 @@ class RoomBuildingServiceMemberRepository extends EntityRepository
      *
      * @return array
      */
-    public function getServiceMembersByCompany(
-        $companyId,
-        $userId
+    public function getServicesByBuilding(
+        $buildingId
     ) {
         $query = $this->createQueryBuilder('s')
-            ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'b.id = s.buildingId')
-            ->select('s.buildingId')
-            ->where('b.companyId = :companyId')
-            ->andWhere('s.userId = :userId')
-            ->setParameter('companyId', $companyId)
-            ->setParameter('userId', $userId);
+            ->select('DISTINCT s.tag')
+            ->where('s.buildingId = :buildingId')
+            ->setParameter('buildingId', $buildingId);
 
         return $query->getQuery()->getScalarResult();
     }

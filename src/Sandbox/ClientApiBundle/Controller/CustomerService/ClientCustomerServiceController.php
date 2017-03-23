@@ -14,6 +14,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use FOS\RestBundle\Request\ParamFetcherInterface;
+use FOS\RestBundle\Controller\Annotations;
 
 /**
  * Client Customer Service Controller.
@@ -161,5 +163,44 @@ class ClientCustomerServiceController extends ChatGroupController
         ));
 
         return $view;
+    }
+
+    /**
+     *
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    default=null,
+     *    nullable=false,
+     *    description="building id"
+     * )
+     *
+     * @Route("/customerservice/status")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function checkCustomerServiceStatusAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $myUserId = $this->getUserId();
+        $myUser = $this->getRepo('User\User')->find($myUserId);
+
+        // check banned
+        if ($myUser->isBanned()) {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        }
+
+        $buildingId = $paramFetcher->get('building');
+        
+        // get customer services
+        $customerServices = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomBuildingServiceMember')
+            ->getServicesByBuilding($buildingId);
+
+        return new View($customerServices);
     }
 }
