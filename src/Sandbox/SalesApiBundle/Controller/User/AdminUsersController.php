@@ -191,7 +191,6 @@ class AdminUsersController extends DoorController
         $sortBy = $paramFetcher->get('sortBy');
         $direction = $paramFetcher->get('direction');
         $bindCard = $paramFetcher->get('card');
-        $dateType = UserView::DATE_TYPE_BIND_CARD;
         $startDate = $paramFetcher->get('startDate');
         $endDate = $paramFetcher->get('endDate');
         $name = $paramFetcher->get('name');
@@ -199,7 +198,9 @@ class AdminUsersController extends DoorController
         // get sales users
         $userIds = $this->getMySalesUserIds();
 
-        if (!is_null($dateType)) {
+        if (!is_null($startDate) || !is_null($endDate)) {
+            $dateType = UserView::DATE_TYPE_BIND_CARD;
+
             $bindCardUserIds = $this->getUserIdByDate(
                 $dateType,
                 $startDate,
