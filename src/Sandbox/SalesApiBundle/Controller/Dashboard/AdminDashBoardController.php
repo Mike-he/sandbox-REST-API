@@ -44,14 +44,16 @@ class AdminDashBoardController extends SalesRestController
      * @Annotations\QueryParam(
      *    name="building",
      *    array=false,
-     *    nullable=false,
+     *    default=null,
+     *    nullable=true,
      *    description="Filter by building"
      * )
      *
      * @Annotations\QueryParam(
      *    name="query",
      *    array=false,
-     *    nullable=false,
+     *    default=null,
+     *    nullable=true,
      *    description=""
      * )
      *
