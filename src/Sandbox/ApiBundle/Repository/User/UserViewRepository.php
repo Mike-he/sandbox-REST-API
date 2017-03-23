@@ -425,6 +425,7 @@ class UserViewRepository extends EntityRepository
         $query
     ) {
         $queryResults = $this->createQueryBuilder('u')
+            ->where('u.id IS NOT NULL')
             ->setFirstResult($offset)
             ->setMaxResults($pageLimit);
 
@@ -478,10 +479,10 @@ class UserViewRepository extends EntityRepository
 
         // filters by query
         if (is_null($name)) {
-            $queryResults->where('u.id IN (:ids)');
+            $queryResults->andWhere('u.id IN (:ids)');
             $queryResults->setParameter('ids', $userIds);
         } else {
-            $queryResults->where('u.name = :name')
+            $queryResults->andWhere('u.name = :name')
                 ->setParameter('name', $name);
         }
 
