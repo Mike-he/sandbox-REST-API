@@ -90,6 +90,7 @@ class UserViewRepository extends EntityRepository
      * @param $phone
      * @param $email
      * @param $id
+     * @param $search
      *
      * @return array
      */
@@ -108,7 +109,8 @@ class UserViewRepository extends EntityRepository
         $name,
         $phone,
         $email,
-        $id
+        $id,
+        $search
     ) {
         $queryResults = $this->createQueryBuilder('u')
             ->where('u.id IS NOT NULL');
@@ -127,7 +129,8 @@ class UserViewRepository extends EntityRepository
             $name,
             $phone,
             $email,
-            $id
+            $id,
+            $search
         );
 
         if (!is_null($offset) && !is_null($limit)) {
@@ -168,8 +171,21 @@ class UserViewRepository extends EntityRepository
         $name,
         $phone,
         $email,
-        $id
+        $id,
+        $search
     ) {
+        if (!is_null($search)) {
+            $queryResults->andWhere('(
+                    u.id LIKE :search
+                    OR u.name LIKE :search
+                    OR u.phone LIKE :search
+                    OR u.email LIKE :search
+                    OR u.cardNo LIKE :search
+                    OR u.credentialNo LIKE :search
+                )')
+                ->setParameter('search', $search.'%');
+        }
+
         if (!is_null($name)) {
             $queryResults->andWhere('u.name LIKE :name')
                 ->setParameter('name', $name.'%');
@@ -284,7 +300,8 @@ class UserViewRepository extends EntityRepository
         $name,
         $phone,
         $email,
-        $id
+        $id,
+        $search
     ) {
         $queryResults = $this->createQueryBuilder('u')
             ->select('COUNT(u)')
@@ -304,7 +321,8 @@ class UserViewRepository extends EntityRepository
             $name,
             $phone,
             $email,
-            $id
+            $id,
+            $search
         );
 
         return (int) $queryResults->getQuery()->getSingleScalarResult();
@@ -403,7 +421,8 @@ class UserViewRepository extends EntityRepository
         $userIds,
         $offset,
         $pageLimit,
-        $bindCard
+        $bindCard,
+        $query
     ) {
         $queryResults = $this->createQueryBuilder('u')
             ->setFirstResult($offset)
@@ -417,7 +436,8 @@ class UserViewRepository extends EntityRepository
             $sortBy,
             $direction,
             $userIds,
-            $bindCard
+            $bindCard,
+            $query
         );
 
         return $queryResults->getQuery()->getResult();
@@ -441,8 +461,21 @@ class UserViewRepository extends EntityRepository
         $sortBy,
         $direction,
         $userIds,
-        $bindCard
+        $bindCard,
+        $search
     ) {
+        if (!is_null($search)) {
+            $queryResults->andWhere('(
+                    u.id LIKE :search
+                    OR u.name LIKE :search
+                    OR u.phone LIKE :search
+                    OR u.email LIKE :search
+                    OR u.cardNo LIKE :search
+                    OR u.credentialNo LIKE :search
+                )')
+                ->setParameter('search', $search.'%');
+        }
+
         // filters by query
         if (is_null($name)) {
             $queryResults->where('u.id IN (:ids)');
@@ -501,7 +534,8 @@ class UserViewRepository extends EntityRepository
         $userIds,
         $offset,
         $pageLimit,
-        $bindCard
+        $bindCard,
+        $query
     ) {
         $queryResults = $this->createQueryBuilder('u')
             ->select('COUNT(u)');
@@ -514,7 +548,8 @@ class UserViewRepository extends EntityRepository
             $sortBy,
             $direction,
             $userIds,
-            $bindCard
+            $bindCard,
+            $query
         );
 
         return (int) $queryResults->getQuery()->getSingleScalarResult();
