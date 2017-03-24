@@ -105,6 +105,11 @@ class ClientCustomerServiceController extends ChatGroupController
         $members = [$myUser];
         foreach ($customerServices as $customerService) {
             $memberId = $customerService->getUserId();
+
+            if ($memberId == $myUserId) {
+                continue;
+            }
+
             $member = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:User\User')
                 ->findOneBy([
