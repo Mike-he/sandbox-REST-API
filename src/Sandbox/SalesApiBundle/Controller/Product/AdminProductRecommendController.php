@@ -20,6 +20,7 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 /**
  * Admin product recommend controller.
@@ -338,6 +339,7 @@ class AdminProductRecommendController extends AdminProductController
         $recommend
     ) {
         $products = [];
+        $buildings = [];
         foreach ($productIds as $productId) {
             $product = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Product\Product')
@@ -363,15 +365,38 @@ class AdminProductRecommendController extends AdminProductController
                 AdminPermission::OP_LEVEL_EDIT
             );
 
-            $product->setSalesRecommend($recommend);
-
             if ($recommend) {
+                if ($product->isSalesRecommend()) {
+                    continue;
+                }
+
                 $product->setSalesSortTime(round(microtime(true) * 1000));
+
+                if (!array_key_exists($buildingId, $buildings)) {
+                    $buildings["$buildingId"] = 1;
+                } else {
+                    $buildings["$buildingId"] += 1;
+                }
             } else {
                 $product->setSalesSortTime(null);
             }
 
+            $product->setSalesRecommend($recommend);
             array_push($products, $product);
+        }
+
+        foreach ($buildings as $key => $val) {
+            $existCount = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\Room')
+                ->countRecommendedSpaces(
+                    $key,
+                    true
+                );
+
+            $finalCount = $existCount + $val;
+            if ($finalCount > Product::SALES_RECOMMEND_LIMIT) {
+                throw new ConflictHttpException();
+            }
         }
 
         // save

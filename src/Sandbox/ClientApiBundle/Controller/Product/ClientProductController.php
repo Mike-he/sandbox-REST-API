@@ -125,6 +125,15 @@ class ClientProductController extends ProductController
      *    description="coordinate lng"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="sales_recommend",
+     *    array=false,
+     *    default=false,
+     *    nullable=true,
+     *    strict=true,
+     *    description="sales recommend"
+     * )
+     *
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
@@ -152,6 +161,7 @@ class ClientProductController extends ProductController
         $excludeIds = $paramFetcher->get('exclude_company_id');
         $lat = $paramFetcher->get('lat');
         $lng = $paramFetcher->get('lng');
+        $recommend = $paramFetcher->get('sales_recommend');
 
         $startTime = null;
         $endTime = null;
@@ -240,7 +250,8 @@ class ClientProductController extends ProductController
                     $userId,
                     $limit,
                     $offset,
-                    $includeIds
+                    $includeIds,
+                    $recommend
                 );
         } else {
             $products = $this->getRepo('Product\Product')->productSortByNearestBuilding(

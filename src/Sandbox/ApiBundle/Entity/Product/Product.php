@@ -20,6 +20,7 @@ class Product
     const OFF_SALE = '0';
     const ON_SALE = '1';
     const READY_SALE = '2';
+    const SALES_RECOMMEND_LIMIT = 5;
 
     const UNIT_HOUR = 'hour';
     const UNIT_DAY = 'day';

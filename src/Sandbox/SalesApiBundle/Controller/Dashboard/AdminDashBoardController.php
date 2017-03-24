@@ -109,6 +109,46 @@ class AdminDashBoardController extends SalesRestController
     }
 
     /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/dashboard/buildings")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getBuildingsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $this->checkAdminDashboardPermissions(AdminPermission::OP_LEVEL_VIEW);
+
+        $adminPlatform = $this->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
+        $buildings = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                ->getLocationRoomBuildings(
+                    null,
+                    null,
+                    $salesCompanyId
+                );
+
+        $result = array();
+        foreach ($buildings as $building) {
+            $result[] = array(
+                'id' => $building->getId(),
+                'name' => $building->getName(),
+            );
+        }
+
+        $view = new View();
+        $view->setData($result);
+
+        return $view;
+    }
+
+    /**
      * @param $product
      * @param $roomType
      * @param $start
