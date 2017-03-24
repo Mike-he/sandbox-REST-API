@@ -984,6 +984,10 @@ class Lease
                     'id' => $this->product->getRoom()->getBuilding()->getId(),
                     'name' => $this->product->getRoom()->getBuilding()->getName(),
                     'address' => $this->product->getRoom()->getBuilding()->getAddress(),
+                    'company' => [
+                        'id' => $this->product->getRoom()->getBuilding()->getCompanyId(),
+                        'name' => $this->product->getRoom()->getBuilding()->getCompany()->getName(),
+                    ],
                 ],
                 'city' => $this->product->getRoom()->getBuilding()->getCity()->getName(),
                 'attachment' => $this->product->getRoom()->degenerateAttachment(),
