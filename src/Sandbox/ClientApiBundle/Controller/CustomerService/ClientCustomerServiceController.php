@@ -166,8 +166,7 @@ class ClientCustomerServiceController extends ChatGroupController
     }
 
     /**
-     *
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -195,7 +194,7 @@ class ClientCustomerServiceController extends ChatGroupController
         }
 
         $buildingId = $paramFetcher->get('building');
-        
+
         // get customer services
         $customerServices = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\RoomBuildingServiceMember')

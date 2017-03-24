@@ -1210,7 +1210,8 @@ class ProductRepository extends EntityRepository
         $userId,
         $limit,
         $offset,
-        $includeIds
+        $includeIds,
+        $recommend
     ) {
         $query = $this->createQueryBuilder('p')
             ->select('DISTINCT p')
@@ -1219,13 +1220,19 @@ class ProductRepository extends EntityRepository
             ->andWhere('p.isDeleted = FALSE')
             ->setMaxResults($limit)
             ->setFirstResult($offset)
-            ->orderBy('p.recommend', 'DESC')
-            ->addOrderBy('p.creationDate', 'DESC')
         ;
 
         if (!is_null($buildingId)) {
             $query->andWhere('r.buildingId = :buildingId')
                 ->setParameter('buildingId', $buildingId);
+        }
+
+        if ($recommend) {
+            $query->andWhere('p.salesRecommend = TRUE')
+                ->orderBy('p.salesSortTime', 'DESC');
+        } else {
+            $query->orderBy('p.recommend', 'DESC')
+                ->addOrderBy('p.creationDate', 'DESC');
         }
 
         if (!is_null($includeIds) && !empty($includeIds)) {
