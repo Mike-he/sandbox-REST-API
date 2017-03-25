@@ -60,8 +60,7 @@ class AdminAuthController extends AuthController
             }
         }
 
-        $condition = $this->get('sandbox_api.admin_permission_check_service')
-            ->hasSuperAdminPosition(
+        $condition = $this->hasSuperAdminPosition(
             $adminId,
             $platform,
             $salesCompanyId

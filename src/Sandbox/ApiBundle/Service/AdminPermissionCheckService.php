@@ -13,10 +13,12 @@ use Symfony\Component\Finder\Exception\AccessDeniedException;
 class AdminPermissionCheckService
 {
     private $container;
+    private $doctrine;
 
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
+        $this->doctrine = $container->get('doctrine');
     }
 
     public function checkPermissions(
