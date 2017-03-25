@@ -4,7 +4,6 @@ namespace Sandbox\AdminShopApiBundle\Controller\Location;
 
 use Sandbox\AdminShopApiBundle\Controller\ShopRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Sandbox\ApiBundle\Entity\Admin\AdminPosition;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations;
@@ -51,23 +50,11 @@ class AdminLocationController extends ShopRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $user = $this->getUser();
-
         $permissionArray = $paramFetcher->get('permission');
 
-        $adminPlatform = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Admin\AdminPlatform')
-            ->findOneBy(array(
-                'userId' => $user->getUserId(),
-                'clientId' => $user->getClientId(),
-            ));
-
-        if (!$adminPlatform || $adminPlatform->getPlatform() != AdminPosition::PLATFORM_SHOP) {
-            return new View();
-        }
-
-        $platform = $adminPlatform->getPlatform();
-        $salesCompanyId = $adminPlatform->getSalesCompanyId();
+        $adminPlatform = $this->getAdminPlatform();
+        $platform = $adminPlatform['platform'];
+        $salesCompanyId = $adminPlatform['sales_company_id'];
 
         $isSuperAdmin = $this->hasSuperAdminPosition(
             $this->getAdminId(),
@@ -140,28 +127,16 @@ class AdminLocationController extends ShopRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $user = $this->getUser();
-
         $cityId = $paramFetcher->get('city');
         $permissionArray = $paramFetcher->get('permission');
 
-        $adminPlatform = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Admin\AdminPlatform')
-            ->findOneBy(array(
-                'userId' => $user->getUserId(),
-                'clientId' => $user->getClientId(),
-            ));
-
-        if (!$adminPlatform || $adminPlatform->getPlatform() != AdminPosition::PLATFORM_SHOP) {
-            return new View();
-        }
-
-        $myPlatform = $adminPlatform->getPlatform();
-        $salesCompanyId = $adminPlatform->getSalesCompanyId();
+        $adminPlatform = $this->getAdminPlatform();
+        $platform = $adminPlatform['platform'];
+        $salesCompanyId = $adminPlatform['sales_company_id'];
 
         $isSuperAdmin = $this->hasSuperAdminPosition(
             $this->getAdminId(),
-            $myPlatform,
+            $platform,
             $salesCompanyId
         );
 
