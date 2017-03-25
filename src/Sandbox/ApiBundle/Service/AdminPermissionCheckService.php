@@ -135,7 +135,7 @@ class AdminPermissionCheckService
         $platform,
         $salesCompanyId = null
     ) {
-        $superAdminPositionBindings = $this->getDoctrine()
+        $superAdminPositionBindings = $this->doctrine
             ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
             ->getPositionBindingsByIsSuperAdmin(
                 $adminId,
