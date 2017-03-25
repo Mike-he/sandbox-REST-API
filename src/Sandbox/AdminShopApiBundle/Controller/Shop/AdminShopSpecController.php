@@ -597,7 +597,7 @@ class AdminShopSpecController extends SpecController
      */
     private function getCompanyId()
     {
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
 
         return $adminPlatform['sales_company_id'];
     }

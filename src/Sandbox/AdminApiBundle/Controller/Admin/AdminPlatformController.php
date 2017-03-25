@@ -33,7 +33,7 @@ class AdminPlatformController extends AdminRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
 
         return new View($adminPlatform);
     }

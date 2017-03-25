@@ -5,11 +5,14 @@ namespace Sandbox\SalesApiBundle\Controller\ChatGroup;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Controller\ChatGroup\ChatGroupController;
 use Sandbox\ApiBundle\Entity\ChatGroup\ChatGroup;
+use Sandbox\ApiBundle\Entity\ChatGroup\ChatGroupMember;
+use Sandbox\ApiBundle\Form\ChatGroup\ChatGroupType;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\Controller\Annotations;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Admin Chat Group Controller.
@@ -45,7 +48,7 @@ class AdminChatGroupController extends ChatGroupController
             ]);
         $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
 
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $companyId = $adminPlatform['sales_company_id'];
 
         $myServices = $this->getDoctrine()
@@ -155,7 +158,7 @@ class AdminChatGroupController extends ChatGroupController
             ]);
         $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
 
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $companyId = $adminPlatform['sales_company_id'];
         $search = $paramFetcher->get('search');
 
@@ -196,7 +199,7 @@ class AdminChatGroupController extends ChatGroupController
             ]);
         $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
 
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $companyId = $adminPlatform['sales_company_id'];
 
         // get chat group
@@ -218,5 +221,203 @@ class AdminChatGroupController extends ChatGroupController
         $chatGroup['group_members'] = $members;
 
         return new View($chatGroup);
+    }
+
+    /**
+     * create chat group.
+     *
+     * @param Request $request the request object
+     *
+     * @Route("/chatgroups")
+     * @Method({"POST"})
+     *
+     * @return View
+     */
+    public function createChatGroupAction(
+        Request $request
+    ) {
+        $userId = $this->getUserId();
+        $user = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\User')
+            ->findOneBy([
+                'id' => $userId,
+                'banned' => false,
+            ]);
+        $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
+
+        $adminPlatform = $this->getAdminPlatform();
+        $companyId = $adminPlatform['sales_company_id'];
+
+        $chatGroup = new ChatGroup();
+        $form = $this->createForm(new ChatGroupType(), $chatGroup);
+        $form->handleRequest($request);
+
+        if (!$form->isValid()) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $buildingId = $chatGroup->getBuildingId();
+
+        // find building
+        $building = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+            ->find($buildingId);
+        $this->throwNotFoundIfNull($building, self::NOT_FOUND_MESSAGE);
+
+        // find user as creator
+        $creatorId = $chatGroup->getCreatorId();
+
+        if ($userId == $creatorId) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $creator = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\User')
+            ->findOneBy([
+                'id' => $creatorId,
+                'banned' => false,
+            ]);
+        $this->throwNotFoundIfNull($creator, self::NOT_FOUND_MESSAGE);
+
+        // check if admin is service member
+        $member = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomBuildingServiceMember')
+            ->findOneBy([
+                'userId' => $userId,
+                'buildingId' => $buildingId,
+                'tag' => $chatGroup->getTag(),
+            ]);
+        $this->throwAccessDeniedIfNull($member);
+
+        // check if chat group already exist
+        $existGroup = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:ChatGroup\ChatGroup')
+            ->findOneBy([
+                'creator' => $creator,
+                'buildingId' => $buildingId,
+                'tag' => $chatGroup->getTag(),
+            ]);
+        if (!is_null($existGroup)) {
+            return new View([
+                    'id' => $existGroup->getId(),
+                    'name' => $existGroup->getName(),
+                ]);
+        }
+
+        // set new chat group
+        $chatGroup->setCompanyId($companyId);
+        $chatGroup->setCreator($creator);
+        $chatGroup->setName($building->getName());
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($chatGroup);
+
+        // set members
+        $members = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomBuildingServiceMember')
+            ->findBy([
+                'buildingId' => $buildingId,
+                'tag' => $chatGroup->getTag(),
+            ]);
+
+        $finalMembers = [$creator];
+        foreach ($members as $member) {
+            $user = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\User')
+                ->findOneBy([
+                    'id' => $member->getUserId(),
+                    'banned' => false,
+                ]);
+            if (is_null($user)) {
+                continue;
+            }
+
+            if ($member->getUserId() == $creatorId) {
+                continue;
+            }
+
+            $finalMembers[] = $user;
+        }
+
+        foreach ($finalMembers as $finalMember) {
+            $newMember = new ChatGroupMember();
+            $newMember->setAddBy($creator);
+            $newMember->setUser($finalMember);
+            $newMember->setChatGroup($chatGroup);
+
+            $em->persist($newMember);
+        }
+
+        $em->flush();
+
+        // create chat group in Openfire
+        $this->createXmppChatGroup(
+            $chatGroup,
+            $chatGroup->getTag()
+        );
+
+        // response
+        $view = new View();
+        $view->setStatusCode(201);
+        $view->setData(array(
+            'id' => $chatGroup->getId(),
+            'name' => $chatGroup->getName(),
+        ));
+
+        return $view;
+    }
+
+    /**
+     * List buildings of my services.
+     *
+     * @param Request $request the request object
+     *
+     * @Route("/chatgroups/service/my")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getMyServicesAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $userId = $this->getUserId();
+        $user = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\User')
+            ->findOneBy([
+                'id' => $userId,
+                'banned' => false,
+            ]);
+        $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
+
+        $adminPlatform = $this->getAdminPlatform();
+        $companyId = $adminPlatform['sales_company_id'];
+
+        $services = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomBuildingServiceMember')
+            ->findBy(['userId' => $userId]);
+
+        $myServices = [];
+        foreach ($services as $service) {
+            $buildingId = $service->getBuildingId();
+            $tag = $service->getTag();
+
+            $building = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                ->find($buildingId);
+
+            if (is_null($building) || $companyId !== $building->getCompanyId()) {
+                continue;
+            }
+
+            if (!array_key_exists($tag, $myServices)) {
+                $myServices[$tag] = [$buildingId];
+            } else {
+                array_push($myServices[$tag], $buildingId);
+            }
+        }
+
+        // response
+        return new View($myServices);
     }
 }

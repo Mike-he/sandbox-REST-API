@@ -231,7 +231,7 @@ class AdminLeaseBillController extends SalesRestController
             AdminPermission::OP_LEVEL_VIEW
         );
 
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $company = $adminPlatform['sales_company_id'];
         $this->throwNotFoundIfNull($company, CustomErrorMessagesConstants::ERROR_SALES_COMPANY_NOT_FOUND_MESSAGE);
 
@@ -683,7 +683,7 @@ class AdminLeaseBillController extends SalesRestController
     ) {
         // check user permission
 
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $company = $adminPlatform['sales_company_id'];
 
         $bills = $this->getDoctrine()

@@ -28,7 +28,7 @@ class AdminRoomTypeController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $platform = $adminPlatform['platform'];
 
         if ($platform != AdminPermission::PERMISSION_PLATFORM_SALES) {

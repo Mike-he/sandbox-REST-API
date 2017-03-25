@@ -1,7 +1,7 @@
-parameters:
-#    sandbox_api.example.class: Sandbox\ApiBundle\Example
-
 services:
-#    sandbox_api.example:
-#        class: %sandbox_api.example.class%
-#        arguments: [@service_id, "plain_value", %parameter%]
+    sandbox_api.admin_permission_check_service:
+        class: Sandbox\ApiBundle\Service\AdminPermissionCheckService
+        arguments: ['@service_container']
+    sandbox_api.admin_platform:
+        class: Sandbox\ApiBundle\Service\AdminPlatformService
+        arguments: ['@service_container', '@security.token_storage']

@@ -41,7 +41,7 @@ class LogController extends SandboxRestController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
 
         $log->setPlatform($adminPlatform['platform']);
         $log->setAdminUsername($adminId);

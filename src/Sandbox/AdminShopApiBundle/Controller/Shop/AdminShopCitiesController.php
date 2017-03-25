@@ -38,7 +38,7 @@ class AdminShopCitiesController extends ShopRestController
         );
 
         // get my company
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $myCompany = $adminPlatform['sales_company_id'];
 
         // get my buildings

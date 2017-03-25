@@ -157,7 +157,7 @@ class AdminAuthController extends AuthController
     ) {
         $adminId = $this->getAdminId();
 
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
         $platform = $adminPlatform['platform'];
 

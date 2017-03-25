@@ -69,7 +69,7 @@ class AdminDashBoardController extends SalesRestController
         // check user permission
         $this->checkAdminDashboardPermissions(AdminPermission::OP_LEVEL_VIEW);
 
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
         $roomType = $paramFetcher->get('room_type');
@@ -123,7 +123,7 @@ class AdminDashBoardController extends SalesRestController
     ) {
         $this->checkAdminDashboardPermissions(AdminPermission::OP_LEVEL_VIEW);
 
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
         $buildings = $this->getDoctrine()
