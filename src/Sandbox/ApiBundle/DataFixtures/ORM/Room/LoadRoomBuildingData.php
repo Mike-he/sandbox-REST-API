@@ -141,6 +141,7 @@ class LoadRoomBuildingData extends AbstractFixture implements OrderedFixtureInte
         $rb4->setLessorPhone('12345678');
         $rb4->setLessorContact('sandbox');
         $rb4->setLessorEmail('account@sandbox3.cn');
+        $this->addReference('room-building-4', $rb4);
 
         $rb5 = new RoomBuilding();
         $rb5->setCity($this->getReference('shanghai'));
