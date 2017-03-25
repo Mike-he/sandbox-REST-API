@@ -12,6 +12,9 @@ class ChatGroupType extends AbstractType
     {
         $builder
             ->add('name')
+            ->add('creatorId')
+            ->add('buildingId')
+            ->add('tag')
         ;
     }
 
