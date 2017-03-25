@@ -24,6 +24,106 @@ use FOS\RestBundle\Controller\Annotations;
 class AdminChatGroupController extends ChatGroupController
 {
     /**
+     * Retrieve all other service members by sales company.
+     *
+     * @param Request $request the request object
+     *
+     * @Route("/chatgroups/service/members")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getServiceMembersAction(
+        Request $request
+    ) {
+        $userId = $this->getUserId();
+        $user = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\User')
+            ->findOneBy([
+                'id' => $userId,
+                'banned' => false,
+            ]);
+        $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
+
+        $adminPlatform = $this->getAdminPlatform();
+        $companyId = $adminPlatform['sales_company_id'];
+
+        $myServices = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomBuildingServiceMember')
+            ->findBy(['userId' => $userId]);
+
+        $buildings = [];
+        foreach ($myServices as $myService) {
+            $tag = $myService->getTag();
+            $buildingId = $myService->getBuildingId();
+
+            $building = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                ->findOneBy([
+                    'id' => $buildingId,
+                    'companyId' => $companyId,
+                ]);
+
+            if (is_null($building)) {
+                continue;
+            }
+
+            array_push($buildings, ['building_id' => $buildingId, 'tag' => $tag]);
+        }
+
+        $memberArray = [];
+        foreach ($buildings as $building) {
+            $members = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomBuildingServiceMember')
+                ->findBy([
+                    'buildingId' => $building['building_id'],
+                    'tag' => $building['tag'],
+                ]);
+
+            foreach ($members as $member) {
+                array_push($memberArray, $member->getUserId());
+            }
+        }
+
+        $memberArray = array_unique($memberArray, SORT_REGULAR);
+
+        $finalMembers = [];
+        foreach ($memberArray as $item) {
+            $user = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\User')
+                ->findOneBy([
+                    'id' => $item,
+                    'banned' => false,
+                ]);
+
+            if (is_null($user)) {
+                continue;
+            }
+
+            $profile = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserProfile')
+                ->findOneBy(['userId' => $item]);
+
+            $name = '';
+            if (!is_null($profile)) {
+                $name = $profile->getName();
+            }
+
+            $xmpp = $user->getXmppUsername();
+            array_push(
+                $finalMembers,
+                [
+                    'user_id' => $item,
+                    'xmpp_user' => $xmpp,
+                    'username' => $name,
+                ]
+            );
+        }
+
+        return new View($finalMembers);
+    }
+
+    /**
      * List my chat groups.
      *
      * @param Request $request the request object
