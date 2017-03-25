@@ -85,13 +85,14 @@ class ChatGroupRepository extends EntityRepository
                 g.tag,
                 g.buildingId,
                 g.creatorId,
-                up.name as creator_name
+                up.name as creator_name,
+                u.xmppUsername as creator_xmppUsername
             ')
-            ->leftJoin('SandboxApiBundle:Room\RoomBuildingServiceMember', 'm', 'WITH', 'm.buildingId = g.buildingId')
+            ->leftJoin('SandboxApiBundle:ChatGroup\ChatGroupMember', 'm', 'WITH', 'g.id = m.chatGroup')
             ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'u.id = g.creatorId')
             ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'u.id = up.userId')
             ->where('g.companyId = :companyId')
-            ->andWhere('m.userId = :userId')
+            ->andWhere('m.user = :userId')
             ->andWhere('u.email LIKE :search OR u.phone LIKE :search OR up.name LIKE :search')
             ->setParameter('companyId', $companyId)
             ->setParameter('search', "%$search%")
@@ -124,12 +125,12 @@ class ChatGroupRepository extends EntityRepository
                 g.creatorId,
                 up.name as creator_name
             ')
-            ->leftJoin('SandboxApiBundle:Room\RoomBuildingServiceMember', 'm', 'WITH', 'm.buildingId = g.buildingId')
+            ->leftJoin('SandboxApiBundle:ChatGroup\ChatGroupMember', 'm', 'WITH', 'g.id = m.chatGroup')
             ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'u.id = g.creatorId')
             ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'u.id = up.userId')
             ->where('g.id = :id')
             ->andWhere('g.companyId = :companyId')
-            ->andWhere('m.userId = :userId')
+            ->andWhere('m.user = :userId')
             ->setParameter('companyId', $companyId)
             ->setParameter('id', $id)
             ->setParameter('userId', $userId);
