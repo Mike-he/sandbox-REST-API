@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Service;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpKernel\Exception\PreconditionFailedHttpException;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
 
 /**
@@ -11,6 +12,8 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
  */
 class AdminPlatformService
 {
+    const PRECONDITION_NOT_SET = 'The precondition not set';
+
     private $container;
     private $user;
 

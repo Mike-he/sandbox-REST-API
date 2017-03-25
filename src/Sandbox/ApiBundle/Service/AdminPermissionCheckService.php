@@ -2,6 +2,7 @@
 
 namespace Sandbox\ApiBundle\Service;
 
+use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
@@ -12,13 +13,18 @@ use Symfony\Component\Finder\Exception\AccessDeniedException;
  */
 class AdminPermissionCheckService
 {
+    const NOT_ALLOWED_MESSAGE = 'You are not allowed to perform this action';
+
     private $container;
     private $doctrine;
+    private $user;
 
-    public function __construct(ContainerInterface $container)
-    {
+    public function __construct(
+        ContainerInterface $container
+    ) {
         $this->container = $container;
         $this->doctrine = $container->get('doctrine');
+        $this->user = $this->container->get('security.token_storage')->getToken()->getUser();
     }
 
     public function checkPermissions(
@@ -151,5 +157,207 @@ class AdminPermissionCheckService
         }
 
         return false;
+    }
+
+    /**
+     * @param string $platform
+     * @param int    $salesCompanyId
+     *
+     * @return array
+     */
+    public function findSuperAdminPermissionsByPlatform(
+        $platform,
+        $salesCompanyId = null
+    ) {
+        $excludePermissionIds = $this->findAdminExcludePermissionIds($platform, $salesCompanyId);
+
+        $permission = $this->doctrine->getManager()
+            ->createQueryBuilder()
+            ->select('
+                ap.id,
+                ap.name,
+                ap.key,
+                ap.maxOpLevel as op_level
+            ')
+            ->from('SandboxApiBundle:Admin\AdminPermission', 'ap')
+            ->where('ap.platform = :platform')
+            ->setParameter('platform', $platform);
+
+        if (!empty($excludePermissionIds)) {
+            $permission->andWhere('ap.id NOT IN (:excludePermissionIds)')
+                ->setParameter('excludePermissionIds', $excludePermissionIds);
+        }
+
+        return $permission->getQuery()->getResult();
+    }
+
+    /**
+     * @param $permissionKey
+     * @param $salesCompanyId
+     */
+    public function checkSpecifyResourcePermissionIfSuperAdmin(
+        $permissionKey,
+        $salesCompanyId
+    ) {
+        if (isset($permissionKey['building_id'])) {
+            $building = $this->doctrine
+                ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                ->find($permissionKey['building_id']);
+
+            if (is_null($building)) {
+                throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+            }
+
+            if ($building->getCompanyId() != $salesCompanyId) {
+                throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+            }
+        }
+
+        if (isset($permissionKey['shop_id'])) {
+            $shop = $this->doctrine
+                ->getRepository('SandboxApiBundle:Shop\Shop')
+                ->find($permissionKey['shop_id']);
+
+            if (is_null($shop)) {
+                throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+            }
+
+            if ($shop->getBuilding()->getCompanyId() != $salesCompanyId) {
+                throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+            }
+        }
+    }
+
+    /**
+     * @param $platform
+     * @param $adminId
+     *
+     * @return bool
+     */
+    public function checkSalesMonitoringPermission(
+        $platform,
+        $adminId = null
+    ) {
+        if ($platform == AdminPermission::PERMISSION_PLATFORM_OFFICIAL) {
+            return false;
+        }
+
+        if (is_null($adminId)) {
+            $adminId = $this->user->getUserId();
+        }
+
+        $isOfficialSuperAdmin = $this->hasSuperAdminPosition(
+            $adminId,
+            AdminPermission::PERMISSION_PLATFORM_OFFICIAL
+        );
+
+        if ($isOfficialSuperAdmin) {
+            return true;
+        }
+
+        $myOfficialPermissions = $this->getMyAdminPermissions(
+            $adminId,
+            AdminPermission::PERMISSION_PLATFORM_OFFICIAL
+        );
+
+        $salesMonitoringPermission = $this->doctrine
+            ->getRepository('SandboxApiBundle:Admin\AdminPermission')
+            ->findOneBy(array(
+                'key' => AdminPermission::KEY_OFFICIAL_PLATFORM_SALES_MONITORING,
+            ));
+
+        if (is_null($salesMonitoringPermission)) {
+            return false;
+        }
+
+        $salesMonitoringPermissionArray = array(
+            'key' => $salesMonitoringPermission->getKey(),
+            'op_level' => $salesMonitoringPermission->getMaxOpLevel(),
+            'name' => $salesMonitoringPermission->getName(),
+            'id' => $salesMonitoringPermission->getId(),
+            'building_id' => null,
+            'shop_id' => null,
+        );
+
+        if (in_array($salesMonitoringPermissionArray, $myOfficialPermissions)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param $adminId
+     * @param $platform
+     * @param $salesCompanyId
+     *
+     * @return array
+     */
+    public function getMyAdminPermissions(
+        $adminId,
+        $platform,
+        $salesCompanyId = null
+    ) {
+        $commonAdminPositionBindings = $this->doctrine
+            ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+            ->getPositionBindingsByIsSuperAdmin(
+                $adminId,
+                false,
+                $platform,
+                $salesCompanyId
+            );
+
+        $myPermissions = array();
+        foreach ($commonAdminPositionBindings as $binding) {
+            $position = $binding->getPosition();
+
+            $positionPermissionMaps = $this->doctrine
+                ->getRepository('SandboxApiBundle:Admin\AdminPositionPermissionMap')
+                ->findBy(array(
+                    'position' => $position,
+                ));
+
+            foreach ($positionPermissionMaps as $map) {
+                $permission = $map->getPermission();
+                $permissionArray = array(
+                    'key' => $permission->getKey(),
+                    'op_level' => $map->getOpLevel(),
+                    'building_id' => $binding->getBuildingId(),
+                    'shop_id' => $binding->getShopId(),
+                    'name' => $permission->getName(),
+                    'id' => $permission->getId(),
+                );
+
+                array_push($myPermissions, $permissionArray);
+            }
+        }
+
+        return $myPermissions;
+    }
+
+    /**
+     * @param $platform
+     * @param $salesCompanyId
+     *
+     * @return array
+     */
+    public function findAdminExcludePermissionIds($platform, $salesCompanyId)
+    {
+        // filter by exclude permission ids
+        $excludePermissionIdsQuery = $this->doctrine->getManager()
+            ->createQueryBuilder()
+            ->select('ep.permissionId')
+            ->from('SandboxApiBundle:Admin\AdminExcludePermission', 'ep')
+            ->where('ep.platform = :platform')
+            ->andWhere('ep.permissionId IS NOT NULL')
+            ->setParameter('platform', $platform);
+
+        if (!is_null($salesCompanyId)) {
+            $excludePermissionIdsQuery
+                ->andWhere('(ep.salesCompanyId = :salesCompanyId OR ep.salesCompanyId IS NULL)')
+                ->setParameter('salesCompanyId', $salesCompanyId);
+        }
+
+        return array_map('current', $excludePermissionIdsQuery->getQuery()->getResult());
     }
 }
