@@ -45,7 +45,7 @@ class AdminChatGroupController extends ChatGroupController
             ]);
         $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
 
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $companyId = $adminPlatform['sales_company_id'];
 
         $myServices = $this->getDoctrine()
@@ -155,7 +155,7 @@ class AdminChatGroupController extends ChatGroupController
             ]);
         $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
 
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $companyId = $adminPlatform['sales_company_id'];
         $search = $paramFetcher->get('search');
 
@@ -196,7 +196,7 @@ class AdminChatGroupController extends ChatGroupController
             ]);
         $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
 
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $companyId = $adminPlatform['sales_company_id'];
 
         // get chat group

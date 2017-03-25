@@ -80,7 +80,7 @@ class AdminCommunityController extends SalesRestController
         // check user permission
         $this->checkAdminCommunityPermissions(AdminPermission::OP_LEVEL_VIEW);
 
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $companyId = $adminPlatform['sales_company_id'];
 
         $this->throwNotFoundIfNull($companyId, self::NOT_FOUND_MESSAGE);
@@ -101,7 +101,7 @@ class AdminCommunityController extends SalesRestController
                 AdminPermission::KEY_SALES_BUILDING_ORDER,
             )
         );
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $platform = $adminPlatform['platform'];
 
         if ($platform != AdminPermission::PERMISSION_PLATFORM_SALES) {
@@ -159,7 +159,7 @@ class AdminCommunityController extends SalesRestController
         // check user permission
         $this->checkAdminCommunityPermissions(AdminPermission::OP_LEVEL_VIEW);
 
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $platform = $adminPlatform['platform'];
 
         if ($platform != AdminPermission::PERMISSION_PLATFORM_SALES) {
@@ -285,7 +285,7 @@ class AdminCommunityController extends SalesRestController
         // check user permission
         $this->checkAdminCommunityPermissions(AdminPermission::OP_LEVEL_VIEW);
 
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
         $pageLimit = $paramFetcher->get('pageLimit');

@@ -226,7 +226,7 @@ class SandboxRestController extends FOSRestController
     ) {
         if (is_null($platform)) {
             // get platform sessions
-            $adminPlatform = $this->getAdminPlatform();
+            $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
             $platform = $adminPlatform['platform'];
             $salesCompanyId = $adminPlatform['sales_company_id'];
         }
@@ -323,7 +323,7 @@ class SandboxRestController extends FOSRestController
      * @param $permissionKey
      * @param $salesCompanyId
      */
-    private function checkSpecifyResourcePermissionIfSuperAdmin(
+    protected function checkSpecifyResourcePermissionIfSuperAdmin(
         $permissionKey,
         $salesCompanyId
     ) {
@@ -1822,7 +1822,7 @@ class SandboxRestController extends FOSRestController
         $logParams
     ) {
         try {
-            $adminPlatform = $this->getAdminPlatform();
+            $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
 
             $em = $this->getDoctrine()->getManager();
 

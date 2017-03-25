@@ -133,7 +133,7 @@ class AdminAdminsController extends SandboxRestController
         // check user permission
         $this->checkAdminAdvertisingPermission(AdminPermission::OP_LEVEL_VIEW);
 
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $platform = $adminPlatform['platform'];
         $companyId = $adminPlatform['sales_company_id'];
         $isSuperAdmin = $paramFetcher->get('isSuperAdmin');
@@ -340,7 +340,7 @@ class AdminAdminsController extends SandboxRestController
         // check user permission
         $this->checkAdminAdvertisingPermission(AdminPermission::OP_LEVEL_VIEW);
 
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $platform = $adminPlatform['platform'];
         $companyId = $adminPlatform['sales_company_id'];
         $position = $paramFetcher->get('position');
@@ -413,7 +413,7 @@ class AdminAdminsController extends SandboxRestController
         // check user permission
         $this->checkAdminAdvertisingPermission(AdminPermission::OP_LEVEL_VIEW);
 
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $platform = $adminPlatform['platform'];
         $companyId = $adminPlatform['sales_company_id'];
 
@@ -604,7 +604,7 @@ class AdminAdminsController extends SandboxRestController
         // check user permission
         $this->checkAdminAdvertisingPermission(AdminPermission::OP_LEVEL_VIEW);
 
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $platform = $adminPlatform['platform'];
         $companyId = $adminPlatform['sales_company_id'];
         $key = $paramFetcher->get('key');

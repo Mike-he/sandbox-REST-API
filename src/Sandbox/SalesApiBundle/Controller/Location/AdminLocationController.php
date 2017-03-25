@@ -62,7 +62,7 @@ class AdminLocationController extends SalesRestController
         $permissionArray = $paramFetcher->get('permission');
 
         if (is_null($all)) {
-            $adminPlatform = $this->getAdminPlatform();
+            $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
             $platform = $adminPlatform['platform'];
             $salesCompanyId = $adminPlatform['sales_company_id'];
 
@@ -140,7 +140,7 @@ class AdminLocationController extends SalesRestController
         $cityId = $paramFetcher->get('city');
         $permissionArray = $paramFetcher->get('permission');
 
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $platform = $adminPlatform['platform'];
         $salesCompanyId = $adminPlatform['sales_company_id'];
 

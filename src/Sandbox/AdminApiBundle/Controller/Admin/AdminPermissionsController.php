@@ -40,7 +40,7 @@ class AdminPermissionsController extends SandboxRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $platform = $adminPlatform['platform'];
 
         $groups = $this->getDoctrine()
@@ -126,7 +126,7 @@ class AdminPermissionsController extends SandboxRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
         $platform = $adminPlatform['platform'];
 

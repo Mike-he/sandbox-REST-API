@@ -112,7 +112,7 @@ class AdminFinanceLongRentBillController extends SalesRestController
         // check user permission
         $this->checkAdminSalesLongTermBillPermission($this->getAdminId(), AdminPermission::OP_LEVEL_VIEW);
 
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
         //filters
@@ -181,7 +181,7 @@ class AdminFinanceLongRentBillController extends SalesRestController
         // check user permission
         $this->checkAdminSalesLongTermBillPermission($this->getAdminId(), AdminPermission::OP_LEVEL_EDIT);
 
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
         $bill = new FinanceLongRentBill();
@@ -342,7 +342,7 @@ class AdminFinanceLongRentBillController extends SalesRestController
         // check user permission
         $this->checkAdminSalesLongTermBillPermission($this->getAdminId(), AdminPermission::OP_LEVEL_VIEW);
 
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
         $totalFee = $this->getTotalServiceFee($salesCompanyId);

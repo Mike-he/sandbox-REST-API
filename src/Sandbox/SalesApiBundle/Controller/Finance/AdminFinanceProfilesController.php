@@ -35,7 +35,7 @@ class AdminFinanceProfilesController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
         $salesCompany = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
@@ -75,7 +75,7 @@ class AdminFinanceProfilesController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
         $account = new SalesCompanyProfileAccount();
@@ -131,7 +131,7 @@ class AdminFinanceProfilesController extends SalesRestController
         ParamFetcherInterface $paramFetcher,
         $id
     ) {
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
         $account = $this->getDoctrine()
@@ -179,7 +179,7 @@ class AdminFinanceProfilesController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
         $salesCompany = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
@@ -219,7 +219,7 @@ class AdminFinanceProfilesController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
         $express = new SalesCompanyProfileExpress();
@@ -275,7 +275,7 @@ class AdminFinanceProfilesController extends SalesRestController
         ParamFetcherInterface $paramFetcher,
         $id
     ) {
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
         $express = $this->getDoctrine()
@@ -323,7 +323,7 @@ class AdminFinanceProfilesController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
         $salesCompany = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
@@ -366,7 +366,7 @@ class AdminFinanceProfilesController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
         $invoice = new SalesCompanyProfileInvoice();
@@ -422,7 +422,7 @@ class AdminFinanceProfilesController extends SalesRestController
         ParamFetcherInterface $paramFetcher,
         $id
     ) {
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
         $invoice = $this->getDoctrine()

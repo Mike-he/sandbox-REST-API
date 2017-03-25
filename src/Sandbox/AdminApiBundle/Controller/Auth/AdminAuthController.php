@@ -60,7 +60,8 @@ class AdminAuthController extends AuthController
             }
         }
 
-        $condition = $this->hasSuperAdminPosition(
+        $condition = $this->get('sandbox_api.admin_permission_check_service')
+            ->hasSuperAdminPosition(
             $adminId,
             $platform,
             $salesCompanyId
@@ -157,7 +158,7 @@ class AdminAuthController extends AuthController
     ) {
         $adminId = $this->getAdminId();
 
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
         $platform = $adminPlatform['platform'];
 

@@ -623,7 +623,7 @@ class AdminUsersController extends DoorController
         $user->setModificationDate(new \DateTime('now'));
 
         // check sales user record
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $companyId = $adminPlatform['sales_company_id'];
         $buildingId = $building->getId();
 

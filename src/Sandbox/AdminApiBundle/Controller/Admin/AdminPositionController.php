@@ -141,7 +141,7 @@ class AdminPositionController extends PaymentController
         $type
     ) {
         // get platform cookies
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $platform = $adminPlatform['platform'];
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
@@ -409,7 +409,7 @@ class AdminPositionController extends PaymentController
         // check user permissions
         $this->checkAdminPositionPermission(AdminPermission::OP_LEVEL_VIEW);
 
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $platform = $adminPlatform['platform'];
         $companyId = $adminPlatform['sales_company_id'];
 
@@ -508,7 +508,7 @@ class AdminPositionController extends PaymentController
         // check user permissions
         $this->checkAdminPositionPermission(AdminPermission::OP_LEVEL_VIEW);
 
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $platform = $adminPlatform['platform'];
         $companyId = $adminPlatform['sales_company_id'];
         $type = $paramFetcher->get('type');
@@ -655,7 +655,7 @@ class AdminPositionController extends PaymentController
         $buildingId = $paramFetcher->get('building_id');
         $shopId = $paramFetcher->get('shop_id');
 
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
 
         $positions = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
