@@ -342,7 +342,7 @@ class AdminDashBoardController extends SalesRestController
     private function checkAdminDashboardPermissions(
         $opLevel
     ) {
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             [
                 ['key' => AdminPermission::KEY_SALES_PLATFORM_DASHBOARD],

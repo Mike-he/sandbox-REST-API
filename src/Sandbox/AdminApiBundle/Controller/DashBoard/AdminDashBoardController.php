@@ -870,7 +870,7 @@ class AdminDashBoardController extends SandboxRestController
             $adminId = $this->getAdminId();
         }
 
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $adminId,
             [
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_DASHBOARD],

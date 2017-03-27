@@ -576,7 +576,7 @@ class AdminEventOrderController extends AdminOrderController
         $opLevel,
         $platform = null
     ) {
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $adminId,
             [
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_EVENT_ORDER],

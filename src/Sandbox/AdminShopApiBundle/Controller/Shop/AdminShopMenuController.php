@@ -49,7 +49,7 @@ class AdminShopMenuController extends ShopMenuController
         $id
     ) {
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
@@ -101,7 +101,7 @@ class AdminShopMenuController extends ShopMenuController
         $id
     ) {
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
@@ -181,7 +181,7 @@ class AdminShopMenuController extends ShopMenuController
         $this->throwNotFoundIfNull($menu, self::NOT_FOUND_MESSAGE);
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(

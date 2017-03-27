@@ -373,7 +373,7 @@ class AdminCommunityController extends SalesRestController
     private function checkAdminCommunityPermissions(
         $opLevel
     ) {
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             [
                 ['key' => AdminPermission::KEY_SALES_BUILDING_SPACE],

@@ -221,7 +221,7 @@ class AdminFinanceShortRentInvoiceController extends PaymentController
         $adminId,
         $level
     ) {
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $adminId,
             array(
                 array(

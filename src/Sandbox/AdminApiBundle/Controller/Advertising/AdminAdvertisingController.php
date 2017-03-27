@@ -465,7 +465,7 @@ class AdminAdvertisingController extends AdvertisingController
     private function checkAdminAdvertisingPermission(
         $OpLevel
     ) {
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             [
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ADVERTISING],

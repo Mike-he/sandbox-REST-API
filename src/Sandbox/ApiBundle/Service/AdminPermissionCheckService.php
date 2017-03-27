@@ -4,7 +4,7 @@ namespace Sandbox\ApiBundle\Service;
 
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\Finder\Exception\AccessDeniedException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
  * Class AdminPermissionCheckService.
@@ -25,6 +25,13 @@ class AdminPermissionCheckService
         $this->user = $this->container->get('security.token_storage')->getToken()->getUser();
     }
 
+    /**
+     * @param $adminId
+     * @param null $permissionKeys
+     * @param int $opLevel
+     * @param null $platform
+     * @param null $salesCompanyId
+     */
     public function checkPermissions(
         $adminId,
         $permissionKeys = null,
@@ -126,7 +133,7 @@ class AdminPermissionCheckService
             }
         }
 
-        throw new AccessDeniedException(self::NOT_ALLOWED_MESSAGE);
+        throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
     }
 
     /**

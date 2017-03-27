@@ -137,7 +137,7 @@ class AdminEventCommentController extends EventCommentController
     private function checkSalesAdminEventCommentPermission(
         $opLevel
     ) {
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
