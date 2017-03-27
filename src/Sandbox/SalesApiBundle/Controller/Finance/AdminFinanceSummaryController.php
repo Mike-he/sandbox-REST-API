@@ -337,7 +337,7 @@ class AdminFinanceSummaryController extends PaymentController
 
         $companyId = $adminPlatform->getSalesCompanyId();
 
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $adminId,
             [
                 ['key' => AdminPermission::KEY_SALES_PLATFORM_FINANCIAL_SUMMARY],
@@ -489,7 +489,7 @@ class AdminFinanceSummaryController extends PaymentController
         $adminId,
         $opLevel
     ) {
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $adminId,
             [
                 ['key' => AdminPermission::KEY_SALES_PLATFORM_FINANCIAL_SUMMARY],

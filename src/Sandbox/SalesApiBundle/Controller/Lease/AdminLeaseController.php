@@ -100,7 +100,7 @@ class AdminLeaseController extends SalesRestController
         $companyId = $paramFetcher->get('company');
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $adminId,
             array(
                 array(
@@ -1426,7 +1426,7 @@ class AdminLeaseController extends SalesRestController
     private function checkAdminLeasePermission(
         $opLevel
     ) {
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             [
                 ['key' => AdminPermission::KEY_SALES_BUILDING_LONG_TERM_LEASE],
