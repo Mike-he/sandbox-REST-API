@@ -4,7 +4,7 @@ namespace Sandbox\ApiBundle\Service;
 
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\Finder\Exception\AccessDeniedException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
  * Class AdminPermissionCheckService.
@@ -133,7 +133,7 @@ class AdminPermissionCheckService
             }
         }
 
-        throw new AccessDeniedException(self::NOT_ALLOWED_MESSAGE);
+        throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
     }
 
     /**
