@@ -216,7 +216,7 @@ class AdminOrderController extends OrderController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
@@ -307,7 +307,7 @@ class AdminOrderController extends OrderController
         $buildingId = $order->getProduct()->getRoom()->getBuildingId();
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
@@ -575,7 +575,7 @@ class AdminOrderController extends OrderController
         $buildingId = $order->getProduct()->getRoom()->getBuildingId();
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
@@ -799,7 +799,7 @@ class AdminOrderController extends OrderController
         $adminId = $this->getAdminId();
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $adminId,
             array(
                 array(
@@ -1291,7 +1291,7 @@ class AdminOrderController extends OrderController
         $companyId = $paramFetcher->get('company');
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $adminId,
             array(
                 array(
@@ -1387,7 +1387,7 @@ class AdminOrderController extends OrderController
         $buildingId = $order->getProduct()->getRoom()->getBuildingId();
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
@@ -1463,7 +1463,7 @@ class AdminOrderController extends OrderController
             $buildingId = $product->getRoom()->getBuildingId();
 
             // check user permission
-            $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
                 $this->getAdminId(),
                 array(
                     array(
@@ -1594,7 +1594,7 @@ class AdminOrderController extends OrderController
         $buildingId = $order->getProduct()->getRoom()->getBuildingId();
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
@@ -1681,7 +1681,7 @@ class AdminOrderController extends OrderController
         }
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $adminId,
             $permissions,
             AdminPermission::OP_LEVEL_VIEW
@@ -1815,7 +1815,7 @@ class AdminOrderController extends OrderController
             $buildingId = $product->getRoom()->getBuildingId();
 
             // check user permission
-            $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
                 $adminId,
                 array(
                     array(
@@ -2036,7 +2036,7 @@ class AdminOrderController extends OrderController
         $buildingId = $order->getProduct()->getRoom()->getBuildingId();
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(

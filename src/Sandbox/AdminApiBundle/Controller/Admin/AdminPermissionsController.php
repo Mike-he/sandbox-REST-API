@@ -166,7 +166,7 @@ class AdminPermissionsController extends SandboxRestController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             $adminCheckPermission->getPermissions(),
             $adminCheckPermission->getOpLevel(),

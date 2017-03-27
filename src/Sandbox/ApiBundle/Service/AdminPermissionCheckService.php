@@ -25,6 +25,13 @@ class AdminPermissionCheckService
         $this->user = $this->container->get('security.token_storage')->getToken()->getUser();
     }
 
+    /**
+     * @param $adminId
+     * @param null $permissionKeys
+     * @param int $opLevel
+     * @param null $platform
+     * @param null $salesCompanyId
+     */
     public function checkPermissions(
         $adminId,
         $permissionKeys = null,
