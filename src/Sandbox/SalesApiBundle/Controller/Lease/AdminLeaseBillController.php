@@ -68,6 +68,7 @@ class AdminLeaseBillController extends SalesRestController
                 'id' => $bill->getId(),
                 'bill_number' => $bill->getSerialNumber(),
                 'company_name' => $bill->getLease()->getProduct()->getRoom()->getBuilding()->getCompany()->getName(),
+                'building_id' => $bill->getLease()->getProduct()->getRoom()->getBuilding()->getId(),
             ));
         }
 
