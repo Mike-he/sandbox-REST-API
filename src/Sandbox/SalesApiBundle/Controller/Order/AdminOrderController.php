@@ -8,6 +8,7 @@ use Rs\Json\Patch;
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Sandbox\ApiBundle\Controller\Order\OrderController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
@@ -242,6 +243,9 @@ class AdminOrderController extends OrderController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $company = $adminPlatform['sales_company_id'];
+
         //filters
         $type = $paramFetcher->get('type');
         $channel = $paramFetcher->get('channel');
@@ -270,7 +274,7 @@ class AdminOrderController extends OrderController
 
         $orders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->getSalesOrderNumbersForAdmin(
+            ->getSalesOrderNumbersForInvoice(
                 $channel,
                 $type,
                 null,
@@ -292,9 +296,18 @@ class AdminOrderController extends OrderController
                 $roomId
             );
 
+        $bills = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->findNumbersForSalesInvoice(
+                $company,
+                LeaseBill::STATUS_PAID
+            );
+
+        $myOrderNumbers = array_merge($orders, $bills);
+
         $view = new View();
         $view->setData(
-            $orders
+            $myOrderNumbers
         );
 
         return $view;
