@@ -769,6 +769,7 @@ class LocationController extends SalesRestController
                 'latitude' => $city->getLat(),
                 'longitude' => $city->getLng(),
                 'code' => $city->getCode(),
+                'type' => $city->getType(),
             );
             array_push($citiesArray, $cityArray);
         }
