@@ -184,6 +184,43 @@ class AdminLocationController extends SalesRestController
     }
 
     /**
+     * @Get("/location/hot/cities")
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="type",
+     *    default=null,
+     *    nullable=false,
+     *    description="type"
+     * )
+     *
+     * @return View
+     */
+    public function getHotCitiesAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $type = $paramFetcher->get('type');
+
+        $cities = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomCity')
+            ->getCities(
+                RoomCity::LEVEL_CITY,
+                true,
+                $type
+            );
+
+        // generate cities array
+        $citiesArray = $this->generateCitiesArray(
+            $cities
+        );
+
+        return new View($citiesArray);
+    }
+
+    /**
      * @param ParamFetcherInterface $paramFetcher
      * @param $adminId
      *

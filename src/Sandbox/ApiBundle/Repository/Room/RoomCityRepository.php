@@ -79,4 +79,37 @@ class RoomCityRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param $level
+     * @param $hot
+     * @param $type
+     *
+     * @return array
+     */
+    public function getCities(
+        $level,
+        $hot,
+        $type
+    ) {
+        $query = $this->createQueryBuilder('c')
+            ->where('1=1');
+
+        if ($level) {
+            $query->andWhere('c.level = :level')
+                ->setParameter('level', $level);
+        }
+
+        if ($hot) {
+            $query->andWhere('c.hot = :hot')
+                ->setParameter('hot', $hot);
+        }
+
+        if ($type) {
+            $query->andWhere('c.type = :type')
+                ->setParameter('type', $type);
+        }
+
+        return $query->getQuery()->getResult();
+    }
 }
