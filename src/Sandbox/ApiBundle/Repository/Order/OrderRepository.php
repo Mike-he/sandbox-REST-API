@@ -2269,7 +2269,7 @@ class OrderRepository extends EntityRepository
      *
      * @return array
      */
-    public function getSalesOrderNumbersForAdmin(
+    public function getSalesOrderNumbersForInvoice(
         $channel,
         $type,
         $city,
