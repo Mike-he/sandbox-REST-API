@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\Controller\Location;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingServices;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingTag;
+use Sandbox\ApiBundle\Entity\Room\RoomCity;
 use Sandbox\ApiBundle\Traits\HandleCoordinateTrait;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Symfony\Component\HttpFoundation\Request;
@@ -79,6 +80,45 @@ class LocationController extends SalesRestController
         );
 
         return new View($response);
+    }
+
+    /**
+     * @Get("/hot/cities")
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="type",
+     *    default=null,
+     *    nullable=false,
+     *    description="type"
+     * )
+     *
+     * @return View
+     */
+    public function getHotCitiesAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $language = $request->getPreferredLanguage(array('zh', 'en'));
+        $type = $paramFetcher->get('type');
+
+        $cities = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomCity')
+            ->getCities(
+                RoomCity::LEVEL_CITY,
+                true,
+                $type
+            );
+
+        // generate cities array
+        $citiesArray = $this->generateCitiesArray(
+            $cities,
+            $language
+        );
+
+        return new View($citiesArray);
     }
 
     /**
