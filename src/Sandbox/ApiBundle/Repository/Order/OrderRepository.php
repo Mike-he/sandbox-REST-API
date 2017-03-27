@@ -2245,6 +2245,235 @@ class OrderRepository extends EntityRepository
     }
 
     /**
+     * Get list of orders for admin.
+     *
+     * @param array $channel
+     * @param array $type
+     * @param $city
+     * @param $building
+     * @param $userId
+     * @param $rentFilter
+     * @param $startDate
+     * @param $endDate
+     * @param $payDate
+     * @param $payStart
+     * @param $payEnd
+     * @param $keyword
+     * @param $keywordSearch
+     * @param $myBuildingIds
+     * @param $createDateRange
+     * @param $createStart
+     * @param $createEnd
+     * @param $status
+     * @param $room
+     *
+     * @return array
+     */
+    public function getSalesOrderNumbersForAdmin(
+        $channel,
+        $type,
+        $city,
+        $building,
+        $userId,
+        $rentFilter,
+        $startDate,
+        $endDate,
+        $payDate,
+        $payStart,
+        $payEnd,
+        $keyword,
+        $keywordSearch,
+        $myBuildingIds,
+        $createDateRange,
+        $createStart,
+        $createEnd,
+        $status,
+        $room
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->select('o.orderNumber')
+            ->leftJoin('o.product', 'p')
+            ->leftJoin('p.room', 'r')
+            ->leftJoin('SandboxApiBundle:Order\ProductOrderRecord', 'por', 'WITH', 'por.orderId = o.id')
+            ->leftJoin('SandboxApiBundle:User\UserView', 'u', 'WITH', 'u.id = o.userId')
+            ->where('
+                    (
+                        (o.status != :unpaid) AND 
+                        (o.paymentDate IS NOT NULL) OR 
+                        (o.type = :preOrder)
+                    )
+                ')
+            ->setParameter('unpaid', ProductOrder::STATUS_UNPAID)
+            ->setParameter('preOrder', ProductOrder::PREORDER_TYPE);
+
+        // filter by payment channel
+        if (!is_null($channel) && !empty($channel)) {
+            $query->andWhere('o.payChannel in (:channel)')
+                ->setParameter('channel', $channel);
+        }
+
+        // filter by status
+        if (!is_null($status)) {
+            $query->andWhere('o.status = :status')
+                ->setParameter('status', $status);
+        }
+
+        // filter by user id
+        if (!is_null($userId)) {
+            $query->andWhere('o.userId = :userId')
+                ->setParameter('userId', $userId);
+        }
+
+        // filter by type
+        if (!is_null($type) && !empty($type)) {
+            $query->andWhere('por.roomType in (:type)')
+                ->setParameter('type', $type);
+        }
+
+        // filter by city
+        if (!is_null($city)) {
+            $query->andWhere('por.cityId = :city')
+                ->setParameter('city', $city);
+        }
+
+        // filter by building
+        if (!is_null($building)) {
+            $query->andWhere('por.buildingId = :building')
+                ->setParameter('building', $building);
+        } else {
+            $query->andWhere('por.buildingId IN (:buildingIds)')
+                ->setParameter('buildingIds', $myBuildingIds);
+        }
+
+        if (!is_null($room)) {
+            $query->andWhere('p.room = :room')
+                ->setParameter('room', $room);
+        }
+
+        if (!is_null($rentFilter) && !empty($rentFilter) &&
+            !is_null($startDate) && !empty($startDate) &&
+            !is_null($endDate) && !empty($endDate)
+        ) {
+            $startDate = new \DateTime($startDate);
+            $endDate = new \DateTime($endDate);
+            $endDate->setTime(23, 59, 59);
+
+            switch ($rentFilter) {
+                case 'rent_start':
+                    $query->andWhere('o.startDate >= :startDate')
+                        ->andWhere('o.startDate <= :endDate');
+                    break;
+                case 'rent_range':
+                    $query->andWhere(
+                        '(
+                            (o.startDate <= :startDate AND o.endDate > :startDate) OR
+                            (o.startDate < :endDate AND o.endDate >= :endDate) OR
+                            (o.startDate >= :startDate AND o.endDate <= :endDate)
+                        )'
+                    );
+                    break;
+                case 'rent_end':
+                    $query->andWhere('o.endDate >= :startDate')
+                        ->andWhere('o.endDate <= :endDate');
+                    break;
+                default:
+                    $query->andWhere('o.endDate >= :startDate')
+                        ->andWhere('o.endDate <= :endDate');
+            }
+            $query->setParameter('startDate', $startDate)
+                ->setParameter('endDate', $endDate);
+        }
+
+        //filter by payDate
+        if (!is_null($payDate) && !empty($payDate)) {
+            $payDateStart = new \DateTime($payDate);
+            $payDateEnd = new \DateTime($payDate);
+            $payDateEnd->setTime(23, 59, 59);
+
+            $query->andWhere('o.paymentDate >= :payStart')
+                ->andWhere('o.paymentDate <= :payEnd')
+                ->setParameter('payStart', $payDateStart)
+                ->setParameter('payEnd', $payDateEnd);
+        } else {
+            //filter by payStart
+            if (!is_null($payStart)) {
+                $payStart = new \DateTime($payStart);
+                $query->andWhere('o.paymentDate >= :payStart')
+                    ->setParameter('payStart', $payStart);
+            }
+
+            //filter by payEnd
+            if (!is_null($payEnd)) {
+                $payEnd = new \DateTime($payEnd);
+                $payEnd->setTime(23, 59, 59);
+                $query->andWhere('o.paymentDate <= :payEnd')
+                    ->setParameter('payEnd', $payEnd);
+            }
+        }
+
+        if (!is_null($keyword) && !is_null($keywordSearch)) {
+            switch ($keyword) {
+                case 'number':
+                    $query->andWhere('o.orderNumber LIKE :search');
+                    break;
+                case 'room':
+                    $query->andWhere('r.name LIKE :search');
+                    break;
+                case 'user':
+                    $query->andWhere('u.name LIKE :search');
+                    break;
+                case 'phone':
+                    $query->andWhere('u.phone LIKE :search');
+                    break;
+                case 'email':
+                    $query->andWhere('u.email LIKE :search');
+                    break;
+                default:
+                    $query->andWhere('o.orderNumber LIKE :search');
+            }
+            $query->setParameter('search', '%'.$keywordSearch.'%');
+        }
+
+        if (!is_null($createDateRange)) {
+            $now = new \DateTime();
+            switch ($createDateRange) {
+                case 'last_week':
+                    $lastDate = $now->sub(new \DateInterval('P7D'));
+                    break;
+                case 'last_month':
+                    $lastDate = $now->sub(new \DateInterval('P1M'));
+                    break;
+                default:
+                    $lastDate = new \DateTime();
+            }
+            $query->andWhere('o.creationDate >= :createStart')
+                ->setParameter('createStart', $lastDate);
+        } else {
+            // filter by order start point
+            if (!is_null($createStart)) {
+                $createStart = new \DateTime($createStart);
+                $createStart->setTime(00, 00, 00);
+                $query->andWhere('o.creationDate >= :createStart')
+                    ->setParameter('createStart', $createStart);
+            }
+
+            // filter by order end point
+            if (!is_null($createEnd)) {
+                $createEnd = new \DateTime($createEnd);
+                $createEnd->setTime(23, 59, 59);
+                $query->andWhere('o.creationDate <= :createEnd')
+                    ->setParameter('createEnd', $createEnd);
+            }
+        }
+
+        $query->orderBy('o.creationDate', 'DESC');
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
+
+    /**
      * @param array $channel
      * @param array $type
      * @param $city
