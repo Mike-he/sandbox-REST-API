@@ -77,6 +77,7 @@ class AdminOrderController extends OrderController
                 'id' => $order->getId(),
                 'order_number' => $order->getOrderNumber(),
                 'company_name' => $order->getProduct()->getRoom()->getBuilding()->getCompany()->getName(),
+                'building_id' => $order->getProduct()->getRoom()->getBuilding()->getId(),
             ));
         }
 
