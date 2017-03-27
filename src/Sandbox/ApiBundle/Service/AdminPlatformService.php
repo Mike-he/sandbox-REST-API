@@ -7,8 +7,7 @@ use Symfony\Component\HttpKernel\Exception\PreconditionFailedHttpException;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
 
 /**
- * Class AdminPlatformService
- * @package Sandbox\ApiBundle\Service
+ * Class AdminPlatformService.
  */
 class AdminPlatformService
 {

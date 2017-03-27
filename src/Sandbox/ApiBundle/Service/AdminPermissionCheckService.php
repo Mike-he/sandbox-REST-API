@@ -2,14 +2,12 @@
 
 namespace Sandbox\ApiBundle\Service;
 
-use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
 
 /**
- * Class AdminPermissionCheckService
- * @package Sandbox\ApiBundle\Service
+ * Class AdminPermissionCheckService.
  */
 class AdminPermissionCheckService
 {
