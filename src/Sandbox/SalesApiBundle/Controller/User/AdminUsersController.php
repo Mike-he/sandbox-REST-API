@@ -422,7 +422,21 @@ class AdminUsersController extends DoorController
     ) {
         $ids = $paramFetcher->get('id');
 
-        return $this->getUsersByIds($ids);
+        $users = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserView')
+            ->getUsersByIds($ids);
+
+        $response = array();
+
+        // hide phone code
+        foreach ($users as $user) {
+            $hidePhone = substr_replace($user['phone'],'****',3,4);
+            $user['phone'] = $hidePhone;
+
+            array_push($response, $user);
+        }
+
+        return new View($response);
     }
 
     /**
