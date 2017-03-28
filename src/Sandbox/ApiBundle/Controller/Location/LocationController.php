@@ -55,27 +55,27 @@ class LocationController extends SalesRestController
             ->getRepository('SandboxApiBundle:Room\RoomCity')
             ->getLocationCities();
 
-        $length = count($cities);
+//        $length = count($cities);
+//
+//        // sort city by building count
+//        for ($i = 1; $i < $length; ++$i) {
+//            for ($j = $length - 1; $j >= $i; --$j) {
+//                if ($cities[$j]['building_count'] > $cities[$j - 1]['building_count']) {
+//                    $tmp = $cities[$j];
+//                    $cities[$j] = $cities[$j - 1];
+//                    $cities[$j - 1] = $tmp;
+//                }
+//            }
+//        }
 
-        // sort city by building count
-        for ($i = 1; $i < $length; ++$i) {
-            for ($j = $length - 1; $j >= $i; --$j) {
-                if ($cities[$j]['building_count'] > $cities[$j - 1]['building_count']) {
-                    $tmp = $cities[$j];
-                    $cities[$j] = $cities[$j - 1];
-                    $cities[$j - 1] = $tmp;
-                }
-            }
-        }
-
-        $citiesArray = array();
-        foreach ($cities as $city) {
-            array_push($citiesArray, $city['city']);
-        }
+//        $citiesArray = array();
+//        foreach ($cities as $city) {
+//            array_push($citiesArray, $city['city']);
+//        }
 
         // generate cities array
         $response = $this->generateCitiesArray(
-            $citiesArray,
+            $cities,
             $language
         );
 
@@ -770,6 +770,7 @@ class LocationController extends SalesRestController
                 'longitude' => $city->getLng(),
                 'code' => $city->getCode(),
                 'type' => $city->getType(),
+                'hot' => $city->isHot(),
             );
             array_push($citiesArray, $cityArray);
         }

@@ -69,10 +69,10 @@ class RoomCityRepository extends EntityRepository
     public function getLocationCities()
     {
         $query = $this->createQueryBuilder('c')
-            ->select('
-                c as city,
-                COUNT(b) as building_count
-            ')
+//            ->select('
+//                c as city,
+//                COUNT(b) as building_count
+//            ')
             ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'c.id = b.cityId')
             ->where('b.id IS NOT NULL')
             ->groupBy('c.id');
