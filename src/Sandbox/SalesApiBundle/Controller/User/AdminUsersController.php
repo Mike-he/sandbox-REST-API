@@ -247,12 +247,11 @@ class AdminUsersController extends DoorController
 
         // hide phone code
         foreach ($users as $user) {
-            if (is_null($user->getPhone())) {
-                continue;
+            if (!is_null($user->getPhone())) {
+                $hidePhone = substr_replace($user->getPhone(),'****',3,4);
+                $user->setPhone($hidePhone);
             }
 
-            $hidePhone = substr_replace($user->getPhone(),'****',3,4);
-            $user->setPhone($hidePhone);
         }
 
         return new View(array(
