@@ -181,6 +181,9 @@ class AdminProductAppointmentController extends AdminProductController
                 array(
                     'key' => AdminPermission::KEY_SALES_BUILDING_LONG_TERM_APPOINTMENT,
                 ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_USER,
+                ),
             ),
             AdminPermission::OP_LEVEL_VIEW
         );

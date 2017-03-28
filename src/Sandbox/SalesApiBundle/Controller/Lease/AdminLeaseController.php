@@ -276,7 +276,14 @@ class AdminLeaseController extends SalesRestController
         Request $request
     ) {
         // check user permission
-        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_VIEW);
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
+            $this->getAdminId(),
+            [
+                ['key' => AdminPermission::KEY_SALES_BUILDING_LONG_TERM_LEASE],
+                ['key' => AdminPermission::KEY_SALES_BUILDING_USER],
+            ],
+            $opLevel
+        );
 
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
