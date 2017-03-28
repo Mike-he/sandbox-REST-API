@@ -80,7 +80,7 @@
                     {{ order.product.room.number }},{{ order.product.room.name }}
                 </li>
                 <li><h5 class="item_name">房间类型：</h5>{{ room_type }}</li>
-                <li><h5 class="item_name">工位编号：</h5>{{ product_info.seat_number }}</li>
+                <li><h5 class="item_name">工位编号：</h5>{% if product_info.seat_number is defined %}{{ product_info.seat_number}}{% endif %}</li>
                 <li><h5 class="item_name">租赁人：</h5>{{ user_profile.name }}</li>
                 <li><h5 class="item_name">单价：</h5>{{ product_info.base_price }}/{{ unit_price }}</li>
             </ul>
