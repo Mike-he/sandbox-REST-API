@@ -891,6 +891,9 @@ class AdminOrderController extends OrderController
                 array(
                     'key' => AdminPermission::KEY_SALES_BUILDING_ORDER,
                 ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_USER,
+                ),
             ),
             AdminPermission::OP_LEVEL_VIEW
         );
