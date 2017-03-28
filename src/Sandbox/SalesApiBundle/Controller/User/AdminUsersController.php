@@ -440,12 +440,10 @@ class AdminUsersController extends DoorController
 
         // hide phone code
         foreach ($users as $user) {
-            if (is_null($user['phone'])) {
-                continue;
+            if (!is_null($user['phone'])) {
+                $hidePhone = substr_replace($user['phone'],'****',3,4);
+                $user['phone'] = $hidePhone;
             }
-
-            $hidePhone = substr_replace($user['phone'],'****',3,4);
-            $user['phone'] = $hidePhone;
 
             array_push($response, $user);
         }
