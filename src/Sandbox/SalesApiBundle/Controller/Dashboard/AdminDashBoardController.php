@@ -269,6 +269,8 @@ class AdminDashBoardController extends SalesRestController
                 'appointed_user' => $order->getAppointed(),
                 'invited_people' => $invited,
                 'seat_id' => $order->getSeatId(),
+                'type' => $order->getType(),
+                'status' => $order->getStatus(),
             );
         }
 
@@ -310,6 +312,8 @@ class AdminDashBoardController extends SalesRestController
                     'user' => $user,
                     'appointed_user' => $appointed,
                     'invited_people' => $invited,
+                    'type' => $order->getType(),
+                    'status' => $order->getStatus(),
                 );
             }
         }
@@ -333,6 +337,7 @@ class AdminDashBoardController extends SalesRestController
                 'end_date' => $lease->getEndDate(),
                 'user' => $lease->getSupervisorId(),
                 'invited_people' => $lease->degenerateInvitedPeople(),
+                'status' => $lease->getStatus(),
             );
         }
 

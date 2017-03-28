@@ -2271,7 +2271,6 @@ class OrderRepository extends EntityRepository
             ->setParameter('unpaid', ProductOrder::STATUS_UNPAID)
             ->setParameter('preOrder', ProductOrder::PREORDER_TYPE);
 
-
         // filter by building
         if (!is_null($building)) {
             $query->andWhere('por.buildingId = :building')
@@ -2280,7 +2279,6 @@ class OrderRepository extends EntityRepository
             $query->andWhere('por.buildingId IN (:buildingIds)')
                 ->setParameter('buildingIds', $myBuildingIds);
         }
-
 
             //filter by payStart
             if (!is_null($payStart)) {
@@ -4069,7 +4067,11 @@ class OrderRepository extends EntityRepository
         $query = $this->createQueryBuilder('o')
             ->where('o.productId = :productId')
             ->andWhere('o.rejected = FALSE')
-            ->andWhere('(o.status = :paid OR o.status = :completed)')
+            ->andWhere('
+                o.status = :paid OR 
+                o.status = :completed OR
+                (o.status = :unpaid AND o.type = :preorder)
+            ')
             ->andWhere('
                 (o.startDate <= :start AND o.endDate > :start) OR
                 (o.startDate < :end AND o.endDate >= :end) OR
@@ -4079,7 +4081,9 @@ class OrderRepository extends EntityRepository
             ->setParameter('start', $start)
             ->setParameter('end', $end)
             ->setParameter('paid', ProductOrder::STATUS_PAID)
-            ->setParameter('completed', ProductOrder::STATUS_COMPLETED);
+            ->setParameter('unpaid', ProductOrder::STATUS_UNPAID)
+            ->setParameter('completed', ProductOrder::STATUS_COMPLETED)
+            ->setParameter('preorder', ProductOrder::PREORDER_TYPE);
 
         return $query->getQuery()->getResult();
     }
