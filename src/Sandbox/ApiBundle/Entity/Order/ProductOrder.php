@@ -1220,7 +1220,7 @@ class ProductOrder
      */
     public function getProductInfo()
     {
-        return $this->productInfo;
+        return $this->productInfo ? $this->productInfo->getProductInfo() : null;
     }
 
     /**
