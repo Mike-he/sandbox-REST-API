@@ -1530,7 +1530,7 @@ class PaymentController extends DoorController
                 $username = $userProfile->getName().'('.$phoneInfo.')';
                 $time_action = $order->getCreationDate()->format('Y/m/d H:i');
                 $orderNumber = $order->getOrderNumber();
-                $product = $orderRoom->getCity()->getName().','.$orderRoom->getBuilding()->getName().','.$orderRoom->getNumber().','.$orderRoom->getName();
+                $product = $orderRoom->getCity()->getName().','.$orderRoom->getBuilding()->getName().','.$orderRoom->getNumber().','.$this->formatString($orderRoom->getName());
                 $rent_time = $order->getStartDate()->format('Y/m/d H:i').' - '.$order->getEndDate()->format('Y/m/d H:i');
                 $payment = $order->getDiscountPrice();
 
@@ -1575,5 +1575,19 @@ class PaymentController extends DoorController
         $em->flush();
 
         return $bill;
+    }
+
+    /**
+     * @param $string
+     *
+     * @return mixed
+     */
+    private function formatString(
+        $string
+    ) {
+        $string = str_replace('【', '', $string);
+        $string = str_replace('】', '', $string);
+
+        return $string;
     }
 }
