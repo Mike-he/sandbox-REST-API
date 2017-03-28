@@ -158,6 +158,13 @@ class UserView
     }
 
     /**
+     * @param $phone
+     */
+    public function setPhone($phone) {
+        $this->phone = $phone;
+    }
+
+    /**
      * Is banned.
      *
      * @return bool

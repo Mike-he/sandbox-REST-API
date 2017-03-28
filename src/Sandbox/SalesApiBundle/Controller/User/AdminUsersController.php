@@ -214,7 +214,7 @@ class AdminUsersController extends DoorController
             $userIds = array_intersect($userIds, $bindCardUserIds);
         }
 
-        $results = $this->getDoctrine()
+        $users = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserView')
             ->searchSalesUser(
                 $banned,
@@ -245,10 +245,20 @@ class AdminUsersController extends DoorController
                 $query
             );
 
+        // hide phone code
+        foreach ($users as $user) {
+            if (is_null($user->getPhone())) {
+                continue;
+            }
+
+            $hidePhone = substr_replace($user->getPhone(),'****',3,4);
+            $user->setPhone($hidePhone);
+        }
+
         return new View(array(
             'current_page_number' => $pageIndex,
             'num_items_per_page' => $pageLimit,
-            'items' => $results,
+            'items' => $users,
             'total_count' => $countSalesUsers,
         ));
     }
@@ -430,6 +440,10 @@ class AdminUsersController extends DoorController
 
         // hide phone code
         foreach ($users as $user) {
+            if (is_null($user['phone'])) {
+                continue;
+            }
+
             $hidePhone = substr_replace($user['phone'],'****',3,4);
             $user['phone'] = $hidePhone;
 
