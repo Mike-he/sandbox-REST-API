@@ -4,6 +4,7 @@ namespace Sandbox\SalesApiBundle\Controller\Dashboard;
 
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
+use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use FOS\RestBundle\View\View;
@@ -131,7 +132,9 @@ class AdminDashBoardController extends SalesRestController
                 ->getLocationRoomBuildings(
                     null,
                     null,
-                    $salesCompanyId
+                    $salesCompanyId,
+                    RoomBuilding::STATUS_ACCEPT,
+                    true
                 );
 
         $result = array();
