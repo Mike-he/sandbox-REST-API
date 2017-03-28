@@ -11,7 +11,7 @@ class AdminDashboardControllerTest extends WebTestCase
     use ApiHelpersTrait;
     use CommonTestsUtilsTrait;
 
-    const BUILDING_AMOUNT = 7;
+    const BUILDING_AMOUNT = 4;
 
     public function setUp()
     {
