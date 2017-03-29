@@ -190,14 +190,6 @@ class ClientCustomerServiceController extends ChatGroupController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $myUserId = $this->getUserId();
-        $myUser = $this->getRepo('User\User')->find($myUserId);
-
-        // check banned
-        if ($myUser->isBanned()) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-        }
-
         $buildingId = $paramFetcher->get('building');
 
         // get customer services
