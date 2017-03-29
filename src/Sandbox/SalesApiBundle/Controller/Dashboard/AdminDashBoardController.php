@@ -271,7 +271,7 @@ class AdminDashBoardController extends SalesRestController
                 'seat_id' => $order->getSeatId(),
                 'type' => $order->getType(),
                 'status' => $order->getStatus(),
-                'pay_channel' => $order->getpayChannel(),
+                'pay_channel' => $order->getPayChannel(),
             );
         }
 
@@ -315,7 +315,7 @@ class AdminDashBoardController extends SalesRestController
                     'invited_people' => $invited,
                     'type' => $order->getType(),
                     'status' => $order->getStatus(),
-                    'pay_channel' => $order->getpayChannel(),
+                    'pay_channel' => $order->getPayChannel(),
                 );
             }
         }
