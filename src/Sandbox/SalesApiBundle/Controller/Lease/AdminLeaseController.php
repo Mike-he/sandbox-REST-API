@@ -282,7 +282,7 @@ class AdminLeaseController extends SalesRestController
                 ['key' => AdminPermission::KEY_SALES_BUILDING_LONG_TERM_LEASE],
                 ['key' => AdminPermission::KEY_SALES_BUILDING_USER],
             ],
-            $opLevel
+            AdminPermission::OP_LEVEL_VIEW
         );
 
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
