@@ -248,10 +248,9 @@ class AdminUsersController extends DoorController
         // hide phone code
         foreach ($users as $user) {
             if (!is_null($user->getPhone())) {
-                $hidePhone = substr_replace($user->getPhone(),'****',3,4);
+                $hidePhone = substr_replace($user->getPhone(), '****', 3, 4);
                 $user->setPhone($hidePhone);
             }
-
         }
 
         return new View(array(
@@ -440,7 +439,7 @@ class AdminUsersController extends DoorController
         // hide phone code
         foreach ($users as $user) {
             if (!is_null($user['phone'])) {
-                $hidePhone = substr_replace($user['phone'],'****',3,4);
+                $hidePhone = substr_replace($user['phone'], '****', 3, 4);
                 $user['phone'] = $hidePhone;
             }
 
