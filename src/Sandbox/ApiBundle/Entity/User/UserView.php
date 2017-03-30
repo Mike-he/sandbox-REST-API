@@ -57,7 +57,7 @@ class UserView
      * @var bool
      *
      * @ORM\Column(name="authorized", type="boolean", nullable=false)
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "account"})
      */
     private $authorized;
 
