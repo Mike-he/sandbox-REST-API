@@ -90,7 +90,7 @@ class CheckLeaseBillsCommand extends ContainerAwareCommand
 
             if ($planDay > 0) {
                 $now = new \DateTime('now');
-                $planDate = $now->sub(new \DateInterval('P'.$planDay.'D'));
+                $planDate = $now->add(new \DateInterval('P'.$planDay.'D'));
 
                 $this->autoPushBills($autoLease, $planDate);
             }
