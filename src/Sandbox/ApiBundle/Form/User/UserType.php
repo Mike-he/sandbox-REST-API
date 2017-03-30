@@ -16,11 +16,6 @@ class UserType extends AbstractType
     {
         $builder
             ->add('banned')
-            ->add('authorized',
-                null,
-                array(
-                    'mapped' => false,
-                ))
             ->add('card_no')
             ->add('credential_no')
             ->add(

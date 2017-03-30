@@ -794,6 +794,10 @@ class AdminUsersController extends DoorController
         $user->setAuthorizedPlatform(User::AUTHORIZED_PLATFORM_OFFICIAL);
         $user->setAuthorizedAdminUsername($adminUsername);
 
+        if (!is_null($user->getCredentialNo())) {
+            $user->setAuthorized(true);
+        }
+
         // update to db
         $em = $this->getDoctrine()->getManager();
         $em->flush();
