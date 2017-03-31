@@ -482,7 +482,7 @@ class ProductOrder
      *
      * @ORM\Column(name="edit_comment", type="text", nullable=true)
      *
-     * @Serializer\Groups({"main", "admin_detail", "admin_order"})
+     * @Serializer\Groups({"main", "admin_detail", "admin_order", "client"})
      */
     private $editComment;
 
