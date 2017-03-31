@@ -100,6 +100,11 @@ class ChatGroup
     private $tag;
 
     /**
+     * @var string
+     */
+    private $buildingAvatar;
+
+    /**
      * Get id.
      *
      * @return int
@@ -278,5 +283,21 @@ class ChatGroup
     public function setTag($tag)
     {
         $this->tag = $tag;
+    }
+
+    /**
+     * @return string
+     */
+    public function getBuildingAvatar()
+    {
+        return $this->buildingAvatar;
+    }
+
+    /**
+     * @param string $buildingAvatar
+     */
+    public function setBuildingAvatar($buildingAvatar)
+    {
+        $this->buildingAvatar = $buildingAvatar;
     }
 }
