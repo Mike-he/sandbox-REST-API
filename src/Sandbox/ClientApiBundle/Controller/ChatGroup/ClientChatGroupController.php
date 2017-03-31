@@ -205,13 +205,15 @@ class ClientChatGroupController extends ChatGroupController
             return new View();
         }
 
-        // set group name
-        if (is_null($chatGroup->getName()) || $chatGroup->getName()) {
-            $chatGroupName = $this->constructGroupChatName(
-                $chatGroup
-            );
+        if ($chatGroup->getTag() != ChatGroup::XMPP_CUSTOMER_SERVICE) {
+            // set group name
+            if (is_null($chatGroup->getName()) || $chatGroup->getName()) {
+                $chatGroupName = $this->constructGroupChatName(
+                    $chatGroup
+                );
 
-            $chatGroup->setName($chatGroupName);
+                $chatGroup->setName($chatGroupName);
+            }
         }
 
         if ($chatGroup->getBuildingId()) {
