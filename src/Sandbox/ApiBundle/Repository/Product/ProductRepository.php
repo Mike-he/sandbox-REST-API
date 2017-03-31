@@ -1338,7 +1338,8 @@ class ProductRepository extends EntityRepository
                     p.visible,
                     r.id as room_id,
                     r.name as room_name,
-                    r.type as room_type
+                    r.type as room_type,
+                    r.allowedPeople as allowed_people
                 ')
             ->leftJoin('p.room', 'r')
             ->leftJoin('r.building', 'b')
