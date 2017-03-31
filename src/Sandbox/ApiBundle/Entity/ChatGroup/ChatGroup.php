@@ -82,6 +82,7 @@ class ChatGroup
      * @var int
      *
      * @ORM\Column(name="company_id", type="integer", nullable=true)
+     * @Serializer\Groups({"chatgroup"})
      */
     private $companyId;
 
@@ -89,6 +90,7 @@ class ChatGroup
      * @var int
      *
      * @ORM\Column(name="building_id", type="integer", nullable=true)
+     * @Serializer\Groups({"chatgroup"})
      */
     private $buildingId;
 
@@ -96,11 +98,14 @@ class ChatGroup
      * @var string
      *
      * @ORM\Column(name="tag", type="string", length=16, nullable=true)
+     * @Serializer\Groups({"chatgroup"})
      */
     private $tag;
 
     /**
      * @var string
+     *
+     * @Serializer\Groups({"chatgroup"})
      */
     private $buildingAvatar;
 
