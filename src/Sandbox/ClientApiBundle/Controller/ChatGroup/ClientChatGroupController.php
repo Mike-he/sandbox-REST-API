@@ -225,7 +225,13 @@ class ClientChatGroupController extends ChatGroupController
             }
         }
 
-        return new View($chatGroup);
+        // set view
+        $view = new View($chatGroup);
+        $view->setSerializationContext(
+            SerializationContext::create()->setGroups(array('chatgroup'))
+        );
+
+        return $view;
     }
 
     /**
