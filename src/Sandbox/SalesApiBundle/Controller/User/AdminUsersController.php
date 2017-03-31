@@ -419,6 +419,14 @@ class AdminUsersController extends DoorController
      *    description="Filter by id"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="query",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     * )
+     *
      * @Route("/open/users")
      * @Method({"GET"})
      *
@@ -428,19 +436,37 @@ class AdminUsersController extends DoorController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $ids = $paramFetcher->get('id');
+        $ids = empty($paramFetcher->get('id')) ? null : $paramFetcher->get('id');
+        $search = $paramFetcher->get('query');
 
         $users = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserView')
-            ->getUsersByIds($ids);
+            ->searchUser(
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                $ids,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                $search
+            );
 
         $response = array();
 
         // hide phone code
         foreach ($users as $user) {
-            if (!is_null($user['phone'])) {
-                $hidePhone = substr_replace($user['phone'], '****', 3, 4);
-                $user['phone'] = $hidePhone;
+            if (!is_null($user->getPhone())) {
+                $hidePhone = substr_replace($user->getPhone(), '****', 3, 4);
+                $user->setPhone($hidePhone);
             }
 
             array_push($response, $user);
