@@ -201,6 +201,9 @@ class ClientChatGroupController extends ChatGroupController
                 'id' => $id,
                 'creatorId' => $myUserId,
             ));
+        if (!$chatGroup) {
+            return new View();
+        }
 
         // set group name
         if (is_null($chatGroup->getName()) || $chatGroup->getName()) {
@@ -209,6 +212,15 @@ class ClientChatGroupController extends ChatGroupController
             );
 
             $chatGroup->setName($chatGroupName);
+        }
+
+        if ($chatGroup->getBuildingId()) {
+            $building = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                ->find($chatGroup->getBuildingId());
+            if ($building) {
+                $chatGroup->setBuildingAvatar($building->getAvatar());
+            }
         }
 
         return new View($chatGroup);
