@@ -21,7 +21,6 @@ class RoomCity
     const TYPE_INTERNATIONAL = 'international';
     const TYPE_INTERNAL = 'internal';
 
-
     /**
      * @var int
      *

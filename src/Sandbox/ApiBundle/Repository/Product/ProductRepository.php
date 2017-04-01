@@ -1228,8 +1228,9 @@ class ProductRepository extends EntityRepository
         }
 
         if ($recommend) {
-            $query->andWhere('p.salesRecommend = TRUE')
-                ->orderBy('p.salesSortTime', 'DESC');
+            $query->orderBy('p.salesRecommend', 'DESC')
+                ->addOrderBy('p.salesSortTime', 'DESC')
+                ->addOrderBy('p.creationDate', 'DESC');
         } else {
             $query->orderBy('p.recommend', 'DESC')
                 ->addOrderBy('p.creationDate', 'DESC');
