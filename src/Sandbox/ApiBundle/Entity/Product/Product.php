@@ -147,7 +147,7 @@ class Product
      *
      * @ORM\Column(name="recommend", type="boolean")
      *
-     * @Serializer\Groups({"main", "admin_room", "admin_detail"})
+     * @Serializer\Groups({"main", "admin_room", "admin_detail", "client"})
      */
     private $recommend = false;
 
@@ -318,7 +318,7 @@ class Product
      *
      * @ORM\Column(name="sales_recommend", type="boolean")
      *
-     * @Serializer\Groups({"main", "admin_room", "admin_detail"})
+     * @Serializer\Groups({"main", "admin_room", "admin_detail", "client"})
      */
     private $salesRecommend = false;
 
