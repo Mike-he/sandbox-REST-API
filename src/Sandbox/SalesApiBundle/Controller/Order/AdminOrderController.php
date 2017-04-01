@@ -1151,6 +1151,16 @@ class AdminOrderController extends OrderController
      *    description="Filter by room id"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by building id"
+     * )
+     *
      * @Route("/my_orders")
      * @Method({"GET"})
      *
@@ -1180,6 +1190,7 @@ class AdminOrderController extends OrderController
         $payStart = $paramFetcher->get('pay_start');
         $payEnd = $paramFetcher->get('pay_end');
         $roomId = $paramFetcher->get('room');
+        $buildingId = $paramFetcher->get('building');
 
         //get my buildings list
         $myBuildingIds = $this->getMySalesBuildingIds(
@@ -1196,7 +1207,7 @@ class AdminOrderController extends OrderController
                 $channel,
                 $type,
                 null,
-                null,
+                $buildingId,
                 null,
                 $rentFilter,
                 $startDate,
