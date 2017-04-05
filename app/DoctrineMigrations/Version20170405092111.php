@@ -8,7 +8,7 @@ use Doctrine\DBAL\Schema\Schema;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-class Version20170405085505 extends AbstractMigration
+class Version20170405092111 extends AbstractMigration
 {
     /**
      * @param Schema $schema
@@ -22,7 +22,7 @@ class Version20170405085505 extends AbstractMigration
         $this->addSql('CREATE TABLE membership_card_specification (id INT AUTO_INCREMENT NOT NULL, card_id INT DEFAULT NULL, specification VARCHAR(64) NOT NULL, price NUMERIC(10, 2) NOT NULL, valid_period INT NOT NULL, unit_price VARCHAR(255) NOT NULL, creation_date DATETIME NOT NULL, modification_date DATETIME NOT NULL, INDEX IDX_525FD2BB4ACC9A20 (card_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB');
         $this->addSql('CREATE TABLE user_group (id INT AUTO_INCREMENT NOT NULL, name VARCHAR(64) NOT NULL, card_id INT DEFAULT NULL, type VARCHAR(64) NOT NULL, description LONGTEXT DEFAULT NULL, company_id INT NOT NULL, creation_date DATETIME NOT NULL, modification_date DATETIME NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB');
         $this->addSql('CREATE TABLE user_group_has_user (group_id INT NOT NULL, user_id INT NOT NULL, INDEX IDX_B27A9E30FE54D947 (group_id), INDEX IDX_B27A9E30A76ED395 (user_id), PRIMARY KEY(group_id, user_id)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB');
-        $this->addSql('CREATE TABLE user_group_doors (id INT AUTO_INCREMENT NOT NULL, building_id INT NOT NULL, door_control_id VARCHAR(255) NOT NULL, name VARCHAR(64) NOT NULL, group_id INT NOT NULL, card_id INT DEFAULT NULL, creationDate DATETIME NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB');
+        $this->addSql('CREATE TABLE user_group_doors (id INT AUTO_INCREMENT NOT NULL, building_id INT NOT NULL, door_control_id VARCHAR(255) DEFAULT NULL, name VARCHAR(64) NOT NULL, group_id INT NOT NULL, card_id INT DEFAULT NULL, creationDate DATETIME NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB');
         $this->addSql('ALTER TABLE membership_card_specification ADD CONSTRAINT FK_525FD2BB4ACC9A20 FOREIGN KEY (card_id) REFERENCES membership_card (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE user_group_has_user ADD CONSTRAINT FK_B27A9E30FE54D947 FOREIGN KEY (group_id) REFERENCES user_group (id)');
         $this->addSql('ALTER TABLE user_group_has_user ADD CONSTRAINT FK_B27A9E30A76ED395 FOREIGN KEY (user_id) REFERENCES user (id)');

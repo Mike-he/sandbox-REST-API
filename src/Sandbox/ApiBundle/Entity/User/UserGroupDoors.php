@@ -32,7 +32,7 @@ class UserGroupDoors
     /**
      * @var string
      *
-     * @ORM\Column(name="door_control_id", type="string", length=255)
+     * @ORM\Column(name="door_control_id", type="string", length=255, nullable=true)
      */
     private $doorControlId;
 
