@@ -17,6 +17,8 @@ class MembershipOrder
     const STATUS_PAID = 'paid';
     const STATUS_UNPAID = 'unpaid';
 
+    const UNIT_MONTH = 'month';
+
     /**
      * @var int
      *
@@ -54,6 +56,27 @@ class MembershipOrder
      * @ORM\Column(name="price", type="float")
      */
     private $price;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="unit_price", type="string", length=255)
+     */
+    private $unitPrice;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="start_date", type="datetime")
+     */
+    private $startDate;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="end_date", type="datetime")
+     */
+    private $endDate;
 
     /**
      * @var int
@@ -209,6 +232,22 @@ class MembershipOrder
     }
 
     /**
+     * @return string
+     */
+    public function getUnitPrice()
+    {
+        return $this->unitPrice;
+    }
+
+    /**
+     * @param string $unitPrice
+     */
+    public function setUnitPrice($unitPrice)
+    {
+        $this->unitPrice = $unitPrice;
+    }
+
+    /**
      * @return int
      */
     public function getValidPeriod()
@@ -222,6 +261,38 @@ class MembershipOrder
     public function setValidPeriod($validPeriod)
     {
         $this->validPeriod = $validPeriod;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getStartDate()
+    {
+        return $this->startDate;
+    }
+
+    /**
+     * @param \DateTime $startDate
+     */
+    public function setStartDate($startDate)
+    {
+        $this->startDate = $startDate;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getEndDate()
+    {
+        return $this->endDate;
+    }
+
+    /**
+     * @param \DateTime $endDate
+     */
+    public function setEndDate($endDate)
+    {
+        $this->endDate = $endDate;
     }
 
     /**

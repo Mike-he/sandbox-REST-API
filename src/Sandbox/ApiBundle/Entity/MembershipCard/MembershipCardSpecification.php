@@ -13,6 +13,8 @@ use Gedmo\Mapping\Annotation as Gedmo;
  */
 class MembershipCardSpecification
 {
+    const UNIT_MONTH = 'month';
+
     /**
      * @var int
      *
@@ -50,6 +52,13 @@ class MembershipCardSpecification
      * @ORM\Column(name="valid_period", type="integer")
      */
     private $validPeriod;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="unit_price", type="string", length=255)
+     */
+    private $unitPrice;
 
     /**
      * @var \DateTime
@@ -137,6 +146,22 @@ class MembershipCardSpecification
     public function setValidPeriod($validPeriod)
     {
         $this->validPeriod = $validPeriod;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUnitPrice()
+    {
+        return $this->unitPrice;
+    }
+
+    /**
+     * @param string $unitPrice
+     */
+    public function setUnitPrice($unitPrice)
+    {
+        $this->unitPrice = $unitPrice;
     }
 
     /**
