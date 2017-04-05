@@ -197,10 +197,7 @@ class ClientChatGroupController extends ChatGroupController
         // get chat group
         $chatGroup = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:ChatGroup\ChatGroup')
-            ->findOneBy(array(
-                'id' => $id,
-                'creatorId' => $myUserId,
-            ));
+            ->find($id);
         if (!$chatGroup) {
             return new View();
         }
