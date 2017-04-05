@@ -2,6 +2,7 @@
 
 namespace Sandbox\ApiBundle\Repository\Lease;
 
+use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\ORM\EntityRepository;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Product\ProductAppointment;
@@ -21,6 +22,7 @@ class LeaseRepository extends EntityRepository
      * @param $endDate
      * @param $companyId
      * @param $roomId
+     * @param $userId
      *
      * @return array
      */
@@ -36,7 +38,8 @@ class LeaseRepository extends EntityRepository
         $startDate,
         $endDate,
         $companyId,
-        $roomId
+        $roomId,
+        $userId = null
     ) {
         $query = $this->createQueryBuilder('l')
             ->leftJoin('l.product', 'p')
@@ -57,7 +60,8 @@ class LeaseRepository extends EntityRepository
             $startDate,
             $endDate,
             $companyId,
-            $roomId
+            $roomId,
+            $userId
         );
 
         return $query->getQuery()->getSingleScalarResult();
@@ -77,6 +81,7 @@ class LeaseRepository extends EntityRepository
      * @param $roomId
      * @param $limit
      * @param $offset
+     * @param $userId
      *
      * @return array
      */
@@ -94,7 +99,8 @@ class LeaseRepository extends EntityRepository
         $companyId,
         $roomId,
         $limit,
-        $offset
+        $offset,
+        $userId = null
     ) {
         $query = $this->createQueryBuilder('l')
             ->leftJoin('l.product', 'p')
@@ -116,7 +122,8 @@ class LeaseRepository extends EntityRepository
             $startDate,
             $endDate,
             $companyId,
-            $roomId
+            $roomId,
+            $userId
         );
 
         return $query->getQuery()->getResult();
@@ -149,7 +156,7 @@ class LeaseRepository extends EntityRepository
     }
 
     /**
-     * @param $query
+     * @param QueryBuilder $query
      * @param $myBuildingIds
      * @param $status
      * @param $keyword
@@ -162,6 +169,7 @@ class LeaseRepository extends EntityRepository
      * @param $endDate
      * @param $companyId
      * @param $roomId
+     * @param $userId
      *
      * @return $query
      */
@@ -178,7 +186,8 @@ class LeaseRepository extends EntityRepository
         $startDate,
         $endDate,
         $companyId,
-        $roomId
+        $roomId,
+        $userId = null
     ) {
         if (!is_null($myBuildingIds) && !empty($myBuildingIds)) {
             $query->andWhere('r.buildingId IN (:buildingIds)')
@@ -294,6 +303,11 @@ class LeaseRepository extends EntityRepository
 
             $query->setParameter('startDate', $startDate)
                 ->setParameter('endDate', $endDate);
+        }
+
+        if (!is_null($userId)) {
+            $query->andWhere('(l.supervisor = :userId OR l.drawee = :userId)')
+                ->setParameter('userId', $userId);
         }
 
         return $query;

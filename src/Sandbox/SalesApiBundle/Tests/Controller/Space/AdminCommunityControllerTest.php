@@ -1,6 +1,6 @@
 <?php
 
-namespace Sandbox\SaleApiBundle\Tests\Controller\Space;
+namespace Sandbox\SalesApiBundle\Controller\Space;
 
 use AllanSimon\TestHelpers\ApiHelpersTrait;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
@@ -12,7 +12,7 @@ class AdminCommunityControllerTest extends WebTestCase
     use ApiHelpersTrait;
     use CommonTestsUtilsTrait;
 
-    const SPACE_FIELDS_AMOUNT = 10;
+    const SPACE_FIELDS_AMOUNT = 12;
 
     public function setUp()
     {
@@ -180,7 +180,7 @@ class AdminCommunityControllerTest extends WebTestCase
 
     private function performSalesGetSpacesByCommunity($id, $limit = 5, $roomType = null)
     {
-        $this->performGET('/sales/admin/space/communities/'.$id.'/spaces?&pageIndex=1&pageLimit='.$limit.$roomType);
+        $this->performGET('/sales/admin/space/communities/spaces?building='.$id.'&pageIndex=1&pageLimit='.$limit.$roomType);
     }
 
     private function performSalesGetCommunities()
@@ -224,6 +224,7 @@ class AdminCommunityControllerTest extends WebTestCase
                 'start_date' => $product->getStartDate()->format("Y-m-d\TH:i:sO"),
                 'base_price' => $product->getBasePrice(),
                 'recommend' => $product->isRecommend(),
+                'sales_recommend' => $product->isSalesRecommend(),
             ],
         ];
 
@@ -278,6 +279,7 @@ class AdminCommunityControllerTest extends WebTestCase
                     ],
                 ],
                 'recommend' => $product->isRecommend(),
+                'sales_recommend' => $product->isSalesRecommend(),
             ],
         ];
 

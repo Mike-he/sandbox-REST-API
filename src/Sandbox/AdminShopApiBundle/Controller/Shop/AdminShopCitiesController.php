@@ -27,7 +27,7 @@ class AdminShopCitiesController extends ShopRestController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
@@ -38,7 +38,7 @@ class AdminShopCitiesController extends ShopRestController
         );
 
         // get my company
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $myCompany = $adminPlatform['sales_company_id'];
 
         // get my buildings

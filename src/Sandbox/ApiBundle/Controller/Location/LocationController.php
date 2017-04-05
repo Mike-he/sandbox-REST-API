@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\Controller\Location;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingServices;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingTag;
+use Sandbox\ApiBundle\Entity\Room\RoomCity;
 use Sandbox\ApiBundle\Traits\HandleCoordinateTrait;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Symfony\Component\HttpFoundation\Request;
@@ -54,19 +55,6 @@ class LocationController extends SalesRestController
             ->getRepository('SandboxApiBundle:Room\RoomCity')
             ->getLocationCities();
 
-        $length = count($cities);
-
-        // sort city by building count
-        for ($i = 1; $i < $length; ++$i) {
-            for ($j = $length - 1; $j >= $i; --$j) {
-                if ($cities[$j]['building_count'] > $cities[$j - 1]['building_count']) {
-                    $tmp = $cities[$j];
-                    $cities[$j] = $cities[$j - 1];
-                    $cities[$j - 1] = $tmp;
-                }
-            }
-        }
-
         $citiesArray = array();
         foreach ($cities as $city) {
             array_push($citiesArray, $city['city']);
@@ -79,6 +67,45 @@ class LocationController extends SalesRestController
         );
 
         return new View($response);
+    }
+
+    /**
+     * @Get("/hot/cities")
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="type",
+     *    default=null,
+     *    nullable=false,
+     *    description="type"
+     * )
+     *
+     * @return View
+     */
+    public function getHotCitiesAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $language = $request->getPreferredLanguage(array('zh', 'en'));
+        $type = $paramFetcher->get('type');
+
+        $cities = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomCity')
+            ->getCities(
+                RoomCity::LEVEL_CITY,
+                true,
+                $type
+            );
+
+        // generate cities array
+        $citiesArray = $this->generateCitiesArray(
+            $cities,
+            $language
+        );
+
+        return new View($citiesArray);
     }
 
     /**
@@ -634,6 +661,13 @@ class LocationController extends SalesRestController
             }
         }
 
+        $members = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomBuildingServiceMember')
+            ->findBy([
+                'buildingId' => $building->getId(),
+            ]);
+        $building->setCustomerServices($members);
+
         return $building;
     }
 
@@ -721,6 +755,9 @@ class LocationController extends SalesRestController
                 'capital' => $city->isCapital(),
                 'latitude' => $city->getLat(),
                 'longitude' => $city->getLng(),
+                'code' => $city->getCode(),
+                'type' => $city->getType(),
+                'hot' => $city->isHot(),
             );
             array_push($citiesArray, $cityArray);
         }
@@ -954,6 +991,8 @@ class LocationController extends SalesRestController
         $buildings
     ) {
         foreach ($buildings as &$building) {
+            $building['distance'] = round($building['distance'], 3);
+
             $attachments = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Room\RoomBuildingAttachment')
                 ->findRoomBuildingAttachmentByBuildingId($building['id']);

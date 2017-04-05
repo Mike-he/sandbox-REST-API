@@ -113,6 +113,15 @@ class EvaluationControllerTest extends WebTestCase
         $this->given('user-profile-mike');
         $userProfile = $this->entity;
 
+        $this->given('room-building-for-data-structure');
+        $building = $this->entity;
+
+        $buildingCity = $building->getCity()->getName();
+        $buildingDistrict = $building->getDistrict() ? $building->getDistrict()->getName() : null;
+
+        $this->given('first-attachment-for-building-1');
+        $attachment = $this->entity;
+
         $this->given('evaluation-no_comment-with_pic');
         $secondEvaluation = $this->entity;
         $this->given('evaluation-no2-attachment');
@@ -140,6 +149,10 @@ class EvaluationControllerTest extends WebTestCase
                     ],
                 ],
                 'creation_date' => $firstEvaluation->getCreationDate()->format("Y-m-d\TH:i:sO"),
+                'building_id' => $building->getId(),
+                'building_name' => $building->getName(),
+                'building_city' => $buildingCity.' '.$buildingDistrict,
+                'building_attachment' => $attachment->getContent(),
             ],
             [
                 'id' => $secondEvaluation->getId(),
@@ -158,6 +171,10 @@ class EvaluationControllerTest extends WebTestCase
                     ],
                 ],
                 'creation_date' => $secondEvaluation->getCreationDate()->format("Y-m-d\TH:i:sO"),
+                'building_id' => $building->getId(),
+                'building_name' => $building->getName(),
+                'building_city' => $buildingCity.' '.$buildingDistrict,
+                'building_attachment' => $attachment->getContent(),
             ],
             [
                 'id' => $thirdEvaluation->getId(),
@@ -170,6 +187,10 @@ class EvaluationControllerTest extends WebTestCase
                 ],
                 'evaluation_attachments' => [],
                 'creation_date' => $thirdEvaluation->getCreationDate()->format("Y-m-d\TH:i:sO"),
+                'building_id' => $building->getId(),
+                'building_name' => $building->getName(),
+                'building_city' => $buildingCity.' '.$buildingDistrict,
+                'building_attachment' => $attachment->getContent(),
             ],
         ];
 

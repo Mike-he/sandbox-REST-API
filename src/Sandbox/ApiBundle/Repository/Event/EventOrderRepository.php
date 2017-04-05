@@ -101,6 +101,7 @@ class EventOrderRepository extends EntityRepository
      * @param $createDateRange
      * @param $createStart
      * @param $createEnd
+     * @param $userId
      *
      * @return array
      */
@@ -116,7 +117,8 @@ class EventOrderRepository extends EntityRepository
         $payEnd,
         $createDateRange,
         $createStart,
-        $createEnd
+        $createEnd,
+        $userId = null
     ) {
         $query = $this->createQueryBuilder('eo')
             ->leftJoin('SandboxApiBundle:Event\Event', 'e', 'WITH', 'e.id = eo.eventId')
@@ -218,6 +220,11 @@ class EventOrderRepository extends EntityRepository
             }
         }
 
+        if (!is_null($userId)) {
+            $query->andWhere('eo.userId = :userId')
+                ->setParameter('userId', $userId);
+        }
+
         // order by
         $query->orderBy('eo.creationDate', 'DESC');
 
@@ -238,6 +245,7 @@ class EventOrderRepository extends EntityRepository
      * @param $createStart
      * @param $createEnd
      * @param $salesCompanyId
+     * @param $userId
      *
      * @return array
      */
@@ -252,7 +260,8 @@ class EventOrderRepository extends EntityRepository
         $createDateRange,
         $createStart,
         $createEnd,
-        $salesCompanyId
+        $salesCompanyId,
+        $userId = null
     ) {
         $query = $this->createQueryBuilder('eo')
             ->leftJoin('SandboxApiBundle:Event\Event', 'e', 'WITH', 'e.id = eo.eventId')
@@ -344,6 +353,10 @@ class EventOrderRepository extends EntityRepository
                     ->setParameter('createEnd', $createEnd);
             }
         }
+
+        // filter by user
+        $query->andWhere('eo.userId = :userId')
+            ->setParameter('userId', $userId);
 
         // order by
         $query->orderBy('eo.creationDate', 'DESC');

@@ -234,7 +234,7 @@ class AdminProductController extends ProductController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             [
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_PRODUCT],
@@ -336,7 +336,7 @@ class AdminProductController extends ProductController
         $id
     ) {
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             [
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_SPACE],
@@ -553,7 +553,7 @@ class AdminProductController extends ProductController
         $id
     ) {
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             [
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_SPACE],
@@ -622,7 +622,7 @@ class AdminProductController extends ProductController
         $id
     ) {
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             [
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_SPACE],
@@ -707,7 +707,7 @@ class AdminProductController extends ProductController
     protected function checkAdminProductPermission(
         $opLevel
     ) {
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             [
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_PRODUCT],

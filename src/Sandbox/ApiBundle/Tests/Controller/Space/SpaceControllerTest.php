@@ -165,6 +165,15 @@ class SpaceControllerTest extends WebTestCase
                 'name' => 'sandbox',
             ),
             'building_services' => array(),
+            'lessor_name' => 'sandbox',
+            'lessor_address' => 'shanghai',
+            'lessor_contact' => 'sandbox',
+            'lessor_phone' => '12345678',
+            'lessor_email' => 'test@sandbox3.cn',
+            'customer_services' => array(
+                'add' => array(),
+                'remove' => array(),
+            ),
         );
     }
 }

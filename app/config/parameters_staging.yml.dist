@@ -4,10 +4,10 @@ parameters:
     database_port: '3306'
 
     # production data
-    database_name: staging_rest_api_db_pro
+    #database_name: staging_rest_api_db_pro
 
     # staging data
-    #database_name: staging_rest_api_db
+    database_name: staging_rest_api_db
 
     database_user: staging_rest
     database_password: S3deb0x_2016
@@ -117,3 +117,5 @@ parameters:
     top_level_domain: sandbox3.cn
     jpush_apns_option: false
     orders_url: https://testorders.sandbox3.cn
+    coffee_url: https://testcoffee.sandbox3.cn
+    invoice_url: https://testinvoice.sandbox3.cn

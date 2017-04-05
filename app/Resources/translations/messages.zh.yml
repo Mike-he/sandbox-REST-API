@@ -106,6 +106,10 @@ product_order:
     appoint_second: ”房间了，你可以用Sandbox3的卡片开启该房间的门禁
     appoint_cancel_first: 您在“
     appoint_cancel_second: ”的授权已经被取消了
+    order_preorder: 管理员为您推送了一张新订单，点击查看
+    order_change_price: 您的一张订单价格有变动，点击查看
+    order_admin_cancelled: 您的一张订单已取消，点击查看
+    order_transfer_returned: 您的订单线下汇款凭证被退回，需要您重新上传，点击查看
 
 shop_order:
   channel:
@@ -339,5 +343,6 @@ lease:
     lease_ended: 亲爱的创合用户，您的一份长租办公室合同已结束！感谢您一路对我们的信任与支持！期待我们下次合作！点击查看详情。
     lease_bill_unpaid_first: 亲爱的创合用户，您有
     lease_bill_unpaid_second: 笔账单在等待支付。点击查看详情。
+    lease_bill_transfer_returned: 您的账单线下汇款凭证被退回，需要您重新上传，点击查看
   order_method:
     backend: 后台推送

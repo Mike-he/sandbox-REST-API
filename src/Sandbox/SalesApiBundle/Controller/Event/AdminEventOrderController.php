@@ -120,6 +120,16 @@ class AdminEventOrderController extends SalesRestController
      *    description="end date. Must be YYYY-mm-dd"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="user",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by user id"
+     * )
+     *
      * @Route("/events/orders")
      * @Method({"GET"})
      *
@@ -146,6 +156,7 @@ class AdminEventOrderController extends SalesRestController
         $createDateRange = $paramFetcher->get('create_date_range');
         $createStart = $paramFetcher->get('create_start');
         $createEnd = $paramFetcher->get('create_end');
+        $userId = $paramFetcher->get('user');
 
         $orders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Event\EventOrder')
@@ -160,7 +171,8 @@ class AdminEventOrderController extends SalesRestController
                 $createDateRange,
                 $createStart,
                 $createEnd,
-                $this->getSalesCompanyId()
+                $this->getSalesCompanyId(),
+                $userId
             );
 
         // set event dates
@@ -530,7 +542,7 @@ class AdminEventOrderController extends SalesRestController
         $platform = null,
         $salesCompanyId = null
     ) {
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $adminId,
             array(
                 array(

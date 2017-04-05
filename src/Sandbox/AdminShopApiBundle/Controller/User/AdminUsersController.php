@@ -67,7 +67,7 @@ class AdminUsersController extends ShopRestController
         $ids = $paramFetcher->get('id');
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
@@ -96,32 +96,30 @@ class AdminUsersController extends ShopRestController
 
         $userIds = [];
         foreach ($ids as $id) {
-            $users = $this->getRepo('SalesAdmin\SalesUser')->getShopUser(
-                $id,
-                $shopIds
-            );
+            $users = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesUser')
+                ->getShopUser(
+                    $id,
+                    $shopIds
+                );
 
             if (!empty($users)) {
                 array_push($userIds, $id);
             }
         }
 
-        // ids is not null
-        return $this->getUsersByIds($userIds);
-    }
-
-    /**
-     * @param $ids
-     *
-     * @return View
-     */
-    public function getUsersByIds(
-        $ids
-    ) {
         // get user
-        $user = $this->getRepo('User\UserView')->getUsersByIds($ids);
+        $response = array();
+        $users = $this->getRepo('User\UserView')->getUsersByIds($ids);
+        foreach ($users as $user) {
+            if (!is_null($user['phone'])) {
+                $hidePhone = substr_replace($user['phone'], '****', 3, 4);
+                $user['phone'] = $hidePhone;
+            }
 
-        // set view
-        return new View($user);
+            array_push($response, $user);
+        }
+
+        return new View($response);
     }
 }

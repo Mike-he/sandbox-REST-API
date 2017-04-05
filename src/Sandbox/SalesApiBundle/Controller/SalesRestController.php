@@ -2,10 +2,10 @@
 
 namespace Sandbox\SalesApiBundle\Controller;
 
-use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Sandbox\ApiBundle\Controller\ChatGroup\ChatGroupController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 
-class SalesRestController extends SandboxRestController
+class SalesRestController extends ChatGroupController
 {
     const SALES_BUILDING_PERMISSION_PREFIX = 'sales.building';
 
@@ -30,7 +30,7 @@ class SalesRestController extends SandboxRestController
 
         if (is_null($platform)) {
             // get platform cookies
-            $adminPlatform = $this->getAdminPlatform();
+            $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
             $platform = $adminPlatform['platform'];
             $salesCompanyId = $adminPlatform['sales_company_id'];
         }
@@ -115,7 +115,7 @@ class SalesRestController extends SandboxRestController
      */
     protected function getSalesCompanyId()
     {
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
 
         return $adminPlatform['sales_company_id'];
     }

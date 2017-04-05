@@ -22,6 +22,7 @@ class LeaseBill
     const TYPE_OTHER = 'other';
 
     const ORDER_METHOD_BACKEND = 'backend';
+    const ORDER_METHOD_AUTO = 'auto';
 
     const CHANNEL_ACCOUNT = 'account';
     const CHANNEL_ALIPAY = 'alipay';

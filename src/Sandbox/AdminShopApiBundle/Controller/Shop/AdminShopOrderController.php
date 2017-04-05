@@ -203,7 +203,7 @@ class AdminShopOrderController extends ShopController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
@@ -309,7 +309,7 @@ class AdminShopOrderController extends ShopController
         $order = $this->findEntityById($id, 'Shop\ShopOrder');
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
@@ -528,7 +528,7 @@ class AdminShopOrderController extends ShopController
         $this->throwNotFoundIfNull($oldOrder, self::NOT_FOUND_MESSAGE);
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
@@ -719,7 +719,7 @@ class AdminShopOrderController extends ShopController
         $companyId = $paramFetcher->get('sales_company');
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $adminId,
             array(
                 array(
@@ -792,7 +792,7 @@ class AdminShopOrderController extends ShopController
         $order = $this->getRepo('Shop\ShopOrder')->getAdminShopOrderById($id);
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(

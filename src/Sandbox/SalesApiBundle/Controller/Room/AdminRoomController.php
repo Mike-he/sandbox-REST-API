@@ -164,7 +164,7 @@ class AdminRoomController extends SalesRestController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
@@ -272,7 +272,7 @@ class AdminRoomController extends SalesRestController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
@@ -387,7 +387,7 @@ class AdminRoomController extends SalesRestController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
@@ -469,7 +469,7 @@ class AdminRoomController extends SalesRestController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
@@ -539,7 +539,7 @@ class AdminRoomController extends SalesRestController
         $id
     ) {
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
@@ -597,7 +597,7 @@ class AdminRoomController extends SalesRestController
         $id
     ) {
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             [
                 ['key' => AdminPermission::KEY_SALES_BUILDING_ROOM],
@@ -687,7 +687,7 @@ class AdminRoomController extends SalesRestController
         $buildingId = $room->getBuildingId();
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
@@ -755,7 +755,7 @@ class AdminRoomController extends SalesRestController
         $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
@@ -826,7 +826,7 @@ class AdminRoomController extends SalesRestController
         $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
@@ -893,7 +893,7 @@ class AdminRoomController extends SalesRestController
         $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
@@ -957,7 +957,7 @@ class AdminRoomController extends SalesRestController
         $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
@@ -1020,7 +1020,7 @@ class AdminRoomController extends SalesRestController
         $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
@@ -1071,7 +1071,7 @@ class AdminRoomController extends SalesRestController
         $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
@@ -1939,88 +1939,12 @@ class AdminRoomController extends SalesRestController
     }
 
     /**
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
-     *
-     * @Annotations\QueryParam(
-     *    name="room_type",
-     *    array=false,
-     *    nullable=false,
-     *    description="Filter by room type"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="start",
-     *    nullable=false,
-     *    description=""
-     * )
-     *
-     *  @Annotations\QueryParam(
-     *    name="end",
-     *    nullable=false,
-     *    description=""
-     * )
-     *
-     * @Route("/rooms/usage")
-     * @Method({"GET"})
-     *
-     * @return View
-     */
-    public function getRoomUsageAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher
-    ) {
-        // check user permission
-
-        $roomType = $paramFetcher->get('room_type');
-        $startString = $paramFetcher->get('start');
-        $endString = $paramFetcher->get('end');
-
-        $start = new \DateTime($startString);
-        $start->setTime(0, 0, 0);
-        $end = new \DateTime($endString);
-        $end->setTime(23, 59, 59);
-
-        switch ($roomType) {
-            case Room::TYPE_MEETING:
-                $results = array();
-                break;
-            case Room::TYPE_OFFICE:
-                $results = array();
-                break;
-            case Room::TYPE_FIXED:
-                $results = array();
-                break;
-            case Room::TYPE_FLEXIBLE:
-                $results = array();
-                break;
-            case Room::TYPE_SPACE:
-                $results = array();
-                break;
-            case Room::TYPE_STUDIO:
-                $results = array();
-                break;
-            case Room::TYPE_LONG_TERM:
-                $results = array();
-                break;
-            default:
-                $results = array();
-        }
-
-        $view = new View();
-        $view->setSerializationContext(SerializationContext::create()->setGroups(['room_usage']));
-        $view->setData($results);
-
-        return $view;
-    }
-
-    /**
      * @param $buildingId
      */
     private function checkPermissionForRoomUsage(
         $buildingId
     ) {
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(

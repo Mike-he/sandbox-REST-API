@@ -68,6 +68,7 @@ class AdminLeaseBillController extends SalesRestController
                 'id' => $bill->getId(),
                 'bill_number' => $bill->getSerialNumber(),
                 'company_name' => $bill->getLease()->getProduct()->getRoom()->getBuilding()->getCompany()->getName(),
+                'building_id' => $bill->getLease()->getProduct()->getRoom()->getBuilding()->getId(),
             ));
         }
 
@@ -113,7 +114,7 @@ class AdminLeaseBillController extends SalesRestController
         $companyId = $adminPlatform->getSalesCompanyId();
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $adminId,
             [
                 ['key' => AdminPermission::KEY_SALES_BUILDING_LONG_TERM_LEASE],
@@ -223,7 +224,7 @@ class AdminLeaseBillController extends SalesRestController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             [
                 ['key' => AdminPermission::KEY_SALES_PLATFORM_AUDIT],
@@ -231,7 +232,7 @@ class AdminLeaseBillController extends SalesRestController
             AdminPermission::OP_LEVEL_VIEW
         );
 
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $company = $adminPlatform['sales_company_id'];
         $this->throwNotFoundIfNull($company, CustomErrorMessagesConstants::ERROR_SALES_COMPANY_NOT_FOUND_MESSAGE);
 
@@ -598,12 +599,12 @@ class AdminLeaseBillController extends SalesRestController
      *
      * @throws \Exception
      */
-    public function PatchCollectionActioon(
+    public function PatchCollectionAction(
         Request $request,
         $id
     ) {
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             [
                 ['key' => AdminPermission::KEY_SALES_PLATFORM_AUDIT],
@@ -683,7 +684,7 @@ class AdminLeaseBillController extends SalesRestController
     ) {
         // check user permission
 
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $company = $adminPlatform['sales_company_id'];
 
         $bills = $this->getDoctrine()
@@ -1003,7 +1004,7 @@ class AdminLeaseBillController extends SalesRestController
     private function checkAdminLeasePermission(
         $opLevel
     ) {
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             [
                 ['key' => AdminPermission::KEY_SALES_BUILDING_LONG_TERM_LEASE],

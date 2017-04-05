@@ -8,6 +8,9 @@ use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Controller\Location\LocationController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Admin\AdminPosition;
+use Sandbox\ApiBundle\Entity\ChatGroup\ChatGroup;
+use Sandbox\ApiBundle\Entity\ChatGroup\ChatGroupMember;
 use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Room\RoomAttachment;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
@@ -15,6 +18,7 @@ use Sandbox\ApiBundle\Entity\Room\RoomBuildingAttachment;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingCompany;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingPhones;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingServiceBinding;
+use Sandbox\ApiBundle\Entity\Room\RoomBuildingServiceMember;
 use Sandbox\ApiBundle\Entity\Room\RoomCity;
 use Sandbox\ApiBundle\Entity\Room\RoomFloor;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany;
@@ -52,6 +56,54 @@ class AdminBuildingController extends LocationController
     const ROOM_FLOOR_BAK = '.bak';
 
     /**
+     * @Route("/buildings/{id}/room/attachment")
+     * @Method({"POST"})
+     *
+     * @param Request $request
+     * @param int     $id
+     *
+     * @return Response
+     */
+    public function postRoomAttachmentAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
+            $this->getAdminId(),
+            array(
+                ['key' => AdminPermission::KEY_SALES_BUILDING_SPACE],
+                ['key' => AdminPermission::KEY_SALES_BUILDING_BUILDING],
+                ['key' => AdminPermission::KEY_SALES_PLATFORM_BUILDING],
+            ),
+            AdminPermission::OP_LEVEL_EDIT
+        );
+
+        $em = $this->getDoctrine()->getManager();
+
+        $building = $em->getRepository('SandboxApiBundle:Room\RoomBuilding')->find($id);
+        $this->throwNotFoundIfNull($building, self::NOT_FOUND_MESSAGE);
+
+        $payload = json_decode($request->getContent(), true);
+
+        $attachments = $payload['room_attachments'];
+
+        foreach ($attachments as $attachment) {
+            $roomAttachment = new RoomAttachment();
+            $form = $this->createForm(new RoomAttachmentPostType(), $roomAttachment);
+            $form->submit($attachment, true);
+
+            $roomAttachment->setBuilding($building);
+            $roomAttachment->setCreationDate(new \DateTime('now'));
+            $em->persist($roomAttachment);
+        }
+
+        $em->flush();
+
+        return new View();
+    }
+
+    /**
      * @Route("/buildings/{id}/sync")
      * @Method({"POST"})
      *
@@ -65,7 +117,7 @@ class AdminBuildingController extends LocationController
         $id
     ) {
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
@@ -166,7 +218,7 @@ class AdminBuildingController extends LocationController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             [
                 ['key' => AdminPermission::KEY_SALES_BUILDING_BUILDING],
@@ -251,7 +303,7 @@ class AdminBuildingController extends LocationController
         $id
     ) {
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             [
                 [
@@ -307,7 +359,7 @@ class AdminBuildingController extends LocationController
         Request $request
     ) {
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 ['key' => AdminPermission::KEY_SALES_BUILDING_SPACE],
@@ -363,7 +415,7 @@ class AdminBuildingController extends LocationController
         $id
     ) {
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             [
                 [
@@ -435,7 +487,7 @@ class AdminBuildingController extends LocationController
         $id
     ) {
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             [
                 [
@@ -641,7 +693,7 @@ class AdminBuildingController extends LocationController
         $id
     ) {
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             [
                 [
@@ -713,7 +765,7 @@ class AdminBuildingController extends LocationController
     private function handleAdminBuildingPost(
         $building
     ) {
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
 
         $em = $this->getDoctrine()->getManager();
         $roomAttachments = $building->getRoomAttachments();
@@ -721,6 +773,8 @@ class AdminBuildingController extends LocationController
         $phones = $building->getPhones();
         $buildingAttachments = $building->getBuildingAttachments();
         $buildingCompany = $building->getBuildingCompany();
+        $customerServicesIds = $building->getCustomerServices();
+
         $salesCompany = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
             ->find($adminPlatform['sales_company_id']);
@@ -787,6 +841,13 @@ class AdminBuildingController extends LocationController
         $this->addBuildingServices(
             $building,
             $buildingServices,
+            $em
+        );
+
+        // add customer services
+        $this->addCustomerService(
+            $building,
+            $customerServicesIds,
             $em
         );
 
@@ -917,9 +978,270 @@ class AdminBuildingController extends LocationController
             $em
         );
 
+        // update customer service members
+        $this->updateCustomerServices(
+            $building,
+            $em
+        );
+
         $em->flush();
 
         return new View();
+    }
+
+    /**
+     * @param RoomBuilding  $building
+     * @param EntityManager $em
+     */
+    private function updateCustomerServices(
+        $building,
+        $em
+    ) {
+        $services = $building->getCustomerServices();
+        $buildingId = $building->getId();
+        $companyId = $building->getCompanyId();
+        $chatGroups = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:ChatGroup\ChatGroup')
+            ->findBy(['buildingId' => $buildingId]);
+
+        if (array_key_exists('add', $services)) {
+            $this->addChatGroupMembers(
+                $em,
+                $services,
+                $companyId,
+                $buildingId,
+                $chatGroups
+            );
+        }
+
+        if (array_key_exists('remove', $services)) {
+            $this->removeChatGroupMembers(
+                $em,
+                $services,
+                $buildingId,
+                $chatGroups
+            );
+        }
+    }
+
+    /**
+     * @param EntityManager $em
+     * @param array         $services
+     * @param int           $companyId
+     * @param int           $buildingId
+     * @param array         $chatGroups
+     */
+    private function addChatGroupMembers(
+        $em,
+        $services,
+        $companyId,
+        $buildingId,
+        $chatGroups
+    ) {
+        $addServices = $services['add'];
+        $addGroups = [];
+
+        $addServices = array_unique($addServices, SORT_REGULAR);
+
+        foreach ($addServices as $addService) {
+            $userId = $addService['user_id'];
+            $tag = $addService['tag'];
+
+            $user = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\User')
+                ->findOneBy([
+                    'id' => $userId,
+                    'banned' => false,
+                ]);
+            if (is_null($user)) {
+                continue;
+            }
+
+            //check user is company admin
+            $positions = $this->checkUserIsAdmin(
+                $userId,
+                $companyId
+            );
+
+            if (empty($positions)) {
+                continue;
+            }
+
+            // check if user already added
+            $member = $this->getExistingService(
+                $buildingId,
+                $userId,
+                $tag
+            );
+
+            if (!is_null($member)) {
+                continue;
+            }
+
+            $newMember = new RoomBuildingServiceMember();
+            $newMember->setBuildingId($buildingId);
+            $newMember->setUserId($userId);
+            $newMember->setTag($tag);
+
+            $em->persist($newMember);
+
+            //add member to chat group
+            foreach ($chatGroups as $chatGroup) {
+                $groupMember = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:ChatGroup\ChatGroupMember')
+                    ->findOneBy([
+                        'chatGroup' => $chatGroup,
+                        'user' => $user,
+                    ]);
+                if (!is_null($groupMember)) {
+                    continue;
+                }
+
+                if ($chatGroup->getTag() !== $tag) {
+                    continue;
+                }
+
+                $newGroupMember = new ChatGroupMember();
+                $newGroupMember->setChatGroup($chatGroup);
+                $newGroupMember->setUser($user);
+                $newGroupMember->setAddBy($this->getUser()->getMyUser());
+
+                $em->persist($newGroupMember);
+
+                $groupId = $chatGroup->getId();
+
+                if (!array_key_exists($groupId, $addGroups)) {
+                    $addGroups = [
+                        "$groupId" => [$user],
+                    ];
+                } else {
+                    array_push($addGroups["$groupId"], $user);
+                }
+            }
+        }
+
+        $em->flush();
+
+        foreach ($addGroups as $key => $vals) {
+            $group = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:ChatGroup\ChatGroup')
+                ->find($key);
+
+            // call openfire
+            $this->handleXmppChatGroupMember(
+                $group,
+                $group->getCreator(),
+                $vals,
+                'POST'
+            );
+        }
+    }
+
+    /**
+     * @param EntityManager $em
+     * @param array         $services
+     * @param int           $buildingId
+     * @param array         $chatGroups
+     */
+    private function removeChatGroupMembers(
+        $em,
+        $services,
+        $buildingId,
+        $chatGroups
+    ) {
+        $removeServices = $services['remove'];
+        $removeGroups = [];
+
+        $removeServices = array_unique($removeServices, SORT_REGULAR);
+
+        foreach ($removeServices as $removeService) {
+            $userId = $removeService['user_id'];
+            $tag = $removeService['tag'];
+
+            $member = $this->getExistingService(
+                $buildingId,
+                $userId,
+                $tag
+            );
+
+            if (is_null($member)) {
+                continue;
+            }
+
+            $em->remove($member);
+
+            //remove member from chat group
+            foreach ($chatGroups as $chatGroup) {
+                if ($userId == $chatGroup->getCreatorId()) {
+                    continue;
+                }
+
+                $groupMember = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:ChatGroup\ChatGroupMember')
+                    ->findOneBy([
+                        'chatGroup' => $chatGroup,
+                        'user' => $userId,
+                    ]);
+                if (is_null($groupMember)) {
+                    continue;
+                }
+
+                if ($chatGroup->getTag() !== $tag) {
+                    continue;
+                }
+
+                $em->remove($groupMember);
+
+                $groupId = $chatGroup->getId();
+
+                if (!array_key_exists($groupId, $removeGroups)) {
+                    $removeGroups = [
+                        "$groupId" => [$groupMember->getUser()],
+                    ];
+                } else {
+                    array_push($removeGroups["$groupId"], $groupMember->getUser());
+                }
+            }
+        }
+
+        $em->flush();
+
+        foreach ($removeGroups as $key => $vals) {
+            $group = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:ChatGroup\ChatGroup')
+                ->find($key);
+
+            // call openfire
+            $this->handleXmppChatGroupMember(
+                $group,
+                $group->getCreator(),
+                $vals,
+                'DELETE'
+            );
+        }
+    }
+
+    /**
+     * @param $buildingId
+     * @param $userId
+     * @param $tag
+     *
+     * @return \Sandbox\ApiBundle\Entity\Room\RoomBuildingServiceMember
+     */
+    private function getExistingService(
+        $buildingId,
+        $userId,
+        $tag
+    ) {
+        $member = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomBuildingServiceMember')
+            ->findOneBy([
+                'userId' => $userId,
+                'tag' => $tag,
+                'buildingId' => $buildingId,
+            ]);
+
+        return $member;
     }
 
     /**
@@ -1324,5 +1646,86 @@ class AdminBuildingController extends LocationController
         }
 
         $em->flush();
+    }
+
+    private function addCustomerService(
+        $building,
+        $customerServices,
+        $em
+    ) {
+        foreach ($customerServices as $key => $val) {
+            $addServices = array_unique($val, SORT_REGULAR);
+
+            foreach ($addServices as $userId) {
+                $admin = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                    ->findOneBy(['userId' => $userId]);
+                if (is_null($admin)) {
+                    continue;
+                }
+
+                //check user is company admin
+                $positions = $this->checkUserIsAdmin(
+                    $userId,
+                    $building->getCompanyId()
+                );
+                if (empty($positions)) {
+                    continue;
+                }
+
+                $customerService = $this->getServiceMemberRepo()->findOneBy(
+                    array(
+                        'buildingId' => $building->getId(),
+                        'userId' => $admin->getId(),
+                        'tag' => $key,
+                    )
+                );
+                if (!is_null($customerService)) {
+                    continue;
+                }
+
+                $customerService = new RoomBuildingServiceMember();
+                $customerService->setBuildingId($building->getId());
+                $customerService->setUserId($admin->getId());
+
+                $em->persist($customerService);
+            }
+        }
+    }
+
+    /**
+     * @param $userId
+     * @param $companyId
+     *
+     * @return array
+     */
+    protected function checkUserIsAdmin(
+        $userId,
+        $companyId
+    ) {
+        $positions = [];
+
+        //check user is company admin
+        $admins = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+            ->findBy(['userId' => $userId]);
+
+        foreach ($admins as $admin) {
+            $position = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+                ->findOneBy([
+                    'id' => $admin->getPositionId(),
+                    'platform' => AdminPosition::PLATFORM_SALES,
+                    'salesCompanyId' => $companyId,
+                    'isHidden' => false,
+                ]);
+            if (is_null($position)) {
+                continue;
+            }
+
+            array_push($positions, $position);
+        }
+
+        return $positions;
     }
 }

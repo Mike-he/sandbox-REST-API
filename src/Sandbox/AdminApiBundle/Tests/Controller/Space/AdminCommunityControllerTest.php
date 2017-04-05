@@ -12,7 +12,7 @@ class AdminCommunityControllerTest extends WebTestCase
     use ApiHelpersTrait;
     use CommonTestsUtilsTrait;
 
-    const SPACE_FIELDS_AMOUNT = 10;
+    const SPACE_FIELDS_AMOUNT = 12;
 
     public function setUp()
     {
@@ -168,7 +168,7 @@ class AdminCommunityControllerTest extends WebTestCase
 
     public function testGetRoomTypesByCommunityShouldReturnCorrectDataStructure()
     {
-        $this->givenLoggedInAs('user-mike', 'user-token-mike');
+        $this->givenLoggedInAs('client-mike', 'user-token-mike');
 
         $this->given('room-building-for-data-structure');
         $this->performAdminGetRoomTypesByCommunity($this->entity->getId());
@@ -182,7 +182,7 @@ class AdminCommunityControllerTest extends WebTestCase
 
     private function performAdminGetSpacesByCommunity($id, $limit = 5, $roomType = null)
     {
-        $this->performGET('/admin/space/communities/'.$id.'/spaces?&pageIndex=1&pageLimit='.$limit.$roomType);
+        $this->performGET('/admin/space/communities/spaces?building='.$id.'&pageIndex=1&pageLimit='.$limit.$roomType);
     }
 
     private function performAdminGetCommunities($id)
@@ -226,6 +226,7 @@ class AdminCommunityControllerTest extends WebTestCase
                 'start_date' => $product->getStartDate()->format("Y-m-d\TH:i:sO"),
                 'base_price' => $product->getBasePrice(),
                 'recommend' => $product->isRecommend(),
+                'sales_recommend' => $product->isSalesRecommend(),
             ],
         ];
 
@@ -280,6 +281,7 @@ class AdminCommunityControllerTest extends WebTestCase
                     ],
                 ],
                 'recommend' => $product->isRecommend(),
+                'sales_recommend' => $product->isSalesRecommend(),
             ],
         ];
 

@@ -2231,9 +2231,73 @@ class OrderRepository extends EntityRepository
             }
         }
 
+        // filter by user
+        if (!is_null($userId)) {
+            $query->andWhere('o.userId = :userId')
+                ->setParameter('userId', $userId);
+        }
+
         $query->orderBy('o.creationDate', 'DESC');
 
         $result = $query->getQuery()->getSingleScalarResult();
+
+        return $result;
+    }
+
+    /**
+     * @param $building
+     * @param $payStart
+     * @param $payEnd
+     * @param $myBuildingIds
+     *
+     * @return array
+     */
+    public function getSalesOrderNumbersForInvoice(
+        $building,
+        $payStart,
+        $payEnd,
+        $myBuildingIds
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->select('o.orderNumber')
+            ->leftJoin('SandboxApiBundle:Order\ProductOrderRecord', 'por', 'WITH', 'por.orderId = o.id')
+            ->where('
+                    (
+                        (o.status != :unpaid) AND 
+                        (o.paymentDate IS NOT NULL) OR 
+                        (o.type = :preOrder)
+                    )
+                ')
+            ->setParameter('unpaid', ProductOrder::STATUS_UNPAID)
+            ->setParameter('preOrder', ProductOrder::PREORDER_TYPE);
+
+        // filter by building
+        if (!is_null($building)) {
+            $query->andWhere('por.buildingId = :building')
+                ->setParameter('building', $building);
+        } else {
+            $query->andWhere('por.buildingId IN (:buildingIds)')
+                ->setParameter('buildingIds', $myBuildingIds);
+        }
+
+            //filter by payStart
+            if (!is_null($payStart)) {
+                $payStart = new \DateTime($payStart);
+                $query->andWhere('o.paymentDate >= :payStart')
+                    ->setParameter('payStart', $payStart);
+            }
+
+            //filter by payEnd
+            if (!is_null($payEnd)) {
+                $payEnd = new \DateTime($payEnd);
+                $payEnd->setTime(23, 59, 59);
+                $query->andWhere('o.paymentDate <= :payEnd')
+                    ->setParameter('payEnd', $payEnd);
+            }
+
+        $query->orderBy('o.creationDate', 'DESC');
+
+        $result = $query->getQuery()->getResult();
 
         return $result;
     }
@@ -3986,5 +4050,41 @@ class OrderRepository extends EntityRepository
         $eventOrderCount = (int) $eventOrderCount;
 
         return $eventOrderCount;
+    }
+
+    /**
+     * @param $productId
+     * @param $start
+     * @param $end
+     *
+     * @return array
+     */
+    public function getRoomUsersUsage(
+        $productId,
+        $start,
+        $end
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->where('o.productId = :productId')
+            ->andWhere('o.rejected = FALSE')
+            ->andWhere('
+                o.status = :paid OR 
+                o.status = :completed OR
+                (o.status = :unpaid AND o.type = :preorder)
+            ')
+            ->andWhere('
+                (o.startDate <= :start AND o.endDate > :start) OR
+                (o.startDate < :end AND o.endDate >= :end) OR
+                (o.startDate >= :start AND o.endDate <= :end)
+            ')
+            ->setParameter('productId', $productId)
+            ->setParameter('start', $start)
+            ->setParameter('end', $end)
+            ->setParameter('paid', ProductOrder::STATUS_PAID)
+            ->setParameter('unpaid', ProductOrder::STATUS_UNPAID)
+            ->setParameter('completed', ProductOrder::STATUS_COMPLETED)
+            ->setParameter('preorder', ProductOrder::PREORDER_TYPE);
+
+        return $query->getQuery()->getResult();
     }
 }

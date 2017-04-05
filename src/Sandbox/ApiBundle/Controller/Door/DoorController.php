@@ -2,6 +2,7 @@
 
 namespace Sandbox\ApiBundle\Controller\Door;
 
+use Sandbox\ApiBundle\Entity\User\UserView;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 
 /**
@@ -29,4 +30,34 @@ class DoorController extends SalesRestController
     const STATUS_AUTHED = 'authed';
     const STATUS_UNAUTHED = 'unauthed';
     const STATUS_LOST = 'lossed';
+
+    /**
+     * @param $dateType
+     * @param $startDate
+     * @param $endDate
+     *
+     * @return array
+     */
+    protected function getUserIdByDate(
+        $dateType,
+        $startDate,
+        $endDate
+    ) {
+        if ($dateType == UserView::DATE_TYPE_REGISTRATION) {
+            return null;
+        }
+
+        $crmUrl = $this->container->getParameter('crm_api_url');
+        $url = $crmUrl.'/admin/user/ids/search?dateType='.$dateType;
+
+        $url = is_null($startDate) ? $url : $url.'&startDate='.$startDate;
+        $url = is_null($endDate) ? $url : $url.'&endDate='.$endDate;
+
+        $ch = curl_init($url);
+
+        $result = $this->callAPI($ch, 'GET');
+        $userIds = json_decode($result, true);
+
+        return $userIds;
+    }
 }

@@ -230,7 +230,7 @@ trait LogsTrait
     private function getAdminJson(
         $objectId
     ) {
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $platform = $adminPlatform['platform'];
         $companyId = $adminPlatform['sales_company_id'];
 

@@ -124,7 +124,7 @@ class ClientChatGroupController extends ChatGroupController
             }
         }
 
-        $chatGroup->setName($name);
+        $chatGroup->setName($chatGroupName);
         $em->persist($chatGroup);
 
         // save to db
@@ -197,21 +197,38 @@ class ClientChatGroupController extends ChatGroupController
         // get chat group
         $chatGroup = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:ChatGroup\ChatGroup')
-            ->findOneBy(array(
-                'id' => $id,
-                'creatorId' => $myUserId,
-            ));
-
-        // set group name
-        if (is_null($chatGroup->getName()) || $chatGroup->getName()) {
-            $chatGroupName = $this->constructGroupChatName(
-                $chatGroup
-            );
-
-            $chatGroup->setName($chatGroupName);
+            ->find($id);
+        if (!$chatGroup) {
+            return new View();
         }
 
-        return new View($chatGroup);
+        if ($chatGroup->getTag() != ChatGroup::XMPP_CUSTOMER_SERVICE) {
+            // set group name
+            if (is_null($chatGroup->getName()) || $chatGroup->getName()) {
+                $chatGroupName = $this->constructGroupChatName(
+                    $chatGroup
+                );
+
+                $chatGroup->setName($chatGroupName);
+            }
+        }
+
+        if ($chatGroup->getBuildingId()) {
+            $building = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                ->find($chatGroup->getBuildingId());
+            if ($building) {
+                $chatGroup->setBuildingAvatar($building->getAvatar());
+            }
+        }
+
+        // set view
+        $view = new View($chatGroup);
+        $view->setSerializationContext(
+            SerializationContext::create()->setGroups(array('chatgroup'))
+        );
+
+        return $view;
     }
 
     /**
@@ -294,6 +311,11 @@ class ClientChatGroupController extends ChatGroupController
         $chatGroup = $this->getRepo('ChatGroup\ChatGroup')->find($id);
         $this->throwNotFoundIfNull($chatGroup, self::NOT_FOUND_MESSAGE);
 
+        $tag = $chatGroup->getTag();
+        if (!is_null($tag)) {
+            throw new AccessDeniedHttpException();
+        }
+
         // bind data
         $chatGroupJson = $this->container->get('serializer')->serialize($chatGroup, 'json');
         $patch = new Patch($chatGroupJson, $request->getContent());
@@ -342,6 +364,11 @@ class ClientChatGroupController extends ChatGroupController
         $chatGroup = $this->getRepo('ChatGroup\ChatGroup')->find($id);
         if (is_null($chatGroup)) {
             return new View();
+        }
+
+        $tag = $chatGroup->getTag();
+        if (!is_null($tag)) {
+            throw new AccessDeniedHttpException();
         }
 
         // only chat group creator is allowed to remove it

@@ -112,6 +112,11 @@ security:
             pattern: ^/client/thirdparty/oauth/login$
             security: false
 
+        client_customerservice_status:
+            pattern: ^/client/customerservice/status$
+            security: false
+            methods: [GET]
+
         sales_admin_events_orders_export:
             pattern: ^/sales/admin/events/orders/export$
             security: false

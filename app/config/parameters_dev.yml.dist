@@ -41,7 +41,7 @@ parameters:
     time_for_half_hour_early: -30 minutes
     time_for_preorder_cancel: + 1 day
     xmpp_domain: devxmpp.sandbox3.cn
-    openfire_innet_url: http://127.0.0.1:9090
+    openfire_innet_url: http://192.168.0.2:9090
     openfire_plugin_bstuser: /plugins/bstuser
     openfire_plugin_bstuser_users: /users
     openfire_plugin_bstuser_property_name_ezuser: ezuser
@@ -128,3 +128,5 @@ parameters:
     top_level_domain: sandbox3.cn
     jpush_apns_option: false
     orders_url: http://devorders.sandbox3.cn
+    coffee_url: http://devcoffee.sandbox3.cn
+    invoice_url: http://devinvoice.sandbox3.cn

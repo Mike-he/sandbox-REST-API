@@ -34,7 +34,7 @@ class AdminFinanceInvoiceController extends SalesRestController
     ) {
         // check user permission
 
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
         $companyInvioces = $this->getDoctrine()

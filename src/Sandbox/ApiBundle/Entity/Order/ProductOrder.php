@@ -44,6 +44,9 @@ class ProductOrder
     const ACTION_ACCEPTED = 'accepted';
     const ACTION_REJECTED = 'rejected';
     const ACTION_OFFICE_ORDER = 'office_order';
+    const ACTION_CHANGE_PRICE = 'change_price';
+    const ACTION_CANCELLED = 'cancelled';
+    const ACTION_RETURNED = 'returned';
     const LETTER_HEAD = 'P';
     const ENTITY_PATH = 'Order\ProductOrder';
     const REFUNDED_STATUS = 'refunded';
@@ -289,11 +292,14 @@ class ProductOrder
     private $isRenew = false;
 
     /**
-     * @var string
+     * @var ProductOrderInfo
      *
-     * @ORM\Column(name="productInfo", type="text", nullable=false)
+     * @ORM\OneToOne(
+     *      targetEntity="Sandbox\ApiBundle\Entity\Order\ProductOrderInfo",
+     *      mappedBy="order"
+     * )
      *
-     * @Serializer\Groups({"main", "client", "admin_detail", "admin_order", "client_evaluation"})
+     * @Serializer\Exclude
      */
     private $productInfo;
 
@@ -476,7 +482,7 @@ class ProductOrder
      *
      * @ORM\Column(name="edit_comment", type="text", nullable=true)
      *
-     * @Serializer\Groups({"main", "admin_detail", "admin_order"})
+     * @Serializer\Groups({"main", "admin_detail", "admin_order", "client"})
      */
     private $editComment;
 
@@ -488,6 +494,16 @@ class ProductOrder
      * @Serializer\Groups({"main", "admin_detail", "admin_order"})
      */
     private $editAdminId;
+
+    /**
+     * @Serializer\VirtualProperty
+     * @Serializer\SerializedName("product_info")
+     * @Serializer\Groups({"main", "client", "admin_detail", "admin_order", "client_evaluation"})
+     */
+    public function degenerateProductInfo()
+    {
+        return $this->productInfo ? $this->productInfo->getProductInfo() : null;
+    }
 
     /**
      * @return int
@@ -1204,7 +1220,7 @@ class ProductOrder
      */
     public function getProductInfo()
     {
-        return $this->productInfo;
+        return $this->productInfo ? $this->productInfo->getProductInfo() : null;
     }
 
     /**

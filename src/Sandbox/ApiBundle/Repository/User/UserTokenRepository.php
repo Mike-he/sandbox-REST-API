@@ -27,4 +27,23 @@ class UserTokenRepository extends EntityRepository
 
         $query->execute();
     }
+
+    /**
+     * @param $userId
+     *
+     * @return mixed
+     */
+    public function getLastLoginUser(
+        $userId
+    ) {
+        $query = $this->createQueryBuilder('t')
+            ->where('t.userId = :userId')
+            ->setParameter('userId', $userId);
+
+        $query->orderBy('t.modificationDate', 'DESC')
+            ->setMaxResults(1)
+            ->setFirstResult(1);
+
+        return $query->getQuery()->getOneOrNullResult();
+    }
 }

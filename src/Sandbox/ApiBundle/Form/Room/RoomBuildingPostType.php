@@ -79,6 +79,13 @@ class RoomBuildingPostType extends AbstractType
             ->add('lessor_contact')
             ->add('lessor_phone')
             ->add('lessor_email')
+            ->add(
+                'customer_services',
+                null,
+                array(
+                    'required' => false,
+                )
+            )
         ;
     }
 

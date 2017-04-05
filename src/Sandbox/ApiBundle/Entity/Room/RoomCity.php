@@ -18,6 +18,9 @@ class RoomCity
     const LEVEL_CITY = 3;
     const LEVEL_AREA = 4;
 
+    const TYPE_INTERNATIONAL = 'international';
+    const TYPE_INTERNAL = 'internal';
+
     /**
      * @var int
      *
@@ -168,6 +171,32 @@ class RoomCity
      * })
      */
     private $lng;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="code", type="string",nullable=true)
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "client"
+     * })
+     */
+    private $code;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="hot", type="boolean")
+     */
+    private $hot = false;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="type", type="string", nullable=true)
+     */
+    private $type;
 
     /**
      * Get id.
@@ -345,5 +374,53 @@ class RoomCity
     public function setLng($lng)
     {
         $this->lng = $lng;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCode()
+    {
+        return $this->code;
+    }
+
+    /**
+     * @param string $code
+     */
+    public function setCode($code)
+    {
+        $this->code = $code;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isHot()
+    {
+        return $this->hot;
+    }
+
+    /**
+     * @param bool $hot
+     */
+    public function setHot($hot)
+    {
+        $this->hot = $hot;
+    }
+
+    /**
+     * @return string
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * @param string $type
+     */
+    public function setType($type)
+    {
+        $this->type = $type;
     }
 }

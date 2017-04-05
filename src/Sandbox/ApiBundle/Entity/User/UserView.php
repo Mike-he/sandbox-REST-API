@@ -15,6 +15,10 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class UserView
 {
+    const DATE_TYPE_AUTHORIZED = 'authorized_date';
+    const DATE_TYPE_REGISTRATION = 'registration_date';
+    const DATE_TYPE_BIND_CARD = 'bind_card_date';
+
     /**
      * @var int
      *
@@ -53,7 +57,7 @@ class UserView
      * @var bool
      *
      * @ORM\Column(name="authorized", type="boolean", nullable=false)
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "account"})
      */
     private $authorized;
 
@@ -151,6 +155,14 @@ class UserView
     public function getPhone()
     {
         return $this->phone;
+    }
+
+    /**
+     * @param $phone
+     */
+    public function setPhone($phone)
+    {
+        $this->phone = $phone;
     }
 
     /**

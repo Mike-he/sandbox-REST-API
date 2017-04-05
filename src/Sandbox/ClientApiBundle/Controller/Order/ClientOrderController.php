@@ -245,14 +245,28 @@ class ClientOrderController extends OrderController
      *
      * @Get("/orders/my/sales/invoice/amount")
      *
+     * @Annotations\QueryParam(
+     *    name="user_id",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true
+     * )
+     *
      * @param Request $request
      *
      * @return View
      */
     public function getUserSalesInvoiceAmountAction(
-        Request $request
+        Request $request,
+        ParamFetcherInterface $paramFetcher
     ) {
-        $userId = $this->getUserId();
+        $userId = $paramFetcher->get('user_id');
+
+        if (is_null($userId)) {
+            $userId = $this->getUserId();
+        }
 
         $productAmount = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
@@ -793,12 +807,6 @@ class ClientOrderController extends OrderController
             );
 
             $em->flush();
-
-            $this->storeProductOrderInfo(
-                $em,
-                $product,
-                $order
-            );
 
             $view = new View();
             $view->setData(

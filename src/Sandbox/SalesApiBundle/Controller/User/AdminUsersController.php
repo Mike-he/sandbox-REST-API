@@ -6,6 +6,7 @@ use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesUser;
+use Sandbox\ApiBundle\Entity\User\UserView;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -118,6 +119,36 @@ class AdminUsersController extends DoorController
      *    description="sort direction"
      * )
      *
+     * @Annotations\QueryParam(
+     *     name="card",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="startDate",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="endDate",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="name",
+     *    default=null,
+     *    description="search query"
+     * )
+     *
      * @Route("/users/search")
      * @Method({"GET"})
      *
@@ -130,7 +161,7 @@ class AdminUsersController extends DoorController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
@@ -148,6 +179,9 @@ class AdminUsersController extends DoorController
                 array(
                     'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_RESERVE,
                 ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_DASHBOARD,
+                ),
             ),
             AdminPermission::OP_LEVEL_VIEW
         );
@@ -157,38 +191,42 @@ class AdminUsersController extends DoorController
         $offset = ($pageIndex - 1) * $pageLimit;
         $banned = $paramFetcher->get('banned');
         $authorized = $paramFetcher->get('authorized');
-        $query = $paramFetcher->get('query');
         $sortBy = $paramFetcher->get('sortBy');
         $direction = $paramFetcher->get('direction');
-
-        // Another better way to search the users by query, but it needs to find out the bug and fix it yet
-//        // find all users who have the query in any of their mapped fields
-//        $finder = $this->container->get('fos_elastica.finder.search.user');
-
-//        $multiMatchQuery = new \Elastica\Query\MultiMatch();
-
-//        $multiMatchQuery->setQuery($query);
-//        $multiMatchQuery->setType('phrase_prefix');
-//        $multiMatchQuery->setFields(array('email', 'phone'));
-
-//        $results = $finder->createPaginatorAdapter($multiMatchQuery);
-
-//        $paginator = $this->get('knp_paginator');
+        $bindCard = $paramFetcher->get('card');
+        $startDate = $paramFetcher->get('startDate');
+        $endDate = $paramFetcher->get('endDate');
+        $name = $paramFetcher->get('name');
+        $query = $paramFetcher->get('query');
 
         // get sales users
         $userIds = $this->getMySalesUserIds();
 
-        $results = $this->getDoctrine()
+        if (!is_null($startDate) || !is_null($endDate)) {
+            $dateType = UserView::DATE_TYPE_BIND_CARD;
+
+            $bindCardUserIds = $this->getUserIdByDate(
+                $dateType,
+                $startDate,
+                $endDate
+            );
+
+            $userIds = array_intersect($userIds, $bindCardUserIds);
+        }
+
+        $users = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserView')
             ->searchSalesUser(
                 $banned,
                 $authorized,
-                $query,
+                $name,
                 $sortBy,
                 $direction,
                 $userIds,
                 $offset,
-                $pageLimit
+                $pageLimit,
+                $bindCard,
+                $query
             );
 
         // get total count
@@ -197,14 +235,28 @@ class AdminUsersController extends DoorController
             ->countSalesUsers(
                 $banned,
                 $authorized,
-                $query,
-                $userIds
+                $name,
+                $sortBy,
+                $direction,
+                $userIds,
+                $offset,
+                $pageLimit,
+                $bindCard,
+                $query
             );
+
+        // hide phone code
+        foreach ($users as $user) {
+            if (!is_null($user->getPhone())) {
+                $hidePhone = substr_replace($user->getPhone(), '****', 3, 4);
+                $user->setPhone($hidePhone);
+            }
+        }
 
         return new View(array(
             'current_page_number' => $pageIndex,
             'num_items_per_page' => $pageLimit,
-            'items' => $results,
+            'items' => $users,
             'total_count' => $countSalesUsers,
         ));
     }
@@ -293,7 +345,7 @@ class AdminUsersController extends DoorController
         $ids = $paramFetcher->get('id');
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
@@ -367,6 +419,14 @@ class AdminUsersController extends DoorController
      *    description="Filter by id"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="query",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     * )
+     *
      * @Route("/open/users")
      * @Method({"GET"})
      *
@@ -376,9 +436,43 @@ class AdminUsersController extends DoorController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $ids = $paramFetcher->get('id');
+        $ids = empty($paramFetcher->get('id')) ? null : $paramFetcher->get('id');
+        $search = $paramFetcher->get('query');
 
-        return $this->getUsersByIds($ids);
+        $users = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserView')
+            ->searchUser(
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                $ids,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                $search
+            );
+
+        $response = array();
+
+        // hide phone code
+        foreach ($users as $user) {
+            if (!is_null($user->getPhone())) {
+                $hidePhone = substr_replace($user->getPhone(), '****', 3, 4);
+                $user->setPhone($hidePhone);
+            }
+
+            array_push($response, $user);
+        }
+
+        return new View($response);
     }
 
     /**
@@ -406,7 +500,7 @@ class AdminUsersController extends DoorController
         $id
     ) {
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
@@ -479,7 +573,7 @@ class AdminUsersController extends DoorController
 
         // check if user banned status changed
         if ($banned !== $updateBanned) {
-            $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
                 $this->getAdminId(),
                 array(
                     array(
@@ -546,7 +640,7 @@ class AdminUsersController extends DoorController
         $id
     ) {
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
@@ -579,7 +673,7 @@ class AdminUsersController extends DoorController
         $user->setModificationDate(new \DateTime('now'));
 
         // check sales user record
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $companyId = $adminPlatform['sales_company_id'];
         $buildingId = $building->getId();
 

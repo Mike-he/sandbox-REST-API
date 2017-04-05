@@ -151,7 +151,7 @@ class AdminPositionBindingController extends AdminRestController
 
         $userId = $paramFetcher->get('user_id');
 
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $platform = $adminPlatform['platform'];
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
@@ -210,7 +210,7 @@ class AdminPositionBindingController extends AdminRestController
         $buildingId = $paramFetcher->get('building_id');
         $shopId = $paramFetcher->get('shop_id');
 
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $platform = $adminPlatform['platform'];
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
@@ -262,7 +262,7 @@ class AdminPositionBindingController extends AdminRestController
     ) {
         $userId = $paramFetcher->get('user_id');
 
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $platform = $adminPlatform['platform'];
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
@@ -470,7 +470,7 @@ class AdminPositionBindingController extends AdminRestController
 
         // save log
         foreach ($userIds as $userId) {
-            $adminPlatform = $this->getAdminPlatform();
+            $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
 
             $bindings = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
@@ -535,7 +535,7 @@ class AdminPositionBindingController extends AdminRestController
     private function checkAdminPositionBindingPermission(
         $opLevel
     ) {
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             [
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ADMIN],

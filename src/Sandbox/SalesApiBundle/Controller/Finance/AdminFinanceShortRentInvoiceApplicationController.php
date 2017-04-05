@@ -44,7 +44,7 @@ class AdminFinanceShortRentInvoiceApplicationController extends PaymentControlle
     ) {
         $this->checkAdminSalesInvoicePermission($this->getAdminId(), AdminPermission::OP_LEVEL_EDIT);
 
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
         $company = $this->getDoctrine()
@@ -234,7 +234,7 @@ class AdminFinanceShortRentInvoiceApplicationController extends PaymentControlle
     ) {
         $this->checkAdminSalesInvoicePermission($this->getAdminId(), AdminPermission::OP_LEVEL_VIEW);
 
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
         $company = $this->getDoctrine()
@@ -308,7 +308,7 @@ class AdminFinanceShortRentInvoiceApplicationController extends PaymentControlle
     ) {
         $this->checkAdminSalesInvoicePermission($this->getAdminId(), AdminPermission::OP_LEVEL_VIEW);
 
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
         $company = $this->getDoctrine()
@@ -364,7 +364,7 @@ class AdminFinanceShortRentInvoiceApplicationController extends PaymentControlle
     ) {
         $this->checkAdminSalesInvoicePermission($this->getAdminId(), AdminPermission::OP_LEVEL_EDIT);
 
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
         $company = $this->getDoctrine()
@@ -422,7 +422,7 @@ class AdminFinanceShortRentInvoiceApplicationController extends PaymentControlle
         $adminId,
         $level
     ) {
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $adminId,
             array(
                 array(

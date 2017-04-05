@@ -3,7 +3,6 @@
 namespace Sandbox\ApiBundle\Entity\Order;
 
 use Doctrine\ORM\Mapping as ORM;
-use JMS\Serializer\Annotation as Serializer;
 
 /**
  * ProductOrder.
@@ -23,18 +22,15 @@ class ProductOrderInfo
     private $id;
 
     /**
-     * @var int
-     *
-     * @ORM\Column(name="order_id", type="integer", nullable=false)
+     * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\Order\ProductOrder")
+     * @ORM\JoinColumn(name="order_id", referencedColumnName="id", onDelete="CASCADE")
      */
-    private $orderId;
+    private $order;
 
     /**
      * @var string
      *
      * @ORM\Column(name="product_info", type="text")
-     *
-     * @Serializer\Groups({"admin_detail"})
      */
     private $productInfo;
 
@@ -47,19 +43,19 @@ class ProductOrderInfo
     }
 
     /**
-     * @return int
+     * @return mixed
      */
-    public function getOrderId()
+    public function getOrder()
     {
-        return $this->orderId;
+        return $this->order;
     }
 
     /**
-     * @param int $orderId
+     * @param mixed $order
      */
-    public function setOrderId($orderId)
+    public function setOrder($order)
     {
-        $this->orderId = $orderId;
+        $this->order = $order;
     }
 
     /**

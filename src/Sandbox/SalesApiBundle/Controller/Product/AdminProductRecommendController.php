@@ -2,15 +2,15 @@
 
 namespace Sandbox\SalesApiBundle\Controller\Product;
 
-use Knp\Component\Pager\Paginator;
+use JMS\Serializer\SerializationContext;
 use Sandbox\AdminApiBundle\Data\Product\ProductRecommendPosition;
 use Sandbox\AdminApiBundle\Form\Product\ProductRecommendPositionType;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Entity\Room\Room;
-use Sandbox\ApiBundle\Entity\Room\RoomCity;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
+use Sandbox\ApiBundle\Traits\HandleSpacesDataTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -18,7 +18,9 @@ use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 /**
  * Admin product recommend controller.
@@ -32,6 +34,8 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  */
 class AdminProductRecommendController extends AdminProductController
 {
+    use HandleSpacesDataTrait;
+
     /**
      * Get products recommend.
      *
@@ -46,19 +50,10 @@ class AdminProductRecommendController extends AdminProductController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="city",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    strict=true,
-     *    description="Filter by city id"
-     * )
-     *
-     * @Annotations\QueryParam(
      *    name="building",
      *    array=false,
      *    default=null,
-     *    nullable=true,
+     *    nullable=false,
      *    strict=true,
      *    description="Filter by building id"
      * )
@@ -83,12 +78,6 @@ class AdminProductRecommendController extends AdminProductController
      *    description="page number "
      * )
      *
-     * @Annotations\QueryParam(
-     *    name="query",
-     *    default=null,
-     *    nullable=true,
-     *    description="search query"
-     * )
      *
      * @Route("/products/recommend")
      * @Method({"GET"})
@@ -107,14 +96,13 @@ class AdminProductRecommendController extends AdminProductController
         // filters
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
-        $cityId = $paramFetcher->get('city');
+        $offset = ($pageIndex - 1) * $pageLimit;
         $buildingId = $paramFetcher->get('building');
 
-        // search by name and number
-        $search = $paramFetcher->get('query');
-
-        $city = !is_null($cityId) ? $this->getRepo('Room\RoomCity')->find($cityId) : null;
-        $building = !is_null($buildingId) ? $this->getRepo('Room\RoomBuilding')->find($buildingId) : null;
+        $building = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+            ->find($buildingId);
+        $this->throwNotFoundIfNull($building, self::NOT_FOUND_MESSAGE);
 
         // get my buildings list
         $myBuildingIds = $this->getMySalesBuildingIds(
@@ -124,35 +112,42 @@ class AdminProductRecommendController extends AdminProductController
             )
         );
 
-        $query = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Product\Product')
-            ->getSalesAdminProducts(
-                $myBuildingIds,
-                null,
-                $city,
-                $building,
-                null,
-                'sortTime',
-                'DESC',
-                $search,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
+        if (!in_array($buildingId, $myBuildingIds)) {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        }
+
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\Room')
+            ->countRecommendedSpaces(
+                $buildingId,
                 true
             );
 
-        $paginator = new Paginator();
-        $pagination = $paginator->paginate(
-            $query,
-            $pageIndex,
-            $pageLimit
+        $spaces = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\Room')
+            ->findRecommendedSpaces(
+                $pageLimit,
+                $offset,
+                $buildingId,
+                true
+            );
+
+        $spaces = $this->handleSpacesData($spaces);
+
+        $view = new View();
+        $view->setData(
+            array(
+                'current_page_number' => $pageIndex,
+                'num_items_per_page' => (int) $pageLimit,
+                'items' => $spaces,
+                'total_count' => (int) $count,
+            )
+        );
+        $view->setSerializationContext(
+            SerializationContext::create()->setGroups(['admin_spaces'])
         );
 
-        return new View($pagination);
+        return $view;
     }
 
     /**
@@ -178,7 +173,7 @@ class AdminProductRecommendController extends AdminProductController
         Request $request
     ) {
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
@@ -195,22 +190,9 @@ class AdminProductRecommendController extends AdminProductController
         }
 
         // enable recommend
-        $this->setProductRecommend($productIds, true);
+        $products = $this->setProductRecommend($productIds, true);
 
-        foreach ($productIds as $productId) {
-            $product = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Product\Product')
-                ->findOneBy(
-                    [
-                        'id' => $productId,
-                        'recommend' => true,
-                    ]
-                );
-
-            if (is_null($product)) {
-                continue;
-            }
-
+        foreach ($products as $product) {
             $this->generateAdminLogs(array(
                 'logModule' => Log::MODULE_PRODUCT,
                 'logAction' => Log::ACTION_RECOMMEND,
@@ -256,7 +238,7 @@ class AdminProductRecommendController extends AdminProductController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
@@ -273,22 +255,9 @@ class AdminProductRecommendController extends AdminProductController
         }
 
         // disable recommend
-        $this->setProductRecommend($productIds, false);
+        $products = $this->setProductRecommend($productIds, false);
 
-        foreach ($productIds as $productId) {
-            $product = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Product\Product')
-                ->findOneBy(
-                    [
-                        'id' => $productId,
-                        'recommend' => false,
-                    ]
-                );
-
-            if (is_null($product)) {
-                continue;
-            }
-
+        foreach ($products as $product) {
             $this->generateAdminLogs(array(
                 'logModule' => Log::MODULE_PRODUCT,
                 'logAction' => Log::ACTION_REMOVE_RECOMMEND,
@@ -325,16 +294,19 @@ class AdminProductRecommendController extends AdminProductController
         $id
     ) {
         // get product
-        $product = $this->getRepo('Product\Product')->findOneBy(array(
-            'id' => $id,
-            'recommend' => true,
-        ));
+        $product = $this->getRepo('Product\Product')
+            ->findOneBy(array(
+                'id' => $id,
+                'salesRecommend' => true,
+                'visible' => true,
+                'isDeleted' => false,
+            ));
         $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
 
         $buildingId = $product->getRoom()->getBuildingId();
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
@@ -351,11 +323,11 @@ class AdminProductRecommendController extends AdminProductController
         $form = $this->createForm(new ProductRecommendPositionType(), $position);
         $form->handleRequest($request);
 
-        if ($form->isValid()) {
-            return $this->changeProductPosition($product, $position);
+        if (!$form->isValid()) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
-        throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        return $this->changeProductPosition($product, $position);
     }
 
     /**
@@ -366,15 +338,23 @@ class AdminProductRecommendController extends AdminProductController
         $productIds,
         $recommend
     ) {
+        $products = [];
+        $buildings = [];
         foreach ($productIds as $productId) {
-            $product = $this->getRepo('Product\Product')->find($productId);
+            $product = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\Product')
+                ->findOneBy([
+                    'id' => $productId,
+                    'visible' => true,
+                    'isDeleted' => false,
+                ]);
             if (is_null($product)) {
                 continue;
             }
             $buildingId = $product->getRoom()->getBuildingId();
 
             // check user permission
-            $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
                 $this->getAdminId(),
                 array(
                     array(
@@ -385,18 +365,45 @@ class AdminProductRecommendController extends AdminProductController
                 AdminPermission::OP_LEVEL_EDIT
             );
 
-            $product->setRecommend($recommend);
-
             if ($recommend) {
-                $product->setSortTime(round(microtime(true) * 1000));
+                if ($product->isSalesRecommend()) {
+                    continue;
+                }
+
+                $product->setSalesSortTime(round(microtime(true) * 1000));
+
+                if (!array_key_exists($buildingId, $buildings)) {
+                    $buildings["$buildingId"] = 1;
+                } else {
+                    $buildings["$buildingId"] += 1;
+                }
             } else {
-                $product->setSortTime(null);
+                $product->setSalesSortTime(null);
+            }
+
+            $product->setSalesRecommend($recommend);
+            array_push($products, $product);
+        }
+
+        foreach ($buildings as $key => $val) {
+            $existCount = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\Room')
+                ->countRecommendedSpaces(
+                    $key,
+                    true
+                );
+
+            $finalCount = $existCount + $val;
+            if ($finalCount > Product::SALES_RECOMMEND_LIMIT) {
+                throw new ConflictHttpException();
             }
         }
 
         // save
         $em = $this->getDoctrine()->getManager();
         $em->flush();
+
+        return $products;
     }
 
     /**
@@ -410,11 +417,8 @@ class AdminProductRecommendController extends AdminProductController
         $position
     ) {
         $action = $position->getAction();
-        $cityId = $position->getCityId();
-        $buildingId = $position->getBuildingId();
+        $buildingId = $product->getRoom()->getBuildingId();
 
-        // find city and building
-        $city = !is_null($cityId) ? $this->getRepo('Room\RoomCity')->find($cityId) : null;
         $building = !is_null($buildingId) ? $this->getRepo('Room\RoomBuilding')->find($buildingId) : null;
 
         // move product
@@ -422,7 +426,7 @@ class AdminProductRecommendController extends AdminProductController
             $this->topProduct($product);
         } elseif ($action == ProductRecommendPosition::ACTION_UP
             || $action == ProductRecommendPosition::ACTION_DOWN) {
-            $this->moveProduct($product, $action, $city, $building);
+            $this->moveProduct($product, $action, $building);
         }
 
         return new View();
@@ -435,7 +439,7 @@ class AdminProductRecommendController extends AdminProductController
         $product
     ) {
         // set sortTime to current timestamp
-        $product->setSortTime(round(microtime(true) * 1000));
+        $product->setSalesSortTime(round(microtime(true) * 1000));
 
         // save
         $em = $this->getDoctrine()->getManager();
@@ -445,26 +449,27 @@ class AdminProductRecommendController extends AdminProductController
     /**
      * @param Product      $product
      * @param string       $action
-     * @param RoomCity     $city
      * @param RoomBuilding $building
      */
     private function moveProduct(
         $product,
         $action,
-        $city,
         $building
     ) {
         $swapProduct = $this->getRepo('Product\Product')->findSwapProduct(
             $product,
             $action,
-            $city,
             $building
         );
 
+        if (is_null($swapProduct)) {
+            return;
+        }
+
         // swap
-        $productSortTime = $product->getSortTime();
-        $product->setSortTime($swapProduct->getSortTime());
-        $swapProduct->setSortTime($productSortTime);
+        $productSortTime = $product->getSalesSortTime();
+        $product->setSalesSortTime($swapProduct->getSalesSortTime());
+        $swapProduct->setSalesSortTime($productSortTime);
 
         // save
         $em = $this->getDoctrine()->getManager();

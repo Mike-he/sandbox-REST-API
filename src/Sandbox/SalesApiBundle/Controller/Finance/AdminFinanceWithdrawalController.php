@@ -48,7 +48,7 @@ class AdminFinanceWithdrawalController extends PaymentController
         // check user permission
         $this->checkAdminWithdrawPermission($this->getAdminId(), AdminPermission::OP_LEVEL_VIEW);
 
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
         $company = $this->getDoctrine()
@@ -82,7 +82,7 @@ class AdminFinanceWithdrawalController extends PaymentController
         $adminId = $this->getAdminId();
         $this->checkAdminWithdrawPermission($adminId, AdminPermission::OP_LEVEL_EDIT);
 
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
         $company = $this->getDoctrine()
@@ -266,7 +266,7 @@ class AdminFinanceWithdrawalController extends PaymentController
         // check user permission
         $this->checkAdminWithdrawPermission($this->getAdminId(), AdminPermission::OP_LEVEL_VIEW);
 
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
         $company = $this->getDoctrine()
@@ -352,7 +352,7 @@ class AdminFinanceWithdrawalController extends PaymentController
         // check user permission
         $this->checkAdminWithdrawPermission($this->getAdminId(), AdminPermission::OP_LEVEL_VIEW);
 
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
         $company = $this->getDoctrine()
@@ -391,7 +391,7 @@ class AdminFinanceWithdrawalController extends PaymentController
     public function checkSalesCompanyInfos(
         Request $request
     ) {
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
         $check = true;
@@ -474,7 +474,7 @@ class AdminFinanceWithdrawalController extends PaymentController
         $adminId,
         $level
     ) {
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $adminId,
             array(
                 array(

@@ -17,25 +17,44 @@ class SalesCompanyRepository extends EntityRepository
         return $query->getQuery()->getResult();
     }
 
+    /**
+     * @param $banned
+     * @param $keyword
+     * @param $keywordSearch
+     *
+     * @return array
+     */
     public function getCompanyList(
         $banned,
-        $search
+        $keyword,
+        $keywordSearch
     ) {
         $query = $this->createQueryBuilder('sc')
-            ->where('sc.id is not null');
+            ->where('1=1');
 
         if (!is_null($banned)) {
             $query->andWhere('sc.banned = :banned')
                 ->setParameter('banned', $banned);
         }
 
-        if (!is_null($search)) {
-            $query->andWhere('
-                    (sc.name LIKE :search OR
-                    sc.phone LIKE :search OR
-                    sc.contacterEmail LIKE :search)
-                ')
-                ->setParameter('search', '%'.$search.'%');
+        if (!is_null($keyword) && !is_null($keywordSearch)) {
+            switch ($keyword) {
+                case 'company':
+                    $query->andWhere('sc.name LIKE :search');
+                    break;
+                case 'building':
+                    $query->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'sc.id = b.companyId')
+                        ->andWhere('b.name LIKE :search');
+                    break;
+                case 'shop':
+                    $query->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'sc.id = b.companyId')
+                        ->leftJoin('SandboxApiBundle:Shop\Shop', 's', 'WITH', 'b.id = s.buildingId')
+                        ->andWhere('s.name LIKE :search');
+                    break;
+                default:
+                    $query->andWhere('sc.name LIKE :search');
+            }
+            $query->setParameter('search', '%'.$keywordSearch.'%');
         }
 
         $query->orderBy('sc.id', 'DESC');

@@ -8,6 +8,7 @@ use Rs\Json\Patch;
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Sandbox\ApiBundle\Controller\Order\OrderController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
@@ -77,10 +78,95 @@ class AdminOrderController extends OrderController
                 'id' => $order->getId(),
                 'order_number' => $order->getOrderNumber(),
                 'company_name' => $order->getProduct()->getRoom()->getBuilding()->getCompany()->getName(),
+                'building_id' => $order->getProduct()->getRoom()->getBuilding()->getId(),
             ));
         }
 
         return new View($response);
+    }
+
+    /**
+     * Order.
+     *
+     * @param Request               $request      the request object
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     200 = "Returned when successful"
+     *  }
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pay_start",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="filter for payment start. Must be YYYY-mm-dd"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="pay_end",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="filter for payment end. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Route("/my_order_numbers")
+     * @Method({"GET"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getMyOrderNumbersAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $company = $adminPlatform['sales_company_id'];
+
+        //filters
+        $payStart = $paramFetcher->get('pay_start');
+        $payEnd = $paramFetcher->get('pay_end');
+
+        //get my buildings list
+        $myBuildingIds = $this->getMySalesBuildingIds(
+            $this->getAdminId(),
+            array(
+                AdminPermission::KEY_SALES_BUILDING_ORDER,
+                AdminPermission::KEY_SALES_PLATFORM_INVOICE,
+            )
+        );
+
+        $orders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getSalesOrderNumbersForInvoice(
+                null,
+                $payStart,
+                $payEnd,
+                $myBuildingIds
+            );
+
+        $bills = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->findNumbersForSalesInvoice(
+                $company,
+                LeaseBill::STATUS_PAID
+            );
+
+        $myOrderNumbers = array_merge($orders, $bills);
+
+        $view = new View();
+        $view->setData($myOrderNumbers);
+
+        return $view;
     }
 
     /**
@@ -216,7 +302,7 @@ class AdminOrderController extends OrderController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
@@ -307,7 +393,7 @@ class AdminOrderController extends OrderController
         $buildingId = $order->getProduct()->getRoom()->getBuildingId();
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
@@ -575,7 +661,7 @@ class AdminOrderController extends OrderController
         $buildingId = $order->getProduct()->getRoom()->getBuildingId();
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
@@ -775,6 +861,26 @@ class AdminOrderController extends OrderController
      *    description="Filter by room id"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="user",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by user id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by building id"
+     * )
+     *
      * @Route("/orders")
      * @Method({"GET"})
      *
@@ -789,11 +895,14 @@ class AdminOrderController extends OrderController
         $adminId = $this->getAdminId();
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $adminId,
             array(
                 array(
                     'key' => AdminPermission::KEY_SALES_BUILDING_ORDER,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_USER,
                 ),
             ),
             AdminPermission::OP_LEVEL_VIEW
@@ -817,6 +926,8 @@ class AdminOrderController extends OrderController
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
         $roomId = $paramFetcher->get('room');
+        $userId = $paramFetcher->get('user');
+        $buildingId = $paramFetcher->get('building');
 
         $limit = $pageLimit;
         $offset = ($pageIndex - 1) * $pageLimit;
@@ -835,8 +946,8 @@ class AdminOrderController extends OrderController
                 $channel,
                 $type,
                 null,
-                null,
-                null,
+                $buildingId,
+                $userId,
                 $rentFilter,
                 $startDate,
                 $endDate,
@@ -861,8 +972,8 @@ class AdminOrderController extends OrderController
                 $channel,
                 $type,
                 null,
-                null,
-                null,
+                $buildingId,
+                $userId,
                 $rentFilter,
                 $startDate,
                 $endDate,
@@ -1040,6 +1151,16 @@ class AdminOrderController extends OrderController
      *    description="Filter by room id"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by building id"
+     * )
+     *
      * @Route("/my_orders")
      * @Method({"GET"})
      *
@@ -1069,6 +1190,7 @@ class AdminOrderController extends OrderController
         $payStart = $paramFetcher->get('pay_start');
         $payEnd = $paramFetcher->get('pay_end');
         $roomId = $paramFetcher->get('room');
+        $buildingId = $paramFetcher->get('building');
 
         //get my buildings list
         $myBuildingIds = $this->getMySalesBuildingIds(
@@ -1085,7 +1207,7 @@ class AdminOrderController extends OrderController
                 $channel,
                 $type,
                 null,
-                null,
+                $buildingId,
                 null,
                 $rentFilter,
                 $startDate,
@@ -1280,7 +1402,7 @@ class AdminOrderController extends OrderController
         $companyId = $paramFetcher->get('company');
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $adminId,
             array(
                 array(
@@ -1376,7 +1498,7 @@ class AdminOrderController extends OrderController
         $buildingId = $order->getProduct()->getRoom()->getBuildingId();
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
@@ -1452,7 +1574,7 @@ class AdminOrderController extends OrderController
             $buildingId = $product->getRoom()->getBuildingId();
 
             // check user permission
-            $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
                 $this->getAdminId(),
                 array(
                     array(
@@ -1583,7 +1705,7 @@ class AdminOrderController extends OrderController
         $buildingId = $order->getProduct()->getRoom()->getBuildingId();
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
@@ -1670,7 +1792,7 @@ class AdminOrderController extends OrderController
         }
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $adminId,
             $permissions,
             AdminPermission::OP_LEVEL_VIEW
@@ -1741,6 +1863,16 @@ class AdminOrderController extends OrderController
             $em->flush();
         }
 
+        // send message
+        $this->sendXmppProductOrderNotification(
+            null,
+            null,
+            ProductOrder::ACTION_CANCELLED,
+            null,
+            [$order],
+            ProductOrderMessage::ORDER_ADMIN_CANCELLED_MESSAGE
+        );
+
         $this->generateAdminLogs(array(
             'logModule' => $module,
             'logAction' => Log::ACTION_CANCEL,
@@ -1794,7 +1926,7 @@ class AdminOrderController extends OrderController
             $buildingId = $product->getRoom()->getBuildingId();
 
             // check user permission
-            $this->throwAccessDeniedIfAdminNotAllowed(
+            $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
                 $adminId,
                 array(
                     array(
@@ -1957,6 +2089,16 @@ class AdminOrderController extends OrderController
                 $this->setDoorAccessForSingleOrder($order, $em);
             }
 
+            // send message
+            $this->sendXmppProductOrderNotification(
+                null,
+                null,
+                ProductOrder::PREORDER_TYPE,
+                null,
+                [$order],
+                ProductOrderMessage::ORDER_PREORDER_MESSAGE
+            );
+
             $this->generateAdminLogs(array(
                 'logModule' => Log::MODULE_ORDER_PREORDER,
                 'logAction' => Log::ACTION_CREATE,
@@ -1998,14 +2140,14 @@ class AdminOrderController extends OrderController
             ->findOneBy([
                 'id' => $id,
                 'status' => ProductOrder::STATUS_UNPAID,
-                'type' => ProductOrder::PREORDER_TYPE
+                'type' => ProductOrder::PREORDER_TYPE,
             ]);
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
 
         $buildingId = $order->getProduct()->getRoom()->getBuildingId();
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
@@ -2028,6 +2170,16 @@ class AdminOrderController extends OrderController
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();
+
+        // send message
+        $this->sendXmppProductOrderNotification(
+            null,
+            null,
+            ProductOrder::ACTION_CHANGE_PRICE,
+            null,
+            [$order],
+            ProductOrderMessage::ORDER_CHANGE_PRICE_MESSAGE
+        );
 
         $this->generateAdminLogs(array(
             'logModule' => Log::MODULE_ROOM_ORDER,

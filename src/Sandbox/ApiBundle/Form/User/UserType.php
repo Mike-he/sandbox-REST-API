@@ -23,8 +23,7 @@ class UserType extends AbstractType
                 null,
                 array(
                     'mapped' => false,
-                )
-            )
+                ))
         ;
     }
 

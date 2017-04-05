@@ -229,7 +229,7 @@ class AdminProductController extends ProductController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
@@ -357,7 +357,7 @@ class AdminProductController extends ProductController
         $buildingId = $product->getRoom()->getBuildingId();
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
@@ -375,6 +375,9 @@ class AdminProductController extends ProductController
                 array(
                     'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_RESERVE,
                     'building_id' => $buildingId,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_DASHBOARD,
                 ),
             ),
             AdminPermission::OP_LEVEL_VIEW
@@ -427,7 +430,7 @@ class AdminProductController extends ProductController
         $buildingId = $product->getRoom()->getBuildingId();
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
@@ -510,7 +513,7 @@ class AdminProductController extends ProductController
         $buildingId = $room->getBuildingId();
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
@@ -673,7 +676,7 @@ class AdminProductController extends ProductController
         $buildingId = $room->getBuildingId();
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
@@ -811,7 +814,7 @@ class AdminProductController extends ProductController
         $oldVisible = $product->getVisible();
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
                 array(
@@ -870,12 +873,13 @@ class AdminProductController extends ProductController
     protected function checkAdminProductPermission(
         $opLevel
     ) {
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
-                array(
-                    'key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT,
-                ),
+                ['key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT],
+                ['key' => AdminPermission::KEY_SALES_BUILDING_SPACE],
+                ['key' => AdminPermission::KEY_SALES_BUILDING_BUILDING],
+                ['key' => AdminPermission::KEY_SALES_BUILDING_ROOM],
             ),
             $opLevel
         );

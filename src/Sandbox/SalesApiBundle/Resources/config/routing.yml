@@ -130,14 +130,32 @@ sandbox_sales_admin_room_types:
     type:     annotation
     prefix:   /admin
 
+# Admin Sales Company
+sandbox_sales_admin_sales_company_api:
+    resource: "@SandboxSalesApiBundle/Controller/Space/AdminSpaceSalesCompanyController.php"
+    type:     annotation
+    prefix:   /admin
+
+# Admin ChatGroup
+sandbox_sales_admin_chatgroups:
+    resource: "@SandboxSalesApiBundle/Controller/ChatGroup/AdminChatGroupController.php"
+    type:     annotation
+    prefix:   /admin
+
 # Admin Finance
 sandbox_sales_admin_finance_api:
     resource: "@SandboxSalesApiBundle/Resources/config/finance/routing.yml"
     type: rest
     prefix: /admin
 
-# Admin Sales Company
-sandbox_sales_admin_sales_company_api:
-    resource: "@SandboxSalesApiBundle/Controller/Space/AdminSpaceSalesCompanyController.php"
+# Admin Dashboard
+sandbox_sales_admin_dashboard_api:
+    resource: "@SandboxSalesApiBundle/Controller/Dashboard/AdminDashBoardController.php"
     type:     annotation
     prefix:   /admin
+
+# User Profile
+sandbox_amin_api_user_profile:
+    resource: "@SandboxSalesApiBundle/Controller/User/AdminUserProfileController.php"
+    type:     annotation
+    prefix:   /

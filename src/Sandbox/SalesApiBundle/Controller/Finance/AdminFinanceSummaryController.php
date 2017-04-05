@@ -72,7 +72,7 @@ class AdminFinanceSummaryController extends PaymentController
     ) {
         $this->checkAdminSalesFinanceSummaryPermission($this->getAdminId(), AdminPermission::OP_LEVEL_VIEW);
 
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
         $company = $this->getDoctrine()
@@ -142,7 +142,7 @@ class AdminFinanceSummaryController extends PaymentController
     ) {
         $this->checkAdminSalesFinanceSummaryPermission($this->getAdminId(), AdminPermission::OP_LEVEL_VIEW);
 
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
         $company = $this->getDoctrine()
@@ -185,7 +185,7 @@ class AdminFinanceSummaryController extends PaymentController
     ) {
         $this->checkAdminSalesFinanceSummaryPermission($this->getAdminId(), AdminPermission::OP_LEVEL_VIEW);
 
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
         $company = $this->getDoctrine()
@@ -224,7 +224,7 @@ class AdminFinanceSummaryController extends PaymentController
     public function getSummaryNumberCountsAction(
         Request $request
     ) {
-        $adminPlatform = $this->getAdminPlatform();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
         $company = $this->getDoctrine()
@@ -235,8 +235,8 @@ class AdminFinanceSummaryController extends PaymentController
             ]);
         $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
 
-        $invoices = $this->getSalesAdminInvoices();
-        $invoiceCount = (int) $invoices['total_count'];
+        $url = $this->getParameter('crm_api_url').'/sales/admin/invoices/count?status[]=pending&status[]=cancelled_wait';
+        $invoiceCount = $this->getPendingInvoiceCount($url);
 
         $billCount = (int) $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
@@ -337,7 +337,7 @@ class AdminFinanceSummaryController extends PaymentController
 
         $companyId = $adminPlatform->getSalesCompanyId();
 
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $adminId,
             [
                 ['key' => AdminPermission::KEY_SALES_PLATFORM_FINANCIAL_SUMMARY],
@@ -489,12 +489,47 @@ class AdminFinanceSummaryController extends PaymentController
         $adminId,
         $opLevel
     ) {
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $adminId,
             [
                 ['key' => AdminPermission::KEY_SALES_PLATFORM_FINANCIAL_SUMMARY],
             ],
             $opLevel
         );
+    }
+
+    /**
+     * @param $url
+     * @param null $auth
+     *
+     * @return mixed|void
+     */
+    private function getPendingInvoiceCount(
+        $url,
+        $auth = null
+    ) {
+        if (is_null($auth)) {
+            // get auth
+            $headers = array_change_key_case($_SERVER, CASE_LOWER);
+            $auth = $headers['http_authorization'];
+        }
+
+        // init curl
+        $ch = curl_init($url);
+
+        $response = $this->callAPI(
+            $ch,
+            'GET',
+            array('Authorization: '.$auth)
+        );
+
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($httpCode != self::HTTP_STATUS_OK) {
+            return;
+        }
+
+        $result = json_decode($response, true);
+
+        return $result;
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Sandbox\SaleApiBundle\Tests\Controller\Lease;
+namespace Sandbox\SalesApiBundle\Controller\Lease;
 
 use AllanSimon\TestHelpers\ApiHelpersTrait;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
@@ -48,7 +48,7 @@ class ClientLeaseBillControllerTest extends WebTestCase
 
     public function testGetMyLeaseBillsShouldReturnCorrectFieldsAmount()
     {
-        $this->givenLoggedInAs('user-mike', 'user-token-mike');
+        $this->givenLoggedInAs('client-mike', 'user-token-mike');
 
         $this->performGetMyBills();
 
@@ -59,7 +59,7 @@ class ClientLeaseBillControllerTest extends WebTestCase
 
     public function testMyLeaseBillsShouldReturnCorrectDataStructure()
     {
-        $this->givenLoggedInAs('user-mike', 'user-token-mike');
+        $this->givenLoggedInAs('client-mike', 'user-token-mike');
 
         $this->performGetMyBills();
 

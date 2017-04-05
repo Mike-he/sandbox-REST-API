@@ -5,6 +5,7 @@ namespace Sandbox\AdminApiBundle\Command;
 use Sandbox\ApiBundle\Constants\LeaseConstants;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
+use Sandbox\ApiBundle\Traits\LeaseTrait;
 use Sandbox\ApiBundle\Traits\SendNotification;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
@@ -13,6 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class CheckLeaseBillsCommand extends ContainerAwareCommand
 {
     use SendNotification;
+    use LeaseTrait;
 
     protected function configure()
     {
@@ -65,6 +67,32 @@ class CheckLeaseBillsCommand extends ContainerAwareCommand
                     null,
                     $contentArray
                 );
+            }
+        }
+
+        // Auto Push lease Bills
+        $status = array(
+            Lease::LEASE_STATUS_CONFIRMED,
+            Lease::LEASE_STATUS_PERFORMING,
+            Lease::LEASE_STATUS_MATURED,
+        );
+
+        $autoLeases = $em->getRepository('SandboxApiBundle:Lease\Lease')
+            ->findBy(
+                array(
+                    'status' => $status,
+                    'isAuto' => true,
+                )
+            );
+
+        foreach ($autoLeases as $autoLease) {
+            $planDay = $autoLease->getPlanDay();
+
+            if ($planDay > 0) {
+                $now = new \DateTime('now');
+                $planDate = $now->add(new \DateInterval('P'.$planDay.'D'));
+
+                $this->autoPushBills($autoLease, $planDate);
             }
         }
 

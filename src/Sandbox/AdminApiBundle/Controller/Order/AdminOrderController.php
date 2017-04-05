@@ -4,6 +4,7 @@ namespace Sandbox\AdminApiBundle\Controller\Order;
 
 use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
+use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
 use Sandbox\ApiBundle\Entity\User\User;
@@ -178,7 +179,7 @@ class AdminOrderController extends OrderController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             [
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_INVOICE],
@@ -322,7 +323,7 @@ class AdminOrderController extends OrderController
         $id
     ) {
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             [
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER],
@@ -400,6 +401,16 @@ class AdminOrderController extends OrderController
                         self::WRONG_ORDER_STATUS_MESSAGE
                     );
                 }
+
+                // send message
+                $this->sendXmppProductOrderNotification(
+                    null,
+                    null,
+                    ProductOrder::ACTION_RETURNED,
+                    null,
+                    [$order],
+                    ProductOrderMessage::ORDER_TRANSFER_RETURNED_MESSAGE
+                );
 
                 break;
             case OrderOfflineTransfer::STATUS_REJECT_REFUND:
@@ -1403,7 +1414,7 @@ class AdminOrderController extends OrderController
         $adminId = $this->getAdminId();
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $adminId,
             [
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER],
@@ -1450,7 +1461,7 @@ class AdminOrderController extends OrderController
         $adminId = $this->getAdminId();
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $adminId,
             [
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_SPACE],
@@ -1592,7 +1603,7 @@ class AdminOrderController extends OrderController
         $adminId = $this->getAdminId();
 
         // check user permission
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $adminId,
             [
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_SPACE],
@@ -1765,6 +1776,16 @@ class AdminOrderController extends OrderController
                 $this->setDoorAccessForSingleOrder($order, $em);
             }
 
+            // send message
+            $this->sendXmppProductOrderNotification(
+                null,
+                null,
+                ProductOrder::PREORDER_TYPE,
+                null,
+                [$order],
+                ProductOrderMessage::ORDER_PREORDER_MESSAGE
+            );
+
             $view = new View();
             $view->setData(
                 ['order_id' => $order->getId()]
@@ -1817,7 +1838,7 @@ class AdminOrderController extends OrderController
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $adminId,
             $permissions,
             AdminPermission::OP_LEVEL_EDIT
@@ -1887,6 +1908,16 @@ class AdminOrderController extends OrderController
             $em->flush();
         }
 
+        // send message
+        $this->sendXmppProductOrderNotification(
+            null,
+            null,
+            ProductOrder::ACTION_CANCELLED,
+            null,
+            [$order],
+            ProductOrderMessage::ORDER_ADMIN_CANCELLED_MESSAGE
+        );
+
         return new View();
     }
 
@@ -1901,7 +1932,7 @@ class AdminOrderController extends OrderController
         $opLevel,
         $platform = null
     ) {
-        $this->throwAccessDeniedIfAdminNotAllowed(
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $adminId,
             [
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ORDER],

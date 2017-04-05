@@ -20,6 +20,7 @@ class LeaseConstants
     const LEASE_ENDED_MESSAGE = 'lease.push_message.lease_ended';
     const LEASE_BILL_UNPAID_MESSAGE_PART1 = 'lease.push_message.lease_bill_unpaid_first';
     const LEASE_BILL_UNPAID_MESSAGE_PART2 = 'lease.push_message.lease_bill_unpaid_second';
+    const LEASE_BILL_TRANSFER_RETURNED_MESSAGE = 'lease.push_message.lease_bill_transfer_returned';
 
     const TRANS_LEASE_BILL_ORDER_METHOD = 'lease.order_method.';
 }

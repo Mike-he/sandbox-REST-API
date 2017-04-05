@@ -3,7 +3,6 @@
 namespace Sandbox\SalesApiBundle\Controller\Location;
 
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Sandbox\ApiBundle\Entity\Admin\AdminPosition;
 use Sandbox\ApiBundle\Entity\Room\RoomCity;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Symfony\Component\HttpFoundation\Request;
@@ -59,25 +58,13 @@ class AdminLocationController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $user = $this->getUser();
-
         $all = $paramFetcher->get('all');
         $permissionArray = $paramFetcher->get('permission');
 
         if (is_null($all)) {
-            $adminPlatform = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Admin\AdminPlatform')
-                ->findOneBy(array(
-                    'userId' => $user->getUserId(),
-                    'clientId' => $user->getClientId(),
-                ));
-
-            if (!$adminPlatform || $adminPlatform->getPlatform() != AdminPosition::PLATFORM_SALES) {
-                return new View();
-            }
-
-            $platform = $adminPlatform->getPlatform();
-            $salesCompanyId = $adminPlatform->getSalesCompanyId();
+            $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+            $platform = $adminPlatform['platform'];
+            $salesCompanyId = $adminPlatform['sales_company_id'];
 
             $isSuperAdmin = $this->hasSuperAdminPosition(
                 $this->getAdminId(),
@@ -150,28 +137,16 @@ class AdminLocationController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $user = $this->getUser();
-
         $cityId = $paramFetcher->get('city');
         $permissionArray = $paramFetcher->get('permission');
 
-        $adminPlatform = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Admin\AdminPlatform')
-            ->findOneBy(array(
-                'userId' => $user->getUserId(),
-                'clientId' => $user->getClientId(),
-            ));
-
-        if (!$adminPlatform || $adminPlatform->getPlatform() != AdminPosition::PLATFORM_SALES) {
-            return new View();
-        }
-
-        $myPlatform = $adminPlatform->getPlatform();
-        $salesCompanyId = $adminPlatform->getSalesCompanyId();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $platform = $adminPlatform['platform'];
+        $salesCompanyId = $adminPlatform['sales_company_id'];
 
         $isSuperAdmin = $this->hasSuperAdminPosition(
             $this->getAdminId(),
-            $myPlatform,
+            $platform,
             $salesCompanyId
         );
 
@@ -206,6 +181,43 @@ class AdminLocationController extends SalesRestController
         $view->setData($buildings);
 
         return $view;
+    }
+
+    /**
+     * @Get("/location/hot/cities")
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="type",
+     *    default=null,
+     *    nullable=false,
+     *    description="type"
+     * )
+     *
+     * @return View
+     */
+    public function getHotCitiesAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $type = $paramFetcher->get('type');
+
+        $cities = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomCity')
+            ->getCities(
+                RoomCity::LEVEL_CITY,
+                true,
+                $type
+            );
+
+        // generate cities array
+        $citiesArray = $this->generateCitiesArray(
+            $cities
+        );
+
+        return new View($citiesArray);
     }
 
     /**
