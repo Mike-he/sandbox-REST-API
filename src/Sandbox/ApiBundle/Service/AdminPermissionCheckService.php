@@ -22,7 +22,9 @@ class AdminPermissionCheckService
     ) {
         $this->container = $container;
         $this->doctrine = $container->get('doctrine');
-        $this->user = $this->container->get('security.token_storage')->getToken()->getUser();
+
+        $token = $this->container->get('security.token_storage')->getToken();
+        $this->user = isset($token) ? $token->getUser() : null;
     }
 
     /**
