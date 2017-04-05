@@ -30,7 +30,7 @@ class AdminPermissionCheckService
     /**
      * @param $adminId
      * @param null $permissionKeys
-     * @param int $opLevel
+     * @param int  $opLevel
      * @param null $platform
      * @param null $salesCompanyId
      */

@@ -876,9 +876,10 @@ class AdminProductController extends ProductController
         $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
-                array(
-                    'key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT,
-                ),
+                ['key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT],
+                ['key' => AdminPermission::KEY_SALES_BUILDING_SPACE],
+                ['key' => AdminPermission::KEY_SALES_BUILDING_BUILDING],
+                ['key' => AdminPermission::KEY_SALES_BUILDING_ROOM],
             ),
             $opLevel
         );
