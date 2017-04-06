@@ -9,7 +9,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * MembershipCard.
  *
  * @ORM\Table(name="membership_card_specification")
- * @ORM\Entity()
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\MembershipCard\MembershipCardSpecificationRepository")
  */
 class MembershipCardSpecification
 {
