@@ -161,13 +161,19 @@ sandbox_amin_api_user_profile:
     prefix:   /
 
 # Membership Card
-sandbox_amin_api_membership_card:
+sandbox_sales_amin_api_membership_card:
     resource: "@SandboxSalesApiBundle/Controller/MembershipCard/AdminMembershipCardController.php"
     type:     annotation
     prefix:   /admin
 
 # Membership Card Specification
-sandbox_amin_api_membership_card_specification:
+sandbox_sales_amin_api_membership_card_specification:
     resource: "@SandboxSalesApiBundle/Controller/MembershipCard/AdminMembershipCardSpecificationController.php"
+    type:     annotation
+    prefix:   /admin
+
+# User Groups
+sandbox_sales_amin_api_user_group:
+    resource: "@SandboxSalesApiBundle/Controller/User/AdminUserGroupController.php"
     type:     annotation
     prefix:   /admin

@@ -2,7 +2,6 @@
 
 namespace Sandbox\ApiBundle\Entity\User;
 
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -61,18 +60,6 @@ class UserGroup
     private $companyId;
 
     /**
-     * @var User
-     *
-     * @ORM\ManyToMany(targetEntity="Sandbox\ApiBundle\Entity\User\User")
-     * @ORM\JoinTable(
-     *      name="user_group_has_user",
-     *      joinColumns={@ORM\JoinColumn(name="group_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")}
-     * )
-     */
-    private $groupUser;
-
-    /**
      * @var \DateTime
      *
      * @Gedmo\Timestampable(on="create")
@@ -87,11 +74,6 @@ class UserGroup
      * @ORM\Column(name="modification_date", type="datetime")
      */
     private $modificationDate;
-
-    public function __construct()
-    {
-        $this->groupUser = new ArrayCollection();
-    }
 
     /**
      * @return int
@@ -166,22 +148,6 @@ class UserGroup
     }
 
     /**
-     * @return User
-     */
-    public function getGroupUser()
-    {
-        return $this->groupUser;
-    }
-
-    /**
-     * @param User $groupUser
-     */
-    public function setGroupUser($groupUser)
-    {
-        $this->groupUser = $groupUser;
-    }
-
-    /**
      * @return int
      */
     public function getCompanyId()
@@ -227,21 +193,5 @@ class UserGroup
     public function setModificationDate($modificationDate)
     {
         $this->modificationDate = $modificationDate;
-    }
-
-    /**
-     * @param User $groupUser
-     */
-    public function addGroupUser($groupUser)
-    {
-        $this->groupUser[] = $groupUser;
-    }
-
-    /**
-     * @param User $groupUser
-     */
-    public function removeGroupUser($groupUser)
-    {
-        $this->groupUser->removeElement($groupUser);
     }
 }
