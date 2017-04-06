@@ -58,11 +58,18 @@ class MembershipOrder
     private $price;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="amount", type="integer")
+     */
+    private $amount;
+
+    /**
      * @var string
      *
-     * @ORM\Column(name="unit_price", type="string", length=255)
+     * @ORM\Column(name="unit", type="string")
      */
-    private $unitPrice;
+    private $unit;
 
     /**
      * @var \DateTime
@@ -77,20 +84,6 @@ class MembershipOrder
      * @ORM\Column(name="end_date", type="datetime")
      */
     private $endDate;
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="valid_period", type="integer")
-     */
-    private $validPeriod;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="specification", type="string", length=64)
-     */
-    private $specification;
 
     /**
      * @var string
@@ -232,35 +225,35 @@ class MembershipOrder
     }
 
     /**
-     * @return string
-     */
-    public function getUnitPrice()
-    {
-        return $this->unitPrice;
-    }
-
-    /**
-     * @param string $unitPrice
-     */
-    public function setUnitPrice($unitPrice)
-    {
-        $this->unitPrice = $unitPrice;
-    }
-
-    /**
      * @return int
      */
-    public function getValidPeriod()
+    public function getAmount()
     {
-        return $this->validPeriod;
+        return $this->amount;
     }
 
     /**
-     * @param int $validPeriod
+     * @param int $amount
      */
-    public function setValidPeriod($validPeriod)
+    public function setAmount($amount)
     {
-        $this->validPeriod = $validPeriod;
+        $this->amount = $amount;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUnit()
+    {
+        return $this->unit;
+    }
+
+    /**
+     * @param string $unit
+     */
+    public function setUnit($unit)
+    {
+        $this->unit = $unit;
     }
 
     /**
@@ -293,22 +286,6 @@ class MembershipOrder
     public function setEndDate($endDate)
     {
         $this->endDate = $endDate;
-    }
-
-    /**
-     * @return string
-     */
-    public function getSpecification()
-    {
-        return $this->specification;
-    }
-
-    /**
-     * @param string $specification
-     */
-    public function setSpecification($specification)
-    {
-        $this->specification = $specification;
     }
 
     /**
