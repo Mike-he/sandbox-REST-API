@@ -13,6 +13,8 @@ use Gedmo\Mapping\Annotation as Gedmo;
  */
 class MembershipCard
 {
+    const CARD_LETTER_HEAD = 'Card';
+
     /**
      * @var int
      *
@@ -93,6 +95,16 @@ class MembershipCard
      * @ORM\Column(name="modification_date", type="datetime")
      */
     private $modificationDate;
+
+    /**
+     * @var
+     */
+    private $doorsControl;
+
+    /**
+     * @var
+     */
+    private $specification;
 
     /**
      * @return int
@@ -260,5 +272,37 @@ class MembershipCard
     public function setModificationDate($modificationDate)
     {
         $this->modificationDate = $modificationDate;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDoorsControl()
+    {
+        return $this->doorsControl;
+    }
+
+    /**
+     * @param mixed $doorsControl
+     */
+    public function setDoorsControl($doorsControl)
+    {
+        $this->doorsControl = $doorsControl;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSpecification()
+    {
+        return $this->specification;
+    }
+
+    /**
+     * @param mixed $specification
+     */
+    public function setSpecification($specification)
+    {
+        $this->specification = $specification;
     }
 }

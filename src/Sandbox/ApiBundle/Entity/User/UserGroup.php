@@ -14,6 +14,8 @@ use Gedmo\Mapping\Annotation as Gedmo;
  */
 class UserGroup
 {
+    const TYPE_CARD = 'card';
+
     /**
      * @var int
      *

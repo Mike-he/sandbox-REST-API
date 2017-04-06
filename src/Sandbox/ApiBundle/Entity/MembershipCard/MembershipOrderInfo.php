@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
- * MembershipOrderInfo
+ * MembershipOrderInfo.
  *
  * @ORM\Table(name="membership_order_info")
  * @ORM\Entity
@@ -14,7 +14,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 class MembershipOrderInfo
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -23,7 +23,7 @@ class MembershipOrderInfo
     private $id;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\OneToOne(targetEntity="Sandbox\ApiBundle\Entity\MembershipCard\MembershipOrder")
      * @ORM\JoinColumn(name="order_id", referencedColumnName="id", onDelete="CASCADE")
@@ -53,11 +53,10 @@ class MembershipOrderInfo
      */
     private $modificationDate;
 
-
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -81,9 +80,10 @@ class MembershipOrderInfo
     }
 
     /**
-     * Set cardInfo
+     * Set cardInfo.
      *
      * @param string $cardInfo
+     *
      * @return MembershipOrderInfo
      */
     public function setCardInfo($cardInfo)
@@ -94,9 +94,9 @@ class MembershipOrderInfo
     }
 
     /**
-     * Get cardInfo
+     * Get cardInfo.
      *
-     * @return string 
+     * @return string
      */
     public function getCardInfo()
     {
