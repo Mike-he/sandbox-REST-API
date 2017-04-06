@@ -76,6 +76,16 @@ class UserGroup
     private $modificationDate;
 
     /**
+     * @var
+     */
+    private $building;
+
+    /**
+     * @var
+     */
+    private $userCount;
+
+    /**
      * @return int
      */
     public function getId()
@@ -193,5 +203,37 @@ class UserGroup
     public function setModificationDate($modificationDate)
     {
         $this->modificationDate = $modificationDate;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBuilding()
+    {
+        return $this->building;
+    }
+
+    /**
+     * @param mixed $building
+     */
+    public function setBuilding($building)
+    {
+        $this->building = $building;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUserCount()
+    {
+        return $this->userCount;
+    }
+
+    /**
+     * @param mixed $userCount
+     */
+    public function setUserCount($userCount)
+    {
+        $this->userCount = $userCount;
     }
 }
