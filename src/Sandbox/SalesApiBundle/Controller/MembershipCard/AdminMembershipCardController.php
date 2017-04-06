@@ -105,6 +105,7 @@ class AdminMembershipCardController extends SalesRestController
         $membershipCard = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:MembershipCard\MembershipCard')
             ->find($id);
+        $this->throwNotFoundIfNull($membershipCard, self::NOT_FOUND_MESSAGE);
 
         $this->handleCardMoreInformation($membershipCard);
 
@@ -169,6 +170,54 @@ class AdminMembershipCardController extends SalesRestController
     }
 
     /**
+     * @param Request $request
+     *
+     * @Method({"PUT"})
+     * @Route("/membership/cards/{id}")
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function putAdminMembershipCardAction(
+        Request $request,
+        $id
+    ) {
+        $membershipCard = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:MembershipCard\MembershipCard')
+            ->find($id);
+        $this->throwNotFoundIfNull($membershipCard, self::NOT_FOUND_MESSAGE);
+
+        $form = $this->createForm(
+            new MembershipCardPostType(),
+            $membershipCard,
+            array('method' => 'PUT')
+        );
+        $form->handleRequest($request);
+
+        if (!$form->isValid()) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($membershipCard);
+
+        $userGroup = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserGroup')
+            ->findOneBy(array('card' => $id));
+
+        $this->handleDoorsControl(
+            $em,
+            $membershipCard,
+            $userGroup
+        );
+
+        $em->flush();
+
+        return new View();
+    }
+
+    /**
      * @param $em
      * @param $membershipCard
      * @param $salesCompanyId
@@ -201,6 +250,17 @@ class AdminMembershipCardController extends SalesRestController
         $membershipCard,
         $userGroup
     ) {
+        $exitsDoorsControls = $em->getRepository('SandboxApiBundle:User\UserGroupDoors')
+            ->findBy(array('card' => $membershipCard));
+
+        if ($exitsDoorsControls) {
+            foreach ($exitsDoorsControls as $exitsDoorsControl) {
+                $em->remove($exitsDoorsControl);
+            }
+
+            //Todo: Remove Door Access
+        }
+
         $doorsControls = $membershipCard->getDoorsControl();
 
         foreach ($doorsControls as $doorsControl) {
@@ -217,6 +277,8 @@ class AdminMembershipCardController extends SalesRestController
                 $em->persist($userGroupDoors);
             }
         }
+
+        //Todo: Add Door Access
     }
 
     /**
