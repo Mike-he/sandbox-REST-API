@@ -3423,7 +3423,22 @@ class OrderRepository extends EntityRepository
             ->getSingleScalarResult();
         $topUpAmount = (float) $topUpAmount;
 
-        $totalAmount = $productOrderAmount + $shopOrderAmount + $eventOrderAmount + $leaseBillAmount + $topUpAmount;
+        // membership card order amount
+        $cardOrderAmountQuery = $this->getEntityManager()->createQueryBuilder()
+            ->from('SandboxApiBundle:MembershipCard\MembershipOrder', 'mo')
+            ->select('SUM(mo.price)')
+            ->where('mo.paymentDate >= :start')
+            ->andWhere('mo.paymentDate <= :end')
+            ->andWhere('mo.paymentDate != :account')
+            ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        $cardOrderAmount = $cardOrderAmountQuery->getQuery()
+            ->getSingleScalarResult();
+        $cardOrderAmount = (float) $cardOrderAmount;
+
+        $totalAmount = $productOrderAmount + $shopOrderAmount + $eventOrderAmount + $leaseBillAmount + $topUpAmount + $cardOrderAmount;
 
         return $totalAmount;
     }
@@ -3548,7 +3563,22 @@ class OrderRepository extends EntityRepository
             ->getSingleScalarResult();
         $topUpCount = (int) $topUpCount;
 
-        $totalCount = $productOrderCount + $shopOrderCount + $eventOrderCount + $leaseBillCount + $topUpCount;
+        // membership card order amount
+        $cardOrderCountQuery = $this->getEntityManager()->createQueryBuilder()
+            ->from('SandboxApiBundle:MembershipCard\MembershipOrder', 'mo')
+            ->select('SUM(mo.price)')
+            ->where('mo.paymentDate >= :start')
+            ->andWhere('mo.paymentDate <= :end')
+            ->andWhere('mo.paymentDate != :account')
+            ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        $cardOrderCount = $cardOrderCountQuery->getQuery()
+            ->getSingleScalarResult();
+        $cardOrderCount = (int) $cardOrderCount;
+
+        $totalCount = $productOrderCount + $shopOrderCount + $eventOrderCount + $leaseBillCount + $topUpCount + $cardOrderCount;
 
         return $totalCount;
     }
