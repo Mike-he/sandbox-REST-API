@@ -44,16 +44,18 @@ class UserGroupDoors
     private $name;
 
     /**
-     * @var int
+     * @var UserGroup
      *
-     * @ORM\Column(name="group_id", type="integer")
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\UserGroup")
+     * @ORM\JoinColumn(name="group_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $group;
 
     /**
-     * @var int
+     * @var MembershipCard
      *
-     * @ORM\Column(name="card_id", type="integer", nullable=true)
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\MembershipCard\MembershipCard")
+     * @ORM\JoinColumn(name="card_id", referencedColumnName="id", onDelete="SET NULL")
      */
     private $card;
 
