@@ -4083,6 +4083,64 @@ class OrderRepository extends EntityRepository
     }
 
     /**
+     * @param $startDate
+     * @param $endDate
+     *
+     * @return float|mixed
+     */
+    public function membershipCardOrderByAccount(
+        $startDate,
+        $endDate
+    ) {
+        $cardOrderAmountQuery = $this->getEntityManager()->createQueryBuilder()
+            ->from('SandboxApiBundle:MembershipCard\MembershipOrder', 'mo')
+            ->select('SUM(mo.price)')
+            ->where('mo.status = :completed')
+            ->andWhere('mo.paymentDate >= :start')
+            ->andWhere('mo.paymentDate <= :end')
+            ->andWhere('mo.payChannel = :account')
+            ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
+            ->setParameter('completed', ProductOrder::STATUS_COMPLETED)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        $cardOrderAmount = $cardOrderAmountQuery->getQuery()
+            ->getSingleScalarResult();
+        $cardOrderAmount = (float) $cardOrderAmount;
+
+        return $cardOrderAmount;
+    }
+
+    /**
+     * @param $startDate
+     * @param $endDate
+     *
+     * @return float|mixed
+     */
+    public function countMembershipCardOrderByAccount(
+        $startDate,
+        $endDate
+    ) {
+        $cardOrderCountQuery = $this->getEntityManager()->createQueryBuilder()
+            ->from('SandboxApiBundle:MembershipCard\MembershipOrder', 'mo')
+            ->select('SUM(mo.price)')
+            ->where('mo.status = :completed')
+            ->andWhere('mo.paymentDate >= :start')
+            ->andWhere('mo.paymentDate <= :end')
+            ->andWhere('mo.payChannel = :account')
+            ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
+            ->setParameter('completed', ProductOrder::STATUS_COMPLETED)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        $cardOrderCount = $cardOrderCountQuery->getQuery()
+            ->getSingleScalarResult();
+        $cardOrderCount = (float) $cardOrderCount;
+
+        return $cardOrderCount;
+    }
+
+    /**
      * @param $productId
      * @param $start
      * @param $end

@@ -47,10 +47,12 @@ class FinanceDashboardConstants
     const SPACE_EXPEND_AMOUNT = 'space_expend_amount';
     const SHOP_EXPEND_AMOUNT = 'shop_expend_amount';
     const ACTIVITY_EXPEND_AMOUNT = 'activity_expend_amount';
+    const MEMBERSHIP_CARD_EXPEND_AMOUNT = 'membership_card_expend_amount';
     const TOTAL_EXPEND_AMOUNT = 'total_expend_amount';
     const SPACE_EXPEND_COUNT = 'space_expend_count';
     const SHOP_EXPEND_COUNT = 'shop_expend_count';
     const ACTIVITY_EXPEND_COUNT = 'activity_expend_count';
+    const MEMBERSHIP_CARD_EXPEND_COUNT = 'membership_card_expend_count';
     const TOTAL_EXPEND_COUNT = 'total_expend_count';
     const TOTAL_BALANCE = 'total_balance';
     const LAST_MONTH_TOTAL_BALANCE = 'last_month_total_balance';

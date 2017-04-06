@@ -501,6 +501,15 @@ trait FinanceTrait
         $activityOrderExpendAmountDashboard->setType(FinanceDashboard::TYPE_BALANCE_FLOW);
         $em->persist($activityOrderExpendAmountDashboard);
 
+        $membershipCardOrderExpendAmount = $balanceDashboard[FinanceDashboardConstants::MEMBERSHIP_CARD_EXPEND_AMOUNT];
+
+        $membershipCardOrderExpendAmountDashboard = new FinanceDashboard();
+        $membershipCardOrderExpendAmountDashboard->setTimePeriod($year.'-'.$month);
+        $membershipCardOrderExpendAmountDashboard->setParameterKey('membership_card_expend_amount');
+        $membershipCardOrderExpendAmountDashboard->setParameterValue((string) $membershipCardOrderExpendAmount);
+        $membershipCardOrderExpendAmountDashboard->setType(FinanceDashboard::TYPE_BALANCE_FLOW);
+        $em->persist($membershipCardOrderExpendAmountDashboard);
+
         $totalExpendAmount = $balanceDashboard[FinanceDashboardConstants::TOTAL_EXPEND_AMOUNT];
 
         $totalExpendAmountDashboard = new FinanceDashboard();
@@ -536,6 +545,15 @@ trait FinanceTrait
         $activityOrderExpendCountDashboard->setParameterValue((string) $activityOrderExpendCount);
         $activityOrderExpendCountDashboard->setType(FinanceDashboard::TYPE_BALANCE_FLOW);
         $em->persist($activityOrderExpendCountDashboard);
+
+        $membershipCardOrderExpendCount = $balanceDashboard[FinanceDashboardConstants::MEMBERSHIP_CARD_EXPEND_COUNT];
+
+        $membershipCardOrderExpendCountDashboard = new FinanceDashboard();
+        $membershipCardOrderExpendCountDashboard->setTimePeriod($year.'-'.$month);
+        $membershipCardOrderExpendCountDashboard->setParameterKey('membership_card_expend_count');
+        $membershipCardOrderExpendCountDashboard->setParameterValue((string) $membershipCardOrderExpendCount);
+        $membershipCardOrderExpendCountDashboard->setType(FinanceDashboard::TYPE_BALANCE_FLOW);
+        $em->persist($membershipCardOrderExpendCountDashboard);
 
         $totalExpendCount = $balanceDashboard[FinanceDashboardConstants::TOTAL_EXPEND_COUNT];
 
@@ -936,7 +954,14 @@ trait FinanceTrait
                 $endDate
             );
 
-        $totalExpendAmount = $spaceOrderExpendAmount + $shopOrderExpendAmount + $activityOrderExpendAmount;
+        $membershipCardOrderExpendAmount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->membershipCardOrderByAccount(
+                $startDate,
+                $endDate
+            );
+
+        $totalExpendAmount = $spaceOrderExpendAmount + $shopOrderExpendAmount + $activityOrderExpendAmount + $membershipCardOrderExpendAmount;
 
         $spaceOrderExpendCount = $this->getContainer()->get('doctrine')
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
@@ -959,7 +984,14 @@ trait FinanceTrait
                 $endDate
             );
 
-        $totalExpendCount = $spaceOrderExpendCount + $shopOrderExpendCount + $activityOrderExpendCount;
+        $membershipCardOrderExpendCount = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->countMembershipCardOrderByAccount(
+                $startDate,
+                $endDate
+            );
+
+        $totalExpendCount = $spaceOrderExpendCount + $shopOrderExpendCount + $activityOrderExpendCount + $membershipCardOrderExpendCount;
 
         $lastTotalBalance = $this->getLastTotalBalance(
             $startDate,
@@ -994,10 +1026,12 @@ trait FinanceTrait
             FinanceDashboardConstants::SPACE_EXPEND_AMOUNT => $spaceOrderExpendAmount,
             FinanceDashboardConstants::SHOP_EXPEND_AMOUNT => $shopOrderExpendAmount,
             FinanceDashboardConstants::ACTIVITY_EXPEND_AMOUNT => $activityOrderExpendAmount,
+            FinanceDashboardConstants::MEMBERSHIP_CARD_EXPEND_AMOUNT => $membershipCardOrderExpendAmount,
             FinanceDashboardConstants::TOTAL_EXPEND_AMOUNT => $totalExpendAmount,
             FinanceDashboardConstants::SPACE_EXPEND_COUNT => $spaceOrderExpendCount,
             FinanceDashboardConstants::SHOP_EXPEND_COUNT => $shopOrderExpendCount,
             FinanceDashboardConstants::ACTIVITY_EXPEND_COUNT => $activityOrderExpendCount,
+            FinanceDashboardConstants::MEMBERSHIP_CARD_EXPEND_COUNT => $membershipCardOrderExpendCount,
             FinanceDashboardConstants::TOTAL_EXPEND_COUNT => $totalExpendCount,
             FinanceDashboardConstants::TOTAL_BALANCE => $lastTotalBalance,
             FinanceDashboardConstants::LAST_MONTH_TOTAL_BALANCE => $beforeLastMonthTotalBalance,
