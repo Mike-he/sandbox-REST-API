@@ -377,3 +377,9 @@ sandbox_client_api_customer_service:
     resource: "@SandboxClientApiBundle/Controller/CustomerService/ClientCustomerServiceController.php"
     type:     annotation
     prefix:   /
+
+# User Membership Cards
+sandbox_client_api_membership_card:
+    resource: "@SandboxClientApiBundle/Controller/MembershipCard/ClientMembershipCardController.php"
+    type:     annotation
+    prefix:   /
