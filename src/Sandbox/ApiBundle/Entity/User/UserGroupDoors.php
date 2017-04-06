@@ -47,7 +47,7 @@ class UserGroupDoors
      * @var UserGroup
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\UserGroup")
-     * @ORM\JoinColumn(name="group_id", referencedColumnName="id", onDelete="CASCADE")
+     * @ORM\JoinColumn(name="group_id", referencedColumnName="id", onDelete="SET NULL")
      */
     private $group;
 
