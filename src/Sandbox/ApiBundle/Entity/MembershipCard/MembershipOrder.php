@@ -60,16 +60,16 @@ class MembershipOrder
     /**
      * @var int
      *
-     * @ORM\Column(name="amount", type="integer")
+     * @ORM\Column(name="valid_period", type="integer")
      */
-    private $amount;
+    private $validPeriod;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="unit", type="string")
+     * @ORM\Column(name="unit_price", type="string")
      */
-    private $unit;
+    private $unitPrice;
 
     /**
      * @var \DateTime
@@ -227,33 +227,33 @@ class MembershipOrder
     /**
      * @return int
      */
-    public function getAmount()
+    public function getValidPeriod()
     {
-        return $this->amount;
+        return $this->validPeriod;
     }
 
     /**
-     * @param int $amount
+     * @param int $validPeriod
      */
-    public function setAmount($amount)
+    public function setValidPeriod($validPeriod)
     {
-        $this->amount = $amount;
+        $this->validPeriod = $validPeriod;
     }
 
     /**
      * @return string
      */
-    public function getUnit()
+    public function getUnitPrice()
     {
-        return $this->unit;
+        return $this->unitPrice;
     }
 
     /**
-     * @param string $unit
+     * @param string $unitPrice
      */
-    public function setUnit($unit)
+    public function setUnitPrice($unitPrice)
     {
-        $this->unit = $unit;
+        $this->unitPrice = $unitPrice;
     }
 
     /**
