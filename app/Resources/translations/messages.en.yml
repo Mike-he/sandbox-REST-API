@@ -244,6 +244,7 @@ client:
     long_rent_order: Long Term Order
     short_rent_order: Short Term Order
     top_up_order: Top Up Order
+    card_order: Membership Card Order
     sandbox: Sandbox3
   account:
     invalid_phone_number: Invalid phone number.
@@ -347,3 +348,4 @@ lease:
     lease_bill_transfer_returned: A remittance receipt has been returned, click to view.
   order_method:
       backend: Backend
+      auto: Auto

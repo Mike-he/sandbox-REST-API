@@ -9,7 +9,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * MembershipOrder.
  *
  * @ORM\Table(name="membership_order")
- * @ORM\Entity()
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\MembershipCard\MembershipCardOrderRepository")
  */
 class MembershipOrder
 {
@@ -70,6 +70,13 @@ class MembershipOrder
      * @ORM\Column(name="unit_price", type="string")
      */
     private $unitPrice;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="specification", type="string", length=64)
+     */
+    private $specification;
 
     /**
      * @var \DateTime
@@ -398,6 +405,22 @@ class MembershipOrder
     public function setServiceFee($serviceFee)
     {
         $this->serviceFee = $serviceFee;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSpecification()
+    {
+        return $this->specification;
+    }
+
+    /**
+     * @param string $specification
+     */
+    public function setSpecification($specification)
+    {
+        $this->specification = $specification;
     }
 
     /**
