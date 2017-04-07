@@ -308,6 +308,7 @@ class RoomBuildingRepository extends EntityRepository
      * @param $lng
      * @param $lat
      * @param null $excludeIds
+     * @param $ids
      *
      * @return array
      */
@@ -320,7 +321,8 @@ class RoomBuildingRepository extends EntityRepository
         $buildingServices,
         $lng,
         $lat,
-        $excludeIds = null
+        $excludeIds = null,
+        $ids
     ) {
         $buildingsQuery = $this->createQueryBuilder('rb')
             ->leftJoin(
@@ -456,6 +458,12 @@ class RoomBuildingRepository extends EntityRepository
         if (!is_null($excludeIds) && !empty($excludeIds)) {
             $buildingsQuery->andWhere('rb.companyId NOT IN (:excludeIds)')
                 ->setParameter('excludeIds', $excludeIds);
+        }
+
+        // filter by ids
+        if (!is_null($ids)) {
+            $buildingsQuery->andWhere('rb.id IN (:ids)')
+                ->setParameter('ids', $ids);
         }
 
         $buildingsQuery->groupBy('rb.id');

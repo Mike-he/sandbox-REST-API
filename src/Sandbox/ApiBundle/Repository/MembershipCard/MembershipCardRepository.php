@@ -11,7 +11,7 @@ class MembershipCardRepository extends EntityRepository
      *
      * @return array
      */
-    public function getCardsByIds(
+    public function getClientCardsByIds(
         $ids
     ) {
         $query = $this->createQueryBuilder('c')

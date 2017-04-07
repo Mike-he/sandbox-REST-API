@@ -42,7 +42,7 @@ class ClientMembershipCardController extends SandboxRestController
 
         $cards = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:MembershipCard\MembershipCard')
-            ->getCardsByIds(
+            ->getClientCardsByIds(
                 $cardIds
             );
 
@@ -81,6 +81,49 @@ class ClientMembershipCardController extends SandboxRestController
         ParamFetcherInterface $paramFetcher,
         $id
     ) {
+        $card = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:MembershipCard\MembershipCard')
+            ->find($id);
+        $this->throwNotFoundIfNull($card, self::NOT_FOUND_MESSAGE);
 
+        $specifications = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:MembershipCard\MembershipCardSpecification')
+            ->getCardSpecifications(
+                $card
+            );
+
+        $specificationsArray = array();
+        foreach ($specifications as $specification) {
+            array_push($specificationsArray, array(
+                'id' => $specification->getId(),
+                'specification' => $specification->getSpecification(),
+                'price' => $specification->getPrice(),
+                'valid_period' => $specification->getValidPeriod(),
+                'unit_price' => $specification->getUnitPrice(),
+            ));
+        }
+
+        $doors = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserGroupDoors')
+            ->findBy(array(
+                'card' => $card,
+            ));
+
+        $buildingIdsArray = array();
+        foreach ($doors as $door) {
+            array_push($buildingIdsArray, $door->getBuilding());
+        }
+
+        $response = array(
+            'id' => $card->getId(),
+            'card_name' => $card->getName(),
+            'card_image' => $card->getBackground(),
+            'description' => $card->getDescription(),
+            'instructions' => $card->getInstructions(),
+            'specifications' => $specificationsArray,
+            'building_ids' => $buildingIdsArray,
+        );
+
+        return new View($response);
     }
 }

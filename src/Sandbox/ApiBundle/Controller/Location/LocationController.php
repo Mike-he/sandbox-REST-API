@@ -947,6 +947,14 @@ class LocationController extends SalesRestController
      *    description="longitude"
      * )
      *
+     * @Annotations\QueryParam(
+     *     name="ids",
+     *     array=true,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
      * @param ParamFetcherInterface $paramFetcher
      *
      * @return View
@@ -962,6 +970,7 @@ class LocationController extends SalesRestController
         $buildingServices = $paramFetcher->get('building_services');
         $lng = $paramFetcher->get('lng');
         $lat = $paramFetcher->get('lat');
+        $ids = !empty($paramFetcher->get('ids')) ? $paramFetcher->get('ids') : null;
 
         // get all buildings
         $buildings = $this->getDoctrine()
@@ -975,7 +984,8 @@ class LocationController extends SalesRestController
                 $buildingServices,
                 $lng,
                 $lat,
-                $excludeIds = [9] // 9 is the company id of xiehe
+                $excludeIds = [9], // 9 is the company id of xiehe,
+                $ids
             );
 
         $buildings = $this->handleSearchBuildingsData($buildings);
