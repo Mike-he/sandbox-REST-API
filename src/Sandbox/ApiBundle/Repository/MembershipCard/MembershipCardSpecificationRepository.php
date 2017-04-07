@@ -25,6 +25,7 @@ class MembershipCardSpecificationRepository extends EntityRepository
 
     /**
      * @param $card
+     *
      * @return array
      */
     public function getCardSpecifications(

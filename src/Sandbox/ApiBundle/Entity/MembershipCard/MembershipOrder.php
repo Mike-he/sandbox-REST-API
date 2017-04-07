@@ -16,6 +16,7 @@ class MembershipOrder
     const STATUS_CANCELLED = 'cancelled';
     const STATUS_PAID = 'paid';
     const STATUS_UNPAID = 'unpaid';
+    const STATUS_COMPLETED = 'completed';
 
     const UNIT_MONTH = 'month';
 
@@ -97,7 +98,7 @@ class MembershipOrder
      *
      * @ORM\Column(name="status", type="string", length=64)
      */
-    private $status = self::STATUS_UNPAID;
+    private $status = self::STATUS_COMPLETED;
 
     /**
      * @var string
@@ -109,6 +110,7 @@ class MembershipOrder
     /**
      * @var \DateTime
      *
+     * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="payment_date", type="datetime", nullable=true)
      */
     private $paymentDate;

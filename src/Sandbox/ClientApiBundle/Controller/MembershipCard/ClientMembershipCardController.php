@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 class ClientMembershipCardController extends SandboxRestController
 {
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -68,7 +68,7 @@ class ClientMembershipCardController extends SandboxRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/membership_cards/{id}")
