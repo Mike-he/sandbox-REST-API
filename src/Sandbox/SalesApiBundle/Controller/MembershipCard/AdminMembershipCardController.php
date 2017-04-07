@@ -166,6 +166,11 @@ class AdminMembershipCardController extends SalesRestController
         $em->flush();
 
         //Todo: Add Door Access
+        $this->storeDoorAccessNoRecord(
+            $em,
+            $membershipCard,
+            $accessNo
+        );
 
         $response = array(
             'id' => $membershipCard->getId(),
@@ -229,6 +234,11 @@ class AdminMembershipCardController extends SalesRestController
         $em->flush();
 
         //Todo: Add Door Access
+        $this->storeDoorAccessNoRecord(
+            $em,
+            $membershipCard,
+            $newAccessNo
+        );
 
         return new View();
     }
@@ -357,6 +367,45 @@ class AdminMembershipCardController extends SalesRestController
             ->findBy(array('card' => $membershipCard));
 
         $membershipCard->setSpecification($specification);
+    }
+
+    /**
+     * @param $em
+     * @param $membershipCard
+     * @param $accessNo
+     */
+    private function storeDoorAccessNoRecord(
+        $em,
+        $membershipCard,
+        $accessNo
+    ) {
+        $doorsControls = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserGroupDoors')
+            ->getBuildingIdsByGroup(
+                null,
+                $membershipCard
+            );
+
+        foreach ($doorsControls as $doorsControl) {
+            $building = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                ->find($doorsControl['building']);
+
+            if ($building) {
+                if ($building->getServer()) {
+                    $this->storeDoorAccess(
+                        $em,
+                        $accessNo,
+                        1,
+                        $doorsControl['building'],
+                        null,
+                        new \DateTime('now'),
+                        new \DateTime('2099-12-30 23:59:59')
+                    );
+                }
+            }
+        }
+        $em->flush();
     }
 
     /**

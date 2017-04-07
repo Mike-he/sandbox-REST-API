@@ -8,17 +8,29 @@ class UserGroupDoorsRepository extends EntityRepository
 {
     /**
      * @param $group
+     * @param $card
      *
      * @return array
      */
     public function getBuildingIdsByGroup(
-        $group
+        $group,
+        $card = null
     ) {
         $query = $this->createQueryBuilder('d')
             ->select('d.building')
-            ->where('d.group = :group')
-            ->setParameter('group', $group)
-            ->groupBy('d.building');
+            ->where('1=1');
+
+        if ($group) {
+            $query->andWhere('d.group = :group')
+                ->setParameter('group', $group);
+        }
+
+        if ($card) {
+            $query->andWhere('d.card = :card')
+                ->setParameter('card', $card);
+        }
+
+        $query->groupBy('d.building');
 
         return $query->getQuery()->getResult();
     }
