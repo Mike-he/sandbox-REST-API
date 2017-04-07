@@ -2,6 +2,8 @@
 
 namespace Sandbox\SalesApiBundle\Controller\MembershipCard;
 
+use Rs\Json\Patch;
+use Sandbox\ApiBundle\Form\MembershipCard\MembershipCardPatchType;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\MembershipCard\MembershipCard;
@@ -212,6 +214,40 @@ class AdminMembershipCardController extends SalesRestController
             $userGroup
         );
 
+        $em->flush();
+
+        return new View();
+    }
+
+    /**
+     * @param Request $request the request object
+     * @param int     $id
+     *
+     * @Route("/membership/cards/{id}")
+     * @Method({"PATCH"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function patchAdminMembershipCardAction(
+        Request $request,
+        $id
+    ) {
+        $membershipCard = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:MembershipCard\MembershipCard')
+            ->find($id);
+        $this->throwNotFoundIfNull($membershipCard, self::NOT_FOUND_MESSAGE);
+
+        // bind data
+        $cardJson = $this->container->get('serializer')->serialize($membershipCard, 'json');
+        $patch = new Patch($cardJson, $request->getContent());
+        $cardJson = $patch->apply();
+
+        $form = $this->createForm(new MembershipCardPatchType(), $membershipCard);
+        $form->submit(json_decode($cardJson, true));
+
+        $em = $this->getDoctrine()->getManager();
         $em->flush();
 
         return new View();
