@@ -323,6 +323,9 @@ class AdminFinanceShortRentInvoiceApplicationController extends PaymentControlle
                 array(
                     'key' => AdminPermission::KEY_OFFICIAL_PLATFORM_INVOICE,
                 ),
+                array(
+                    'key' => AdminPermission::KEY_OFFICIAL_PLATFORM_SALES_INVOICE_CONFIRM,
+                ),
             ),
             $level
         );
