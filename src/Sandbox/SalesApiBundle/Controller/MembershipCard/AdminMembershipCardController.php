@@ -3,6 +3,7 @@
 namespace Sandbox\SalesApiBundle\Controller\MembershipCard;
 
 use Rs\Json\Patch;
+use Sandbox\ApiBundle\Entity\MembershipCard\MembershipCardAccessNo;
 use Sandbox\ApiBundle\Form\MembershipCard\MembershipCardPatchType;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
@@ -164,6 +165,8 @@ class AdminMembershipCardController extends SalesRestController
 
         $em->flush();
 
+        //Todo: Add Door Access
+
         $response = array(
             'id' => $membershipCard->getId(),
         );
@@ -214,7 +217,18 @@ class AdminMembershipCardController extends SalesRestController
             $userGroup
         );
 
+        // Record door access no
+        $membershipCardAccessNo = new MembershipCardAccessNo();
+        $membershipCardAccessNo->setAccessNo($membershipCard->getAccessNo());
+        $em->persist($membershipCardAccessNo);
+
+        $newAccessNo = $this->generateSerialNumber(MembershipCard::CARD_LETTER_HEAD);
+
+        $membershipCard->setAccessNo($newAccessNo);
+
         $em->flush();
+
+        //Todo: Add Door Access
 
         return new View();
     }
@@ -289,12 +303,8 @@ class AdminMembershipCardController extends SalesRestController
         $exitsDoorsControls = $em->getRepository('SandboxApiBundle:User\UserGroupDoors')
             ->findBy(array('card' => $membershipCard));
 
-        if ($exitsDoorsControls) {
-            foreach ($exitsDoorsControls as $exitsDoorsControl) {
-                $em->remove($exitsDoorsControl);
-            }
-
-            //Todo: Remove Door Access
+        foreach ($exitsDoorsControls as $exitsDoorsControl) {
+            $em->remove($exitsDoorsControl);
         }
 
         $doorsControls = $membershipCard->getDoorsControl();
@@ -313,8 +323,6 @@ class AdminMembershipCardController extends SalesRestController
                 $em->persist($userGroupDoors);
             }
         }
-
-        //Todo: Add Door Access
     }
 
     /**
