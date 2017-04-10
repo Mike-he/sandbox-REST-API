@@ -59,7 +59,7 @@ class ClientMembershipOrderController extends PaymentController
         $validPeriod = $specification->getValidPeriod();
 
         $endDate = clone $startDate;
-        $endDate = $endDate->modify("+$unit $validPeriod");
+        $endDate = $endDate->modify("+$validPeriod $unit");
 
         $openId = null;
         if ($channel == ProductOrder::CHANNEL_ACCOUNT) {
@@ -80,8 +80,9 @@ class ClientMembershipOrderController extends PaymentController
             }
 
             $order = new MembershipOrder();
+            $order->setUser($userId);
             $order->setOrderNumber($orderNumber);
-            $order->setCard($cardId);
+            $order->setCard($card);
             $order->setPrice($price);
             $order->setUnitPrice($unit);
             $order->setValidPeriod($validPeriod);
