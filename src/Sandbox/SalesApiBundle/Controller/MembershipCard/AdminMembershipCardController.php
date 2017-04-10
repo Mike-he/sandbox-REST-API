@@ -420,7 +420,7 @@ class AdminMembershipCardController extends SalesRestController
             }
         }
 
-        $allOrders = $this->get('sandbox_api.door_control')->getAllOrders($doorsControls);
+        $allOrders = $this->get('sandbox_api.order')->getAllOrders($doorsControls);
 
         foreach ($allOrders as $allOrder) {
             $users = $allOrder['user'];
