@@ -13,6 +13,9 @@ use Gedmo\Mapping\Annotation as Gedmo;
  */
 class MembershipOrder
 {
+    const MEMBERSHIP_ORDER_LETTER_HEAD = 'M';
+    const PAYMENT_SUBJECT = 'SANDBOX3-会员卡购买';
+
     const UNIT_MONTH = 'month';
 
     /**

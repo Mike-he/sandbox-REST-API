@@ -3,15 +3,85 @@
 namespace Sandbox\ClientApiBundle\Controller\MembershipCard;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
-use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Sandbox\ApiBundle\Controller\Payment\PaymentController;
+use Sandbox\ApiBundle\Entity\MembershipCard\MembershipOrder;
+use Sandbox\ApiBundle\Entity\Order\ProductOrder;
+use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-class ClientMembershipOrderController extends SandboxRestController
+class ClientMembershipOrderController extends PaymentController
 {
+    /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/membership_orders")
+     * @Method({"POST"})
+     *
+     * @return View
+     */
+    public function postMembershipOrdersAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $requestContent = json_decode($request->getContent(), true);
+
+        if (!array_key_exists('card_id', $requestContent) ||
+        !array_key_exists('specification_id', $requestContent) ||
+        !array_key_exists('channel', $requestContent)) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $cardId = $requestContent['card_id'];
+        $specificationId = $requestContent['specification_id'];
+        $channel = $requestContent['channel'];
+
+        $orderNumber = $this->getOrderNumber(MembershipOrder::MEMBERSHIP_ORDER_LETTER_HEAD);
+        $specification = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:MembershipCard\MembershipCardSpecification')
+            ->find($specificationId);
+
+        $openId = null;
+        if ($channel == ProductOrder::CHANNEL_WECHAT_PUB) {
+            $weChat = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:ThirdParty\WeChat')
+                ->findOneBy(
+                    [
+                        'userId' => $this->getUserId(),
+                        'loginFrom' => ThirdPartyOAuthWeChatData::DATA_FROM_WEBSITE,
+                    ]
+                );
+            $this->throwNotFoundIfNull($weChat, self::NOT_FOUND_MESSAGE);
+
+            $openId = $weChat->getOpenId();
+        }
+
+        $charge = $this->payForOrder(
+            '',
+            '',
+            '',
+            $orderNumber,
+            $specification->getPrice(),
+            $channel,
+            MembershipOrder::PAYMENT_SUBJECT,
+            array(
+                'user_id' => $this->getUserId(),
+                'card_id' => $cardId,
+                'specification_id' =>$specificationId,
+            ),
+            $openId
+        );
+
+        $charge = json_decode($charge, true);
+
+        return new View($charge);
+    }
+
     /**
      * @param Request $request
      * @param ParamFetcherInterface $paramFetcher
