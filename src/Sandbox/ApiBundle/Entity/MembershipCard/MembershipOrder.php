@@ -13,10 +13,6 @@ use Gedmo\Mapping\Annotation as Gedmo;
  */
 class MembershipOrder
 {
-    const STATUS_CANCELLED = 'cancelled';
-    const STATUS_PAID = 'paid';
-    const STATUS_UNPAID = 'unpaid';
-
     const UNIT_MONTH = 'month';
 
     /**
@@ -95,13 +91,6 @@ class MembershipOrder
     /**
      * @var string
      *
-     * @ORM\Column(name="status", type="string", length=64)
-     */
-    private $status = self::STATUS_UNPAID;
-
-    /**
-     * @var string
-     *
      * @ORM\Column(name="pay_channel", type="string", length=16, nullable=true)
      */
     private $payChannel;
@@ -112,13 +101,6 @@ class MembershipOrder
      * @ORM\Column(name="payment_date", type="datetime", nullable=true)
      */
     private $paymentDate;
-
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="cancelled_date", type="datetime", nullable=true)
-     */
-    private $cancelledDate;
 
     /**
      * @var bool
@@ -293,22 +275,6 @@ class MembershipOrder
     public function setEndDate($endDate)
     {
         $this->endDate = $endDate;
-    }
-
-    /**
-     * @return string
-     */
-    public function getStatus()
-    {
-        return $this->status;
-    }
-
-    /**
-     * @param string $status
-     */
-    public function setStatus($status)
-    {
-        $this->status = $status;
     }
 
     /**
