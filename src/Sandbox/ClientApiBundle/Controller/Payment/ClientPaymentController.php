@@ -246,7 +246,7 @@ class ClientPaymentController extends PaymentController
                 $userId = $body['user_id'];
                 $cardId = $body['card_id'];
                 $specificationId = $body['specification_id'];
-                $startDate = new \DateTime($body['start_date']);
+                $startDate = $body['start_date'];
 
                 $this->setMembershipOrder(
                     $userId,
