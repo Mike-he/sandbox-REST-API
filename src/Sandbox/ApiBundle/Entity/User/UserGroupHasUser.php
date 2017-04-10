@@ -16,6 +16,7 @@ class UserGroupHasUser
     const TYPE_CARD = 'card';
     const TYPE_ORDER = 'order';
     const TYPE_LEASE = 'lease';
+    const TYPE_ADD = 'add';
 
     /**
      * @var int
