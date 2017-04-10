@@ -6,7 +6,7 @@ use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Class DoorControlService.
+ * Class OrderService.
  */
 class OrderService
 {

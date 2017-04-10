@@ -4,7 +4,6 @@ namespace Sandbox\SalesApiBundle\Controller\MembershipCard;
 
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Entity\MembershipCard\MembershipCardAccessNo;
-use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
 use Sandbox\ApiBundle\Form\MembershipCard\MembershipCardPatchType;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
@@ -179,6 +178,8 @@ class AdminMembershipCardController extends SalesRestController
             $userGroup->getId()
         );
 
+        $em->flush();
+
         $response = array(
             'id' => $membershipCard->getId(),
         );
@@ -248,6 +249,14 @@ class AdminMembershipCardController extends SalesRestController
             $membershipCard,
             $newAccessNo
         );
+
+        $this->storeGroupUserToDoorAccess(
+            $em,
+            $userGroup,
+            $membershipCard
+        );
+
+        $em->flush();
 
         return new View();
     }
@@ -337,6 +346,10 @@ class AdminMembershipCardController extends SalesRestController
         }
     }
 
+    /**
+     * @param $em
+     * @param $membershipCard
+     */
     private function removeExitsDoorsControl(
         $em,
         $membershipCard
@@ -419,26 +432,6 @@ class AdminMembershipCardController extends SalesRestController
                 }
             }
         }
-
-        $allOrders = $this->get('sandbox_api.order')->getAllOrders($doorsControls);
-
-        foreach ($allOrders as $allOrder) {
-            $users = $allOrder['user'];
-
-            foreach ($users as $user) {
-                $this->storeDoorAccess(
-                    $em,
-                    $accessNo,
-                    $user,
-                    $allOrder['building'],
-                    null,
-                    $allOrder['start'],
-                    $allOrder['end']
-                );
-            }
-        }
-
-        $em->flush();
     }
 
     /**
@@ -464,17 +457,62 @@ class AdminMembershipCardController extends SalesRestController
             $users = $allOrder['user'];
 
             foreach ($users as $user) {
-                $groupUser = new UserGroupHasUser();
-                $groupUser->setType($allOrder['type']);
-                $groupUser->setUserId($user);
-                $groupUser->setGroupId($group);
-                $groupUser->setStartDate($allOrder['start']);
-                $groupUser->setEndDate($allOrder['end']);
+                $this->get('sandbox_api.group_user')->storeGroupUser(
+                    $em,
+                    $group,
+                    $user,
+                    $allOrder['type'],
+                    $allOrder['start'],
+                    $allOrder['end']
+                );
 
-                $em->persist($groupUser);
+                $this->storeDoorAccess(
+                    $em,
+                    $card->getAccessNo(),
+                    $user,
+                    $allOrder['building'],
+                    null,
+                    $allOrder['start'],
+                    $allOrder['end']
+                );
             }
         }
-        $em->flush();
+    }
+
+    /**
+     * @param $em
+     * @param $group
+     * @param $card
+     */
+    private function storeGroupUserToDoorAccess(
+        $em,
+        $group,
+        $card
+    ) {
+        $groupUsers = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
+            ->findBy(array('groupId' => $group));
+
+        $buildings = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserGroupDoors')
+            ->getBuildingIdsByGroup(
+                $group,
+                $card
+            );
+
+        foreach ($groupUsers as $groupUser) {
+            foreach ($buildings as $building) {
+                $this->storeDoorAccess(
+                    $em,
+                    $card->getAccessNo(),
+                    $groupUser->getUserId(),
+                    $building['building'],
+                    null,
+                    $groupUser->getStartDate(),
+                    $groupUser->getEndDate()
+                );
+            }
+        }
     }
 
     /**

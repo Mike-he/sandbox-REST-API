@@ -266,14 +266,14 @@ class AdminUserGroupController extends SalesRestController
                 );
 
             if (!$groupUser) {
-                $groupUser = new UserGroupHasUser();
-                $groupUser->setGroupId($add);
-                $groupUser->setUserId($userId);
-                $groupUser->setType(UserGroupHasUser::TYPE_ADD);
-                $groupUser->setStartDate(new \DateTime('now'));
-                $groupUser->setEndDate(new \DateTime('now'));
-
-                $em->persist($groupUser);
+                $this->get('sandbox_api.group_user')->storeGroupUser(
+                    $em,
+                    $add,
+                    $userId,
+                    UserGroupHasUser::TYPE_ADD,
+                    new \DateTime('now'),
+                    new \DateTime('now')
+                );
             }
         }
 
