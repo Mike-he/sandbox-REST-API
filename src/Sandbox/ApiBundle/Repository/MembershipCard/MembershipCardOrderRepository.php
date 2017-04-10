@@ -92,6 +92,25 @@ class MembershipCardOrderRepository extends EntityRepository
 
         $query->setMaxResults($limit)
             ->setFirstResult($offset);
+    }
+
+    /**
+     * @param $userId
+     *
+     * @return array
+     */
+    public function getClientMembershipOrder(
+        $userId,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('mo')
+            ->where('mo.user = :userId')
+            ->setParameter('userId', $userId);
+
+        $query->orderBy('mo.creationDate', 'DESC')
+            ->setFirstResult($offset)
+            ->setMaxResults($limit);
 
         return $query->getQuery()->getResult();
     }
@@ -137,5 +156,24 @@ class MembershipCardOrderRepository extends EntityRepository
         }
 
         return $query->getQuery()->getSingleScalarResult();
+    }
+
+    /**
+     * @param $userId
+     *
+     * @return array
+     */
+    public function getMyValidClientMembershipOrder(
+        $userId
+    ) {
+        $query = $this->createQueryBuilder('mo')
+            ->where('mo.user = :userId')
+            ->andWhere('mo.startDate <= :now')
+            ->andWhere('mo.endDate >= :now')
+            ->setParameter('userId', $userId)
+            ->setParameter('now', new \DateTime('now'))
+            ->orderBy('mo.creationDate', 'DESC');
+
+        return $query->getQuery()->getResult();
     }
 }

@@ -118,6 +118,7 @@ class ClientMembershipCardController extends SandboxRestController
             'id' => $card->getId(),
             'card_name' => $card->getName(),
             'card_image' => $card->getBackground(),
+            'phone' => $card->getPhone(),
             'description' => $card->getDescription(),
             'instructions' => $card->getInstructions(),
             'specifications' => $specificationsArray,
