@@ -6,6 +6,7 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\MembershipCard\MembershipOrder;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
+use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -17,7 +18,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 class ClientMembershipOrderController extends PaymentController
 {
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/membership_orders")
@@ -31,22 +32,89 @@ class ClientMembershipOrderController extends PaymentController
     ) {
         $requestContent = json_decode($request->getContent(), true);
 
+        $userId = $this->getUserId();
+
         if (!array_key_exists('card_id', $requestContent) ||
-        !array_key_exists('specification_id', $requestContent) ||
-        !array_key_exists('channel', $requestContent)) {
+            !array_key_exists('specification_id', $requestContent) ||
+            !array_key_exists('channel', $requestContent) ||
+            !array_key_exists('start_date', $requestContent)) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
         $cardId = $requestContent['card_id'];
         $specificationId = $requestContent['specification_id'];
         $channel = $requestContent['channel'];
+        $startDate = new \DateTime($requestContent['start_date']);
 
         $orderNumber = $this->getOrderNumber(MembershipOrder::MEMBERSHIP_ORDER_LETTER_HEAD);
         $specification = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:MembershipCard\MembershipCardSpecification')
             ->find($specificationId);
+        $card = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:MembershipCard\MembershipCard')
+            ->find($cardId);
+
+        $price = $specification->getPrice();
+        $unit = $specification->getUnitPrice();
+        $validPeriod = $specification->getValidPeriod();
+
+        $endDate = clone $startDate;
+        $endDate = $endDate->modify("+$unit $validPeriod");
 
         $openId = null;
+        if ($channel == ProductOrder::CHANNEL_ACCOUNT) {
+            // pay by account
+            $balance = $this->postBalanceChange(
+                $userId,
+                (-1) * $price,
+                $orderNumber,
+                self::PAYMENT_CHANNEL_ACCOUNT,
+                $price
+            );
+            if (is_null($balance)) {
+                return $this->customErrorView(
+                    400,
+                    self::INSUFFICIENT_FUNDS_CODE,
+                    self::INSUFFICIENT_FUNDS_MESSAGE
+                );
+            }
+
+            $order = new MembershipOrder();
+            $order->setOrderNumber($orderNumber);
+            $order->setCard($cardId);
+            $order->setPrice($price);
+            $order->setUnitPrice($unit);
+            $order->setValidPeriod($validPeriod);
+            $order->setStartDate($startDate);
+            $order->setEndDate($endDate);
+            $order->setPayChannel($channel);
+            $order->setPaymentDate(new \DateTime('now'));
+            $order->setSpecification($specification->getSpecification());
+
+            $serviceInfo = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
+                ->findOneBy(array(
+                    'company' => $card->getCompanyId(),
+                    'tradeTypes' => SalesCompanyServiceInfos::TRADE_TYPE_MEMBERSHIP_CARD,
+                ));
+
+            if (!is_null($serviceInfo)) {
+                if ($serviceInfo->getDrawer() == SalesCompanyServiceInfos::COLLECTION_METHOD_SANDBOX) {
+                    $order->setSalesInvoice(false);
+                }
+
+                $order->setServiceFee($serviceInfo->getServiceFee());
+            }
+
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($order);
+            $em->flush();
+
+            return new View(array(
+                'id' => $order->getId(),
+            ));
+        }
+
         if ($channel == ProductOrder::CHANNEL_WECHAT_PUB) {
             $weChat = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:ThirdParty\WeChat')
@@ -66,13 +134,14 @@ class ClientMembershipOrderController extends PaymentController
             '',
             '',
             $orderNumber,
-            $specification->getPrice(),
+            $price,
             $channel,
             MembershipOrder::PAYMENT_SUBJECT,
             array(
-                'user_id' => $this->getUserId(),
+                'user_id' => $userId,
                 'card_id' => $cardId,
-                'specification_id' =>$specificationId,
+                'specification_id' => $specificationId,
+                'start_date' => $startDate,
             ),
             $openId
         );
@@ -83,7 +152,7 @@ class ClientMembershipOrderController extends PaymentController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -125,7 +194,7 @@ class ClientMembershipOrderController extends PaymentController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/membership_cards_my")

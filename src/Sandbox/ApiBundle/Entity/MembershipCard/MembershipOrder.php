@@ -13,6 +13,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  */
 class MembershipOrder
 {
+    const TOP_UP_MAP = 'membership';
     const MEMBERSHIP_ORDER_LETTER_HEAD = 'M';
     const PAYMENT_SUBJECT = 'SANDBOX3-会员卡购买';
 
