@@ -46,6 +46,20 @@ class UserGroupHasUser
     /**
      * @var \DateTime
      *
+     * @ORM\Column(name="start_date", type="datetime")
+     */
+    private $startDate;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="end_date", type="datetime")
+     */
+    private $endDate;
+
+    /**
+     * @var \DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="creation_date", type="datetime")
      */
@@ -121,5 +135,37 @@ class UserGroupHasUser
     public function setCreationDate($creationDate)
     {
         $this->creationDate = $creationDate;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getStartDate()
+    {
+        return $this->startDate;
+    }
+
+    /**
+     * @param \DateTime $startDate
+     */
+    public function setStartDate($startDate)
+    {
+        $this->startDate = $startDate;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getEndDate()
+    {
+        return $this->endDate;
+    }
+
+    /**
+     * @param \DateTime $endDate
+     */
+    public function setEndDate($endDate)
+    {
+        $this->endDate = $endDate;
     }
 }

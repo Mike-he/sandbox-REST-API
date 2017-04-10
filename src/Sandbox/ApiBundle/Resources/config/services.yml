@@ -5,3 +5,6 @@ services:
     sandbox_api.admin_platform:
         class: Sandbox\ApiBundle\Service\AdminPlatformService
         arguments: ['@service_container', '@security.token_storage']
+    sandbox_api.door_control:
+        class: Sandbox\ApiBundle\Service\DoorControlService
+        arguments: ['@service_container']

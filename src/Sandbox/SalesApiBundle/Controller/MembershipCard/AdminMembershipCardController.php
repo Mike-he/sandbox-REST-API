@@ -165,7 +165,7 @@ class AdminMembershipCardController extends SalesRestController
 
         $em->flush();
 
-        //Todo: Add Door Access
+        //Add Door Access
         $this->storeDoorAccessNoRecord(
             $em,
             $membershipCard,
@@ -212,6 +212,8 @@ class AdminMembershipCardController extends SalesRestController
         $em = $this->getDoctrine()->getManager();
         $em->persist($membershipCard);
 
+        $this->removeExitsDoorsControl($em, $membershipCard);
+
         $userGroup = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserGroup')
             ->findOneBy(array('card' => $id));
@@ -233,7 +235,7 @@ class AdminMembershipCardController extends SalesRestController
 
         $em->flush();
 
-        //Todo: Add Door Access
+        //Add Door Access
         $this->storeDoorAccessNoRecord(
             $em,
             $membershipCard,
@@ -310,13 +312,6 @@ class AdminMembershipCardController extends SalesRestController
         $membershipCard,
         $userGroup
     ) {
-        $exitsDoorsControls = $em->getRepository('SandboxApiBundle:User\UserGroupDoors')
-            ->findBy(array('card' => $membershipCard));
-
-        foreach ($exitsDoorsControls as $exitsDoorsControl) {
-            $em->remove($exitsDoorsControl);
-        }
-
         $doorsControls = $membershipCard->getDoorsControl();
 
         foreach ($doorsControls as $doorsControl) {
@@ -332,6 +327,18 @@ class AdminMembershipCardController extends SalesRestController
 
                 $em->persist($userGroupDoors);
             }
+        }
+    }
+
+    private function removeExitsDoorsControl(
+        $em,
+        $membershipCard
+    ) {
+        $exitsDoorsControls = $em->getRepository('SandboxApiBundle:User\UserGroupDoors')
+            ->findBy(array('card' => $membershipCard));
+
+        foreach ($exitsDoorsControls as $exitsDoorsControl) {
+            $em->remove($exitsDoorsControl);
         }
     }
 
@@ -405,6 +412,25 @@ class AdminMembershipCardController extends SalesRestController
                 }
             }
         }
+
+        $allOrders = $this->get('sandbox_api.door_control')->getAllOrders($doorsControls);
+
+        foreach ($allOrders as $allOrder) {
+            $users = $allOrder['user'];
+
+            foreach ($users as $user) {
+                $this->storeDoorAccess(
+                    $em,
+                    $accessNo,
+                    $user,
+                    $allOrder['building'],
+                    null,
+                    $allOrder['start'],
+                    $allOrder['end']
+                );
+            }
+        }
+
         $em->flush();
     }
 

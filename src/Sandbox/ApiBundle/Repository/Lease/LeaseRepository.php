@@ -387,4 +387,32 @@ class LeaseRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param $buildings
+     * @param $date
+     * @param $status
+     *
+     * @return array
+     */
+    public function getUsingLease(
+        $buildings,
+        $date,
+        $status
+    ) {
+        $query = $this->createQueryBuilder('l')
+            ->leftJoin('l.product', 'p')
+            ->leftJoin('p.room', 'r')
+            ->where('r.building in (:building)')
+            ->andWhere('l.startDate <= :date')
+            ->andWhere('l.endDate >= :date')
+            ->andWhere('l.status in (:status)')
+            ->setParameter('building', $buildings)
+            ->setParameter('date', $date)
+            ->setParameter('status', $status);
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
 }

@@ -4175,4 +4175,31 @@ class OrderRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param $buildingIds
+     * @param $date
+     *
+     * @return array
+     */
+    public function getUsingOrder(
+        $buildingIds,
+        $date
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->leftJoin('o.product', 'p')
+            ->leftJoin('p.room', 'r')
+            ->where('r.building in (:building)')
+            ->andWhere('o.startDate <= :date')
+            ->andWhere('o.endDate >= :date')
+            ->andWhere('o.status = :paid OR o.status = :completed')
+            ->setParameter('building', $buildingIds)
+            ->setParameter('date', $date)
+            ->setParameter('paid', ProductOrder::STATUS_PAID)
+            ->setParameter('completed', ProductOrder::STATUS_COMPLETED);
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
 }
