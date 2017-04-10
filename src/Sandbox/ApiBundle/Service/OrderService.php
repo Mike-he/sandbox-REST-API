@@ -8,7 +8,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Class DoorControlService.
  */
-class DoorControlService
+class OrderService
 {
     private $container;
 
@@ -63,9 +63,8 @@ class DoorControlService
                 'start' => $order->getStartDate(),
                 'end' => $order->getEndDate(),
                 'building' => $order->getProduct()->getRoom()->getBuildingId(),
-                'type'=> 'order',
+                'type' => 'order',
             );
-
         }
 
         return $result;
@@ -111,10 +110,9 @@ class DoorControlService
                 'start' => $lease->getStartDate(),
                 'end' => $lease->getEndDate(),
                 'building' => $lease->getProduct()->getRoom()->getBuildingId(),
-                'type'=> 'lease',
+                'type' => 'lease',
             );
         }
-
 
         return $result;
     }
