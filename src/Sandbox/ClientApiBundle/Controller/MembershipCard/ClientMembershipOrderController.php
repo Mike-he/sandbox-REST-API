@@ -111,6 +111,8 @@ class ClientMembershipOrderController extends PaymentController
             $em->persist($order);
             $em->flush();
 
+            // TODO add user to user_group
+
             return new View(array(
                 'id' => $order->getId(),
             ));
@@ -195,6 +197,29 @@ class ClientMembershipOrderController extends PaymentController
     }
 
     /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/membership_orders/{id}")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getMembershipCardOrderAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        $cardOrder = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:MembershipCard\MembershipOrder')
+            ->find($id);
+
+        $cardArray = $this->generateClientMembershipCardArray($cardOrder);
+
+        return new View($cardArray);
+    }
+
+    /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
@@ -227,55 +252,69 @@ class ClientMembershipOrderController extends PaymentController
     ) {
         $response = array();
         foreach ($cardOrders as $cardOrder) {
-            $card = $cardOrder->getCard();
-            $doors = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:User\UserGroupDoors')
-                ->findBy(
-                    array(
-                        'card' => $card,
-                    )
-                );
+            $cardArray = $this->generateClientMembershipCardArray($cardOrder);
 
-            $buildingArray = array();
-            foreach ($doors as $door) {
-                $buildingId = $door->getBuilding();
-                $building = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:Room\RoomBuilding')
-                    ->find($buildingId);
+            array_push($response,$cardArray);
+        }
 
-                array_push(
-                    $buildingArray,
-                    array(
-                        'id' => $buildingId,
-                        'name' => $building->getName(),
-                    )
-                );
-            }
+        return $response;
+    }
+
+    /**
+     * @param MembershipOrder $cardOrder
+     *
+     * @return array
+     */
+    private function generateClientMembershipCardArray(
+        $cardOrder
+    ) {
+        $card = $cardOrder->getCard();
+        $doors = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserGroupDoors')
+            ->findBy(
+                array(
+                    'card' => $card,
+                )
+            );
+
+        $buildingArray = array();
+        foreach ($doors as $door) {
+            $buildingId = $door->getBuilding();
+            $building = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                ->find($buildingId);
 
             array_push(
-                $response,
+                $buildingArray,
                 array(
-                    'card' => array(
-                        'card_name' => $card->getName(),
-                        'card_image' => $card->getBackground(),
-                        'specification' => array(
-                            'specification_name' => $cardOrder->getSpecification(),
-                            'valid_period' => $cardOrder->getValidPeriod(),
-                            'unit_price' => $cardOrder->getUnitPrice(),
-                        ),
-                        'building' => $buildingArray,
-                    ),
-                    'order' => array(
-                        'pay_channel' => $cardOrder->getPaychannel(),
-                        'price' => $cardOrder->getPrice(),
-                        'payment_date' => $cardOrder->getPaymentDate(),
-                        'start_date' => $cardOrder->getStartDate(),
-                        'end_date' => $cardOrder->getEndDate(),
-                    ),
+                    'id' => $buildingId,
+                    'name' => $building->getName(),
                 )
             );
         }
 
-        return $response;
+        $cardArray = array(
+            'card' => array(
+                'id' => $card->getId(),
+                'card_name' => $card->getName(),
+                'card_image' => $card->getBackground(),
+                'specification' => array(
+                    'specification_name' => $cardOrder->getSpecification(),
+                    'valid_period' => $cardOrder->getValidPeriod(),
+                    'unit_price' => $cardOrder->getUnitPrice(),
+                ),
+                'building' => $buildingArray,
+            ),
+            'order' => array(
+                'id' => $cardOrder->getId(),
+                'pay_channel' => $cardOrder->getPaychannel(),
+                'price' => $cardOrder->getPrice(),
+                'payment_date' => $cardOrder->getPaymentDate(),
+                'start_date' => $cardOrder->getStartDate(),
+                'end_date' => $cardOrder->getEndDate(),
+            ),
+        );
+
+        return $cardArray;
     }
 }

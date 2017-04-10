@@ -9,9 +9,9 @@ use Sandbox\ApiBundle\Constants\DoorAccessConstants;
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
+use Sandbox\ApiBundle\Entity\MembershipCard\MembershipOrder;
 use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
 use Sandbox\ApiBundle\Entity\Order\TopUpOrder;
-use Sandbox\ApiBundle\Entity\Order\MembershipOrder;
 use Sandbox\ApiBundle\Entity\Order\OrderCount;
 use Sandbox\ApiBundle\Entity\Order\OrderMap;
 use Sandbox\ApiBundle\Entity\Food\FoodOrder;
@@ -21,6 +21,7 @@ use Pingpp\Pingpp;
 use Pingpp\Charge;
 use Pingpp\Customer;
 use Pingpp\Error\Base;
+use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 use Sandbox\ApiBundle\Traits\YunPianSms;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -1233,23 +1234,62 @@ class PaymentController extends DoorController
     }
 
     /**
-     * @param $productId
+     * @param $userId
+     * @param $cardId
+     * @param $specificationId
+     * @param $startDate
      * @param $price
      * @param $orderNumber
-     *
+     * @param $channel
      * @return MembershipOrder
      */
     public function setMembershipOrder(
         $userId,
-        $productId,
+        $cardId,
+        $specificationId,
+        $startDate,
         $price,
-        $orderNumber
+        $orderNumber,
+        $channel
     ) {
+        $specification = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:MembershipCard\MembershipCardSpecification')
+            ->find($specificationId);
+        $validPeriod = $specification->getValidPeriod();
+        $unit = $specification->getUnitPrice();
+
+        $startDate = new \DateTime($startDate);
+        $endDate = clone $startDate;
+        $endDate = $endDate->modify("+$validPeriod $unit");
+
         $order = new MembershipOrder();
-        $order->setUserId($userId);
-        $order->setProductId($productId);
+        $order->setUser($userId);
         $order->setPrice($price);
         $order->setOrderNumber($orderNumber);
+        $order->setCard($specification->getCard());
+        $order->setStartDate($startDate);
+        $order->setEndDate($endDate);
+        $order->setPayChannel($channel);
+        $order->setPaymentDate(new \DateTime('now'));
+        $order->setValidPeriod($validPeriod);
+        $order->setUnitPrice($unit);
+        $order->setSpecification($specification->getSpecification());
+
+        $serviceInfo = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
+            ->findOneBy(array(
+                'company' => $specification->getCard()->getCompanyId(),
+                'tradeTypes' => SalesCompanyServiceInfos::TRADE_TYPE_MEMBERSHIP_CARD,
+            ));
+
+        if (!is_null($serviceInfo)) {
+            if ($serviceInfo->getDrawer() == SalesCompanyServiceInfos::COLLECTION_METHOD_SANDBOX) {
+                $order->setSalesInvoice(false);
+            }
+
+            $order->setServiceFee($serviceInfo->getServiceFee());
+        }
+
         $em = $this->getDoctrine()->getManager();
         $em->persist($order);
         $em->flush();

@@ -69,6 +69,7 @@ class LoadRoomBuildingData extends AbstractFixture implements OrderedFixtureInte
         $rb1->setLessorPhone('12345678');
         $rb1->setLessorContact('sandbox');
         $rb1->setLessorEmail('account@sandbox3.cn');
+        $rb1->setServer('http://sandbox3.cn');
         $this->addReference('room-building-for-data-structure', $rb1);
 
         $rb2 = new RoomBuilding();
@@ -93,6 +94,7 @@ class LoadRoomBuildingData extends AbstractFixture implements OrderedFixtureInte
         $rb2->setLessorPhone('12345678');
         $rb2->setLessorContact('sandbox');
         $rb2->setLessorEmail('account@sandbox3.cn');
+        $rb2->setServer('http://sandbox3.cn');
         $this->addReference('room-building-without-room', $rb2);
 
         $rb3 = new RoomBuilding();
@@ -117,6 +119,7 @@ class LoadRoomBuildingData extends AbstractFixture implements OrderedFixtureInte
         $rb3->setLessorPhone('12345678');
         $rb3->setLessorContact('sandbox');
         $rb3->setLessorEmail('account@sandbox3.cn');
+        $rb3->setServer('http://sandbox3.cn');
         $this->addReference('room-building-3', $rb3);
 
         $rb4 = new RoomBuilding();
@@ -141,6 +144,7 @@ class LoadRoomBuildingData extends AbstractFixture implements OrderedFixtureInte
         $rb4->setLessorPhone('12345678');
         $rb4->setLessorContact('sandbox');
         $rb4->setLessorEmail('account@sandbox3.cn');
+        $rb4->setServer('http://sandbox3.cn');
         $this->addReference('room-building-4', $rb4);
 
         $rb5 = new RoomBuilding();
@@ -159,6 +163,7 @@ class LoadRoomBuildingData extends AbstractFixture implements OrderedFixtureInte
         $rb5->setLessorPhone('12345678');
         $rb5->setLessorContact('sandbox');
         $rb5->setLessorEmail('account@sandbox3.cn');
+        $rb5->setServer('http://sandbox3.cn');
         $this->addReference('room-building-for-pengding-1', $rb5);
 
         $rb6 = new RoomBuilding();
@@ -178,6 +183,7 @@ class LoadRoomBuildingData extends AbstractFixture implements OrderedFixtureInte
         $rb6->setLessorPhone('12345678');
         $rb6->setLessorContact('sandbox');
         $rb6->setLessorEmail('account@sandbox3.cn');
+        $rb6->setServer('http://sandbox3.cn');
         $this->addReference('room-building-for-accept-invisible-1', $rb6);
 
         $rb7 = new RoomBuilding();
@@ -198,6 +204,7 @@ class LoadRoomBuildingData extends AbstractFixture implements OrderedFixtureInte
         $rb7->setLessorPhone('12345678');
         $rb7->setLessorContact('sandbox');
         $rb7->setLessorEmail('account@sandbox3.cn');
+        $rb7->setServer('http://sandbox3.cn');
         $this->addReference('room-building-for-banned-1', $rb7);
 
         $rba1 = new RoomBuildingAttachment();
