@@ -13,6 +13,10 @@ use Gedmo\Mapping\Annotation as Gedmo;
  */
 class UserGroupHasUser
 {
+    const TYPE_CARD = 'card';
+    const TYPE_ORDER = 'order';
+    const TYPE_LEASE = 'lease';
+
     /**
      * @var int
      *

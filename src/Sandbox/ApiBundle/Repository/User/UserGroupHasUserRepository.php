@@ -21,4 +21,24 @@ class UserGroupHasUserRepository extends EntityRepository
 
         return $query->getQuery()->getSingleScalarResult();
     }
+
+    public function getGroupsByUser(
+        $user,
+        $type
+    ) {
+        $query = $this->createQueryBuilder('u')
+            ->select('
+                    u.groupId as id, 
+                    ug.name as name
+                ')
+            ->leftJoin('SandboxApiBundle:User\UserGroup', 'ug', 'WITH', 'ug.id = u.groupId')
+            ->where('u.userId = :user')
+            ->andWhere('u.type = :type')
+            ->setParameter('user', $user)
+            ->setParameter('type', $type);
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
 }

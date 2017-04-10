@@ -5,6 +5,7 @@ namespace Sandbox\SalesApiBundle\Controller\User;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use Sandbox\ApiBundle\Entity\User\UserGroup;
+use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -19,7 +20,7 @@ class AdminUserGroupController extends SalesRestController
      * @param Request               $request      the request object
      * @param ParamFetcherInterface $paramFetcher param fetcher service
      *
-     * * @Annotations\QueryParam(
+     * @Annotations\QueryParam(
      *    name="pageLimit",
      *    array=false,
      *    default="20",
@@ -85,5 +86,65 @@ class AdminUserGroupController extends SalesRestController
         $view = new View($userGroups);
 
         return $view;
+    }
+
+    /**
+     * Get user group Members.
+     *
+     * @param Request $request the request object
+     *
+     * @Route("/user/groups/{id}")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getGroupMembersAction(
+        Request $request,
+        $id
+    ) {
+        $groupMembers = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
+            ->findBy(array(
+                'groupId' => $id,
+                'type' => UserGroupHasUser::TYPE_CARD,
+            ));
+
+        $result = array();
+        foreach ($groupMembers as $groupMember) {
+            $groups = $this->getGroupsByUser($groupMember->getUserId());
+            $result[] = array(
+                'user_id' => $groupMember->getUserId(),
+                'groups' => $groups,
+            );
+        }
+
+        $view = new View($result);
+
+        return $view;
+    }
+
+    /**
+     * @param $user
+     *
+     * @return array
+     */
+    private function getGroupsByUser(
+        $user
+    ) {
+        $groupMembers = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
+            ->getGroupsByUser(
+                $user,
+                UserGroupHasUser::TYPE_CARD
+            );
+        $group = array();
+        foreach ($groupMembers as $groupMember) {
+            $group[] = array(
+                'id' => $groupMember['id'],
+                'name' => $groupMember['name'],
+            );
+        }
+
+        return $group;
     }
 }
