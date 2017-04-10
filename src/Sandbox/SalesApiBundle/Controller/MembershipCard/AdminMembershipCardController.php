@@ -322,7 +322,7 @@ class AdminMembershipCardController extends SalesRestController
         $doorsControls = $membershipCard->getDoorsControl();
 
         foreach ($doorsControls as $doorsControl) {
-            $building = $doorsControl['buidling_id'];
+            $building = $doorsControl['building_id'];
             $controls = $doorsControl['controls'];
             foreach ($controls as $control) {
                 $userGroupDoors = new UserGroupDoors();
