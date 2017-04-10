@@ -4,6 +4,7 @@ namespace Sandbox\SalesApiBundle\Controller\MembershipCard;
 
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Entity\MembershipCard\MembershipCardAccessNo;
+use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
 use Sandbox\ApiBundle\Form\MembershipCard\MembershipCardPatchType;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
@@ -170,6 +171,12 @@ class AdminMembershipCardController extends SalesRestController
             $em,
             $membershipCard,
             $accessNo
+        );
+
+        $this->storeGroupUsers(
+            $em,
+            $membershipCard,
+            $userGroup->getId()
         );
 
         $response = array(
@@ -431,6 +438,42 @@ class AdminMembershipCardController extends SalesRestController
             }
         }
 
+        $em->flush();
+    }
+
+    /**
+     * @param $em
+     * @param $card
+     * @param $group
+     */
+    private function storeGroupUsers(
+        $em,
+        $card,
+        $group
+    ) {
+        $buildings = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserGroupDoors')
+            ->getBuildingIdsByGroup(
+                null,
+                $card
+            );
+
+        $allOrders = $this->get('sandbox_api.door_control')->getAllOrders($buildings);
+
+        foreach ($allOrders as $allOrder) {
+            $users = $allOrder['user'];
+
+            foreach ($users as $user) {
+                $groupUser = new UserGroupHasUser();
+                $groupUser->setType($allOrder['type']);
+                $groupUser->setUserId($user);
+                $groupUser->setGroupId($group);
+                $groupUser->setStartDate($allOrder['start']);
+                $groupUser->setEndDate($allOrder['end']);
+
+                $em->persist($groupUser);
+            }
+        }
         $em->flush();
     }
 
