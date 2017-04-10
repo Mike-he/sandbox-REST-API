@@ -91,16 +91,6 @@ class MembershipOrder
     /**
      * @var string
      *
-<<<<<<< HEAD
-     * @ORM\Column(name="status", type="string", length=64)
-     */
-    private $status = self::STATUS_COMPLETED;
-
-    /**
-     * @var string
-     *
-=======
->>>>>>> feature/post_card_order_api
      * @ORM\Column(name="pay_channel", type="string", length=16, nullable=true)
      */
     private $payChannel;
@@ -318,22 +308,6 @@ class MembershipOrder
     public function setPaymentDate($paymentDate)
     {
         $this->paymentDate = $paymentDate;
-    }
-
-    /**
-     * @return \DateTime
-     */
-    public function getCancelledDate()
-    {
-        return $this->cancelledDate;
-    }
-
-    /**
-     * @param \DateTime $cancelledDate
-     */
-    public function setCancelledDate($cancelledDate)
-    {
-        $this->cancelledDate = $cancelledDate;
     }
 
     /**
