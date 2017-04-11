@@ -45,4 +45,58 @@ class GroupUsersService
 
         $em->persist($groupUser);
     }
+
+    /**
+     * @param $em
+     * @param $group
+     * @param $user
+     * @param $type
+     * @param $orderNumber
+     */
+    public function removeGroupUser(
+        $em,
+        $group,
+        $user,
+        $type,
+        $orderNumber
+    ) {
+        $groupUser = $this->container->get('doctrine')
+            ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
+            ->findOneBy(
+                array(
+                    'group' => $group,
+                    'user' => $user,
+                    'type' => $type,
+                    'orderNumber' => $orderNumber,
+                )
+            );
+
+        if ($groupUser) {
+            $em->remove($groupUser);
+        }
+
+        $this->removeDoorAccess($group, $user);
+    }
+
+    /**
+     * @param $group
+     * @param $user
+     */
+    public function removeDoorAccess(
+        $group,
+        $user
+    ) {
+        $groupUser = $this->container->get('doctrine')
+            ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
+            ->findOneBy(
+                array(
+                    'group' => $group,
+                    'user' => $user,
+                )
+            );
+
+        if (!$groupUser) {
+            //todo: remove door access
+        }
+    }
 }

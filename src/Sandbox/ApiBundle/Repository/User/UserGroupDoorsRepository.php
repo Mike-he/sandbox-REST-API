@@ -57,4 +57,26 @@ class UserGroupDoorsRepository extends EntityRepository
 
         return $result;
     }
+
+    /**
+     * @param $buildingId
+     *
+     * @return array
+     */
+    public function getGroupsByBuilding(
+        $buildingId
+    ) {
+        $query = $this->createQueryBuilder('d')
+            ->select('d.building')
+            ->where('1=1');
+
+        if (!is_null($buildingId)) {
+            $query->andWhere('d.building = :buildingId')
+                ->setParameter('buildingId', $buildingId);
+        }
+
+        $query->groupBy('d.building');
+
+        return $query->getQuery()->getResult();
+    }
 }

@@ -6,6 +6,7 @@ use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesUser;
+use Sandbox\ApiBundle\Entity\User\UserGroup;
 use Sandbox\ApiBundle\Entity\User\UserView;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -251,6 +252,8 @@ class AdminUsersController extends DoorController
                 $hidePhone = substr_replace($user->getPhone(), '****', 3, 4);
                 $user->setPhone($hidePhone);
             }
+            $groups = $this->getGroupsByUser($user->getId());
+            $user->setGroups($groups);
         }
 
         return new View(array(
@@ -869,5 +872,30 @@ class AdminUsersController extends DoorController
         }
 
         return $ids;
+    }
+
+    /**
+     * @param $user
+     *
+     * @return array
+     */
+    private function getGroupsByUser(
+        $user
+    ) {
+        $groupMembers = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
+            ->getGroupsByUser(
+                $user,
+                UserGroup::TYPE_CARD
+            );
+        $group = array();
+        foreach ($groupMembers as $groupMember) {
+            $group[] = array(
+                'id' => $groupMember['id'],
+                'name' => $groupMember['name'],
+            );
+        }
+
+        return $group;
     }
 }
