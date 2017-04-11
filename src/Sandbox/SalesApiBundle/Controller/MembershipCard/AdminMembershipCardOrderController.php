@@ -3,7 +3,6 @@
 namespace Sandbox\SalesApiBundle\Controller\MembershipCard;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
-use JMS\Serializer\SerializationContext;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Symfony\Component\HttpFoundation\Request;
@@ -63,8 +62,38 @@ class AdminMembershipCardOrderController extends SalesRestController
      *    description="page number "
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="pay_date",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="filter for payment start. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pay_start",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="filter for payment start. Must be YYYY-mm-dd"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="pay_end",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="filter for payment end. Must be YYYY-mm-dd"
+     * )
+     *
      * @Method({"GET"})
-     * @Route("/membership/cards/orders")
+     * @Route("/membership/cards/orders/list")
      *
      * @return View
      *
@@ -84,6 +113,9 @@ class AdminMembershipCardOrderController extends SalesRestController
         $keywordSearch = $paramFetcher->get('keyword_search');
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
+        $payDate = $paramFetcher->get('pay_date');
+        $payStart = $paramFetcher->get('pay_start');
+        $payEnd = $paramFetcher->get('pay_end');
 
         $limit = $pageLimit;
         $offset = ($pageIndex - 1) * $pageLimit;
@@ -94,6 +126,9 @@ class AdminMembershipCardOrderController extends SalesRestController
                 $channel,
                 $keyword,
                 $keywordSearch,
+                $payDate,
+                $payStart,
+                $payEnd,
                 $limit,
                 $offset,
                 $companyId
@@ -105,11 +140,22 @@ class AdminMembershipCardOrderController extends SalesRestController
                 $channel,
                 $keyword,
                 $keywordSearch,
+                $payDate,
+                $payStart,
+                $payEnd,
                 $companyId
             );
 
+        foreach ($orders as $order) {
+            $profile = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserProfile')
+                ->findOneBy(['userId' => $order->getUser()]);
+            if (!is_null($profile)) {
+                $order->setUserInfo(['username' => $profile->getName()]);
+            }
+        }
+
         $view = new View();
-        //$view->setSerializationContext(SerializationContext::create()->setGroups(['admin_detail']));
         $view->setData(
             array(
                 'current_page_number' => $pageIndex,
@@ -149,8 +195,30 @@ class AdminMembershipCardOrderController extends SalesRestController
                 $companyId
             );
 
+        if (is_null($order)) {
+            return new View();
+        }
+
+        $user = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\User')
+            ->find($order->getUser());
+
+        if (!is_null($user)) {
+            $profile = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserProfile')
+                ->findOneBy(['user' => $user]);
+
+            $info = [
+                'username' => $profile->getName(),
+                'user_phone' => $user->getPhone(),
+                'user_email' => $user->getEmail(),
+                'user_card_no' => $user->getCardNo(),
+            ];
+
+            $order->setUserInfo($info);
+        }
+
         $view = new View($order);
-        //$view->setSerializationContext(SerializationContext::create()->setGroups(['admin_detail']));
 
         return $view;
     }

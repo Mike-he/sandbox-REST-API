@@ -58,6 +58,9 @@ class MembershipCardOrderRepository extends EntityRepository
         $channel,
         $keyword,
         $keywordSearch,
+        $payDate,
+        $payStart,
+        $payEnd,
         $limit,
         $offset,
         $companyId = null
@@ -65,8 +68,9 @@ class MembershipCardOrderRepository extends EntityRepository
         $query = $this->createQueryBuilder('mo')
             ->where('mo.id is not null');
 
-        if (!is_null($channel)) {
-            $query->andWhere('mo.payChannel = :channel')
+        // filter by payment channel
+        if (!is_null($channel) && !empty($channel)) {
+            $query->andWhere('mo.payChannel in (:channel)')
                 ->setParameter('channel', $channel);
         }
 
@@ -88,10 +92,39 @@ class MembershipCardOrderRepository extends EntityRepository
                 ->setParameter('companyId', $companyId);
         }
 
+        //filter by payDate
+        if (!is_null($payDate) && !empty($payDate)) {
+            $payDateStart = new \DateTime($payDate);
+            $payDateEnd = new \DateTime($payDate);
+            $payDateEnd->setTime(23, 59, 59);
+
+            $query->andWhere('mo.paymentDate >= :payStart')
+                ->andWhere('mo.paymentDate <= :payEnd')
+                ->setParameter('payStart', $payDateStart)
+                ->setParameter('payEnd', $payDateEnd);
+        } else {
+            //filter by payStart
+            if (!is_null($payStart)) {
+                $payStart = new \DateTime($payStart);
+                $query->andWhere('mo.paymentDate >= :payStart')
+                    ->setParameter('payStart', $payStart);
+            }
+
+            //filter by payEnd
+            if (!is_null($payEnd)) {
+                $payEnd = new \DateTime($payEnd);
+                $payEnd->setTime(23, 59, 59);
+                $query->andWhere('mo.paymentDate <= :payEnd')
+                    ->setParameter('payEnd', $payEnd);
+            }
+        }
+
         $query->orderBy('mo.creationDate', 'DESC');
 
         $query->setMaxResults($limit)
             ->setFirstResult($offset);
+
+        return $query->getQuery()->getResult();
     }
 
     /**
@@ -126,14 +159,18 @@ class MembershipCardOrderRepository extends EntityRepository
         $channel,
         $keyword,
         $keywordSearch,
+        $payDate,
+        $payStart,
+        $payEnd,
         $companyId = null
     ) {
         $query = $this->createQueryBuilder('mo')
             ->select('COUNT(mo)')
             ->where('mo.id is not null');
 
-        if (!is_null($channel)) {
-            $query->andWhere('mo.payChannel = :channel')
+        // filter by payment channel
+        if (!is_null($channel) && !empty($channel)) {
+            $query->andWhere('mo.payChannel in (:channel)')
                 ->setParameter('channel', $channel);
         }
 
@@ -153,6 +190,33 @@ class MembershipCardOrderRepository extends EntityRepository
             $query->leftJoin('SandboxApiBundle:MembershipCard\MembershipCard', 'c', 'WITH', 'mo.card = c.id')
                 ->andWhere('c.companyId = :companyId')
                 ->setParameter('companyId', $companyId);
+        }
+
+        //filter by payDate
+        if (!is_null($payDate) && !empty($payDate)) {
+            $payDateStart = new \DateTime($payDate);
+            $payDateEnd = new \DateTime($payDate);
+            $payDateEnd->setTime(23, 59, 59);
+
+            $query->andWhere('mo.paymentDate >= :payStart')
+                ->andWhere('mo.paymentDate <= :payEnd')
+                ->setParameter('payStart', $payDateStart)
+                ->setParameter('payEnd', $payDateEnd);
+        } else {
+            //filter by payStart
+            if (!is_null($payStart)) {
+                $payStart = new \DateTime($payStart);
+                $query->andWhere('mo.paymentDate >= :payStart')
+                    ->setParameter('payStart', $payStart);
+            }
+
+            //filter by payEnd
+            if (!is_null($payEnd)) {
+                $payEnd = new \DateTime($payEnd);
+                $payEnd->setTime(23, 59, 59);
+                $query->andWhere('mo.paymentDate <= :payEnd')
+                    ->setParameter('payEnd', $payEnd);
+            }
         }
 
         return $query->getQuery()->getSingleScalarResult();

@@ -145,6 +145,27 @@ class MembershipOrder
     private $modificationDate;
 
     /**
+     * @var array
+     */
+    private $userInfo;
+
+    /**
+     * @return array
+     */
+    public function getUserInfo()
+    {
+        return $this->userInfo;
+    }
+
+    /**
+     * @param array $userInfo
+     */
+    public function setUserInfo($userInfo)
+    {
+        $this->userInfo = $userInfo;
+    }
+
+    /**
      * Get id.
      *
      * @return int

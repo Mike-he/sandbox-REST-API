@@ -192,7 +192,7 @@ class ClientMembershipOrderController extends PaymentController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/membership_orders/{id}")
@@ -254,7 +254,7 @@ class ClientMembershipOrderController extends PaymentController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      * @param $id
      *
@@ -295,7 +295,7 @@ class ClientMembershipOrderController extends PaymentController
         foreach ($cardOrders as $cardOrder) {
             $cardArray = $this->generateClientMembershipOrderArray($cardOrder);
 
-            array_push($response,$cardArray);
+            array_push($response, $cardArray);
         }
 
         return $response;
@@ -331,6 +331,7 @@ class ClientMembershipOrderController extends PaymentController
 
     /**
      * @param MembershipCard $card
+     *
      * @return array
      */
     private function generateClientMembershipCardArray(

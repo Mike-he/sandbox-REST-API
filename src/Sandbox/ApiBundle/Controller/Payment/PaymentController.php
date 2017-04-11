@@ -1240,6 +1240,7 @@ class PaymentController extends DoorController
      * @param $price
      * @param $orderNumber
      * @param $channel
+     *
      * @return MembershipOrder
      */
     public function setMembershipOrder(

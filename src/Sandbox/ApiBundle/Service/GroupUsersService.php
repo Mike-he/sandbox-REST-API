@@ -45,5 +45,4 @@ class GroupUsersService
 
         $em->persist($groupUser);
     }
-
 }
