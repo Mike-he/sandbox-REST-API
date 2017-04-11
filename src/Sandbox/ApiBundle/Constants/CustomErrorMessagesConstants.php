@@ -32,6 +32,10 @@ class CustomErrorMessagesConstants
     // CUSTOMER SERVICE
     const ERROR_CUSTOMER_SERVICE_PAYLOAD_NOT_CORRECT_CODE = 'The format of payload for customer service does not correct';
 
+    // Membership Card && Group
+    const ERROR_CARD_GROUP_CAN_NOT_BE_EDITED_CODE = 400001;
+    const ERROR_CARD_GROUP_CAN_NOT_BE_EDITED_MESSAGE = 'The card group cannot be edited';
+
     // 404 NOT FOUND MESSAGE
     // LEASE
     const ERROR_LEASE_NOT_FOUND_MESSAGE = 'The lease does not exist';

@@ -111,3 +111,5 @@ parameters:
     top_level_domain: sandbox3.cn
     jpush_apns_option: false
     orders_url: http://devorders.sandbox3.cn
+    coffee_url: http://devcoffee.sandbox3.cn
+    invoice_url: http://devinvoice.sandbox3.cn

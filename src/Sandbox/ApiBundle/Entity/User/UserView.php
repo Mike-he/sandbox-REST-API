@@ -127,6 +127,8 @@ class UserView
      */
     private $salesInvoiceAmount;
 
+    private $groups;
+
     /**
      * Get id.
      *
@@ -299,5 +301,21 @@ class UserView
     public function setSalesInvoiceAmount($salesInvoiceAmount)
     {
         $this->salesInvoiceAmount = $salesInvoiceAmount;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getGroups()
+    {
+        return $this->groups;
+    }
+
+    /**
+     * @param mixed $groups
+     */
+    public function setGroups($groups)
+    {
+        $this->groups = $groups;
     }
 }

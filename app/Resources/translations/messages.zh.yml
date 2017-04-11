@@ -71,6 +71,7 @@ product_order:
     product_name: 商品
     type: 房间类型
     user_id: 租赁人ID
+    username: 租赁人
     base_price: 单价
     unit_price: 单位
     amount: 订单原价
@@ -243,6 +244,7 @@ client:
     long_rent_order: 长租订单
     short_rent_order: 秒租订单
     top_up_order: 充值订单
+    card_order: 会员卡订单
     sandbox: 创合社区
   account:
     invalid_phone_number: 该手机号无效
@@ -346,3 +348,4 @@ lease:
     lease_bill_transfer_returned: 您的账单线下汇款凭证被退回，需要您重新上传，点击查看
   order_method:
     backend: 后台推送
+    auto: 自动推送

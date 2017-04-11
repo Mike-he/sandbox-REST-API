@@ -6,6 +6,7 @@ use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesUser;
+use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
 use Sandbox\ApiBundle\Entity\User\UserView;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -149,6 +150,12 @@ class AdminUsersController extends DoorController
      *    description="search query"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="group",
+     *    default=null,
+     *    description="group"
+     * )
+     *
      * @Route("/users/search")
      * @Method({"GET"})
      *
@@ -198,6 +205,7 @@ class AdminUsersController extends DoorController
         $endDate = $paramFetcher->get('endDate');
         $name = $paramFetcher->get('name');
         $query = $paramFetcher->get('query');
+        $group = $paramFetcher->get('group');
 
         // get sales users
         $userIds = $this->getMySalesUserIds();
@@ -212,6 +220,23 @@ class AdminUsersController extends DoorController
             );
 
             $userIds = array_intersect($userIds, $bindCardUserIds);
+        }
+
+        if ($group) {
+            $type = [UserGroupHasUser::TYPE_CARD, UserGroupHasUser::TYPE_ADD];
+            $groupMembers = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
+                ->findBy(array(
+                    'groupId' => $group,
+                    'type' => $type,
+                ));
+
+            $groupIds = array();
+            foreach ($groupMembers as $groupMember) {
+                $groupIds[] = $groupMember->getUserId();
+            }
+
+            $userIds = array_intersect($userIds, $groupIds);
         }
 
         $users = $this->getDoctrine()
@@ -251,6 +276,8 @@ class AdminUsersController extends DoorController
                 $hidePhone = substr_replace($user->getPhone(), '****', 3, 4);
                 $user->setPhone($hidePhone);
             }
+            $groups = $this->getGroupsByUser($user->getId());
+            $user->setGroups($groups);
         }
 
         return new View(array(
@@ -528,6 +555,9 @@ class AdminUsersController extends DoorController
         // get user
         $user = $this->getRepo('User\User')->getUserInfo($id);
         $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
+
+        $groups = $this->getGroupsByUser($id);
+        $user['groups'] = $groups;
 
         // set view
         return new View($user);
@@ -869,5 +899,32 @@ class AdminUsersController extends DoorController
         }
 
         return $ids;
+    }
+
+    /**
+     * @param $user
+     *
+     * @return array
+     */
+    private function getGroupsByUser(
+        $user
+    ) {
+        $type = [UserGroupHasUser::TYPE_CARD, UserGroupHasUser::TYPE_ADD];
+
+        $groupMembers = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
+            ->getGroupsByUser(
+                $user,
+                $type
+            );
+        $group = array();
+        foreach ($groupMembers as $groupMember) {
+            $group[] = array(
+                'id' => $groupMember['id'],
+                'name' => $groupMember['name'],
+            );
+        }
+
+        return $group;
     }
 }

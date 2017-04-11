@@ -3423,7 +3423,22 @@ class OrderRepository extends EntityRepository
             ->getSingleScalarResult();
         $topUpAmount = (float) $topUpAmount;
 
-        $totalAmount = $productOrderAmount + $shopOrderAmount + $eventOrderAmount + $leaseBillAmount + $topUpAmount;
+        // membership card order amount
+        $cardOrderAmountQuery = $this->getEntityManager()->createQueryBuilder()
+            ->from('SandboxApiBundle:MembershipCard\MembershipOrder', 'mo')
+            ->select('SUM(mo.price)')
+            ->where('mo.paymentDate >= :start')
+            ->andWhere('mo.paymentDate <= :end')
+            ->andWhere('mo.paymentDate != :account')
+            ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        $cardOrderAmount = $cardOrderAmountQuery->getQuery()
+            ->getSingleScalarResult();
+        $cardOrderAmount = (float) $cardOrderAmount;
+
+        $totalAmount = $productOrderAmount + $shopOrderAmount + $eventOrderAmount + $leaseBillAmount + $topUpAmount + $cardOrderAmount;
 
         return $totalAmount;
     }
@@ -3548,7 +3563,22 @@ class OrderRepository extends EntityRepository
             ->getSingleScalarResult();
         $topUpCount = (int) $topUpCount;
 
-        $totalCount = $productOrderCount + $shopOrderCount + $eventOrderCount + $leaseBillCount + $topUpCount;
+        // membership card order amount
+        $cardOrderCountQuery = $this->getEntityManager()->createQueryBuilder()
+            ->from('SandboxApiBundle:MembershipCard\MembershipOrder', 'mo')
+            ->select('SUM(mo.price)')
+            ->where('mo.paymentDate >= :start')
+            ->andWhere('mo.paymentDate <= :end')
+            ->andWhere('mo.paymentDate != :account')
+            ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        $cardOrderCount = $cardOrderCountQuery->getQuery()
+            ->getSingleScalarResult();
+        $cardOrderCount = (int) $cardOrderCount;
+
+        $totalCount = $productOrderCount + $shopOrderCount + $eventOrderCount + $leaseBillCount + $topUpCount + $cardOrderCount;
 
         return $totalCount;
     }
@@ -4053,6 +4083,60 @@ class OrderRepository extends EntityRepository
     }
 
     /**
+     * @param $startDate
+     * @param $endDate
+     *
+     * @return float|mixed
+     */
+    public function membershipCardOrderByAccount(
+        $startDate,
+        $endDate
+    ) {
+        $cardOrderAmountQuery = $this->getEntityManager()->createQueryBuilder()
+            ->from('SandboxApiBundle:MembershipCard\MembershipOrder', 'mo')
+            ->select('SUM(mo.price)')
+            ->where('mo.paymentDate >= :start')
+            ->andWhere('mo.paymentDate <= :end')
+            ->andWhere('mo.payChannel = :account')
+            ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        $cardOrderAmount = $cardOrderAmountQuery->getQuery()
+            ->getSingleScalarResult();
+        $cardOrderAmount = (float) $cardOrderAmount;
+
+        return $cardOrderAmount;
+    }
+
+    /**
+     * @param $startDate
+     * @param $endDate
+     *
+     * @return float|mixed
+     */
+    public function countMembershipCardOrderByAccount(
+        $startDate,
+        $endDate
+    ) {
+        $cardOrderCountQuery = $this->getEntityManager()->createQueryBuilder()
+            ->from('SandboxApiBundle:MembershipCard\MembershipOrder', 'mo')
+            ->select('SUM(mo.price)')
+            ->where('mo.paymentDate >= :start')
+            ->andWhere('mo.paymentDate <= :end')
+            ->andWhere('mo.payChannel = :account')
+            ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        $cardOrderCount = $cardOrderCountQuery->getQuery()
+            ->getSingleScalarResult();
+        $cardOrderCount = (float) $cardOrderCount;
+
+        return $cardOrderCount;
+    }
+
+    /**
      * @param $productId
      * @param $start
      * @param $end
@@ -4086,5 +4170,32 @@ class OrderRepository extends EntityRepository
             ->setParameter('preorder', ProductOrder::PREORDER_TYPE);
 
         return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $buildingIds
+     * @param $date
+     *
+     * @return array
+     */
+    public function getUsingOrder(
+        $buildingIds,
+        $date
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->leftJoin('o.product', 'p')
+            ->leftJoin('p.room', 'r')
+            ->where('r.building in (:building)')
+            ->andWhere('o.startDate <= :date')
+            ->andWhere('o.endDate >= :date')
+            ->andWhere('o.status = :paid OR o.status = :completed')
+            ->setParameter('building', $buildingIds)
+            ->setParameter('date', $date)
+            ->setParameter('paid', ProductOrder::STATUS_PAID)
+            ->setParameter('completed', ProductOrder::STATUS_COMPLETED);
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
     }
 }

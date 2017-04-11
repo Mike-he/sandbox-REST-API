@@ -82,6 +82,15 @@ class AdminSalesCompanyController extends SandboxRestController
                         array('key' => AdminPermission::KEY_SALES_PLATFORM_EVENT_ORDER),
                     ),
                 ),
+                array(
+                    'group_key' => AdminPermissionGroups::GROUP_KEY_MEMBERSHIP_CARD,
+                    'group_name' => '会员卡管理',
+                    'permissions' => array(
+                        array('key' => AdminPermission::KEY_SALES_PLATFORM_MEMBERSHIP_CARD),
+                        array('key' => AdminPermission::KEY_SALES_PLATFORM_MEMBERSHIP_CARD_ORDER),
+                        array('key' => AdminPermission::KEY_SALES_PLATFORM_MEMBERSHIP_CARD_PRODUCT),
+                    ),
+                ),
             ),
         ));
     }

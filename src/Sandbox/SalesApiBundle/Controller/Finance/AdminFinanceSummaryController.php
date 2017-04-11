@@ -396,12 +396,21 @@ class AdminFinanceSummaryController extends PaymentController
                 $companyId
             );
 
+        $membershipOrders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:MembershipCard\MembershipOrder')
+            ->getMembershipOrdersByDate(
+                $firstDate,
+                $lastDate,
+                $companyId
+            );
+
         return $this->getFinanceSummaryExport(
             $firstDate,
             $language,
             $events,
             $shortOrders,
-            $longBills
+            $longBills,
+            $membershipOrders
         );
     }
 
@@ -469,13 +478,27 @@ class AdminFinanceSummaryController extends PaymentController
             $eventBalance += $event['price'];
         }
 
+        $membershipOrders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:MembershipCard\MembershipOrder')
+            ->getMembershipOrdersByDate(
+                $start,
+                $end,
+                $salesCompanyId
+            );
+
+        $membershipBalance = 0;
+        foreach ($membershipOrders as $membershipOrder) {
+            $membershipBalance += $membershipOrder->getPrice() * (1 - $membershipOrder->getServiceFee() / 100);
+        }
+
         $summaryArray = [
-            'total_income' => $amount + $incomeAmount + $eventBalance,
+            'total_income' => $amount + $incomeAmount + $eventBalance + $membershipBalance,
             'short_rent_balance' => $amount,
             'long_rent_balance' => $incomeAmount,
             'event_order_balance' => $eventBalance,
             'total_service_bill' => $serviceAmount,
             'long_rent_service_bill' => $serviceAmount,
+            'membership_order_balance' => $membershipBalance,
         ];
 
         return $summaryArray;

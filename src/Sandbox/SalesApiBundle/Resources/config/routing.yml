@@ -159,3 +159,27 @@ sandbox_amin_api_user_profile:
     resource: "@SandboxSalesApiBundle/Controller/User/AdminUserProfileController.php"
     type:     annotation
     prefix:   /
+
+# Membership Card
+sandbox_sales_admin_api_membership_card:
+    resource: "@SandboxSalesApiBundle/Controller/MembershipCard/AdminMembershipCardController.php"
+    type:     annotation
+    prefix:   /admin
+
+# Membership Card Specification
+sandbox_sales_admin_api_membership_card_specification:
+    resource: "@SandboxSalesApiBundle/Controller/MembershipCard/AdminMembershipCardSpecificationController.php"
+    type:     annotation
+    prefix:   /admin
+
+# Membership Card Order
+sandbox_sales_admin_api_membership_card_order:
+    resource: "@SandboxSalesApiBundle/Controller/MembershipCard/AdminMembershipCardOrderController.php"
+    type:     annotation
+    prefix:   /admin
+
+# User Groups
+sandbox_sales_admin_api_user_group:
+    resource: "@SandboxSalesApiBundle/Controller/User/AdminUserGroupController.php"
+    type:     annotation
+    prefix:   /admin
