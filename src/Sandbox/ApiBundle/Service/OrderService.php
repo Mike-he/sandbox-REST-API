@@ -64,6 +64,7 @@ class OrderService
                 'end' => $order->getEndDate(),
                 'building' => $order->getProduct()->getRoom()->getBuildingId(),
                 'type' => 'order',
+                'order_number' => $order->getOrderNumber(),
             );
         }
 
@@ -111,6 +112,7 @@ class OrderService
                 'end' => $lease->getEndDate(),
                 'building' => $lease->getProduct()->getRoom()->getBuildingId(),
                 'type' => 'lease',
+                'order_number' => $lease->getSerialNumber(),
             );
         }
 

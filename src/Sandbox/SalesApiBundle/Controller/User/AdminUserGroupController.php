@@ -255,25 +255,27 @@ class AdminUserGroupController extends SalesRestController
         $em = $this->getDoctrine()->getManager();
 
         foreach ($adds as $add) {
-            $groupUser = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
-                ->findOneBy(
-                    array(
-                        'userId' => $userId,
-                        'groupId' => $add,
-                        'type' => UserGroupHasUser::TYPE_ADD,
-                    )
-                );
-
-            if (!$groupUser) {
-                $this->get('sandbox_api.group_user')->storeGroupUser(
-                    $em,
-                    $add,
-                    $userId,
-                    UserGroupHasUser::TYPE_ADD,
-                    new \DateTime('now'),
-                    new \DateTime('now')
-                );
+            $group = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserGroup')
+                ->find($add);
+            if ($group->getType() == UserGroup::TYPE_CREATED) {
+                $groupUser = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
+                    ->findOneBy(
+                        array(
+                            'userId' => $userId,
+                            'groupId' => $add,
+                            'type' => UserGroupHasUser::TYPE_ADD,
+                        )
+                    );
+                if (!$groupUser) {
+                    $this->get('sandbox_api.group_user')->storeGroupUser(
+                        $em,
+                        $add,
+                        $userId,
+                        UserGroupHasUser::TYPE_ADD
+                    );
+                }
             }
         }
 

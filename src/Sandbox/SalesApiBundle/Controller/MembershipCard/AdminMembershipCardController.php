@@ -463,7 +463,8 @@ class AdminMembershipCardController extends SalesRestController
                     $user,
                     $allOrder['type'],
                     $allOrder['start'],
-                    $allOrder['end']
+                    $allOrder['end'],
+                    $allOrder['order_number']
                 );
 
                 $this->storeDoorAccess(

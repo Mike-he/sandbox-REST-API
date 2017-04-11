@@ -42,7 +42,7 @@ class UserGroupHasUser
     private $groupId;
 
     /**
-     * @var int
+     * @var string
      *
      * @ORM\Column(name="type", type="string", length=64)
      */
@@ -51,16 +51,23 @@ class UserGroupHasUser
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="start_date", type="datetime")
+     * @ORM\Column(name="start_date", type="datetime", nullable=true)
      */
     private $startDate;
 
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="end_date", type="datetime")
+     * @ORM\Column(name="end_date", type="datetime", nullable=true)
      */
     private $endDate;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="order_number", type="string", length=64, nullable=true)
+     */
+    private $orderNumber;
 
     /**
      * @var \DateTime
@@ -172,5 +179,21 @@ class UserGroupHasUser
     public function setEndDate($endDate)
     {
         $this->endDate = $endDate;
+    }
+
+    /**
+     * @return string
+     */
+    public function getOrderNumber()
+    {
+        return $this->orderNumber;
+    }
+
+    /**
+     * @param string $orderNumber
+     */
+    public function setOrderNumber($orderNumber)
+    {
+        $this->orderNumber = $orderNumber;
     }
 }

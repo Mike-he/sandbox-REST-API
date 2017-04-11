@@ -24,14 +24,16 @@ class GroupUsersService
      * @param $type
      * @param $start
      * @param $end
+     * @param $orderNumber
      */
     public function storeGroupUser(
         $em,
         $group,
         $user,
         $type,
-        $start,
-        $end
+        $start = null,
+        $end = null,
+        $orderNumber = null
     ) {
         $groupUser = new UserGroupHasUser();
         $groupUser->setGroupId($group);
@@ -39,6 +41,7 @@ class GroupUsersService
         $groupUser->setType($type);
         $groupUser->setStartDate($start);
         $groupUser->setEndDate($end);
+        $groupUser->setOrderNumber($orderNumber);
 
         $em->persist($groupUser);
     }
