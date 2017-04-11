@@ -79,6 +79,20 @@ class FinanceSummary
     private $eventOrderCount;
 
     /**
+     * @var float
+     *
+     * @ORM\Column(name="membership_order_balance", type="float")
+     */
+    private $membershipOrderBalance;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="membership_order_count", type="integer")
+     */
+    private $membershipOrderCount;
+
+    /**
      * @var \DateTime
      *
      * @Gedmo\Timestampable(on="create")
@@ -108,6 +122,38 @@ class FinanceSummary
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @return float
+     */
+    public function getMembershipOrderBalance()
+    {
+        return $this->membershipOrderBalance;
+    }
+
+    /**
+     * @param float $membershipOrderBalance
+     */
+    public function setMembershipOrderBalance($membershipOrderBalance)
+    {
+        $this->membershipOrderBalance = $membershipOrderBalance;
+    }
+
+    /**
+     * @return int
+     */
+    public function getMembershipOrderCount()
+    {
+        return $this->membershipOrderCount;
+    }
+
+    /**
+     * @param int $membershipOrderCount
+     */
+    public function setMembershipOrderCount($membershipOrderCount)
+    {
+        $this->membershipOrderCount = $membershipOrderCount;
     }
 
     /**

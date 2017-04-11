@@ -264,4 +264,30 @@ class MembershipCardOrderRepository extends EntityRepository
 
         return $query->getQuery()->getOneOrNullResult();
     }
+
+    /**
+     * @param $userId
+     * @param $card
+     *
+     * @return array
+     */
+    public function getMembershipOrdersByDate(
+        $start,
+        $end,
+        $salesCompanyId = null
+    ) {
+        $query = $this->createQueryBuilder('mo')
+            ->where('mo.paymentDate >= :start')
+            ->andWhere('mo.paymentDate <= :end')
+            ->setParameter('start', $start)
+            ->setParameter('end', $end);
+
+        if (!is_null($salesCompanyId)) {
+            $query->leftJoin('SandboxApiBundle:MembershipCard\MembershipCard', 'c', 'WITH', 'mo.card = c.id')
+                ->andWhere('c.companyId = :companyId')
+                ->setParameter('companyId', $salesCompanyId);
+        }
+
+        return $query->getQuery()->getResult();
+    }
 }

@@ -71,6 +71,7 @@ product_order:
     product_name: 商品
     type: 房间类型
     user_id: 租赁人ID
+    username: 租赁人
     base_price: 单价
     unit_price: 单位
     amount: 订单原价

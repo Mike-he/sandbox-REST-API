@@ -10,6 +10,7 @@ class ProductOrderExport
     const PRODUCT_NAME = 'product_name';
     const ROOM_TYPE = 'type';
     const USER_ID = 'user_id';
+    const USERNAME = 'username';
     const BASE_PRICE = 'base_price';
     const UNIT_PRICE = 'unit_price';
     const AMOUNT = 'amount';
@@ -54,6 +55,7 @@ class ProductOrderExport
     const TRANS_PRODUCT_ORDER_HEADER_PRODUCT_NAME = 'product_order.export_header.product_name';
     const TRANS_PRODUCT_ORDER_HEADER_ROOM_TYPE = 'product_order.export_header.type';
     const TRANS_PRODUCT_ORDER_HEADER_USER_ID = 'product_order.export_header.user_id';
+    const TRANS_PRODUCT_ORDER_HEADER_USERNAME = 'product_order.export_header.username';
     const TRANS_PRODUCT_ORDER_HEADER_BASE_PRICE = 'product_order.export_header.base_price';
     const TRANS_PRODUCT_ORDER_HEADER_UNIT_PRICE = 'product_order.export_header.unit_price';
     const TRANS_PRODUCT_ORDER_HEADER_AMOUNT = 'product_order.export_header.amount';

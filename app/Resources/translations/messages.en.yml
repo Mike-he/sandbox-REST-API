@@ -71,6 +71,7 @@ product_order:
     product_name: Product Name
     type: Room Type
     user_id: Renter ID
+    username: Renter
     base_price: Base Price
     unit_price: Unit
     amount: Amount
