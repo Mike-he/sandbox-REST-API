@@ -406,30 +406,28 @@ class AdminMembershipCardController extends SalesRestController
         $membershipCard,
         $accessNo
     ) {
-        $doorsControls = $this->getDoctrine()
+        $buildingIds = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserGroupDoors')
             ->getBuildingIdsByGroup(
                 null,
                 $membershipCard
             );
 
-        foreach ($doorsControls as $doorsControl) {
+        foreach ($buildingIds as $buildingId) {
             $building = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Room\RoomBuilding')
-                ->find($doorsControl['building']);
+                ->find($buildingId);
 
-            if ($building) {
-                if ($building->getServer()) {
-                    $this->storeDoorAccess(
-                        $em,
-                        $accessNo,
-                        1,
-                        $doorsControl['building'],
-                        null,
-                        new \DateTime('now'),
-                        new \DateTime('2099-12-30 23:59:59')
-                    );
-                }
+            if ($building->getServer()) {
+                $this->storeDoorAccess(
+                    $em,
+                    $accessNo,
+                    1,
+                    $buildingId,
+                    null,
+                    new \DateTime('now'),
+                    new \DateTime('2099-12-30 23:59:59')
+                );
             }
         }
     }
@@ -467,15 +465,21 @@ class AdminMembershipCardController extends SalesRestController
                     $allOrder['order_number']
                 );
 
-                $this->storeDoorAccess(
-                    $em,
-                    $card->getAccessNo(),
-                    $user,
-                    $allOrder['building'],
-                    null,
-                    $allOrder['start'],
-                    $allOrder['end']
-                );
+                $building = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                    ->find($allOrder['building']);
+
+                if ($building->getServer()) {
+                    $this->storeDoorAccess(
+                        $em,
+                        $card->getAccessNo(),
+                        $user,
+                        $building->getId(),
+                        null,
+                        $allOrder['start'],
+                        $allOrder['end']
+                    );
+                }
             }
         }
     }
@@ -494,7 +498,7 @@ class AdminMembershipCardController extends SalesRestController
             ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
             ->findBy(array('groupId' => $group));
 
-        $buildings = $this->getDoctrine()
+        $buildingIds = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserGroupDoors')
             ->getBuildingIdsByGroup(
                 $group,
@@ -502,16 +506,21 @@ class AdminMembershipCardController extends SalesRestController
             );
 
         foreach ($groupUsers as $groupUser) {
-            foreach ($buildings as $building) {
-                $this->storeDoorAccess(
-                    $em,
-                    $card->getAccessNo(),
-                    $groupUser->getUserId(),
-                    $building['building'],
-                    null,
-                    $groupUser->getStartDate(),
-                    $groupUser->getEndDate()
-                );
+            foreach ($buildingIds as $buildingId) {
+                $building = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                    ->find($buildingId);
+                if ($building->getServer()) {
+                    $this->storeDoorAccess(
+                        $em,
+                        $card->getAccessNo(),
+                        $groupUser->getUserId(),
+                        $buildingId,
+                        null,
+                        $groupUser->getStartDate(),
+                        $groupUser->getEndDate()
+                    );
+                }
             }
         }
     }

@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Repository\User;
 
 use Doctrine\ORM\EntityRepository;
+use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
 
 class UserGroupHasUserRepository extends EntityRepository
 {
@@ -22,6 +23,12 @@ class UserGroupHasUserRepository extends EntityRepository
         return $query->getQuery()->getSingleScalarResult();
     }
 
+    /**
+     * @param $user
+     * @param $type
+     *
+     * @return array
+     */
     public function getGroupsByUser(
         $user,
         $type
@@ -36,6 +43,23 @@ class UserGroupHasUserRepository extends EntityRepository
             ->andWhere('u.type in (:type)')
             ->setParameter('user', $user)
             ->setParameter('type', $type);
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
+
+    public function findFinishedUsers(
+        $group,
+        $date
+    ) {
+        $query = $this->createQueryBuilder('u')
+            ->where('u.groupId <= :group')
+            ->andWhere('u.endDate < :date')
+            ->andWhere('u.type != :type')
+            ->setParameter('group', $group)
+            ->setParameter('date', $date)
+            ->setParameter('type', UserGroupHasUser::TYPE_ADD);
 
         $result = $query->getQuery()->getResult();
 

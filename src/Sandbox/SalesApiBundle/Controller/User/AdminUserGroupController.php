@@ -67,9 +67,9 @@ class AdminUserGroupController extends SalesRestController
                 foreach ($buildingIds as $buildingId) {
                     $building = $this->getDoctrine()
                         ->getRepository('SandboxApiBundle:Room\RoomBuilding')
-                        ->find($buildingId['building']);
+                        ->find($buildingId);
                     $buildings[] = array(
-                        'id' => $buildingId['building'],
+                        'id' => $buildingId,
                         'name' => $building ? $building->getName() : null,
                     );
                 }
