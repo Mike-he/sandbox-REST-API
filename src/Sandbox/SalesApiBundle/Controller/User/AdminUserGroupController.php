@@ -306,11 +306,13 @@ class AdminUserGroupController extends SalesRestController
     private function getGroupsByUser(
         $user
     ) {
+        $type = [UserGroupHasUser::TYPE_CARD, UserGroupHasUser::TYPE_ADD];
+
         $groupMembers = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
             ->getGroupsByUser(
                 $user,
-                UserGroupHasUser::TYPE_CARD
+                $type
             );
         $group = array();
         foreach ($groupMembers as $groupMember) {
