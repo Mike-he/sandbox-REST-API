@@ -34,7 +34,7 @@ class Version920170406084749 extends AbstractMigration implements ContainerAware
 
         $salesCardGroup = new AdminPermissionGroups();
         $salesCardGroup->setGroupName('会员卡管理');
-        $salesCardGroup->setGroupKey('membership_card');
+        $salesCardGroup->setGroupKey('membership');
         $salesCardGroup->setPlatform('sales');
         $em->persist($salesCardGroup);
 

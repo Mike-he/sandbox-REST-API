@@ -244,15 +244,11 @@ class ClientPaymentController extends PaymentController
                 break;
             case 'M':
                 $userId = $body['user_id'];
-                $cardId = $body['card_id'];
                 $specificationId = $body['specification_id'];
-                $startDate = $body['start_date'];
 
                 $this->setMembershipOrder(
                     $userId,
-                    $cardId,
                     $specificationId,
-                    $startDate,
                     $price,
                     $orderNumber,
                     $channel

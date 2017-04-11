@@ -9,6 +9,7 @@ use Sandbox\ApiBundle\Constants\DoorAccessConstants;
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
+use Sandbox\ApiBundle\Entity\MembershipCard\MembershipCard;
 use Sandbox\ApiBundle\Entity\MembershipCard\MembershipOrder;
 use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
 use Sandbox\ApiBundle\Entity\Order\TopUpOrder;
@@ -1235,9 +1236,7 @@ class PaymentController extends DoorController
 
     /**
      * @param $userId
-     * @param $cardId
      * @param $specificationId
-     * @param $startDate
      * @param $price
      * @param $orderNumber
      * @param $channel
@@ -1245,9 +1244,7 @@ class PaymentController extends DoorController
      */
     public function setMembershipOrder(
         $userId,
-        $cardId,
         $specificationId,
-        $startDate,
         $price,
         $orderNumber,
         $channel
@@ -1255,10 +1252,11 @@ class PaymentController extends DoorController
         $specification = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:MembershipCard\MembershipCardSpecification')
             ->find($specificationId);
+        $card = $specification->getCard();
         $validPeriod = $specification->getValidPeriod();
         $unit = $specification->getUnitPrice();
 
-        $startDate = new \DateTime($startDate);
+        $startDate = $this->getLastMembershipOrderEndDate($userId, $card);
         $endDate = clone $startDate;
         $endDate = $endDate->modify("+$validPeriod $unit");
 
@@ -1266,7 +1264,7 @@ class PaymentController extends DoorController
         $order->setUser($userId);
         $order->setPrice($price);
         $order->setOrderNumber($orderNumber);
-        $order->setCard($specification->getCard());
+        $order->setCard($card);
         $order->setStartDate($startDate);
         $order->setEndDate($endDate);
         $order->setPayChannel($channel);
@@ -1295,6 +1293,28 @@ class PaymentController extends DoorController
         $em->flush();
 
         return $order;
+    }
+
+    /**
+     * @param $userId
+     * @param MembershipCard $card
+     */
+    protected function getLastMembershipOrderEndDate(
+        $userId,
+        $card
+    ) {
+        $lastMembershipOrder = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:MembershipCard\MembershipOrder')
+            ->getMembershipOrderEndDate(
+                $userId,
+                $card
+            );
+
+        if (is_null($lastMembershipOrder)) {
+            return new \DateTime('now');
+        }
+
+        return $lastMembershipOrder->getEndDate();
     }
 
     /**

@@ -4,6 +4,7 @@ namespace Sandbox\ClientApiBundle\Controller\MembershipCard;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
+use Sandbox\ApiBundle\Entity\MembershipCard\MembershipCard;
 use Sandbox\ApiBundle\Entity\MembershipCard\MembershipOrder;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
@@ -34,29 +35,25 @@ class ClientMembershipOrderController extends PaymentController
 
         $userId = $this->getUserId();
 
-        if (!array_key_exists('card_id', $requestContent) ||
-            !array_key_exists('specification_id', $requestContent) ||
-            !array_key_exists('channel', $requestContent) ||
-            !array_key_exists('start_date', $requestContent)) {
+        if (!array_key_exists('specification_id', $requestContent) ||
+            !array_key_exists('channel', $requestContent)) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
-        $cardId = $requestContent['card_id'];
         $specificationId = $requestContent['specification_id'];
         $channel = $requestContent['channel'];
-        $startDate = new \DateTime($requestContent['start_date']);
 
         $orderNumber = $this->getOrderNumber(MembershipOrder::MEMBERSHIP_ORDER_LETTER_HEAD);
         $specification = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:MembershipCard\MembershipCardSpecification')
             ->find($specificationId);
-        $card = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:MembershipCard\MembershipCard')
-            ->find($cardId);
-
+        $card = $specification->getCard();
         $price = $specification->getPrice();
         $unit = $specification->getUnitPrice();
         $validPeriod = $specification->getValidPeriod();
+
+        // get start date
+        $startDate = $this->getLastMembershipOrderEndDate($userId, $card);
 
         $endDate = clone $startDate;
         $endDate = $endDate->modify("+$validPeriod $unit");
@@ -142,9 +139,7 @@ class ClientMembershipOrderController extends PaymentController
             MembershipOrder::PAYMENT_SUBJECT,
             array(
                 'user_id' => $userId,
-                'card_id' => $cardId,
                 'specification_id' => $specificationId,
-                'start_date' => $startDate,
             ),
             $openId
         );
@@ -213,8 +208,9 @@ class ClientMembershipOrderController extends PaymentController
         $cardOrder = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:MembershipCard\MembershipOrder')
             ->find($id);
+        $this->throwNotFoundIfNull($cardOrder, self::NOT_FOUND_MESSAGE);
 
-        $cardArray = $this->generateClientMembershipCardArray($cardOrder);
+        $cardArray = $this->generateClientMembershipOrderArray($cardOrder);
 
         return new View($cardArray);
     }
@@ -224,6 +220,9 @@ class ClientMembershipOrderController extends PaymentController
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/membership_cards_my")
+     * @Method({"GET"})
+     *
+     * @return View
      */
     public function getMyMembershipCardsAction(
         Request $request,
@@ -231,15 +230,57 @@ class ClientMembershipOrderController extends PaymentController
     ) {
         $userId = $this->getUserId();
 
-        $cardOrders = $this->getDoctrine()
+        $cardIds = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:MembershipCard\MembershipOrder')
-            ->getMyValidClientMembershipOrder(
+            ->getMyValidClientMembershipCards(
                 $userId
             );
 
-        $response = $this->generateClientMembershipCardsResponse($cardOrders);
+        $response = array();
+        foreach ($cardIds as $cardId) {
+            $card = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:MembershipCard\MembershipCard')
+                ->find($cardId);
+
+            array_push($response, array(
+                'card' => $this->generateClientMembershipCardArray($card),
+                'order' => array(
+                    'end_date' => $this->getLastMembershipOrderEndDate($userId, $card),
+                ),
+            ));
+        }
 
         return new View($response);
+    }
+
+    /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     * @param $id
+     *
+     * @Route("/membership_cards_my/{id}")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getMyMembershipCardAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        $userId = $this->getUserId();
+
+        $card = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:MembershipCard\MembershipCard')
+            ->find($id);
+        $this->throwNotFoundIfNull($card, self::NOT_FOUND_MESSAGE);
+
+        return new View(array(
+            'card' => $this->generateClientMembershipCardArray($card),
+            'order' => array(
+                'end_date' => $this->getLastMembershipOrderEndDate($userId, $card),
+            ),
+        ));
     }
 
     /**
@@ -252,7 +293,7 @@ class ClientMembershipOrderController extends PaymentController
     ) {
         $response = array();
         foreach ($cardOrders as $cardOrder) {
-            $cardArray = $this->generateClientMembershipCardArray($cardOrder);
+            $cardArray = $this->generateClientMembershipOrderArray($cardOrder);
 
             array_push($response,$cardArray);
         }
@@ -265,10 +306,36 @@ class ClientMembershipOrderController extends PaymentController
      *
      * @return array
      */
-    private function generateClientMembershipCardArray(
+    private function generateClientMembershipOrderArray(
         $cardOrder
     ) {
-        $card = $cardOrder->getCard();
+        $cardArray = array(
+            'card' => $this->generateClientMembershipCardArray($cardOrder->getCard()),
+            'order' => array(
+                'id' => $cardOrder->getId(),
+                'pay_channel' => $cardOrder->getPaychannel(),
+                'price' => $cardOrder->getPrice(),
+                'payment_date' => $cardOrder->getPaymentDate(),
+                'start_date' => $cardOrder->getStartDate(),
+                'end_date' => $cardOrder->getEndDate(),
+                'specification' => array(
+                    'specification_name' => $cardOrder->getSpecification(),
+                    'valid_period' => $cardOrder->getValidPeriod(),
+                    'unit_price' => $cardOrder->getUnitPrice(),
+                ),
+            ),
+        );
+
+        return $cardArray;
+    }
+
+    /**
+     * @param MembershipCard $card
+     * @return array
+     */
+    private function generateClientMembershipCardArray(
+        $card
+    ) {
         $doors = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserGroupDoors')
             ->findBy(
@@ -293,28 +360,11 @@ class ClientMembershipOrderController extends PaymentController
             );
         }
 
-        $cardArray = array(
-            'card' => array(
-                'id' => $card->getId(),
-                'card_name' => $card->getName(),
-                'card_image' => $card->getBackground(),
-                'specification' => array(
-                    'specification_name' => $cardOrder->getSpecification(),
-                    'valid_period' => $cardOrder->getValidPeriod(),
-                    'unit_price' => $cardOrder->getUnitPrice(),
-                ),
-                'building' => $buildingArray,
-            ),
-            'order' => array(
-                'id' => $cardOrder->getId(),
-                'pay_channel' => $cardOrder->getPaychannel(),
-                'price' => $cardOrder->getPrice(),
-                'payment_date' => $cardOrder->getPaymentDate(),
-                'start_date' => $cardOrder->getStartDate(),
-                'end_date' => $cardOrder->getEndDate(),
-            ),
+        return array(
+            'id' => $card->getId(),
+            'card_name' => $card->getName(),
+            'card_image' => $card->getBackground(),
+            'building' => $buildingArray,
         );
-
-        return $cardArray;
     }
 }

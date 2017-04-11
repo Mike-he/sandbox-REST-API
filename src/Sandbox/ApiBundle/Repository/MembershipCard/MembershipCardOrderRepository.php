@@ -163,17 +163,41 @@ class MembershipCardOrderRepository extends EntityRepository
      *
      * @return array
      */
-    public function getMyValidClientMembershipOrder(
+    public function getMyValidClientMembershipCards(
         $userId
     ) {
         $query = $this->createQueryBuilder('mo')
+            ->select('DISTINCT(mo.card)')
             ->where('mo.user = :userId')
             ->andWhere('mo.startDate <= :now')
             ->andWhere('mo.endDate >= :now')
             ->setParameter('userId', $userId)
-            ->setParameter('now', new \DateTime('now'))
-            ->orderBy('mo.creationDate', 'DESC');
+            ->setParameter('now', new \DateTime('now'));
 
-        return $query->getQuery()->getResult();
+        $result = $query->getQuery()->getScalarResult();
+        $result = array_map('current', $result);
+
+        return $result;
+    }
+
+    /**
+     * @param $userId
+     * @param $card
+     *
+     * @return array
+     */
+    public function getMembershipOrderEndDate(
+        $userId,
+        $card
+    ) {
+        $query = $this->createQueryBuilder('mo')
+            ->where('mo.user = :userId')
+            ->andWhere('mo.card = :card')
+            ->setParameter('userId', $userId)
+            ->setParameter('card', $card)
+            ->setMaxResults(1)
+            ->orderBy('mo.endDate', 'DESC');
+
+        return $query->getQuery()->getOneOrNullResult();
     }
 }
