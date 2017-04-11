@@ -6,7 +6,7 @@ use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesUser;
-use Sandbox\ApiBundle\Entity\User\UserGroup;
+use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
 use Sandbox\ApiBundle\Entity\User\UserView;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -882,11 +882,13 @@ class AdminUsersController extends DoorController
     private function getGroupsByUser(
         $user
     ) {
+        $type = [UserGroupHasUser::TYPE_CARD, UserGroupHasUser::TYPE_ADD];
+
         $groupMembers = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
             ->getGroupsByUser(
                 $user,
-                UserGroup::TYPE_CARD
+                $type
             );
         $group = array();
         foreach ($groupMembers as $groupMember) {

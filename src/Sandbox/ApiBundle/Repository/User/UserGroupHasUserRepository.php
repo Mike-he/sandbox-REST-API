@@ -33,7 +33,7 @@ class UserGroupHasUserRepository extends EntityRepository
                 ')
             ->leftJoin('SandboxApiBundle:User\UserGroup', 'ug', 'WITH', 'ug.id = u.groupId')
             ->where('u.userId = :user')
-            ->andWhere('u.type = :type')
+            ->andWhere('u.type in (:type)')
             ->setParameter('user', $user)
             ->setParameter('type', $type);
 
