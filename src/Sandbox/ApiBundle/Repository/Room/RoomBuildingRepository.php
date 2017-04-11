@@ -321,7 +321,7 @@ class RoomBuildingRepository extends EntityRepository
         $buildingServices,
         $lng,
         $lat,
-        $excludeIds = null,
+        $excludeIds,
         $ids
     ) {
         $buildingsQuery = $this->createQueryBuilder('rb')
