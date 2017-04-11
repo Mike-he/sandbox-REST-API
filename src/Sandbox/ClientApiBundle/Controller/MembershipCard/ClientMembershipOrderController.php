@@ -129,6 +129,11 @@ class ClientMembershipOrderController extends PaymentController
             $openId = $weChat->getOpenId();
         }
 
+        $body = array(
+            'user_id' => $userId,
+            'specification_id' => $specificationId,
+        );
+
         $charge = $this->payForOrder(
             '',
             '',
@@ -137,10 +142,7 @@ class ClientMembershipOrderController extends PaymentController
             $price,
             $channel,
             MembershipOrder::PAYMENT_SUBJECT,
-            array(
-                'user_id' => $userId,
-                'specification_id' => $specificationId,
-            ),
+            json_encode($body),
             $openId
         );
 

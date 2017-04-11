@@ -86,7 +86,7 @@ class ClientPaymentController extends PaymentController
         $price = $object['amount'] / 100;
         $orderNumber = $object['order_no'];
         $channel = $object['channel'];
-        $body = (int) $object['body'];
+        $body = $object['body'];
         $orderType = $orderNumber[0];
 
         switch ($orderType) {
@@ -243,8 +243,9 @@ class ClientPaymentController extends PaymentController
                 $orderMap = LeaseBill::BILL_MAP;
                 break;
             case 'M':
-                $userId = $body['user_id'];
-                $specificationId = $body['specification_id'];
+                $bodyArray = json_decode($body, true);
+                $userId = $bodyArray['user_id'];
+                $specificationId = $bodyArray['specification_id'];
 
                 $this->setMembershipOrder(
                     $userId,
