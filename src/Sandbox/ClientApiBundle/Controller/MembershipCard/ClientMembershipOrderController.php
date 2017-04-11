@@ -365,6 +365,8 @@ class ClientMembershipOrderController extends PaymentController
             'id' => $card->getId(),
             'card_name' => $card->getName(),
             'card_image' => $card->getBackground(),
+            'description' => $card->getDescription(),
+            'instructions' => $card->getInstructions(),
             'building' => $buildingArray,
         );
     }
