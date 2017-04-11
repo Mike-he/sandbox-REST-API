@@ -32,7 +32,10 @@ class UserGroupDoorsRepository extends EntityRepository
 
         $query->groupBy('d.building');
 
-        return $query->getQuery()->getResult();
+        $result = $query->getQuery()->getScalarResult();
+        $result = array_map('current', $result);
+
+        return $result;
     }
 
     /**

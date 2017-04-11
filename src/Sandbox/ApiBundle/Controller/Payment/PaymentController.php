@@ -24,6 +24,7 @@ use Pingpp\Customer;
 use Pingpp\Error\Base;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
+use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
 use Sandbox\ApiBundle\Traits\YunPianSms;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Sandbox\ApiBundle\Traits\StringUtil;
@@ -1256,6 +1257,7 @@ class PaymentController extends DoorController
         $card = $specification->getCard();
         $validPeriod = $specification->getValidPeriod();
         $unit = $specification->getUnitPrice();
+        $accessNo = $card->getAccessNo();
 
         $startDate = $this->getLastMembershipOrderEndDate($userId, $card);
         $endDate = clone $startDate;
@@ -1292,6 +1294,24 @@ class PaymentController extends DoorController
         $em = $this->getDoctrine()->getManager();
         $em->persist($order);
         $em->flush();
+
+        // add user to user_group
+        $this->addUserToUserGroup(
+            $em,
+            $userId,
+            $card,
+            $startDate,
+            $endDate,
+            $orderNumber
+        );
+
+        // add user to door access
+        $this->addUserDoorAccess(
+            $card,
+            $accessNo,
+            $userId,
+            $order
+        );
 
         return $order;
     }
@@ -1687,5 +1707,65 @@ class PaymentController extends DoorController
             $endDate,
             $orderNumber
         );
+    }
+
+    /**
+     * @param MembershipCard $card
+     * @param $accessNo
+     * @param $userId
+     * @param MembershipOrder $order
+     */
+    protected function addUserDoorAccess(
+        $card,
+        $accessNo,
+        $userId,
+        $order
+    ) {
+        $doorBuildingIds = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserGroupDoors')
+            ->getBuildingIdsByGroup(
+                null,
+                $card
+            );
+
+        foreach ($doorBuildingIds as $buildingId) {
+            $building = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                ->find($buildingId);
+
+            $base = $building->getServer();
+            if (is_null($base) || empty($base)) {
+                continue;
+            }
+
+            $em = $this->getDoctrine()->getManager();
+            $this->storeDoorAccess(
+                $em,
+                $accessNo,
+                $userId,
+                $buildingId,
+                null,
+                $order->getStartDate(),
+                $order->getEndDate()
+            );
+
+            $em->flush();
+
+            $result = $this->getCardNoByUser($userId);
+            if (
+                !is_null($result) &&
+                $result['status'] === DoorController::STATUS_AUTHED
+            ) {
+                $this->addEmployeeToOrder(
+                    $base,
+                    $accessNo,
+                    array(
+                        array(
+                            'empid' => "$userId",
+                        ),
+                    )
+                );
+            }
+        }
     }
 }

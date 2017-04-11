@@ -8,7 +8,6 @@ use Sandbox\ApiBundle\Entity\MembershipCard\MembershipCard;
 use Sandbox\ApiBundle\Entity\MembershipCard\MembershipOrder;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
-use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
 use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -52,6 +51,7 @@ class ClientMembershipOrderController extends PaymentController
         $price = $specification->getPrice();
         $unit = $specification->getUnitPrice();
         $validPeriod = $specification->getValidPeriod();
+        $accessNo = $card->getAccessNo();
 
         // get start date
         $startDate = $this->getLastMembershipOrderEndDate($userId, $card);
@@ -119,7 +119,13 @@ class ClientMembershipOrderController extends PaymentController
                 $orderNumber
             );
 
-            // TODO add user to door access
+            // add user to door access
+            $this->addUserDoorAccess(
+                $card,
+                $accessNo,
+                $userId,
+                $order
+            );
 
             return new View(array(
                 'id' => $order->getId(),
