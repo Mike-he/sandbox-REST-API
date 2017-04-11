@@ -150,6 +150,12 @@ class AdminUsersController extends DoorController
      *    description="search query"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="group",
+     *    default=null,
+     *    description="group"
+     * )
+     *
      * @Route("/users/search")
      * @Method({"GET"})
      *
@@ -199,6 +205,7 @@ class AdminUsersController extends DoorController
         $endDate = $paramFetcher->get('endDate');
         $name = $paramFetcher->get('name');
         $query = $paramFetcher->get('query');
+        $group = $paramFetcher->get('group');
 
         // get sales users
         $userIds = $this->getMySalesUserIds();
@@ -213,6 +220,23 @@ class AdminUsersController extends DoorController
             );
 
             $userIds = array_intersect($userIds, $bindCardUserIds);
+        }
+
+        if ($group) {
+            $type = [UserGroupHasUser::TYPE_CARD, UserGroupHasUser::TYPE_ADD];
+            $groupMembers = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
+                ->findBy(array(
+                    'groupId' => $group,
+                    'type' => $type,
+                ));
+
+            $groupIds = array();
+            foreach ($groupMembers as $groupMember) {
+                $groupIds[] = $groupMember->getUserId();
+            }
+
+            $userIds = array_intersect($userIds, $groupIds);
         }
 
         $users = $this->getDoctrine()

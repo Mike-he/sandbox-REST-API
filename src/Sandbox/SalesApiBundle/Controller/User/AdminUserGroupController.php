@@ -90,43 +90,6 @@ class AdminUserGroupController extends SalesRestController
     }
 
     /**
-     * Get user group Members.
-     *
-     * @param Request $request the request object
-     *
-     * @Route("/user/groups/{id}")
-     * @Method({"GET"})
-     *
-     * @return View
-     */
-    public function getGroupMembersAction(
-        Request $request,
-        $id
-    ) {
-        $type = [UserGroupHasUser::TYPE_CARD, UserGroupHasUser::TYPE_ADD];
-
-        $groupMembers = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
-            ->findBy(array(
-                'groupId' => $id,
-                'type' => $type,
-            ));
-
-        $result = array();
-        foreach ($groupMembers as $groupMember) {
-            $groups = $this->getGroupsByUser($groupMember->getUserId());
-            $result[] = array(
-                'user_id' => $groupMember->getUserId(),
-                'groups' => $groups,
-            );
-        }
-
-        $view = new View($result);
-
-        return $view;
-    }
-
-    /**
      * Create group.
      *
      * @param Request $request the request object
@@ -298,32 +261,5 @@ class AdminUserGroupController extends SalesRestController
         }
 
         $em->flush();
-    }
-
-    /**
-     * @param $user
-     *
-     * @return array
-     */
-    private function getGroupsByUser(
-        $user
-    ) {
-        $type = [UserGroupHasUser::TYPE_CARD, UserGroupHasUser::TYPE_ADD];
-
-        $groupMembers = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
-            ->getGroupsByUser(
-                $user,
-                $type
-            );
-        $group = array();
-        foreach ($groupMembers as $groupMember) {
-            $group[] = array(
-                'id' => $groupMember['id'],
-                'name' => $groupMember['name'],
-            );
-        }
-
-        return $group;
     }
 }
