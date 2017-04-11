@@ -8,6 +8,7 @@ use Sandbox\ApiBundle\Entity\MembershipCard\MembershipCard;
 use Sandbox\ApiBundle\Entity\MembershipCard\MembershipOrder;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
+use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
 use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -108,7 +109,17 @@ class ClientMembershipOrderController extends PaymentController
             $em->persist($order);
             $em->flush();
 
-            // TODO add user to user_group
+            // add user to user_group
+            $this->addUserToUserGroup(
+                $em,
+                $userId,
+                $card,
+                $startDate,
+                $endDate,
+                $orderNumber
+            );
+
+            // TODO add user to door access
 
             return new View(array(
                 'id' => $order->getId(),
@@ -367,6 +378,7 @@ class ClientMembershipOrderController extends PaymentController
             'id' => $card->getId(),
             'card_name' => $card->getName(),
             'card_image' => $card->getBackground(),
+            'phone' => $card->getPhone(),
             'description' => $card->getDescription(),
             'instructions' => $card->getInstructions(),
             'building' => $buildingArray,

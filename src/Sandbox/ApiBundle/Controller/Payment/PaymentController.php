@@ -1651,4 +1651,41 @@ class PaymentController extends DoorController
 
         return $string;
     }
+
+    /**
+     * @param $em
+     * @param $userId
+     * @param $card
+     * @param $startDate
+     * @param $endDate
+     * @param $orderNumber
+     */
+    protected function addUserToUserGroup(
+        $em,
+        $userId,
+        $card,
+        $startDate,
+        $endDate,
+        $orderNumber
+    ) {
+        $userGroup = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserGroup')
+            ->findOneBy(array(
+                'card' => $card,
+            ));
+
+        if (is_null($userGroup)) {
+            return;
+        }
+
+        $this->get('sandbox_api.group_user')->storeGroupUser(
+            $em,
+            $userGroup,
+            $userId,
+            UserGroupHasUser::TYPE_CARD,
+            $startDate,
+            $endDate,
+            $orderNumber
+        );
+    }
 }
