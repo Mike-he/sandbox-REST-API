@@ -4095,12 +4095,10 @@ class OrderRepository extends EntityRepository
         $cardOrderAmountQuery = $this->getEntityManager()->createQueryBuilder()
             ->from('SandboxApiBundle:MembershipCard\MembershipOrder', 'mo')
             ->select('SUM(mo.price)')
-            ->where('mo.status = :completed')
-            ->andWhere('mo.paymentDate >= :start')
+            ->where('mo.paymentDate >= :start')
             ->andWhere('mo.paymentDate <= :end')
             ->andWhere('mo.payChannel = :account')
             ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
-            ->setParameter('completed', ProductOrder::STATUS_COMPLETED)
             ->setParameter('start', $startDate)
             ->setParameter('end', $endDate);
 
@@ -4124,12 +4122,10 @@ class OrderRepository extends EntityRepository
         $cardOrderCountQuery = $this->getEntityManager()->createQueryBuilder()
             ->from('SandboxApiBundle:MembershipCard\MembershipOrder', 'mo')
             ->select('SUM(mo.price)')
-            ->where('mo.status = :completed')
-            ->andWhere('mo.paymentDate >= :start')
+            ->where('mo.paymentDate >= :start')
             ->andWhere('mo.paymentDate <= :end')
             ->andWhere('mo.payChannel = :account')
             ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
-            ->setParameter('completed', ProductOrder::STATUS_COMPLETED)
             ->setParameter('start', $startDate)
             ->setParameter('end', $endDate);
 
