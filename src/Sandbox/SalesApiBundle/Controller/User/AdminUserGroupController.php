@@ -103,11 +103,13 @@ class AdminUserGroupController extends SalesRestController
         Request $request,
         $id
     ) {
+        $type = [UserGroupHasUser::TYPE_CARD, UserGroupHasUser::TYPE_ADD];
+
         $groupMembers = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
             ->findBy(array(
                 'groupId' => $id,
-                'type' => UserGroupHasUser::TYPE_CARD,
+                'type' => $type,
             ));
 
         $result = array();
