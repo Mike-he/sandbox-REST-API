@@ -326,6 +326,7 @@ class ClientMembershipOrderController extends PaymentController
             'card' => $this->generateClientMembershipCardArray($cardOrder->getCard()),
             'order' => array(
                 'id' => $cardOrder->getId(),
+                'order_number' => $cardOrder->getOrderNumber(),
                 'pay_channel' => $cardOrder->getPaychannel(),
                 'price' => $cardOrder->getPrice(),
                 'payment_date' => $cardOrder->getPaymentDate(),
