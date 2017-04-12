@@ -39,7 +39,7 @@ class UserGroupDoors
     /**
      * @var string
      *
-     * @ORM\Column(name="name", type="string", length=64)
+     * @ORM\Column(name="name", type="string", length=64, nullable=true)
      */
     private $name;
 

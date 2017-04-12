@@ -345,15 +345,24 @@ class AdminMembershipCardController extends SalesRestController
         foreach ($doorsControls as $doorsControl) {
             $building = $doorsControl['building_id'];
             $controls = $doorsControl['controls'];
-            foreach ($controls as $control) {
+            if (empty($controls)) {
                 $userGroupDoors = new UserGroupDoors();
                 $userGroupDoors->setCard($membershipCard);
                 $userGroupDoors->setGroup($userGroup);
                 $userGroupDoors->setBuilding($building);
-                $userGroupDoors->setDoorControlId($control['control_id']);
-                $userGroupDoors->setName($control['control_name']);
 
                 $em->persist($userGroupDoors);
+            }else {
+                foreach ($controls as $control) {
+                    $userGroupDoors = new UserGroupDoors();
+                    $userGroupDoors->setCard($membershipCard);
+                    $userGroupDoors->setGroup($userGroup);
+                    $userGroupDoors->setBuilding($building);
+                    $userGroupDoors->setDoorControlId($control['control_id']);
+                    $userGroupDoors->setName($control['control_name']);
+
+                    $em->persist($userGroupDoors);
+                }
             }
         }
     }
