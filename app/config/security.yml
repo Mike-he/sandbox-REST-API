@@ -121,6 +121,11 @@ security:
             pattern: ^/sales/admin/events/orders/export$
             security: false
 
+        sales_admin_membership_orders_export:
+            pattern: ^/sales/admin/membership/cards/orders/export$
+            security: false
+            methods: [GET]
+
         sales_admin_orders_export:
             pattern: ^/sales/admin/orders/export$
             security: false
@@ -140,6 +145,11 @@ security:
         admin_payment_refund:
             pattern: ^/admin/payment/refund$
             security: false
+
+        admin_membership_orders_export:
+            pattern: ^/admin/membership/cards/orders/export$
+            security: false
+            methods: [GET]
 
         user_background_attachments:
             pattern: ^/user/background/attachments$

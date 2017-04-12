@@ -10,12 +10,15 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations;
+use Sandbox\ApiBundle\Traits\FinanceSalesExportTraits;
 
 /**
  * Admin MembershipCard Order Controller.
  */
 class AdminMembershipCardOrderController extends SandboxRestController
 {
+    use FinanceSalesExportTraits;
+
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
@@ -184,6 +187,137 @@ class AdminMembershipCardOrderController extends SandboxRestController
         );
 
         return $view;
+    }
+
+    /**
+     * @Annotations\QueryParam(
+     *    name="channel",
+     *    default=null,
+     *    nullable=true,
+     *    array=true,
+     *    description="payment channel"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="keyword",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="keyword_search",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by building id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="create_date_range",
+     *    default=null,
+     *    nullable=true,
+     *    description="create_date_range"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="create_start",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="start date. Must be YYYY-mm-dd"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="create_end",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="end date. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="language",
+     *    default="zh",
+     *    nullable=true,
+     *    requirements="(zh|en)",
+     *    strict=true,
+     *    description="export language"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="company",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="company id"
+     * )
+     *
+     * @Method({"GET"})
+     * @Route("/membership/cards/orders/export")
+     *
+     * @return View
+     */
+    public function getSalesMembershipOrderExportAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        //authenticate with web browser cookie
+        $admin = $this->authenticateAdminCookie();
+        $adminId = $admin->getId();
+
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
+            $adminId,
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_MEMBERSHIP_CARD_ORDER],
+            ],
+            AdminPermission::OP_LEVEL_VIEW
+        );
+
+        $language = $paramFetcher->get('language');
+        $channel = $paramFetcher->get('channel');
+        $keyword = $paramFetcher->get('keyword');
+        $keywordSearch = $paramFetcher->get('keyword_search');
+        $buildingId = $paramFetcher->get('building');
+        $createDateRange = $paramFetcher->get('create_date_range');
+        $createStart = $paramFetcher->get('create_start');
+        $createEnd = $paramFetcher->get('create_end');
+        $companyId = $paramFetcher->get('company');
+
+        $orders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:MembershipCard\MembershipOrder')
+            ->getAdminOrders(
+                $channel,
+                $keyword,
+                $keywordSearch,
+                $buildingId,
+                $createDateRange,
+                $createStart,
+                $createEnd,
+                null,
+                null,
+                $companyId
+            );
+
+        return $this->getMembershipOrderExport(
+            $language,
+            $orders
+        );
     }
 
     /**

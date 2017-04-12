@@ -11,6 +11,68 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 trait FinanceSalesExportTraits
 {
     /**
+     * @param $language
+     * @param $membershipOrders
+     *
+     * @return mixed
+     *
+     * @throws \PHPExcel_Exception
+     */
+    public function getMembershipOrderExport(
+        $language,
+        $membershipOrders
+    ) {
+        $phpExcelObject = new \PHPExcel();
+        $phpExcelObject->getProperties()->setTitle('Finance Summary');
+
+        $headers = $this->getSalesExcelHeaders($language);
+
+        //Fill data
+        $phpExcelObject->setActiveSheetIndex(0)->fromArray($headers, ' ', 'A1');
+        $row = $phpExcelObject->getActiveSheet()->getHighestRow() + 1;
+
+        if (!is_null($membershipOrders) && !empty($membershipOrders)) {
+            $membershipBody = $this->setMembershipArray(
+                $membershipOrders,
+                $language
+            );
+
+            $phpExcelObject->setActiveSheetIndex(0)->fromArray($membershipBody, ' ', "A$row");
+        }
+
+        $phpExcelObject->getActiveSheet()->getStyle('A1:R1')->getFont()->setBold(true);
+
+        //set column dimension
+        for ($col = ord('a'); $col <= ord('o'); ++$col) {
+            $phpExcelObject->setActiveSheetIndex(0)->getColumnDimension(chr($col))->setAutoSize(true);
+        }
+        $phpExcelObject->getActiveSheet()->setTitle('Membership Order');
+
+        // Set active sheet index to the first sheet, so Excel opens this as the first sheet
+        $phpExcelObject->setActiveSheetIndex(0);
+
+        // create the writer
+        $writer = $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel5');
+        // create the response
+        $response = $this->get('phpexcel')->createStreamedResponse($writer);
+
+        $now = new \DateTime();
+        $stringDate = $now->format('Y-m');
+
+        // adding headers
+        $dispositionHeader = $response->headers->makeDisposition(
+            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+            'membership_order_'.$stringDate.'.xls'
+        );
+        $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
+        $response->headers->set('Pragma', 'public');
+        $response->headers->set('Cache-Control', 'maxage=1');
+        $response->headers->set('Content-Disposition', $dispositionHeader);
+
+        return $response;
+    }
+
+    /**
      * @param $firstDate
      * @param $language
      * @param $events

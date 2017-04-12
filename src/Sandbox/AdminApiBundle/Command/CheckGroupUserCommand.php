@@ -44,12 +44,15 @@ class CheckGroupUserCommand extends ContainerAwareCommand
                 }
             }
 
+
             $em->remove($membership);
         }
         $em->flush();
 
+
         /*
         //Second step: remove finished group users
+
         $groups = $em->getRepository('SandboxApiBundle:User\UserGroup')
             ->findBy(array('type' => UserGroup::TYPE_CARD));
 
