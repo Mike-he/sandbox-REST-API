@@ -553,11 +553,16 @@ class AdminUsersController extends DoorController
         );
 
         // get user
-        $user = $this->getRepo('User\User')->getUserInfo($id);
+        $user = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\User')
+            ->getUserInfo($id);
         $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
 
         $groups = $this->getGroupsByUser($id);
         $user['groups'] = $groups;
+
+        $hidePhone = substr_replace($user['phone'], '****', 3, 4);
+        $user['phone'] = $hidePhone;
 
         // set view
         return new View($user);
