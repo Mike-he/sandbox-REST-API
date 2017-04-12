@@ -9,7 +9,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * MembershipCardAccessNo.
  *
  * @ORM\Table(name="membership_card_access_no")
- * @ORM\Entity(")
+ * @ORM\Entity()
  */
 class MembershipCardAccessNo
 {

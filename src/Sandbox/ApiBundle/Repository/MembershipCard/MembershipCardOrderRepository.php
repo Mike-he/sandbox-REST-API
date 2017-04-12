@@ -58,14 +58,19 @@ class MembershipCardOrderRepository extends EntityRepository
         $channel,
         $keyword,
         $keywordSearch,
-        $payDate,
-        $payStart,
-        $payEnd,
+        $buildingId,
+        $createDateRange,
+        $createStart,
+        $createEnd,
         $limit,
         $offset,
         $companyId = null
     ) {
         $query = $this->createQueryBuilder('mo')
+            ->select('DISTINCT mo')
+            ->innerJoin('SandboxApiBundle:MembershipCard\MembershipCard', 'c', 'WITH', 'mo.card = c.id')
+            ->leftJoin('SandboxApiBundle:User\UserGroupDoors', 'd', 'WITH', 'd.card = c.id')
+            ->leftJoin('SandboxApiBundle:User\UserView', 'u', 'WITH', 'u.id = mo.user')
             ->where('mo.id is not null');
 
         // filter by payment channel
@@ -79,6 +84,18 @@ class MembershipCardOrderRepository extends EntityRepository
                 case 'number':
                     $query->andWhere('mo.orderNumber LIKE :search');
                     break;
+                case 'card_name':
+                    $query->andWhere('c.name LIKE :search');
+                    break;
+                case 'user':
+                    $query->andWhere('u.name LIKE :search');
+                    break;
+                case 'phone':
+                    $query->andWhere('u.phone LIKE :search');
+                    break;
+                case 'email':
+                    $query->andWhere('u.email LIKE :search');
+                    break;
                 default:
                     $query->andWhere('mo.orderNumber LIKE :search');
             }
@@ -87,35 +104,44 @@ class MembershipCardOrderRepository extends EntityRepository
         }
 
         if (!is_null($companyId)) {
-            $query->leftJoin('SandboxApiBundle:MembershipCard\MembershipCard', 'c', 'WITH', 'mo.card = c.id')
-                ->andWhere('c.companyId = :companyId')
+            $query->andWhere('c.companyId = :companyId')
                 ->setParameter('companyId', $companyId);
         }
 
-        //filter by payDate
-        if (!is_null($payDate) && !empty($payDate)) {
-            $payDateStart = new \DateTime($payDate);
-            $payDateEnd = new \DateTime($payDate);
-            $payDateEnd->setTime(23, 59, 59);
+        if (!is_null($buildingId)) {
+            $query->andWhere('d.building = :buildingId')
+                ->setParameter('buildingId', $buildingId);
+        }
 
-            $query->andWhere('mo.paymentDate >= :payStart')
-                ->andWhere('mo.paymentDate <= :payEnd')
-                ->setParameter('payStart', $payDateStart)
-                ->setParameter('payEnd', $payDateEnd);
+        if (!is_null($createDateRange)) {
+            $now = new \DateTime();
+            switch ($createDateRange) {
+                case 'last_week':
+                    $lastDate = $now->sub(new \DateInterval('P7D'));
+                    break;
+                case 'last_month':
+                    $lastDate = $now->sub(new \DateInterval('P1M'));
+                    break;
+                default:
+                    $lastDate = new \DateTime();
+            }
+            $query->andWhere('mo.creationDate >= :createStart')
+                ->setParameter('createStart', $lastDate);
         } else {
-            //filter by payStart
-            if (!is_null($payStart)) {
-                $payStart = new \DateTime($payStart);
-                $query->andWhere('mo.paymentDate >= :payStart')
-                    ->setParameter('payStart', $payStart);
+            // filter by order start point
+            if (!is_null($createStart)) {
+                $createStart = new \DateTime($createStart);
+                $createStart->setTime(00, 00, 00);
+                $query->andWhere('mo.creationDate >= :createStart')
+                    ->setParameter('createStart', $createStart);
             }
 
-            //filter by payEnd
-            if (!is_null($payEnd)) {
-                $payEnd = new \DateTime($payEnd);
-                $payEnd->setTime(23, 59, 59);
-                $query->andWhere('mo.paymentDate <= :payEnd')
-                    ->setParameter('payEnd', $payEnd);
+            // filter by order end point
+            if (!is_null($createEnd)) {
+                $createEnd = new \DateTime($createEnd);
+                $createEnd->setTime(23, 59, 59);
+                $query->andWhere('mo.creationDate <= :createEnd')
+                    ->setParameter('createEnd', $createEnd);
             }
         }
 
@@ -159,13 +185,17 @@ class MembershipCardOrderRepository extends EntityRepository
         $channel,
         $keyword,
         $keywordSearch,
-        $payDate,
-        $payStart,
-        $payEnd,
+        $buildingId,
+        $createDateRange,
+        $createStart,
+        $createEnd,
         $companyId = null
     ) {
         $query = $this->createQueryBuilder('mo')
-            ->select('COUNT(mo)')
+            ->innerJoin('SandboxApiBundle:MembershipCard\MembershipCard', 'c', 'WITH', 'mo.card = c.id')
+            ->leftJoin('SandboxApiBundle:User\UserGroupDoors', 'd', 'WITH', 'd.card = c.id')
+            ->leftJoin('SandboxApiBundle:User\UserView', 'u', 'WITH', 'u.id = mo.user')
+            ->select('COUNT(DISTINCT mo)')
             ->where('mo.id is not null');
 
         // filter by payment channel
@@ -179,6 +209,18 @@ class MembershipCardOrderRepository extends EntityRepository
                 case 'number':
                     $query->andWhere('mo.orderNumber LIKE :search');
                     break;
+                case 'card_name':
+                    $query->andWhere('c.name LIKE :search');
+                    break;
+                case 'user':
+                    $query->andWhere('u.name LIKE :search');
+                    break;
+                case 'phone':
+                    $query->andWhere('u.phone LIKE :search');
+                    break;
+                case 'email':
+                    $query->andWhere('u.email LIKE :search');
+                    break;
                 default:
                     $query->andWhere('mo.orderNumber LIKE :search');
             }
@@ -187,35 +229,44 @@ class MembershipCardOrderRepository extends EntityRepository
         }
 
         if (!is_null($companyId)) {
-            $query->leftJoin('SandboxApiBundle:MembershipCard\MembershipCard', 'c', 'WITH', 'mo.card = c.id')
-                ->andWhere('c.companyId = :companyId')
+            $query->andWhere('c.companyId = :companyId')
                 ->setParameter('companyId', $companyId);
         }
 
-        //filter by payDate
-        if (!is_null($payDate) && !empty($payDate)) {
-            $payDateStart = new \DateTime($payDate);
-            $payDateEnd = new \DateTime($payDate);
-            $payDateEnd->setTime(23, 59, 59);
+        if (!is_null($buildingId)) {
+            $query->andWhere('d.building = :buildingId')
+                ->setParameter('buildingId', $buildingId);
+        }
 
-            $query->andWhere('mo.paymentDate >= :payStart')
-                ->andWhere('mo.paymentDate <= :payEnd')
-                ->setParameter('payStart', $payDateStart)
-                ->setParameter('payEnd', $payDateEnd);
+        if (!is_null($createDateRange)) {
+            $now = new \DateTime();
+            switch ($createDateRange) {
+                case 'last_week':
+                    $lastDate = $now->sub(new \DateInterval('P7D'));
+                    break;
+                case 'last_month':
+                    $lastDate = $now->sub(new \DateInterval('P1M'));
+                    break;
+                default:
+                    $lastDate = new \DateTime();
+            }
+            $query->andWhere('mo.creationDate >= :createStart')
+                ->setParameter('createStart', $lastDate);
         } else {
-            //filter by payStart
-            if (!is_null($payStart)) {
-                $payStart = new \DateTime($payStart);
-                $query->andWhere('mo.paymentDate >= :payStart')
-                    ->setParameter('payStart', $payStart);
+            // filter by order start point
+            if (!is_null($createStart)) {
+                $createStart = new \DateTime($createStart);
+                $createStart->setTime(00, 00, 00);
+                $query->andWhere('mo.creationDate >= :createStart')
+                    ->setParameter('createStart', $createStart);
             }
 
-            //filter by payEnd
-            if (!is_null($payEnd)) {
-                $payEnd = new \DateTime($payEnd);
-                $payEnd->setTime(23, 59, 59);
-                $query->andWhere('mo.paymentDate <= :payEnd')
-                    ->setParameter('payEnd', $payEnd);
+            // filter by order end point
+            if (!is_null($createEnd)) {
+                $createEnd = new \DateTime($createEnd);
+                $createEnd->setTime(23, 59, 59);
+                $query->andWhere('mo.creationDate <= :createEnd')
+                    ->setParameter('createEnd', $createEnd);
             }
         }
 
