@@ -4,7 +4,6 @@ namespace Application\Migrations;
 
 use Doctrine\DBAL\Migrations\AbstractMigration;
 use Doctrine\DBAL\Schema\Schema;
-use Sandbox\ApiBundle\Entity\Menu\Menu;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
@@ -21,7 +20,6 @@ class Version920170320062006 extends AbstractMigration implements ContainerAware
     public function up(Schema $schema)
     {
         // this up() migration is auto-generated, please modify it to your needs
-
     }
 
     public function postUp(Schema $schema)
@@ -51,7 +49,7 @@ class Version920170320062006 extends AbstractMigration implements ContainerAware
             '嘉兴市',
             '成都市',
             '长沙市',
-            '武汉市'
+            '武汉市',
         ];
 
         $coordinates = [
@@ -77,14 +75,14 @@ class Version920170320062006 extends AbstractMigration implements ContainerAware
             '嘉兴市' => ['0573'],
             '成都市' => ['028'],
             '长沙市' => ['0731'],
-            '武汉市' => ['027']
+            '武汉市' => ['027'],
         ];
 
         foreach ($cityNames as $name) {
             $city = $em->getRepository('SandboxApiBundle:Room\RoomCity')
                 ->findOneBy(
                     array(
-                        'name' => $name
+                        'name' => $name,
                     )
                 );
 
@@ -102,6 +100,5 @@ class Version920170320062006 extends AbstractMigration implements ContainerAware
     public function down(Schema $schema)
     {
         // this down() migration is auto-generated, please modify it to your needs
-
     }
 }
