@@ -54,6 +54,9 @@ class ClientMembershipCardController extends SandboxRestController
                     $card
                 );
 
+            $ordersUrl = $this->container->getParameter('orders_url');
+            $url = $ordersUrl.'/member?ptype=productDetail&productId='.$card->getId();
+
             array_push($response, array(
                 'id' => $card->getId(),
                 'card_name' => $card->getName(),
@@ -61,6 +64,7 @@ class ClientMembershipCardController extends SandboxRestController
                 'min_price' => $specification->getPrice(),
                 'min_valid_period' => $specification->getValidPeriod(),
                 'min_unit_price' => $specification->getUnitPrice(),
+                'order_url' => $url,
             ));
         }
 

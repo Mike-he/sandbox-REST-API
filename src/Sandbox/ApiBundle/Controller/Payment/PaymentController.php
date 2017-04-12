@@ -1700,7 +1700,7 @@ class PaymentController extends DoorController
 
         $this->get('sandbox_api.group_user')->storeGroupUser(
             $em,
-            $userGroup,
+            $userGroup->getId(),
             $userId,
             UserGroupHasUser::TYPE_CARD,
             $startDate,

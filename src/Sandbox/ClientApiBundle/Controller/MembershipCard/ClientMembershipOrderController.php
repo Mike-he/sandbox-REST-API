@@ -294,15 +294,11 @@ class ClientMembershipOrderController extends PaymentController
             ->find($id);
         $this->throwNotFoundIfNull($card, self::NOT_FOUND_MESSAGE);
 
-        $ordersUrl = $this->container->getParameter('orders_url');
-        $url = $ordersUrl.'/member?ptype=productDetail&productId='.$id;
-
         return new View(array(
             'card' => $this->generateClientMembershipCardArray($card),
             'order' => array(
                 'end_date' => $this->getLastMembershipOrderEndDate($userId, $card),
             ),
-            'url' => $url,
         ));
     }
 
@@ -385,6 +381,9 @@ class ClientMembershipOrderController extends PaymentController
             );
         }
 
+        $ordersUrl = $this->container->getParameter('orders_url');
+        $url = $ordersUrl.'/member?ptype=productDetail&productId='.$card->getId();
+
         return array(
             'id' => $card->getId(),
             'card_name' => $card->getName(),
@@ -393,6 +392,7 @@ class ClientMembershipOrderController extends PaymentController
             'description' => $card->getDescription(),
             'instructions' => $card->getInstructions(),
             'building' => $buildingArray,
+            'order_url' => $url,
         );
     }
 }
