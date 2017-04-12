@@ -415,6 +415,9 @@ class AdminMembershipCardController extends SalesRestController
             ->findBy(array('card' => $membershipCard));
 
         $membershipCard->setSpecification($specification);
+
+        $url = $this->getParameter('orders_url').'/member?ptype=productDetail&productId='.$membershipCard->getId();
+        $membershipCard->setcardUrl($url);
     }
 
     /**
