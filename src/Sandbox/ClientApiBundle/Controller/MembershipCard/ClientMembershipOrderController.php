@@ -294,11 +294,15 @@ class ClientMembershipOrderController extends PaymentController
             ->find($id);
         $this->throwNotFoundIfNull($card, self::NOT_FOUND_MESSAGE);
 
+        $ordersUrl = $this->container->getParameter('orders_url');
+        $url = $ordersUrl.'/member?ptype=productDetail&productId='.$id;
+
         return new View(array(
             'card' => $this->generateClientMembershipCardArray($card),
             'order' => array(
                 'end_date' => $this->getLastMembershipOrderEndDate($userId, $card),
             ),
+            'url' => $url,
         ));
     }
 
