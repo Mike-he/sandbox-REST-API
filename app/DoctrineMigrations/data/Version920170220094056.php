@@ -20,7 +20,6 @@ class Version920170220094056 extends AbstractMigration implements ContainerAware
     public function up(Schema $schema)
     {
         // this up() migration is auto-generated, please modify it to your needs
-
     }
 
     /**
@@ -53,7 +52,7 @@ class Version920170220094056 extends AbstractMigration implements ContainerAware
             '嘉兴市',
             '成都市',
             '长沙市',
-            '武汉市'
+            '武汉市',
         ];
 
         $coordinates = [
@@ -79,14 +78,14 @@ class Version920170220094056 extends AbstractMigration implements ContainerAware
             '嘉兴市' => [30.752272, 120.762075],
             '成都市' => [30.67, 104.07],
             '长沙市' => [28.2, 112.97],
-            '武汉市' => [30.57, 114.28]
+            '武汉市' => [30.57, 114.28],
         ];
 
         foreach ($cityNames as $name) {
             $city = $em->getRepository('SandboxApiBundle:Room\RoomCity')
                 ->findOneBy(
                     array(
-                        'name' => $name
+                        'name' => $name,
                     )
                 );
 
@@ -105,6 +104,5 @@ class Version920170220094056 extends AbstractMigration implements ContainerAware
     public function down(Schema $schema)
     {
         // this down() migration is auto-generated, please modify it to your needs
-
     }
 }

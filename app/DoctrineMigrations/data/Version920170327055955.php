@@ -4,9 +4,6 @@ namespace Application\Migrations;
 
 use Doctrine\DBAL\Migrations\AbstractMigration;
 use Doctrine\DBAL\Schema\Schema;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermissionGroupMap;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermissionGroups;
 use Sandbox\ApiBundle\Entity\Room\RoomCity;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
@@ -24,7 +21,6 @@ class Version920170327055955 extends AbstractMigration implements ContainerAware
     public function up(Schema $schema)
     {
         // this up() migration is auto-generated, please modify it to your needs
-
     }
 
     public function postUp(Schema $schema)
@@ -61,7 +57,6 @@ class Version920170327055955 extends AbstractMigration implements ContainerAware
         $cLA->setHot(1);
         $cLA->setType(RoomCity::TYPE_INTERNATIONAL);
         $em->persist($cLA);
-
 
         $nyState = new RoomCity();
         $nyState->setName('纽约州');
@@ -167,7 +162,6 @@ class Version920170327055955 extends AbstractMigration implements ContainerAware
         $cWashington->setHot(1);
         $cWashington->setType(RoomCity::TYPE_INTERNATIONAL);
         $em->persist($cWashington);
-
 
         $canadaCountry = new RoomCity();
         $canadaCountry->setName('加拿大');
@@ -285,7 +279,6 @@ class Version920170327055955 extends AbstractMigration implements ContainerAware
         $gz->setHot(1);
         $gz->setType(RoomCity::TYPE_INTERNAL);
 
-
         $em->flush();
     }
 
@@ -295,6 +288,5 @@ class Version920170327055955 extends AbstractMigration implements ContainerAware
     public function down(Schema $schema)
     {
         // this down() migration is auto-generated, please modify it to your needs
-
     }
 }
