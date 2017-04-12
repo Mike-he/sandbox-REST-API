@@ -61,35 +61,42 @@ class AdminMembershipCardOrderController extends SalesRestController
      *    strict=true,
      *    description="page number "
      * )
-     *
+     * 
      * @Annotations\QueryParam(
-     *    name="pay_date",
+     *    name="building",
      *    array=false,
      *    default=null,
      *    nullable=true,
-     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    requirements="\d+",
      *    strict=true,
-     *    description="filter for payment start. Must be YYYY-mm-dd"
+     *    description="Filter by building id"
      * )
      *
      * @Annotations\QueryParam(
-     *    name="pay_start",
+     *    name="create_date_range",
+     *    default=null,
+     *    nullable=true,
+     *    description="create_date_range"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="create_start",
      *    array=false,
      *    default=null,
      *    nullable=true,
      *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
      *    strict=true,
-     *    description="filter for payment start. Must be YYYY-mm-dd"
+     *    description="start date. Must be YYYY-mm-dd"
      * )
      *
      *  @Annotations\QueryParam(
-     *    name="pay_end",
+     *    name="create_end",
      *    array=false,
      *    default=null,
      *    nullable=true,
      *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
      *    strict=true,
-     *    description="filter for payment end. Must be YYYY-mm-dd"
+     *    description="end date. Must be YYYY-mm-dd"
      * )
      *
      * @Method({"GET"})
@@ -113,9 +120,10 @@ class AdminMembershipCardOrderController extends SalesRestController
         $keywordSearch = $paramFetcher->get('keyword_search');
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
-        $payDate = $paramFetcher->get('pay_date');
-        $payStart = $paramFetcher->get('pay_start');
-        $payEnd = $paramFetcher->get('pay_end');
+        $buildingId = $paramFetcher->get('building');
+        $createDateRange = $paramFetcher->get('create_date_range');
+        $createStart = $paramFetcher->get('create_start');
+        $createEnd = $paramFetcher->get('create_end');
 
         $limit = $pageLimit;
         $offset = ($pageIndex - 1) * $pageLimit;
@@ -126,9 +134,10 @@ class AdminMembershipCardOrderController extends SalesRestController
                 $channel,
                 $keyword,
                 $keywordSearch,
-                $payDate,
-                $payStart,
-                $payEnd,
+                $buildingId,
+                $createDateRange,
+                $createStart,
+                $createEnd,
                 $limit,
                 $offset,
                 $companyId
@@ -140,9 +149,10 @@ class AdminMembershipCardOrderController extends SalesRestController
                 $channel,
                 $keyword,
                 $keywordSearch,
-                $payDate,
-                $payStart,
-                $payEnd,
+                $buildingId,
+                $createDateRange,
+                $createStart,
+                $createEnd,
                 $companyId
             );
 
