@@ -202,7 +202,9 @@ class AdminDoorController extends DoorController
         $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
         $userName = $userProfile->getName();
 
-        $buildingIds = $this->getRepo('Door\DoorAccess')->getBuildingIds($userId);
+        $buildingIds = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Door\DoorAccess')
+            ->getBuildingIds($userId);
         if (!is_null($buildingIds) && !empty($buildingIds)) {
             $this->updateEmployeeCardStatus(
                 $userId,
@@ -313,10 +315,12 @@ class AdminDoorController extends DoorController
                 }
 
                 // get controls by building
-                $controls = $this->getRepo('Door\DoorAccess')->getOrdersByBuilding(
-                    $userId,
-                    $id['buildingId']
-                );
+                $controls = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Door\DoorAccess')
+                    ->getOrdersByBuilding(
+                        $userId,
+                        $id['buildingId']
+                    );
 
                 foreach ($controls as $control) {
                     try {
@@ -325,24 +329,36 @@ class AdminDoorController extends DoorController
                         $startDate = $control->getStartDate();
                         $endDate = $control->getEndDate();
                         $roomId = $control->getRoomId();
+                        $accessNo = $control->getAccessNo();
 
-                        $roomDoors = $this->getRepo('Room\RoomDoors')->findBy(['room' => $roomId]);
-                        foreach ($roomDoors as $roomDoor) {
-                            $door = ['doorid' => $roomDoor->getDoorControlId()];
-                            array_push($doorArray, $door);
-                        }
                         $userArray = [
                             ['empid' => "$userId"],
                         ];
 
-                        $this->setRoomOrderPermission(
-                            $base,
-                            $userArray,
-                            $control->getAccessNo(),
-                            $startDate,
-                            $endDate,
-                            $doorArray
-                        );
+                        if (is_null($roomId)) {
+                            // set membership card orders door access
+                            $this->addEmployeeToOrder(
+                                $base,
+                                $accessNo,
+                                $userArray
+                            );
+                        } else {
+                            // set product orders door access
+                            $roomDoors = $this->getRepo('Room\RoomDoors')->findBy(['room' => $roomId]);
+                            foreach ($roomDoors as $roomDoor) {
+                                $door = ['doorid' => $roomDoor->getDoorControlId()];
+                                array_push($doorArray, $door);
+                            }
+
+                            $this->setRoomOrderPermission(
+                                $base,
+                                $userArray,
+                                $accessNo,
+                                $startDate,
+                                $endDate,
+                                $doorArray
+                            );
+                        }
                     } catch (\Exception $e) {
                         error_log('Door Access Error, Set Card');
                         continue;
