@@ -9,7 +9,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * UserGroup.
  *
  * @ORM\Table(name="user_group")
- * @ORM\Entity()
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\User\UserGroupRepository")
  */
 class UserGroup
 {

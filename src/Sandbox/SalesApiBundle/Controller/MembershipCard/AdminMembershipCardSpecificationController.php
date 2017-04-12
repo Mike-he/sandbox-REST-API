@@ -30,6 +30,9 @@ class AdminMembershipCardSpecificationController extends SalesRestController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkMembershipCardPermission(AdminPermission::OP_LEVEL_VIEW);
+
         $specification = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:MembershipCard\MembershipCardSpecification')
             ->findBy(array('card' => $id));
@@ -52,6 +55,9 @@ class AdminMembershipCardSpecificationController extends SalesRestController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkMembershipCardPermission(AdminPermission::OP_LEVEL_EDIT);
+
         $em = $this->getDoctrine()->getManager();
         $membershipCard = $em->getRepository('SandboxApiBundle:MembershipCard\MembershipCard')->find($id);
         $this->throwNotFoundIfNull($membershipCard, self::NOT_FOUND_MESSAGE);
@@ -114,7 +120,7 @@ class AdminMembershipCardSpecificationController extends SalesRestController
         $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             [
-//                ['key' => AdminPermission::KEY_SALES_BUILDING_LONG_TERM_LEASE],
+                ['key' => AdminPermission::KEY_SALES_PLATFORM_MEMBERSHIP_CARD_PRODUCT],
             ],
             $OpLevel
         );

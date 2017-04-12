@@ -19,12 +19,12 @@ class CheckGroupUserCommand extends ContainerAwareCommand
     {
         $em = $this->getContainer()->get('doctrine')->getManager();
 
-        $memships = $em->getRepository('SandboxApiBundle:MembershipCard\MembershipCardAccessNo')->findAll();
-        foreach ($memships as $memship) {
+        $memberships = $em->getRepository('SandboxApiBundle:MembershipCard\MembershipCardAccessNo')->findAll();
+        foreach ($memberships as $membership) {
             //todo:  remove old access no
 
 
-            $em->remove($memship);
+            $em->remove($membership);
         }
         $em->flush();
 

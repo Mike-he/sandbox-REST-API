@@ -262,4 +262,42 @@ class AdminUserGroupController extends SalesRestController
 
         $em->flush();
     }
+
+    /**
+     * Count user groups.
+     *
+     * @param Request $request the request object
+     *
+     * @Route("/user/groups/count")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function countUserGroupAction(
+        Request $request
+    ) {
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
+        $cardGroup = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserGroup')
+            ->countUserGroup(
+                $salesCompanyId,
+                UserGroup::TYPE_CARD
+            );
+
+        $generalGroup = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserGroup')
+            ->countUserGroup(
+                $salesCompanyId,
+                UserGroup::TYPE_CREATED
+            );
+
+        $result = array(
+            'card_group' => $cardGroup,
+            'general_group' => $generalGroup,
+        );
+
+        return new View($result);
+    }
 }
