@@ -23,6 +23,8 @@ class UserGroupRepository extends EntityRepository
             ->setParameter('company', $company)
             ->setParameter('type', $type);
 
-        return $query->getQuery()->getSingleScalarResult();
+        $result = $query->getQuery()->getSingleScalarResult();
+
+        return (int) $result;
     }
 }
