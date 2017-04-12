@@ -273,7 +273,7 @@ class AdminMembershipCardOrderController extends SandboxRestController
      *
      * @return View
      */
-    public function getSalesMembershipOrderExportAction(
+    public function getMembershipOrderExportAction(
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
