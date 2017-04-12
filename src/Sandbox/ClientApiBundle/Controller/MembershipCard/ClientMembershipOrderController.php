@@ -21,32 +21,34 @@ class ClientMembershipOrderController extends PaymentController
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
+     * @param int                   $specificationId
      *
-     * @Route("/membership_orders")
+     * @Route("/membership_orders/{specificationId}/pay")
      * @Method({"POST"})
      *
      * @return View
      */
     public function postMembershipOrdersAction(
         Request $request,
-        ParamFetcherInterface $paramFetcher
+        ParamFetcherInterface $paramFetcher,
+        $specificationId
     ) {
         $requestContent = json_decode($request->getContent(), true);
 
         $userId = $this->getUserId();
 
-        if (!array_key_exists('specification_id', $requestContent) ||
-            !array_key_exists('channel', $requestContent)) {
+        if (!array_key_exists('channel', $requestContent)) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
-        $specificationId = $requestContent['specification_id'];
         $channel = $requestContent['channel'];
 
         $orderNumber = $this->getOrderNumber(MembershipOrder::MEMBERSHIP_ORDER_LETTER_HEAD);
         $specification = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:MembershipCard\MembershipCardSpecification')
             ->find($specificationId);
+        $this->throwNotFoundIfNull($specification, self::NOT_FOUND_MESSAGE);
+
         $card = $specification->getCard();
         $price = $specification->getPrice();
         $unit = $specification->getUnitPrice();
