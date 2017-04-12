@@ -642,4 +642,65 @@ trait DoorAccessTrait
             }
         }
     }
+
+    /**
+     * @param $em
+     * @param $base
+     * @param $accessNo
+     * @param $userId
+     * @param $buildingId
+     * @param $startDate
+     * @param $endDate
+     */
+    public function setMembershipCardDoorAccess(
+        $em,
+        $base,
+        $accessNo,
+        $userId,
+        $buildingId,
+        $startDate,
+        $endDate
+    ) {
+        $this->storeDoorAccess(
+            $em,
+            $accessNo,
+            $userId,
+            $buildingId,
+            null,
+            $startDate,
+            $endDate
+        );
+
+        $userArray = $this->getUserArrayIfAuthed(
+            $base,
+            $userId,
+            []
+        );
+
+        $groupDoors = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserGroupDoors')
+            ->findBy(array('building' => $buildingId));
+
+        $doorArray = [];
+        foreach ($groupDoors as $groupDoor) {
+            $door = ['doorid' => $groupDoor->getDoorControlId()];
+            array_push($doorArray, $door);
+        }
+
+        // set room access
+        if (!empty($userArray)) {
+            try {
+                $this->setRoomOrderPermission(
+                    $base,
+                    $userArray,
+                    $accessNo,
+                    $startDate,
+                    $endDate,
+                    $doorArray
+                );
+            } catch (\Exception $e) {
+                error_log('Set door access went wrong!');
+            }
+        }
+    }
 }

@@ -352,7 +352,7 @@ class AdminMembershipCardController extends SalesRestController
                 $userGroupDoors->setBuilding($building);
 
                 $em->persist($userGroupDoors);
-            }else {
+            } else {
                 foreach ($controls as $control) {
                     $userGroupDoors = new UserGroupDoors();
                     $userGroupDoors->setCard($membershipCard);
@@ -434,20 +434,26 @@ class AdminMembershipCardController extends SalesRestController
                 $membershipCard
             );
 
+        $startDate = new \DateTime('now');
+        $endDate = new \DateTime('2099-12-30 23:59:59');
+        $userId = 1;
+
         foreach ($buildingIds as $buildingId) {
             $building = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Room\RoomBuilding')
                 ->find($buildingId);
 
-            if ($building->getServer()) {
-                $this->storeDoorAccess(
+            $base = $building->getServer();
+
+            if ($base) {
+                $this->setMembershipCardDoorAccess(
                     $em,
+                    $base,
                     $accessNo,
-                    1,
+                    $userId,
                     $buildingId,
-                    null,
-                    new \DateTime('now'),
-                    new \DateTime('2099-12-30 23:59:59')
+                    $startDate,
+                    $endDate
                 );
             }
         }
