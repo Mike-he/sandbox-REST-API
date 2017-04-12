@@ -243,6 +243,7 @@ class AdminMembershipCardController extends SalesRestController
         // Record door access no
         $membershipCardAccessNo = new MembershipCardAccessNo();
         $membershipCardAccessNo->setAccessNo($membershipCard->getAccessNo());
+        $membershipCardAccessNo->setCard($id);
         $em->persist($membershipCardAccessNo);
 
         $newAccessNo = $this->generateSerialNumber(MembershipCard::CARD_LETTER_HEAD);
