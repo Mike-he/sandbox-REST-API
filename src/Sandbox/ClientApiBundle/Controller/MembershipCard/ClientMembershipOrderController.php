@@ -122,9 +122,11 @@ class ClientMembershipOrderController extends PaymentController
             // add user to door access
             $this->addUserDoorAccess(
                 $card,
+                null,
                 $accessNo,
                 $userId,
-                $order
+                $order->getStartDate(),
+                $order->getEndDate()
             );
 
             return new View(array(
