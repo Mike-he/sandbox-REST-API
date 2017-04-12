@@ -710,6 +710,7 @@ trait DoorAccessTrait
 
     /**
      * @param MembershipCard $card
+     * @param $group
      * @param $accessNo
      * @param $userId
      * @param $orderStartDate

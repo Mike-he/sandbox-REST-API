@@ -415,6 +415,9 @@ class AdminMembershipCardController extends SalesRestController
             ->findBy(array('card' => $membershipCard));
 
         $membershipCard->setSpecification($specification);
+
+        $url = $this->getParameter('orders_url').'/member?ptype=productDetail&productId='.$membershipCard->getId();
+        $membershipCard->setcardUrl($url);
     }
 
     /**
@@ -469,6 +472,8 @@ class AdminMembershipCardController extends SalesRestController
         $card,
         $group
     ) {
+        $accessNo = $card->getAccessNo();
+
         $buildings = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserGroupDoors')
             ->getBuildingIdsByGroup(
@@ -480,7 +485,11 @@ class AdminMembershipCardController extends SalesRestController
 
         foreach ($allOrders as $allOrder) {
             $users = $allOrder['user'];
+            $building = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                ->find($allOrder['building']);
 
+            $userArray = [];
             foreach ($users as $user) {
                 $this->get('sandbox_api.group_user')->storeGroupUser(
                     $em,
@@ -492,11 +501,8 @@ class AdminMembershipCardController extends SalesRestController
                     $allOrder['order_number']
                 );
 
-                $building = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:Room\RoomBuilding')
-                    ->find($allOrder['building']);
-
-                if ($building->getServer()) {
+                $base = $building->getServer();
+                if ($base) {
                     $this->storeDoorAccess(
                         $em,
                         $card->getAccessNo(),
@@ -506,7 +512,24 @@ class AdminMembershipCardController extends SalesRestController
                         $allOrder['start'],
                         $allOrder['end']
                     );
+
+                    $userArray = $this->getUserArrayIfAuthed(
+                        $base,
+                        $user,
+                        $userArray
+                    );
                 }
+            }
+
+            $em->flush();
+
+            // set room access
+            if (!empty($userArray)) {
+                $this->addEmployeeToOrder(
+                    $base,
+                    $accessNo,
+                    $userArray
+                );
             }
         }
     }
@@ -521,6 +544,9 @@ class AdminMembershipCardController extends SalesRestController
         $group,
         $card
     ) {
+        $now = new \DateTime('now');
+        $accessNo = $card->getAccessNo();
+
         $groupUsers = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
             ->findBy(array('groupId' => $group));
@@ -532,22 +558,48 @@ class AdminMembershipCardController extends SalesRestController
                 $card
             );
 
-        foreach ($groupUsers as $groupUser) {
-            foreach ($buildingIds as $buildingId) {
-                $building = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:Room\RoomBuilding')
-                    ->find($buildingId);
-                if ($building->getServer()) {
+        foreach ($buildingIds as $buildingId) {
+            $building = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                ->find($buildingId);
+            $base = $building->getServer();
+
+            if (is_null($base) || empty($base)) {
+                continue;
+            }
+
+            $userArray = [];
+            foreach ($groupUsers as $groupUser) {
+                $userId = $groupUser->getUserId();
+                if ($groupUser->getStartDate() <= $now &&
+                    $groupUser->getEndDate() >= $now
+                ) {
                     $this->storeDoorAccess(
                         $em,
-                        $card->getAccessNo(),
-                        $groupUser->getUserId(),
+                        $accessNo,
+                        $userId,
                         $buildingId,
                         null,
                         $groupUser->getStartDate(),
                         $groupUser->getEndDate()
                     );
                 }
+
+                $userArray = $this->getUserArrayIfAuthed(
+                    $base,
+                    $userId,
+                    $userArray
+                );
+            }
+
+            $em->flush();
+            // set room access
+            if (!empty($userArray)) {
+                $this->addEmployeeToOrder(
+                    $base,
+                    $accessNo,
+                    $userArray
+                );
             }
         }
     }

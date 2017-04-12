@@ -2,6 +2,7 @@
 
 namespace Sandbox\AdminApiBundle\Command;
 
+use Sandbox\ApiBundle\Constants\DoorAccessConstants;
 use Sandbox\ApiBundle\Entity\User\UserGroup;
 use Sandbox\ApiBundle\Traits\DoorAccessTrait;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
@@ -14,7 +15,7 @@ class CheckGroupUserCommand extends ContainerAwareCommand
 
     protected function configure()
     {
-        $this->setName('group-user:check')
+        $this->setName('sandbox:api-bundle:group_user_check')
             ->setDescription('Check Group Users');
     }
 
@@ -48,7 +49,6 @@ class CheckGroupUserCommand extends ContainerAwareCommand
         }
         $em->flush();
 
-        /*
         //Second step: remove finished group users
         $groups = $em->getRepository('SandboxApiBundle:User\UserGroup')
             ->findBy(array('type' => UserGroup::TYPE_CARD));
@@ -81,57 +81,108 @@ class CheckGroupUserCommand extends ContainerAwareCommand
         $em->flush();
 
         foreach ($removeUsers as $removeUser) {
+            $removeUserId = $removeUser['user'];
+            $groupId = $removeUser['group'];
             $groupUser = $em->getRepository('SandboxApiBundle:User\UserGroupHasUser')
                 ->checkUsingOrder(
-                    $removeUser['group'],
-                    $removeUser['user'],
+                    $groupId,
+                    $removeUserId,
                     $now
                 );
 
-            if (!$groupUser) {
-                $buildingIds = $em->getRepository('SandboxApiBundle:User\UserGroupDoors')
-                    ->getBuildingIdsByGroup(
-                        $removeUser['group']
+            if ($groupUser) {
+                continue;
+            }
+
+            $group = $em->getRepository('SandboxApiBundle:User\UserGroup')->find($groupId);
+            $accessNo = $group->getCard()->getAccessNo();
+
+            $buildingIds = $em->getRepository('SandboxApiBundle:User\UserGroupDoors')
+                ->getBuildingIdsByGroup(
+                    $removeUser['group']
+                );
+
+            foreach ($buildingIds as $buildingId) {
+                $building = $em->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                    ->find($buildingId);
+
+                $base = $building->getServer();
+
+                if ($base) {
+                    // set action of door access to delete
+                    $this->setAccessActionToDelete(
+                        $accessNo,
+                        $removeUserId,
+                        DoorAccessConstants::METHOD_DELETE
                     );
 
-                $groupDoors = $em->getRepository('SandboxApiBundle:User\UserGroupDoors')
-                    ->findOneBy(array('building' => $buildingId));
+                    $em->flush();
 
-                foreach ($buildingIds as $buildingId) {
-                    $building = $em->getRepository('SandboxApiBundle:Room\RoomBuilding')
-                        ->find($buildingId);
-
-                    if ($building->getServer()) {
-                        //todo: deleteEmployeeToOrder
-                    }
+                    $this->deleteEmployeeToOrder(
+                        $base,
+                        $accessNo,
+                        array(
+                            array(
+                                'empid' => "$removeUserId",
+                            ),
+                        )
+                    );
                 }
             }
         }
 
         //Third step: addEmployeeToOrder
         foreach ($addUsers as $addUser) {
+            $userId = $addUser->getId();
+            $groupId = $addUser->getGroupId();
+
             $groupUser = $em->getRepository('SandboxApiBundle:User\UserGroupHasUser')
                 ->checkUsingOrder(
-                     $addUser->getId(),
+                    $userId,
                     $now
                 );
 
-            if (!$groupUser) {
-                $buildingIds = $em->getRepository('SandboxApiBundle:User\UserGroupDoors')
-                    ->getBuildingIdsByGroup(
-                        $addUser->getGroupId()
+            if ($groupUser) {
+                continue;
+            }
+
+            $group = $em->getRepository('SandboxApiBundle:User\UserGroup')->find($groupId);
+            $accessNo = $group->getCard()->getAccessNo();
+
+            $buildingIds = $em->getRepository('SandboxApiBundle:User\UserGroupDoors')
+                ->getBuildingIdsByGroup(
+                    $groupId
+                );
+
+            foreach ($buildingIds as $buildingId) {
+                $building = $em->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                    ->find($buildingId);
+
+                $base = $building->getServer();
+                if ($base) {
+                    $this->storeDoorAccess(
+                        $em,
+                        $accessNo,
+                        $userId,
+                        $buildingId,
+                        null,
+                        $addUser->getStartDate(),
+                        $addUser->getEndDate()
                     );
 
-                foreach ($buildingIds as $buildingId) {
-                    $building = $em->getRepository('SandboxApiBundle:Room\RoomBuilding')
-                        ->find($buildingId);
+                    $em->flush();
 
-                    if ($building->getServer()) {
-                        //todo: addEmployeeToOrder
-                    }
+                    $this->addEmployeeToOrder(
+                        $base,
+                        $accessNo,
+                        array(
+                            array(
+                                'empid' => "$userId",
+                            ),
+                        )
+                    );
                 }
             }
         }
-        */
     }
 }

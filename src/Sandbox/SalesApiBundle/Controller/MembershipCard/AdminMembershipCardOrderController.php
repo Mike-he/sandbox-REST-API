@@ -10,12 +10,16 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations;
+use Symfony\Component\HttpKernel\Exception\PreconditionFailedHttpException;
+use Sandbox\ApiBundle\Traits\FinanceSalesExportTraits;
 
 /**
  * Admin MembershipCard Order Controller.
  */
 class AdminMembershipCardOrderController extends SalesRestController
 {
+    use FinanceSalesExportTraits;
+
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
@@ -61,7 +65,7 @@ class AdminMembershipCardOrderController extends SalesRestController
      *    strict=true,
      *    description="page number "
      * )
-     * 
+     *
      * @Annotations\QueryParam(
      *    name="building",
      *    array=false,
@@ -176,6 +180,157 @@ class AdminMembershipCardOrderController extends SalesRestController
         );
 
         return $view;
+    }
+
+    /**
+     * @Annotations\QueryParam(
+     *    name="channel",
+     *    default=null,
+     *    nullable=true,
+     *    array=true,
+     *    description="payment channel"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="keyword",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="keyword_search",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by building id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="create_date_range",
+     *    default=null,
+     *    nullable=true,
+     *    description="create_date_range"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="create_start",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="start date. Must be YYYY-mm-dd"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="create_end",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="end date. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="language",
+     *    default="zh",
+     *    nullable=true,
+     *    requirements="(zh|en)",
+     *    strict=true,
+     *    description="export language"
+     * )
+     *
+     * @Method({"GET"})
+     * @Route("/membership/cards/orders/export")
+     *
+     * @return View
+     */
+    public function getSalesMembershipOrderExportAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        //authenticate with web browser cookie
+        $admin = $this->authenticateAdminCookie();
+        $adminId = $admin->getId();
+        $token = $_COOKIE[self::ADMIN_COOKIE_NAME];
+
+        $userToken = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserToken')
+            ->findOneBy([
+                'userId' => $adminId,
+                'token' => $token,
+            ]);
+        $this->throwNotFoundIfNull($userToken, self::NOT_FOUND_MESSAGE);
+
+        $adminPlatform = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPlatform')
+            ->findOneBy(array(
+                'userId' => $adminId,
+                'clientId' => $userToken->getClientId(),
+            ));
+        if (is_null($adminPlatform)) {
+            throw new PreconditionFailedHttpException(self::PRECONDITION_NOT_SET);
+        }
+
+        $companyId = $adminPlatform->getSalesCompanyId();
+
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
+            $adminId,
+            [
+                ['key' => AdminPermission::KEY_SALES_PLATFORM_MEMBERSHIP_CARD_ORDER],
+            ],
+            AdminPermission::OP_LEVEL_VIEW,
+            $adminPlatform->getPlatform(),
+            $companyId
+        );
+
+        $company = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
+            ->findOneBy([
+                'id' => $companyId,
+                'banned' => false,
+            ]);
+        $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
+
+        $language = $paramFetcher->get('language');
+        $channel = $paramFetcher->get('channel');
+        $keyword = $paramFetcher->get('keyword');
+        $keywordSearch = $paramFetcher->get('keyword_search');
+        $buildingId = $paramFetcher->get('building');
+        $createDateRange = $paramFetcher->get('create_date_range');
+        $createStart = $paramFetcher->get('create_start');
+        $createEnd = $paramFetcher->get('create_end');
+
+        $orders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:MembershipCard\MembershipOrder')
+            ->getAdminOrders(
+                $channel,
+                $keyword,
+                $keywordSearch,
+                $buildingId,
+                $createDateRange,
+                $createStart,
+                $createEnd,
+                null,
+                null,
+                $companyId
+            );
+
+        return $this->getMembershipOrderExport(
+            $language,
+            $orders
+        );
     }
 
     /**

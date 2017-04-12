@@ -107,6 +107,11 @@ class MembershipCard
     private $specification;
 
     /**
+     * @var
+     */
+    private $cardUrl;
+
+    /**
      * @return int
      */
     public function getId()
@@ -304,5 +309,21 @@ class MembershipCard
     public function setSpecification($specification)
     {
         $this->specification = $specification;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCardUrl()
+    {
+        return $this->cardUrl;
+    }
+
+    /**
+     * @param mixed $cardUrl
+     */
+    public function setCardUrl($cardUrl)
+    {
+        $this->cardUrl = $cardUrl;
     }
 }

@@ -23,7 +23,7 @@ class MembershipCardAccessNo
     private $id;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="card", type="integer")
      */
