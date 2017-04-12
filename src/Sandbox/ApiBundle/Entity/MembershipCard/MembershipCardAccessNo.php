@@ -23,6 +23,13 @@ class MembershipCardAccessNo
     private $id;
 
     /**
+     * @var integer
+     *
+     * @ORM\Column(name="card", type="integer")
+     */
+    private $card;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="access_no", type="string", length=64)
@@ -75,5 +82,21 @@ class MembershipCardAccessNo
     public function setCreationDate($creationDate)
     {
         $this->creationDate = $creationDate;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCard()
+    {
+        return $this->card;
+    }
+
+    /**
+     * @param int $card
+     */
+    public function setCard($card)
+    {
+        $this->card = $card;
     }
 }
