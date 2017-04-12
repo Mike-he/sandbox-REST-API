@@ -3,7 +3,9 @@
 namespace Sandbox\ApiBundle\Traits;
 
 use Sandbox\ApiBundle\Constants\BundleConstants;
+use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Entity\Door\DoorAccess;
+use Sandbox\ApiBundle\Entity\MembershipCard\MembershipCard;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Symfony\Component\DomCrawler\Crawler;
 use Sandbox\ApiBundle\Constants\DoorAccessConstants;
@@ -671,6 +673,8 @@ trait DoorAccessTrait
             $endDate
         );
 
+        $em->flush();
+
         $userArray = $this->getUserArrayIfAuthed(
             $base,
             $userId,
@@ -700,6 +704,70 @@ trait DoorAccessTrait
                 );
             } catch (\Exception $e) {
                 error_log('Set door access went wrong!');
+            }
+        }
+    }
+
+    /**
+     * @param MembershipCard $card
+     * @param $group
+     * @param $accessNo
+     * @param $userId
+     * @param $orderStartDate
+     * @param $orderEndDate
+     */
+    public function addUserDoorAccess(
+        $card,
+        $group = null,
+        $accessNo,
+        $userId,
+        $orderStartDate,
+        $orderEndDate
+    ) {
+        $doorBuildingIds = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserGroupDoors')
+            ->getBuildingIdsByGroup(
+                $group,
+                $card
+            );
+
+        foreach ($doorBuildingIds as $buildingId) {
+            $building = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                ->find($buildingId);
+
+            $base = $building->getServer();
+            if (is_null($base) || empty($base)) {
+                continue;
+            }
+
+            $em = $this->getDoctrine()->getManager();
+            $this->storeDoorAccess(
+                $em,
+                $accessNo,
+                $userId,
+                $buildingId,
+                null,
+                $orderStartDate,
+                $orderEndDate
+            );
+
+            $em->flush();
+
+            $result = $this->getCardNoByUser($userId);
+            if (
+                !is_null($result) &&
+                $result['status'] === DoorController::STATUS_AUTHED
+            ) {
+                $this->addEmployeeToOrder(
+                    $base,
+                    $accessNo,
+                    array(
+                        array(
+                            'empid' => "$userId",
+                        ),
+                    )
+                );
             }
         }
     }

@@ -147,8 +147,10 @@ class MembershipCardOrderRepository extends EntityRepository
 
         $query->orderBy('mo.creationDate', 'DESC');
 
-        $query->setMaxResults($limit)
-            ->setFirstResult($offset);
+        if (!is_null($limit) && !is_null($offset)) {
+            $query->setMaxResults($limit)
+                ->setFirstResult($offset);
+        }
 
         return $query->getQuery()->getResult();
     }

@@ -49,13 +49,57 @@ class UserGroupHasUserRepository extends EntityRepository
         return $result;
     }
 
+    /**
+     * @param $group
+     * @param $date
+     *
+     * @return array
+     */
     public function findFinishedUsers(
         $group,
         $date
     ) {
         $query = $this->createQueryBuilder('u')
-            ->where('u.groupId <= :group')
+            ->where('u.groupId = :group')
             ->andWhere('u.endDate < :date')
+            ->andWhere('u.type != :type')
+            ->setParameter('group', $group)
+            ->setParameter('date', $date)
+            ->setParameter('type', UserGroupHasUser::TYPE_ADD);
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
+
+    public function checkUsingOrder(
+        $group,
+        $user,
+        $date
+    ) {
+        $query = $this->createQueryBuilder('u')
+            ->where('u.groupId = :group')
+            ->andWhere('u.userId = :user')
+            ->andWhere('u.startDate < :date')
+            ->andWhere('u.endDate > :date')
+            ->andWhere('u.type != :type')
+            ->setParameter('group', $group)
+            ->setParameter('user', $user)
+            ->setParameter('date', $date)
+            ->setParameter('type', UserGroupHasUser::TYPE_ADD);
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
+
+    public function findStartUsers(
+        $group,
+        $date
+    ) {
+        $query = $this->createQueryBuilder('u')
+            ->where('u.groupId = :group')
+            ->andWhere('u.startDate = :date')
             ->andWhere('u.type != :type')
             ->setParameter('group', $group)
             ->setParameter('date', $date)
