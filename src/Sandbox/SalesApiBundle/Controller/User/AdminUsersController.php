@@ -531,8 +531,10 @@ class AdminUsersController extends DoorController
             ->getUserInfo($id);
         $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
 
-        $hidePhone = substr_replace($user['phone'], '****', 3, 4);
-        $user['phone'] = $hidePhone;
+        if (!is_null($user['phone'])) {
+            $hidePhone = substr_replace($user['phone'], '****', 3, 4);
+            $user['phone'] = $hidePhone;
+        }
 
         // set view
         return new View($user);
