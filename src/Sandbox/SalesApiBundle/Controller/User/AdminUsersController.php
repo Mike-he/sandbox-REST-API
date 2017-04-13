@@ -566,6 +566,37 @@ class AdminUsersController extends DoorController
             $user['phone'] = $hidePhone;
         }
 
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
+        $cards = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:MembershipCard\MembershipCard')
+            ->findBy(array('companyId' => $salesCompanyId));
+
+        $now = new \DateTime('now');
+
+        $membershipCards = array();
+        foreach ($cards as $card) {
+            $lastMembershipOrder = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:MembershipCard\MembershipOrder')
+                ->getMembershipOrderEndDate(
+                    $id,
+                    $card,
+                    $now
+                );
+
+            if ($lastMembershipOrder) {
+                $membershipCards[] = array(
+                    'id' => $card->getId(),
+                    'name' => $card->getName(),
+                    'background' => $card->getBackground(),
+                    'end_date' => $lastMembershipOrder->getEndDate(),
+                );
+            }
+        }
+
+        $user['cards'] = $membershipCards;
+
         // set view
         return new View($user);
     }
