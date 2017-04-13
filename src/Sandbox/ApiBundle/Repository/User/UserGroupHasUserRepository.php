@@ -45,6 +45,9 @@ class UserGroupHasUserRepository extends EntityRepository
             ->setParameter('user', $user)
             ->setParameter('type', $type);
 
+        $query = $query->groupBy('u.groupId')
+            ->addGroupBy('u.type');
+
         $result = $query->getQuery()->getResult();
 
         return $result;
