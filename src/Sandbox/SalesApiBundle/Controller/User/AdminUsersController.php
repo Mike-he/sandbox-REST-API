@@ -561,8 +561,10 @@ class AdminUsersController extends DoorController
         $groups = $this->getGroupsByUser($id);
         $user['groups'] = $groups;
 
-        $hidePhone = substr_replace($user['phone'], '****', 3, 4);
-        $user['phone'] = $hidePhone;
+        if (!is_null($user['phone'])) {
+            $hidePhone = substr_replace($user['phone'], '****', 3, 4);
+            $user['phone'] = $hidePhone;
+        }
 
         // set view
         return new View($user);
