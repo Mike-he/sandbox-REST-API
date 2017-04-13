@@ -404,7 +404,6 @@ class LeaseRepository extends EntityRepository
             ->leftJoin('l.product', 'p')
             ->leftJoin('p.room', 'r')
             ->where('r.building in (:building)')
-            ->andWhere('l.startDate <= :date')
             ->andWhere('l.endDate >= :date')
             ->andWhere('l.status in (:status)')
             ->setParameter('building', $buildings)

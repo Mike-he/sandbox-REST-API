@@ -472,6 +472,8 @@ class AdminMembershipCardController extends SalesRestController
         $card,
         $group
     ) {
+        $now = new \DateTime('now');
+        $now->setTime(0,0,0);
         $accessNo = $card->getAccessNo();
 
         $buildings = $this->getDoctrine()
@@ -503,21 +505,23 @@ class AdminMembershipCardController extends SalesRestController
 
                 $base = $building->getServer();
                 if ($base) {
-                    $this->storeDoorAccess(
-                        $em,
-                        $card->getAccessNo(),
-                        $user,
-                        $building->getId(),
-                        null,
-                        $allOrder['start'],
-                        $allOrder['end']
-                    );
+                    if ($allOrder['start'] <= $now) {
+                        $this->storeDoorAccess(
+                            $em,
+                            $card->getAccessNo(),
+                            $user,
+                            $building->getId(),
+                            null,
+                            $allOrder['start'],
+                            $allOrder['end']
+                        );
 
-                    $userArray = $this->getUserArrayIfAuthed(
-                        $base,
-                        $user,
-                        $userArray
-                    );
+                        $userArray = $this->getUserArrayIfAuthed(
+                            $base,
+                            $user,
+                            $userArray
+                        );
+                    }
                 }
             }
 
