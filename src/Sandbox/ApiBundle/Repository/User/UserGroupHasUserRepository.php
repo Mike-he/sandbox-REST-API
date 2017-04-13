@@ -93,16 +93,19 @@ class UserGroupHasUserRepository extends EntityRepository
         return $result;
     }
 
-    public function findStartUsers(
+    public function findTodayStartUsers(
         $group,
-        $date
+        $start,
+        $end
     ) {
         $query = $this->createQueryBuilder('u')
             ->where('u.groupId = :group')
-            ->andWhere('u.startDate = :date')
+            ->andWhere('u.startDate >= :start')
+            ->andWhere('u.startDate <= :end')
             ->andWhere('u.type != :type')
             ->setParameter('group', $group)
-            ->setParameter('date', $date)
+            ->setParameter('start', $start)
+            ->setParameter('end', $end)
             ->setParameter('type', UserGroupHasUser::TYPE_ADD);
 
         $result = $query->getQuery()->getResult();
