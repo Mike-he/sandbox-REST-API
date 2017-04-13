@@ -1332,6 +1332,8 @@ class PaymentController extends DoorController
     /**
      * @param $userId
      * @param MembershipCard $card
+     *
+     * @return date
      */
     protected function getLastMembershipOrderEndDate(
         $userId,
@@ -1343,18 +1345,21 @@ class PaymentController extends DoorController
             ->getRepository('SandboxApiBundle:MembershipCard\MembershipOrder')
             ->getMembershipOrderEndDate(
                 $userId,
-                $card
+                $card,
+                $now
             );
 
-        if (is_null($lastMembershipOrder)) {
-            return $now;
-        }
+        $endDate = $lastMembershipOrder ? $lastMembershipOrder->getEndDate() : $now;
 
-        $endDate = $lastMembershipOrder->getEndDate();
+//        if (is_null($lastMembershipOrder)) {
+//            return $now;
+//        }
 
-        if ($now > $endDate) {
-            return $now;
-        }
+//        $endDate = $lastMembershipOrder->getEndDate();
+
+//        if ($now > $endDate) {
+//            return $now;
+//        }
 
         return $endDate;
     }

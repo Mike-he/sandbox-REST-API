@@ -37,7 +37,9 @@ class CheckGroupUserCommand extends ContainerAwareCommand
                 $building = $em->getRepository('SandboxApiBundle:Room\RoomBuilding')
                     ->find($buildingId);
 
-                if ($building->getServer()) {
+                $base = $building->getServer();
+
+                if ($base) {
                     $this->repealRoomOrder(
                         $building->getServer(),
                         $membership->getAccessNo()
@@ -49,17 +51,14 @@ class CheckGroupUserCommand extends ContainerAwareCommand
         }
         $em->flush();
 
-        //Second step: remove finished group users
+        //Second step: remove Door Access
         $groups = $em->getRepository('SandboxApiBundle:User\UserGroup')
             ->findBy(array('type' => UserGroup::TYPE_CARD));
 
         $now = new \DateTime('now');
 
-        $todayStart = new \DateTime('now');
-        $todayStart = $todayStart->setTime(0, 0, 0);
-        $todayEnd = new \DateTime('now');
-        $todayEnd = $todayEnd->setTime(23, 59, 59);
-
+        $addData = array();
+        $removeData = array();
         foreach ($groups as $group) {
             $groupId = $group->getId();
 
@@ -68,91 +67,36 @@ class CheckGroupUserCommand extends ContainerAwareCommand
 
             $removeUsers = array();
             foreach ($groupUsers as $groupUser) {
-                $removeUsers[] = array(
-                    'group' => $groupId,
-                    'user' => $groupUser->getUserId(),
-                );
+                if ($groupUser->getUserId() == 1) {
+                    continue;
+                }
+                $removeUsers[] = $groupUser->getUserId();
 
                 $em->remove($groupUser);
             }
 
+            $removeData[] = array(
+                'group_id' => $groupId,
+                'users' => $removeUsers,
+            );
+
             $addUsers = $em->getRepository('SandboxApiBundle:User\UserGroupHasUser')
-                ->findTodayStartUsers(
+                ->findValidUsers(
                     $groupId,
-                    $todayStart,
-                    $todayEnd
+                    $now
                 );
+
+            $addData[] = array(
+                'group_id' => $groupId,
+                'users' => $addUsers,
+            );
         }
 
         $em->flush();
 
-        foreach ($removeUsers as $removeUser) {
-            $removeUserId = $removeUser['user'];
-            $groupId = $removeUser['group'];
-            $groupUser = $em->getRepository('SandboxApiBundle:User\UserGroupHasUser')
-                ->checkUsingOrder(
-                    $groupId,
-                    $removeUserId,
-                    $now
-                );
-
-            if ($groupUser) {
-                continue;
-            }
-
-            $group = $em->getRepository('SandboxApiBundle:User\UserGroup')->find($groupId);
-            $card = $em->getRepository('SandboxApiBundle:MembershipCard\MembershipCard')->find($group->getCard());
-            $accessNo = $card->getAccessNo();
-
-            $buildingIds = $em->getRepository('SandboxApiBundle:User\UserGroupDoors')
-                ->getBuildingIdsByGroup(
-                    $removeUser['group']
-                );
-
-            foreach ($buildingIds as $buildingId) {
-                $building = $em->getRepository('SandboxApiBundle:Room\RoomBuilding')
-                    ->find($buildingId);
-
-                $base = $building->getServer();
-
-                if ($base) {
-                    // set action of door access to delete
-                    $this->setAccessActionToDelete(
-                        $accessNo,
-                        $removeUserId,
-                        DoorAccessConstants::METHOD_DELETE
-                    );
-
-                    $em->flush();
-
-                    $this->deleteEmployeeToOrder(
-                        $base,
-                        $accessNo,
-                        array(
-                            array(
-                                'empid' => "$removeUserId",
-                            ),
-                        )
-                    );
-                }
-            }
-        }
-
-        //Third step: addEmployeeToOrder
-        foreach ($addUsers as $addUser) {
-            $userId = $addUser->getUserId();
-            $groupId = $addUser->getGroupId();
-
-            $groupUser = $em->getRepository('SandboxApiBundle:User\UserGroupHasUser')
-                ->checkUsingOrder(
-                    $groupId,
-                    $userId,
-                    $now
-                );
-
-            if ($groupUser) {
-                continue;
-            }
+        foreach ($removeData as $data) {
+            $groupId = $data['group_id'];
+            $users = $data['users'];
 
             $group = $em->getRepository('SandboxApiBundle:User\UserGroup')->find($groupId);
             $card = $em->getRepository('SandboxApiBundle:MembershipCard\MembershipCard')->find($group->getCard());
@@ -168,27 +112,77 @@ class CheckGroupUserCommand extends ContainerAwareCommand
                     ->find($buildingId);
 
                 $base = $building->getServer();
+
+                $userArray = array();
                 if ($base) {
-                    $this->storeDoorAccess(
-                        $em,
-                        $accessNo,
-                        $userId,
-                        $buildingId,
-                        null,
-                        $addUser->getStartDate(),
-                        $addUser->getEndDate()
-                    );
+                    foreach ($users as $user) {
+                        // set action of door access to delete
+                        $this->setAccessActionToDelete(
+                            $accessNo,
+                            $user,
+                            DoorAccessConstants::METHOD_DELETE
+                        );
 
+                        $empUser = ['empid' => $user];
+                        array_push($userArray, $empUser);
+                    }
                     $em->flush();
+                }
 
+                if (!empty($userArray)) {
+                    $this->deleteEmployeeToOrder(
+                        $base,
+                        $accessNo,
+                        $userArray
+                    );
+                }
+            }
+        }
+
+        //Third step: add Door Access
+        foreach ($addData as $data) {
+            $groupId = $data['group_id'];
+            $users = $data['users'];
+
+            $group = $em->getRepository('SandboxApiBundle:User\UserGroup')->find($groupId);
+            $card = $em->getRepository('SandboxApiBundle:MembershipCard\MembershipCard')->find($group->getCard());
+            $accessNo = $card->getAccessNo();
+
+            $buildingIds = $em->getRepository('SandboxApiBundle:User\UserGroupDoors')
+                ->getBuildingIdsByGroup(
+                    $groupId
+                );
+
+            foreach ($buildingIds as $buildingId) {
+                $building = $em->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                    ->find($buildingId);
+
+                $base = $building->getServer();
+
+                $userArray = array();
+                if ($base) {
+                    foreach ($users as $user) {
+                        $this->storeDoorAccess(
+                            $em,
+                            $accessNo,
+                            $user,
+                            $buildingId,
+                            null,
+                            $now,
+                            $now
+                        );
+
+                        $empUser = ['empid' => $user];
+                        array_push($userArray, $empUser);
+                    }
+                    $em->flush();
+                }
+
+                if (!empty($userArray)) {
                     $this->addEmployeeToOrder(
                         $base,
                         $accessNo,
-                        array(
-                            array(
-                                'empid' => "$userId",
-                            ),
-                        )
+                        $userArray
                     );
                 }
             }

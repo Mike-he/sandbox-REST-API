@@ -330,13 +330,16 @@ class MembershipCardOrderRepository extends EntityRepository
      */
     public function getMembershipOrderEndDate(
         $userId,
-        $card
+        $card,
+        $date
     ) {
         $query = $this->createQueryBuilder('mo')
             ->where('mo.user = :userId')
             ->andWhere('mo.card = :card')
+            ->andWhere('mo.endDate >= :date')
             ->setParameter('userId', $userId)
             ->setParameter('card', $card)
+            ->setParameter('date', $date)
             ->setMaxResults(1)
             ->orderBy('mo.endDate', 'DESC');
 
