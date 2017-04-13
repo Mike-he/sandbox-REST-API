@@ -36,13 +36,17 @@ class UserGroupHasUserRepository extends EntityRepository
         $query = $this->createQueryBuilder('u')
             ->select('
                     u.groupId as id, 
-                    ug.name as name
+                    ug.name as name,
+                    u.type
                 ')
             ->leftJoin('SandboxApiBundle:User\UserGroup', 'ug', 'WITH', 'ug.id = u.groupId')
             ->where('u.userId = :user')
             ->andWhere('u.type in (:type)')
             ->setParameter('user', $user)
             ->setParameter('type', $type);
+
+        $query = $query->groupBy('u.groupId')
+            ->addGroupBy('u.type');
 
         $result = $query->getQuery()->getResult();
 
@@ -72,43 +76,30 @@ class UserGroupHasUserRepository extends EntityRepository
         return $result;
     }
 
-    public function checkUsingOrder(
+    /**
+     * @param $group
+     * @param $date
+     *
+     * @return array
+     */
+    public function findValidUsers(
         $group,
-        $user,
         $date
     ) {
         $query = $this->createQueryBuilder('u')
+            ->select('u.userId')
             ->where('u.groupId = :group')
-            ->andWhere('u.userId = :user')
             ->andWhere('u.startDate < :date')
             ->andWhere('u.endDate > :date')
             ->andWhere('u.type != :type')
             ->setParameter('group', $group)
-            ->setParameter('user', $user)
             ->setParameter('date', $date)
             ->setParameter('type', UserGroupHasUser::TYPE_ADD);
 
-        $result = $query->getQuery()->getResult();
-
-        return $result;
-    }
-
-    public function findTodayStartUsers(
-        $group,
-        $start,
-        $end
-    ) {
-        $query = $this->createQueryBuilder('u')
-            ->where('u.groupId = :group')
-            ->andWhere('u.startDate >= :start')
-            ->andWhere('u.startDate <= :end')
-            ->andWhere('u.type != :type')
-            ->setParameter('group', $group)
-            ->setParameter('start', $start)
-            ->setParameter('end', $end)
-            ->setParameter('type', UserGroupHasUser::TYPE_ADD);
+        $query = $query->groupBy('u.userId');
 
         $result = $query->getQuery()->getResult();
+        $result = array_map('current', $result);
 
         return $result;
     }
