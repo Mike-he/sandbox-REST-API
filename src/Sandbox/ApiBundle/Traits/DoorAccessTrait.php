@@ -718,7 +718,7 @@ trait DoorAccessTrait
      */
     public function addUserDoorAccess(
         $card,
-        $group = null,
+        $group,
         $accessNo,
         $userId,
         $orderStartDate,

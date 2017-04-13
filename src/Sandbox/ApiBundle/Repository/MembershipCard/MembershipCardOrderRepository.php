@@ -50,7 +50,14 @@ class MembershipCardOrderRepository extends EntityRepository
      * @param $channel
      * @param $keyword
      * @param $keywordSearch
-     * @param null $companyId
+     * @param $buildingId
+     * @param $createDateRange
+     * @param $createStart
+     * @param $createEnd
+     * @param $limit
+     * @param $offset
+     * @param $companyId
+     * @param null $cardId
      *
      * @return array
      */
@@ -64,7 +71,8 @@ class MembershipCardOrderRepository extends EntityRepository
         $createEnd,
         $limit,
         $offset,
-        $companyId = null
+        $companyId,
+        $cardId = null
     ) {
         $query = $this->createQueryBuilder('mo')
             ->select('DISTINCT mo')
@@ -72,6 +80,11 @@ class MembershipCardOrderRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:User\UserGroupDoors', 'd', 'WITH', 'd.card = c.id')
             ->leftJoin('SandboxApiBundle:User\UserView', 'u', 'WITH', 'u.id = mo.user')
             ->where('mo.id is not null');
+
+        if (!is_null($cardId)) {
+            $query->andWhere('mo.card = :cardId')
+                ->setParameter('cardId', $cardId);
+        }
 
         // filter by payment channel
         if (!is_null($channel) && !empty($channel)) {
@@ -178,10 +191,16 @@ class MembershipCardOrderRepository extends EntityRepository
 
     /**
      * @param $channel
-     * @param $orderNumber
-     * @param null $companyId
+     * @param $keyword
+     * @param $keywordSearch
+     * @param $buildingId
+     * @param $createDateRange
+     * @param $createStart
+     * @param $createEnd
+     * @param $companyId
+     * @param null $cardId
      *
-     * @return array
+     * @return mixed
      */
     public function countAdminOrders(
         $channel,
@@ -191,7 +210,8 @@ class MembershipCardOrderRepository extends EntityRepository
         $createDateRange,
         $createStart,
         $createEnd,
-        $companyId = null
+        $companyId,
+        $cardId = null
     ) {
         $query = $this->createQueryBuilder('mo')
             ->innerJoin('SandboxApiBundle:MembershipCard\MembershipCard', 'c', 'WITH', 'mo.card = c.id')
@@ -199,6 +219,11 @@ class MembershipCardOrderRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:User\UserView', 'u', 'WITH', 'u.id = mo.user')
             ->select('COUNT(DISTINCT mo)')
             ->where('mo.id is not null');
+
+        if (!is_null($cardId)) {
+            $query->andWhere('mo.card = :cardId')
+                ->setParameter('cardId', $cardId);
+        }
 
         // filter by payment channel
         if (!is_null($channel) && !empty($channel)) {

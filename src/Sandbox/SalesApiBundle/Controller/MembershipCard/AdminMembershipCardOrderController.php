@@ -23,6 +23,107 @@ class AdminMembershipCardOrderController extends SalesRestController
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
+     * @param $id
+     *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many products to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number "
+     * )
+     *
+     * @Route("/membership/cards/{id}/orders")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getMembershipCardOrdersByIdAction(
+        Request $request,
+        $id,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        // check user permission
+        $this->checkMembershipCardOrderPermission(AdminPermission::OP_LEVEL_VIEW);
+
+        $membershipCard = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:MembershipCard\MembershipCard')
+            ->find($id);
+        $this->throwNotFoundIfNull($membershipCard, self::NOT_FOUND_MESSAGE);
+
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+
+        $limit = $pageLimit;
+        $offset = ($pageIndex - 1) * $pageLimit;
+
+        $orders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:MembershipCard\MembershipOrder')
+            ->getAdminOrders(
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                $limit,
+                $offset,
+                null,
+                $id
+            );
+
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:MembershipCard\MembershipOrder')
+            ->countAdminOrders(
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                $id
+            );
+
+        foreach ($orders as $order) {
+            $profile = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserProfile')
+                ->findOneBy(['userId' => $order->getUser()]);
+            if (!is_null($profile)) {
+                $order->setUserInfo(['username' => $profile->getName()]);
+            }
+        }
+
+        $view = new View();
+        $view->setData(
+            array(
+                'current_page_number' => $pageIndex,
+                'num_items_per_page' => (int) $pageLimit,
+                'items' => $orders,
+                'total_count' => (int) $count,
+            )
+        );
+
+        return $view;
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
      *    name="channel",
