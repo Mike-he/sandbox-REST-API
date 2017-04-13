@@ -184,5 +184,7 @@ class CheckGroupUserCommand extends ContainerAwareCommand
                 }
             }
         }
+
+        $output->writeln('Finished !');
     }
 }
