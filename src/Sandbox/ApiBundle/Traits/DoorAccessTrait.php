@@ -598,7 +598,9 @@ trait DoorAccessTrait
         $startDate,
         $endDate
     ) {
-        $doorAccess = $this->getRepo('Door\DoorAccess')->findOneBy(
+        $doorAccess = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Door\DoorAccess')
+            ->findOneBy(
             [
                 'userId' => $userId,
                 'accessNo' => $accessNumber,
@@ -626,16 +628,19 @@ trait DoorAccessTrait
     /**
      * @param $accessNo
      * @param $userId
+     * @param $method
      */
     public function setAccessActionToDelete(
         $accessNo,
         $userId = null,
         $method = DoorAccessConstants::METHOD_CANCELLED
     ) {
-        $controls = $this->getRepo('Door\DoorAccess')->getAddAccessByOrder(
-            $userId,
-            $accessNo
-        );
+        $controls = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Door\DoorAccess')
+            ->getAddAccessByOrder(
+                $userId,
+                $accessNo
+            );
 
         if (!empty($controls)) {
             foreach ($controls as $control) {

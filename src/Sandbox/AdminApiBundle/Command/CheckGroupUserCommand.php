@@ -55,8 +55,10 @@ class CheckGroupUserCommand extends ContainerAwareCommand
 
         $now = new \DateTime('now');
 
-        $today = new \DateTime('now');
-        $today = $today->setTime(0, 0, 0);
+        $todayStart = new \DateTime('now');
+        $todayStart = $todayStart->setTime(0, 0, 0);
+        $todayEnd = new \DateTime('now');
+        $todayEnd = $todayEnd->setTime(23, 59, 59);
 
         foreach ($groups as $group) {
             $groupId = $group->getId();
@@ -75,7 +77,11 @@ class CheckGroupUserCommand extends ContainerAwareCommand
             }
 
             $addUsers = $em->getRepository('SandboxApiBundle:User\UserGroupHasUser')
-                ->findStartUsers($groupId, $today);
+                ->findTodayStartUsers(
+                    $groupId,
+                    $todayStart,
+                    $todayEnd
+                );
         }
 
         $em->flush();
@@ -134,11 +140,12 @@ class CheckGroupUserCommand extends ContainerAwareCommand
 
         //Third step: addEmployeeToOrder
         foreach ($addUsers as $addUser) {
-            $userId = $addUser->getId();
+            $userId = $addUser->getUserId();
             $groupId = $addUser->getGroupId();
 
             $groupUser = $em->getRepository('SandboxApiBundle:User\UserGroupHasUser')
                 ->checkUsingOrder(
+                    $groupId,
                     $userId,
                     $now
                 );
@@ -148,7 +155,8 @@ class CheckGroupUserCommand extends ContainerAwareCommand
             }
 
             $group = $em->getRepository('SandboxApiBundle:User\UserGroup')->find($groupId);
-            $accessNo = $group->getCard()->getAccessNo();
+            $card = $em->getRepository('SandboxApiBundle:MembershipCard\MembershipCard')->find($group->getCard());
+            $accessNo = $card->getAccessNo();
 
             $buildingIds = $em->getRepository('SandboxApiBundle:User\UserGroupDoors')
                 ->getBuildingIdsByGroup(
