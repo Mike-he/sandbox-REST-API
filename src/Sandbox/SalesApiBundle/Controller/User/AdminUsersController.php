@@ -558,11 +558,18 @@ class AdminUsersController extends DoorController
             ->getUserInfo($id);
         $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
 
+<<<<<<< HEAD
         $groups = $this->getGroupsByUser($id);
         $user['groups'] = $groups;
 
         $hidePhone = substr_replace($user['phone'], '****', 3, 4);
         $user['phone'] = $hidePhone;
+=======
+        if (!is_null($user['phone'])) {
+            $hidePhone = substr_replace($user['phone'], '****', 3, 4);
+            $user['phone'] = $hidePhone;
+        }
+>>>>>>> hotfix/user_bug
 
         // set view
         return new View($user);
