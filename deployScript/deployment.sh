@@ -1,14 +1,21 @@
-# Version 2.3.8
+# Version 2.5.x
 
-sudo php app/console sandbox:api-bundle:init_finance_dashboard
-
+# cron jobs
 sudo crontab -e
+# 30 0 * * * php /var/www/Sandbox/sandbox-REST-API/app/console sandbox:api-bundle:group_user_check
+
+
+## Version 2.3.8
+
+#sudo php app/console sandbox:api-bundle:init_finance_dashboard
+
+#sudo crontab -e
 # 10 0 1 * * php /var/www/Sandbox/sandbox-REST-API/app/console create:short_rent_invoice
 # 15 0 1 * * php /var/www/Sandbox/sandbox-REST-API/app/console sandbox:api-bundle:set_finance_dashboard
 
-sudo cp app/config/parameter_production.yml app/config/parameter.yml
+#sudo cp app/config/parameter_production.yml app/config/parameter.yml
 
-sudo cp -r web/image/ /data/openfire/  # synchronous images files
+#sudo cp -r web/image/ /data/openfire/  # synchronous images files
 
 # https://crm.sandbox3.cn/admin/invoices/sync  (sync order number)
 
