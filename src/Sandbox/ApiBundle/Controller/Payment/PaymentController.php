@@ -1251,6 +1251,17 @@ class PaymentController extends DoorController
         $orderNumber,
         $channel
     ) {
+        // check order number if duplicate
+        $checkOrder = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:MembershipCard\MembershipOrder')
+            ->findOneBy(array(
+                'orderNumber' => $orderNumber,
+            ));
+        if (!is_null($checkOrder)) {
+            return;
+        }
+
+        // save order
         $specification = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:MembershipCard\MembershipCardSpecification')
             ->find($specificationId);
@@ -1326,6 +1337,8 @@ class PaymentController extends DoorController
         $userId,
         $card
     ) {
+        $now = new \DateTime('now');
+
         $lastMembershipOrder = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:MembershipCard\MembershipOrder')
             ->getMembershipOrderEndDate(
@@ -1334,10 +1347,16 @@ class PaymentController extends DoorController
             );
 
         if (is_null($lastMembershipOrder)) {
-            return new \DateTime('now');
+            return $now;
         }
 
-        return $lastMembershipOrder->getEndDate();
+        $endDate = $lastMembershipOrder->getEndDate();
+
+        if ($now > $endDate) {
+            return $now;
+        }
+
+        return $endDate;
     }
 
     /**
