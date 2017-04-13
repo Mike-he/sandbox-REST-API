@@ -1308,9 +1308,11 @@ class PaymentController extends DoorController
         // add user to door access
         $this->addUserDoorAccess(
             $card,
+            null,
             $accessNo,
             $userId,
-            $order
+            $startDate,
+            $endDate
         );
 
         return $order;
