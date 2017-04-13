@@ -4186,7 +4186,6 @@ class OrderRepository extends EntityRepository
             ->leftJoin('o.product', 'p')
             ->leftJoin('p.room', 'r')
             ->where('r.building in (:building)')
-            ->andWhere('o.startDate <= :date')
             ->andWhere('o.endDate >= :date')
             ->andWhere('o.status = :paid OR o.status = :completed')
             ->setParameter('building', $buildingIds)
