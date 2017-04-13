@@ -95,7 +95,8 @@ class CheckGroupUserCommand extends ContainerAwareCommand
             }
 
             $group = $em->getRepository('SandboxApiBundle:User\UserGroup')->find($groupId);
-            $accessNo = $group->getCard()->getAccessNo();
+            $card = $em->getRepository('SandboxApiBundle:MembershipCard\MembershipCard')->find($group->getCard());
+            $accessNo = $card->getAccessNo();
 
             $buildingIds = $em->getRepository('SandboxApiBundle:User\UserGroupDoors')
                 ->getBuildingIdsByGroup(
