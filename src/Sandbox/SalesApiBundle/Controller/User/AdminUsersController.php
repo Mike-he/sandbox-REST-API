@@ -929,6 +929,7 @@ class AdminUsersController extends DoorController
             $group[] = array(
                 'id' => $groupMember['id'],
                 'name' => $groupMember['name'],
+                'type' => $groupMember['type'],
             );
         }
 
