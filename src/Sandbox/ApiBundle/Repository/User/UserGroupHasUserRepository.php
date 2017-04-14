@@ -20,7 +20,7 @@ class UserGroupHasUserRepository extends EntityRepository
         $query = $this->createQueryBuilder('u')
             ->select('count(u.id)')
             ->where('u.groupId = :group')
-            ->andWhere('type in (:type)')
+            ->andWhere('u.type in (:type)')
             ->setParameter('group', $group)
             ->setParameter('type', $type);
 
