@@ -75,7 +75,7 @@ parameters:
     crm_api_admin_user_create: /admin/useraccounts/{userId}/create
     crm_api_client_user_price_calculate: /client/user/price/rules/{rule_id}/calculate
     door_api_username: admin
-    door_api_password: Mj2015Ugly
+    door_api_password: admin
     door_api_login: /Login
     door_api_logout: /Logout
     door_api_get_doors: /GetDoors
