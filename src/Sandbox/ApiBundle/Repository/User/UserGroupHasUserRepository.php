@@ -18,6 +18,7 @@ class UserGroupHasUserRepository extends EntityRepository
         $type
     ) {
         $query = $this->createQueryBuilder('u')
+            ->select('u.userId')
             ->where('u.groupId = :group')
             ->andWhere('u.type in (:type)')
             ->setParameter('group', $group)
