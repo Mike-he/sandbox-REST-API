@@ -126,7 +126,7 @@ class ClientMembershipOrderController extends PaymentController
                 $card,
                 null,
                 $accessNo,
-                $userId,
+                array($userId),
                 $order->getStartDate(),
                 $order->getEndDate()
             );

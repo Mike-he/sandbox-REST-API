@@ -1387,7 +1387,7 @@ class PaymentController extends DoorController
             $card,
             null,
             $accessNo,
-            $userId,
+            array($userId),
             $startDate,
             $endDate
         );
