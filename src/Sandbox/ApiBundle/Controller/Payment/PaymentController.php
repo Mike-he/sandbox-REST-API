@@ -994,6 +994,62 @@ class PaymentController extends DoorController
     }
 
     /**
+     * @param ProductOrder $order
+     * @param $userId
+     */
+    protected function setDoorAccessForMembershipCard(
+        $order,
+        $userIds
+    ) {
+        $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
+
+        $door = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserGroupDoors')
+            ->getGroupsByBuilding(
+                $buildingId,
+                true
+            );
+
+        if (is_null($door)) {
+            return;
+        }
+
+        $now = new \DateTime('now');
+        $todayLastTime = $now->setTime('23', '59', '59');
+        $card = $door->getCard();
+        $startDate = $order->getStartDate();
+        $endDate = $order->getEndDate();
+        $orderNumber = $order->getOrderNumber();
+        $accessNo = $card->getAccessNo();
+
+        $em = $this->getDoctrine()->getManager();
+
+        // add user to user_group
+        foreach ($userIds as $userId) {
+            $this->addUserToUserGroup(
+                $em,
+                $userId,
+                $card,
+                $startDate,
+                $endDate,
+                $orderNumber
+            );
+        }
+
+        // add user to door access
+        if ($todayLastTime >= $startDate) {
+            $this->addUserDoorAccess(
+                $card,
+                null,
+                $accessNo,
+                $userIds,
+                $startDate,
+                $endDate
+            );
+        }
+    }
+
+    /**
      * @param string $orderNumber
      * @param string $channel
      *
@@ -1140,6 +1196,8 @@ class PaymentController extends DoorController
         if (is_null($base) || empty($base)) {
             return;
         }
+
+        $this->setDoorAccessForMembershipCard($order, $order->getUserId());
 
         $roomId = $order->getProduct()->getRoom()->getId();
         $roomDoors = $this->getRepo('Room\RoomDoors')->findBy(['room' => $roomId]);
@@ -1304,7 +1362,6 @@ class PaymentController extends DoorController
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($order);
-        $em->flush();
 
         // add user to user_group
         $this->addUserToUserGroup(
@@ -1733,5 +1790,7 @@ class PaymentController extends DoorController
             $endDate,
             $orderNumber
         );
+
+        $em->flush();
     }
 }

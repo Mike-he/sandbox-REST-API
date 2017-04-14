@@ -725,7 +725,7 @@ trait DoorAccessTrait
         $card,
         $group,
         $accessNo,
-        $userId,
+        $userIds,
         $orderStartDate,
         $orderEndDate
     ) {
@@ -747,31 +747,41 @@ trait DoorAccessTrait
             }
 
             $em = $this->getDoctrine()->getManager();
-            $this->storeDoorAccess(
-                $em,
-                $accessNo,
-                $userId,
-                $buildingId,
-                null,
-                $orderStartDate,
-                $orderEndDate
-            );
+
+            $userArray = array();
+            foreach ($userIds as $userId) {
+                $this->storeDoorAccess(
+                    $em,
+                    $accessNo,
+                    $userId,
+                    $buildingId,
+                    null,
+                    $orderStartDate,
+                    $orderEndDate
+                );
+
+                $result = $this->getCardNoByUser($userId);
+                if (
+                    !is_null($result) &&
+                    $result['status'] === DoorController::STATUS_AUTHED
+                ) {
+                    array_push(
+                        $userArray,
+                        array(
+                            'empid' => "$userId",
+                        )
+                    );
+                }
+            }
 
             $em->flush();
 
-            $result = $this->getCardNoByUser($userId);
-            if (
-                !is_null($result) &&
-                $result['status'] === DoorController::STATUS_AUTHED
-            ) {
+            // send door access to door server
+            if (!empty($userArray)) {
                 $this->addEmployeeToOrder(
                     $base,
                     $accessNo,
-                    array(
-                        array(
-                            'empid' => "$userId",
-                        ),
-                    )
+                    $userArray
                 );
             }
         }
