@@ -1145,16 +1145,6 @@ class ClientOrderController extends OrderController
                 $order->setModificationDate(new \DateTime());
             }
 
-            // remove user from door access
-            $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
-            $this->removeUserFromUserGroup(
-                $buildingId,
-                array($userId),
-                $order->getStartDate(),
-                $order->getOrderNumber(),
-                UserGroupHasUser::TYPE_ORDER
-            );
-
             $em = $this->getDoctrine()->getManager();
             $em->flush();
 
@@ -1212,6 +1202,16 @@ class ClientOrderController extends OrderController
         }
 
         $this->removeAccessByOrder($order);
+
+        // remove user from door access
+        $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
+        $this->removeUserFromUserGroup(
+            $buildingId,
+            array($userId),
+            $order->getStartDate(),
+            $order->getOrderNumber(),
+            UserGroupHasUser::TYPE_ORDER
+        );
 
         return new View();
     }
