@@ -13,12 +13,11 @@ class UserGroupHasUserRepository extends EntityRepository
      *
      * @return array
      */
-    public function countUserNumber(
+    public function getGroupUsers(
         $group,
         $type
     ) {
         $query = $this->createQueryBuilder('u')
-            ->select('count(u.id)')
             ->where('u.groupId = :group')
             ->andWhere('u.type in (:type)')
             ->setParameter('group', $group)
@@ -26,7 +25,7 @@ class UserGroupHasUserRepository extends EntityRepository
 
         $query = $query->groupBy('u.userId');
 
-        return $query->getQuery()->getSingleScalarResult();
+        return $query->getQuery()->getResult();
     }
 
     /**
