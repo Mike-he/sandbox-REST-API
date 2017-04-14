@@ -72,7 +72,6 @@ class UserGroupDoorsRepository extends EntityRepository
         $card = null
     ) {
         $query = $this->createQueryBuilder('d')
-            ->select('d.building')
             ->where('1=1');
 
         if (!is_null($buildingId)) {
@@ -84,7 +83,7 @@ class UserGroupDoorsRepository extends EntityRepository
             $query->andWhere('d.card IS NOT NULL');
         }
 
-        $query->groupBy('d.building');
+        $query->setMaxResults(1);
 
         return $query->getQuery()->getOneOrNullResult();
     }

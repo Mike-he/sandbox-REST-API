@@ -714,7 +714,7 @@ trait DoorAccessTrait
     }
 
     /**
-     * @param MembershipCard $card
+     * @param $cardId
      * @param $group
      * @param $accessNo
      * @param $userId
@@ -722,7 +722,7 @@ trait DoorAccessTrait
      * @param $orderEndDate
      */
     public function addUserDoorAccess(
-        $card,
+        $cardId,
         $group,
         $accessNo,
         $userIds,
@@ -733,7 +733,7 @@ trait DoorAccessTrait
             ->getRepository('SandboxApiBundle:User\UserGroupDoors')
             ->getBuildingIdsByGroup(
                 $group,
-                $card
+                $cardId
             );
 
         foreach ($doorBuildingIds as $buildingId) {

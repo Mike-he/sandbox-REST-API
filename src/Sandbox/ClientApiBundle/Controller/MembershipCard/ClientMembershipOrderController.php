@@ -114,7 +114,7 @@ class ClientMembershipOrderController extends PaymentController
             // add user to user_group
             $this->addUserToUserGroup(
                 $em,
-                $userId,
+                array($userId),
                 $card,
                 $startDate,
                 $endDate,
