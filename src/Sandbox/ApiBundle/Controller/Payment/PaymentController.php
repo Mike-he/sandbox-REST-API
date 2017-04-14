@@ -998,11 +998,12 @@ class PaymentController extends DoorController
      * @param $userId
      */
     protected function setDoorAccessForMembershipCard(
-        $order,
-        $userIds
+        $buildingId,
+        $userIds,
+        $startDate,
+        $endDate,
+        $orderNumber
     ) {
-        $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
-
         $door = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserGroupDoors')
             ->getGroupsByBuilding(
@@ -1017,9 +1018,6 @@ class PaymentController extends DoorController
         $now = new \DateTime('now');
         $todayLastTime = $now->setTime('23', '59', '59');
         $card = $door->getCard();
-        $startDate = $order->getStartDate();
-        $endDate = $order->getEndDate();
-        $orderNumber = $order->getOrderNumber();
         $accessNo = $card->getAccessNo();
 
         $em = $this->getDoctrine()->getManager();
@@ -1197,7 +1195,15 @@ class PaymentController extends DoorController
             return;
         }
 
-        $this->setDoorAccessForMembershipCard($order, $order->getUserId());
+        // set door access for membership card
+        $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
+        $this->setDoorAccessForMembershipCard(
+            $buildingId,
+            array($order->getUserId()),
+            $order->getStartDate(),
+            $order->getEndDate(),
+            $order->getOrderNumber()
+        );
 
         $roomId = $order->getProduct()->getRoom()->getId();
         $roomDoors = $this->getRepo('Room\RoomDoors')->findBy(['room' => $roomId]);
