@@ -84,14 +84,14 @@ class AdminUserGroupController extends SalesRestController
                 $userGroup->setBuilding($buildings);
             }
 
-            $userCount = $this->getDoctrine()
+            $groupUsers = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
-                ->countUserNumber(
+                ->getGroupUsers(
                     $userGroup,
                     $type
                 );
 
-            $userGroup->setUserCount($userCount);
+            $userGroup->setUserCount(count($groupUsers));
         }
 
         $view = new View($userGroups);
