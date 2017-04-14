@@ -1195,8 +1195,7 @@ class PaymentController extends DoorController
      */
     public function removeUserAccess(
         $accessNo,
-        $base,
-        $door
+        $base
     ) {
         $currentUserArray = [];
         $controls = $this->getRepo('Door\DoorAccess')->findBy(
@@ -1225,23 +1224,20 @@ class PaymentController extends DoorController
                 $currentUserArray
             );
 
+            // set user group end date to now
             $order = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Order\ProductOrder')
                 ->find($accessNo);
 
-            $em = $this->getDoctrine()->getManager();
+            $buildingId = $order->getProduct()->getRoom()->getBuildingId();
 
-            if (!is_null($door)) {
-                $this->addUserToUserGroup(
-                    $em,
-                    $currentUserArray,
-                    $door->getCard(),
-                    $order->getStartDate(),
-                    new \DateTime(),
-                    $accessNo,
-                    UserGroupHasUser::TYPE_ORDER
-                );
-            }
+            $this->removeUserFromUserGroup(
+                $buildingId,
+                $currentUserArray,
+                $order->getStartDate(),
+                $order->getOrderNumber(),
+                UserGroupHasUser::TYPE_ORDER
+            );
         }
     }
 
