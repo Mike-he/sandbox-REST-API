@@ -1023,29 +1023,25 @@ class PaymentController extends DoorController
         $card = $door->getCard();
         $accessNo = $card->getAccessNo();
 
-        $em = $this->getDoctrine()->getManager();
-
         // add user to user_group
-        foreach ($userIds as $userId) {
-            $this->addUserToUserGroup(
-                $em,
-                $userId,
-                $card,
-                $startDate,
-                $endDate,
-                $orderNumber
-            );
-        }
+        $em = $this->getDoctrine()->getManager();
+        $this->addUserToUserGroup(
+            $em,
+            $userIds,
+            $card,
+            $startDate,
+            $endDate,
+            $orderNumber
+        );
 
         // add user to door access
         if ($todayLastTime >= $startDate) {
             $this->addUserDoorAccess(
-                $card,
-                null,
                 $accessNo,
                 $userIds,
                 $startDate,
-                $endDate
+                $endDate,
+                array($buildingId)
             );
         }
     }
@@ -1375,21 +1371,27 @@ class PaymentController extends DoorController
         // add user to user_group
         $this->addUserToUserGroup(
             $em,
-            $userId,
+            array($userId),
             $card,
             $startDate,
             $endDate,
             $orderNumber
         );
 
-        // add user to door access
+        // add user to door access$doorBuildingIds = $this->getDoctrine()
+        $doorBuildingIds = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserGroupDoors')
+            ->getBuildingIdsByGroup(
+                null,
+                $card->getId()
+            );
+
         $this->addUserDoorAccess(
-            $card,
-            null,
             $accessNo,
             array($userId),
             $startDate,
-            $endDate
+            $endDate,
+            $doorBuildingIds
         );
 
         return $order;
@@ -1766,7 +1768,7 @@ class PaymentController extends DoorController
 
     /**
      * @param $em
-     * @param $userId
+     * @param $userIds
      * @param $card
      * @param $startDate
      * @param $endDate
@@ -1774,7 +1776,7 @@ class PaymentController extends DoorController
      */
     protected function addUserToUserGroup(
         $em,
-        $userId,
+        $userIds,
         $card,
         $startDate,
         $endDate,
@@ -1783,22 +1785,24 @@ class PaymentController extends DoorController
         $userGroup = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserGroup')
             ->findOneBy(array(
-                'card' => $card,
+                'card' => $card->getId(),
             ));
 
         if (is_null($userGroup)) {
             return;
         }
 
-        $this->get('sandbox_api.group_user')->storeGroupUser(
-            $em,
-            $userGroup->getId(),
-            $userId,
-            UserGroupHasUser::TYPE_CARD,
-            $startDate,
-            $endDate,
-            $orderNumber
-        );
+        foreach ($userIds as $userId) {
+            $this->get('sandbox_api.group_user')->storeGroupUser(
+                $em,
+                $userGroup->getId(),
+                $userId,
+                UserGroupHasUser::TYPE_CARD,
+                $startDate,
+                $endDate,
+                $orderNumber
+            );
+        }
 
         $em->flush();
     }
