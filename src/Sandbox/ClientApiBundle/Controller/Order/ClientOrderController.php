@@ -7,6 +7,7 @@ use Sandbox\ApiBundle\Controller\Order\OrderController;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
 use Sandbox\ApiBundle\Entity\Order\TransferAttachment;
+use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
 use Sandbox\ApiBundle\Form\Order\OrderOfflineTransferPost;
 use Sandbox\ApiBundle\Form\Order\TransferAttachmentType;
 use Sandbox\ApiBundle\Traits\SetStatusTrait;
@@ -1309,6 +1310,32 @@ class ClientOrderController extends OrderController
                 $orderId,
                 $userArray
             );
+
+            // set user group end date to now
+            $order = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Order\ProductOrder')
+                ->find($orderId);
+
+            $buildingId = $order->getProduct()->getRoom()->getBuildingId();
+
+            $door = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserGroupDoors')
+                ->getGroupsByBuilding(
+                    $buildingId,
+                    true
+                );
+
+            if (!is_null($door)) {
+                $this->addUserToUserGroup(
+                    $em,
+                    $userArray,
+                    $card = $door->getCard(),
+                    $order->getStartDate(),
+                    new \DateTime(),
+                    $order->getOrderNumber(),
+                    UserGroupHasUser::TYPE_ORDER
+                );
+            }
         }
 
         return $recvUsers;
@@ -1845,6 +1872,14 @@ class ClientOrderController extends OrderController
                 $order->getStartDate(),
                 $order->getEndDate()
             );
+
+            $this->setDoorAccessForMembershipCard(
+                $buildingId,
+                $userArray,
+                $order->getStartDate(),
+                $order->getEndDate(),
+                $order->getOrderNumber()
+            );
         }
 
         // send notification to invited users
@@ -1966,12 +2001,28 @@ class ClientOrderController extends OrderController
                 $order->getStartDate(),
                 $order->getEndDate()
             );
+
+            $this->setDoorAccessForMembershipCard(
+                $buildingId,
+                $userArray,
+                $order->getStartDate(),
+                $order->getEndDate(),
+                $order->getOrderNumber()
+            );
         }
+
+        $door = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserGroupDoors')
+            ->getGroupsByBuilding(
+                $buildingId,
+                true
+            );
 
         // remove all user access with method delete
         $this->removeUserAccess(
             $order->getId(),
-            $base
+            $base,
+            $door
         );
     }
 
@@ -2052,10 +2103,18 @@ class ClientOrderController extends OrderController
             );
         }
 
+        $door = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserGroupDoors')
+            ->getGroupsByBuilding(
+                $buildingId,
+                true
+            );
+
         // remove all user access with method delete
         $this->removeUserAccess(
             $orderId,
-            $base
+            $base,
+            $door
         );
     }
 
