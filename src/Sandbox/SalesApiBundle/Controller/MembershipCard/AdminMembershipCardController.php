@@ -234,6 +234,8 @@ class AdminMembershipCardController extends SalesRestController
             ->getRepository('SandboxApiBundle:User\UserGroup')
             ->findOneBy(array('card' => $id));
 
+        $userGroup->setName($membershipCard->getName());
+
         $this->handleDoorsControl(
             $em,
             $membershipCard,

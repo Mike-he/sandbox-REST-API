@@ -2046,6 +2046,7 @@ class SandboxRestController extends FOSRestController
      * @param $startDate
      * @param $endDate
      * @param $orderNumber
+     * @param $type
      */
     protected function addUserToUserGroup(
         $em,

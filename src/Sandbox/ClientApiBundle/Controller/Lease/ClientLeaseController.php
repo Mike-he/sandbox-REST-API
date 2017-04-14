@@ -17,6 +17,7 @@ use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Sandbox\ApiBundle\Entity\User\User;
+use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
 use Sandbox\ApiBundle\Traits\DoorAccessTrait;
 use Sandbox\ApiBundle\Traits\GenerateSerialNumberTrait;
 use Sandbox\ApiBundle\Traits\HasAccessToEntityRepositoryTrait;
@@ -294,6 +295,15 @@ class ClientLeaseController extends SandboxRestController
                 $product->setVisible(false);
                 $product->setAppointment(false);
             }
+
+            $this->setDoorAccessForMembershipCard(
+                $lease->getBuildingId(),
+                [$lease->getSupervisorId()],
+                $lease->getStartDate(),
+                $lease->getEndDate(),
+                $lease->getSerialNumber(),
+                UserGroupHasUser::TYPE_LEASE
+            );
         }
 
         // If the lease has been executed, when the state 'reconfirming' is reconfirmed
@@ -500,6 +510,16 @@ class ClientLeaseController extends SandboxRestController
             );
         }
 
+        // Add user to User Group
+        $this->setDoorAccessForMembershipCard(
+            $lease->getBuildingId(),
+            $users,
+            $lease->getStartDate(),
+            $lease->getEndDate(),
+            $lease->getSerialNumber(),
+            UserGroupHasUser::TYPE_LEASE
+        );
+
         return $recvUsers;
     }
 
@@ -562,6 +582,29 @@ class ClientLeaseController extends SandboxRestController
                 $base,
                 $lease->getAccessNo(),
                 $userArray
+            );
+        }
+
+        // Remove user to User Group
+        $door = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserGroupDoors')
+            ->getGroupsByBuilding(
+                $lease->getBuildingId(),
+                true
+            );
+
+        if ($door) {
+            $now = new \DateTime('now');
+            $card = $door->getCard();
+
+            $this->addUserToUserGroup(
+                $em,
+                $removeUsers,
+                $card,
+                $lease->getStartDate(),
+                $now,
+                $lease->getSerialNumber(),
+                UserGroupHasUser::TYPE_LEASE
             );
         }
 
