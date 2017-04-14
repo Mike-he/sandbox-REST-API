@@ -11,6 +11,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations;
 use Sandbox\ApiBundle\Traits\FinanceSalesExportTraits;
+use Symfony\Component\HttpKernel\Exception\PreconditionFailedHttpException;
 
 /**
  * Admin MembershipCard Order Controller.
@@ -280,13 +281,33 @@ class AdminMembershipCardOrderController extends SandboxRestController
         //authenticate with web browser cookie
         $admin = $this->authenticateAdminCookie();
         $adminId = $admin->getId();
+        $token = $_COOKIE[self::ADMIN_COOKIE_NAME];
+
+        $userToken = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserToken')
+            ->findOneBy([
+                'userId' => $adminId,
+                'token' => $token,
+            ]);
+        $this->throwNotFoundIfNull($userToken, self::NOT_FOUND_MESSAGE);
+
+        $adminPlatform = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPlatform')
+            ->findOneBy(array(
+                'userId' => $adminId,
+                'clientId' => $userToken->getClientId(),
+            ));
+        if (is_null($adminPlatform)) {
+            throw new PreconditionFailedHttpException(self::PRECONDITION_NOT_SET);
+        }
 
         $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $adminId,
             [
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_MEMBERSHIP_CARD_ORDER],
             ],
-            AdminPermission::OP_LEVEL_VIEW
+            AdminPermission::OP_LEVEL_VIEW,
+            $adminPlatform->getPlatform()
         );
 
         $language = $paramFetcher->get('language');
