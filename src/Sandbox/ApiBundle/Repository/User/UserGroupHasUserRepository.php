@@ -9,16 +9,20 @@ class UserGroupHasUserRepository extends EntityRepository
 {
     /**
      * @param $group
+     * @param $type
      *
      * @return array
      */
     public function countUserNumber(
-        $group
+        $group,
+        $type
     ) {
         $query = $this->createQueryBuilder('u')
             ->select('count(u.id)')
             ->where('u.groupId = :group')
-            ->setParameter('group', $group);
+            ->andWhere('type in (:type)')
+            ->setParameter('group', $group)
+            ->setParameter('type', $type);
 
         return $query->getQuery()->getSingleScalarResult();
     }

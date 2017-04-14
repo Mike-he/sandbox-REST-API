@@ -57,9 +57,13 @@ class AdminUserGroupController extends SalesRestController
             ->getRepository('SandboxApiBundle:User\UserGroup')
             ->findBy(
                 array('companyId' => $salesCompanyId),
-                array('type'=>'ASC', 'creationDate'=> 'DESC')
+                array('type' => 'ASC', 'creationDate' => 'DESC')
             );
 
+        $type = array(
+                UserGroupHasUser::TYPE_CARD,
+                UserGroupHasUser::TYPE_ADD,
+            );
         foreach ($userGroups as $userGroup) {
             if ($userGroup->getType() == UserGroup::TYPE_CARD) {
                 $buildingIds = $this->getDoctrine()
@@ -82,7 +86,10 @@ class AdminUserGroupController extends SalesRestController
 
             $userCount = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
-                ->countUserNumber($userGroup);
+                ->countUserNumber(
+                    $userGroup,
+                    $type
+                );
 
             $userGroup->setUserCount($userCount);
         }
