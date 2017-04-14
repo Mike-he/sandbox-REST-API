@@ -21,7 +21,7 @@ class SalesCompanyServiceInfos
     const DRAWER_SALES = 'sales';
 
     const TRADE_TYPE_ACTIVITY = 'activity';
-    const TRADE_TYPE_MEMBERSHIP_CARD = 'membership_card';
+    const TRADE_TYPE_MEMBERSHIP_CARD = 'membership';
 
     /**
      * @var int
