@@ -63,11 +63,13 @@ class UserGroupDoorsRepository extends EntityRepository
 
     /**
      * @param $buildingId
+     * @param $card
      *
      * @return array
      */
     public function getGroupsByBuilding(
-        $buildingId
+        $buildingId,
+        $card = null
     ) {
         $query = $this->createQueryBuilder('d')
             ->select('d.building')
@@ -78,8 +80,12 @@ class UserGroupDoorsRepository extends EntityRepository
                 ->setParameter('buildingId', $buildingId);
         }
 
+        if ($card) {
+            $query->andWhere('d.card IS NOT NULL');
+        }
+
         $query->groupBy('d.building');
 
-        return $query->getQuery()->getResult();
+        return $query->getQuery()->getOneOrNullResult();
     }
 }
