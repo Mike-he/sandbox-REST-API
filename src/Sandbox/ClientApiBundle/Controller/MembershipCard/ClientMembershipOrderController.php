@@ -8,6 +8,7 @@ use Sandbox\ApiBundle\Entity\MembershipCard\MembershipCard;
 use Sandbox\ApiBundle\Entity\MembershipCard\MembershipOrder;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
+use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
 use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -118,7 +119,8 @@ class ClientMembershipOrderController extends PaymentController
                 $card,
                 $startDate,
                 $endDate,
-                $orderNumber
+                $orderNumber,
+                UserGroupHasUser::TYPE_CARD
             );
 
             // add user to door access

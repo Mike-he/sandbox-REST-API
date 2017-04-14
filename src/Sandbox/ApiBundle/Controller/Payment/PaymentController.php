@@ -993,58 +993,6 @@ class PaymentController extends DoorController
         return $order;
     }
 
-    /**
-     * @param $buildingId
-     * @param $userIds
-     * @param $startDate
-     * @param $endDate
-     * @param $orderNumber
-     */
-    protected function setDoorAccessForMembershipCard(
-        $buildingId,
-        $userIds,
-        $startDate,
-        $endDate,
-        $orderNumber
-    ) {
-        $door = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserGroupDoors')
-            ->getGroupsByBuilding(
-                $buildingId,
-                true
-            );
-
-        if (is_null($door)) {
-            return;
-        }
-
-        $now = new \DateTime('now');
-        $todayLastTime = $now->setTime('23', '59', '59');
-        $card = $door->getCard();
-        $accessNo = $card->getAccessNo();
-
-        // add user to user_group
-        $em = $this->getDoctrine()->getManager();
-        $this->addUserToUserGroup(
-            $em,
-            $userIds,
-            $card,
-            $startDate,
-            $endDate,
-            $orderNumber
-        );
-
-        // add user to door access
-        if ($todayLastTime >= $startDate) {
-            $this->addUserDoorAccess(
-                $accessNo,
-                $userIds,
-                $startDate,
-                $endDate,
-                array($buildingId)
-            );
-        }
-    }
 
     /**
      * @param string $orderNumber
@@ -1201,7 +1149,8 @@ class PaymentController extends DoorController
             array($order->getUserId()),
             $order->getStartDate(),
             $order->getEndDate(),
-            $order->getOrderNumber()
+            $order->getOrderNumber(),
+            UserGroupHasUser::TYPE_ORDER
         );
 
         $roomId = $order->getProduct()->getRoom()->getId();
@@ -1375,7 +1324,8 @@ class PaymentController extends DoorController
             $card,
             $startDate,
             $endDate,
-            $orderNumber
+            $orderNumber,
+            UserGroupHasUser::TYPE_CARD
         );
 
         // add user to door access$doorBuildingIds = $this->getDoctrine()
@@ -1764,46 +1714,5 @@ class PaymentController extends DoorController
         $string = str_replace('】', '', $string);
 
         return $string;
-    }
-
-    /**
-     * @param $em
-     * @param $userIds
-     * @param $card
-     * @param $startDate
-     * @param $endDate
-     * @param $orderNumber
-     */
-    protected function addUserToUserGroup(
-        $em,
-        $userIds,
-        $card,
-        $startDate,
-        $endDate,
-        $orderNumber
-    ) {
-        $userGroup = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserGroup')
-            ->findOneBy(array(
-                'card' => $card->getId(),
-            ));
-
-        if (is_null($userGroup)) {
-            return;
-        }
-
-        foreach ($userIds as $userId) {
-            $this->get('sandbox_api.group_user')->storeGroupUser(
-                $em,
-                $userGroup->getId(),
-                $userId,
-                UserGroupHasUser::TYPE_CARD,
-                $startDate,
-                $endDate,
-                $orderNumber
-            );
-        }
-
-        $em->flush();
     }
 }
