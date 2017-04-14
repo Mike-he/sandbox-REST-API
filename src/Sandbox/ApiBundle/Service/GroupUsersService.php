@@ -39,8 +39,8 @@ class GroupUsersService
             ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
             ->findOneBy(
                 array(
-                    'group' => $group,
-                    'user' => $user,
+                    'groupId' => $group,
+                    'userId' => $user,
                     'type' => $type,
                     'orderNumber' => $orderNumber,
                 )
@@ -78,8 +78,8 @@ class GroupUsersService
             ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
             ->findOneBy(
                 array(
-                    'group' => $group,
-                    'user' => $user,
+                    'groupId' => $group,
+                    'userId' => $user,
                     'type' => $type,
                     'orderNumber' => $orderNumber,
                 )
