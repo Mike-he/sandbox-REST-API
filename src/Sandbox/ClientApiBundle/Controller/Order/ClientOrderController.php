@@ -1145,16 +1145,6 @@ class ClientOrderController extends OrderController
                 $order->setModificationDate(new \DateTime());
             }
 
-            // remove user from door access
-            $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
-            $this->removeUserFromUserGroup(
-                $buildingId,
-                array($userId),
-                $order->getStartDate(),
-                $order->getOrderNumber(),
-                UserGroupHasUser::TYPE_ORDER
-            );
-
             $em = $this->getDoctrine()->getManager();
             $em->flush();
 
@@ -1212,6 +1202,16 @@ class ClientOrderController extends OrderController
         }
 
         $this->removeAccessByOrder($order);
+
+        // remove user from door access
+        $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
+        $this->removeUserFromUserGroup(
+            $buildingId,
+            array($userId),
+            $order->getStartDate(),
+            $order->getOrderNumber(),
+            UserGroupHasUser::TYPE_ORDER
+        );
 
         return new View();
     }
@@ -1328,24 +1328,13 @@ class ClientOrderController extends OrderController
 
             $buildingId = $order->getProduct()->getRoom()->getBuildingId();
 
-            $door = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:User\UserGroupDoors')
-                ->getGroupsByBuilding(
-                    $buildingId,
-                    true
-                );
-
-            if (!is_null($door)) {
-                $this->addUserToUserGroup(
-                    $em,
-                    $userArray,
-                    $card = $door->getCard(),
-                    $order->getStartDate(),
-                    new \DateTime(),
-                    $order->getOrderNumber(),
-                    UserGroupHasUser::TYPE_ORDER
-                );
-            }
+            $this->removeUserFromUserGroup(
+                $buildingId,
+                $userArray,
+                $order->getStartDate(),
+                $order->getOrderNumber(),
+                UserGroupHasUser::TYPE_ORDER
+            );
         }
 
         return $recvUsers;
@@ -2021,18 +2010,10 @@ class ClientOrderController extends OrderController
             );
         }
 
-        $door = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserGroupDoors')
-            ->getGroupsByBuilding(
-                $buildingId,
-                true
-            );
-
         // remove all user access with method delete
         $this->removeUserAccess(
             $order->getId(),
-            $base,
-            $door
+            $base
         );
     }
 
@@ -2113,18 +2094,10 @@ class ClientOrderController extends OrderController
             );
         }
 
-        $door = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserGroupDoors')
-            ->getGroupsByBuilding(
-                $buildingId,
-                true
-            );
-
         // remove all user access with method delete
         $this->removeUserAccess(
             $orderId,
-            $base,
-            $door
+            $base
         );
     }
 
