@@ -122,13 +122,21 @@ class ClientMembershipOrderController extends PaymentController
             );
 
             // add user to door access
+            $doorBuildingIds = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserGroupDoors')
+                ->getBuildingIdsByGroup(
+                    null,
+                    $card->getId()
+                );
+
             $this->addUserDoorAccess(
                 $card,
                 null,
                 $accessNo,
                 array($userId),
                 $order->getStartDate(),
-                $order->getEndDate()
+                $order->getEndDate(),
+                $doorBuildingIds
             );
 
             return new View(array(

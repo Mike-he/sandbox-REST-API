@@ -714,28 +714,19 @@ trait DoorAccessTrait
     }
 
     /**
-     * @param $cardId
-     * @param $group
      * @param $accessNo
      * @param $userId
      * @param $orderStartDate
      * @param $orderEndDate
+     * @param $doorBuildingIds
      */
     public function addUserDoorAccess(
-        $cardId,
-        $group,
         $accessNo,
         $userIds,
         $orderStartDate,
-        $orderEndDate
+        $orderEndDate,
+        $doorBuildingIds
     ) {
-        $doorBuildingIds = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserGroupDoors')
-            ->getBuildingIdsByGroup(
-                $group,
-                $cardId
-            );
-
         foreach ($doorBuildingIds as $buildingId) {
             $building = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Room\RoomBuilding')

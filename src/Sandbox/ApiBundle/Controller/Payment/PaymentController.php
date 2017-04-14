@@ -1037,12 +1037,11 @@ class PaymentController extends DoorController
         // add user to door access
         if ($todayLastTime >= $startDate) {
             $this->addUserDoorAccess(
-                $card->getId(),
-                null,
                 $accessNo,
                 $userIds,
                 $startDate,
-                $endDate
+                $endDate,
+                array($buildingId)
             );
         }
     }
@@ -1379,14 +1378,20 @@ class PaymentController extends DoorController
             $orderNumber
         );
 
-        // add user to door access
+        // add user to door access$doorBuildingIds = $this->getDoctrine()
+        $doorBuildingIds = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserGroupDoors')
+            ->getBuildingIdsByGroup(
+                null,
+                $card->getId()
+            );
+
         $this->addUserDoorAccess(
-            $card,
-            null,
             $accessNo,
             array($userId),
             $startDate,
-            $endDate
+            $endDate,
+            $doorBuildingIds
         );
 
         return $order;
