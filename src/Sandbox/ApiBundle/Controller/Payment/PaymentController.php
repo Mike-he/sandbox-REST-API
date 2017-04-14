@@ -994,8 +994,11 @@ class PaymentController extends DoorController
     }
 
     /**
-     * @param ProductOrder $order
-     * @param $userId
+     * @param $buildingId
+     * @param $userIds
+     * @param $startDate
+     * @param $endDate
+     * @param $orderNumber
      */
     protected function setDoorAccessForMembershipCard(
         $buildingId,
