@@ -2011,7 +2011,6 @@ class SandboxRestController extends FOSRestController
         }
 
         $now = new \DateTime('now');
-        $todayLastTime = $now->setTime('23', '59', '59');
         $card = $door->getCard();
         $accessNo = $card->getAccessNo();
 
@@ -2028,7 +2027,7 @@ class SandboxRestController extends FOSRestController
         );
 
         // add user to door access
-        if ($todayLastTime >= $startDate) {
+        if ($now >= $startDate) {
             $this->addUserDoorAccess(
                 $accessNo,
                 $userIds,
@@ -2080,5 +2079,46 @@ class SandboxRestController extends FOSRestController
         }
 
         $em->flush();
+    }
+
+    /**
+     * @param $buildingId
+     * @param $userIds
+     * @param $startDate
+     * @param $orderNumber
+     * @param $type
+     */
+    protected function removeUserFromUserGroup(
+        $buildingId,
+        $userIds,
+        $startDate,
+        $orderNumber,
+        $type
+    ) {
+        $door = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserGroupDoors')
+            ->getGroupsByBuilding(
+                $buildingId,
+                true
+            );
+
+        if (is_null($door)) {
+            return;
+        }
+
+        $now = new \DateTime('now');
+        $card = $door->getCard();
+
+        // add user to user_group
+        $em = $this->getDoctrine()->getManager();
+        $this->addUserToUserGroup(
+            $em,
+            $userIds,
+            $card,
+            $startDate,
+            $now,
+            $orderNumber,
+            $type
+        );
     }
 }
