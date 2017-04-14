@@ -55,7 +55,10 @@ class AdminUserGroupController extends SalesRestController
 
         $userGroups = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserGroup')
-            ->findBy(array('companyId' => $salesCompanyId));
+            ->findBy(
+                array('companyId' => $salesCompanyId),
+                array('type'=>'ASC', 'creationDate'=> 'DESC')
+            );
 
         foreach ($userGroups as $userGroup) {
             if ($userGroup->getType() == UserGroup::TYPE_CARD) {
