@@ -818,7 +818,7 @@ trait FinanceOfficialExportTraits
         );
 
         foreach ($cardOrders as $cardOrder) {
-            $companyId = $cardOrder->getCard()->getSalesCompanyId();
+            $companyId = $cardOrder->getCard()->getCompanyId();
 
             if (is_null($companyId)) {
                 $companyName = '';
