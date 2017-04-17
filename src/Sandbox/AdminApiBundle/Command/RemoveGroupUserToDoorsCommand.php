@@ -16,7 +16,7 @@ class RemoveGroupUserToDoorsCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this->setName('sandbox:api-bundle:remove_group_user_to_doors')
-            ->setDescription('Check Group Users');
+            ->setDescription('Check Group Users and remove user to doors');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
