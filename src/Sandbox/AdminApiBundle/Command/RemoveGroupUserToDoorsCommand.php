@@ -9,13 +9,13 @@ use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class CheckGroupUserCommand extends ContainerAwareCommand
+class RemoveGroupUserToDoorsCommand extends ContainerAwareCommand
 {
     use DoorAccessTrait;
 
     protected function configure()
     {
-        $this->setName('sandbox:api-bundle:group_user_check')
+        $this->setName('sandbox:api-bundle:remove_group_user_to_doors')
             ->setDescription('Check Group Users');
     }
 
@@ -57,7 +57,6 @@ class CheckGroupUserCommand extends ContainerAwareCommand
 
         $now = new \DateTime('now');
 
-        $addData = array();
         $removeData = array();
         foreach ($groups as $group) {
             $groupId = $group->getId();
@@ -78,17 +77,6 @@ class CheckGroupUserCommand extends ContainerAwareCommand
             $removeData[] = array(
                 'group_id' => $groupId,
                 'users' => $removeUsers,
-            );
-
-            $addUsers = $em->getRepository('SandboxApiBundle:User\UserGroupHasUser')
-                ->findValidUsers(
-                    $groupId,
-                    $now
-                );
-
-            $addData[] = array(
-                'group_id' => $groupId,
-                'users' => $addUsers,
             );
         }
 
@@ -131,55 +119,6 @@ class CheckGroupUserCommand extends ContainerAwareCommand
 
                 if (!empty($userArray)) {
                     $this->deleteEmployeeToOrder(
-                        $base,
-                        $accessNo,
-                        $userArray
-                    );
-                }
-            }
-        }
-
-        //Third step: add Door Access
-        foreach ($addData as $data) {
-            $groupId = $data['group_id'];
-            $users = $data['users'];
-
-            $group = $em->getRepository('SandboxApiBundle:User\UserGroup')->find($groupId);
-            $card = $em->getRepository('SandboxApiBundle:MembershipCard\MembershipCard')->find($group->getCard());
-            $accessNo = $card->getAccessNo();
-
-            $buildingIds = $em->getRepository('SandboxApiBundle:User\UserGroupDoors')
-                ->getBuildingIdsByGroup(
-                    $groupId
-                );
-
-            foreach ($buildingIds as $buildingId) {
-                $building = $em->getRepository('SandboxApiBundle:Room\RoomBuilding')
-                    ->find($buildingId);
-
-                $base = $building->getServer();
-
-                $userArray = array();
-                if ($base) {
-                    foreach ($users as $user) {
-                        $this->storeDoorAccess(
-                            $em,
-                            $accessNo,
-                            $user,
-                            $buildingId,
-                            null,
-                            $now,
-                            $now
-                        );
-
-                        $empUser = ['empid' => $user];
-                        array_push($userArray, $empUser);
-                    }
-                    $em->flush();
-                }
-
-                if (!empty($userArray)) {
-                    $this->addEmployeeToOrder(
                         $base,
                         $accessNo,
                         $userArray
