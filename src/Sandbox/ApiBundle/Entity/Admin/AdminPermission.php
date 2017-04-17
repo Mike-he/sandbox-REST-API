@@ -64,6 +64,7 @@ class AdminPermission
     const KEY_OFFICIAL_PLATFORM_SALES_INVOICE_CONFIRM = 'platform.sales_invoice_confirm';
     const KEY_OFFICIAL_PLATFORM_TRANSFER_CONFIRM = 'platform.transfer_confirm';
     const KEY_OFFICIAL_PLATFORM_SALES_MONITORING = 'platform.sales_monitoring';
+    const KEY_OFFICIAL_PLATFORM_MEMBERSHIP_CARD_ORDER = 'platform.membership_card_order';
 
     const KEY_SALES_PLATFORM_DASHBOARD = 'sales.platform.dashboard';
     const KEY_SALES_PLATFORM_ADMIN = 'sales.platform.admin';
@@ -77,6 +78,9 @@ class AdminPermission
     const KEY_SALES_PLATFORM_WITHDRAWAL = 'sales.platform.withdrawal';
     const KEY_SALES_PLATFORM_AUDIT = 'sales.platform.audit';
     const KEY_SALES_PLATFORM_ACCOUNT = 'sales.platform.account';
+    const KEY_SALES_PLATFORM_MEMBERSHIP_CARD = 'sales.platform.membership_card';
+    const KEY_SALES_PLATFORM_MEMBERSHIP_CARD_ORDER = 'sales.platform.membership_card_order';
+    const KEY_SALES_PLATFORM_MEMBERSHIP_CARD_PRODUCT = 'sales.platform.membership_card_product';
     const KEY_SALES_BUILDING_PRICE = 'sales.building.price';
     const KEY_SALES_BUILDING_ORDER = 'sales.building.order';
     const KEY_SALES_BUILDING_ORDER_RESERVE = 'sales.building.order.reserve';

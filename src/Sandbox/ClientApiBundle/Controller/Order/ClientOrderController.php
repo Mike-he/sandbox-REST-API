@@ -7,6 +7,7 @@ use Sandbox\ApiBundle\Controller\Order\OrderController;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
 use Sandbox\ApiBundle\Entity\Order\TransferAttachment;
+use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
 use Sandbox\ApiBundle\Form\Order\OrderOfflineTransferPost;
 use Sandbox\ApiBundle\Form\Order\TransferAttachmentType;
 use Sandbox\ApiBundle\Traits\SetStatusTrait;
@@ -1202,6 +1203,16 @@ class ClientOrderController extends OrderController
 
         $this->removeAccessByOrder($order);
 
+        // remove user from door access
+        $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
+        $this->removeUserFromUserGroup(
+            $buildingId,
+            array($userId),
+            $order->getStartDate(),
+            $order->getOrderNumber(),
+            UserGroupHasUser::TYPE_ORDER
+        );
+
         return new View();
     }
 
@@ -1308,6 +1319,21 @@ class ClientOrderController extends OrderController
                 $base,
                 $orderId,
                 $userArray
+            );
+
+            // set user group end date to now
+            $order = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Order\ProductOrder')
+                ->find($orderId);
+
+            $buildingId = $order->getProduct()->getRoom()->getBuildingId();
+
+            $this->removeUserFromUserGroup(
+                $buildingId,
+                $userArray,
+                $order->getStartDate(),
+                $order->getOrderNumber(),
+                UserGroupHasUser::TYPE_ORDER
             );
         }
 
@@ -1845,6 +1871,14 @@ class ClientOrderController extends OrderController
                 $order->getStartDate(),
                 $order->getEndDate()
             );
+
+            $this->setDoorAccessForMembershipCard(
+                $buildingId,
+                $userArray,
+                $order->getStartDate(),
+                $order->getEndDate(),
+                $order->getOrderNumber()
+            );
         }
 
         // send notification to invited users
@@ -1965,6 +1999,14 @@ class ClientOrderController extends OrderController
                 $order->getId(),
                 $order->getStartDate(),
                 $order->getEndDate()
+            );
+
+            $this->setDoorAccessForMembershipCard(
+                $buildingId,
+                $userArray,
+                $order->getStartDate(),
+                $order->getEndDate(),
+                $order->getOrderNumber()
             );
         }
 

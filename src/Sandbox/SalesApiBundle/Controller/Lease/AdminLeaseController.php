@@ -14,6 +14,7 @@ use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Product\ProductAppointment;
+use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
 use Sandbox\ApiBundle\Form\Lease\LeasePatchType;
 use Sandbox\ApiBundle\Traits\GenerateSerialNumberTrait;
 use Sandbox\ApiBundle\Traits\HasAccessToEntityRepositoryTrait;
@@ -544,6 +545,28 @@ class AdminLeaseController extends SalesRestController
                             ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART2
                         );
                     }
+
+                    // Remove old supervisor to User Group
+                    $door = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:User\UserGroupDoors')
+                        ->getGroupsByBuilding(
+                            $lease->getBuildingId(),
+                            true
+                        );
+
+                    if ($door) {
+                        $card = $door->getCard();
+
+                        $this->addUserToUserGroup(
+                            $em,
+                            $removeUsers,
+                            $card,
+                            $lease->getStartDate(),
+                            new \DateTime('now'),
+                            $lease->getSerialNumber(),
+                            UserGroupHasUser::TYPE_LEASE
+                        );
+                    }
                 }
 
                 $unpaidBills = $this->getLeaseBillRepo()->findBy(array(
@@ -1047,6 +1070,38 @@ class AdminLeaseController extends SalesRestController
                             ProductOrderMessage::APPOINT_MESSAGE_PART2
                         );
                     }
+
+                    // Remove old supervisor to User Group
+                    $door = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:User\UserGroupDoors')
+                        ->getGroupsByBuilding(
+                            $lease->getBuildingId(),
+                            true
+                        );
+
+                    if ($door) {
+                        $card = $door->getCard();
+
+                        $this->addUserToUserGroup(
+                            $em,
+                            [$previousSupervisorId],
+                            $card,
+                            $lease->getStartDate(),
+                            new \DateTime('now'),
+                            $lease->getSerialNumber(),
+                            UserGroupHasUser::TYPE_LEASE
+                        );
+                    }
+
+                    // Add new supervisor to User Group
+                    $this->setDoorAccessForMembershipCard(
+                        $lease->getBuildingId(),
+                        [$payload['supervisor']],
+                        $lease->getStartDate(),
+                        $lease->getEndDate(),
+                        $lease->getSerialNumber(),
+                        UserGroupHasUser::TYPE_LEASE
+                    );
                 }
             }
 
@@ -1229,6 +1284,28 @@ class AdminLeaseController extends SalesRestController
                     $users,
                     $lease,
                     $lease->getBuilding()->getServer()
+                );
+            }
+
+            // Edit user to User Group
+            $door = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserGroupDoors')
+                ->getGroupsByBuilding(
+                    $lease->getBuildingId(),
+                    true
+                );
+
+            if ($door) {
+                $card = $door->getCard();
+
+                $this->addUserToUserGroup(
+                    $em,
+                    $users,
+                    $card,
+                    $lease->getStartDate(),
+                    $lease->getEndDate(),
+                    $lease->getSerialNumber(),
+                    UserGroupHasUser::TYPE_LEASE
                 );
             }
         }

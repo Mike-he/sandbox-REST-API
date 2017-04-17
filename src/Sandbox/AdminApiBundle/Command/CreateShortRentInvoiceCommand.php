@@ -36,7 +36,13 @@ class CreateShortRentInvoiceCommand extends ContainerAwareCommand
             $lastDate
         );
 
-        $companyArray = $this->setFinanceSummary(
+        $companyArray = $this->setLongBillSummary(
+            $firstDate,
+            $lastDate,
+            $companyArray
+        );
+
+        $companyArray = $this->setMembershipOrderSummary(
             $firstDate,
             $lastDate,
             $companyArray
@@ -74,12 +80,17 @@ class CreateShortRentInvoiceCommand extends ContainerAwareCommand
                 $companyArray[$companyId] = [
                     'short_rent_balance' => $amount,
                     'short_rent_count' => 1,
+                    'long_rent_balance' => 0,
+                    'long_rent_service_balance' => 0,
+                    'long_rent_count' => 0,
+                    'event_order_balance' => 0,
+                    'event_order_count' => 0,
+                    'membership_order_balance' => 0,
+                    'membership_order_count' => 0,
                 ];
             } else {
-                $companyArray[$companyId] = [
-                    'short_rent_balance' => $amount + $companyArray[$companyId]['short_rent_balance'],
-                    'short_rent_count' => 1 + $companyArray[$companyId]['short_rent_count'],
-                ];
+                $companyArray[$companyId]['short_rent_balance'] += $amount;
+                ++$companyArray[$companyId]['short_rent_count'];
             }
         }
 
@@ -93,7 +104,7 @@ class CreateShortRentInvoiceCommand extends ContainerAwareCommand
      *
      * @return mixed
      */
-    private function setFinanceSummary(
+    private function setLongBillSummary(
         $firstDate,
         $lastDate,
         $companyArray
@@ -103,18 +114,6 @@ class CreateShortRentInvoiceCommand extends ContainerAwareCommand
             ->get('doctrine')
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
             ->findBillsByDates($firstDate, $lastDate);
-
-        foreach ($companyArray as $key => $value) {
-            $longRentArray = [
-                'long_rent_balance' => 0,
-                'long_rent_service_balance' => 0,
-                'long_rent_count' => 0,
-                'event_order_balance' => 0,
-                'event_order_count' => 0,
-            ];
-
-            $companyArray[$key] = array_merge($companyArray[$key], $longRentArray);
-        }
 
         foreach ($longBills as $longBill) {
             $incomeAmount = $longBill->getRevisedAmount();
@@ -141,11 +140,59 @@ class CreateShortRentInvoiceCommand extends ContainerAwareCommand
                     'long_rent_count' => 1,
                     'event_order_balance' => 0,
                     'event_order_count' => 0,
+                    'membership_order_balance' => 0,
+                    'membership_order_count' => 0,
                 ];
             } else {
                 $companyArray[$companyId]['long_rent_balance'] += $incomeAmount;
                 $companyArray[$companyId]['long_rent_service_balance'] += $serviceAmount;
                 ++$companyArray[$companyId]['long_rent_count'];
+            }
+        }
+
+        return $companyArray;
+    }
+
+    /**
+     * @param $firstDate
+     * @param $lastDate
+     * @param $companyArray
+     *
+     * @return mixed
+     */
+    private function setMembershipOrderSummary(
+        $firstDate,
+        $lastDate,
+        $companyArray
+    ) {
+        $membershipOrders = $this->getContainer()
+            ->get('doctrine')
+            ->getRepository('SandboxApiBundle:MembershipCard\MembershipOrder')
+            ->getMembershipOrdersByDate(
+                $firstDate,
+                $lastDate
+            );
+
+        foreach ($membershipOrders as $membershipOrder) {
+            $amount = $membershipOrder->getPrice() * (1 - $membershipOrder->getServiceFee() / 100);
+            $card = $membershipOrder->getCard();
+            $companyId = $card->getCompanyId();
+
+            if (!array_key_exists($companyId, $companyArray)) {
+                $companyArray[$companyId] = [
+                    'short_rent_balance' => 0,
+                    'short_rent_count' => 0,
+                    'long_rent_balance' => 0,
+                    'long_rent_service_balance' => 0,
+                    'long_rent_count' => 0,
+                    'event_order_balance' => 0,
+                    'event_order_count' => 0,
+                    'membership_order_balance' => $amount,
+                    'membership_order_count' => 1,
+                ];
+            } else {
+                $companyArray[$companyId]['membership_order_balance'] += $amount;
+                ++$companyArray[$companyId]['membership_order_count'];
             }
         }
 
@@ -186,6 +233,8 @@ class CreateShortRentInvoiceCommand extends ContainerAwareCommand
                     'long_rent_count' => 0,
                     'event_order_balance' => $price,
                     'event_order_count' => 1,
+                    'membership_order_balance' => 0,
+                    'membership_order_count' => 0,
                 ];
             } else {
                 $companyArray[$companyId]['event_order_balance'] += $price;
@@ -204,10 +253,12 @@ class CreateShortRentInvoiceCommand extends ContainerAwareCommand
             $summary->setLongRentBillCount((int) $value['long_rent_count']);
             $summary->setEventOrderBalance($value['event_order_balance']);
             $summary->setEventOrderCount((int) $value['event_order_count']);
+            $summary->setMembershipOrderBalance($value['membership_order_balance']);
+            $summary->setMembershipOrderCount((int) $value['membership_order_count']);
             $summary->setSummaryDate($lastDate);
 
             $invoice = new FinanceShortRentInvoice();
-            $invoice->setAmount($value['short_rent_balance'] + $value['event_order_balance']);
+            $invoice->setAmount($value['short_rent_balance'] + $value['event_order_balance'] + $value['membership_order_balance']);
             $invoice->setCompanyId((int) $key);
             $invoice->setCreationDate($lastDate);
 
@@ -223,8 +274,8 @@ class CreateShortRentInvoiceCommand extends ContainerAwareCommand
                 $shortRentAmount = $wallet->getShortRentInvoiceAmount();
                 $totalAmount = $wallet->getTotalAmount();
 
-                $wallet->setShortRentInvoiceAmount($shortRentAmount + $value['short_rent_balance'] + $value['event_order_balance']);
-                $wallet->setTotalAmount($totalAmount + $value['short_rent_balance'] + $value['event_order_balance']);
+                $wallet->setShortRentInvoiceAmount($shortRentAmount + $value['short_rent_balance'] + $value['event_order_balance'] + $value['membership_order_balance']);
+                $wallet->setTotalAmount($totalAmount + $value['short_rent_balance'] + $value['event_order_balance'] + $value['membership_order_balance']);
             }
         }
 

@@ -3,7 +3,9 @@
 namespace Sandbox\ApiBundle\Traits;
 
 use Sandbox\ApiBundle\Constants\BundleConstants;
+use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Entity\Door\DoorAccess;
+use Sandbox\ApiBundle\Entity\MembershipCard\MembershipCard;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Symfony\Component\DomCrawler\Crawler;
 use Sandbox\ApiBundle\Constants\DoorAccessConstants;
@@ -596,7 +598,9 @@ trait DoorAccessTrait
         $startDate,
         $endDate
     ) {
-        $doorAccess = $this->getRepo('Door\DoorAccess')->findOneBy(
+        $doorAccess = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Door\DoorAccess')
+            ->findOneBy(
             [
                 'userId' => $userId,
                 'accessNo' => $accessNumber,
@@ -624,21 +628,152 @@ trait DoorAccessTrait
     /**
      * @param $accessNo
      * @param $userId
+     * @param $method
      */
     public function setAccessActionToDelete(
         $accessNo,
         $userId = null,
         $method = DoorAccessConstants::METHOD_CANCELLED
     ) {
-        $controls = $this->getRepo('Door\DoorAccess')->getAddAccessByOrder(
-            $userId,
-            $accessNo
-        );
+        $controls = $this->getContainer()->get('doctrine')
+            ->getRepository('SandboxApiBundle:Door\DoorAccess')
+            ->getAddAccessByOrder(
+                $userId,
+                $accessNo
+            );
 
         if (!empty($controls)) {
             foreach ($controls as $control) {
                 $control->setAction($method);
                 $control->isAccess() ? $control->setAccess(false) : $control->setAccess(true);
+            }
+        }
+    }
+
+    /**
+     * @param $em
+     * @param $base
+     * @param $accessNo
+     * @param $userId
+     * @param $buildingId
+     * @param $startDate
+     * @param $endDate
+     */
+    public function setMembershipCardDoorAccess(
+        $em,
+        $base,
+        $accessNo,
+        $userId,
+        $buildingId,
+        $startDate,
+        $endDate
+    ) {
+        $this->storeDoorAccess(
+            $em,
+            $accessNo,
+            $userId,
+            $buildingId,
+            null,
+            $startDate,
+            $endDate
+        );
+
+        $em->flush();
+
+        $userArray = $this->getUserArrayIfAuthed(
+            $base,
+            $userId,
+            []
+        );
+
+        $groupDoors = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserGroupDoors')
+            ->findBy(array('building' => $buildingId));
+
+        $doorArray = [];
+        foreach ($groupDoors as $groupDoor) {
+            $door = ['doorid' => $groupDoor->getDoorControlId()];
+            array_push($doorArray, $door);
+        }
+
+        // set room access
+        if (!empty($userArray)) {
+            try {
+                $this->setRoomOrderPermission(
+                    $base,
+                    $userArray,
+                    $accessNo,
+                    $startDate,
+                    $endDate,
+                    $doorArray
+                );
+            } catch (\Exception $e) {
+                error_log('Set door access went wrong!');
+            }
+        }
+    }
+
+    /**
+     * @param $accessNo
+     * @param $userId
+     * @param $orderStartDate
+     * @param $orderEndDate
+     * @param $doorBuildingIds
+     */
+    public function addUserDoorAccess(
+        $accessNo,
+        $userIds,
+        $orderStartDate,
+        $orderEndDate,
+        $doorBuildingIds
+    ) {
+        foreach ($doorBuildingIds as $buildingId) {
+            $building = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                ->find($buildingId);
+
+            $base = $building->getServer();
+            if (is_null($base) || empty($base)) {
+                continue;
+            }
+
+            $em = $this->getDoctrine()->getManager();
+
+            $userArray = array();
+            foreach ($userIds as $userId) {
+                $this->storeDoorAccess(
+                    $em,
+                    $accessNo,
+                    $userId,
+                    $buildingId,
+                    null,
+                    $orderStartDate,
+                    $orderEndDate
+                );
+
+                $result = $this->getCardNoByUser($userId);
+                if (
+                    !is_null($result) &&
+                    $result['status'] === DoorController::STATUS_AUTHED
+                ) {
+                    array_push(
+                        $userArray,
+                        array(
+                            'empid' => "$userId",
+                        )
+                    );
+                }
+            }
+
+            $em->flush();
+
+            // send door access to door server
+            if (!empty($userArray)) {
+                $this->addEmployeeToOrder(
+                    $base,
+                    $accessNo,
+                    $userArray
+                );
             }
         }
     }

@@ -292,7 +292,13 @@ sandbox_amin_api_user_profile:
     prefix:   /
 
 # Admin Finance
-sandbox_sales_admin_finance_api:
+sandbox_admin_finance_api:
     resource: "@SandboxAdminApiBundle/Resources/config/finance/routing.yml"
     type: rest
     prefix: /
+
+# Membership Card Order
+sandbox_admin_api_membership_card_order:
+    resource: "@SandboxAdminApiBundle/Controller/MembershipCard/AdminMembershipCardOrderController.php"
+    type:     annotation
+    prefix:   /

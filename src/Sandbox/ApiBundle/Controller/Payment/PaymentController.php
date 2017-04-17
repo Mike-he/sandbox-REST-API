@@ -9,9 +9,10 @@ use Sandbox\ApiBundle\Constants\DoorAccessConstants;
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
+use Sandbox\ApiBundle\Entity\MembershipCard\MembershipCard;
+use Sandbox\ApiBundle\Entity\MembershipCard\MembershipOrder;
 use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
 use Sandbox\ApiBundle\Entity\Order\TopUpOrder;
-use Sandbox\ApiBundle\Entity\Order\MembershipOrder;
 use Sandbox\ApiBundle\Entity\Order\OrderCount;
 use Sandbox\ApiBundle\Entity\Order\OrderMap;
 use Sandbox\ApiBundle\Entity\Food\FoodOrder;
@@ -21,7 +22,9 @@ use Pingpp\Pingpp;
 use Pingpp\Charge;
 use Pingpp\Customer;
 use Pingpp\Error\Base;
+use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
+use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
 use Sandbox\ApiBundle\Traits\YunPianSms;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Sandbox\ApiBundle\Traits\StringUtil;
@@ -990,6 +993,7 @@ class PaymentController extends DoorController
         return $order;
     }
 
+
     /**
      * @param string $orderNumber
      * @param string $channel
@@ -1138,6 +1142,17 @@ class PaymentController extends DoorController
             return;
         }
 
+        // set door access for membership card
+        $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
+        $this->setDoorAccessForMembershipCard(
+            $buildingId,
+            array($order->getUserId()),
+            $order->getStartDate(),
+            $order->getEndDate(),
+            $order->getOrderNumber(),
+            UserGroupHasUser::TYPE_ORDER
+        );
+
         $roomId = $order->getProduct()->getRoom()->getId();
         $roomDoors = $this->getRepo('Room\RoomDoors')->findBy(['room' => $roomId]);
         if (empty($roomDoors)) {
@@ -1208,6 +1223,21 @@ class PaymentController extends DoorController
                 $accessNo,
                 $currentUserArray
             );
+
+            // set user group end date to now
+            $order = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Order\ProductOrder')
+                ->find($accessNo);
+
+            $buildingId = $order->getProduct()->getRoom()->getBuildingId();
+
+            $this->removeUserFromUserGroup(
+                $buildingId,
+                $currentUserArray,
+                $order->getStartDate(),
+                $order->getOrderNumber(),
+                UserGroupHasUser::TYPE_ORDER
+            );
         }
     }
 
@@ -1233,28 +1263,138 @@ class PaymentController extends DoorController
     }
 
     /**
-     * @param $productId
+     * @param $userId
+     * @param $specificationId
      * @param $price
      * @param $orderNumber
+     * @param $channel
      *
      * @return MembershipOrder
      */
     public function setMembershipOrder(
         $userId,
-        $productId,
+        $specificationId,
         $price,
-        $orderNumber
+        $orderNumber,
+        $channel
     ) {
+        // check order number if duplicate
+        $checkOrder = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:MembershipCard\MembershipOrder')
+            ->findOneBy(array(
+                'orderNumber' => $orderNumber,
+            ));
+        if (!is_null($checkOrder)) {
+            return;
+        }
+
+        // save order
+        $specification = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:MembershipCard\MembershipCardSpecification')
+            ->find($specificationId);
+        $card = $specification->getCard();
+        $validPeriod = $specification->getValidPeriod();
+        $unit = $specification->getUnitPrice();
+        $accessNo = $card->getAccessNo();
+
+        $startDate = $this->getLastMembershipOrderEndDate($userId, $card);
+        $endDate = clone $startDate;
+        $endDate = $endDate->modify("+$validPeriod $unit");
+
         $order = new MembershipOrder();
-        $order->setUserId($userId);
-        $order->setProductId($productId);
+        $order->setUser($userId);
         $order->setPrice($price);
         $order->setOrderNumber($orderNumber);
+        $order->setCard($card);
+        $order->setStartDate($startDate);
+        $order->setEndDate($endDate);
+        $order->setPayChannel($channel);
+        $order->setPaymentDate(new \DateTime('now'));
+        $order->setValidPeriod($validPeriod);
+        $order->setUnitPrice($unit);
+        $order->setSpecification($specification->getSpecification());
+
+        $serviceInfo = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
+            ->findOneBy(array(
+                'company' => $specification->getCard()->getCompanyId(),
+                'tradeTypes' => SalesCompanyServiceInfos::TRADE_TYPE_MEMBERSHIP_CARD,
+            ));
+
+        if (!is_null($serviceInfo)) {
+            if ($serviceInfo->getDrawer() == SalesCompanyServiceInfos::COLLECTION_METHOD_SANDBOX) {
+                $order->setSalesInvoice(false);
+            }
+
+            $order->setServiceFee($serviceInfo->getServiceFee());
+        }
+
         $em = $this->getDoctrine()->getManager();
         $em->persist($order);
-        $em->flush();
+
+        // add user to user_group
+        $this->addUserToUserGroup(
+            $em,
+            array($userId),
+            $card,
+            $startDate,
+            $endDate,
+            $orderNumber,
+            UserGroupHasUser::TYPE_CARD
+        );
+
+        // add user to door access$doorBuildingIds = $this->getDoctrine()
+        $doorBuildingIds = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserGroupDoors')
+            ->getBuildingIdsByGroup(
+                null,
+                $card->getId()
+            );
+
+        $this->addUserDoorAccess(
+            $accessNo,
+            array($userId),
+            $startDate,
+            $endDate,
+            $doorBuildingIds
+        );
 
         return $order;
+    }
+
+    /**
+     * @param $userId
+     * @param MembershipCard $card
+     *
+     * @return date
+     */
+    protected function getLastMembershipOrderEndDate(
+        $userId,
+        $card
+    ) {
+        $now = new \DateTime('now');
+
+        $lastMembershipOrder = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:MembershipCard\MembershipOrder')
+            ->getMembershipOrderEndDate(
+                $userId,
+                $card,
+                $now
+            );
+
+        $endDate = $lastMembershipOrder ? $lastMembershipOrder->getEndDate() : $now;
+
+//        if (is_null($lastMembershipOrder)) {
+//            return $now;
+//        }
+
+//        $endDate = $lastMembershipOrder->getEndDate();
+
+//        if ($now > $endDate) {
+//            return $now;
+//        }
+
+        return $endDate;
     }
 
     /**

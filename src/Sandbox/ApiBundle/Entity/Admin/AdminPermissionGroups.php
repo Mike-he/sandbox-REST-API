@@ -19,6 +19,7 @@ class AdminPermissionGroups
     const GROUP_KEY_REFUND = 'refund';
     const GROUP_KEY_SALES = 'sales';
     const GROUP_KEY_DASHBOARD = 'dashboard';
+    const GROUP_KEY_MEMBERSHIP_CARD = 'membership';
 
     const GROUP_PLATFORM_OFFICIAL = 'official';
     const GROUP_PLATFORM_SALES = 'sales';

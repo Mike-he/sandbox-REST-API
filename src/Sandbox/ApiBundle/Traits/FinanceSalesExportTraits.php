@@ -11,6 +11,68 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 trait FinanceSalesExportTraits
 {
     /**
+     * @param $language
+     * @param $membershipOrders
+     *
+     * @return mixed
+     *
+     * @throws \PHPExcel_Exception
+     */
+    public function getMembershipOrderExport(
+        $language,
+        $membershipOrders
+    ) {
+        $phpExcelObject = new \PHPExcel();
+        $phpExcelObject->getProperties()->setTitle('Finance Summary');
+
+        $headers = $this->getSalesExcelHeaders($language);
+
+        //Fill data
+        $phpExcelObject->setActiveSheetIndex(0)->fromArray($headers, ' ', 'A1');
+        $row = $phpExcelObject->getActiveSheet()->getHighestRow() + 1;
+
+        if (!is_null($membershipOrders) && !empty($membershipOrders)) {
+            $membershipBody = $this->setMembershipArray(
+                $membershipOrders,
+                $language
+            );
+
+            $phpExcelObject->setActiveSheetIndex(0)->fromArray($membershipBody, ' ', "A$row");
+        }
+
+        $phpExcelObject->getActiveSheet()->getStyle('A1:R1')->getFont()->setBold(true);
+
+        //set column dimension
+        for ($col = ord('a'); $col <= ord('o'); ++$col) {
+            $phpExcelObject->setActiveSheetIndex(0)->getColumnDimension(chr($col))->setAutoSize(true);
+        }
+        $phpExcelObject->getActiveSheet()->setTitle('Membership Order');
+
+        // Set active sheet index to the first sheet, so Excel opens this as the first sheet
+        $phpExcelObject->setActiveSheetIndex(0);
+
+        // create the writer
+        $writer = $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel5');
+        // create the response
+        $response = $this->get('phpexcel')->createStreamedResponse($writer);
+
+        $now = new \DateTime();
+        $stringDate = $now->format('Y-m');
+
+        // adding headers
+        $dispositionHeader = $response->headers->makeDisposition(
+            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+            'membership_order_'.$stringDate.'.xls'
+        );
+        $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
+        $response->headers->set('Pragma', 'public');
+        $response->headers->set('Cache-Control', 'maxage=1');
+        $response->headers->set('Content-Disposition', $dispositionHeader);
+
+        return $response;
+    }
+
+    /**
      * @param $firstDate
      * @param $language
      * @param $events
@@ -24,7 +86,8 @@ trait FinanceSalesExportTraits
         $language,
         $events,
         $shortOrders,
-        $longBills
+        $longBills,
+        $membershipOrders
     ) {
         $phpExcelObject = new \PHPExcel();
         $phpExcelObject->getProperties()->setTitle('Finance Summary');
@@ -63,6 +126,16 @@ trait FinanceSalesExportTraits
             );
 
             $phpExcelObject->setActiveSheetIndex(0)->fromArray($eventBody, ' ', "A$row");
+            $row = $phpExcelObject->getActiveSheet()->getHighestRow() + 3;
+        }
+
+        if (!is_null($membershipOrders) && !empty($membershipOrders)) {
+            $membershipBody = $this->setMembershipArray(
+                $membershipOrders,
+                $language
+            );
+
+            $phpExcelObject->setActiveSheetIndex(0)->fromArray($membershipBody, ' ', "A$row");
         }
 
         $phpExcelObject->getActiveSheet()->getStyle('A1:R1')->getFont()->setBold(true);
@@ -109,7 +182,7 @@ trait FinanceSalesExportTraits
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_NO, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_PRODUCT_NAME, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ROOM_TYPE, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_USER_ID, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_USERNAME, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_BASE_PRICE, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_UNIT_PRICE, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_AMOUNT, array(), null, $language),
@@ -175,7 +248,10 @@ trait FinanceSalesExportTraits
 
             $productName = $event->getEvent()->getName();
 
-            $userId = $event->getUserId();
+            $profile = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserProfile')
+                ->findOneBy(['userId' => $event->getUserId()]);
+            $username = $profile->getName();
 
             $basePrice = $event->getPrice();
 
@@ -209,7 +285,7 @@ trait FinanceSalesExportTraits
                 $orderNumber,
                 $productName,
                 $roomType,
-                $userId,
+                $username,
                 $basePrice,
                 $unit,
                 $price,
@@ -227,6 +303,133 @@ trait FinanceSalesExportTraits
         }
 
         return $eventBody;
+    }
+
+    /**
+     * @param $membershipOrders
+     * @param $language
+     *
+     * @return array
+     */
+    private function setMembershipArray(
+        $membershipOrders,
+        $language
+    ) {
+        $membershipBody = [];
+
+        $collection = $this->get('translator')->trans(
+            ProductOrderExport::TRANS_CLIENT_PROFILE_SANDBOX,
+            array(),
+            null,
+            $language
+        );
+
+        $orderCategory = $this->get('translator')->trans(
+            ProductOrderExport::TRANS_CLIENT_PROFILE_CARD_ORDER,
+            array(),
+            null,
+            $language
+        );
+
+        $roomType = null;
+
+        $commission = null;
+
+        $orderType = $orderType = $this->get('translator')->trans(
+            ProductOrderExport::TRANS_PRODUCT_ORDER_TYPE.'user',
+            array(),
+            null,
+            $language
+        );
+
+        foreach ($membershipOrders as $order) {
+            $card = $order->getCard();
+
+            $buildingIds = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserGroupDoors')
+                ->getBuildingIdsByGroup(
+                    null,
+                    $card
+                );
+
+            $buildingName = null;
+            foreach ($buildingIds as $buildingId) {
+                $building = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')->find($buildingId);
+                $name = $building ? $building->getName() : null;
+
+                if (is_null($buildingName)) {
+                    $buildingName = $name;
+                } elseif (!is_null($name)) {
+                    $buildingName = $buildingName.", $name";
+                }
+            }
+
+            $orderNumber = $order->getOrderNumber();
+
+            $productName = $card->getName();
+
+            $profile = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserProfile')
+                ->findOneBy(['userId' => $order->getUser()]);
+            $username = $profile->getName();
+
+            $basePrice = $order->getPrice();
+
+            $period = $order->getValidPeriod();
+            $unit = $this->get('translator')->trans(
+                ProductOrderExport::TRANS_ROOM_UNIT.$order->getUnitPrice(),
+                array(),
+                null,
+                $language
+            );
+            $unit = $period.$unit;
+
+            $price = $order->getPrice();
+
+            $actualAmount = $price;
+
+            $income = $actualAmount - $actualAmount * $order->getServiceFee() / 100;
+
+            $leasingTime = $order->getStartDate()->format('Y-m-d H:i:s')
+                .' - '
+                .$order->getEndDate()->format('Y-m-d H:i:s');
+
+            $creationDate = $order->getCreationDate()->format('Y-m-d H:i:s');
+
+            $payDate = $order->getPaymentDate()->format('Y-m-d H:i:s');
+
+            $status = $this->get('translator')->trans(
+                EventOrderExport::TRANS_EVENT_ORDER_STATUS.'completed',
+                array(),
+                null,
+                $language
+            );
+
+            $body = $this->getExportBody(
+                $collection,
+                $buildingName,
+                $orderCategory,
+                $orderNumber,
+                $productName,
+                $roomType,
+                $username,
+                $basePrice,
+                $unit,
+                $price,
+                $actualAmount,
+                $income,
+                $commission,
+                $leasingTime,
+                $creationDate,
+                $payDate,
+                $status,
+                $orderType
+            );
+
+            $membershipBody[] = $body;
+        }
+
+        return $membershipBody;
     }
 
     /**
@@ -292,7 +495,10 @@ trait FinanceSalesExportTraits
                 }
             }
 
-            $userId = $order->getUserId();
+            $profile = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserProfile')
+                ->findOneBy(['userId' => $order->getUserId()]);
+            $username = $profile->getName();
 
             $basePrice = $productInfo['base_price'];
 
@@ -343,7 +549,7 @@ trait FinanceSalesExportTraits
                 $orderNumber,
                 $productName,
                 $roomType,
-                $userId,
+                $username,
                 $basePrice,
                 $unit,
                 $price,
@@ -425,7 +631,10 @@ trait FinanceSalesExportTraits
                 }
             }
 
-            $userId = $lease->getSupervisor()->getId();
+            $profile = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserProfile')
+                ->findOneBy(['userId' => $lease->getSupervisor()->getId()]);
+            $username = $profile->getName();
 
             $basePrice = $product->getBasePrice();
 
@@ -484,7 +693,7 @@ trait FinanceSalesExportTraits
                 $orderNumber,
                 $productName,
                 $roomType,
-                $userId,
+                $username,
                 $basePrice,
                 $unit,
                 $price,
@@ -511,7 +720,7 @@ trait FinanceSalesExportTraits
      * @param $orderNumber
      * @param $productName
      * @param $roomType
-     * @param $userId
+     * @param $username
      * @param $basePrice
      * @param $unit
      * @param $price
@@ -533,7 +742,7 @@ trait FinanceSalesExportTraits
         $orderNumber,
         $productName,
         $roomType,
-        $userId,
+        $username,
         $basePrice,
         $unit,
         $price,
@@ -554,7 +763,7 @@ trait FinanceSalesExportTraits
             ProductOrderExport::ORDER_NUMBER => $orderNumber,
             ProductOrderExport::PRODUCT_NAME => $productName,
             ProductOrderExport::ROOM_TYPE => $roomType,
-            ProductOrderExport::USER_ID => $userId,
+            ProductOrderExport::USERNAME => $username,
             ProductOrderExport::BASE_PRICE => $basePrice,
             ProductOrderExport::UNIT_PRICE => $unit,
             ProductOrderExport::AMOUNT => $price,

@@ -6,6 +6,7 @@ use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentServiceBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
+use Sandbox\ApiBundle\Entity\MembershipCard\MembershipOrder;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Order\TopUpOrder;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
@@ -85,7 +86,7 @@ class ClientPaymentController extends PaymentController
         $price = $object['amount'] / 100;
         $orderNumber = $object['order_no'];
         $channel = $object['channel'];
-        $userId = (int) $object['body'];
+        $body = $object['body'];
         $orderType = $orderNumber[0];
 
         switch ($orderType) {
@@ -109,23 +110,23 @@ class ClientPaymentController extends PaymentController
 //            case 'V':
 //                $productId = $myCharge->getOrderId();
 //                $order = $this->setMembershipOrder(
-//                    $userId,
+//                    $body,
 //                    $productId,
 //                    $price,
 //                    $orderNumber
 //                );
 //                $this->postAccountUpgrade(
-//                    $userId,
+//                    $body,
 //                    $productId,
 //                    $orderNumber
 //                );
 //                $amount = $this->postConsumeBalance(
-//                    $userId,
+//                    $body,
 //                    $price,
 //                    $orderNumber
 //                );
 //                $balance = $this->postBalanceChange(
-//                    $userId,
+//                    $body,
 //                    0,
 //                    $orderNumber,
 //                    $channel,
@@ -135,20 +136,20 @@ class ClientPaymentController extends PaymentController
 //                break;
             case 'T':
                 $this->setTopUpOrder(
-                    $userId,
+                    $body,
                     $price,
                     $orderNumber,
                     $channel
                 );
                 $balance = $this->postBalanceChange(
-                    $userId,
+                    $body,
                     $price,
                     $orderNumber,
                     $channel,
                     $price
                 );
                 $amount = $this->postConsumeBalance(
-                    $userId,
+                    $body,
                     $price,
                     $orderNumber
                 );
@@ -167,12 +168,12 @@ class ClientPaymentController extends PaymentController
 //                $result = $this->foodPaymentCallback($data);
 
 //                $amount = $this->postConsumeBalance(
-//                    $userId,
+//                    $body,
 //                    $price,
 //                    $orderNumber
 //                );
 //                $balance = $this->postBalanceChange(
-//                    $userId,
+//                    $body,
 //                    0,
 //                    $orderNumber,
 //                    $channel,
@@ -240,6 +241,35 @@ class ClientPaymentController extends PaymentController
                 }
 
                 $orderMap = LeaseBill::BILL_MAP;
+                break;
+            case 'M':
+                $bodyArray = json_decode($body, true);
+                $userId = $bodyArray['user_id'];
+                $specificationId = $bodyArray['specification_id'];
+
+                $membershipOrder = $this->setMembershipOrder(
+                    $userId,
+                    $specificationId,
+                    $price,
+                    $orderNumber,
+                    $channel
+                );
+
+                // add invoice amount
+                if (!$membershipOrder->isSalesInvoice()) {
+                    $this->postConsumeBalance(
+                        $membershipOrder->getUser(),
+                        $price,
+                        $orderNumber
+                    );
+
+                    $membershipOrder->setInvoiced(true);
+
+                    $em = $this->getDoctrine()->getManager();
+                    $em->flush();
+                }
+
+                $orderMap = MembershipOrder::TOP_UP_MAP;
                 break;
             default:
                 $orderMap = null;

@@ -20,7 +20,6 @@ class Version920170217024630 extends AbstractMigration implements ContainerAware
      */
     public function up(Schema $schema)
     {
-
     }
 
     public function postUp(Schema $schema)
@@ -38,7 +37,7 @@ class Version920170217024630 extends AbstractMigration implements ContainerAware
             if (!is_null($existWallet)) {
                 continue;
             }
-            
+
             $wallet = new FinanceSalesWallet();
             $wallet->setCompanyId($companyId);
 
@@ -53,6 +52,5 @@ class Version920170217024630 extends AbstractMigration implements ContainerAware
      */
     public function down(Schema $schema)
     {
-
     }
 }

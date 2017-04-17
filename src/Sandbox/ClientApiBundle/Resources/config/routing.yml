@@ -144,12 +144,6 @@ sandbox_client_api_payment:
     type:     annotation
     prefix:   /
 
-# MembershipOrders /membership
-sandbox_client_api_membership_order:
-    resource: "@SandboxClientApiBundle/Controller/Order/ClientMembershipOrderController.php"
-    type:     annotation
-    prefix:   /
-
 # TopUpOrders /topup
 sandbox_client_api_topup_order:
     resource: "@SandboxClientApiBundle/Controller/Order/ClientTopUpOrderController.php"
@@ -375,5 +369,17 @@ sandbox_client_api_user_invoice_categories:
 # User Customer Service
 sandbox_client_api_customer_service:
     resource: "@SandboxClientApiBundle/Controller/CustomerService/ClientCustomerServiceController.php"
+    type:     annotation
+    prefix:   /
+
+# User Membership Cards
+sandbox_client_api_membership_card:
+    resource: "@SandboxClientApiBundle/Controller/MembershipCard/ClientMembershipCardController.php"
+    type:     annotation
+    prefix:   /
+
+# User Membership Orders
+sandbox_client_api_membership_order:
+    resource: "@SandboxClientApiBundle/Controller/MembershipCard/ClientMembershipOrderController.php"
     type:     annotation
     prefix:   /

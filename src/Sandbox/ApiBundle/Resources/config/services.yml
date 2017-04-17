@@ -5,3 +5,9 @@ services:
     sandbox_api.admin_platform:
         class: Sandbox\ApiBundle\Service\AdminPlatformService
         arguments: ['@service_container', '@security.token_storage']
+    sandbox_api.order:
+        class: Sandbox\ApiBundle\Service\OrderService
+        arguments: ['@service_container']
+    sandbox_api.group_user:
+        class: Sandbox\ApiBundle\Service\GroupUsersService
+        arguments: ['@service_container']

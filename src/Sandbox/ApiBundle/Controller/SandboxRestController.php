@@ -8,6 +8,7 @@ use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Auth\Auth;
 use Sandbox\ApiBundle\Entity\Log\Log;
+use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
 use Sandbox\ApiBundle\Form\Log\LogType;
 use Sandbox\ApiBundle\Traits\CurlUtil;
 use Sandbox\ApiBundle\Traits\LogsTrait;
@@ -1980,5 +1981,144 @@ class SandboxRestController extends FOSRestController
         }
 
         return false;
+    }
+
+    /**
+     * @param $buildingId
+     * @param $userIds
+     * @param $startDate
+     * @param $endDate
+     * @param $orderNumber
+     * @param $type
+     */
+    protected function setDoorAccessForMembershipCard(
+        $buildingId,
+        $userIds,
+        $startDate,
+        $endDate,
+        $orderNumber,
+        $type = UserGroupHasUser::TYPE_ORDER
+    ) {
+        $door = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserGroupDoors')
+            ->getGroupsByBuilding(
+                $buildingId,
+                true
+            );
+
+        if (is_null($door)) {
+            return;
+        }
+
+        $now = new \DateTime('now');
+        $card = $door->getCard();
+        $accessNo = $card->getAccessNo();
+
+        // add user to user_group
+        $em = $this->getDoctrine()->getManager();
+        $this->addUserToUserGroup(
+            $em,
+            $userIds,
+            $card,
+            $startDate,
+            $endDate,
+            $orderNumber,
+            $type
+        );
+
+        // add user to door access
+        if ($now >= $startDate) {
+            $this->addUserDoorAccess(
+                $accessNo,
+                $userIds,
+                $startDate,
+                $endDate,
+                array($buildingId)
+            );
+        }
+    }
+
+    /**
+     * @param $em
+     * @param $userIds
+     * @param $card
+     * @param $startDate
+     * @param $endDate
+     * @param $orderNumber
+     * @param $type
+     */
+    protected function addUserToUserGroup(
+        $em,
+        $userIds,
+        $card,
+        $startDate,
+        $endDate,
+        $orderNumber,
+        $type
+    ) {
+        $userGroup = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserGroup')
+            ->findOneBy(array(
+                'card' => $card->getId(),
+            ));
+
+        if (is_null($userGroup)) {
+            return;
+        }
+
+        foreach ($userIds as $userId) {
+            $this->get('sandbox_api.group_user')->storeGroupUser(
+                $em,
+                $userGroup->getId(),
+                $userId,
+                $type,
+                $startDate,
+                $endDate,
+                $orderNumber
+            );
+        }
+
+        $em->flush();
+    }
+
+    /**
+     * @param $buildingId
+     * @param $userIds
+     * @param $startDate
+     * @param $orderNumber
+     * @param $type
+     */
+    protected function removeUserFromUserGroup(
+        $buildingId,
+        $userIds,
+        $startDate,
+        $orderNumber,
+        $type
+    ) {
+        $door = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserGroupDoors')
+            ->getGroupsByBuilding(
+                $buildingId,
+                true
+            );
+
+        if (is_null($door)) {
+            return;
+        }
+
+        $now = new \DateTime('now');
+        $card = $door->getCard();
+
+        // add user to user_group
+        $em = $this->getDoctrine()->getManager();
+        $this->addUserToUserGroup(
+            $em,
+            $userIds,
+            $card,
+            $startDate,
+            $now,
+            $orderNumber,
+            $type
+        );
     }
 }

@@ -39,7 +39,7 @@ class DoorAccess
     /**
      * @var int
      *
-     * @ORM\Column(name="roomId", type="integer")
+     * @ORM\Column(name="roomId", type="integer", nullable=true)
      */
     private $roomId;
 

@@ -19,6 +19,7 @@ trait FinanceOfficialExportTraits
      * @param $shortOrders
      * @param $longBills
      * @param $shopOrders
+     * @param $cardOrders
      *
      * @return mixed
      */
@@ -29,7 +30,8 @@ trait FinanceOfficialExportTraits
         $shortOrders,
         $longBills,
         $shopOrders,
-        $topUpOrders
+        $topUpOrders,
+        $cardOrders
     ) {
         $phpExcelObject = new \PHPExcel();
         $phpExcelObject->getProperties()->setTitle('Finance Summary');
@@ -88,9 +90,21 @@ trait FinanceOfficialExportTraits
             );
 
             $phpExcelObject->setActiveSheetIndex(0)->fromArray($topUpBody, ' ', "A$row");
+            $row = $phpExcelObject->getActiveSheet()->getHighestRow() + 3;
+        }
+
+        if (!is_null($cardOrders) && !empty($cardOrders)) {
+            $cardOrderBody = $this->setCardOrderArray(
+                $cardOrders,
+                $language
+            );
+
+            $phpExcelObject->setActiveSheetIndex(0)->fromArray($cardOrderBody, ' ', "A$row");
         }
 
         $phpExcelObject->getActiveSheet()->getStyle('A1:V1')->getFont()->setBold(true);
+        $phpExcelObject->getActiveSheet()->getStyle('C2:C'.$phpExcelObject->getActiveSheet()->getHighestRow())
+            ->getAlignment()->setWrapText(true);
         $phpExcelObject->getActiveSheet()->getStyle('F2:F'.$phpExcelObject->getActiveSheet()->getHighestRow())
             ->getAlignment()->setWrapText(true);
         $phpExcelObject->getActiveSheet()->getStyle('G2:G'.$phpExcelObject->getActiveSheet()->getHighestRow())
@@ -775,6 +789,132 @@ trait FinanceOfficialExportTraits
         }
 
         return $topUpBody;
+    }
+
+    /**
+     * @param $cardOrders
+     * @param $language
+     *
+     * @return array
+     */
+    private function setCardOrderArray(
+        $cardOrders,
+        $language
+    ) {
+        $cardOrderBody = array();
+
+        $collection = $this->get('translator')->trans(
+            ProductOrderExport::TRANS_CLIENT_PROFILE_SANDBOX,
+            array(),
+            null,
+            $language
+        );
+
+        $orderCategory = $this->get('translator')->trans(
+            ProductOrderExport::TRANS_CLIENT_PROFILE_CARD_ORDER,
+            array(),
+            null,
+            $language
+        );
+
+        foreach ($cardOrders as $cardOrder) {
+            $companyId = $cardOrder->getCard()->getCompanyId();
+
+            if (is_null($companyId)) {
+                $companyName = '';
+            } else {
+                $company = $this->getDoctrine()->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')->find($companyId);
+                $companyName = $company ? $company->getName() : null;
+            }
+
+            $doors = $this->get('doctrine.orm.entity_manager')
+                ->getRepository('SandboxApiBundle:User\UserGroupDoors')
+                ->findBy(array(
+                    'card' => $cardOrder->getCard(),
+                ));
+
+            $buildingName = '';
+            foreach ($doors as $door) {
+                $building = $this->get('doctrine.orm.entity_manager')
+                    ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                    ->find($door->getBuilding());
+
+                $buildingName .= $building->getName()."\n";
+            }
+            $buildingName = trim($buildingName);
+
+            $orderNumber = $cardOrder->getOrderNumber();
+            $productName = $cardOrder->getCard()->getName().$cardOrder->getSpecification();
+            $userId = $cardOrder->getUser();
+            $basePrice = $cardOrder->getPrice();
+
+            $unit = $this->get('translator')->trans(
+                ProductOrderExport::TRANS_ROOM_UNIT.$cardOrder->getUnitPrice(),
+                array(),
+                null,
+                $language
+            );
+            $unit = $cardOrder->getValidPeriod().$unit;
+            $actualAmount = $basePrice;
+            $income = $actualAmount;
+            $commission = $cardOrder->getServiceFee();
+            $creationDate = $cardOrder->getCreationDate()->format('Y-m-d H:i:s');
+            $payDate = $cardOrder->getPaymentDate()->format('Y-m-d H:i:s');
+
+            $status = $this->get('translator')->trans(
+                ProductOrderExport::TRANS_PRODUCT_ORDER_STATUS.'completed',
+                array(),
+                null,
+                $language
+            );
+
+            $paymentChannel = $cardOrder->getPayChannel();
+
+            if (!is_null($paymentChannel)) {
+                $paymentChannel = $this->get('translator')->trans(
+                    ProductOrderExport::TRANS_PRODUCT_ORDER_CHANNEL.$paymentChannel,
+                    array(),
+                    null,
+                    $language
+                );
+            }
+
+            $orderType = $this->get('translator')->trans(
+                ProductOrderExport::TRANS_PRODUCT_ORDER_TYPE.'user',
+                array(),
+                null,
+                $language
+            );
+
+            $body = $this->getExportBody(
+                $companyName,
+                $collection,
+                $buildingName,
+                $orderCategory,
+                $orderNumber,
+                $productName,
+                null,
+                $userId,
+                $basePrice,
+                $unit,
+                $basePrice,
+                $actualAmount,
+                null,
+                $income,
+                $commission,
+                null,
+                $creationDate,
+                $payDate,
+                $status,
+                null,
+                $paymentChannel,
+                $orderType
+            );
+
+            $cardOrderBody[] = $body;
+        }
+
+        return $cardOrderBody;
     }
 
     /**
