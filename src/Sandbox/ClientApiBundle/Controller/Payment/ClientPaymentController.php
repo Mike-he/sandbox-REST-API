@@ -247,13 +247,27 @@ class ClientPaymentController extends PaymentController
                 $userId = $bodyArray['user_id'];
                 $specificationId = $bodyArray['specification_id'];
 
-                $this->setMembershipOrder(
+                $membershipOrder = $this->setMembershipOrder(
                     $userId,
                     $specificationId,
                     $price,
                     $orderNumber,
                     $channel
                 );
+
+                // add invoice amount
+                if (!$membershipOrder->isSalesInvoice()) {
+                    $this->postConsumeBalance(
+                        $membershipOrder->getUser(),
+                        $price,
+                        $orderNumber
+                    );
+
+                    $membershipOrder->setInvoiced(true);
+
+                    $em = $this->getDoctrine()->getManager();
+                    $em->flush();
+                }
 
                 $orderMap = MembershipOrder::TOP_UP_MAP;
                 break;
