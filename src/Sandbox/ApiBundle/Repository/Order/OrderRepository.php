@@ -4193,7 +4193,7 @@ class OrderRepository extends EntityRepository
             ->setParameter('date', $date)
             ->setParameter('paid', ProductOrder::STATUS_PAID)
             ->setParameter('completed', ProductOrder::STATUS_COMPLETED)
-            ->setParameter('rejected', true);
+            ->setParameter('rejected', false);
 
         $result = $query->getQuery()->getResult();
 
