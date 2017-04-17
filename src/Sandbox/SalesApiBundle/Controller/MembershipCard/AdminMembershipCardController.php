@@ -71,7 +71,13 @@ class AdminMembershipCardController extends SalesRestController
 
         $membershipCards = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:MembershipCard\MembershipCard')
-            ->findBy(array('companyId' => $salesCompanyId));
+            ->findBy(
+                array('companyId' => $salesCompanyId),
+                array(
+                    'visible' => 'DESC',
+                    'creationDate' => 'DESC',
+                )
+            );
 
         $count = count($membershipCards);
 
@@ -475,7 +481,7 @@ class AdminMembershipCardController extends SalesRestController
         $group
     ) {
         $now = new \DateTime('now');
-        $now->setTime(0,0,0);
+        $now->setTime(0, 0, 0);
         $accessNo = $card->getAccessNo();
 
         $buildings = $this->getDoctrine()
