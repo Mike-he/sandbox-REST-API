@@ -2,7 +2,8 @@
 
 # cron jobs
 sudo crontab -e
-# 30 0 * * * php /var/www/Sandbox/sandbox-REST-API/app/console sandbox:api-bundle:group_user_check
+# */5 * * * * php /var/www/Sandbox/sandbox-REST-API/app/console sandbox:api-bundle:add_group_user_to_doors
+# 30 0 * * * php /var/www/Sandbox/sandbox-REST-API/app/console sandbox:api-bundle:remove_group_user_to_doors
 
 
 ## Version 2.3.8
