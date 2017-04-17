@@ -80,7 +80,7 @@ class AddGroupUserToDoorsCommand extends ContainerAwareCommand
                         );
                         $result = $this->getCardNoByUser($user);
                         if (
-                            !is_null($result) &&
+                            !is_null($result) && !empty($result) &&
                             $result['status'] === DoorController::STATUS_AUTHED
                         ) {
                             array_push(
