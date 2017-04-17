@@ -3,6 +3,7 @@
 namespace Sandbox\ClientApiBundle\Controller\MembershipCard;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
+use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -54,6 +55,7 @@ class ClientMembershipCardController extends SandboxRestController
                     $card
                 );
 
+            $unitPrice = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_UNIT.$specification->getUnitPrice());
             $ordersUrl = $this->container->getParameter('orders_url');
             $url = $ordersUrl.'/member?ptype=productDetail&productId='.$card->getId();
 
@@ -63,7 +65,7 @@ class ClientMembershipCardController extends SandboxRestController
                 'card_image' => $card->getBackground(),
                 'min_price' => $specification->getPrice(),
                 'min_valid_period' => $specification->getValidPeriod(),
-                'min_unit_price' => $specification->getUnitPrice(),
+                'min_unit_price' => $unitPrice,
                 'order_url' => $url,
             ));
         }
