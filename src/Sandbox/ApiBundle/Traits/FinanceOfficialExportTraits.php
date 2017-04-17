@@ -862,7 +862,7 @@ trait FinanceOfficialExportTraits
             $payDate = $cardOrder->getPaymentDate()->format('Y-m-d H:i:s');
 
             $status = $this->get('translator')->trans(
-                ProductOrderExport::TRANS_PRODUCT_ORDER_STATUS.$cardOrder->getStatus(),
+                ProductOrderExport::TRANS_PRODUCT_ORDER_STATUS.'completed',
                 array(),
                 null,
                 $language
