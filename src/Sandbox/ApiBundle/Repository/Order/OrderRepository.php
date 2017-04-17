@@ -4188,10 +4188,12 @@ class OrderRepository extends EntityRepository
             ->where('r.building in (:building)')
             ->andWhere('o.endDate >= :date')
             ->andWhere('o.status = :paid OR o.status = :completed')
+            ->andWhere('o.rejected = :rejected')
             ->setParameter('building', $buildingIds)
             ->setParameter('date', $date)
             ->setParameter('paid', ProductOrder::STATUS_PAID)
-            ->setParameter('completed', ProductOrder::STATUS_COMPLETED);
+            ->setParameter('completed', ProductOrder::STATUS_COMPLETED)
+            ->setParameter('rejected', false);
 
         $result = $query->getQuery()->getResult();
 
