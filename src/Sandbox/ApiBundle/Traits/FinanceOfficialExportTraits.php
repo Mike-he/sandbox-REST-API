@@ -845,7 +845,7 @@ trait FinanceOfficialExportTraits
 
             $orderNumber = $cardOrder->getOrderNumber();
             $productName = $cardOrder->getCard()->getName().$cardOrder->getSpecification();
-            $userId = $cardOrder->getUserId();
+            $userId = $cardOrder->getUser();
             $basePrice = $cardOrder->getPrice();
 
             $unit = $this->get('translator')->trans(
