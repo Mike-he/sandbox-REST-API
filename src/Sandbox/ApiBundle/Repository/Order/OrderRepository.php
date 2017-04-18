@@ -3434,6 +3434,11 @@ class OrderRepository extends EntityRepository
             ->setParameter('start', $startDate)
             ->setParameter('end', $endDate);
 
+        if (!is_null($payChannel)) {
+            $cardOrderAmountQuery->andWhere('mo.payChannel = :payChannel')
+                ->setParameter('payChannel', $payChannel);
+        }
+
         $cardOrderAmount = $cardOrderAmountQuery->getQuery()
             ->getSingleScalarResult();
         $cardOrderAmount = (float) $cardOrderAmount;
@@ -3573,6 +3578,11 @@ class OrderRepository extends EntityRepository
             ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
             ->setParameter('start', $startDate)
             ->setParameter('end', $endDate);
+
+        if (!is_null($payChannel)) {
+            $cardOrderCountQuery->andWhere('mo.payChannel = :payChannel')
+                ->setParameter('payChannel', $payChannel);
+        }
 
         $cardOrderCount = $cardOrderCountQuery->getQuery()
             ->getSingleScalarResult();
