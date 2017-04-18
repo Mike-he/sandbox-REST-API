@@ -37,7 +37,8 @@ class UserGroupHasUserRepository extends EntityRepository
      */
     public function getGroupsByUser(
         $user,
-        $type
+        $type,
+        $salesCompanyId
     ) {
         $query = $this->createQueryBuilder('u')
             ->select('
@@ -48,8 +49,10 @@ class UserGroupHasUserRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:User\UserGroup', 'ug', 'WITH', 'ug.id = u.groupId')
             ->where('u.userId = :user')
             ->andWhere('u.type in (:type)')
+            ->andWhere('ug.companyId = :companyId')
             ->setParameter('user', $user)
-            ->setParameter('type', $type);
+            ->setParameter('type', $type)
+            ->setParameter('companyId', $salesCompanyId);
 
         $query = $query->groupBy('u.groupId')
             ->addGroupBy('u.type');

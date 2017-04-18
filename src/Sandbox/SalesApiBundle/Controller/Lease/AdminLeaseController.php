@@ -637,6 +637,15 @@ class AdminLeaseController extends SalesRestController
                         null,
                         $contentArray
                     );
+
+                    // set user group end date to now
+                    $this->removeUserFromUserGroup(
+                        $lease->getBuilding()->getId(),
+                        $removeUsers,
+                        $lease->getStartDate(),
+                        $lease->getSerialNumber(),
+                        UserGroupHasUser::TYPE_LEASE
+                    );
                 } else {
                     // send Jpush notification
                     $this->generateJpushNotification(
