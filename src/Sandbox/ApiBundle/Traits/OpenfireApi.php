@@ -89,18 +89,31 @@ trait OpenfireApi
 
         $mysqli = mysqli_connect($db_host, $db_user, $db_pwd, $db_name);
 
-        if(!$mysqli ){
+        if (!$mysqli) {
             echo mysqli_connect_error();
         }
 
-        $query = 'select * from ofmessagearchive where toJID = '.$toJID;
+        $query = "select * from ofmessagearchive where status = 'message' and toJID = ".$toJID;
+
 
         $result = $mysqli->query($query);
         $message = array();
         if ($result) {
             if ($result->num_rows > 0) {                        //判断结果集中行的数目是否大于0
                 while ($row = $result->fetch_array()) {       //循环输出结果集中的记录
-                   $message[] = $row;
+                   $message[] = array(
+                        'messageID' => $row['messageID'],
+                        'conversationID' => $row['conversationID'],
+                        'fromJID' => $row['fromJID'],
+                        'fromJIDResource' => $row['fromJIDResource'],
+                        'toJID' => $row['toJID'],
+                        'toJIDResource' => $row['toJIDResource'],
+                        'sentDate' => $row['sentDate'],
+                        'body' => $row['body'],
+                        'type' => $row['type'],
+                        'status' => $row['status'],
+                        'company' => $row['company'],
+                   );
                 }
             }
         } else {
