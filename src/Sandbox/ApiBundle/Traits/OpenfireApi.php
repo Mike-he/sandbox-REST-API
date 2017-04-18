@@ -73,4 +73,41 @@ trait OpenfireApi
             error_log('Call Openfire API went wrong!');
         }
     }
+
+    /**
+     * @param $toJID
+     *
+     * @return array
+     */
+    protected function getHistoryMessage(
+        $toJID
+    ) {
+        $db_host = $this->getContainer()->getParameter('database_host');
+        $db_name = $this->getContainer()->getParameter('openfire_db_name');
+        $db_user = $this->getContainer()->getParameter('openfire_db_user');
+        $db_pwd = $this->getContainer()->getParameter('openfire_db_password');
+
+        $mysqli = mysqli_connect($db_host, $db_user, $db_pwd, $db_name);
+
+        if(!$mysqli ){
+            echo mysqli_connect_error();
+        }
+
+        $query = 'select * from ofmessagearchive where toJID = '.$toJID;
+
+        $result = $mysqli->query($query);
+        $message = array();
+        if ($result) {
+            if ($result->num_rows > 0) {                        //判断结果集中行的数目是否大于0
+                while ($row = $result->fetch_array()) {       //循环输出结果集中的记录
+                   $message[] = $row;
+                }
+            }
+        } else {
+            echo '查询失败';
+        }
+        $mysqli->close();
+
+        return $message;
+    }
 }

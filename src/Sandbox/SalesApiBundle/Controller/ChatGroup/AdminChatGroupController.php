@@ -7,6 +7,7 @@ use Sandbox\ApiBundle\Controller\ChatGroup\ChatGroupController;
 use Sandbox\ApiBundle\Entity\ChatGroup\ChatGroup;
 use Sandbox\ApiBundle\Entity\ChatGroup\ChatGroupMember;
 use Sandbox\ApiBundle\Form\ChatGroup\ChatGroupType;
+use Sandbox\ApiBundle\Traits\OpenfireApi;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -26,6 +27,8 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  */
 class AdminChatGroupController extends ChatGroupController
 {
+    use OpenfireApi;
+
     /**
      * Retrieve all other service members by sales company.
      *
@@ -419,5 +422,37 @@ class AdminChatGroupController extends ChatGroupController
 
         // response
         return new View($myServices);
+    }
+
+    /**
+     * Get History Message.
+     *
+     * @param Request $request the request object
+     *
+     * @Annotations\QueryParam(
+     *    name="toJID",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description=""
+     * )
+     *
+     * @Route("/chatgroups/service/history/message")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getHistoryMessageAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $toJID = $paramFetcher->get('toJID');
+
+        $toJID = '"'.$toJID.'"';
+
+        $message = $this->getHistoryMessage($toJID);
+
+        return new View($message);
     }
 }

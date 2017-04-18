@@ -119,3 +119,7 @@ parameters:
     orders_url: https://testorders.sandbox3.cn
     coffee_url: https://testcoffee.sandbox3.cn
     invoice_url: https://testinvoice.sandbox3.cn
+
+    openfire_db_name: staging_xmpp_db
+    openfire_db_user: staging_xmpp
+    openfire_db_password: Sandhill2290

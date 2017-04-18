@@ -130,3 +130,7 @@ parameters:
     orders_url: http://devorders.sandbox3.cn
     coffee_url: http://devcoffee.sandbox3.cn
     invoice_url: http://devinvoice.sandbox3.cn
+
+    openfire_db_name: openfire
+    openfire_db_user: sandbox
+    openfire_db_password: sandbox
