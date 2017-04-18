@@ -113,3 +113,7 @@ parameters:
     orders_url: https://orders.sandbox3.cn
     coffee_url: https://coffee.sandbox3.cn
     invoice_url: https://invoice.sandbox3.cn
+
+    openfire_db_name: production_xmpp_db
+    openfire_db_user: production_xmpp
+    openfire_db_password: Sandhill2290
