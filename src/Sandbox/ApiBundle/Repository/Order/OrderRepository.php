@@ -3434,6 +3434,11 @@ class OrderRepository extends EntityRepository
             ->setParameter('start', $startDate)
             ->setParameter('end', $endDate);
 
+        if (!is_null($payChannel)) {
+            $cardOrderAmountQuery->andWhere('mo.payChannel = :payChannel')
+                ->setParameter('payChannel', $payChannel);
+        }
+
         $cardOrderAmount = $cardOrderAmountQuery->getQuery()
             ->getSingleScalarResult();
         $cardOrderAmount = (float) $cardOrderAmount;
@@ -3563,16 +3568,21 @@ class OrderRepository extends EntityRepository
             ->getSingleScalarResult();
         $topUpCount = (int) $topUpCount;
 
-        // membership card order amount
+        // membership card order count
         $cardOrderCountQuery = $this->getEntityManager()->createQueryBuilder()
             ->from('SandboxApiBundle:MembershipCard\MembershipOrder', 'mo')
-            ->select('SUM(mo.price)')
+            ->select('COUNT(mo.price)')
             ->where('mo.paymentDate >= :start')
             ->andWhere('mo.paymentDate <= :end')
             ->andWhere('mo.paymentDate != :account')
             ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
             ->setParameter('start', $startDate)
             ->setParameter('end', $endDate);
+
+        if (!is_null($payChannel)) {
+            $cardOrderCountQuery->andWhere('mo.payChannel = :payChannel')
+                ->setParameter('payChannel', $payChannel);
+        }
 
         $cardOrderCount = $cardOrderCountQuery->getQuery()
             ->getSingleScalarResult();
@@ -4121,7 +4131,7 @@ class OrderRepository extends EntityRepository
     ) {
         $cardOrderCountQuery = $this->getEntityManager()->createQueryBuilder()
             ->from('SandboxApiBundle:MembershipCard\MembershipOrder', 'mo')
-            ->select('SUM(mo.price)')
+            ->select('COUNT(mo.price)')
             ->where('mo.paymentDate >= :start')
             ->andWhere('mo.paymentDate <= :end')
             ->andWhere('mo.payChannel = :account')
@@ -4131,7 +4141,7 @@ class OrderRepository extends EntityRepository
 
         $cardOrderCount = $cardOrderCountQuery->getQuery()
             ->getSingleScalarResult();
-        $cardOrderCount = (float) $cardOrderCount;
+        $cardOrderCount = (int) $cardOrderCount;
 
         return $cardOrderCount;
     }

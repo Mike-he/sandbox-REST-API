@@ -193,6 +193,9 @@ class AdminUsersController extends DoorController
             AdminPermission::OP_LEVEL_VIEW
         );
 
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
         $offset = ($pageIndex - 1) * $pageLimit;
@@ -276,7 +279,10 @@ class AdminUsersController extends DoorController
                 $hidePhone = substr_replace($user->getPhone(), '****', 3, 4);
                 $user->setPhone($hidePhone);
             }
-            $groups = $this->getGroupsByUser($user->getId());
+            $groups = $this->getGroupsByUser(
+                $user->getId(),
+                $salesCompanyId
+            );
             $user->setGroups($groups);
         }
 
@@ -945,7 +951,8 @@ class AdminUsersController extends DoorController
      * @return array
      */
     private function getGroupsByUser(
-        $user
+        $user,
+        $salesCompanyId
     ) {
         $type = [UserGroupHasUser::TYPE_CARD, UserGroupHasUser::TYPE_ADD];
 
@@ -953,7 +960,8 @@ class AdminUsersController extends DoorController
             ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
             ->getGroupsByUser(
                 $user,
-                $type
+                $type,
+                $salesCompanyId
             );
         $group = array();
         foreach ($groupMembers as $groupMember) {

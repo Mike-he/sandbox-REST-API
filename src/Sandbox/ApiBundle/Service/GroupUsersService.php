@@ -35,29 +35,32 @@ class GroupUsersService
         $end = null,
         $orderNumber = null
     ) {
-        $groupUser = $this->container->get('doctrine')
+        $groupUsers = $this->container->get('doctrine')
             ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
-            ->findOneBy(
+            ->findBy(
                 array(
-                    'groupId' => $group,
+//                    'groupId' => $group,
                     'userId' => $user,
                     'type' => $type,
                     'orderNumber' => $orderNumber,
                 )
             );
 
-        if (is_null($groupUser)) {
+        if (is_null($groupUsers)) {
             $groupUser = new UserGroupHasUser();
             $groupUser->setGroupId($group);
             $groupUser->setUserId($user);
             $groupUser->setType($type);
             $groupUser->setStartDate($start);
             $groupUser->setOrderNumber($orderNumber);
+            $groupUser->setEndDate($end);
+            $em->persist($groupUser);
+        } else {
+            foreach ($groupUsers as $groupUser) {
+                $groupUser->setEndDate($end);
+                $em->persist($groupUser);
+            }
         }
-
-        $groupUser->setEndDate($end);
-
-        $em->persist($groupUser);
     }
 
     /**
