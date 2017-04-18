@@ -113,6 +113,15 @@ class AdminMembershipCardOrderController extends SandboxRestController
      *    description="company id"
      * )
      *
+     * @Annotations\QueryParam(
+     *     name="user",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     requirements="\d+",
+     *     strict=true
+     * )
+     *
      * @Method({"GET"})
      * @Route("/membership/cards/orders/list")
      *
@@ -136,6 +145,7 @@ class AdminMembershipCardOrderController extends SandboxRestController
         $createStart = $paramFetcher->get('create_start');
         $createEnd = $paramFetcher->get('create_end');
         $companyId = $paramFetcher->get('company');
+        $userId = $paramFetcher->get('user');
 
         $limit = $pageLimit;
         $offset = ($pageIndex - 1) * $pageLimit;
@@ -152,7 +162,9 @@ class AdminMembershipCardOrderController extends SandboxRestController
                 $createEnd,
                 $limit,
                 $offset,
-                $companyId
+                $companyId,
+                null,
+                $userId
             );
 
         $count = $this->getDoctrine()

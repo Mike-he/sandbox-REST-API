@@ -58,6 +58,7 @@ class MembershipCardOrderRepository extends EntityRepository
      * @param $offset
      * @param $companyId
      * @param null $cardId
+     * @param null $userId
      *
      * @return array
      */
@@ -72,7 +73,8 @@ class MembershipCardOrderRepository extends EntityRepository
         $limit,
         $offset,
         $companyId,
-        $cardId = null
+        $cardId = null,
+        $userId = null
     ) {
         $query = $this->createQueryBuilder('mo')
             ->select('DISTINCT mo')
@@ -156,6 +158,12 @@ class MembershipCardOrderRepository extends EntityRepository
                 $query->andWhere('mo.creationDate <= :createEnd')
                     ->setParameter('createEnd', $createEnd);
             }
+        }
+
+        // filter by userId
+        if (!is_null($userId)) {
+            $query->andWhere('mo.user = :userId')
+                ->setParameter('userId', $userId);
         }
 
         $query->orderBy('mo.creationDate', 'DESC');
