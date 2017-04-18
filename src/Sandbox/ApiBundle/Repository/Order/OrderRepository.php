@@ -3563,10 +3563,10 @@ class OrderRepository extends EntityRepository
             ->getSingleScalarResult();
         $topUpCount = (int) $topUpCount;
 
-        // membership card order amount
+        // membership card order count
         $cardOrderCountQuery = $this->getEntityManager()->createQueryBuilder()
             ->from('SandboxApiBundle:MembershipCard\MembershipOrder', 'mo')
-            ->select('SUM(mo.price)')
+            ->select('COUNT(mo.price)')
             ->where('mo.paymentDate >= :start')
             ->andWhere('mo.paymentDate <= :end')
             ->andWhere('mo.paymentDate != :account')
