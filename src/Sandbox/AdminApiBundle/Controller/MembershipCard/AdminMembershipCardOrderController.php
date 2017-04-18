@@ -414,6 +414,7 @@ class AdminMembershipCardOrderController extends SandboxRestController
             $this->getAdminId(),
             [
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_MEMBERSHIP_CARD_ORDER],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_USER],
             ],
             $OpLevel
         );

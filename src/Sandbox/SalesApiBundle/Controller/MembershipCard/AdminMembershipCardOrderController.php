@@ -511,6 +511,7 @@ class AdminMembershipCardOrderController extends SalesRestController
             $this->getAdminId(),
             [
                 ['key' => AdminPermission::KEY_SALES_PLATFORM_MEMBERSHIP_CARD_ORDER],
+                ['key' => AdminPermission::KEY_SALES_BUILDING_USER],
             ],
             $OpLevel
         );
