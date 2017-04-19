@@ -98,7 +98,7 @@ class BeanService
     public function checkExits(
         $userId,
         $source,
-        $tradeId
+        $tradeId = null
     ) {
         $now = new \DateTime('now');
         $startDate = $now->setTime(0, 0, 0);

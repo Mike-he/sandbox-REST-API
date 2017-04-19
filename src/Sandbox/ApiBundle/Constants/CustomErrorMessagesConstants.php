@@ -36,6 +36,11 @@ class CustomErrorMessagesConstants
     const ERROR_CARD_GROUP_CAN_NOT_BE_EDITED_CODE = 400001;
     const ERROR_CARD_GROUP_CAN_NOT_BE_EDITED_MESSAGE = 'The card group cannot be edited';
 
+    //Bean
+    const ERROR_BEAN_OPERATION_TODAY_CODE =  400005;
+    const ERROR_BEAN_OPERATION_TODAY_MESSAGE = 'Today has been operating';
+
+
     // 404 NOT FOUND MESSAGE
     // LEASE
     const ERROR_LEASE_NOT_FOUND_MESSAGE = 'The lease does not exist';

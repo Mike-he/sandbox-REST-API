@@ -2,6 +2,7 @@
 
 namespace Sandbox\ClientApiBundle\Controller\Bean;
 
+use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
 use Sandbox\ApiBundle\Controller\Bean\BeanController;
 use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -30,7 +31,7 @@ class ClientBeanController extends BeanController
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
-     * @Route("/bean")
+     * @Route("/beans")
      * @Method({"post"})
      *
      * @Annotations\QueryParam(
@@ -63,6 +64,19 @@ class ClientBeanController extends BeanController
                 throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
+        $exits = $this->get('sandbox_api.bean')->checkExits(
+            $userId,
+            $source
+        );
+
+        if ($exits) {
+            return $this->customErrorView(
+                400,
+                CustomErrorMessagesConstants::ERROR_BEAN_OPERATION_TODAY_CODE,
+                CustomErrorMessagesConstants::ERROR_BEAN_OPERATION_TODAY_MESSAGE
+            );
+        }
+
         $this->get('sandbox_api.bean')->postBeanChange(
             $userId,
             0,
@@ -75,5 +89,30 @@ class ClientBeanController extends BeanController
         $em->flush();
 
         return new View();
+    }
+
+    /**
+     * Get My Bean flows.
+     *
+     * @param Request $request
+     *
+     * @Route("/beans")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getMyBeanFlows(
+        Request $request
+    ) {
+        $userId = $this->getUserId();
+
+        $flows = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserBeanFlow')
+            ->findBy(
+                array('userId' => $userId),
+                array('creationDate' => 'DESC')
+            );
+
+        return new View($flows);
     }
 }
