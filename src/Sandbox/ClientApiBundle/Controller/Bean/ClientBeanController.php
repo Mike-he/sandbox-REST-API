@@ -87,7 +87,13 @@ class ClientBeanController extends BeanController
 
         $em->flush();
 
-        return new View();
+        $parameter = $this->doctrine
+            ->getRepository('SandboxApiBundle:Parameter\Parameter')
+            ->findOneBy(array('key' => $source));
+        $value = $parameter->getValue();
+        $number = substr($value, 1);
+
+        return new View($number);
     }
 
     /**
