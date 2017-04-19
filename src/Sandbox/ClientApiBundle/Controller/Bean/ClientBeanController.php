@@ -93,7 +93,9 @@ class ClientBeanController extends BeanController
         $value = $parameter->getValue();
         $number = substr($value, 1);
 
-        return new View((int) $number);
+        $result = array('bean' => (int) $number);
+
+        return new View($result);
     }
 
     /**
