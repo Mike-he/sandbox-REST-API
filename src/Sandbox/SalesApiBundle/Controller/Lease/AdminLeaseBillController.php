@@ -9,6 +9,7 @@ use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentServiceBill;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Log\Log;
+use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Sandbox\ApiBundle\Entity\Room\RoomTypes;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Sandbox\ApiBundle\Traits\FinanceTrait;
@@ -638,6 +639,14 @@ class AdminLeaseBillController extends SalesRestController
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($bill);
+
+        $this->get('sandbox_api.bean')->postBeanChange(
+            $bill->getDrawee(),
+            $bill->getRevisedAmount(),
+            $bill->getSerialNumber(),
+            Parameter::KEY_BEAN_PAY_BILL
+        );
+
         $em->flush();
 
         $this->generateLongRentServiceFee(

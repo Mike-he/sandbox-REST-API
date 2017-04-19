@@ -89,7 +89,7 @@ trait OpenfireApi
 
         $mysqli = mysqli_connect($db_host, $db_user, $db_pwd, $db_name);
 
-        if(!$mysqli ){
+        if (!$mysqli) {
             echo mysqli_connect_error();
         }
 

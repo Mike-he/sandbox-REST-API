@@ -11,6 +11,7 @@ use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBillOfflineTransfer;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBillTransferAttachment;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
+use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Sandbox\ApiBundle\Form\Lease\LeaseBillOfflineTransferPost;
@@ -627,6 +628,15 @@ class ClientLeaseBillController extends PaymentController
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($transfer);
+
+        //update user bean
+        $this->get('sandbox_api.bean')->postBeanChange(
+            $this->getUserId(),
+            $bill->getRevisedAmount(),
+            $bill->getSerialNumber(),
+            Parameter::KEY_BEAN_PAY_BILL
+        );
+
         $em->flush();
 
         return new View();
