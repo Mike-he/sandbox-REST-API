@@ -34,7 +34,7 @@ class UserBeanFlowRepository extends EntityRepository
                 ->setParameter('endDate', $endDate);
         }
 
-        $result = $query->getQuery()->getOneOrNullResult();
+        $result = $query->getQuery()->getResult();
 
         return $result;
     }

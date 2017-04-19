@@ -51,10 +51,25 @@ class BeanService
             return;
         }
 
-        $parameter = $this->getDoctrine()
+        $parameter = $this->doctrine
             ->getRepository('SandboxApiBundle:Parameter\Parameter')
             ->findOneBy(array('key' => $source));
-        $amount = $amount.$parameter->getValue();
+        $value = $parameter->getValue();
+
+        $operator = substr($value, 0,1);
+        $number = substr($value, 1);
+
+        switch ($operator) {
+            case '+':
+                $amount = $amount + $number;
+                break;
+            case '*':
+                $amount = $amount * $number;
+                break;
+
+            default:
+                return;
+        }
 
         $oldBean = $user->getBean();
 
@@ -98,9 +113,9 @@ class BeanService
                     ->checkExits(
                         $userId,
                         $source,
+                        $tradeId,
                         $startDate,
-                        $endDate,
-                        $tradeId
+                        $endDate
                     );
                 $result = $exits ? true : false;
 
@@ -111,9 +126,9 @@ class BeanService
                     ->checkExits(
                         $userId,
                         $source,
+                        $tradeId,
                         $startDate,
-                        $endDate,
-                        $tradeId
+                        $endDate
                     );
                 $result = $exits ? true : false;
                 break;
