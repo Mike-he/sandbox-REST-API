@@ -911,10 +911,7 @@ class ClientOrderController extends OrderController
 
         $order = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->findOneBy(array(
-                'id' => $id,
-                'status' => ProductOrder::STATUS_UNPAID,
-            ));
+            ->find($id);
         if (is_null($order)) {
             return $this->customErrorView(
                 400,
@@ -922,9 +919,6 @@ class ClientOrderController extends OrderController
                 self::ORDER_NOT_FOUND_MESSAGE
             );
         }
-
-        // check if request user is the same as order user
-        $this->throwAccessDeniedIfNotSameUser($order->getUserId());
 
         if ($order->getStatus() !== 'unpaid') {
             return $this->customErrorView(
