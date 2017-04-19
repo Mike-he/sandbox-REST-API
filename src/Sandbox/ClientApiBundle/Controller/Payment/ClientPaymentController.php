@@ -91,9 +91,13 @@ class ClientPaymentController extends PaymentController
 
         switch ($orderType) {
             case 'P':
+                $bodyArray = json_decode($body, true);
+                $userId = $bodyArray['user_id'];
+
                 $order = $this->setProductOrder(
                     $orderNumber,
-                    $channel
+                    $channel,
+                    $userId
                 );
 
                 $balance = $this->postBalanceChange(
@@ -216,9 +220,13 @@ class ClientPaymentController extends PaymentController
 
                 break;
             case 'B':
+                $bodyArray = json_decode($body, true);
+                $userId = $bodyArray['user_id'];
+
                 $bill = $this->setLeaseBillStatus(
                     $orderNumber,
-                    $channel
+                    $channel,
+                    $userId
                 );
 
                 $this->generateLongRentServiceFee(

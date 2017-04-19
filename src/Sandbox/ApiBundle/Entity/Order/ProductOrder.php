@@ -110,6 +110,15 @@ class ProductOrder
     /**
      * @var int
      *
+     * @ORM\Column(name="payment_user_id", type="integer", nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_detail", "current_order", "client"})
+     */
+    private $paymentUserId;
+
+    /**
+     * @var int
+     *
      * @ORM\Column(name="productId", type="integer", nullable=true)
      *
      * @Serializer\Groups({"main"})
@@ -717,6 +726,22 @@ class ProductOrder
     public function setUser($user)
     {
         $this->user = $user;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPaymentUserId()
+    {
+        return $this->paymentUserId;
+    }
+
+    /**
+     * @param int $paymentUserId
+     */
+    public function setPaymentUserId($paymentUserId)
+    {
+        $this->paymentUserId = $paymentUserId;
     }
 
     /**

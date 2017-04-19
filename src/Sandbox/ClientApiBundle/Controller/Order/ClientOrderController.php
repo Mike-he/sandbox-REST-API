@@ -826,18 +826,21 @@ class ClientOrderController extends OrderController
     }
 
     /**
-     * @param $order
+     * @param ProductOrder $order
+     * @param $channel
+     * @param $userId
      *
      * @return View
      */
     private function payByAccount(
         $order,
-        $channel
+        $channel,
+        $userId
     ) {
         $price = $order->getDiscountPrice();
         $orderNumber = $order->getOrderNumber();
         $balance = $this->postBalanceChange(
-            $order->getUserId(),
+            $userId,
             (-1) * $price,
             $orderNumber,
             self::PAYMENT_CHANNEL_ACCOUNT,
@@ -851,6 +854,7 @@ class ClientOrderController extends OrderController
             );
         }
 
+        $order->setPaymentUserId($userId);
         $order->setStatus(self::STATUS_PAID);
         $order->setPaymentDate(new \DateTime());
         $order->setModificationDate(new \DateTime());
@@ -903,7 +907,14 @@ class ClientOrderController extends OrderController
         Request $request,
         $id
     ) {
-        $order = $this->getRepo('Order\ProductOrder')->find($id);
+        $userId = $this->getUserId();
+
+        $order = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->findOneBy(array(
+                'id' => $id,
+                'status' => ProductOrder::STATUS_UNPAID,
+            ));
         if (is_null($order)) {
             return $this->customErrorView(
                 400,
@@ -936,7 +947,8 @@ class ClientOrderController extends OrderController
         if ($channel == self::PAYMENT_CHANNEL_ACCOUNT) {
             return $this->payByAccount(
                 $order,
-                $channel
+                $channel,
+                $userId
             );
         } elseif ($channel == ProductOrder::CHANNEL_OFFLINE) {
             return $this->setOfflineChannel(
@@ -966,7 +978,7 @@ class ClientOrderController extends OrderController
             $order->getDiscountPrice(),
             $channel,
             ProductOrder::PAYMENT_SUBJECT,
-            ProductOrder::PAYMENT_BODY,
+            json_encode(array('user_id' => $userId)),
             $openId
         );
         $charge = json_decode($charge, true);
@@ -1544,20 +1556,6 @@ class ClientOrderController extends OrderController
         array_push($users, $userId);
 
         $currentUserId = $this->getUserId();
-
-        // find all invited
-        $invited = $this->getRepo('Order\InvitedPeople')->findOneBy(
-            [
-                'orderId' => $order->getId(),
-                'userId' => $currentUserId,
-            ]
-        );
-
-        if (is_null($invited)) {
-            if (!in_array($currentUserId, $users)) {
-                throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-            }
-        }
 
         $room = $order->getProduct()->getRoom();
         $type = $room->getType();

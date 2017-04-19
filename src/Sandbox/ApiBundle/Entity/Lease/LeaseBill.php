@@ -225,6 +225,15 @@ class LeaseBill
     private $drawee;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="payment_user_id", type="integer", nullable=true)
+     *
+     * @Serializer\Groups({"main","client","lease_bill"})
+     */
+    private $paymentUserId;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="pay_channel", type="string", length=16, nullable=true)
@@ -582,6 +591,22 @@ class LeaseBill
     public function setDrawee($drawee)
     {
         $this->drawee = $drawee;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPaymentUserId()
+    {
+        return $this->paymentUserId;
+    }
+
+    /**
+     * @param int $paymentUserId
+     */
+    public function setPaymentUserId($paymentUserId)
+    {
+        $this->paymentUserId = $paymentUserId;
     }
 
     /**

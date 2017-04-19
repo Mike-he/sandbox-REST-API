@@ -916,12 +916,14 @@ class PaymentController extends DoorController
     /**
      * @param string $orderNumber
      * @param string $channel
+     * @param int    $userId
      *
      * @return ProductOrder
      */
     public function setProductOrder(
         $orderNumber,
-        $channel
+        $channel,
+        $userId
     ) {
         $order = $this->getRepo('Order\ProductOrder')->findOneBy(
             [
@@ -958,6 +960,7 @@ class PaymentController extends DoorController
             $order->setStatus(self::STATUS_PAID);
         }
 
+        $order->setPaymentUserId($userId);
         $order->setPaymentDate(new \DateTime());
         $order->setModificationDate(new \DateTime());
 
@@ -1703,12 +1706,14 @@ class PaymentController extends DoorController
     /**
      * @param $orderNumber
      * @param $channel
+     * @param $userId
      *
      * @return null|object|LeaseBill
      */
     public function setLeaseBillStatus(
         $orderNumber,
-        $channel
+        $channel,
+        $userId
     ) {
         $bill = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
@@ -1720,6 +1725,7 @@ class PaymentController extends DoorController
             );
         $this->throwNotFoundIfNull($bill, self::NOT_FOUND_MESSAGE);
 
+        $bill->setPaymentUserId($userId);
         $bill->setStatus(LeaseBill::STATUS_PAID);
         $bill->setPaymentDate(new \DateTime());
         $bill->setPayChannel($channel);

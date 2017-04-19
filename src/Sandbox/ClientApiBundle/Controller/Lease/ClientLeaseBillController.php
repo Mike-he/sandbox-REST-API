@@ -201,13 +201,7 @@ class ClientLeaseBillController extends PaymentController
 
         $this->throwNotFoundIfNull($bill, CustomErrorMessagesConstants::ERROR_BILL_NOT_FOUND_MESSAGE);
 
-        $data = array();
-        if ($bill->getDrawee() == $userId ||
-            $bill->getLease()->getDrawee()->getId() == $userId ||
-            $bill->getLease()->getSupervisor()->getId() == $userId
-        ) {
-            $data = $this->handleBillInfo($bill);
-        }
+        $data = $this->handleBillInfo($bill);
 
         return new View($data);
     }
@@ -228,6 +222,8 @@ class ClientLeaseBillController extends PaymentController
         Request $request,
         $id
     ) {
+        $userId = $this->getUserId();
+
         $bill = $this->getDoctrine()
             ->getRepository("SandboxApiBundle:Lease\LeaseBill")
             ->findOneBy(
@@ -237,9 +233,6 @@ class ClientLeaseBillController extends PaymentController
                 )
             );
         $this->throwNotFoundIfNull($bill, CustomErrorMessagesConstants::ERROR_BILL_NOT_FOUND_MESSAGE);
-
-        // check if request user is the same as drawee
-        $this->throwAccessDeniedIfNotSameUser($bill->getLease()->getDrawee()->getId());
 
         //check collection method
         $room = $bill->getLease()->getProduct()->getRoom();
@@ -305,7 +298,7 @@ class ClientLeaseBillController extends PaymentController
             $amount,
             $channel,
             LeaseBill::PAYMENT_SUBJECT,
-            LeaseBill::PAYMENT_BODY,
+            json_encode(array('user_id' => $userId)),
             $openId
         );
         $charge = json_decode($charge, true);

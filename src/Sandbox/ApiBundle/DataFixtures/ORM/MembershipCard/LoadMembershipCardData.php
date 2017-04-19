@@ -60,7 +60,6 @@ class LoadMembershipCardData extends AbstractFixture implements OrderedFixtureIn
         $cardOrder->setValidPeriod(1);
         $cardOrder->setPayChannel('account');
         $cardOrder->setPaymentDate(new \DateTime('now'));
-        $cardOrder->setCancelledDate(null);
         $cardOrder->setInvoiced(0);
         $cardOrder->setSalesInvoice(0);
         $cardOrder->setServiceFee('0.00');
