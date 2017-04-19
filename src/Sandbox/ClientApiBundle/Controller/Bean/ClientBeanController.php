@@ -2,6 +2,7 @@
 
 namespace Sandbox\ClientApiBundle\Controller\Bean;
 
+use Sandbox\ApiBundle\Constants\BeanConstants;
 use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
 use Sandbox\ApiBundle\Controller\Bean\BeanController;
 use Sandbox\ApiBundle\Entity\Parameter\Parameter;
@@ -28,8 +29,7 @@ class ClientBeanController extends BeanController
     /**
      * Post Bean.
      *
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
+     * @param Request $request
      *
      * @Route("/beans")
      * @Method({"post"})
@@ -46,12 +46,11 @@ class ClientBeanController extends BeanController
      * @return View
      */
     public function postBeanAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher
+        Request $request
     ) {
         $userId = $this->getUserId();
 
-        $source = $paramFetcher->get('source');
+        $source = $request->get('source');
 
         switch ($source) {
             case 'login':
@@ -96,22 +95,87 @@ class ClientBeanController extends BeanController
      *
      * @param Request $request
      *
-     * @Route("/beans")
+     * @Route("/beans/balance")
      * @Method({"GET"})
      *
      * @return View
      */
-    public function getMyBeanFlows(
+    public function getMyBeanBalanceAction(
         Request $request
     ) {
         $userId = $this->getUserId();
+
+        $bean = 0;
+        $user = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\User')
+            ->find($userId);
+
+        if ($user) {
+            $bean = $user->getBean();
+        }
+
+        return new View(array('bean' => $bean));
+    }
+
+    /**
+     * Get My Bean flows.
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit for page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="offset",
+     *    array=false,
+     *    default="0",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Offset of page"
+     * )
+     *
+     * @Route("/beans/flows")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getMyBeanFlowsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $userId = $this->getUserId();
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
+        $language = $request->getPreferredLanguage();
 
         $flows = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserBeanFlow')
             ->findBy(
                 array('userId' => $userId),
-                array('creationDate' => 'DESC')
+                array('creationDate' => 'DESC'),
+                $limit,
+                $offset
             );
+
+        foreach ($flows as $flow) {
+            $source = $this->get('translator')->trans(
+                BeanConstants::TRANS_USER_BEAN.$flow->getSource(),
+                array(),
+                null,
+                $language
+            );
+
+            $flow->setSource($source);
+        }
 
         return new View($flows);
     }

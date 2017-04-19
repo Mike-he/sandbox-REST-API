@@ -162,6 +162,20 @@ user:
     movie: 影视
     reading: 阅读
     social_activities: 社交
+  bean:
+    bean_user_register: 新用户注册
+    bean_user_login: 每日登陆
+    bean_user_share: 每日分享
+    bean_order_evaluation: 订单评价
+    bean_building_evaluation: 社区评价
+    bean_success_invitation: 成功邀请用户
+    bean_invitee_product_order: 受邀请用户成功下单
+    bean_invitee_pay_bill: 受邀请用户成功支付账单
+    bean_product_order: 成功预定秒租
+    bean_pay_bill: 成功支付合同账单
+    bean_shop_order: 成功完成店铺订单
+    bean_event_order: 成功支付线上收费活动订单
+    bean_membership_order: 购买会员卡
 
 company:
   industry:
