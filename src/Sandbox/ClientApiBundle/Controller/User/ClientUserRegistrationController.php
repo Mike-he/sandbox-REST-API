@@ -4,6 +4,7 @@ namespace Sandbox\ClientApiBundle\Controller\User;
 
 use Sandbox\ApiBundle\Controller\User\UserRegistrationController;
 use Sandbox\ApiBundle\Entity\Buddy\Buddy;
+use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Sandbox\ApiBundle\Entity\ThirdParty\WeChat;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\User\UserClient;
@@ -261,6 +262,16 @@ class ClientUserRegistrationController extends UserRegistrationController
 
         // post user account to internal api
         $this->postUserAccount($user->getId());
+
+        //update user bean
+        $this->get('sandbox_api.bean')->postBeanChange(
+            $user->getId(),
+            0,
+            null,
+            Parameter::KEY_BEAN_USER_REGISTER
+        );
+
+        $em->flush();
 
         // response
         $view = new View($responseArray);

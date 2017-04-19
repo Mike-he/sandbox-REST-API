@@ -5,7 +5,6 @@ namespace Sandbox\ApiBundle\Traits;
 use Sandbox\ApiBundle\Constants\BundleConstants;
 use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Entity\Door\DoorAccess;
-use Sandbox\ApiBundle\Entity\MembershipCard\MembershipCard;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Symfony\Component\DomCrawler\Crawler;
 use Sandbox\ApiBundle\Constants\DoorAccessConstants;

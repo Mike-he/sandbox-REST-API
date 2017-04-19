@@ -11,3 +11,6 @@ services:
     sandbox_api.group_user:
         class: Sandbox\ApiBundle\Service\GroupUsersService
         arguments: ['@service_container']
+    sandbox_api.bean:
+            class: Sandbox\ApiBundle\Service\BeanService
+            arguments: ['@service_container']

@@ -5,6 +5,7 @@ namespace Sandbox\AdminShopApiBundle\Controller\Shop;
 use Rs\Json\Patch;
 use Sandbox\AdminShopApiBundle\Data\Shop\ShopOrderPriceData;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 use Sandbox\ApiBundle\Form\Shop\ShopOrderPatchType;
 use Sandbox\ApiBundle\Form\Shop\ShopOrderType;
@@ -390,6 +391,13 @@ class AdminShopOrderController extends ShopController
                                 $invoice,
                                 $order->getOrderNumber()
                             );
+
+                            $this->get('sandbox_api.bean')->postBeanChange(
+                                $userId,
+                                $invoice,
+                                $order->getOrderNumber(),
+                                Parameter::KEY_BEAN_SHOP_ORDER
+                            );
                         }
                     }
                 } else {
@@ -398,6 +406,13 @@ class AdminShopOrderController extends ShopController
                         $userId,
                         $order->getPrice(),
                         $order->getOrderNumber()
+                    );
+
+                    $this->get('sandbox_api.bean')->postBeanChange(
+                        $userId,
+                        $order->getPrice(),
+                        $order->getOrderNumber(),
+                        Parameter::KEY_BEAN_SHOP_ORDER
                     );
                 }
 

@@ -8,6 +8,7 @@ use Sandbox\ApiBundle\Controller\Evaluation\EvaluationController;
 use Sandbox\ApiBundle\Entity\Evaluation\Evaluation;
 use Sandbox\ApiBundle\Entity\Evaluation\EvaluationAttachment;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
+use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Sandbox\ApiBundle\Form\Evaluation\EvaluationPostType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -334,6 +335,16 @@ class ClientEvaluationController extends EvaluationController
                 }
 
                 $building->setBuildingEvaluationNumber($building->getBuildingEvaluationNumber() + 1);
+
+                //update user bean
+                $tradeId = 'evaluation_building_'.$buildingId;
+                $this->get('sandbox_api.bean')->postBeanChange(
+                    $this->getUserId(),
+                    0,
+                    $tradeId,
+                    Parameter::KEY_BEAN_BUILDING_EVALUATION
+                );
+
                 break;
             case Evaluation::TYPE_ORDER:
                 if (is_null($productOrderId)) {
@@ -370,6 +381,15 @@ class ClientEvaluationController extends EvaluationController
 
                 $evaluation->setProductOrder($productOrder);
                 $building->setOrderEvaluationNumber($building->getOrderEvaluationNumber() + 1);
+
+                //update user bean
+                $tradeId = 'evaluation_order_'.$productOrderId;
+                $this->get('sandbox_api.bean')->postBeanChange(
+                    $this->getUserId(),
+                    $productOrder->getPrice(),
+                    $tradeId,
+                    Parameter::KEY_BEAN_ORDER_EVALUATION
+                );
                 break;
             default:
                 throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);

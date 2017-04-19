@@ -383,3 +383,9 @@ sandbox_client_api_membership_order:
     resource: "@SandboxClientApiBundle/Controller/MembershipCard/ClientMembershipOrderController.php"
     type:     annotation
     prefix:   /
+
+# Bean
+sandbox_client_api_bean:
+    resource: "@SandboxClientApiBundle/Controller/Bean/ClientBeanController.php"
+    type:     annotation
+    prefix:   /
