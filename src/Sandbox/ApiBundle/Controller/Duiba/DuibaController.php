@@ -2,6 +2,7 @@
 
 namespace Sandbox\ApiBundle\Controller\Duiba;
 
+use Elastica\Response;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Duiba\DuibaOrder;
 use Sandbox\ApiBundle\Entity\User\UserBeanFlow;
@@ -163,13 +164,13 @@ class DuibaController extends SandboxRestController
             return new view();
         }
 
-        if ($creditNotify['success'] == true) {
+        if ($creditNotify['success'] == 'true') {
             if ($duibaOrder->getCreditsStatus() == 0) {
                 $duibaOrder->setCreditsStatus(1);
             } else {
                 return new View('error');
             }
-        } elseif ($creditNotify['success'] == false ) {
+        } elseif ($creditNotify['success'] == 'false' ) {
             if ($duibaOrder->getCreditsStatus() == 0) {
                 $duibaOrder->setCreditsStatus(2);
 
