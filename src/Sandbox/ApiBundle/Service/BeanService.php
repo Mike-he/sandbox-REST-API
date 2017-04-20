@@ -78,7 +78,7 @@ class BeanService
         $beanFlow = new UserBeanFlow();
         $beanFlow->setUserId($userId);
         $beanFlow->setType($type);
-        $beanFlow->setChangeAmount($amount);
+        $beanFlow->setChangeAmount('+'.$amount);
         $beanFlow->setBalance($newBean);
         $beanFlow->setSource($source);
         $beanFlow->setTradeId($tradeId);
