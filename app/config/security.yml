@@ -194,6 +194,11 @@ security:
             security: false
             methods: [POST]
 
+        duiba_api:
+            pattern: ^/duiba
+            security: false
+            methods: [GET]
+
         main:
             pattern: ^/
             anonymous: true
@@ -248,3 +253,4 @@ security:
         - { path: ^/user/avatar/attachments$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/openserver/client/auth/login$, role: ROLE_USER }
         - { path: ^/plugins/fileServer/fileservice, roles: ROLE_CLIENT_API }
+        - { path: ^/duiba, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
