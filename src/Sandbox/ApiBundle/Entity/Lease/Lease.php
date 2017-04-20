@@ -27,6 +27,7 @@ class Lease
     const LEASE_STATUS_TERMINATED = 'terminated';
     const LEASE_STATUS_CLOSED = 'closed';
     const LEASE_STATUS_MATURED = 'matured';
+    const LEASE_LETTER_HEAD = 'C';
 
     /**
      * @var int
