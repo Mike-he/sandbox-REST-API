@@ -457,6 +457,8 @@ class ProductOrder
     /**
      * @var bool
      *
+     * @ORM\Column(name="has_evaluated", type="boolean")
+     *
      * @Serializer\Groups({"main", "client"})
      */
     private $hasEvaluated = false;

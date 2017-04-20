@@ -5,7 +5,6 @@ namespace Application\Migrations;
 use Doctrine\DBAL\Migrations\AbstractMigration;
 use Doctrine\DBAL\Schema\Schema;
 use Sandbox\ApiBundle\Entity\Parameter\Parameter;
-use Sandbox\ApiBundle\Entity\Payment\PaymentMap;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
@@ -43,7 +42,7 @@ class Version920170418001618 extends AbstractMigration implements ContainerAware
             Parameter::KEY_BEAN_PAY_BILL => '*1',
             Parameter::KEY_BEAN_SHOP_ORDER => '*1',
             Parameter::KEY_BEAN_EVENT_ORDER => '*3',
-            Parameter::KEY_BEAN_MEMBERSHIP_ORDER => '*3'
+            Parameter::KEY_BEAN_MEMBERSHIP_ORDER => '*3',
         );
 
         foreach ($data as $key => $value) {

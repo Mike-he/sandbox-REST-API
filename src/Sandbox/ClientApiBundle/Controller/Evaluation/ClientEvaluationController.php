@@ -382,6 +382,8 @@ class ClientEvaluationController extends EvaluationController
                 $evaluation->setProductOrder($productOrder);
                 $building->setOrderEvaluationNumber($building->getOrderEvaluationNumber() + 1);
 
+                $productOrder->setHasEvaluated(true);
+
                 //update user bean
                 $tradeId = 'evaluation_order_'.$productOrderId;
                 $this->get('sandbox_api.bean')->postBeanChange(

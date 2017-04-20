@@ -4,13 +4,14 @@ namespace Application\Migrations;
 
 use Doctrine\DBAL\Migrations\AbstractMigration;
 use Doctrine\DBAL\Schema\Schema;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
+use Sandbox\ApiBundle\Entity\Evaluation\Evaluation;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
+use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-class Version920170419065719 extends AbstractMigration implements ContainerAwareInterface
+class Version920170420075902 extends AbstractMigration implements ContainerAwareInterface
 {
     use ContainerAwareTrait;
 
@@ -22,27 +23,25 @@ class Version920170419065719 extends AbstractMigration implements ContainerAware
         // this up() migration is auto-generated, please modify it to your needs
     }
 
-    /**
-     * @param Schema $schema
-     */
     public function postUp(Schema $schema)
     {
         parent::postUp($schema);
 
         $em = $this->container->get('doctrine.orm.entity_manager');
 
-        $productOrders = $em->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->findAll();
+        $evaluations = $em->getRepository('SandboxApiBundle:Evaluation\Evaluation')
+            ->findBy(array('type' => Evaluation::TYPE_ORDER));
 
-        foreach ($productOrders as $productOrder) {
-            $productOrder->setPaymentUserId($productOrder->getUserId());
-        }
+        foreach ($evaluations as $evaluation) {
+            $orderId = $evaluation->getProductOrderId();
 
-        $leassBills = $em->getRepository('SandboxApiBundle:Lease\LeaseBill')
-            ->findAll();
+            $order = $em->getRepository('SandboxApiBundle:Order\ProductOrder')->find($orderId);
 
-        foreach ($leassBills as $bill) {
-            $bill->setPaymentUserId($bill->getDrawee());
+            if (!$order) {
+                continue;
+            }
+
+            $order->setHasEvaluated(true);
         }
 
         $em->flush();

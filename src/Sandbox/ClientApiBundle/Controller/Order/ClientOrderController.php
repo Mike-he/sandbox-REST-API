@@ -1616,10 +1616,10 @@ class ClientOrderController extends OrderController
         }
 
         // add evaluation tag
-        $this->setOrderEvaluationTag(
-            $order,
-            $currentUserId
-        );
+//        $this->setOrderEvaluationTag(
+//            $order,
+//            $currentUserId
+//        );
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
