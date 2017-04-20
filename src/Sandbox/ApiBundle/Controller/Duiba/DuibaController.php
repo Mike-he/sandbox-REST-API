@@ -185,7 +185,7 @@ class DuibaController extends SandboxRestController
         $duibaAppKey = $this->getParameter('duiba_app_key');
         $duibaAppSecret = $this->getParameter('duiba_app_secret');
 
-        $uid = $paramFetcher->get('uid');
+        $uid = $this->getUserId();
 
         $user = $this->getDoctrine()->getRepository('SandboxApiBundle:User\User')->find($uid);
         $credits = $user->getBean();
