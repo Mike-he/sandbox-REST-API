@@ -389,3 +389,9 @@ sandbox_client_api_bean:
     resource: "@SandboxClientApiBundle/Controller/Bean/ClientBeanController.php"
     type:     annotation
     prefix:   /
+
+# Duiba
+sandbox_client_api_duiba:
+    resource: "@SandboxClientApiBundle/Controller/Duiba/ClientDuibaController.php"
+    type:     annotation
+    prefix:   /

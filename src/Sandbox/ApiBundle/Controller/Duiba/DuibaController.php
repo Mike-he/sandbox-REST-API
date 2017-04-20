@@ -157,48 +157,4 @@ class DuibaController extends SandboxRestController
 
         return new View('ok');
     }
-
-    /**
-     * Get DuibaOrders.
-     *
-     * @param Request $request
-     *
-     * @Annotations\QueryParam(
-     *    name="uid",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    strict=true,
-     *    description="uid"
-     * )
-     *
-     *
-     * @Route("/duiba/login")
-     * @Method({"GET"})
-     *
-     * @return View
-     */
-    public function duibaLoginAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher
-    ) {
-        $duibaAppKey = $this->getParameter('duiba_app_key');
-        $duibaAppSecret = $this->getParameter('duiba_app_secret');
-
-        $uid = $this->getUserId();
-
-        $user = $this->getDoctrine()->getRepository('SandboxApiBundle:User\User')->find($uid);
-        $credits = $user->getBean();
-
-        $autoLogin = $this->buildCreditAutoLoginRequest(
-            $duibaAppKey,
-            $duibaAppSecret,
-            $uid,
-            $credits
-        );
-
-        $data = array('login_url' => $autoLogin);
-
-        return new View($data);
-    }
 }
