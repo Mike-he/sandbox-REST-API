@@ -29,7 +29,6 @@ use FOS\RestBundle\Controller\Annotations\Delete;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Form\Order\OrderType;
 use JMS\Serializer\SerializationContext;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
  * Rest controller for Client Orders.
@@ -2227,5 +2226,90 @@ class ClientOrderController extends OrderController
         }
 
         return $alertArray;
+    }
+
+    /**
+     * @Get("/orders/pending/evaluation")
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit for page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="offset",
+     *    array=false,
+     *    default="0",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Offset of page"
+     * )
+     *
+     * @return View
+     */
+    public function getPendingEvaluationAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $userId = $this->getUserId();
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
+        $language = $request->getPreferredLanguage();
+
+        $orders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->findPendingEvaluationOrder(
+                $userId,
+                $limit,
+                $offset
+            );
+
+        foreach ($orders as $order) {
+            $room = $order->getProduct()->getRoom();
+            $type = $room->getType();
+
+            $description = $this->get('translator')->trans(
+                ProductOrderExport::TRANS_ROOM_TYPE.$type,
+                array(),
+                null,
+                $language
+            );
+
+            $room->setTypeDescription($description);
+        }
+
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
+        $view->setData($orders);
+
+        return $view;
+    }
+
+    /**
+     * @Get("/orders/pending/evaluation/count")
+     *
+     * @param Request $request
+     *
+     * @return View
+     */
+    public function countPendingEvaluationAction(
+        Request $request
+    ) {
+        $userId = $this->getUserId();
+
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->countPendingEvaluationOrder($userId);
+
+        return new View(array('count' => $count));
     }
 }

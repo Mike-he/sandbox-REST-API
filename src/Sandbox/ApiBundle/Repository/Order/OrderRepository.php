@@ -4209,4 +4209,56 @@ class OrderRepository extends EntityRepository
 
         return $result;
     }
+
+    /**
+     * @param $userId
+     * @param $limit
+     * @param $offset
+     *
+     * @return array
+     */
+    public function findPendingEvaluationOrder(
+        $userId,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->where('o.status = :completed')
+            ->andWhere('o.userId = :userId')
+            ->andWhere('o.hasEvaluated = false')
+            ->setParameter('completed', ProductOrder::STATUS_COMPLETED)
+            ->setParameter('userId', $userId);
+
+        if (!is_null($limit) && !is_null($offset)) {
+            $query->setMaxResults($limit)
+                ->setFirstResult($offset);
+        }
+
+        $query->orderBy('o.modificationDate', 'DESC');
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
+
+    /**
+     * @param $userId
+     *
+     * @return int
+     */
+    public function countPendingEvaluationOrder(
+        $userId
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->select('COUNT(o.id)')
+            ->where('o.status = :completed')
+            ->andWhere('o.userId = :userId')
+            ->andWhere('o.hasEvaluated = false')
+            ->setParameter('completed', ProductOrder::STATUS_COMPLETED)
+            ->setParameter('userId', $userId);
+
+        $result = $query->getQuery()->getSingleScalarResult();
+
+        return (int) $result;
+    }
 }
