@@ -165,16 +165,20 @@ class DuibaController extends SandboxRestController
 
         if ($creditNotify['success'] == true) {
             if ($duibaOrder->getCreditsStatus() == 0) {
-                $duibaOrder->setOrderStatus(1);
+                $duibaOrder->setCreditsStatus(1);
+            } else {
+                return new View('error');
             }
-        } else {
-            if ($duibaOrder->getCreditsStatus() == 1) {
+        } elseif ($creditNotify['success'] == false ) {
+            if ($duibaOrder->getCreditsStatus() == 0) {
                 $duibaOrder->setCreditsStatus(2);
 
                 $userId = $duibaOrder->getUserId();
                 $user = $this->getDoctrine()->getRepository('SandboxApiBundle:User\User')->find($userId);
 
                 $user->setBean($user->getBean() + $duibaOrder->getCredits());
+            } else {
+                return new View('error');
             }
         }
 
