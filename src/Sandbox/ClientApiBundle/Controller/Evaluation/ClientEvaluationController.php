@@ -16,6 +16,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use FOS\RestBundle\Controller\Annotations;
+use Symfony\Component\Validator\Constraints\DateTime;
 
 /**
  *  Client Evaluation Controller.
@@ -337,7 +338,9 @@ class ClientEvaluationController extends EvaluationController
                 $building->setBuildingEvaluationNumber($building->getBuildingEvaluationNumber() + 1);
 
                 //update user bean
-                $tradeId = 'evaluation_building_'.$buildingId;
+                $today = new \DateTime('now');
+                $date = $today->format('Y-m-d');
+                $tradeId = 'evaluation_building_'.$date.'_'.$buildingId;
                 $this->get('sandbox_api.bean')->postBeanChange(
                     $this->getUserId(),
                     0,
