@@ -16,6 +16,7 @@ use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Parameter\Parameter;
+use Sandbox\ApiBundle\Entity\Product\ProductAppointment;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
 use Sandbox\ApiBundle\Traits\DoorAccessTrait;
@@ -37,6 +38,65 @@ class ClientLeaseController extends SandboxRestController
     use LeaseNotificationTrait;
     use GenerateSerialNumberTrait;
     use LeaseTrait;
+
+    /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *     name="offset",
+     *     default="0",
+     *     nullable=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="limit",
+     *     default="10",
+     *     nullable=true
+     * )
+     *
+     * @Route("/leases")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getClientLeasesAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $userId = $this->getUserId();
+
+        $offset = $paramFetcher->get('offset');
+        $limit = $paramFetcher->get('limit');
+
+        $longTermNumbersArray = $this->generateLongTermNumbersArray($userId, $offset, $limit);
+
+        $response = array();
+        foreach ($longTermNumbersArray as $number) {
+            $firstLetter = substr($number, 0 ,1);
+
+            switch ($firstLetter) {
+                case ProductAppointment::APPOINTMENT_NUMBER_LETTER:
+                    $responseArray = $this->getAppointmentResponseArray($number);
+                    break;
+                case Lease::LEASE_LETTER_HEAD:
+                    $responseArray = $this->getLeaseResponseArray($number);
+                    break;
+                default:
+                    $responseArray = array();
+                    break;
+            }
+
+            if (!empty($responseArray)) {
+                array_push($response, $responseArray);
+            }
+        }
+
+        $view = new View($response);
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['client_appointment_list']));
+
+        return $view;
+    }
 
     /**
      * @param Request               $request
@@ -149,68 +209,6 @@ class ClientLeaseController extends SandboxRestController
         $view->setData($lease);
 
         return $view;
-    }
-
-    /**
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
-     *
-     * @Annotations\QueryParam(
-     *     name="offset",
-     *     default="0",
-     *     nullable=true
-     * )
-     *
-     * @Annotations\QueryParam(
-     *     name="limit",
-     *     default="10",
-     *     nullable=true
-     * )
-     *
-     * @Route("/leases")
-     * @Method({"GET"})
-     *
-     * @return View
-     */
-    public function getLeasesAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher
-    ) {
-        $userId = $this->getUserId();
-
-        $offset = $paramFetcher->get('offset');
-        $limit = $paramFetcher->get('limit');
-
-        $leases = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Lease\Lease')
-            ->getClientLeases(
-                $userId,
-                $limit,
-                $offset
-            );
-
-        $response = array();
-        foreach ($leases as $lease) {
-            $bills = $this->getLeaseBillRepo()
-                ->findBy(array(
-                    'lease' => $lease,
-                    'status' => LeaseBill::STATUS_UNPAID,
-                ));
-
-            array_push($response, array(
-                'id' => $lease->getId(),
-                'serial_number' => $lease->getSerialNumber(),
-                'status' => $lease->getStatus(),
-                'product' => $lease->degenerateProduct(),
-                'start_date' => $lease->getStartDate(),
-                'end_date' => $lease->getEndDate(),
-                'unpaid_lease_bills_amount' => count($bills),
-                'creation_date' => $lease->getCreationDate(),
-                'confirming_date' => $lease->getConfirmingDate(),
-            ));
-        }
-
-        return new View($response);
     }
 
     /**
@@ -621,5 +619,126 @@ class ClientLeaseController extends SandboxRestController
         && $userId != $lease->getDraweeId()) {
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
+    }
+
+    /**
+     * @param $userId
+     * @return array
+     */
+    private function generateLongTermNumbersArray(
+        $userId,
+        $offset,
+        $limit
+    ) {
+        $pendingProductAppointmentNumbers = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\ProductAppointment')
+            ->getAppointmentNumbersForClientLease(
+                $userId,
+                array(ProductAppointment::STATUS_PENDING)
+            );
+
+        $validLeaseNumbers = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\Lease')
+            ->getLeaseNumbersForClientLease(
+                $userId,
+                array(
+                    Lease::LEASE_STATUS_CONFIRMED,
+                    Lease::LEASE_STATUS_CONFIRMING,
+                    Lease::LEASE_STATUS_PERFORMING,
+                    Lease::LEASE_STATUS_RECONFIRMING,
+                    Lease::LEASE_STATUS_MATURED,
+                )
+            );
+
+        $invalidLeaseNumbers = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\Lease')
+            ->getLeaseNumbersForClientLease(
+                $userId,
+                array(
+                    Lease::LEASE_STATUS_END,
+                    Lease::LEASE_STATUS_EXPIRED,
+                    Lease::LEASE_STATUS_TERMINATED,
+                    Lease::LEASE_STATUS_CLOSED,
+                )
+            );
+
+        $invalidProductAppointmentNumbers = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\ProductAppointment')
+            ->getAppointmentNumbersForClientLease(
+                $userId,
+                array(
+                    ProductAppointment::STATUS_REJECTED,
+                    ProductAppointment::STATUS_WITHDRAWN,
+                )
+            );
+
+        $longTermArray = array();
+        $longTermArray = array_merge($longTermArray, $pendingProductAppointmentNumbers);
+        $longTermArray = array_merge($longTermArray, $validLeaseNumbers);
+        $longTermArray = array_merge($longTermArray, $invalidLeaseNumbers);
+        $longTermArray = array_merge($longTermArray, $invalidProductAppointmentNumbers);
+
+        // for pagination
+        $numbers = array();
+        for ($i = $offset; $i < $offset + $limit; $i++) {
+            if (isset($longTermArray[$i])) {
+                array_push($numbers, $longTermArray[$i]);
+            }
+        }
+
+        return $numbers;
+    }
+
+    /**
+     * @param $number
+     *
+     * @return null|object|ProductAppointment
+     */
+    private function getAppointmentResponseArray(
+        $number
+    ) {
+        $appointment = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\ProductAppointment')
+            ->findOneBy(array(
+                'appointmentNumber' => $number,
+            ));
+
+        return $appointment;
+    }
+
+    /**
+     * @param $number
+     *
+     * @return array
+     */
+    private function getLeaseResponseArray(
+        $number
+    ) {
+        $lease = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\Lease')
+            ->findOneBy(array(
+                'serialNumber' => $number
+            ));
+
+        $bills = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->findBy(array(
+                'lease' => $lease,
+                'status' => LeaseBill::STATUS_UNPAID,
+            ));
+
+        $response = array(
+            'id' => $lease->getId(),
+            'serial_number' => $lease->getSerialNumber(),
+            'status' => $lease->getStatus(),
+            'product' => $lease->degenerateProduct(),
+            'start_date' => $lease->getStartDate(),
+            'end_date' => $lease->getEndDate(),
+            'unpaid_lease_bills_amount' => count($bills),
+            'creation_date' => $lease->getCreationDate(),
+            'confirming_date' => $lease->getConfirmingDate(),
+        );
+
+        return $response;
     }
 }
