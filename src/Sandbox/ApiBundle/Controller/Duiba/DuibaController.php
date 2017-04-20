@@ -172,14 +172,6 @@ class DuibaController extends SandboxRestController
      *    description="uid"
      * )
      *
-     * @Annotations\QueryParam(
-     *    name="credits",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    strict=true,
-     *    description="credits"
-     * )
      *
      * @Route("/duiba/login")
      * @Method({"GET"})
@@ -194,7 +186,9 @@ class DuibaController extends SandboxRestController
         $duibaAppSecret = $this->getParameter('duiba_app_secret');
 
         $uid = $paramFetcher->get('uid');
-        $credits = $paramFetcher->get('credits');
+
+        $user = $this->getDoctrine()->getRepository('SandboxApiBundle:User\User')->find($uid);
+        $credits = $user->getBean();
 
         $autoLogin = $this->buildCreditAutoLoginRequest(
             $duibaAppKey,
