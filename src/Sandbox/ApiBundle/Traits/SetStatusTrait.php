@@ -36,6 +36,20 @@ trait SetStatusTrait
             $order->getOrderNumber(),
             Parameter::KEY_BEAN_PRODUCT_ORDER
         );
+
+        //update invitee bean
+        $user = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\User')
+            ->find($order->getUserId());
+
+        if ($user->getInviterId()) {
+            $this->get('sandbox_api.bean')->postBeanChange(
+                $user->getInviterId(),
+                $order->getPrice(),
+                $order->getOrderNumber(),
+                Parameter::KEY_BEAN_INVITEE_PRODUCT_ORDER
+            );
+        }
     }
 
     protected function setProductOrderInvoice(

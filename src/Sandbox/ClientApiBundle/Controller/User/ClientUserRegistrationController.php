@@ -292,6 +292,16 @@ class ClientUserRegistrationController extends UserRegistrationController
             Parameter::KEY_BEAN_USER_REGISTER
         );
 
+        //update invitee bean
+        if ($inviter) {
+            $this->get('sandbox_api.bean')->postBeanChange(
+                $inviter->getId(),
+                0,
+                null,
+                Parameter::KEY_BEAN_SUCCESS_INVITATION
+            );
+        }
+
         $em->flush();
 
         // response

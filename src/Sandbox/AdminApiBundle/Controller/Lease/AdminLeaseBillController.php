@@ -278,6 +278,21 @@ class AdminLeaseBillController extends LeaseController
                     $bill->getSerialNumber(),
                     Parameter::KEY_BEAN_PAY_BILL
                 );
+
+                //update invitee bean
+                $user = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:User\User')
+                    ->find($bill->getDrawee());
+
+                if ($user->getInviterId()) {
+                    $this->get('sandbox_api.bean')->postBeanChange(
+                        $user->getInviterId(),
+                        $bill->getRevisedAmount(),
+                        $bill->getSerialNumber(),
+                        Parameter::KEY_BEAN_INVITEE_PAY_BILL
+                    );
+                }
+
                 break;
             case LeaseBillOfflineTransfer::STATUS_RETURNED:
                 if ($oldStatus != LeaseBillOfflineTransfer::STATUS_PENDING) {

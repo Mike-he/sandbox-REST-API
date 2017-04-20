@@ -1725,19 +1725,35 @@ class PaymentController extends DoorController
             );
         $this->throwNotFoundIfNull($bill, self::NOT_FOUND_MESSAGE);
 
+        $drawee = $bill->getLease()->getDrawee()->getId();
+
         $bill->setPaymentUserId($userId);
         $bill->setStatus(LeaseBill::STATUS_PAID);
         $bill->setPaymentDate(new \DateTime());
         $bill->setPayChannel($channel);
-        $bill->setDrawee($bill->getLease()->getDrawee()->getId());
+        $bill->setDrawee($drawee);
 
         //update user bean
         $this->get('sandbox_api.bean')->postBeanChange(
-            $bill->getLease()->getDrawee()->getId(),
+            $drawee,
             $bill->getRevisedAmount(),
             $orderNumber,
             Parameter::KEY_BEAN_PAY_BILL
         );
+
+        //update invitee bean
+        $user = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\User')
+            ->find($drawee);
+
+        if ($user->getInviterId()) {
+            $this->get('sandbox_api.bean')->postBeanChange(
+                $user->getInviterId(),
+                $bill->getRevisedAmount(),
+                $orderNumber,
+                Parameter::KEY_BEAN_INVITEE_PAY_BILL
+            );
+        }
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();
