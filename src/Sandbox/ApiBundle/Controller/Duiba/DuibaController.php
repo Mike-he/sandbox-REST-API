@@ -76,6 +76,20 @@ class DuibaController extends SandboxRestController
             return new View($result);
         }
 
+        $duibaOrder = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Duiba\DuibaOrder')
+            ->findOneBy(array('duibaOrderNum'=>$creditConsume['orderNum']));
+
+        if($duibaOrder) {
+            $result = array(
+                'status' => 'fail',
+                'errorMessage' => '已兑换成功',
+                'credits' => $bean,
+            );
+
+            return new View($result);
+        }
+
         $now = new \DateTime('now');
         $bizId = $this->generateSerialNumber($this->getParameter('duiba_app_env'));
 
@@ -94,7 +108,7 @@ class DuibaController extends SandboxRestController
         $duibaOrder->setBizId($bizId);
 
         $em->persist($duibaOrder);
-        
+
         $beanFlow = new UserBeanFlow();
         $beanFlow->setUserId($_GET['uid']);
         $beanFlow->setType(UserBeanFlow::TYPE_CONSUME);

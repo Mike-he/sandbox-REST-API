@@ -268,6 +268,7 @@ fos_rest:
     format_listener:
         rules:
             - { path: ^/, priorities: [ json, html, xml ], fallback_format: ~, prefer_extension: false }
+            - { path: '^/duiba', priorities: [ 'text/html', '*/*'], fallback_format: json, prefer_extension: false }
         media_type:
             version_regex: '/(v|version)=(?P<version>[0-9\.]+)/'
     exception:
