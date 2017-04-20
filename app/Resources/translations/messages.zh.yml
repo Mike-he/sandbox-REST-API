@@ -23,6 +23,7 @@ register:
   verify:
     invalid_verification: 验证码无效
     expired_verification: 验证码过期
+    invalid_inviter: 邀请人非创合用户
 
 room:
   type:

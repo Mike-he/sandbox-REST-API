@@ -40,6 +40,11 @@ class RegisterVerify
     private $weChat;
 
     /**
+     * @var string
+     */
+    private $inviterPhone;
+
+    /**
      * @return string
      */
     public function getPhoneCode()
@@ -165,5 +170,21 @@ class RegisterVerify
     public function setWeChat($weChat)
     {
         $this->weChat = $weChat;
+    }
+
+    /**
+     * @return string
+     */
+    public function getInviterPhone()
+    {
+        return $this->inviterPhone;
+    }
+
+    /**
+     * @param string $inviterPhone
+     */
+    public function setInviterPhone($inviterPhone)
+    {
+        $this->inviterPhone = $inviterPhone;
     }
 }

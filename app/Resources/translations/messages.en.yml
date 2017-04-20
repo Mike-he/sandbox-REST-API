@@ -23,6 +23,7 @@ register:
   verify:
     invalid_verification: Invalid verification
     expired_verification: Expired verification
+    invalid_inviter: Inviter isn't sandbox3 user
 
 room:
   type:

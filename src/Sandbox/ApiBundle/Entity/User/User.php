@@ -176,6 +176,13 @@ class User implements UserInterface
     private $bean = 0;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="inviter_id", type="integer", nullable=true)
+     */
+    private $inviterId;
+
+    /**
      * Get id.
      *
      * @return int
@@ -598,5 +605,21 @@ class User implements UserInterface
     public function setBean($bean)
     {
         $this->bean = $bean;
+    }
+
+    /**
+     * @return int
+     */
+    public function getInviterId()
+    {
+        return $this->inviterId;
+    }
+
+    /**
+     * @param int $inviterId
+     */
+    public function setInviterId($inviterId)
+    {
+        $this->inviterId = $inviterId;
     }
 }
