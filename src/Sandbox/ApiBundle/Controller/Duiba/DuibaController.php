@@ -11,6 +11,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Request\ParamFetcherInterface;
+use FOS\RestBundle\Controller\Annotations;
 
 /**
  * Bean Controller.
@@ -155,5 +156,55 @@ class DuibaController extends SandboxRestController
         $em->flush();
 
         return new View('ok');
+    }
+
+    /**
+     * Get DuibaOrders.
+     *
+     * @param Request $request
+     *
+     * @Annotations\QueryParam(
+     *    name="uid",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="uid"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="credits",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="credits"
+     * )
+     *
+     * @Route("/duiba/login")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function duibaLoginAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $duibaAppKey = $this->getParameter('duiba_app_key');
+        $duibaAppSecret = $this->getParameter('duiba_app_secret');
+
+        $uid = $paramFetcher->get('uid');
+        $credits = $paramFetcher->get('credits');
+
+        $autoLogin = $this->buildCreditAutoLoginRequest(
+            $duibaAppKey,
+            $duibaAppSecret,
+            $uid,
+            $credits
+        );
+
+        $data = array('login_url' => $autoLogin);
+
+        return new View($data);
     }
 }
