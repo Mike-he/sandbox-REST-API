@@ -141,3 +141,9 @@ sandbox_api_version_check:
     resource: "@SandboxApiBundle/Controller/Version/ClientVersionCheckController.php"
     type:     annotation
     prefix:   /
+
+# Duiba
+sandbox_api_duiba:
+    resource: "@SandboxApiBundle/Controller/Duiba/DuibaController.php"
+    type:     annotation
+    prefix:   /

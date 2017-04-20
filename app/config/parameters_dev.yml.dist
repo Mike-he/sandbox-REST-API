@@ -134,3 +134,7 @@ parameters:
     openfire_db_name: openfire
     openfire_db_user: sandbox
     openfire_db_password: sandbox
+
+    duiba_app_key: 2rc4ZQm9csJapqvKnx92AKsNdLRr
+    duiba_app_secret: AfdCJZ6T4vHboHkuVSkwWUwMRra
+    duiba_app_env: dev

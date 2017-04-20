@@ -1,6 +1,6 @@
 <?php
 
-namespace Sandbox\ApiBundle\Entity\Door;
+namespace Sandbox\ApiBundle\Entity\Duiba;
 
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -86,10 +86,17 @@ class DuibaOrder
     private $description;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="biz_id", type="string", length=40)
+     */
+    private $bizId;
+
+    /**
      * @var \DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     * @ORM\Column(name="creationDate", type="datetime")
+     * @ORM\Column(name="creation_date", type="datetime")
      */
     private $creationDate;
 
@@ -97,7 +104,7 @@ class DuibaOrder
      * @var \DateTime
      *
      * @Gedmo\Timestampable(on="update")
-     * @ORM\Column(name="modificationDate", type="datetime")
+     * @ORM\Column(name="modification_date", type="datetime")
      */
     private $modificationDate;
 
@@ -283,5 +290,21 @@ class DuibaOrder
     public function setModificationDate($modificationDate)
     {
         $this->modificationDate = $modificationDate;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getBizId()
+    {
+        return $this->bizId;
+    }
+
+    /**
+     * @param bool $bizId
+     */
+    public function setBizId($bizId)
+    {
+        $this->bizId = $bizId;
     }
 }
