@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Controller\Duiba;
 
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Duiba\DuibaOrder;
+use Sandbox\ApiBundle\Entity\User\UserBeanFlow;
 use Sandbox\ApiBundle\Traits\DuibaApi;
 use Sandbox\ApiBundle\Traits\GenerateSerialNumberTrait;
 use Symfony\Component\HttpFoundation\Request;
@@ -75,6 +76,7 @@ class DuibaController extends SandboxRestController
             return new View($result);
         }
 
+        $now = new \DateTime('now');
         $bizId = $this->generateSerialNumber($this->getParameter('duiba_app_env'));
 
         $em = $this->getDoctrine()->getManager();
@@ -92,8 +94,19 @@ class DuibaController extends SandboxRestController
         $duibaOrder->setBizId($bizId);
 
         $em->persist($duibaOrder);
+        
+        $beanFlow = new UserBeanFlow();
+        $beanFlow->setUserId($_GET['uid']);
+        $beanFlow->setType(UserBeanFlow::TYPE_CONSUME);
+        $beanFlow->setChangeAmount('-'.$creditConsume['credits']);
+        $beanFlow->setBalance($newBean);
+        $beanFlow->setSource(UserBeanFlow::SOURCE_EXCHANGE);
+        $beanFlow->setTradeId($creditConsume['orderNum']);
+        $beanFlow->setCreationDate($now);
+        $em->persist($beanFlow);
 
         $user->setBean($newBean);
+
 
         $em->flush();
 

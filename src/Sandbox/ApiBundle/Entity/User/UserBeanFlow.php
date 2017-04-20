@@ -15,6 +15,8 @@ class UserBeanFlow
     const TYPE_ADD = 'add'; //余额
     const TYPE_CONSUME = 'consume'; //消费
 
+    const SOURCE_EXCHANGE = 'exchange';
+
     /**
      * @var int
      *
