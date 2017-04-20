@@ -2,7 +2,6 @@
 
 namespace Sandbox\ApiBundle\Controller\Duiba;
 
-use Elastica\Response;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Duiba\DuibaOrder;
 use Sandbox\ApiBundle\Entity\User\UserBeanFlow;
@@ -13,7 +12,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Request\ParamFetcherInterface;
-use FOS\RestBundle\Controller\Annotations;
 
 /**
  * Bean Controller.
@@ -79,9 +77,9 @@ class DuibaController extends SandboxRestController
 
         $duibaOrder = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Duiba\DuibaOrder')
-            ->findOneBy(array('duibaOrderNum'=>$creditConsume['orderNum']));
+            ->findOneBy(array('duibaOrderNum' => $creditConsume['orderNum']));
 
-        if($duibaOrder) {
+        if ($duibaOrder) {
             $result = array(
                 'status' => 'fail',
                 'errorMessage' => '已兑换成功',
@@ -121,7 +119,6 @@ class DuibaController extends SandboxRestController
         $em->persist($beanFlow);
 
         $user->setBean($newBean);
-
 
         $em->flush();
 
@@ -164,26 +161,37 @@ class DuibaController extends SandboxRestController
             return new view();
         }
 
+        $em = $this->getDoctrine()->getManager();
+
         if ($creditNotify['success'] == 'true') {
             if ($duibaOrder->getCreditsStatus() == 0) {
                 $duibaOrder->setCreditsStatus(1);
             } else {
                 return new View('error');
             }
-        } elseif ($creditNotify['success'] == 'false' ) {
+        } elseif ($creditNotify['success'] == 'false') {
             if ($duibaOrder->getCreditsStatus() == 0) {
                 $duibaOrder->setCreditsStatus(2);
 
                 $userId = $duibaOrder->getUserId();
                 $user = $this->getDoctrine()->getRepository('SandboxApiBundle:User\User')->find($userId);
 
-                $user->setBean($user->getBean() + $duibaOrder->getCredits());
+                $newBean = $user->getBean() + $duibaOrder->getCredits();
+                $user->setBean($newBean);
+
+                $beanFlow = new UserBeanFlow();
+                $beanFlow->setUserId($_GET['uid']);
+                $beanFlow->setType(UserBeanFlow::TYPE_ADD);
+                $beanFlow->setChangeAmount('+'.$duibaOrder->getCredits());
+                $beanFlow->setBalance($newBean);
+                $beanFlow->setSource(UserBeanFlow::SOURCE_EXCHANGE_FAIL);
+                $beanFlow->setTradeId($duibaOrder['duibaOrderNum']);
+                $beanFlow->setCreationDate(new \DateTime('now'));
+                $em->persist($beanFlow);
             } else {
                 return new View('error');
             }
         }
-
-        $em = $this->getDoctrine()->getManager();
 
         $em->flush();
 

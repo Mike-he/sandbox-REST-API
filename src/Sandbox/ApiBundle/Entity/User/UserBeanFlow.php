@@ -16,6 +16,7 @@ class UserBeanFlow
     const TYPE_CONSUME = 'consume'; //消费
 
     const SOURCE_EXCHANGE = 'exchange';
+    const SOURCE_EXCHANGE_FAIL = 'exchange_fail';
 
     /**
      * @var int
