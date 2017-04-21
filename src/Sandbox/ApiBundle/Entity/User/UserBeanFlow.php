@@ -44,7 +44,7 @@ class UserBeanFlow
     /**
      * @var string
      *
-     * @ORM\Column(name="change_amount", type="float")
+     * @ORM\Column(name="change_amount", type="string", length=20)
      */
     private $changeAmount;
 
