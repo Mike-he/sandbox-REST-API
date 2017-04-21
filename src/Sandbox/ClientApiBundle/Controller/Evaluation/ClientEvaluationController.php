@@ -338,13 +338,10 @@ class ClientEvaluationController extends EvaluationController
                 $building->setBuildingEvaluationNumber($building->getBuildingEvaluationNumber() + 1);
 
                 //update user bean
-                $today = new \DateTime('now');
-                $date = $today->format('Y-m-d');
-                $tradeId = 'evaluation_building_'.$date.'_'.$buildingId;
                 $this->get('sandbox_api.bean')->postBeanChange(
                     $this->getUserId(),
                     0,
-                    $tradeId,
+                    $building->getName(),
                     Parameter::KEY_BEAN_BUILDING_EVALUATION
                 );
 
@@ -388,11 +385,10 @@ class ClientEvaluationController extends EvaluationController
                 $productOrder->setHasEvaluated(true);
 
                 //update user bean
-                $tradeId = 'evaluation_order_'.$productOrderId;
                 $this->get('sandbox_api.bean')->postBeanChange(
                     $this->getUserId(),
                     $productOrder->getPrice(),
-                    $tradeId,
+                    $productOrder->getOrderNumber(),
                     Parameter::KEY_BEAN_ORDER_EVALUATION
                 );
                 break;
