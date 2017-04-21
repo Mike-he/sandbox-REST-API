@@ -53,7 +53,6 @@ class AdminUserBeanController extends UserProfileController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-
         $userId = $paramFetcher->get('user_id');
 
         $pageLimit = $paramFetcher->get('pageLimit');
@@ -64,7 +63,7 @@ class AdminUserBeanController extends UserProfileController
             ->getRepository('SandboxApiBundle:User\UserBeanFlow')
             ->findBy(
                 array('userId' => $userId),
-                array('creationDate'=> 'DESC'),
+                array('creationDate' => 'DESC'),
                 $pageLimit,
                 $offset
             );

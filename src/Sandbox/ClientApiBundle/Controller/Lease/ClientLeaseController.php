@@ -40,7 +40,7 @@ class ClientLeaseController extends SandboxRestController
     use LeaseTrait;
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -73,7 +73,7 @@ class ClientLeaseController extends SandboxRestController
 
         $response = array();
         foreach ($longTermNumbersArray as $number) {
-            $firstLetter = substr($number, 0 ,1);
+            $firstLetter = substr($number, 0, 1);
 
             switch ($firstLetter) {
                 case ProductAppointment::APPOINTMENT_NUMBER_LETTER:
@@ -623,6 +623,7 @@ class ClientLeaseController extends SandboxRestController
 
     /**
      * @param $userId
+     *
      * @return array
      */
     private function generateLongTermNumbersArray(
@@ -680,7 +681,7 @@ class ClientLeaseController extends SandboxRestController
 
         // for pagination
         $numbers = array();
-        for ($i = $offset; $i < $offset + $limit; $i++) {
+        for ($i = $offset; $i < $offset + $limit; ++$i) {
             if (isset($longTermArray[$i])) {
                 array_push($numbers, $longTermArray[$i]);
             }
@@ -717,7 +718,7 @@ class ClientLeaseController extends SandboxRestController
         $lease = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\Lease')
             ->findOneBy(array(
-                'serialNumber' => $number
+                'serialNumber' => $number,
             ));
 
         $bills = $this->getDoctrine()

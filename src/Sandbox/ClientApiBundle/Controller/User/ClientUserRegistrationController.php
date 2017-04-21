@@ -370,7 +370,7 @@ class ClientUserRegistrationController extends UserRegistrationController
      * @param EntityManager    $em
      * @param string           $password
      * @param UserRegistration $registration
-     * @param User           $inviter
+     * @param User             $inviter
      *
      * @return User
      */

@@ -56,7 +56,7 @@ class BeanService
             ->findOneBy(array('key' => $source));
         $value = $parameter->getValue();
 
-        $operator = substr($value, 0,1);
+        $operator = substr($value, 0, 1);
         $number = substr($value, 1);
 
         switch ($operator) {

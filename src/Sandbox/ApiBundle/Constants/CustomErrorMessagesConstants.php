@@ -37,9 +37,12 @@ class CustomErrorMessagesConstants
     const ERROR_CARD_GROUP_CAN_NOT_BE_EDITED_MESSAGE = 'The card group cannot be edited';
 
     //Bean
-    const ERROR_BEAN_OPERATION_TODAY_CODE =  400005;
+    const ERROR_BEAN_OPERATION_TODAY_CODE = 400005;
     const ERROR_BEAN_OPERATION_TODAY_MESSAGE = 'Today has been operating';
 
+    //Offline Transfer
+    const ERROR_TRANSFER_STATUS_CODE = 400015;
+    const ERROR_TRANSFER_STATUS_MESSAGE = 'Wrong Transfer Status';
 
     // 404 NOT FOUND MESSAGE
     // LEASE

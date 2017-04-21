@@ -82,7 +82,7 @@ trait OpenfireApi
     protected function getHistoryMessage(
         $toJID
     ) {
-        header ( "Content-type:text/html;charset=utf-8" );  //统一输出编码为utf-8
+        header('Content-type:text/html;charset=utf-8');  //统一输出编码为utf-8
 
         $db_host = $this->getContainer()->getParameter('database_host');
         $db_name = $this->getContainer()->getParameter('openfire_db_name');
@@ -95,7 +95,7 @@ trait OpenfireApi
             echo mysqli_connect_error();
         }
 
-        mysqli_query($mysqli,'set names utf8');
+        mysqli_query($mysqli, 'set names utf8');
 
         $query = "select * from ofmessagearchive where status = 'message' and toJID = ".$toJID;
 
