@@ -159,6 +159,8 @@ class AdminRoomAttachmentController extends SalesRestController
             AdminPermission::OP_LEVEL_EDIT
         );
 
+        $attachment->setBuilding($roomBuilding);
+
         $em = $this->getDoctrine()->getManager();
         $em->persist($attachment);
         $em->flush();
