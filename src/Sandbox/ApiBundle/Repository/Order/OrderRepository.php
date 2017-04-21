@@ -4261,4 +4261,20 @@ class OrderRepository extends EntityRepository
 
         return (int) $result;
     }
+
+    public function sumPendingEvaluationOrder(
+        $userId
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->select('SUM(o.price)')
+            ->where('o.status = :completed')
+            ->andWhere('o.userId = :userId')
+            ->andWhere('o.hasEvaluated = false')
+            ->setParameter('completed', ProductOrder::STATUS_COMPLETED)
+            ->setParameter('userId', $userId);
+
+        $result = $query->getQuery()->getSingleScalarResult();
+
+        return (float) $result;
+    }
 }

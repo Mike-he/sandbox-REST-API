@@ -2310,6 +2310,15 @@ class ClientOrderController extends OrderController
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->countPendingEvaluationOrder($userId);
 
-        return new View(array('count' => $count));
+        $totalPrice = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->sumPendingEvaluationOrder($userId);
+
+        $data = array(
+            'count' => $count,
+            'total_price' => $totalPrice,
+        );
+
+        return new View($data);
     }
 }
