@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\Repository\Lease;
 use Doctrine\ORM\EntityRepository;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBillOfflineTransfer;
+use Sandbox\ApiBundle\Entity\Offline\OfflineTransfer;
 use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 
@@ -394,9 +395,9 @@ class LeaseBillRepository extends EntityRepository
     /**
      * @return int
      */
-    public function countTransferComfirm()
+    public function countTransferConfirm()
     {
-        $leaseBillComfirmCount = $this->createQueryBuilder('lb')
+        $leaseBillConfirmCount = $this->createQueryBuilder('lb')
             ->leftJoin('SandboxApiBundle:Lease\LeaseBillOfflineTransfer', 't', 'with', 't.bill = lb.id')
             ->select('count(lb.id)')
             ->where('t.transferStatus = :status')
@@ -404,11 +405,10 @@ class LeaseBillRepository extends EntityRepository
             ->setParameter('channel', LeaseBill::CHANNEL_OFFLINE)
             ->setParameter('status', LeaseBillOfflineTransfer::STATUS_PENDING);
 
-        $leaseBillComfirmCount = $leaseBillComfirmCount->getQuery()
+        $leaseBillConfirmCount = $leaseBillConfirmCount->getQuery()
             ->getSingleScalarResult();
-        $leaseBillComfirmCount = (int) $leaseBillComfirmCount;
 
-        $orderComfirmCount = $this->getEntityManager()->createQueryBuilder()
+        $orderConfirmCount = $this->getEntityManager()->createQueryBuilder()
             ->from('SandboxApiBundle:Order\ProductOrder', 'o')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'p.id = o.productId')
             ->leftJoin('SandboxApiBundle:Order\OrderOfflineTransfer', 't', 'with', 't.orderId = o.id')
@@ -422,13 +422,20 @@ class LeaseBillRepository extends EntityRepository
             ->setParameter('verify', OrderOfflineTransfer::STATUS_VERIFY)
             ->setParameter('channel', ProductOrder::CHANNEL_OFFLINE);
 
-        $orderComfirmCount = $orderComfirmCount->getQuery()
+        $orderConfirmCount = $orderConfirmCount->getQuery()
             ->getSingleScalarResult();
-        $orderComfirmCount = (int) $orderComfirmCount;
 
-        $totalComfirmCount = $leaseBillComfirmCount + $orderComfirmCount;
+        $topupConfirmCount = $this->getEntityManager()->createQueryBuilder()
+            ->select('count(ot.id)')
+            ->from('SandboxApiBundle:Offline\OfflineTransfer', 'ot')
+            ->where('ot.transferStatus = :unpaid')
+            ->setParameter('unpaid', OfflineTransfer::STATUS_UNPAID);
 
-        return $totalComfirmCount;
+        $topupConfirmCount = $topupConfirmCount->getQuery()->getSingleScalarResult();
+
+        $totalConfirmCount = $leaseBillConfirmCount + $orderConfirmCount + $topupConfirmCount;
+
+        return (int) $totalConfirmCount;
     }
 
     /**
