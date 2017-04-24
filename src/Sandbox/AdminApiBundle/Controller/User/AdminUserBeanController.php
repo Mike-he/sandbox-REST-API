@@ -4,6 +4,7 @@ namespace Sandbox\AdminApiBundle\Controller\User;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
+use Knp\Component\Pager\Paginator;
 use Sandbox\ApiBundle\Controller\User\UserProfileController;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -21,17 +22,17 @@ class AdminUserBeanController extends UserProfileController
      * @Annotations\QueryParam(
      *    name="pageLimit",
      *    array=false,
-     *    default=null,
+     *    default="20",
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
-     *    description="How many rooms to return "
+     *    description="How many banners to return per page"
      * )
      *
      * @Annotations\QueryParam(
      *    name="pageIndex",
      *    array=false,
-     *    default=null,
+     *    default="1",
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
@@ -57,17 +58,21 @@ class AdminUserBeanController extends UserProfileController
 
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
-        $offset = ($pageIndex - 1) * $pageLimit;
 
         $flows = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserBeanFlow')
             ->findBy(
                 array('userId' => $userId),
-                array('creationDate' => 'DESC'),
-                $pageLimit,
-                $offset
+                array('creationDate' => 'DESC')
             );
 
-        return new View($flows);
+        $paginator = new Paginator();
+        $pagination = $paginator->paginate(
+            $flows,
+            $pageIndex,
+            $pageLimit
+        );
+
+        return new View($pagination);
     }
 }
