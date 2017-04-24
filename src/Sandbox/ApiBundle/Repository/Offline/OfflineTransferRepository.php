@@ -100,6 +100,8 @@ class OfflineTransferRepository extends EntityRepository
                 ->setParameter('status', $status);
         }
 
+        $query->orderBy('o.creationDate', 'DESC');
+
         return $query->getQuery()->getResult();
     }
 }
