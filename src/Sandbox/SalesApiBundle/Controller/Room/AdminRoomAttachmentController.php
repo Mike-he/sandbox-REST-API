@@ -144,7 +144,6 @@ class AdminRoomAttachmentController extends SalesRestController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
-
         $roomBuildingId = $attachment->getBuildingId();
         $this->throwNotFoundIfNull($roomBuildingId, self::NOT_FOUND_MESSAGE);
 
