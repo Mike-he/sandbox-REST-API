@@ -144,8 +144,12 @@ class AdminRoomAttachmentController extends SalesRestController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
-        $roomBuilding = $this->getRepo('Room\RoomBuilding')->find($attachment->getBuildingId());
-        $this->throwNotFoundIfNull($roomBuilding, self::NOT_FOUND_MESSAGE);
+
+        $roomBuildingId = $attachment->getBuildingId();
+        $this->throwNotFoundIfNull($roomBuildingId, self::NOT_FOUND_MESSAGE);
+
+        $roomBuilding = $this->getRepo('Room\RoomBuilding')->find($roomBuildingId);
+        $this->throwNotFoundIfNull($roomBuildingId, self::NOT_FOUND_MESSAGE);
 
         // check user permission
         $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
