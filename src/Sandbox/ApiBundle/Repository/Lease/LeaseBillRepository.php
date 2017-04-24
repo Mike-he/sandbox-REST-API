@@ -428,8 +428,8 @@ class LeaseBillRepository extends EntityRepository
         $topupConfirmCount = $this->getEntityManager()->createQueryBuilder()
             ->select('count(ot.id)')
             ->from('SandboxApiBundle:Offline\OfflineTransfer', 'ot')
-            ->where('ot.transferStatus = :unpaid')
-            ->setParameter('unpaid', OfflineTransfer::STATUS_UNPAID);
+            ->where('ot.transferStatus = :pending')
+            ->setParameter('unpaid', OfflineTransfer::STATUS_PENDING);
 
         $topupConfirmCount = $topupConfirmCount->getQuery()->getSingleScalarResult();
 
