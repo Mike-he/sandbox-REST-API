@@ -234,6 +234,7 @@ class ClientBeanController extends BeanController
 
             $status = false;
             $url = null;
+            $type = null;
             switch ($parameter) {
                 case Parameter::KEY_BEAN_USER_REGISTER:
                     $status = true;
@@ -248,23 +249,17 @@ class ClientBeanController extends BeanController
                     break;
                 case Parameter::KEY_BEAN_BUILDING_EVALUATION:
                     $description = $this->getFixedBeanDescription($language, $number);
-                    $url = array(
-                        'type' => 'app',
-                    );
+                    $type = 'app';
                     break;
                 case Parameter::KEY_BEAN_ORDER_EVALUATION:
                     $description = $this->getOrderBeanDescription($language, $number);
-                    $url = array(
-                        'type' => 'web',
-                        'url' => $this->getParameter('orders_url').'/room',
-                    );
+                    $type = 'web';
+                    $url = $this->getParameter('orders_url').'/room';
                     break;
                 case Parameter::KEY_BEAN_PRODUCT_ORDER:
                     $description = $this->getOrderBeanDescription($language, $number);
-                    $url = array(
-                        'type' => 'web',
-                        'url' => $this->getParameter('room_mobile_url').'/search',
-                    );
+                    $type = 'web';
+                    $url = $this->getParameter('room_mobile_url').'/search';
                     break;
                 case Parameter::KEY_BEAN_PAY_BILL:
                     $first = $this->get('translator')->trans(
@@ -283,24 +278,18 @@ class ClientBeanController extends BeanController
 
                     $description = $first.$number.$second;
 
-                    $url = array(
-                        'type' => 'web',
-                        'url' => $this->getParameter('orders_url').'/contract',
-                    );
+                    $type = 'web';
+                    $url = $this->getParameter('orders_url').'/contract';
                     break;
                 case Parameter::KEY_BEAN_SHOP_ORDER:
                     $description = $this->getOrderBeanDescription($language, $number);
-                    $url = array(
-                        'type' => 'web',
-                        'url' => $this->getParameter('coffee_url').'/coffee',
-                    );
+                    $type = 'web';
+                    $url = $this->getParameter('coffee_url').'/coffee';
                     break;
                 case Parameter::KEY_BEAN_EVENT_ORDER:
                     $description = $this->getOrderBeanDescription($language, $number);
-                    $url = array(
-                        'type' => 'web',
-                        'url' => $this->getParameter('mobile_url').'/event',
-                    );
+                    $type = 'web';
+                    $url = $this->getParameter('mobile_url').'/event';
                     break;
                 default:
                     $description = '';
@@ -311,8 +300,8 @@ class ClientBeanController extends BeanController
                 'title' => $title,
                 'description' => $description,
                 'status' => $status,
+                'type' => $type,
                 'url' => $url,
-
             );
         }
 
