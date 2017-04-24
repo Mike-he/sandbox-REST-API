@@ -187,4 +187,181 @@ class ClientBeanController extends BeanController
 
         return new View($flows);
     }
+
+    /**
+     * Get My Bean flows.
+     *
+     * @param Request $request
+     *
+     * @Route("/beans/task")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function beanTaskAction(
+        Request $request
+    ) {
+        $language = $request->getPreferredLanguage();
+
+        $parameters = array(
+            Parameter::KEY_BEAN_USER_REGISTER,
+            Parameter::KEY_BEAN_USER_LOGIN,
+            Parameter::KEY_BEAN_USER_SHARE,
+            Parameter::KEY_BEAN_BUILDING_EVALUATION,
+            Parameter::KEY_BEAN_ORDER_EVALUATION,
+            Parameter::KEY_BEAN_PRODUCT_ORDER,
+            Parameter::KEY_BEAN_PAY_BILL,
+            Parameter::KEY_BEAN_SHOP_ORDER,
+            Parameter::KEY_BEAN_EVENT_ORDER,
+        );
+
+        $data = array();
+        foreach ($parameters as $parameter) {
+            $beanParameter = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Parameter\Parameter')
+                ->findOneBy(array('key' => $parameter));
+
+            $value = $beanParameter->getValue();
+
+            $title = $this->get('translator')->trans(
+                BeanConstants::TRANS_USER_BEAN_TASK.$parameter,
+                array(),
+                null,
+                $language
+            );
+
+            $number = substr($value, 1);
+
+            $status = false;
+            $url = null;
+            switch ($parameter) {
+                case Parameter::KEY_BEAN_USER_REGISTER:
+                    $status = true;
+                    $description = $this->getFixedBeanDescription($language, $number);
+                    break;
+                case Parameter::KEY_BEAN_USER_LOGIN:
+                    $status = true;
+                    $description = $this->getFixedBeanDescription($language, $number);
+                    break;
+                case Parameter::KEY_BEAN_USER_SHARE:
+                    $description = $this->getFixedBeanDescription($language, $number);
+                    break;
+                case Parameter::KEY_BEAN_BUILDING_EVALUATION:
+                    $description = $this->getFixedBeanDescription($language, $number);
+                    $url = array(
+                        'type' => 'app',
+                    );
+                    break;
+                case Parameter::KEY_BEAN_ORDER_EVALUATION:
+                    $description = $this->getOrderBeanDescription($language, $number);
+                    $url = array(
+                        'type' => 'web',
+                        'url' => $this->getParameter('orders_url').'/room',
+                    );
+                    break;
+                case Parameter::KEY_BEAN_PRODUCT_ORDER:
+                    $description = $this->getOrderBeanDescription($language, $number);
+                    $url = array(
+                        'type' => 'web',
+                        'url' => $this->getParameter('room_mobile_url').'/search',
+                    );
+                    break;
+                case Parameter::KEY_BEAN_PAY_BILL:
+                    $first = $this->get('translator')->trans(
+                        BeanConstants::TRANS_BEAN_BILL_GET_FIRST,
+                        array(),
+                        null,
+                        $language
+                    );
+
+                    $second = $this->get('translator')->trans(
+                        BeanConstants::TRANS_BEAN_MULTIPLE_GET_SECOND,
+                        array(),
+                        null,
+                        $language
+                    );
+
+                    $description = $first.$number.$second;
+
+                    $url = array(
+                        'type' => 'web',
+                        'url' => $this->getParameter('orders_url').'/contract',
+                    );
+                    break;
+                case Parameter::KEY_BEAN_SHOP_ORDER:
+                    $description = $this->getOrderBeanDescription($language, $number);
+                    $url = array(
+                        'type' => 'web',
+                        'url' => $this->getParameter('coffee_url').'/coffee',
+                    );
+                    break;
+                case Parameter::KEY_BEAN_EVENT_ORDER:
+                    $description = $this->getOrderBeanDescription($language, $number);
+                    $url = array(
+                        'type' => 'web',
+                        'url' => $this->getParameter('mobile_url').'/event',
+                    );
+                    break;
+                default:
+                    $description = '';
+            }
+
+            $data[] = array(
+                'key' => $parameter,
+                'title' => $title,
+                'description' => $description,
+                'status' => $status,
+                'url' => $url,
+
+            );
+        }
+
+        return new View($data);
+    }
+
+    private function getFixedBeanDescription(
+        $language,
+        $number
+    ) {
+        $first = $this->get('translator')->trans(
+            BeanConstants::TRANS_BEAN_GET_FIRST,
+            array(),
+            null,
+            $language
+        );
+
+        $second = $this->get('translator')->trans(
+            BeanConstants::TRANS_BEAN_FIXED_GET_SECOND,
+            array(),
+            null,
+            $language
+        );
+
+        $description = $first.$number.$second;
+
+        return $description;
+    }
+
+    private function getOrderBeanDescription(
+        $language,
+        $number
+    ) {
+        $first = $this->get('translator')->trans(
+            BeanConstants::TRANS_BEAN_ORDER_GET_FIRST,
+            array(),
+            null,
+            $language
+        );
+
+        $second = $this->get('translator')->trans(
+            BeanConstants::TRANS_BEAN_MULTIPLE_GET_SECOND,
+            array(),
+            null,
+            $language
+        );
+
+        $description = $first.$number.$second;
+
+        return $description;
+    }
 }
