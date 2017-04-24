@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Repository\Offline;
 
 use Doctrine\ORM\EntityRepository;
+use Sandbox\ApiBundle\Entity\Offline\OfflineTransfer;
 
 class OfflineTransferRepository extends EntityRepository
 {
@@ -74,6 +75,30 @@ class OfflineTransferRepository extends EntityRepository
         }
 
         $query->orderBy('o.creationDate', 'DESC');
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $status
+     * @param $userId
+     *
+     * @return array
+     */
+    public function getTopupTransfersForClient(
+        $userId,
+        $status
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->where('o.userId = :userId')
+            ->andWhere('o.type = :topup')
+            ->setParameter('userId', $userId)
+            ->setParameter('topup', OfflineTransfer::TYPE_TOPUP);
+
+        if (!is_null($status)) {
+            $query->andWhere('o.transferStatus IN (:status)')
+                ->setParameter('status', $status);
+        }
 
         return $query->getQuery()->getResult();
     }

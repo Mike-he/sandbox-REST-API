@@ -32,6 +32,66 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 class ClientTopUpOrderController extends PaymentController
 {
     /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *     name="status",
+     *     array=true,
+     *     default=null,
+     *     strict=true
+     * )
+     *
+     * @Route("/topup/transfers")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getMyTopUpOrderTransfersAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $userId = $this->getUserId();
+        $status = $paramFetcher->get('status');
+        $status = !empty($status) ? $status : null;
+
+        $transfers = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Offline\OfflineTransfer')
+            ->getTopupTransfersForClient(
+                $userId,
+                $status
+            );
+
+        return new View($transfers);
+    }
+
+    /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/topup/transfers/{id}")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getMyTopUpOrderTransferAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        $userId = $this->getUserId();
+        $transfer = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Offline\OfflineTransfer')
+            ->findOneBy(array(
+                'id' => $id,
+                'userId' => $userId,
+                'type' => OfflineTransfer::TYPE_TOPUP,
+            ));
+
+        return new View($transfer);
+    }
+
+    /**
      * Get all orders for current user.
      *
      * @Get("/topup/orders/my")
@@ -339,6 +399,8 @@ class ClientTopUpOrderController extends PaymentController
 
         $em->flush();
 
-        return new View();
+        return new View(array(
+            'transfer_id' => $transfer->getId(),
+        ));
     }
 }
