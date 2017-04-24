@@ -1368,7 +1368,7 @@ class AdminBuildingController extends LocationController
         $building->setCompany($salesCompany);
         $building->setCity($roomCity);
         $building->setDistrict($area);
-        $building->setStatus(RoomBuilding::STATUS_PENDING);
+        $building->setStatus(RoomBuilding::STATUS_ACCEPT);
         $building->setCreationDate($now);
         $building->setModificationDate($now);
 
