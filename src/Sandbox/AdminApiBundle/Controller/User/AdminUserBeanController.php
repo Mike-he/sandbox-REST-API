@@ -6,6 +6,7 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use Knp\Component\Pager\Paginator;
 use Sandbox\ApiBundle\Controller\User\UserProfileController;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -54,6 +55,9 @@ class AdminUserBeanController extends UserProfileController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // check user permission
+        $this->checkAdminUserPermission(AdminPermission::OP_LEVEL_VIEW);
+
         $userId = $paramFetcher->get('user_id');
 
         $pageLimit = $paramFetcher->get('pageLimit');
@@ -74,5 +78,20 @@ class AdminUserBeanController extends UserProfileController
         );
 
         return new View($pagination);
+    }
+
+    /**
+     * @param $opLevel
+     */
+    private function checkAdminUserPermission(
+        $opLevel
+    ) {
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
+            $this->getAdminId(),
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_USER],
+            ],
+            $opLevel
+        );
     }
 }
