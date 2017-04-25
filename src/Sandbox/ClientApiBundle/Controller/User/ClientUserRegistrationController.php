@@ -224,6 +224,7 @@ class ClientUserRegistrationController extends UserRegistrationController
         $code = $verify->getCode();
         $password = $verify->getPassword();
         $weChatData = $verify->getWeChat();
+        $inviterUserId = $verify->getInviterUserId();
         $inviterPhone = $verify->getInviterPhone();
 
         // get registration by (email / phone) with code
@@ -246,8 +247,22 @@ class ClientUserRegistrationController extends UserRegistrationController
             );
         }
 
-        // check inviter phone
         $inviter = null;
+
+        // check inviter user
+        if (!is_null($inviterUserId)) {
+            $inviter = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\User')
+                ->find($inviterUserId);
+            if (is_null($inviter)) {
+                return $this->customErrorView(
+                    400,
+                    self::ERROR_INVALID_INVITER_CODE,
+                    self::ERROR_INVALID_INVITER_MESSAGE
+                );
+        }
+
+        // check inviter phone
         if (!is_null($inviterPhone)) {
             $inviter = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:User\User')

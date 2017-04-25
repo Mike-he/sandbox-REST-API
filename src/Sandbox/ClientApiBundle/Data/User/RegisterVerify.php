@@ -40,6 +40,11 @@ class RegisterVerify
     private $weChat;
 
     /**
+     * @var integer
+     */
+    private $inviterUserId;
+
+    /**
      * @var string
      */
     private $inviterPhone;
@@ -170,6 +175,22 @@ class RegisterVerify
     public function setWeChat($weChat)
     {
         $this->weChat = $weChat;
+    }
+
+    /**
+     * @return int
+     */
+    public function getInviterUserId()
+    {
+        return $this->inviterUserId;
+    }
+
+    /**
+     * @param int $inviterUserId
+     */
+    public function setInviterUserId($inviterUserId)
+    {
+        $this->inviterUserId = $inviterUserId;
     }
 
     /**
