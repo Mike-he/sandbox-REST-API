@@ -38,7 +38,7 @@ class OfflineTransferRepository extends EntityRepository
         }
 
         if (!is_null($status)) {
-            $query->andWhere('o.status = :status')
+            $query->andWhere('o.transferStatus = :status')
                 ->setParameter('status', $status);
         }
 
