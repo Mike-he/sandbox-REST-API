@@ -260,6 +260,7 @@ class ClientUserRegistrationController extends UserRegistrationController
                     self::ERROR_INVALID_INVITER_CODE,
                     self::ERROR_INVALID_INVITER_MESSAGE
                 );
+            }
         }
 
         // check inviter phone
