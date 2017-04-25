@@ -94,6 +94,42 @@ class ClientTopUpOrderController extends PaymentController
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
+     * @param int                   $id
+     *
+     * @Route("topup/{id}/transfer")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getTopUpOrderTransferAttachmentAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        $userId = $this->getUserId();
+
+        $topupOrder = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\TopUpOrder')
+            ->find($id);
+        $this->throwNotFoundIfNull($topupOrder, self::NOT_FOUND_MESSAGE);
+
+        $orderNumber = $topupOrder->getOrderNumber();
+
+        $transfer = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Offline\OfflineTransfer')
+            ->findOneBy(array(
+                'userId' => $userId,
+                'type' => OfflineTransfer::TYPE_TOPUP,
+                'orderNumber' => $orderNumber,
+                'transferStatus' => OfflineTransfer::STATUS_PAID,
+            ));
+
+        return new View($transfer);
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/topup/transfers/{id}")
      * @Method({"DELETE"})
