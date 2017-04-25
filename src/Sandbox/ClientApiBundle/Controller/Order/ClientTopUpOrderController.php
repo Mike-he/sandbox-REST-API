@@ -92,6 +92,40 @@ class ClientTopUpOrderController extends PaymentController
     }
 
     /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/topup/transfers/{id}")
+     * @Method({"DELETE"})
+     *
+     * @return View
+     */
+    public function deleteMyTopUpOrderTransferAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        $userId = $this->getUserId();
+        $transfer = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Offline\OfflineTransfer')
+            ->findOneBy(array(
+                'id' => $id,
+                'userId' => $userId,
+                'type' => OfflineTransfer::TYPE_TOPUP,
+            ));
+
+        if (is_null($transfer)) {
+            return new View();
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $em->remove($transfer);
+        $em->flush();
+
+        return new View();
+    }
+
+    /**
      * Get all orders for current user.
      *
      * @Get("/topup/orders/my")
