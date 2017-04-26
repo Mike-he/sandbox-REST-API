@@ -1871,15 +1871,16 @@ class ClientOrderController extends OrderController
                 $order->getStartDate(),
                 $order->getEndDate()
             );
-
-            $this->setDoorAccessForMembershipCard(
-                $buildingId,
-                $userArray,
-                $order->getStartDate(),
-                $order->getEndDate(),
-                $order->getOrderNumber()
-            );
         }
+
+        //add users to user group
+        $this->setDoorAccessForMembershipCard(
+            $buildingId,
+            $users,
+            $order->getStartDate(),
+            $order->getEndDate(),
+            $order->getOrderNumber()
+        );
 
         // send notification to invited users
         if (!empty($recvUsers)) {
@@ -2003,7 +2004,7 @@ class ClientOrderController extends OrderController
 
             $this->setDoorAccessForMembershipCard(
                 $buildingId,
-                $userArray,
+                [$newUser],
                 $order->getStartDate(),
                 $order->getEndDate(),
                 $order->getOrderNumber()
