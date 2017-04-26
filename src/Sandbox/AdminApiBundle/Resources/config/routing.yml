@@ -302,3 +302,9 @@ sandbox_admin_api_membership_card_order:
     resource: "@SandboxAdminApiBundle/Controller/MembershipCard/AdminMembershipCardOrderController.php"
     type:     annotation
     prefix:   /
+
+# User Bean
+sandbox_admin_api_user_bean:
+    resource: "@SandboxAdminApiBundle/Controller/User/AdminUserBeanController.php"
+    type:     annotation
+    prefix:   /

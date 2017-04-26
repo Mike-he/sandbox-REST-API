@@ -311,9 +311,9 @@ class AdminFinanceDashboardController extends AdminRestController
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->countNeedToRefundOrders();
 
-        $transferComfirmCount = $this->getDoctrine()
+        $transferConfirmCount = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
-            ->countTransferComfirm();
+            ->countTransferConfirm();
 
         $globals = $this->getGlobals();
         $url = $globals['crm_api_url'].'/admin/dashboard/invoices/count?status[]=pending&status[]=cancelled_wait';
@@ -324,7 +324,7 @@ class AdminFinanceDashboardController extends AdminRestController
             'short_rent_invoice_applications_count' => (int) $shortRentInvoiceApplicationsCount,
             'sales_company_withdrawals_count' => (int) $companyWithdrawalsCount,
             'need_to_refund_orders_count' => (int) $needToRefundedOrdersCount,
-            'transfer_comfirm_count' => (int) $transferComfirmCount,
+            'transfer_comfirm_count' => (int) $transferConfirmCount,
             'pending_invoice_count' => (int) $invoiceCount,
         );
 

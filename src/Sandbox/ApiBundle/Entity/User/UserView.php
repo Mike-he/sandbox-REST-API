@@ -118,6 +118,14 @@ class UserView
     private $userRegistrationDate;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="bean", type="float")
+     * @Serializer\Groups({"main"})
+     */
+    private $bean;
+
+    /**
      * @var array
      */
     private $building;
@@ -317,5 +325,21 @@ class UserView
     public function setGroups($groups)
     {
         $this->groups = $groups;
+    }
+
+    /**
+     * @return string
+     */
+    public function getBean()
+    {
+        return $this->bean;
+    }
+
+    /**
+     * @param string $bean
+     */
+    public function setBean($bean)
+    {
+        $this->bean = $bean;
     }
 }

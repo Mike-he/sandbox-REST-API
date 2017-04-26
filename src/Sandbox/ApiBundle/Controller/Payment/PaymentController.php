@@ -22,6 +22,7 @@ use Pingpp\Pingpp;
 use Pingpp\Charge;
 use Pingpp\Customer;
 use Pingpp\Error\Base;
+use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
@@ -915,12 +916,14 @@ class PaymentController extends DoorController
     /**
      * @param string $orderNumber
      * @param string $channel
+     * @param int    $userId
      *
      * @return ProductOrder
      */
     public function setProductOrder(
         $orderNumber,
-        $channel
+        $channel,
+        $userId
     ) {
         $order = $this->getRepo('Order\ProductOrder')->findOneBy(
             [
@@ -957,6 +960,7 @@ class PaymentController extends DoorController
             $order->setStatus(self::STATUS_PAID);
         }
 
+        $order->setPaymentUserId($userId);
         $order->setPaymentDate(new \DateTime());
         $order->setModificationDate(new \DateTime());
 
@@ -992,7 +996,6 @@ class PaymentController extends DoorController
 
         return $order;
     }
-
 
     /**
      * @param string $orderNumber
@@ -1110,6 +1113,13 @@ class PaymentController extends DoorController
         $order->setPaymentDate($now);
         $order->setPayChannel($channel);
         $order->setModificationDate($now);
+
+        $this->get('sandbox_api.bean')->postBeanChange(
+            $order->getUserId(),
+            $order->getPrice(),
+            $orderNumber,
+            Parameter::KEY_BEAN_EVENT_ORDER
+        );
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();
@@ -1331,6 +1341,13 @@ class PaymentController extends DoorController
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($order);
+
+        $this->get('sandbox_api.bean')->postBeanChange(
+            $userId,
+            $price,
+            $orderNumber,
+            Parameter::KEY_BEAN_MEMBERSHIP_ORDER
+        );
 
         // add user to user_group
         $this->addUserToUserGroup(
@@ -1689,12 +1706,14 @@ class PaymentController extends DoorController
     /**
      * @param $orderNumber
      * @param $channel
+     * @param $userId
      *
      * @return null|object|LeaseBill
      */
     public function setLeaseBillStatus(
         $orderNumber,
-        $channel
+        $channel,
+        $userId
     ) {
         $bill = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
@@ -1706,10 +1725,35 @@ class PaymentController extends DoorController
             );
         $this->throwNotFoundIfNull($bill, self::NOT_FOUND_MESSAGE);
 
+        $drawee = $bill->getLease()->getDrawee()->getId();
+
+        $bill->setPaymentUserId($userId);
         $bill->setStatus(LeaseBill::STATUS_PAID);
         $bill->setPaymentDate(new \DateTime());
         $bill->setPayChannel($channel);
-        $bill->setDrawee($bill->getLease()->getDrawee()->getId());
+        $bill->setDrawee($drawee);
+
+        //update user bean
+        $this->get('sandbox_api.bean')->postBeanChange(
+            $drawee,
+            $bill->getRevisedAmount(),
+            $orderNumber,
+            Parameter::KEY_BEAN_PAY_BILL
+        );
+
+        //update invitee bean
+        $user = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\User')
+            ->find($drawee);
+
+        if ($user->getInviterId()) {
+            $this->get('sandbox_api.bean')->postBeanChange(
+                $user->getInviterId(),
+                $bill->getRevisedAmount(),
+                $orderNumber,
+                Parameter::KEY_BEAN_INVITEE_PAY_BILL
+            );
+        }
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();

@@ -414,4 +414,29 @@ class LeaseRepository extends EntityRepository
 
         return $result;
     }
+
+    /**
+     * @param $userId
+     * @param $statusArray
+     *
+     * @return array
+     */
+    public function getLeaseNumbersForClientLease(
+        $userId,
+        $statusArray
+    ) {
+        $query = $this->createQueryBuilder('l')
+            ->select('l.serialNumber')
+            ->where('l.status IN (:status)')
+            ->andWhere('(l.drawee = :userId OR l.supervisor = :userId)')
+            ->setParameter('status', $statusArray)
+            ->setParameter('userId', $userId);
+
+        $query->orderBy('l.modificationDate', 'DESC');
+
+        $result = $query->getQuery()->getScalarResult();
+        $result = array_map('current', $result);
+
+        return $result;
+    }
 }

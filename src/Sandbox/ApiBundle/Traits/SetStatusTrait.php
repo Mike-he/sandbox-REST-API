@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Traits;
 
 use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
+use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 
 /**
  * Consume Trait.
@@ -27,6 +28,28 @@ trait SetStatusTrait
     ) {
         $order->setStatus(ProductOrder::STATUS_COMPLETED);
         $order->setModificationDate(new \DateTime('now'));
+
+        //update user bean
+        $this->get('sandbox_api.bean')->postBeanChange(
+            $order->getUserId(),
+            $order->getPrice(),
+            $order->getOrderNumber(),
+            Parameter::KEY_BEAN_PRODUCT_ORDER
+        );
+
+        //update invitee bean
+        $user = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\User')
+            ->find($order->getUserId());
+
+        if ($user->getInviterId()) {
+            $this->get('sandbox_api.bean')->postBeanChange(
+                $user->getInviterId(),
+                $order->getPrice(),
+                $order->getOrderNumber(),
+                Parameter::KEY_BEAN_INVITEE_PRODUCT_ORDER
+            );
+        }
     }
 
     protected function setProductOrderInvoice(

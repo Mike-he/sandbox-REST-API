@@ -11,6 +11,7 @@ use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentServiceBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBillOfflineTransfer;
+use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Sandbox\ApiBundle\Form\Lease\LeaseBillOfflineTransferPatch;
 use Sandbox\ApiBundle\Traits\FinanceTrait;
@@ -270,6 +271,27 @@ class AdminLeaseBillController extends LeaseController
 
                 $bill->setStatus(LeaseBill::STATUS_PAID);
                 $bill->setPaymentDate($now);
+
+                $this->get('sandbox_api.bean')->postBeanChange(
+                    $bill->getDrawee(),
+                    $bill->getRevisedAmount(),
+                    $bill->getSerialNumber(),
+                    Parameter::KEY_BEAN_PAY_BILL
+                );
+
+                //update invitee bean
+                $user = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:User\User')
+                    ->find($bill->getDrawee());
+
+                if ($user->getInviterId()) {
+                    $this->get('sandbox_api.bean')->postBeanChange(
+                        $user->getInviterId(),
+                        $bill->getRevisedAmount(),
+                        $bill->getSerialNumber(),
+                        Parameter::KEY_BEAN_INVITEE_PAY_BILL
+                    );
+                }
 
                 break;
             case LeaseBillOfflineTransfer::STATUS_RETURNED:

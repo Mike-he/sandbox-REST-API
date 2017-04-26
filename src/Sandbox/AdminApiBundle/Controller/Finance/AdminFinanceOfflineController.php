@@ -5,10 +5,16 @@ namespace Sandbox\AdminApiBundle\Controller\Finance;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
+use Rs\Json\Patch;
+use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
+use Sandbox\ApiBundle\Entity\Offline\OfflineTransfer;
+use Sandbox\ApiBundle\Entity\Order\OrderCount;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
+use Sandbox\ApiBundle\Entity\Order\TopUpOrder;
+use Sandbox\ApiBundle\Form\Offline\OfflineTransferPatch;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -304,6 +310,288 @@ class AdminFinanceOfflineController extends SandboxRestController
         );
 
         return $view;
+    }
+
+    /**
+     * Get offline Bills lists.
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many products to return"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="type",
+     *    nullable=false,
+     *    strict=true,
+     *    description="type"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="status",
+     *    default=null,
+     *    nullable=true,
+     *    description="status"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="keyword",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="keyword_search",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="amount_start",
+     *    default=null,
+     *    nullable=true,
+     *    description="amount start query"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="amount_end",
+     *    default=null,
+     *    nullable=true,
+     *    description="amount end query"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pay_start",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="filter for payment start. Must be YYYY-mm-dd"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="pay_end",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="filter for payment end. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Route("/finance/offline")
+     * @Method({"GET"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getOfflineListsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        // check user permission
+        $this->checkAdminFinanceOfflinePermission(AdminPermission::OP_LEVEL_VIEW);
+
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+        $type = $paramFetcher->get('type');
+        $status = $paramFetcher->get('status');
+        $keyword = $paramFetcher->get('keyword');
+        $keywordSearch = $paramFetcher->get('keyword_search');
+        $amountStart = $paramFetcher->get('amount_start');
+        $amountEnd = $paramFetcher->get('amount_end');
+        $payStart = $paramFetcher->get('pay_start');
+        $payEnd = $paramFetcher->get('pay_end');
+
+        $transfers = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Offline\OfflineTransfer')
+            ->getOfflineTransferForAdmin(
+                $type,
+                $status,
+                $keyword,
+                $keywordSearch,
+                $amountStart,
+                $amountEnd,
+                $payStart,
+                $payEnd
+            );
+
+        $paginator = new Paginator();
+        $pagination = $paginator->paginate(
+            $transfers,
+            $pageIndex,
+            $pageLimit
+        );
+
+        return new View($pagination);
+    }
+
+    /**
+     * @param Request $request
+     * @param $id
+     *
+     * @Route("/finance/offline/transfer/{id}")
+     * @Method({"PATCH"})
+     *
+     * @throws \Exception
+     *
+     * @return View
+     */
+    public function patchTransferStatusAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->checkAdminFinanceOfflinePermission(AdminPermission::OP_LEVEL_EDIT);
+
+        $em = $this->getDoctrine()->getManager();
+
+        $transfer = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Offline\OfflineTransfer')
+            ->find($id);
+        $this->throwNotFoundIfNull($transfer, self::NOT_FOUND_MESSAGE);
+
+        $oldStatus = $transfer->getTransferStatus();
+
+        // bind data
+        $transferJson = $this->container->get('serializer')->serialize($transfer, 'json');
+        $patch = new Patch($transferJson, $request->getContent());
+        $transferJson = $patch->apply();
+
+        $form = $this->createForm(new OfflineTransferPatch(), $transfer);
+        $form->submit(json_decode($transferJson, true));
+
+        $status = $transfer->getTransferStatus();
+        $now = new \DateTime();
+
+        switch ($status) {
+            case OfflineTransfer::STATUS_PAID:
+                if ($oldStatus != OfflineTransfer::STATUS_PENDING) {
+                    return $this->customErrorView(
+                        400,
+                        CustomErrorMessagesConstants::ERROR_TRANSFER_STATUS_CODE,
+                        CustomErrorMessagesConstants::ERROR_TRANSFER_STATUS_MESSAGE
+                    );
+                }
+
+                if ($transfer->getType() == OfflineTransfer::TYPE_TOPUP) {
+                    $channel = ProductOrder::CHANNEL_OFFLINE;
+                    $price = $transfer->getPrice();
+                    $orderNumber = $transfer->getOrderNumber();
+                    $userId = $transfer->getUserId();
+                    $this->setTopUpOrder(
+                        $em,
+                        $userId,
+                        $price,
+                        $orderNumber,
+                        $channel
+                    );
+
+                    $ordercount = $this->updateOrderCount();
+
+                    $balance = $this->postBalanceChange(
+                        $userId,
+                        $price,
+                        $orderNumber,
+                        $channel,
+                        $price
+                    );
+
+                    $amount = $this->postConsumeBalance(
+                        $userId,
+                        $price,
+                        $orderNumber
+                    );
+                }
+
+                break;
+            case OfflineTransfer::STATUS_RETURNED:
+                if ($oldStatus != OfflineTransfer::STATUS_PENDING) {
+                    return $this->customErrorView(
+                        400,
+                        CustomErrorMessagesConstants::ERROR_TRANSFER_STATUS_CODE,
+                        CustomErrorMessagesConstants::ERROR_TRANSFER_STATUS_MESSAGE
+                    );
+                }
+
+                break;
+        }
+
+        $em->flush();
+
+        return new View();
+    }
+
+    private function setTopUpOrder(
+        $em,
+        $userId,
+        $price,
+        $orderNumber,
+        $channel,
+        $refundToAccount = false,
+        $refundNumber = null
+    ) {
+        $order = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\TopUpOrder')
+            ->findOneByOrderNumber($orderNumber);
+
+        if (is_null($order)) {
+            $order = new TopUpOrder();
+            $order->setUserId($userId);
+            $order->setOrderNumber($orderNumber);
+            $order->setPrice($price);
+            $order->setRefundToAccount($refundToAccount);
+            $order->setRefundNumber($refundNumber);
+        }
+
+        $order->setPayChannel($channel);
+
+        $em->persist($order);
+    }
+
+    private function updateOrderCount()
+    {
+        $now = new \DateTime();
+        $now->setTime(00, 00, 00);
+
+        $em = $this->getDoctrine()->getManager();
+
+        $counter = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\OrderCount')
+            ->findOneBy(['orderDate' => $now]);
+
+        if (is_null($counter)) {
+            $count = 1;
+            $counter = new OrderCount();
+            $counter->setOrderDate($now);
+        } else {
+            $count = $counter->getCount() + 1;
+        }
+        $counter->setCount($count);
+
+        $em->persist($counter);
     }
 
     /**

@@ -353,7 +353,7 @@ class RoomBuilding implements JsonSerializable
      * @ORM\Column(name="visible", type="boolean", nullable=false)
      * @Serializer\Groups({"main", "admin_building"})
      */
-    private $visible = false;
+    private $visible = true;
 
     /**
      * @var int

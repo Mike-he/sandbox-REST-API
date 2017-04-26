@@ -4,6 +4,7 @@ namespace Sandbox\ClientApiBundle\Controller\User;
 
 use Sandbox\ApiBundle\Controller\User\UserRegistrationController;
 use Sandbox\ApiBundle\Entity\Buddy\Buddy;
+use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Sandbox\ApiBundle\Entity\ThirdParty\WeChat;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\User\UserClient;
@@ -59,6 +60,9 @@ class ClientUserRegistrationController extends UserRegistrationController
 
     const ERROR_EXPIRED_VERIFICATION_CODE = 400007;
     const ERROR_EXPIRED_VERIFICATION_MESSAGE = 'register.verify.expired_verification';
+
+    const ERROR_INVALID_INVITER_CODE = 400008;
+    const ERROR_INVALID_INVITER_MESSAGE = 'register.verify.invalid_inviter';
 
     const ZH_SMS_VERIFICATION_BEFORE = '【展想创合】欢迎注册展想创合！您的手机验证码为：';
     const ZH_SMS_VERIFICATION_AFTER = '，请输入后进行验证，谢谢！验证码在10分钟内有效。';
@@ -220,6 +224,8 @@ class ClientUserRegistrationController extends UserRegistrationController
         $code = $verify->getCode();
         $password = $verify->getPassword();
         $weChatData = $verify->getWeChat();
+        $inviterUserId = $verify->getInviterUserId();
+        $inviterPhone = $verify->getInviterPhone();
 
         // get registration by (email / phone) with code
         $registration = $this->getMyRegistration($email, $phone, $code, $phoneCode);
@@ -241,9 +247,41 @@ class ClientUserRegistrationController extends UserRegistrationController
             );
         }
 
+        $inviter = null;
+
+        // check inviter user
+        if (!is_null($inviterUserId)) {
+            $inviter = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\User')
+                ->find($inviterUserId);
+            if (is_null($inviter)) {
+                return $this->customErrorView(
+                    400,
+                    self::ERROR_INVALID_INVITER_CODE,
+                    self::ERROR_INVALID_INVITER_MESSAGE
+                );
+            }
+        }
+
+        // check inviter phone
+        if (!is_null($inviterPhone)) {
+            $inviter = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\User')
+                ->findOneBy(array(
+                    'phone' => $inviterPhone,
+                ));
+            if (is_null($inviter)) {
+                return $this->customErrorView(
+                    400,
+                    self::ERROR_INVALID_INVITER_CODE,
+                    self::ERROR_INVALID_INVITER_MESSAGE
+                );
+            }
+        }
+
         // so far, code is verified
         // get existing user or create a new user
-        $user = $this->finishRegistration($em, $password, $registration);
+        $user = $this->finishRegistration($em, $password, $registration, $inviter);
         if (is_null($user)) {
             // update db
             $em->flush();
@@ -261,6 +299,26 @@ class ClientUserRegistrationController extends UserRegistrationController
 
         // post user account to internal api
         $this->postUserAccount($user->getId());
+
+        //update user bean
+        $this->get('sandbox_api.bean')->postBeanChange(
+            $user->getId(),
+            0,
+            null,
+            Parameter::KEY_BEAN_USER_REGISTER
+        );
+
+        //update invitee bean
+        if ($inviter) {
+            $this->get('sandbox_api.bean')->postBeanChange(
+                $inviter->getId(),
+                0,
+                null,
+                Parameter::KEY_BEAN_SUCCESS_INVITATION
+            );
+        }
+
+        $em->flush();
 
         // response
         $view = new View($responseArray);
@@ -328,13 +386,15 @@ class ClientUserRegistrationController extends UserRegistrationController
      * @param EntityManager    $em
      * @param string           $password
      * @param UserRegistration $registration
+     * @param User             $inviter
      *
      * @return User
      */
     private function finishRegistration(
         $em,
         $password,
-        $registration
+        $registration,
+        $inviter
     ) {
         $user = null;
 
@@ -350,9 +410,8 @@ class ClientUserRegistrationController extends UserRegistrationController
         }
 
         if (is_null($user) && !is_null($password)) {
-
             // generate user
-            $user = $this->generateUser($email, $phone, $password, $registrationId, $phoneCode);
+            $user = $this->generateUser($email, $phone, $password, $registrationId, $phoneCode, $inviter);
             $em->persist($user);
 
             // create default profile
@@ -379,6 +438,7 @@ class ClientUserRegistrationController extends UserRegistrationController
      * @param string $password
      * @param int    $registrationId
      * @param string $phoneCode
+     * @param User   $inviter
      *
      * @return User User
      */
@@ -387,7 +447,8 @@ class ClientUserRegistrationController extends UserRegistrationController
         $phone,
         $password,
         $registrationId,
-        $phoneCode
+        $phoneCode,
+        $inviter
     ) {
         $user = new User();
         $user->setPassword($password);
@@ -397,6 +458,11 @@ class ClientUserRegistrationController extends UserRegistrationController
         } else {
             $user->setPhone($phone);
             $user->setPhoneCode($phoneCode);
+        }
+
+        // set inviter
+        if (!is_null($inviter)) {
+            $user->setInviterId($inviter->getId());
         }
 
         // get xmppUsername from response

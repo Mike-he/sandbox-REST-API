@@ -307,4 +307,29 @@ class ProductAppointmentRepository extends EntityRepository
 
         return $query;
     }
+
+    /**
+     * @param $statusArray
+     * @param $userId
+     *
+     * @return array
+     */
+    public function getAppointmentNumbersForClientLease(
+        $userId,
+        $statusArray
+    ) {
+        $query = $this->createQueryBuilder('a')
+            ->select('a.appointmentNumber')
+            ->where('a.status IN (:status)')
+            ->andWhere('a.userId = :userId')
+            ->setParameter('status', $statusArray)
+            ->setParameter('userId', $userId);
+
+        $query->orderBy('a.creationDate', 'DESC');
+
+        $result = $query->getQuery()->getScalarResult();
+        $result = array_map('current', $result);
+
+        return $result;
+    }
 }
