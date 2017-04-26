@@ -105,4 +105,24 @@ class OfflineTransferRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param $orderNumber
+     * 
+     * @return array
+     */
+    public function getAttachments(
+        $orderNumber
+    ) {
+        $query = $this->getEntityManager()->createQueryBuilder()
+            ->select('ota')
+            ->from('SandboxApiBundle:Offline\OfflineTransferAttachment', 'ota')
+            ->leftJoin('ota.transfer', 't')
+            ->where('t.orderNumber = :orderNumber')
+            ->setParameter('orderNumber', $orderNumber);
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
 }
