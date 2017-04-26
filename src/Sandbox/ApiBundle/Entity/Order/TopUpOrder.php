@@ -102,6 +102,11 @@ class TopUpOrder
     private $refundNumber;
 
     /**
+     * @Serializer\Groups({"main", "admin_order", "client_order"})
+     */
+    private $transferAttachments;
+
+    /**
      * Get id.
      *
      * @return int
@@ -317,5 +322,21 @@ class TopUpOrder
         $this->setCreationDate($now);
         $this->setModificationDate($now);
         $this->setPaymentDate($now);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTransferAttachments()
+    {
+        return $this->transferAttachments;
+    }
+
+    /**
+     * @param mixed $transferAttachments
+     */
+    public function setTransferAttachments($transferAttachments)
+    {
+        $this->transferAttachments = $transferAttachments;
     }
 }

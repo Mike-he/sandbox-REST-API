@@ -7,6 +7,7 @@ use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\MembershipCard\MembershipCard;
 use Sandbox\ApiBundle\Entity\MembershipCard\MembershipOrder;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
+use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
 use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
@@ -110,6 +111,14 @@ class ClientMembershipOrderController extends PaymentController
 
             $em = $this->getDoctrine()->getManager();
             $em->persist($order);
+
+            $this->get('sandbox_api.bean')->postBeanChange(
+                $userId,
+                $price,
+                $orderNumber,
+                Parameter::KEY_BEAN_MEMBERSHIP_ORDER
+            );
+
             $em->flush();
 
             // add user to user_group

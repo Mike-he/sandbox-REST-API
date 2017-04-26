@@ -5,6 +5,7 @@ namespace Sandbox\AdminApiBundle\Controller\Order;
 use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
@@ -157,8 +158,18 @@ class AdminTopUpOrderController extends PaymentController
                 $keywordSearch
             );
 
+        foreach ($orders as $order) {
+            if ($order->getPayChannel() == ProductOrder::CHANNEL_OFFLINE) {
+                $offlineTransfer = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Offline\OfflineTransfer')
+                    ->getAttachments($order->getOrderNumber());
+
+                $order->setTransferAttachments($offlineTransfer);
+            }
+        }
+
         $view = new View();
-        $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_order']));
+//        $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_order']));
         $view->setData(
             array(
                 'current_page_number' => $pageIndex,

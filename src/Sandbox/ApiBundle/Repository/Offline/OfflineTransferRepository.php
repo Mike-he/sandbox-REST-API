@@ -30,7 +30,8 @@ class OfflineTransferRepository extends EntityRepository
         $payEnd
     ) {
         $query = $this->createQueryBuilder('o')
-            ->where('1=1');
+            ->where('o.transferStatus != :unpaid')
+            ->setParameter('unpaid', OfflineTransfer::STATUS_UNPAID);
 
         if (!is_null($type)) {
             $query->andWhere('o.type = :type')
@@ -103,5 +104,25 @@ class OfflineTransferRepository extends EntityRepository
         $query->orderBy('o.creationDate', 'DESC');
 
         return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $orderNumber
+     * 
+     * @return array
+     */
+    public function getAttachments(
+        $orderNumber
+    ) {
+        $query = $this->getEntityManager()->createQueryBuilder()
+            ->select('ota')
+            ->from('SandboxApiBundle:Offline\OfflineTransferAttachment', 'ota')
+            ->leftJoin('ota.transfer', 't')
+            ->where('t.orderNumber = :orderNumber')
+            ->setParameter('orderNumber', $orderNumber);
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
     }
 }
