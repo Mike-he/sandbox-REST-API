@@ -124,6 +124,6 @@ parameters:
     openfire_db_user: staging_xmpp
     openfire_db_password: Sandhill2290
 
-    duiba_app_key: 2rc4ZQm9csJapqvKnx92AKsNdLRr
-    duiba_app_secret: AfdCJZ6T4vHboHkuVSkwWUwMRra
+    duiba_app_key: XUPB5iAdCbHnc6C8fcmpB8fcxLu
+    duiba_app_secret: 3ynCsWqXzcErULFvSEojLH94pnxb
     duiba_app_env: sta
