@@ -30,7 +30,8 @@ class OfflineTransferRepository extends EntityRepository
         $payEnd
     ) {
         $query = $this->createQueryBuilder('o')
-            ->where('1=1');
+            ->where('o.transferStatus != :unpaid')
+            ->setParameter('unpaid', OfflineTransfer::STATUS_UNPAID);
 
         if (!is_null($type)) {
             $query->andWhere('o.type = :type')
