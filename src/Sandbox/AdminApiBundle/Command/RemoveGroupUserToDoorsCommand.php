@@ -27,24 +27,16 @@ class RemoveGroupUserToDoorsCommand extends ContainerAwareCommand
         $memberships = $em->getRepository('SandboxApiBundle:MembershipCard\MembershipCardAccessNo')->findAll();
 
         foreach ($memberships as $membership) {
-            $buildingIds = $em->getRepository('SandboxApiBundle:User\UserGroupDoors')
-                ->getBuildingIdsByGroup(
-                    null,
-                    $membership->getCard()
+            $buildingId = $membership->getBuildingId();
+            $building = $em->getRepository('SandboxApiBundle:Room\RoomBuilding')->find($buildingId);
+            $base = $building->getServer();
+            if ($base) {
+                $this->repealRoomOrder(
+                    $building->getServer(),
+                    $membership->getAccessNo()
                 );
-
-            foreach ($buildingIds as $buildingId) {
-                $building = $em->getRepository('SandboxApiBundle:Room\RoomBuilding')
-                    ->find($buildingId);
-
-                $base = $building->getServer();
-
-                if ($base) {
-                    $this->repealRoomOrder(
-                        $building->getServer(),
-                        $membership->getAccessNo()
-                    );
-                }
+            } else {
+                $em->remove($membership);
             }
         }
         $em->flush();
