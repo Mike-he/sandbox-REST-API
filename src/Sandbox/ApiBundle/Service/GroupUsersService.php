@@ -39,14 +39,13 @@ class GroupUsersService
             ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
             ->findBy(
                 array(
-//                    'groupId' => $group,
                     'userId' => $user,
                     'type' => $type,
                     'orderNumber' => $orderNumber,
                 )
             );
 
-        if (is_null($groupUsers)) {
+        if (empty($groupUsers) || is_null($groupUsers)) {
             $groupUser = new UserGroupHasUser();
             $groupUser->setGroupId($group);
             $groupUser->setUserId($user);
