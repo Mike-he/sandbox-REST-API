@@ -320,6 +320,14 @@ class ClientUserRegistrationController extends UserRegistrationController
 
         $em->flush();
 
+        // add bean
+        $parameter = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Parameter\Parameter')
+            ->findOneBy(array('key' => Parameter::KEY_BEAN_USER_REGISTER));
+        $responseArray = array_merge($responseArray, array(
+            'bean_user_register' => $parameter->getValue(),
+        ));
+
         // response
         $view = new View($responseArray);
         $view->setSerializationContext(SerializationContext::create()->setGroups(array('login')));
