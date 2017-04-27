@@ -10,6 +10,7 @@ use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Sandbox\ApiBundle\Entity\Event\Event;
 use Sandbox\ApiBundle\Entity\Event\EventOrderCheck;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
+use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
 use Symfony\Component\HttpFoundation\Request;
@@ -463,6 +464,13 @@ class ClientEventOrderController extends PaymentController
         $order->setPaymentDate(new \DateTime());
         $order->setPayChannel($channel);
         $order->setModificationDate(new \DateTime());
+
+        $this->get('sandbox_api.bean')->postBeanChange(
+            $order->getUserId(),
+            $order->getPrice(),
+            $orderNumber,
+            Parameter::KEY_BEAN_EVENT_ORDER
+        );
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();

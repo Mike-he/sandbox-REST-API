@@ -202,6 +202,8 @@ class ClientLeaseController extends SandboxRestController
             );
         $lease->setTotalLeaseBillsAmount($totalLeaseBills);
 
+        $this->setLeaseLogs($lease);
+
         $view = new View();
         $view->setSerializationContext(
             SerializationContext::create()->setGroups(['main'])
