@@ -46,8 +46,6 @@ class RemoveGroupUserToDoorsCommand extends ContainerAwareCommand
                     );
                 }
             }
-
-            $em->remove($membership);
         }
         $em->flush();
 

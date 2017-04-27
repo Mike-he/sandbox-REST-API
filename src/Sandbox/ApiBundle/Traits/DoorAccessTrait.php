@@ -301,6 +301,8 @@ trait DoorAccessTrait
                     $accessNo,
                     ProductOrder::STATUS_CANCELLED
                 );
+
+                $this->removeOldMembershipCardAccessNo($accessNo);
             }
 
             if ($periodArray['result'] != DoorAccessConstants::RESULT_OK) {
@@ -776,4 +778,27 @@ trait DoorAccessTrait
             }
         }
     }
+
+    /**
+     * remove old membershipcard accessNo
+     *
+     * @param $accessNo
+     */
+    protected function removeOldMembershipCardAccessNo(
+        $accessNo
+    ) {
+        $em = $this->getContainer()->get('doctrine')->getManager();
+
+        $oldAccessNo = $this->getContainer()
+            ->get('doctrine')
+            ->getRepository(BundleConstants::BUNDLE.':'.'MembershipCard\MembershipCardAccessNo')
+            ->findOneBy(array('accessNo'=> $accessNo));
+
+        if ($oldAccessNo) {
+            $em->remove($oldAccessNo);
+        }
+
+        $em->flush();
+    }
+
 }
