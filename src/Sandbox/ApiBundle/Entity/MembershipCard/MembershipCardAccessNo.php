@@ -37,6 +37,13 @@ class MembershipCardAccessNo
     private $accessNo;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="building_id", type="integer")
+     */
+    private $buildingId;
+
+    /**
      * @var \DateTime
      *
      * @Gedmo\Timestampable(on="create")
@@ -98,5 +105,21 @@ class MembershipCardAccessNo
     public function setCard($card)
     {
         $this->card = $card;
+    }
+
+    /**
+     * @return string
+     */
+    public function getBuildingId()
+    {
+        return $this->buildingId;
+    }
+
+    /**
+     * @param string $buildingId
+     */
+    public function setBuildingId($buildingId)
+    {
+        $this->buildingId = $buildingId;
     }
 }
