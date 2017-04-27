@@ -1332,14 +1332,6 @@ class ClientOrderController extends OrderController
                 ->find($orderId);
 
             $buildingId = $order->getProduct()->getRoom()->getBuildingId();
-
-            $this->removeUserFromUserGroup(
-                $buildingId,
-                $userArray,
-                $order->getStartDate(),
-                $order->getOrderNumber(),
-                UserGroupHasUser::TYPE_ORDER
-            );
         }
 
         return $recvUsers;
@@ -1864,10 +1856,19 @@ class ClientOrderController extends OrderController
             );
         }
 
+        //remove users to user group
+        $this->removeUserFromUserGroup(
+            $buildingId,
+            $removedUserArray,
+            $order->getStartDate(),
+            $order->getOrderNumber(),
+            UserGroupHasUser::TYPE_ORDER
+        );
+        
         //add users to user group
         $this->setDoorAccessForMembershipCard(
             $buildingId,
-            $users,
+            $recvUsers,
             $order->getStartDate(),
             $order->getEndDate(),
             $order->getOrderNumber()
