@@ -564,7 +564,10 @@ class AdminUsersController extends DoorController
             ->getUserInfo($id);
         $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
 
-        $groups = $this->getGroupsByUser($id);
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
+        $groups = $this->getGroupsByUser($id, $salesCompanyId);
         $user['groups'] = $groups;
 
         if (!is_null($user['phone'])) {
