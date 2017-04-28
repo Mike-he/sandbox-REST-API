@@ -4277,4 +4277,20 @@ class OrderRepository extends EntityRepository
 
         return (float) $result;
     }
+
+
+    public function findTipOrders(
+        $userId
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->where('o.status = :completed')
+            ->andWhere('o.userId = :userId')
+            ->andWhere('o.tip = false')
+            ->setParameter('completed', ProductOrder::STATUS_COMPLETED)
+            ->setParameter('userId', $userId);
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
 }

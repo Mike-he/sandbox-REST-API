@@ -507,6 +507,15 @@ class ProductOrder
     private $editAdminId;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="tip", type="boolean")
+     *
+     * @Serializer\Groups({"main", "client"})
+     */
+    private $tip = false;
+
+    /**
      * @Serializer\VirtualProperty
      * @Serializer\SerializedName("product_info")
      * @Serializer\Groups({"main", "client", "admin_detail", "admin_order", "client_evaluation"})
@@ -1665,5 +1674,21 @@ class ProductOrder
         $now = new \DateTime('now');
         $this->setCreationDate($now);
         $this->setModificationDate($now);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isTip()
+    {
+        return $this->tip;
+    }
+
+    /**
+     * @param bool $tip
+     */
+    public function setTip($tip)
+    {
+        $this->tip = $tip;
     }
 }

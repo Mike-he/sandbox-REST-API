@@ -7,6 +7,7 @@ use Sandbox\ApiBundle\Controller\Order\OrderController;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
 use Sandbox\ApiBundle\Entity\Order\TransferAttachment;
+use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
 use Sandbox\ApiBundle\Form\Order\OrderOfflineTransferPost;
 use Sandbox\ApiBundle\Form\Order\TransferAttachmentType;
@@ -1864,7 +1865,7 @@ class ClientOrderController extends OrderController
             $order->getOrderNumber(),
             UserGroupHasUser::TYPE_ORDER
         );
-        
+
         //add users to user group
         $this->setDoorAccessForMembershipCard(
             $buildingId,
@@ -2322,5 +2323,74 @@ class ClientOrderController extends OrderController
         );
 
         return new View($data);
+    }
+
+    /**
+     * @Get("/orders/tip/message")
+     *
+     * @param Request $request
+     *
+     * @return View
+     */
+    public function getTipOrder(
+        Request $request
+    ) {
+        $userId = $this->getUserId();
+
+        $em = $this->getDoctrine()->getManager();
+        $language = $request->getPreferredLanguage();
+
+        $parameter = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Parameter\Parameter')
+            ->findOneBy(array('key' => Parameter::KEY_BEAN_PRODUCT_ORDER));
+        $value = $parameter->getValue();
+        $number = substr($value, 1);
+
+        $orders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->findTipOrders($userId);
+
+        $result = null;
+        foreach ($orders as $order) {
+            $room = $order->getProduct()->getRoom();
+            $building = $room->getBuilding();
+            $city = $building->getCity()->getName();
+
+            $type = $this->get('translator')->trans(
+                ProductOrderExport::TRANS_ROOM_TYPE.$room->getType(),
+                array(),
+                null,
+                $language
+            );
+
+            $attachment = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomAttachmentBinding')
+                ->findAttachmentsByRoom($room->getId(), 1);
+
+            $result = array(
+                'bean' => $order->getDiscountPrice() * $number,
+                'order' => array(
+                    'id' => $order->getId(),
+                    'order_number' => $order->getOrderNumber(),
+                    'discount_price' => $order->getDiscountPrice(),
+                    'status' => $order->getStatus(),
+                    'start_date' => $order->getStartDate(),
+                    'end_date' => $order->getEndDate(),
+                    'room' => array(
+                        'name' => $room->getName(),
+                        'type' => $type,
+                        'building' => $building->getName(),
+                        'city' => $city,
+                        'attachment' => $attachment,
+                    ),
+                ),
+            );
+
+            $order->setTip(true);
+        }
+
+        $em->flush();
+
+        return new View($result);
     }
 }
