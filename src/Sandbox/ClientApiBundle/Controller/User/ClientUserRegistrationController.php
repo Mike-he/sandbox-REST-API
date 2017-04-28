@@ -281,7 +281,9 @@ class ClientUserRegistrationController extends UserRegistrationController
 
         // so far, code is verified
         // get existing user or create a new user
-        $user = $this->finishRegistration($em, $password, $registration, $inviter);
+        $userArray = $this->finishRegistration($em, $password, $registration, $inviter);
+        $user = $userArray['user'];
+        $isRegistration = $userArray['is_registration'];
         if (is_null($user)) {
             // update db
             $em->flush();
@@ -300,33 +302,17 @@ class ClientUserRegistrationController extends UserRegistrationController
         // post user account to internal api
         $this->postUserAccount($user->getId());
 
-        //update user bean
-        $this->get('sandbox_api.bean')->postBeanChange(
-            $user->getId(),
-            0,
-            null,
-            Parameter::KEY_BEAN_USER_REGISTER
-        );
-
-        //update invitee bean
-        if ($inviter) {
-            $this->get('sandbox_api.bean')->postBeanChange(
-                $inviter->getId(),
-                0,
-                null,
-                Parameter::KEY_BEAN_SUCCESS_INVITATION
-            );
-        }
-
         $em->flush();
 
-        // add bean
-        $parameter = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Parameter\Parameter')
-            ->findOneBy(array('key' => Parameter::KEY_BEAN_USER_REGISTER));
-        $responseArray = array_merge($responseArray, array(
-            'bean_user_register' => $parameter->getValue(),
-        ));
+        if ($isRegistration) {
+            // add bean
+            $parameter = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Parameter\Parameter')
+                ->findOneBy(array('key' => Parameter::KEY_BEAN_USER_REGISTER));
+            $responseArray = array_merge($responseArray, array(
+                'bean_user_register' => $parameter->getValue(),
+            ));
+        }
 
         // response
         $view = new View($responseArray);
@@ -396,7 +382,7 @@ class ClientUserRegistrationController extends UserRegistrationController
      * @param UserRegistration $registration
      * @param User             $inviter
      *
-     * @return User
+     * @return array
      */
     private function finishRegistration(
         $em,
@@ -417,6 +403,7 @@ class ClientUserRegistrationController extends UserRegistrationController
             $user = $this->getRepo('User\User')->findOneByPhone($phone);
         }
 
+        $isRegistration = false;
         if (is_null($user) && !is_null($password)) {
             // generate user
             $user = $this->generateUser($email, $phone, $password, $registrationId, $phoneCode, $inviter);
@@ -430,6 +417,8 @@ class ClientUserRegistrationController extends UserRegistrationController
 
             // add service account to buddy list
             $this->addBuddyToUser(array($user));
+
+            $isRegistration = true;
         }
 
         if (!is_null($user)) {
@@ -437,7 +426,32 @@ class ClientUserRegistrationController extends UserRegistrationController
             $em->remove($registration);
         }
 
-        return $user;
+        $em->flush();
+
+        if ($isRegistration) {
+            //update user bean
+            $this->get('sandbox_api.bean')->postBeanChange(
+                $user->getId(),
+                0,
+                null,
+                Parameter::KEY_BEAN_USER_REGISTER
+            );
+
+            //update invitee bean
+            if ($inviter) {
+                $this->get('sandbox_api.bean')->postBeanChange(
+                    $inviter->getId(),
+                    0,
+                    null,
+                    Parameter::KEY_BEAN_SUCCESS_INVITATION
+                );
+            }
+        }
+
+        return array(
+            'user' => $user,
+            'is_registration' => $isRegistration,
+        );
     }
 
     /**
