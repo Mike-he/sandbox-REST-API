@@ -175,9 +175,6 @@ class ClientLeaseController extends SandboxRestController
 
         $this->throwNotFoundIfNull($lease, self::NOT_FOUND_MESSAGE);
 
-        // check user permission
-        $this->checkUserLeasePermission($lease);
-
         $bills = $this->getLeaseBillRepo()
             ->findBy(array(
                 'lease' => $lease,
