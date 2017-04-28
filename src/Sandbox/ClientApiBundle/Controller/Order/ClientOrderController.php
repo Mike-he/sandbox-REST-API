@@ -2367,8 +2367,11 @@ class ClientOrderController extends OrderController
                 ->getRepository('SandboxApiBundle:Room\RoomAttachmentBinding')
                 ->findAttachmentsByRoom($room->getId(), 1);
 
+            $url = $this->getParameter('mobile_url').'/evaluate?ptype=evaluate&type=order&orderid='.$order->getId();
+
             $result = array(
                 'bean' => $order->getDiscountPrice() * $number,
+                'evaluation_url' => $url,
                 'order' => array(
                     'id' => $order->getId(),
                     'order_number' => $order->getOrderNumber(),
