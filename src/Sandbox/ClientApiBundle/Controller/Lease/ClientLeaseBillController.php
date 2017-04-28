@@ -521,7 +521,7 @@ class ClientLeaseBillController extends PaymentController
     }
 
     /**
-     * @param $bill
+     * @param LeaseBill $bill
      *
      * @return array
      */
@@ -590,6 +590,7 @@ class ClientLeaseBillController extends PaymentController
                         'id' => $company->getId(),
                         'name' => $company->getName(),
                     ),
+            'payment_user_id' => $bill->getPaymentUserId(),
         );
 
         return $result;
