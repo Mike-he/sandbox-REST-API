@@ -39,6 +39,7 @@ class GroupUsersService
             ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
             ->findBy(
                 array(
+                    'groupId' => $group,
                     'userId' => $user,
                     'type' => $type,
                     'orderNumber' => $orderNumber,
