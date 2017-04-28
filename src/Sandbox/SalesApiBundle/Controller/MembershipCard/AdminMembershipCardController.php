@@ -245,13 +245,13 @@ class AdminMembershipCardController extends SalesRestController
         // Record Old door access no
         $doorControls = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserGroupDoors')
-            ->findBy(array('card'=>$id));
+            ->getBuildingIdsByGroup(null,$id);
 
         foreach ($doorControls as $doorControl) {
             $membershipCardAccessNo = new MembershipCardAccessNo();
             $membershipCardAccessNo->setAccessNo($membershipCard->getAccessNo());
             $membershipCardAccessNo->setCard($id);
-            $membershipCardAccessNo->setBuildingId($doorControl->getBuilding());
+            $membershipCardAccessNo->setBuildingId($doorControl);
             $em->persist($membershipCardAccessNo);
         }
 
