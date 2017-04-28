@@ -41,7 +41,7 @@ class AdminUserBeanController extends UserProfileController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="user_id",
+     *    name="user",
      *    default=null,
      *    description="userId"
      * )
@@ -58,7 +58,7 @@ class AdminUserBeanController extends UserProfileController
         // check user permission
         $this->checkAdminUserPermission(AdminPermission::OP_LEVEL_VIEW);
 
-        $userId = $paramFetcher->get('user_id');
+        $userId = $paramFetcher->get('user');
 
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
