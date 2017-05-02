@@ -180,21 +180,6 @@ user:
     bean_membership_order: 购买会员卡
     bean_exchange: 赤豆商城兑换商品
     bean_exchange_fail: 赤豆商城兑换商品失败返还
-    task:
-      bean_user_register: 新用户注册
-      bean_user_login: 每日登陆
-      bean_user_share: 每日分享
-      bean_order_evaluation: 评价订单
-      bean_building_evaluation: 评价社区
-      bean_product_order: 预定秒租空间
-      bean_pay_bill: 支付长租订单
-      bean_shop_order: 购买咖啡店铺商品
-      bean_event_order: 参与付费活动
-      bean_get_first: 获得
-      bean_get_fixed_second: 赤豆
-      bean_order_get_first: 获得订单金额的
-      bean_bill_get_first: 获得账单金额的
-      bean_get_multiple_second: 倍赤豆
 
 company:
   industry:
