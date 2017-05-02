@@ -177,7 +177,9 @@ class AdminMembershipCardOrderController extends SandboxRestController
                 $createDateRange,
                 $createStart,
                 $createEnd,
-                $companyId
+                $companyId,
+                null,
+                $userId
             );
 
         foreach ($orders as $order) {
