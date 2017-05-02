@@ -81,7 +81,7 @@ class RoomAttachment
     /**
      * @var int
      *
-     * @ORM\Column(name="buildingId", type="integer", nullable=false)
+     * @ORM\Column(name="buildingId", type="integer", nullable=true)
      *
      * @Serializer\Groups({"main"})
      */
@@ -91,7 +91,7 @@ class RoomAttachment
      * @var RoomBuilding
      *
      * @ORM\ManyToOne(targetEntity="RoomBuilding")
-     * @ORM\JoinColumn(name="buildingId", referencedColumnName="id", onDelete="CASCADE")
+     * @ORM\JoinColumn(name="buildingId", referencedColumnName="id", onDelete="SET NULL")
      * @Serializer\Groups({"main"})
      */
     private $building;
