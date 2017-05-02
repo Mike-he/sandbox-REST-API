@@ -756,6 +756,12 @@ trait DoorAccessTrait
                     !is_null($result) &&
                     $result['status'] === DoorController::STATUS_AUTHED
                 ) {
+                    $this->setEmployeeCardForOneBuilding(
+                        $base,
+                        $userId,
+                        $result['card_no']
+                    );
+
                     array_push(
                         $userArray,
                         array(
