@@ -145,24 +145,13 @@ class AdminRoomAttachmentController extends SalesRestController
         }
 
         $roomBuildingId = $attachment->getBuildingId();
-        $this->throwNotFoundIfNull($roomBuildingId, self::NOT_FOUND_MESSAGE);
 
-        $roomBuilding = $this->getRepo('Room\RoomBuilding')->find($roomBuildingId);
-        $this->throwNotFoundIfNull($roomBuildingId, self::NOT_FOUND_MESSAGE);
+        if (!is_null($roomBuildingId) && !empty($roomBuildingId)) {
+            $roomBuilding = $this->getRepo('Room\RoomBuilding')->find($roomBuildingId);
+            $this->throwNotFoundIfNull($roomBuildingId, self::NOT_FOUND_MESSAGE);
 
-        // check user permission
-        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
-            $this->getAdminId(),
-            array(
-                array(
-                    'key' => AdminPermission::KEY_SALES_BUILDING_ROOM,
-                    'building_id' => $roomBuilding->getId(),
-                ),
-            ),
-            AdminPermission::OP_LEVEL_EDIT
-        );
-
-        $attachment->setBuilding($roomBuilding);
+            $attachment->setBuilding($roomBuilding);
+        }
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($attachment);
