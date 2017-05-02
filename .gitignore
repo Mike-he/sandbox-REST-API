@@ -4,3 +4,5 @@ web/bundles
 /app/cache/
 /Homestead.yaml
 .php_cs.cache
+.vagrant
+.idea
