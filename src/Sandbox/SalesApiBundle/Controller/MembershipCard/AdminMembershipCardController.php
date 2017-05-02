@@ -452,7 +452,8 @@ class AdminMembershipCardController extends SalesRestController
                 $membershipCard
             );
 
-        $startDate = new \DateTime('now');
+        $now = new \DateTime('now');
+        $startDate = $now->setTime(0, 0, 0);
         $endDate = new \DateTime('2099-12-30 23:59:59');
         $userId = 1;
 
