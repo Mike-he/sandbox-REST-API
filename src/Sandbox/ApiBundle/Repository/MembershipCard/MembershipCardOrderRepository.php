@@ -219,7 +219,8 @@ class MembershipCardOrderRepository extends EntityRepository
         $createStart,
         $createEnd,
         $companyId,
-        $cardId = null
+        $cardId = null,
+        $userId = null
     ) {
         $query = $this->createQueryBuilder('mo')
             ->innerJoin('SandboxApiBundle:MembershipCard\MembershipCard', 'c', 'WITH', 'mo.card = c.id')
@@ -303,6 +304,12 @@ class MembershipCardOrderRepository extends EntityRepository
                 $query->andWhere('mo.creationDate <= :createEnd')
                     ->setParameter('createEnd', $createEnd);
             }
+        }
+
+        // filter by userId
+        if (!is_null($userId)) {
+            $query->andWhere('mo.user = :userId')
+                ->setParameter('userId', $userId);
         }
 
         return $query->getQuery()->getSingleScalarResult();
