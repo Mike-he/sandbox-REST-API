@@ -30,7 +30,7 @@ trait SetStatusTrait
         $order->setModificationDate(new \DateTime('now'));
 
         //update user bean
-        $this->get('sandbox_api.bean')->postBeanChange(
+        $this->getContainer()->get('sandbox_api.bean')->postBeanChange(
             $order->getUserId(),
             $order->getPrice(),
             $order->getOrderNumber(),
@@ -43,7 +43,7 @@ trait SetStatusTrait
             ->find($order->getUserId());
 
         if ($user->getInviterId()) {
-            $this->get('sandbox_api.bean')->postBeanChange(
+            $this->getContainer()->get('sandbox_api.bean')->postBeanChange(
                 $user->getInviterId(),
                 $order->getPrice(),
                 $order->getOrderNumber(),
