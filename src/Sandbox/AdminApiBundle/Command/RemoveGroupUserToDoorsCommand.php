@@ -28,7 +28,7 @@ class RemoveGroupUserToDoorsCommand extends ContainerAwareCommand
 
         foreach ($memberships as $membership) {
             $doorAccess = $em->getRepository('SandboxApiBundle:Door\DoorAccess')
-                ->findBy(array('accessNo'=> $membership->getAccessNo()));
+                ->findBy(array('accessNo' => $membership->getAccessNo()));
 
             foreach ($doorAccess as $access) {
                 $em->remove($access);

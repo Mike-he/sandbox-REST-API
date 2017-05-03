@@ -69,6 +69,9 @@ class SandboxRestController extends FOSRestController
 
     const HASH_ALGO_SHA256 = 'sha256';
 
+    const PAYMENT_NOTIFICATION_TYPE = 'other_user_payment';
+    const PAYMENT_NOTIFICATION_ACTION = 'need_to_pay';
+
     //-------------------- Global --------------------//
 
     /**

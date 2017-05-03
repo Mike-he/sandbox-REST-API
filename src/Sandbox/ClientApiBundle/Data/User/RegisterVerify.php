@@ -40,7 +40,7 @@ class RegisterVerify
     private $weChat;
 
     /**
-     * @var integer
+     * @var int
      */
     private $inviterUserId;
 

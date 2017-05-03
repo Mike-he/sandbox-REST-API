@@ -108,7 +108,7 @@ class OfflineTransferRepository extends EntityRepository
 
     /**
      * @param $orderNumber
-     * 
+     *
      * @return array
      */
     public function getAttachments(

@@ -2,6 +2,7 @@
 
 namespace Sandbox\ClientApiBundle\Controller\Payment;
 
+use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentServiceBill;
@@ -11,12 +12,14 @@ use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Order\TopUpOrder;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 use Sandbox\ApiBundle\Traits\FinanceTrait;
+use Sandbox\ApiBundle\Traits\SendNotification;
 use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations\Post;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpFoundation\Response;
 use FOS\RestBundle\View\View;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Rest controller for Client Orders.
@@ -34,6 +37,7 @@ class ClientPaymentController extends PaymentController
     const PINGPLUSPLUS_RSA_PATH = '/rsa_public_key.pem';
 
     use FinanceTrait;
+    use SendNotification;
 
     /**
      * @Post("/payment/webhooks")
@@ -353,6 +357,77 @@ class ClientPaymentController extends PaymentController
         $charge = json_decode($chargeJson, true);
 
         return new View($charge);
+    }
+
+    /**
+     * @Post("/payment/notification")
+     *
+     * @param Request $request
+     *
+     * @return View
+     */
+    public function createPaymentNotificationAction(
+        Request $request
+    ) {
+        $userId = $this->getUserId();
+        $user = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\User')
+            ->find($userId);
+        $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
+
+        $content = json_decode($request->getContent(), true);
+        if (!array_key_exists('target_user_id', $content)) {
+            throw new NotFoundHttpException(self::NOT_FOUND_MESSAGE);
+        }
+
+        $targetUserId = $content['target_user_id'];
+        $targetUser = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\User')
+            ->find($targetUserId);
+        $this->throwNotFoundIfNull($targetUser, self::NOT_FOUND_MESSAGE);
+
+        $bodyZh = $this->get('translator')->trans(
+            ProductOrderMessage::PAYMENT_NOTIFICATION_MESSAGE,
+            [],
+            null,
+            'zh'
+        );
+
+        $bodyEn = $this->get('translator')->trans(
+            ProductOrderMessage::PAYMENT_NOTIFICATION_MESSAGE,
+            [],
+            null,
+            'en'
+        );
+
+        $apns = $this->setApnsJsonDataArray($bodyZh, $bodyEn);
+
+        // get content array
+        $contentArray = $this->getDefaultContentArray(
+            self::PAYMENT_NOTIFICATION_TYPE,
+            self::PAYMENT_NOTIFICATION_ACTION,
+            $user,
+            $apns
+        );
+
+        $zhData = $this->getJpushData(
+            [$targetUserId],
+            ['lang_zh'],
+            $bodyZh,
+            '展想创合',
+            $contentArray
+        );
+
+        $enData = $this->getJpushData(
+            [$targetUserId],
+            ['lang_en'],
+            $bodyEn,
+            'Sandbox3',
+            $contentArray
+        );
+
+        $this->sendJpushNotification($zhData);
+        $this->sendJpushNotification($enData);
     }
 
     /**

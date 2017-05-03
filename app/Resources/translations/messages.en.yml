@@ -112,6 +112,7 @@ product_order:
     order_change_price: Price of an order has been changed, click to view.
     order_admin_cancelled: Your order has been cancelled, click to view.
     order_transfer_returned: A remittance receipt has been returned, click to view.
+    payment_notification: Your friend sends a request for payment!
 
 shop_order:
   channel:

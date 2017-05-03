@@ -36,4 +36,6 @@ class ProductOrderMessage
     const ORDER_CHANGE_PRICE_MESSAGE = 'product_order.push_message.order_change_price';
     const ORDER_ADMIN_CANCELLED_MESSAGE = 'product_order.push_message.order_admin_cancelled';
     const ORDER_TRANSFER_RETURNED_MESSAGE = 'product_order.push_message.order_transfer_returned';
+
+    const PAYMENT_NOTIFICATION_MESSAGE = 'product_order.push_message.payment_notification';
 }
