@@ -112,6 +112,7 @@ product_order:
     order_change_price: 您的一张订单价格有变动，点击查看
     order_admin_cancelled: 您的一张订单已取消，点击查看
     order_transfer_returned: 您的订单线下汇款凭证被退回，需要您重新上传，点击查看
+    payment_notification: 你的好友发起了一个代付请求
 
 shop_order:
   channel:

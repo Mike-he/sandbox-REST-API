@@ -4278,7 +4278,6 @@ class OrderRepository extends EntityRepository
         return (float) $result;
     }
 
-
     public function findTipOrders(
         $userId
     ) {

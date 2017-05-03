@@ -786,7 +786,7 @@ trait DoorAccessTrait
     }
 
     /**
-     * remove old membershipcard accessNo
+     * remove old membershipcard accessNo.
      *
      * @param $accessNo
      */
@@ -798,7 +798,7 @@ trait DoorAccessTrait
         $oldAccessNo = $this->getContainer()
             ->get('doctrine')
             ->getRepository(BundleConstants::BUNDLE.':'.'MembershipCard\MembershipCardAccessNo')
-            ->findOneBy(array('accessNo'=> $accessNo));
+            ->findOneBy(array('accessNo' => $accessNo));
 
         if ($oldAccessNo) {
             $em->remove($oldAccessNo);
@@ -806,5 +806,4 @@ trait DoorAccessTrait
 
         $em->flush();
     }
-
 }
