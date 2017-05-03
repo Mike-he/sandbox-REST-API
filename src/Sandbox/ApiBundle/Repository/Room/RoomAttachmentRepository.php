@@ -25,6 +25,8 @@ class RoomAttachmentRepository extends EntityRepository
                 ->setParameter('types', $types);
         }
 
+        $query->andWhere('a.creationDate', 'DESC');
+
         return $query->getQuery()->getResult();
     }
 
