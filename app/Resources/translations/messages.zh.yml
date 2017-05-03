@@ -165,7 +165,7 @@ user:
     social_activities: 社交
   bean:
     bean_user_register: 新用户注册
-    bean_user_login: 每日登陆
+    bean_user_login: 每日登录
     bean_user_share: 每日分享
     bean_order_evaluation: 订单评价
     bean_building_evaluation: 社区评价
@@ -179,7 +179,6 @@ user:
     bean_membership_order: 购买会员卡
     bean_exchange: 赤豆商城兑换商品
     bean_exchange_fail: 赤豆商城兑换商品失败返还
-
 
 company:
   industry:
