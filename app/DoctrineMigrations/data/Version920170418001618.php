@@ -30,12 +30,12 @@ class Version920170418001618 extends AbstractMigration implements ContainerAware
         $em = $this->container->get('doctrine.orm.entity_manager');
 
         $data = array(
-            Parameter::KEY_BEAN_USER_REGISTER => '+500',
+            Parameter::KEY_BEAN_USER_REGISTER => '+200',
             Parameter::KEY_BEAN_USER_LOGIN => '+10',
-            Parameter::KEY_BEAN_USER_SHARE => '+50',
+            Parameter::KEY_BEAN_USER_SHARE => '+10',
             Parameter::KEY_BEAN_ORDER_EVALUATION => '*1',
             Parameter::KEY_BEAN_BUILDING_EVALUATION => '+50',
-            Parameter::KEY_BEAN_SUCCESS_INVITATION => '+200',
+            Parameter::KEY_BEAN_SUCCESS_INVITATION => '+100',
             Parameter::KEY_BEAN_INVITEE_PRODUCT_ORDER => '*0.1',
             Parameter::KEY_BEAN_INVITEE_PAY_BILL => '*0.1',
             Parameter::KEY_BEAN_PRODUCT_ORDER => '*3',
