@@ -45,6 +45,15 @@ class AdminMembershipCardOrderController extends SalesRestController
      *    description="page number "
      * )
      *
+     * @Annotations\QueryParam(
+     *     name="user",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     requirements="\d+",
+     *     strict=true
+     * )
+     *
      * @Route("/membership/cards/{id}/orders")
      * @Method({"GET"})
      *
@@ -69,6 +78,8 @@ class AdminMembershipCardOrderController extends SalesRestController
         $limit = $pageLimit;
         $offset = ($pageIndex - 1) * $pageLimit;
 
+        $userId = $paramFetcher->get('user');
+
         $orders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:MembershipCard\MembershipOrder')
             ->getAdminOrders(
@@ -82,7 +93,8 @@ class AdminMembershipCardOrderController extends SalesRestController
                 $limit,
                 $offset,
                 null,
-                $id
+                $id,
+                $userId
             );
 
         $count = $this->getDoctrine()
@@ -96,7 +108,8 @@ class AdminMembershipCardOrderController extends SalesRestController
                 null,
                 null,
                 null,
-                $id
+                $id,
+                $userId
             );
 
         foreach ($orders as $order) {
