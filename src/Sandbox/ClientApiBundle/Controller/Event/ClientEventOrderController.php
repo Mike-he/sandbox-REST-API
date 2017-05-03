@@ -465,12 +465,12 @@ class ClientEventOrderController extends PaymentController
         $order->setPayChannel($channel);
         $order->setModificationDate(new \DateTime());
 
-        $this->get('sandbox_api.bean')->postBeanChange(
-            $order->getUserId(),
-            $order->getPrice(),
-            $orderNumber,
-            Parameter::KEY_BEAN_EVENT_ORDER
-        );
+//        $this->get('sandbox_api.bean')->postBeanChange(
+//            $order->getUserId(),
+//            $order->getPrice(),
+//            $orderNumber,
+//            Parameter::KEY_BEAN_EVENT_ORDER
+//        );
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();

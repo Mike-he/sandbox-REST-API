@@ -337,12 +337,12 @@ class ClientEvaluationController extends EvaluationController
                 $building->setBuildingEvaluationNumber($building->getBuildingEvaluationNumber() + 1);
 
                 //update user bean
-                $this->get('sandbox_api.bean')->postBeanChange(
-                    $this->getUserId(),
-                    0,
-                    $building->getName(),
-                    Parameter::KEY_BEAN_BUILDING_EVALUATION
-                );
+//                $this->get('sandbox_api.bean')->postBeanChange(
+//                    $this->getUserId(),
+//                    0,
+//                    $building->getName(),
+//                    Parameter::KEY_BEAN_BUILDING_EVALUATION
+//                );
 
                 break;
             case Evaluation::TYPE_ORDER:
