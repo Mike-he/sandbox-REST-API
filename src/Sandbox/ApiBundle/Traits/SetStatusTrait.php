@@ -38,7 +38,7 @@ trait SetStatusTrait
         );
 
         //update invitee bean
-        $user = $this->getDoctrine()
+        $user = $this->getContainer()->get('doctrine')
             ->getRepository('SandboxApiBundle:User\User')
             ->find($order->getUserId());
 
