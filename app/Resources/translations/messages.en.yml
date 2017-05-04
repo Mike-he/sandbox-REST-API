@@ -168,7 +168,7 @@ user:
   bean:
     bean_user_register: Newly Register
     bean_user_login: Daily Login
-    bean_user_share: Daily Shared
+    bean_user_share: Daily Share
     bean_order_evaluation: Comment on Orders
     bean_building_evaluation: 社区评价
     bean_success_invitation: Successful Invitation
