@@ -4285,6 +4285,7 @@ class OrderRepository extends EntityRepository
             ->where('o.status = :completed')
             ->andWhere('o.userId = :userId')
             ->andWhere('o.tip = false')
+            ->andWhere('o.hasEvaluated = false')
             ->setParameter('completed', ProductOrder::STATUS_COMPLETED)
             ->setParameter('userId', $userId);
 
