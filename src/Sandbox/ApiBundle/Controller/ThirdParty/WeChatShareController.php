@@ -95,7 +95,7 @@ class WeChatShareController extends UserLoginController
             $weChatShare->setModificationDate(new \DateTime());
         }
 
-        $data['url'] = $weChatShare->getUrl();
+        $data['url'] = $weChatShareInput->getUrl();
         $data['noncestr'] = $this->createNonceStr();
         $data['timestamp'] = time();
         $data['jsapi_ticket'] = $jsapiTicket;
