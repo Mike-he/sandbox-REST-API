@@ -108,7 +108,10 @@ class AdminProductRecommendController extends AdminProductController
         $myBuildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
             array(
-                'key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT,
+                AdminPermission::KEY_SALES_BUILDING_PRODUCT,
+                AdminPermission::KEY_SALES_BUILDING_SPACE,
+                AdminPermission::KEY_SALES_BUILDING_BUILDING,
+                AdminPermission::KEY_SALES_BUILDING_ROOM,
             )
         );
 
