@@ -2342,7 +2342,7 @@ class ClientOrderController extends OrderController
 
         $parameter = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Parameter\Parameter')
-            ->findOneBy(array('key' => Parameter::KEY_BEAN_PRODUCT_ORDER));
+            ->findOneBy(array('key' => Parameter::KEY_BEAN_ORDER_EVALUATION));
         $value = $parameter->getValue();
         $number = substr($value, 1);
 
