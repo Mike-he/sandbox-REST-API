@@ -623,14 +623,6 @@ class ClientLeaseBillController extends PaymentController
         $em = $this->getDoctrine()->getManager();
         $em->persist($transfer);
 
-        //update user bean
-        $this->get('sandbox_api.bean')->postBeanChange(
-            $this->getUserId(),
-            $bill->getRevisedAmount(),
-            $bill->getSerialNumber(),
-            Parameter::KEY_BEAN_PAY_BILL
-        );
-
         $em->flush();
 
         return new View();
