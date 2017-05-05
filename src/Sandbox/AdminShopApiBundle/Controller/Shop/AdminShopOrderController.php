@@ -392,12 +392,12 @@ class AdminShopOrderController extends ShopController
                                 $order->getOrderNumber()
                             );
 
-                            $this->get('sandbox_api.bean')->postBeanChange(
-                                $userId,
-                                $invoice,
-                                $order->getOrderNumber(),
-                                Parameter::KEY_BEAN_SHOP_ORDER
-                            );
+//                            $this->get('sandbox_api.bean')->postBeanChange(
+//                                $userId,
+//                                $invoice,
+//                                $order->getOrderNumber(),
+//                                Parameter::KEY_BEAN_SHOP_ORDER
+//                            );
                         }
                     }
                 } else {
@@ -408,12 +408,12 @@ class AdminShopOrderController extends ShopController
                         $order->getOrderNumber()
                     );
 
-                    $this->get('sandbox_api.bean')->postBeanChange(
-                        $userId,
-                        $order->getPrice(),
-                        $order->getOrderNumber(),
-                        Parameter::KEY_BEAN_SHOP_ORDER
-                    );
+//                    $this->get('sandbox_api.bean')->postBeanChange(
+//                        $userId,
+//                        $order->getPrice(),
+//                        $order->getOrderNumber(),
+//                        Parameter::KEY_BEAN_SHOP_ORDER
+//                    );
                 }
 
                 break;
