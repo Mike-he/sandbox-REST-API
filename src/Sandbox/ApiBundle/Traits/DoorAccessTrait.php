@@ -605,6 +605,7 @@ trait DoorAccessTrait
             [
                 'userId' => $userId,
                 'accessNo' => $accessNumber,
+                'buildingId' => $buildingId,
             ]
         );
 
