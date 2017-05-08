@@ -116,6 +116,7 @@ class AdminLocationController extends SalesRestController
      *
      * @Annotations\QueryParam(
      *    name="permission",
+     *    array=true,
      *    default=null,
      *    nullable=false,
      *    description="permission key"
