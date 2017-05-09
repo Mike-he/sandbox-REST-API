@@ -43,7 +43,7 @@ class ClientDuibaController extends DuibaController
         $uid = $this->getUserId();
 
         $user = $this->getDoctrine()->getRepository('SandboxApiBundle:User\User')->find($uid);
-        $credits = $user->getBean();
+        $credits = (int) $user->getBean();
 
         $autoLogin = $this->buildCreditAutoLoginRequest(
             $duibaAppKey,
