@@ -135,6 +135,9 @@ class BeanService
             case Parameter::KEY_BEAN_BUILDING_EVALUATION:
                 $result = false;
                 break;
+            case Parameter::KEY_BEAN_SUCCESS_INVITATION:
+                $result = false;
+                break;
             default:
                 $exits = $this->doctrine
                     ->getRepository('SandboxApiBundle:User\UserBeanFlow')
