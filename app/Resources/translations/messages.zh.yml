@@ -179,7 +179,7 @@ user:
     bean_event_order: 成功支付线上收费活动订单
     bean_membership_order: 购买会员卡
     bean_exchange: 赤豆商城兑换商品
-    bean_exchange_fail: 赤豆商城兑换商品失败返还
+    bean_exchange_fail: 赤豆商城兑换商品失败退回
 
 company:
   industry:
