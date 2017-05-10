@@ -180,7 +180,7 @@ class DuibaController extends SandboxRestController
                 $user->setBean($newBean);
 
                 $beanFlow = new UserBeanFlow();
-                $beanFlow->setUserId($_GET['uid']);
+                $beanFlow->setUserId($userId);
                 $beanFlow->setType(UserBeanFlow::TYPE_ADD);
                 $beanFlow->setChangeAmount('+'.$duibaOrder->getCredits());
                 $beanFlow->setBalance($newBean);
