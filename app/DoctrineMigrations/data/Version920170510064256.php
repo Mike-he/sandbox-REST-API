@@ -30,7 +30,7 @@ class Version920170510064256 extends AbstractMigration implements ContainerAware
         $em = $this->container->get('doctrine.orm.entity_manager');
 
         $version26x = $em->getRepository('SandboxApiBundle:Menu\Menu')
-            ->findOneBy(array(
+            ->findBy(array(
                 'minVersion' => '2.6.0',
             ));
 
