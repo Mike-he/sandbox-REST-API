@@ -122,7 +122,7 @@ class ClientBeanController extends BeanController
             $bean = $user->getBean();
         }
 
-        return new View(array('bean' => $bean));
+        return new View(array('bean' => (int) $bean));
     }
 
     /**
