@@ -180,7 +180,7 @@ user:
     bean_event_order: 成功支付线上收费活动订单
     bean_membership_order: Buy Member Card
     bean_exchange: Exchange Goods in Store
-    bean_exchange_fail: Exchange Goods in Store Failed
+    bean_exchange_fail: Fail to Exchange
 
 company:
   industry:
