@@ -232,6 +232,7 @@ client:
     event: Events
     location: Location
     community: Home
+    red_bean: Red Bean Shop
     blog: Blogs
     message: Messages
     contact: Contacts
