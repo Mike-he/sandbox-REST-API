@@ -185,7 +185,7 @@ class DuibaController extends SandboxRestController
                 $beanFlow->setChangeAmount('+'.$duibaOrder->getCredits());
                 $beanFlow->setBalance($newBean);
                 $beanFlow->setSource(UserBeanFlow::SOURCE_EXCHANGE_FAIL);
-                $beanFlow->setTradeId($duibaOrder['duibaOrderNum']);
+                $beanFlow->setTradeId($duibaOrder->getDuibaOrderNum());
                 $beanFlow->setCreationDate(new \DateTime('now'));
                 $em->persist($beanFlow);
             } else {
