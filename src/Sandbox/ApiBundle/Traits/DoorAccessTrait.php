@@ -617,12 +617,11 @@ trait DoorAccessTrait
             $doorAccess->setAccessNo($accessNumber);
         } else {
             $doorAccess->setAction(DoorAccessConstants::METHOD_ADD);
-            $doorAccess->isAccess() ?
-                $doorAccess->setAccess(false) : $doorAccess->setAccess(true);
         }
 
         $doorAccess->setStartDate($startDate);
         $doorAccess->setEndDate($endDate);
+        $doorAccess->setAccess(false);
 
         $em->persist($doorAccess);
     }
