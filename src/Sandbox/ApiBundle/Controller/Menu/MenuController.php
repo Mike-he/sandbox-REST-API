@@ -29,6 +29,7 @@ class MenuController extends SandboxRestController
     const CLIENT_MENU_EVENT = 'client.menu.event';
     const CLIENT_MENU_LOCATION = 'client.menu.location';
     const CLIENT_MENU_COMMUNITY = 'client.menu.community';
+    const CLIENT_MENU_RED_BEAN = 'client.menu.red_bean';
     const CLIENT_MENU_BLOG = 'client.menu.blog';
     const CLIENT_MENU_MESSAGE = 'client.menu.message';
     const CLIENT_MENU_CONTACT = 'client.menu.contact';
@@ -143,6 +144,7 @@ class MenuController extends SandboxRestController
             self::CLIENT_MENU_EVENT,
             self::CLIENT_MENU_LOCATION,
             self::CLIENT_MENU_COMMUNITY,
+            self::CLIENT_MENU_RED_BEAN,
             self::CLIENT_MENU_BLOG,
             self::CLIENT_MENU_MESSAGE,
             self::CLIENT_MENU_CONTACT,
