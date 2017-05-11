@@ -180,6 +180,13 @@ class AdminEventOrderController extends SalesRestController
             $event = $order->getEvent();
             $dates = $this->getRepo('Event\EventDate')->findByEvent($event);
             $event->setDates($dates);
+
+            $attachments = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Event\EventAttachment')
+                ->findBy(array(
+                    'event' => $event,
+                ));
+            $event->setAttachments($attachments);
         }
 
         $orders = $this->get('serializer')->serialize(
