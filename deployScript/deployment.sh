@@ -14,7 +14,7 @@ sudo crontab -e
 # 10 0 1 * * php /var/www/Sandbox/sandbox-REST-API/app/console create:short_rent_invoice
 # 15 0 1 * * php /var/www/Sandbox/sandbox-REST-API/app/console sandbox:api-bundle:set_finance_dashboard
 
-#sudo cp app/config/parameter_production.yml app/config/parameter.yml
+#sudo cp app/config/parameters_production.yml.dist app/config/parameters.yml
 
 #sudo cp -r web/image/ /data/openfire/  # synchronous images files
 
