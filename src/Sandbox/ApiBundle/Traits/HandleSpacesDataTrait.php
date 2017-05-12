@@ -2,6 +2,8 @@
 
 namespace Sandbox\ApiBundle\Traits;
 
+use Sandbox\ApiBundle\Entity\User\UserFavorite;
+
 /**
  * Handle Data of spaces Trait.
  *
@@ -58,6 +60,15 @@ trait HandleSpacesDataTrait
                 $space['product']['visible'] = $product->getVisible();
                 $space['product']['earliest_rent_date'] = $product->getEarliestRentDate();
                 $space['product']['sales_recommend'] = $product->isSalesRecommend();
+
+                $favorite = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:User\UserFavorite')
+                    ->countFavoritesByObject(
+                        UserFavorite::OBJECT_PRODUCT,
+                        $product->getId()
+                    );
+
+                $space['product']['favorite'] = $favorite;
             }
         }
 

@@ -34,4 +34,33 @@ class UserFavoriteRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param $object
+     * @param $id
+     *
+     * @return int
+     */
+    public function countFavoritesByObject(
+        $object,
+        $id
+    ) {
+        $query = $this->createQueryBuilder('uf')
+            ->select('count(uf.id)')
+            ->where('1=1');
+
+        if (!is_null($object) && !empty($object)) {
+            $query->andWhere('uf.object = :object')
+                ->setParameter('object', $object);
+        }
+
+        if (!is_null($id) && !empty($id)) {
+            $query->andWhere('uf.objectId = :id')
+                ->setParameter('id', $id);
+        }
+
+        $result = $query->getQuery()->getSingleScalarResult();
+
+        return (int) $result;
+    }
 }
