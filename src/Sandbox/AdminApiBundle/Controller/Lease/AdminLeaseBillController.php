@@ -243,7 +243,7 @@ class AdminLeaseBillController extends LeaseController
 
         $existTransfer = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBillOfflineTransfer')
-            ->findOneBy(array('bill' => $id));
+            ->findOneBy(array('bill' => $id), array('id' => 'DESC'));
         $this->throwNotFoundIfNull($existTransfer, self::NOT_FOUND_MESSAGE);
 
         $oldStatus = $existTransfer->getTransferStatus();
@@ -272,6 +272,19 @@ class AdminLeaseBillController extends LeaseController
                 $bill->setStatus(LeaseBill::STATUS_PAID);
                 $bill->setPaymentDate($now);
 
+                // closed old transfer
+                $oldTransfers = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Lease\LeaseBillOfflineTransfer')
+                    ->findBy(array('bill' => $id, 'transferStatus' => LeaseBillOfflineTransfer::STATUS_PENDING));
+
+                foreach ($oldTransfers as $oldTransfer) {
+                    if ($oldTransfer->getId() == $existTransfer->getId()) {
+                        continue;
+                    }
+
+                    $oldTransfer->setTransferStatus(LeaseBillOfflineTransfer::STATUS_CLOSED);
+                }
+
                 $this->get('sandbox_api.bean')->postBeanChange(
                     $bill->getDrawee(),
                     $bill->getRevisedAmount(),
@@ -294,29 +307,29 @@ class AdminLeaseBillController extends LeaseController
                 }
 
                 break;
-            case LeaseBillOfflineTransfer::STATUS_RETURNED:
-                if ($oldStatus != LeaseBillOfflineTransfer::STATUS_PENDING) {
-                    return $this->customErrorView(
-                        400,
-                        self::WRONG_BILL_STATUS_CODE,
-                        self::WRONG_BILL_STATUS_MESSAGE
-                    );
-                }
+//            case LeaseBillOfflineTransfer::STATUS_RETURNED:
+//                if ($oldStatus != LeaseBillOfflineTransfer::STATUS_PENDING) {
+//                    return $this->customErrorView(
+//                        400,
+//                        self::WRONG_BILL_STATUS_CODE,
+//                        self::WRONG_BILL_STATUS_MESSAGE
+//                    );
+//                }
 
-                $leaseId = $bill->getLease()->getId();
-                $urlParam = 'ptype=billsList&status=unpaid&leasesId='.$leaseId;
-                $contentArray = $this->generateLeaseContentArray($urlParam);
-                // send Jpush notification
-                $this->generateJpushNotification(
-                    [
-                        $bill->getLease()->getDraweeId(),
-                    ],
-                    LeaseConstants::LEASE_BILL_TRANSFER_RETURNED_MESSAGE,
-                    null,
-                    $contentArray
-                );
+//                $leaseId = $bill->getLease()->getId();
+//                $urlParam = 'ptype=billsList&status=unpaid&leasesId='.$leaseId;
+//                $contentArray = $this->generateLeaseContentArray($urlParam);
+//                // send Jpush notification
+//                $this->generateJpushNotification(
+//                    [
+//                        $bill->getLease()->getDraweeId(),
+//                    ],
+//                    LeaseConstants::LEASE_BILL_TRANSFER_RETURNED_MESSAGE,
+//                    null,
+//                    $contentArray
+//                );
 
-                break;
+//                break;
         }
 
         $em = $this->getDoctrine()->getManager();

@@ -319,10 +319,12 @@ class ClientLeaseBillController extends PaymentController
      *
      * @throws \Exception
      */
-    public function updateTransferAction(
+    public function addTransferAction(
         Request $request,
         $id
     ) {
+        $em = $this->getDoctrine()->getManager();
+
         $bill = $this->getDoctrine()
             ->getRepository("SandboxApiBundle:Lease\LeaseBill")
             ->findOneBy(
@@ -334,24 +336,9 @@ class ClientLeaseBillController extends PaymentController
             );
         $this->throwNotFoundIfNull($bill, CustomErrorMessagesConstants::ERROR_BILL_NOT_FOUND_MESSAGE);
 
-        $transfer = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Lease\LeaseBillOfflineTransfer')
-            ->findOneBy(array('bill' => $id));
-
-        if (is_null($transfer)) {
-            return new View();
-        }
-
-        $transferStatus = $transfer->getTransferStatus();
-        if ($transferStatus != LeaseBillOfflineTransfer::STATUS_UNPAID &&
-            $transferStatus != LeaseBillOfflineTransfer::STATUS_RETURNED
-        ) {
-            return $this->customErrorView(
-                400,
-                self::WRONG_ORDER_STATUS_CODE,
-                self::WRONG_ORDER_STATUS_MESSAGE
-            );
-        }
+        $transfer = new LeaseBillOfflineTransfer();
+        $transfer->setBill($bill);
+        $transfer->setTransferStatus(LeaseBillOfflineTransfer::STATUS_PENDING);
 
         $form = $this->createForm(new LeaseBillOfflineTransferPost(), $transfer);
         $form->submit(json_decode($request->getContent(), true));
@@ -369,16 +356,6 @@ class ClientLeaseBillController extends PaymentController
             return new View();
         }
 
-        $em = $this->getDoctrine()->getManager();
-
-        $transferAttachments = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Lease\LeaseBillTransferAttachment')
-            ->findBy(array('transfer' => $transfer));
-
-        foreach ($transferAttachments as $transferAttachment) {
-            $em->remove($transferAttachment);
-        }
-
         $attachment = new LeaseBillTransferAttachment();
         $attachment->setContent($attachmentArray[0]['content']);
         $attachment->setAttachmentType($attachmentArray[0]['attachment_type']);
@@ -386,9 +363,9 @@ class ClientLeaseBillController extends PaymentController
         $attachment->setPreview($attachmentArray[0]['preview']);
         $attachment->setSize($attachmentArray[0]['size']);
         $attachment->setTransfer($transfer);
-        $em->persist($attachment);
 
-        $transfer->setTransferStatus(LeaseBillOfflineTransfer::STATUS_PENDING);
+        $em->persist($transfer);
+        $em->persist($attachment);
 
         $em->flush();
 
@@ -617,12 +594,7 @@ class ClientLeaseBillController extends PaymentController
             return new View();
         }
 
-        $transfer = new LeaseBillOfflineTransfer();
-        $transfer->setBill($bill);
-
         $em = $this->getDoctrine()->getManager();
-        $em->persist($transfer);
-
         $em->flush();
 
         return new View();

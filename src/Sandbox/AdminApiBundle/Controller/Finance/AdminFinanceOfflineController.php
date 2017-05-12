@@ -425,6 +425,9 @@ class AdminFinanceOfflineController extends SandboxRestController
         $payStart = $paramFetcher->get('pay_start');
         $payEnd = $paramFetcher->get('pay_end');
 
+        $limit = $pageLimit;
+        $offset = ($pageIndex - 1) * $pageLimit;
+
         $transfers = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Offline\OfflineTransfer')
             ->getOfflineTransferForAdmin(
@@ -435,17 +438,44 @@ class AdminFinanceOfflineController extends SandboxRestController
                 $amountStart,
                 $amountEnd,
                 $payStart,
+                $payEnd,
+                $limit,
+                $offset
+            );
+
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Offline\OfflineTransfer')
+            ->countOfflineTransferForAdmin(
+                $type,
+                $status,
+                $keyword,
+                $keywordSearch,
+                $amountStart,
+                $amountEnd,
+                $payStart,
                 $payEnd
             );
 
-        $paginator = new Paginator();
-        $pagination = $paginator->paginate(
-            $transfers,
-            $pageIndex,
-            $pageLimit
+        $data = array();
+        foreach ($transfers as $transfer) {
+            $transferDetail = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Offline\OfflineTransfer')
+                ->findOneBy(array('orderNumber' => $transfer['orderNumber']));
+
+            $data[] = $transferDetail;
+        }
+
+        $view = new View();
+        $view->setData(
+            array(
+                'current_page_number' => $pageIndex,
+                'num_items_per_page' => (int) $pageLimit,
+                'items' => $data,
+                'total_count' => (int) $count,
+            )
         );
 
-        return new View($pagination);
+        return $view;
     }
 
     /**
@@ -496,6 +526,18 @@ class AdminFinanceOfflineController extends SandboxRestController
                     );
                 }
 
+                // closed old transfer
+                $oldTransfers = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Offline\OfflineTransfer')
+                    ->findBy(array('orderNumber' => $transfer->getOrderNumber()));
+
+                foreach ($oldTransfers as $oldTransfer) {
+                    if ($oldTransfer->getId() == $transfer->getId()) {
+                        continue;
+                    }
+                    $oldTransfer->setTransferStatus(OfflineTransfer::STATUS_CLOSED);
+                }
+
                 if ($transfer->getType() == OfflineTransfer::TYPE_TOPUP) {
                     $channel = ProductOrder::CHANNEL_OFFLINE;
                     $price = $transfer->getPrice();
@@ -527,16 +569,16 @@ class AdminFinanceOfflineController extends SandboxRestController
                 }
 
                 break;
-            case OfflineTransfer::STATUS_RETURNED:
-                if ($oldStatus != OfflineTransfer::STATUS_PENDING) {
-                    return $this->customErrorView(
-                        400,
-                        CustomErrorMessagesConstants::ERROR_TRANSFER_STATUS_CODE,
-                        CustomErrorMessagesConstants::ERROR_TRANSFER_STATUS_MESSAGE
-                    );
-                }
+//            case OfflineTransfer::STATUS_RETURNED:
+//                if ($oldStatus != OfflineTransfer::STATUS_PENDING) {
+//                    return $this->customErrorView(
+//                        400,
+//                        CustomErrorMessagesConstants::ERROR_TRANSFER_STATUS_CODE,
+//                        CustomErrorMessagesConstants::ERROR_TRANSFER_STATUS_MESSAGE
+//                    );
+//                }
 
-                break;
+//                break;
         }
 
         $em->flush();

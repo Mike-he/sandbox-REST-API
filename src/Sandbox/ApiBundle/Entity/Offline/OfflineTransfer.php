@@ -21,6 +21,7 @@ class OfflineTransfer
     const STATUS_VERIFY = 'verify';
     const STATUS_REJECT_REFUND = 'reject_refund';
     const STATUS_ACCEPT_REFUND = 'accept_refund';
+    const STATUS_CLOSED = 'closed';
 
     const TYPE_TOPUP = 'topup';
 

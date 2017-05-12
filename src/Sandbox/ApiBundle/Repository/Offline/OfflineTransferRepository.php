@@ -27,9 +27,12 @@ class OfflineTransferRepository extends EntityRepository
         $amountStart,
         $amountEnd,
         $payStart,
-        $payEnd
+        $payEnd,
+        $limit,
+        $offset
     ) {
         $query = $this->createQueryBuilder('o')
+            ->select('o.orderNumber')
             ->where('o.transferStatus != :unpaid')
             ->setParameter('unpaid', OfflineTransfer::STATUS_UNPAID);
 
@@ -75,7 +78,72 @@ class OfflineTransferRepository extends EntityRepository
             }
         }
 
-        $query->orderBy('o.creationDate', 'DESC');
+        $query->groupBy('o.orderNumber');
+
+        $query->setMaxResults($limit)
+            ->setFirstResult($offset);
+
+        return $query->getQuery()->getResult();
+    }
+
+    public function countOfflineTransferForAdmin(
+        $type,
+        $status,
+        $keyword,
+        $keywordSearch,
+        $amountStart,
+        $amountEnd,
+        $payStart,
+        $payEnd
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->select('count(o.orderNumber)')
+            ->where('o.transferStatus != :unpaid')
+            ->setParameter('unpaid', OfflineTransfer::STATUS_UNPAID);
+
+        if (!is_null($type)) {
+            $query->andWhere('o.type = :type')
+                ->setParameter('type', $type);
+        }
+
+        if (!is_null($status)) {
+            $query->andWhere('o.transferStatus = :status')
+                ->setParameter('status', $status);
+        }
+
+        if (!is_null($amountStart)) {
+            $query->andWhere('o.price >= :amountStart')
+                ->setParameter('amountStart', $amountStart);
+        }
+
+        if (!is_null($amountEnd)) {
+            $query->andWhere('o.price <= :amountEnd')
+                ->setParameter('amountEnd', $amountEnd);
+        }
+
+        if (!is_null($payStart)) {
+            $payStart = new \DateTime($payStart);
+            $query->andWhere('o.creationDate >= :payStart')
+                ->setParameter('payStart', $payStart);
+        }
+
+        if (!is_null($payEnd)) {
+            $payEnd = new \DateTime($payEnd);
+            $payEnd->setTime(23, 59, 59);
+            $query->andWhere('o.creationDate <= :payEnd')
+                ->setParameter('payEnd', $payEnd);
+        }
+
+        if (!is_null($keyword) && !is_null($keywordSearch)) {
+            switch ($keyword) {
+                case 'number':
+                    $query->andWhere('o.orderNumber LIKE :search')
+                        ->setParameter('search', '%'.$keywordSearch.'%');
+                    break;
+            }
+        }
+
+        $query->groupBy('o.orderNumber');
 
         return $query->getQuery()->getResult();
     }
@@ -91,6 +159,7 @@ class OfflineTransferRepository extends EntityRepository
         $status
     ) {
         $query = $this->createQueryBuilder('o')
+            ->select('o.orderNumber')
             ->where('o.userId = :userId')
             ->andWhere('o.type = :topup')
             ->setParameter('userId', $userId)
@@ -101,7 +170,9 @@ class OfflineTransferRepository extends EntityRepository
                 ->setParameter('status', $status);
         }
 
-        $query->orderBy('o.creationDate', 'DESC');
+        $query->groupBy('o.orderNumber');
+
+        $query->orderBy('o.orderNumber', 'DESC');
 
         return $query->getQuery()->getResult();
     }
