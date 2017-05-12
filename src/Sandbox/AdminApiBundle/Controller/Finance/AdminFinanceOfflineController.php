@@ -586,6 +586,52 @@ class AdminFinanceOfflineController extends SandboxRestController
         return new View();
     }
 
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/finance/offline/transfer/detail")
+     * @Method({"GET"})
+     *
+     * @Annotations\QueryParam(
+     *    name="order_number",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
+     * @throws \Exception
+     *
+     * @return View
+     */
+    public function getTransferAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        // check user permission
+        $this->checkAdminFinanceOfflinePermission(AdminPermission::OP_LEVEL_VIEW);
+
+        $orderNumber = $paramFetcher->get('order_number');
+
+        $transfers = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Offline\OfflineTransfer')
+            ->findBy(
+                array('orderNumber' => $orderNumber),
+                array('id' => 'DESC')
+            );
+
+        return new View($transfers);
+    }
+
+    /**
+     * @param $em
+     * @param $userId
+     * @param $price
+     * @param $orderNumber
+     * @param $channel
+     * @param bool $refundToAccount
+     * @param null $refundNumber
+     */
     private function setTopUpOrder(
         $em,
         $userId,
