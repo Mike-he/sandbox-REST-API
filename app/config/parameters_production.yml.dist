@@ -118,6 +118,6 @@ parameters:
     openfire_db_user: production_xmpp
     openfire_db_password: Sandhill2290
 
-    duiba_app_key: 2ZqB9vFoKu2nibZ4R5EDRkoLnWe9
-    duiba_app_secret: mugee2DfByHGkMczL5yhLw56vEL
+    duiba_app_key: YSK9PSuahvtV6C3AQtZ85CJ2isw
+    duiba_app_secret: z3jDWM6BXhyEryGpZVpVdEczsUE
     duiba_app_env: pro
