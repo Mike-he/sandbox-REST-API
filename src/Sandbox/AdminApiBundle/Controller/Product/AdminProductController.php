@@ -10,6 +10,7 @@ use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Entity\Product\ProductAppointment;
 use Sandbox\ApiBundle\Entity\Room\Room;
+use Sandbox\ApiBundle\Entity\User\UserFavorite;
 use Sandbox\ApiBundle\Form\Product\ProductPatchType;
 use Sandbox\ApiBundle\Form\Product\ProductType;
 use Sandbox\ApiBundle\Traits\HasAccessToEntityRepositoryTrait;
@@ -362,6 +363,15 @@ class AdminProductController extends ProductController
             ));
 
         $room->setRentType($roomType->getType());
+
+        $favorite = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserFavorite')
+            ->countFavoritesByObject(
+                UserFavorite::OBJECT_PRODUCT,
+                $id
+            );
+
+        $product->setFavorite($favorite);
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_room']));

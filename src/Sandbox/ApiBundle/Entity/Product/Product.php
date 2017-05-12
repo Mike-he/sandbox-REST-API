@@ -331,6 +331,13 @@ class Product
      */
     private $salesSortTime;
 
+    /**
+     * @var int
+     *
+     * @Serializer\Groups({"main", "admin_room", "admin_detail"})
+     */
+    private $favorite;
+
     public function __construct()
     {
         $date = new \DateTime('2099-12-30 23:59:59');
@@ -1016,5 +1023,21 @@ class Product
     public function removeLeaseRentTypes($leaseRentType)
     {
         return $this->leaseRentTypes->removeElement($leaseRentType);
+    }
+
+    /**
+     * @return int
+     */
+    public function getFavorite()
+    {
+        return $this->favorite;
+    }
+
+    /**
+     * @param int $favorite
+     */
+    public function setFavorite($favorite)
+    {
+        $this->favorite = $favorite;
     }
 }
