@@ -294,11 +294,23 @@ class ClientProductController extends ProductController
                 $type = Room::TYPE_OFFICE;
             }
 
-            $unitPrice = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_UNIT.$product->getUnitPrice());
-            $product->setUnitPrice($unitPrice);
+//            $unitPrice = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_UNIT.$product->getUnitPrice());
+//            $product->setUnitPrice($unitPrice);
 
             $typeDescription = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$type);
             $room->setTypeDescription($typeDescription);
+
+            $productLeasingSets = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\ProductLeasingSet')
+                ->findBy(array('product' => $product));
+
+            foreach ($productLeasingSets as $productLeasingSet) {
+                $unitPrice = $this->get('translator')
+                    ->trans(ProductOrderExport::TRANS_ROOM_UNIT.$productLeasingSet->getUnitPrice());
+                $productLeasingSet->setUnitPrice($unitPrice);
+            }
+
+            $product->setLeasingSets($productLeasingSets);
         }
 
         $view = new View();

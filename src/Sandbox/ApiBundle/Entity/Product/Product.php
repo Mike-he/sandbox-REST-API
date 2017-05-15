@@ -91,7 +91,7 @@ class Product
     /**
      * @var string
      *
-     * @ORM\Column(name="unitPrice", type="string", length=255)
+     * @ORM\Column(name="unitPrice", type="string", length=255, nullable=true)
      *
      * @Serializer\Groups({"main", "client", "admin_room", "admin_detail", "client_appointment_list"})
      */
@@ -282,6 +282,13 @@ class Product
      * @var array
      */
     private $seats;
+
+    /**
+     * @var array
+     *
+     * @Serializer\Groups({"main", "admin_room", "admin_detail", "client"})
+     */
+    private $leasingSets;
 
     /**
      * @var bool
@@ -1039,5 +1046,21 @@ class Product
     public function setFavorite($favorite)
     {
         $this->favorite = $favorite;
+    }
+
+    /**
+     * @return array
+     */
+    public function getLeasingSets()
+    {
+        return $this->leasingSets;
+    }
+
+    /**
+     * @param array $leasingSets
+     */
+    public function setLeasingSets($leasingSets)
+    {
+        $this->leasingSets = $leasingSets;
     }
 }

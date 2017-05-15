@@ -10,6 +10,7 @@ use Sandbox\ApiBundle\Controller\Product\ProductController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Product\Product;
+use Sandbox\ApiBundle\Entity\Product\ProductLeasingSet;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\User\UserFavorite;
@@ -402,6 +403,12 @@ class AdminProductController extends ProductController
 
         $product->setFavorite($favorite);
 
+        $productLeasingSets = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\ProductLeasingSet')
+            ->findBy(array('product' => $product));
+
+        $product->setLeasingSets($productLeasingSets);
+
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_room']));
         $view->setData($product);
@@ -516,6 +523,7 @@ class AdminProductController extends ProductController
         $rule_exclude = $form['price_rule_exclude_ids']->getData();
         $seats = $form['seats']->getData();
         $rentTypeIds = $form['rent_type_include_ids']->getData();
+        $leasingSets = $form['leasing_sets']->getData();
 
         $room = $this->getRepo('Room\Room')->find($product->getRoomId());
         $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
@@ -607,6 +615,9 @@ class AdminProductController extends ProductController
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($product);
+
+        $this->handleLeasingSetsPost($leasingSets, $product);
+
         $em->flush();
 
         $roomId = $product->getRoomId();
@@ -679,6 +690,7 @@ class AdminProductController extends ProductController
         $rule_include = $form['price_rule_include_ids']->getData();
         $rule_exclude = $form['price_rule_exclude_ids']->getData();
         $rentTypeIds = $form['rent_type_include_ids']->getData();
+        $leasingSets = $form['leasing_sets']->getData();
 
         $room = $this->getRepo('Room\Room')->find($product->getRoomId());
         $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
@@ -752,6 +764,8 @@ class AdminProductController extends ProductController
         );
 
         $this->handleRentTypesPut($rentTypeIds, $product);
+
+        $this->handleLeasingSetsPut($leasingSets, $product);
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();
@@ -975,6 +989,52 @@ class AdminProductController extends ProductController
                 throw new NotFoundHttpException(CustomErrorMessagesConstants::ERROR_LEASE_RENT_TYPE_NOT_FOUND_MESSAGE);
             }
             $product->addLeaseRentTypes($rentType);
+        }
+    }
+
+    /**
+     * @param $leasingSets
+     * @param $product
+     */
+    private function handleLeasingSetsPost(
+        $leasingSets,
+        $product
+    ) {
+        $em = $this->getDoctrine()->getManager();
+        foreach ($leasingSets as $leasingSet) {
+            $productLeasingSet = new ProductLeasingSet();
+            $productLeasingSet->setProduct($product);
+            $productLeasingSet->setUnitPrice($leasingSet['unit_price']);
+            $productLeasingSet->setBasePrice($leasingSet['base_price']);
+            $em->persist($productLeasingSet);
+        }
+    }
+
+    /**
+     * @param $leasingSets
+     * @param $product
+     */
+    private function handleLeasingSetsPut(
+        $leasingSets,
+        $product
+    ) {
+        $em = $this->getDoctrine()->getManager();
+        $productLeasingSets = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\ProductLeasingSet')
+            ->findBy(array('product' => $product));
+
+        if ($productLeasingSets) {
+            foreach ($productLeasingSets as $productLeasingSet) {
+                $em->remove($productLeasingSet);
+            }
+        }
+
+        foreach ($leasingSets as $leasingSet) {
+            $productLeasingSet = new ProductLeasingSet();
+            $productLeasingSet->setProduct($product);
+            $productLeasingSet->setUnitPrice($leasingSet['unit_price']);
+            $productLeasingSet->setBasePrice($leasingSet['base_price']);
+            $em->persist($productLeasingSet);
         }
     }
 }

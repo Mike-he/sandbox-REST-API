@@ -49,12 +49,9 @@ trait HandleSpacesDataTrait
                         ));
 
                     $space['product']['seats'] = $seats;
-                } else {
-                    $space['product']['base_price'] = $product->getBasePrice();
                 }
 
                 $space['product']['id'] = $product->getId();
-                $space['product']['unit_price'] = $product->getUnitPrice();
                 $space['product']['start_date'] = $product->getStartDate();
                 $space['product']['recommend'] = $product->isRecommend();
                 $space['product']['visible'] = $product->getVisible();
@@ -69,6 +66,17 @@ trait HandleSpacesDataTrait
                     );
 
                 $space['product']['favorite'] = $favorite;
+
+                $productLeasingSets = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Product\ProductLeasingSet')
+                    ->findBy(array('product' => $product));
+
+                foreach ($productLeasingSets as $productLeasingSet) {
+                    $space['product']['leasing_sets'][] = array(
+                        'base_price' => $productLeasingSet->getBasePrice(),
+                        'unit_price' => $productLeasingSet->getUnitPrice(),
+                    );
+                }
             }
         }
 

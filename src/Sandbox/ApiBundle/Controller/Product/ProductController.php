@@ -69,6 +69,11 @@ class ProductController extends SalesRestController
             $product->setCollectionMethod($collectionMethod);
         }
 
+        $productLeasingSets = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\ProductLeasingSet')
+            ->findBy(array('product' => $product));
+        $product->setLeasingSets($productLeasingSets);
+
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
         $view->setData($product);

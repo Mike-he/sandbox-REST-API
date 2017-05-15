@@ -1,6 +1,6 @@
 parameters:
     database_driver: pdo_mysql
-    database_host: 172.19.0.2
+    database_host: sandbox_db
     database_port: '3306'
     database_name: sandbox_rest_db
     database_user: sandbox
@@ -108,13 +108,14 @@ parameters:
     wechat_refund_fee_multiplier: 0
     foreign_credit_refund_fee_multiplier: 0
     rest_api_local_url: localhost.api.rest
+    top_level_domain: sandbox3.cn
+    jpush_apns_option: false
+
     image_url: http://devimage.sandbox3.cn
     file_server_url: http://devxmpp.sandbox3.cn/plugins/fileServer/fileservice
     rest_file_server_url: http://devrest.sandbox3.cn/plugins/fileServer/fileservice
     mobile_url: http://devm.sandbox3.cn
     room_mobile_url: http://devmobile.sandbox3.cn
-    top_level_domain: sandbox3.cn
-    jpush_apns_option: false
     orders_url: http://devorders.sandbox3.cn
     coffee_url: http://devcoffee.sandbox3.cn
     invoice_url: http://devinvoice.sandbox3.cn
