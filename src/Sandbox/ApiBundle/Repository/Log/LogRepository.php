@@ -63,14 +63,23 @@ class LogRepository extends EntityRepository
         }
 
         if (!is_null($search) && !empty($search)) {
+            $userQuery = $this->createQueryBuilder('e')
+                ->select('DISTINCT up.userId')
+                ->from('SandboxApiBundle:User\UserProfile', 'up')
+                ->where('up.name LIKE :name')
+                ->setParameter('name', "%$search%");
+
+            $users = $userQuery->getQuery()->getResult();
+            $userIds = array_map('current', $users);
+
             $query->leftJoin('l.salesCompany', 'c')
-                ->leftjoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'l.adminUsername = up.userId')
                 ->andWhere('
-                    (up.name LIKE :search OR 
-                    c.name LIKE :search OR 
+                    (l.adminUsername IN (:userIds) OR
+                    c.name LIKE :search OR
                     l.logAction LIKE :search)
                 ')
-                ->setParameter('search', '%'.$search.'%');
+                ->setParameter('search', '%'.$search.'%')
+                ->setParameter('userIds', $userIds);
         }
 
         if (!is_null($mark)) {
