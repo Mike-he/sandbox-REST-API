@@ -8,6 +8,7 @@ use Sandbox\ApiBundle\Entity\Admin\AdminExcludePermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionGroups;
 use Sandbox\ApiBundle\Entity\Admin\AdminPosition;
+use Sandbox\ApiBundle\Entity\Admin\AdminPositionPermissionMap;
 use Sandbox\ApiBundle\Entity\Admin\AdminPositionUserBinding;
 use Sandbox\ApiBundle\Entity\Finance\FinanceSalesWallet;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
@@ -474,6 +475,8 @@ class AdminSalesCompanyController extends SandboxRestController
 
         $em->persist($wallet);
         $em->flush();
+        
+        $this->addDefaultPositionsForSales($salesCompany);
 
         // set view
         $view = new View();
@@ -483,6 +486,157 @@ class AdminSalesCompanyController extends SandboxRestController
         ));
 
         return $view;
+    }
+
+    /**
+     * @param SalesCompany $salesCompany
+     */
+    private function addDefaultPositionsForSales(
+        $salesCompany
+    ) {
+        $em = $this->getDoctrine()->getManager();
+
+        $icon = $this->getDoctrine()->getRepository('SandboxApiBundle:Admin\AdminPositionIcons')->find(1);
+
+        $permissions = [
+            [
+                'key' => AdminPermission::KEY_SALES_PLATFORM_DASHBOARD,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_PREORDER,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_RESERVE,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_BUILDING_ORDER,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_BUILDING_LONG_TERM_APPOINTMENT,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_BUILDING_LONG_TERM_LEASE,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_PLATFORM_EVENT_ORDER,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_PLATFORM_AUDIT,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_BUILDING_BUILDING,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_PLATFORM_BUILDING,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_BUILDING_ROOM,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_BUILDING_USER,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_PLATFORM_ADMIN,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_PLATFORM_EVENT,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_PLATFORM_INVOICE,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_PLATFORM_LONG_TERM_SERVICE_BILLS,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_PLATFORM_MONTHLY_BILLS,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_PLATFORM_FINANCIAL_SUMMARY,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_PLATFORM_WITHDRAWAL,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_PLATFORM_ACCOUNT,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_PLATFORM_MEMBERSHIP_CARD,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_PLATFORM_MEMBERSHIP_CARD_ORDER,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_PLATFORM_MEMBERSHIP_CARD_PRODUCT,
+                'op_level' => 2,
+            ],
+        ];
+
+        $positionGeneralManager = new AdminPosition();
+        $positionGeneralManager->setName('项目总经理');
+        $positionGeneralManager->setPlatform(AdminPosition::PLATFORM_SALES);
+        $positionGeneralManager->setSalesCompany($salesCompany);
+        $positionGeneralManager->setIcon($icon);
+        $em->persist($positionGeneralManager);
+
+        foreach ($permissions as $permissionArray) {
+            $permission = $this->getDoctrine()->getRepository('SandboxApiBundle:Admin\AdminPermission')->findOneBy(array(
+                'key' => $permissionArray['key'],
+            ));
+
+            $adminPositionPermissionMap = new AdminPositionPermissionMap();
+            $adminPositionPermissionMap->setPosition($positionGeneralManager);
+            $adminPositionPermissionMap->setPermission($permission);
+            $adminPositionPermissionMap->setOpLevel($permissionArray['op_level']);
+        }
+
+        $positionManager = new AdminPosition();
+        $positionManager->setName('项目经理');
+        $positionManager->setPlatform(AdminPosition::PLATFORM_SALES);
+        $positionManager->setSalesCompany($salesCompany);
+        $positionManager->setIcon($icon);
+        $em->persist($positionManager);
+
+        $positionEmployee = new AdminPosition();
+        $positionEmployee->setName('员工');
+        $positionEmployee->setPlatform(AdminPosition::PLATFORM_SALES);
+        $positionEmployee->setSalesCompany($salesCompany);
+        $positionEmployee->setIcon($icon);
+        $em->persist($positionEmployee);
+
+        $positionFinance = new AdminPosition();
+        $positionFinance->setName('财务');
+        $positionFinance->setPlatform(AdminPosition::PLATFORM_SALES);
+        $positionFinance->setSalesCompany($salesCompany);
+        $positionFinance->setIcon($icon);
+        $em->persist($positionFinance);
+
+        $em->flush();
     }
 
     /**
