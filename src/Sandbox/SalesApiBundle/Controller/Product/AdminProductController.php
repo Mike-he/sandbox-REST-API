@@ -1006,6 +1006,7 @@ class AdminProductController extends ProductController
             $productLeasingSet->setProduct($product);
             $productLeasingSet->setUnitPrice($leasingSet['unit_price']);
             $productLeasingSet->setBasePrice($leasingSet['base_price']);
+            $productLeasingSet->setAmount($leasingSet['amount']);
             $em->persist($productLeasingSet);
         }
     }
@@ -1034,6 +1035,7 @@ class AdminProductController extends ProductController
             $productLeasingSet->setProduct($product);
             $productLeasingSet->setUnitPrice($leasingSet['unit_price']);
             $productLeasingSet->setBasePrice($leasingSet['base_price']);
+            $productLeasingSet->setAmount($leasingSet['amount']);
             $em->persist($productLeasingSet);
         }
     }

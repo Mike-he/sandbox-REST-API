@@ -33,6 +33,7 @@ class Version920170515020301 extends AbstractMigration implements ContainerAware
             $productLeasingSet->setProduct($product);
             $productLeasingSet->setBasePrice($product->getBasePrice());
             $productLeasingSet->setUnitPrice($product->getUnitPrice());
+            $productLeasingSet->setAmount(0);
 
             $em->persist($productLeasingSet);
         }

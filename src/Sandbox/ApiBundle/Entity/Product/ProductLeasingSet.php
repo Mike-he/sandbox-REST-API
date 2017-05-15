@@ -58,6 +58,15 @@ class ProductLeasingSet
     private $unitPrice;
 
     /**
+     * @var float
+     *
+     * @ORM\Column(name="amount", type="float")
+     *
+     * @Serializer\Groups({"main", "admin_room", "admin_detail", "client"})
+     */
+    private $amount;
+
+    /**
      * @var \DateTime
      *
      * @Gedmo\Timestampable(on="create")
@@ -129,6 +138,22 @@ class ProductLeasingSet
     public function setUnitPrice($unitPrice)
     {
         $this->unitPrice = $unitPrice;
+    }
+
+    /**
+     * @return float
+     */
+    public function getAmount()
+    {
+        return $this->amount;
+    }
+
+    /**
+     * @param float $amount
+     */
+    public function setAmount($amount)
+    {
+        $this->amount = $amount;
     }
 
     /**
