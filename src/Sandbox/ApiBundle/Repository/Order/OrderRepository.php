@@ -4266,7 +4266,7 @@ class OrderRepository extends EntityRepository
         $userId
     ) {
         $query = $this->createQueryBuilder('o')
-            ->select('SUM(o.price)')
+            ->select('SUM(o.discountPrice)')
             ->where('o.status = :completed')
             ->andWhere('o.userId = :userId')
             ->andWhere('o.hasEvaluated = false')
