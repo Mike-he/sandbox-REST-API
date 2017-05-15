@@ -109,6 +109,19 @@ class RoomTypes
     private $range = 30;
 
     /**
+     * @ORM\ManyToOne(targetEntity="RoomTypesGroups")
+     * @ORM\JoinColumn(name="group_id", referencedColumnName="id", onDelete="SET NULL")
+     */
+    private $group;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="group_id", type="integer", nullable=true)
+     */
+    private $groupId;
+
+    /**
      * @return int
      */
     public function getRange()
@@ -268,5 +281,37 @@ class RoomTypes
     public function setHomepageIcon($homepageIcon)
     {
         $this->homepageIcon = $homepageIcon;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getGroup()
+    {
+        return $this->group;
+    }
+
+    /**
+     * @param mixed $group
+     */
+    public function setGroup($group)
+    {
+        $this->group = $group;
+    }
+
+    /**
+     * @return int
+     */
+    public function getGroupId()
+    {
+        return $this->groupId;
+    }
+
+    /**
+     * @param int $groupId
+     */
+    public function setGroupId($groupId)
+    {
+        $this->groupId = $groupId;
     }
 }
