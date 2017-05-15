@@ -4,6 +4,7 @@ namespace Application\Migrations;
 
 use Doctrine\DBAL\Migrations\AbstractMigration;
 use Doctrine\DBAL\Schema\Schema;
+use Sandbox\ApiBundle\Entity\Room\RoomTypes;
 use Sandbox\ApiBundle\Entity\Room\RoomTypesGroups;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
@@ -30,26 +31,58 @@ class Version920170512053932 extends AbstractMigration implements ContainerAware
 
         $em = $this->container->get('doctrine.orm.entity_manager');
 
-        $roomTypesGroups1 = new RoomTypesGroups();
-        $roomTypesGroups1->setGroupKey(RoomTypesGroups::KEY_MEETING);
-        $roomTypesGroups1->setIcon('/icon/room_type_meeting.png');
+        $roomTypesMeeting = new RoomTypesGroups();
+        $roomTypesMeeting->setGroupKey(RoomTypesGroups::KEY_MEETING);
+        $roomTypesMeeting->setIcon('/icon/room_type_meeting.png');
+        $roomTypesMeeting->setHomepageIcon('/icon/room_type_meeting_homepage.png');
 
-        $roomTypesGroups2 = new RoomTypesGroups();
-        $roomTypesGroups2->setGroupKey(RoomTypesGroups::KEY_DESK);
-        $roomTypesGroups2->setIcon('/icon/room_type_fixed.png');
+        $roomTypesDesk = new RoomTypesGroups();
+        $roomTypesDesk->setGroupKey(RoomTypesGroups::KEY_DESK);
+        $roomTypesDesk->setIcon('/icon/room_type_fixed.png');
+        $roomTypesDesk->setHomepageIcon('/icon/room_type_fixed_homepage.png');
 
-        $roomTypesGroups3 = new RoomTypesGroups();
-        $roomTypesGroups3->setGroupKey(RoomTypesGroups::KEY_OFFICE);
-        $roomTypesGroups3->setIcon('/icon/room_type_office.png');
+        $roomTypesOffice = new RoomTypesGroups();
+        $roomTypesOffice->setGroupKey(RoomTypesGroups::KEY_OFFICE);
+        $roomTypesOffice->setIcon('/icon/room_type_office.png');
+        $roomTypesOffice->setHomepageIcon('/icon/room_type_office_homepage.png');
 
-        $roomTypesGroups4 = new RoomTypesGroups();
-        $roomTypesGroups4->setGroupKey(RoomTypesGroups::KEY_OTHERS);
-        $roomTypesGroups4->setIcon('/icon/room_type_space.png');
+        $roomTypesOthers = new RoomTypesGroups();
+        $roomTypesOthers->setGroupKey(RoomTypesGroups::KEY_OTHERS);
+        $roomTypesOthers->setIcon('/icon/room_type_space.png');
+        $roomTypesOthers->setHomepageIcon('/icon/room_type_space_homepage.png');
 
-        $em->persist($roomTypesGroups1);
-        $em->persist($roomTypesGroups2);
-        $em->persist($roomTypesGroups3);
-        $em->persist($roomTypesGroups4);
+        $em->persist($roomTypesMeeting);
+        $em->persist($roomTypesDesk);
+        $em->persist($roomTypesOffice);
+        $em->persist($roomTypesOthers);
+
+        $roomTypes = $em->getRepository('SandboxApiBundle:Room\RoomTypes')->findAll();
+        foreach ($roomTypes as $roomType) {
+            $type = $roomType->getName();
+            switch ($type) {
+                case RoomTypes::TYPE_NAME_OFFICE:
+                    $roomType->setGroup($roomTypesOffice);
+                    break;
+                case RoomTypes::TYPE_NAME_MEETING:
+                    $roomType->setGroup($roomTypesMeeting);
+                    break;
+                case RoomTypes::TYPE_NAME_FIXED:
+                    $roomType->setGroup($roomTypesDesk);
+                    break;
+                case RoomTypes::TYPE_NAME_FLEXIBLE:
+                    $roomType->setGroup($roomTypesDesk);
+                    break;
+                case RoomTypes::TYPE_NAME_STUDIO:
+                    $roomType->setGroup($roomTypesOthers);
+                    break;
+                case RoomTypes::TYPE_NAME_SPACE:
+                    $roomType->setGroup($roomTypesOthers);
+                    break;
+                case RoomTypes::TYPE_NAME_LONGTERM:
+                    $roomType->setGroup($roomTypesOffice);
+                    break;
+            }
+        }
 
         $em->flush();
     }

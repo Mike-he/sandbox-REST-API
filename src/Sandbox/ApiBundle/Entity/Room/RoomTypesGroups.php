@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
- * RoomTypesGroups
+ * RoomTypesGroups.
  *
  * @ORM\Table(name="room_types_groups")
  * @ORM\Entity
@@ -19,7 +19,7 @@ class RoomTypesGroups
     const KEY_OTHERS = 'others';
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -42,6 +42,13 @@ class RoomTypesGroups
     private $icon;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="homepage_icon", type="string", length=255)
+     */
+    private $homepageIcon;
+
+    /**
      * @var \DateTime
      *
      * @Gedmo\Timestampable(on="create")
@@ -57,11 +64,10 @@ class RoomTypesGroups
      */
     private $modificationDate;
 
-
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -69,9 +75,10 @@ class RoomTypesGroups
     }
 
     /**
-     * Set groupKey
+     * Set groupKey.
      *
      * @param string $groupKey
+     *
      * @return RoomTypesGroups
      */
     public function setGroupKey($groupKey)
@@ -82,9 +89,9 @@ class RoomTypesGroups
     }
 
     /**
-     * Get groupKey
+     * Get groupKey.
      *
-     * @return string 
+     * @return string
      */
     public function getGroupKey()
     {
@@ -92,9 +99,10 @@ class RoomTypesGroups
     }
 
     /**
-     * Set icon
+     * Set icon.
      *
      * @param string $icon
+     *
      * @return RoomTypesGroups
      */
     public function setIcon($icon)
@@ -105,9 +113,9 @@ class RoomTypesGroups
     }
 
     /**
-     * Get icon
+     * Get icon.
      *
-     * @return string 
+     * @return string
      */
     public function getIcon()
     {
@@ -115,9 +123,26 @@ class RoomTypesGroups
     }
 
     /**
-     * Set creationDate
+     * @return string
+     */
+    public function getHomepageIcon()
+    {
+        return $this->homepageIcon;
+    }
+
+    /**
+     * @param string $homepageIcon
+     */
+    public function setHomepageIcon($homepageIcon)
+    {
+        $this->homepageIcon = $homepageIcon;
+    }
+
+    /**
+     * Set creationDate.
      *
      * @param \DateTime $creationDate
+     *
      * @return RoomTypesGroups
      */
     public function setCreationDate($creationDate)
@@ -128,9 +153,9 @@ class RoomTypesGroups
     }
 
     /**
-     * Get creationDate
+     * Get creationDate.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getCreationDate()
     {
@@ -138,9 +163,10 @@ class RoomTypesGroups
     }
 
     /**
-     * Set modificationDate
+     * Set modificationDate.
      *
      * @param \DateTime $modificationDate
+     *
      * @return RoomTypesGroups
      */
     public function setModificationDate($modificationDate)
@@ -151,9 +177,9 @@ class RoomTypesGroups
     }
 
     /**
-     * Get modificationDate
+     * Get modificationDate.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getModificationDate()
     {
