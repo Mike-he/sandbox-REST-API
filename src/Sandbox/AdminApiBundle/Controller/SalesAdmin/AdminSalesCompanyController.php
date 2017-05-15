@@ -475,7 +475,7 @@ class AdminSalesCompanyController extends SandboxRestController
 
         $em->persist($wallet);
         $em->flush();
-        
+
         $this->addDefaultPositionsForSales($salesCompany);
 
         // set view
