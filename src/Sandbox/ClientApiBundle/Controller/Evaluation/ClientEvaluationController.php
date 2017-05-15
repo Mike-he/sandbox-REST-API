@@ -386,7 +386,7 @@ class ClientEvaluationController extends EvaluationController
                 //update user bean
                 $this->get('sandbox_api.bean')->postBeanChange(
                     $this->getUserId(),
-                    $productOrder->getPrice(),
+                    $productOrder->getDiscountPrice(),
                     $productOrder->getOrderNumber(),
                     Parameter::KEY_BEAN_ORDER_EVALUATION
                 );
