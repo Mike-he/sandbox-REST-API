@@ -23,4 +23,20 @@ class MembershipCardRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    public function getCards(
+        $company,
+        $visible
+    ) {
+        $query = $this->createQueryBuilder('c')
+            ->where('c.companyId = :company')
+            ->setParameter('company', $company);
+
+        if (!is_null($visible)) {
+            $query->andWhere('p.visible = :visible')
+                ->setParameter('visible', $visible);
+        }
+
+        return $query->getQuery()->getResult();
+    }
 }

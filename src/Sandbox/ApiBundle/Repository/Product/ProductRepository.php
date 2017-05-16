@@ -1322,6 +1322,7 @@ class ProductRepository extends EntityRepository
      * @param $type
      * @param $building
      * @param $search
+     * @param $visible
      *
      * @return array
      */
@@ -1329,7 +1330,8 @@ class ProductRepository extends EntityRepository
         $company,
         $type,
         $building,
-        $search
+        $search,
+        $visible
     ) {
         $query = $this->createQueryBuilder('p')
             ->select('
@@ -1347,7 +1349,7 @@ class ProductRepository extends EntityRepository
             ->where('p.isDeleted = FALSE')
             ->andWhere('r.isDeleted = FALSE')
             ->andWhere('b.company = :company')
-            ->andWhere('r.type = :type')
+            ->andWhere('r.type in (:type)')
             ->setParameter('company', $company)
             ->setParameter('type', $type);
 
@@ -1359,6 +1361,11 @@ class ProductRepository extends EntityRepository
         if ($search) {
             $query->andWhere('r.name LIKE :search')
                 ->setParameter('search', '%'.$search.'%');
+        }
+
+        if (!is_null($visible)) {
+            $query->andWhere('p.visible = :visible')
+                ->setParameter('visible', $visible);
         }
 
         $result = $query->getQuery()->getResult();

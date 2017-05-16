@@ -19,6 +19,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
  */
 class AdminDashBoardController extends SalesRestController
 {
+    const TYPE_MEMBERSHIP_CARD = 'membership_card';
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
@@ -58,6 +59,15 @@ class AdminDashBoardController extends SalesRestController
      *    description=""
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="visible",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by visibility"
+     * )
+     *
      * @Route("/dashboard/rooms/usage")
      * @Method({"GET"})
      *
@@ -78,29 +88,54 @@ class AdminDashBoardController extends SalesRestController
         $endString = $paramFetcher->get('end');
         $building = $paramFetcher->get('building');
         $query = $paramFetcher->get('query');
+        $visible = $paramFetcher->get('visible');
 
         $start = new \DateTime($startString);
         $start->setTime(0, 0, 0);
         $end = new \DateTime($endString);
         $end->setTime(23, 59, 59);
 
-        $products = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Product\Product')
-            ->findProductIdsByRoomType(
-                $salesCompanyId,
-                $roomType,
-                $building,
-                $query
-            );
-
         $usages = array();
-        foreach ($products as $product) {
-            $usages[] = $this->generateOrders(
-                $product,
-                $roomType,
-                $start,
-                $end
-            );
+        switch ($roomType) {
+            case self::TYPE_MEMBERSHIP_CARD:
+                $membershipCards = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:MembershipCard\MembershipCard')
+                    ->getCards($salesCompanyId, $visible);
+
+                foreach ($membershipCards as $membershipCard) {
+                    $usages[] = $this->generateMembershipCardOrders(
+                        $membershipCard,
+                        $start,
+                        $end
+                    );
+                }
+
+                break;
+            default:
+                $roomTypes = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomTypes')
+                    ->getRoomTypesByGroupName($roomType);
+
+                foreach ($roomTypes as $roomType) {
+                    $products = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:Product\Product')
+                        ->findProductIdsByRoomType(
+                            $salesCompanyId,
+                            $roomType->getName(),
+                            $building,
+                            $query,
+                            $visible
+                        );
+
+                    foreach ($products as $product) {
+                        $usages[] = $this->generateOrders(
+                            $product,
+                            $roomType->getName(),
+                            $start,
+                            $end
+                        );
+                    }
+                }
         }
 
         $view = new View();
@@ -237,6 +272,59 @@ class AdminDashBoardController extends SalesRestController
 
         $result = array(
             'product' => $product,
+            'orders' => $orderList,
+        );
+
+        return $result;
+    }
+
+    /**
+     * @param $card
+     * @param $start
+     * @param $end
+     *
+     * @return array
+     */
+    private function generateMembershipCardOrders(
+        $card,
+        $start,
+        $end
+    ) {
+        $months = new \DatePeriod(
+            $start,
+            new \DateInterval('P1M'),
+            $end
+        );
+
+        $orderList = array();
+        $max = 0;
+        foreach ($months as $month) {
+            $startDate = $month;
+            $endDate = clone $month;
+            $endDate = $endDate->modify('last day of this month');
+            $endDate->setTime(23, 59, 59);
+
+            $count = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:MembershipCard\MembershipOrder')
+                ->countMembershipOrdersByDate(
+                    $card,
+                    $startDate,
+                    $endDate
+                );
+
+            if ($count > $max) {
+                $max = $count;
+            }
+
+            $orderList[] = array(
+                'month' => $month,
+                'count' => $count,
+            );
+        }
+
+        $result = array(
+            'card' => $card,
+            'max' => $max,
             'orders' => $orderList,
         );
 

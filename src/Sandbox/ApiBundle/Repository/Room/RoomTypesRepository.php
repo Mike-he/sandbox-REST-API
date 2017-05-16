@@ -60,4 +60,22 @@ class RoomTypesRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param $groupName
+     *
+     * @return array
+     */
+    public function getRoomTypesByGroupName(
+        $groupName
+    ) {
+        $query = $this->createQueryBuilder('t')
+            ->leftJoin('t.group', 'g')
+            ->where('g.groupKey = :name')
+            ->setParameter('name', $groupName);
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
 }
