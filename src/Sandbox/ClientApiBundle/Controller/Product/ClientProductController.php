@@ -84,10 +84,10 @@ class ClientProductController extends ProductController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="type",
+     *    name="group_key",
      *    default=null,
      *    nullable=true,
-     *    description="room type"
+     *    description="room type group"
      * )
      *
      * @Annotations\QueryParam(
@@ -156,7 +156,7 @@ class ClientProductController extends ProductController
         $allowedPeople = $paramFetcher->get('allowed_people');
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
-        $type = $paramFetcher->get('type');
+        $typeGroupKey = $paramFetcher->get('group_key');
         $includeIds = $paramFetcher->get('include_company_id');
         $excludeIds = $paramFetcher->get('exclude_company_id');
         $lat = $paramFetcher->get('lat');
@@ -167,9 +167,18 @@ class ClientProductController extends ProductController
         $endTime = null;
         $productIds = [];
 
-        if ($type == Room::TYPE_MEETING ||
-            $type == Room::TYPE_STUDIO ||
-            $type == Room::TYPE_SPACE
+        $types = [];
+        $typesObject = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomTypes')
+            ->getRoomTypesByGroupName($typeGroupKey);
+
+        foreach ($typesObject as $item) {
+            array_push($types, $item->getName());
+        }
+
+        if (in_array(Room::TYPE_MEETING, $types)||
+            in_array(Room::TYPE_STUDIO, $types)||
+            in_array(Room::TYPE_SPACE, $types)
         ) {
             $startHour = null;
             $endHour = null;
@@ -195,11 +204,11 @@ class ClientProductController extends ProductController
                     $endTime,
                     $startHour,
                     $endHour,
-                    $type,
+                    $types,
                     $includeIds,
                     $excludeIds
             );
-        } elseif ($type == Room::TYPE_FIXED || $type == Room::TYPE_FLEXIBLE) {
+        } elseif (in_array(Room::TYPE_FIXED, $types) || in_array(Room::TYPE_FLEXIBLE, $types)) {
             if (!is_null($start) && !is_null($end) && !empty($start) && !empty($end)) {
                 $startTime = new \DateTime($start);
                 $startTime->setTime(0, 0, 0);
@@ -216,11 +225,11 @@ class ClientProductController extends ProductController
                     $allowedPeople,
                     $startTime,
                     $endTime,
-                    $type,
+                    $types,
                     $includeIds,
                     $excludeIds
             );
-        } elseif ($type == Room::TYPE_OFFICE) {
+        } elseif (in_array(Room::TYPE_OFFICE, $types)) {
             if (!is_null($start) && !is_null($end) && !empty($start) && !empty($end)) {
                 $startTime = new \DateTime($start);
                 $startTime->setTime(0, 0, 0);
@@ -242,7 +251,7 @@ class ClientProductController extends ProductController
             );
         }
 
-        if (is_null($type)) {
+        if (is_null($typeGroupKey)) {
             $products = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Product\Product')
                 ->getAllProductsForOneBuildingOrCompany(

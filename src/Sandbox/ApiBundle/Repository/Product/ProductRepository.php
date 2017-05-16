@@ -67,7 +67,7 @@ class ProductRepository extends EntityRepository
      * @param $endTime
      * @param $startHour
      * @param $endHour
-     * @param $type
+     * @param $types
      * @param $includeIds
      * @param $excludeIds
      *
@@ -82,7 +82,7 @@ class ProductRepository extends EntityRepository
         $endTime,
         $startHour,
         $endHour,
-        $type,
+        $types,
         $includeIds,
         $excludeIds
     ) {
@@ -93,10 +93,10 @@ class ProductRepository extends EntityRepository
             ->leftjoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
             ->leftJoin('SandboxApiBundle:Room\RoomMeeting', 'm', 'WITH', 'p.roomId = m.room')
             ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'b.id = r.buildingId')
-            ->where('r.type = :type')
+            ->where('r.type IN (:types)')
             ->andWhere('p.visible = :visible')
             ->andWhere('p.startDate <= :now AND p.endDate >= :now')
-            ->setParameter('type', $type)
+            ->setParameter('types', $types)
             ->setParameter('visible', true)
             ->setParameter('now', $now);
 
@@ -299,7 +299,7 @@ class ProductRepository extends EntityRepository
      * @param $allowedPeople
      * @param $startDate
      * @param $endDate
-     * @param $type
+     * @param $types
      * @param $includeIds
      * @param $excludeIds
      *
@@ -312,7 +312,7 @@ class ProductRepository extends EntityRepository
         $allowedPeople,
         $startDate,
         $endDate,
-        $type,
+        $types,
         $includeIds,
         $excludeIds
     ) {
@@ -322,10 +322,10 @@ class ProductRepository extends EntityRepository
             ->select('DISTINCT p.id')
             ->leftjoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
             ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'b.id = r.buildingId')
-            ->where('r.type = :type')
+            ->where('r.type IN (:types)')
             ->andWhere('p.visible = :visible')
             ->andWhere('p.startDate <= :now AND p.endDate >= :now')
-            ->setParameter('type', $type)
+            ->setParameter('types', $types)
             ->setParameter('visible', true)
             ->setParameter('now', $now);
 

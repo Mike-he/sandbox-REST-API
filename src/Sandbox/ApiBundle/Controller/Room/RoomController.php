@@ -108,6 +108,7 @@ class RoomController extends SandboxRestController
 
             array_push($response, array(
                 'id' => $group->getId(),
+                'group_key' => $group->getGroupKey(),
                 'name' => $name,
                 'icon' => $imageUrl.$group->getIcon(),
                 'homepage_icon' => $imageUrl.$group->getHomepageIcon(),
