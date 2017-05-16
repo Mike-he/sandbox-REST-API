@@ -112,6 +112,16 @@ class AdminLogController extends LogController
      *    description="page number "
      * )
      *
+     * @Annotations\QueryParam(
+     *     name="platform",
+     *     array=false,
+     *     default="sales",
+     *     nullable=true,
+     *     requirements="(sales|shop)",
+     *     strict=true,
+     *     description="platform"
+     * )
+     *
      * @Route("/logs")
      * @Method({"GET"})
      *
@@ -133,6 +143,7 @@ class AdminLogController extends LogController
         $mark = $paramFetcher->get('mark');
         $startDate = $paramFetcher->get('startDate');
         $endDate = $paramFetcher->get('endDate');
+        $platform = $paramFetcher->get('platform');
 
         $logsQuery = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Log\Log')
@@ -145,7 +156,8 @@ class AdminLogController extends LogController
                 $search,
                 $key,
                 $objectId,
-                $mark
+                $mark,
+                $platform
             );
 
         $paginator = new Paginator();

@@ -22,6 +22,7 @@ class LogRepository extends EntityRepository
      * @param $mark
      * @param $startDate
      * @param $endDate
+     * @param $platform
      *
      * @return array
      */
@@ -34,11 +35,17 @@ class LogRepository extends EntityRepository
         $search = null,
         $key = null,
         $objectId = null,
-        $mark = null
+        $mark = null,
+        $platform = null
     ) {
         $query = $this->createQueryBuilder('l')
             ->where('1=1')
             ->orderBy('l.creationDate', 'DESC');
+
+        if (!is_null($platform)) {
+            $query->andWhere('l.platform = :platform')
+                ->setParameter('platform', $platform);
+        }
 
         if (!is_null($adminId)) {
             $query->andWhere('l.adminUsername = :adminId')
