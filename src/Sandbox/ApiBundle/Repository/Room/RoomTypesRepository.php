@@ -70,9 +70,12 @@ class RoomTypesRepository extends EntityRepository
         $groupName
     ) {
         $query = $this->createQueryBuilder('t')
-            ->leftJoin('t.group', 'g')
-            ->where('g.groupKey = :name')
-            ->setParameter('name', $groupName);
+            ->leftJoin('t.group', 'g');
+
+        if (!is_null($groupName)) {
+            $query->where('g.groupKey = :name')
+                ->setParameter('name', $groupName);
+        }
 
         $result = $query->getQuery()->getResult();
 

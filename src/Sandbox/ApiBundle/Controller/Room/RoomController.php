@@ -2,12 +2,16 @@
 
 namespace Sandbox\ApiBundle\Controller\Room;
 
+use FOS\RestBundle\Request\ParamFetcher;
+use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use JMS\Serializer\SerializationContext;
+use Sandbox\ApiBundle\Entity\Room\RoomTypesGroups;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpFoundation\Request;
+use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\View\View;
 
 /**
@@ -23,19 +27,29 @@ use FOS\RestBundle\View\View;
 class RoomController extends SandboxRestController
 {
     /**
+     * @param Request $request
+     *
+     * @Annotations\QueryParam(
+     *     name="group_key",
+     *     array=false,
+     *     default=null,
+     *     nullable=true
+     * )
+     *
      * @Route("/types")
      * @Method({"GET"})
-     *
-     * @param Request $request
      *
      * @return View
      */
     public function getRoomTypesAction(
-        Request $request
+        Request $request,
+        ParamFetcherInterface $paramFetcher
     ) {
+        $groupKey = $paramFetcher->get('group_key');
+
         $types = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\RoomTypes')
-            ->findAll();
+            ->getRoomTypesByGroupName($groupKey);
 
         $language = $request->getPreferredLanguage();
 
@@ -64,5 +78,42 @@ class RoomController extends SandboxRestController
         $view->setSerializationContext(SerializationContext::create()->setGroups(['drop_down']));
 
         return $view;
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @Route("/type_groups")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getRoomTypeGroupsAction(
+        Request $request
+    ) {
+        $groups = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomTypesGroups')
+            ->findAll();
+
+        $imageUrl = $this->getParameter('image_url');
+
+        $response = array();
+        foreach ($groups as $group) {
+            $name = $this->get('translator')->trans(
+                RoomTypesGroups::TRANS_GROUPS_PREFIX.$group->getGroupKey(),
+                array(),
+                null,
+                $request->getPreferredLanguage()
+            );
+
+            array_push($response, array(
+                'id' => $group->getId(),
+                'name' => $name,
+                'icon' => $imageUrl.$group->getIcon(),
+                'homepage_icon' => $imageUrl.$group->getHomepageIcon(),
+            ));
+        }
+
+        return new View($response);
     }
 }

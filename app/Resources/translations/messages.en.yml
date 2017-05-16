@@ -42,6 +42,11 @@ room:
     space: Activity Space
     video_studio: Studio
     longterm: Long Term Office
+  type_group:
+    meeting: Meeting Room
+    desk: Desk
+    office: Office
+    others: Others
   unit:
     hour: Hour
     day: Day

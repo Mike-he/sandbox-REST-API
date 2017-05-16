@@ -13,6 +13,8 @@ use Gedmo\Mapping\Annotation as Gedmo;
  */
 class RoomTypesGroups
 {
+    const TRANS_GROUPS_PREFIX = 'room.type_group.';
+
     const KEY_MEETING = 'meeting';
     const KEY_DESK = 'desk';
     const KEY_OFFICE = 'office';
