@@ -1274,7 +1274,7 @@ class AdminSalesCompanyController extends SandboxRestController
             array_push($defaultGroups, AdminPermissionGroups::GROUP_KEY_EVENT);
         }
 
-        if (!in_array(AdminPermissionGroups::GROUP_KEY_EVENT, $excludePermissionsKeyArray)) {
+        if (!in_array(AdminPermissionGroups::GROUP_KEY_MEMBERSHIP_CARD, $excludePermissionsKeyArray)) {
             array_push($defaultPermissions,
                 [
                     'key' => AdminPermission::KEY_SALES_PLATFORM_MEMBERSHIP_CARD,
@@ -1426,7 +1426,7 @@ class AdminSalesCompanyController extends SandboxRestController
             array_push($defaultGroups, AdminPermissionGroups::GROUP_KEY_EVENT);
         }
 
-        if (!in_array(AdminPermissionGroups::GROUP_KEY_EVENT, $excludePermissionsKeyArray)) {
+        if (!in_array(AdminPermissionGroups::GROUP_KEY_MEMBERSHIP_CARD, $excludePermissionsKeyArray)) {
             array_push($defaultPermissions,
                 [
                     'key' => AdminPermission::KEY_SALES_PLATFORM_MEMBERSHIP_CARD,
@@ -1562,7 +1562,7 @@ class AdminSalesCompanyController extends SandboxRestController
             array_push($defaultGroups, AdminPermissionGroups::GROUP_KEY_EVENT);
         }
 
-        if (!in_array(AdminPermissionGroups::GROUP_KEY_EVENT, $excludePermissionsKeyArray)) {
+        if (!in_array(AdminPermissionGroups::GROUP_KEY_MEMBERSHIP_CARD, $excludePermissionsKeyArray)) {
             array_push($defaultPermissions,
                 [
                     'key' => AdminPermission::KEY_SALES_PLATFORM_MEMBERSHIP_CARD,
@@ -1682,7 +1682,7 @@ class AdminSalesCompanyController extends SandboxRestController
             array_push($defaultGroups, AdminPermissionGroups::GROUP_KEY_EVENT);
         }
 
-        if (!in_array(AdminPermissionGroups::GROUP_KEY_EVENT, $excludePermissionsKeyArray)) {
+        if (!in_array(AdminPermissionGroups::GROUP_KEY_MEMBERSHIP_CARD, $excludePermissionsKeyArray)) {
             array_push($defaultPermissions,
                 [
                     'key' => AdminPermission::KEY_SALES_PLATFORM_MEMBERSHIP_CARD,
