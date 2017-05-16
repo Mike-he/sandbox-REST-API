@@ -427,6 +427,9 @@ class OrderController extends PaymentController
         $floor = $this->getRepo('Room\RoomFloor')->find($room->getFloorId());
         $supplies = $this->getRepo('Room\RoomSupplies')->findBy(['room' => $room->getId()]);
         $meeting = $this->getRepo('Room\RoomMeeting')->findOneBy(['room' => $room->getId()]);
+        $productLeasingSets = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\ProductLeasingSet')
+            ->findBy(array('product' => $product));
 
         $seatArray = [];
         if (!is_null($seatId)) {
@@ -495,11 +498,18 @@ class OrderController extends PaymentController
             }
         }
 
+        $leasingSetArray = array();
+        foreach ($productLeasingSets as $productLeasingSet) {
+            $leasingSetArray[] = array(
+                'base_price' => $productLeasingSet->getBasePrice(),
+                'unit_price' => $productLeasingSet->getUnitPrice(),
+                'amount' => $productLeasingSet->getAmount(),
+            );
+        }
+
         $productInfo = [
             'id' => $product->getId(),
             'description' => $product->getDescription(),
-            'base_price' => $product->getBasePrice(),
-            'unit_price' => $product->getUnitPrice(),
             'renewable' => $product->getRenewable(),
             'start_date' => $product->getStartDate(),
             'end_date' => $product->getEndDate(),
@@ -529,6 +539,7 @@ class OrderController extends PaymentController
                 'meeting' => $meetingArray,
                 'attachment' => $attachmentArray,
                 'seat' => $seatArray,
+                'leasing_set' => $leasingSetArray,
             ],
         ];
 
