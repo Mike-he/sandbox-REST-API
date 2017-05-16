@@ -80,6 +80,7 @@ class RoomBuildingPutType extends AbstractType
             ->add('lessor_phone')
             ->add('lessor_email')
             ->add('customer_services')
+            ->add('property_type_id')
         ;
     }
 

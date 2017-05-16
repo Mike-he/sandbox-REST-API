@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Controller\Location;
 
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
+use Sandbox\ApiBundle\Entity\Property\PropertyTypes;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingServices;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingTag;
 use Sandbox\ApiBundle\Entity\Room\RoomCity;
@@ -496,7 +497,7 @@ class LocationController extends SalesRestController
             ->find($id);
 
         // set more information
-        $this->setRoomBuildingMoreInformation($building);
+        $this->setRoomBuildingMoreInformation($building, $request);
 
         // set building room types according to present data
         $types = $this->getDoctrine()
@@ -566,11 +567,13 @@ class LocationController extends SalesRestController
      * Set room building more information.
      *
      * @param RoomBuilding $building
+     * @param $request
      *
      * @return RoomBuilding
      */
     protected function setRoomBuildingMoreInformation(
-        $building
+        $building,
+        $request
     ) {
         // set floor numbers
         $floors = $this->getRepo('Room\RoomFloor')->findByBuilding($building);
@@ -667,6 +670,35 @@ class LocationController extends SalesRestController
                 'buildingId' => $building->getId(),
             ]);
         $building->setCustomerServices($members);
+
+        $propertyTypeId = $building->getPropertyTypeId();
+        if (!is_null($propertyTypeId)) {
+            $propertyType = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Property\PropertyTypes')
+                ->find($propertyTypeId);
+
+            if (is_null($propertyType)) {
+                return $building;
+            }
+
+            $imageUrl = $this->getParameter('image_url');
+            $language = $request->getPreferredLanguage();
+            $name = $propertyType->getName();
+
+            $typeText = $this->get('translator')->trans(
+                PropertyTypes::TRANS_PROPERTY_TYPE.$name,
+                array(),
+                null,
+                $language
+            );
+
+            $building->setPropertyType([
+                'id' => $propertyType->getId(),
+                'name' => $name,
+                'community_icon' => $imageUrl.$propertyType->getCommunityIcon(),
+                'description' => $typeText,
+            ]);
+        }
 
         return $building;
     }

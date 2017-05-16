@@ -86,6 +86,7 @@ class RoomBuildingPostType extends AbstractType
                     'required' => false,
                 )
             )
+            ->add('property_type_id')
         ;
     }
 

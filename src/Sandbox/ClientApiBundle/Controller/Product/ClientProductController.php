@@ -176,8 +176,8 @@ class ClientProductController extends ProductController
             array_push($types, $item->getName());
         }
 
-        if (in_array(Room::TYPE_MEETING, $types)||
-            in_array(Room::TYPE_STUDIO, $types)||
+        if (in_array(Room::TYPE_MEETING, $types) ||
+            in_array(Room::TYPE_STUDIO, $types) ||
             in_array(Room::TYPE_SPACE, $types)
         ) {
             $startHour = null;

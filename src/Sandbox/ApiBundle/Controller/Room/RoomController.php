@@ -2,7 +2,6 @@
 
 namespace Sandbox\ApiBundle\Controller\Room;
 
-use FOS\RestBundle\Request\ParamFetcher;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Controller\SandboxRestController;

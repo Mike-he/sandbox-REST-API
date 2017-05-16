@@ -587,6 +587,50 @@ class RoomBuilding implements JsonSerializable
     private $customerServices;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="property_type_id", type="integer", nullable=true)
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $propertyTypeId;
+
+    /**
+     * @var array
+     *
+     * @Serializer\Groups(
+     *  {
+     *      "main",
+     *      "admin_room",
+     *      "client",
+     *      "profile",
+     *      "profile_basic",
+     *      "profile_stranger",
+     *      "profile_basic_stranger",
+     *      "buddy",
+     *      "member",
+     *      "admin_detail",
+     *      "company_info",
+     *      "company_basic",
+     *      "feed",
+     *      "admin_event",
+     *      "client_detail",
+     *      "client_event",
+     *      "current_order",
+     *      "building_nearby",
+     *      "admin_building",
+     *      "admin_shop",
+     *      "client_order",
+     *      "shop_nearby",
+     *      "client_shop",
+     *      "admin_appointment",
+     *      "admin_position_bind_view"
+     *  }
+     * )
+     */
+    private $propertyType;
+
+    /**
      * Get id.
      *
      * @return int
@@ -594,6 +638,38 @@ class RoomBuilding implements JsonSerializable
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPropertyTypeId()
+    {
+        return $this->propertyTypeId;
+    }
+
+    /**
+     * @param int $propertyTypeId
+     */
+    public function setPropertyTypeId($propertyTypeId)
+    {
+        $this->propertyTypeId = $propertyTypeId;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPropertyType()
+    {
+        return $this->propertyType;
+    }
+
+    /**
+     * @param array $propertyType
+     */
+    public function setPropertyType($propertyType)
+    {
+        $this->propertyType = $propertyType;
     }
 
     /**
