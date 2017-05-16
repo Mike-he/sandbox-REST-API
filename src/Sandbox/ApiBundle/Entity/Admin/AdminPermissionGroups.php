@@ -20,6 +20,9 @@ class AdminPermissionGroups
     const GROUP_KEY_SALES = 'sales';
     const GROUP_KEY_DASHBOARD = 'dashboard';
     const GROUP_KEY_MEMBERSHIP_CARD = 'membership';
+    const GROUP_KEY_SPACE = 'space';
+    const GROUP_KEY_USER = 'user';
+    const GROUP_KEY_ADMIN = 'admin';
 
     const GROUP_PLATFORM_OFFICIAL = 'official';
     const GROUP_PLATFORM_SALES = 'sales';
