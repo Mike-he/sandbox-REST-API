@@ -270,6 +270,17 @@ class AdminDashBoardController extends SalesRestController
             $product['seats'] = $productSeats;
         }
 
+        $productLeasingSets = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\ProductLeasingSet')
+            ->findBy(array('product' => $product));
+
+        foreach ($productLeasingSets as $productLeasingSet) {
+            $product['leasing_sets'][] = array(
+                'base_price' => $productLeasingSet->getBasePrice(),
+                'unit_price' => $productLeasingSet->getUnitPrice(),
+            );
+        }
+
         $result = array(
             'product' => $product,
             'orders' => $orderList,
