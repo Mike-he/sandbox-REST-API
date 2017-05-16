@@ -25,6 +25,13 @@ register:
     expired_verification: Expired verification
     invalid_inviter: Inviter isn't sandbox3 user
 
+property:
+  type:
+    hotel: Hotel
+    incubator: Incubator
+    commercial_center: Commercial Center
+    joint_workspace: Joint Workspace
+
 room:
   type:
     office: Private Office

@@ -25,6 +25,13 @@ register:
     expired_verification: 验证码过期
     invalid_inviter: 邀请人非创合用户
 
+property:
+  type:
+    hotel: 酒店
+    incubator: 孵化器
+    commercial_center: 商务中心
+    joint_workspace: 联合办公空间
+
 room:
   type:
     office: 独享办公室
