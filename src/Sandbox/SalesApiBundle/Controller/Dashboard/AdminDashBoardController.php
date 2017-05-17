@@ -98,9 +98,20 @@ class AdminDashBoardController extends SalesRestController
         $usages = array();
         switch ($roomType) {
             case self::TYPE_MEMBERSHIP_CARD:
+                $cardIds = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:User\UserGroupDoors')
+                    ->getMembershipCard(
+                        $building
+                    );
+
                 $membershipCards = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:MembershipCard\MembershipCard')
-                    ->getCards($salesCompanyId, $visible);
+                    ->getCards(
+                        $salesCompanyId,
+                        $cardIds,
+                        $visible,
+                        $query
+                    );
 
                 foreach ($membershipCards as $membershipCard) {
                     $usages[] = $this->generateMembershipCardOrders(
