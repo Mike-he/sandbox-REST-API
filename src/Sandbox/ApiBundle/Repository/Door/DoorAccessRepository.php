@@ -20,12 +20,12 @@ class DoorAccessRepository extends EntityRepository
             ->select('DISTINCT d.buildingId')
             ->where('d.userId = :userId')
             ->andWhere('d.endDate > :now')
-            ->andWhere('d.access = :access')
+//            ->andWhere('d.access = :access')
             ->andWhere('d.action = :action')
             ->setParameter('action', DoorAccessConstants::METHOD_ADD)
             ->setParameter('userId', $userId)
             ->setParameter('now', $now)
-            ->setParameter('access', false)
+//            ->setParameter('access', false)
             ->getQuery();
 
         return $query->getResult();
