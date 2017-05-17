@@ -333,6 +333,12 @@ class AdminDashBoardController extends SalesRestController
             );
         }
 
+        $specification = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:MembershipCard\MembershipCardSpecification')
+            ->findBy(array('card' => $card));
+
+        $card->setSpecification($specification);
+
         $result = array(
             'card' => $card,
             'max' => $max,
