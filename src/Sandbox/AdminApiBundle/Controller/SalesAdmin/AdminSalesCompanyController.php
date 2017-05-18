@@ -675,7 +675,7 @@ class AdminSalesCompanyController extends SandboxRestController
         $position = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminPosition')
             ->findOneBy([
-               'salesCompany' => $salesCompany,
+                'salesCompany' => $salesCompany,
                 'name' => $name,
                 'isSuperAdmin' => true,
                 'platform' => $platform,
@@ -709,6 +709,8 @@ class AdminSalesCompanyController extends SandboxRestController
             $adminPositionUser->setPosition($position);
             $em->persist($adminPositionUser);
         }
+
+        $em->flush();
     }
 
     /**
