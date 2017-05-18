@@ -77,15 +77,6 @@ class RoomTypes
     /**
      * @var string
      *
-     * @ORM\Column(name="type", type="string", length=16)
-     *
-     * @Serializer\Groups({"main", "drop_down"})
-     */
-    private $type;
-
-    /**
-     * @var string
-     *
      * @ORM\Column(name="homepageIcon", type="text")
      *
      * @Serializer\Groups({"main", "drop_down"})
@@ -107,19 +98,6 @@ class RoomTypes
      * @Serializer\Groups({"main", "drop_down"})
      */
     private $range = 30;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="RoomTypesGroups")
-     * @ORM\JoinColumn(name="group_id", referencedColumnName="id", onDelete="SET NULL")
-     */
-    private $group;
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="group_id", type="integer", nullable=true)
-     */
-    private $groupId;
 
     /**
      * @return int
@@ -254,22 +232,6 @@ class RoomTypes
     /**
      * @return string
      */
-    public function getType()
-    {
-        return $this->type;
-    }
-
-    /**
-     * @param string $type
-     */
-    public function setType($type)
-    {
-        $this->type = $type;
-    }
-
-    /**
-     * @return string
-     */
     public function getHomepageIcon()
     {
         return $this->homepageIcon;
@@ -281,37 +243,5 @@ class RoomTypes
     public function setHomepageIcon($homepageIcon)
     {
         $this->homepageIcon = $homepageIcon;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getGroup()
-    {
-        return $this->group;
-    }
-
-    /**
-     * @param mixed $group
-     */
-    public function setGroup($group)
-    {
-        $this->group = $group;
-    }
-
-    /**
-     * @return int
-     */
-    public function getGroupId()
-    {
-        return $this->groupId;
-    }
-
-    /**
-     * @param int $groupId
-     */
-    public function setGroupId($groupId)
-    {
-        $this->groupId = $groupId;
     }
 }

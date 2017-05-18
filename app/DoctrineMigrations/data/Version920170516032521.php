@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-class Version920170516032520 extends AbstractMigration implements ContainerAwareInterface
+class Version920170516032521 extends AbstractMigration implements ContainerAwareInterface
 {
     use ContainerAwareTrait;
 
@@ -31,38 +31,73 @@ class Version920170516032520 extends AbstractMigration implements ContainerAware
 
         $em = $this->container->get('doctrine.orm.entity_manager');
 
+        $roomTypeUnits = $em->getRepository('SandboxApiBundle:Room\RoomTypeUnit')->findAll();
+        foreach ($roomTypeUnits as $unit) {
+            $em->remove($unit);
+        }
+        $em->flush();
+
         $roomTypes = $em->getRepository('SandboxApiBundle:Room\RoomTypes')->findAll();
         foreach ($roomTypes as $roomType) {
             $type = $roomType->getName();
 
             switch ($type) {
-                case RoomTypes::TYPE_NAME_MEETING:
-                    $roomTypeUnit = new RoomTypeUnit();
-                    $roomTypeUnit->setUnit('day');
-                    $roomTypeUnit->setType($roomType);
-                    $em->persist($roomTypeUnit);
-                    break;
-                case RoomTypes::TYPE_NAME_FIXED:
-                    $roomTypeUnit = new RoomTypeUnit();
-                    $roomTypeUnit->setUnit('day');
-                    $roomTypeUnit->setType($roomType);
-                    $em->persist($roomTypeUnit);
-
-                    $roomTypeUnit2 = new RoomTypeUnit();
-                    $roomTypeUnit2->setUnit('week');
-                    $roomTypeUnit2->setType($roomType);
-                    $em->persist($roomTypeUnit2);
-                    break;
-                case RoomTypes::TYPE_NAME_FLEXIBLE:
+                case 'office':
                     $roomTypeUnit = new RoomTypeUnit();
                     $roomTypeUnit->setUnit('month');
                     $roomTypeUnit->setType($roomType);
                     $em->persist($roomTypeUnit);
+                    break;
+                case 'meeting':
+                    $roomTypeUnit = new RoomTypeUnit();
+                    $roomTypeUnit->setUnit('hour');
+                    $roomTypeUnit->setType($roomType);
+                    $em->persist($roomTypeUnit);
+
+                    $roomTypeUnit2 = new RoomTypeUnit();
+                    $roomTypeUnit2->setUnit('day');
+                    $roomTypeUnit2->setType($roomType);
+                    $em->persist($roomTypeUnit2);
+                    break;
+                case 'fixed':
+                    $roomType->setName('desk');
+
+                    $roomTypeUnit = new RoomTypeUnit();
+                    $roomTypeUnit->setUnit('day');
+                    $roomTypeUnit->setType($roomType);
+                    $em->persist($roomTypeUnit);
 
                     $roomTypeUnit2 = new RoomTypeUnit();
                     $roomTypeUnit2->setUnit('week');
                     $roomTypeUnit2->setType($roomType);
                     $em->persist($roomTypeUnit2);
+
+                    $roomTypeUnit3 = new RoomTypeUnit();
+                    $roomTypeUnit3->setUnit('month');
+                    $roomTypeUnit3->setType($roomType);
+                    $em->persist($roomTypeUnit3);
+                    break;
+                case 'flexible':
+                    $em->remove($roomType);
+                    break;
+                case 'studio':
+                    $roomType->setName('others');
+
+                    $roomTypeUnit = new RoomTypeUnit();
+                    $roomTypeUnit->setUnit('hour');
+                    $roomTypeUnit->setType($roomType);
+                    $em->persist($roomTypeUnit);
+
+                    $roomTypeUnit2 = new RoomTypeUnit();
+                    $roomTypeUnit2->setUnit('day');
+                    $roomTypeUnit2->setType($roomType);
+                    $em->persist($roomTypeUnit2);
+                    break;
+                case 'space':
+                    $em->remove($roomType);
+                    break;
+                case 'longterm':
+                    $em->remove($roomType);
                     break;
             }
         }
