@@ -28,13 +28,6 @@ class RoomController extends SandboxRestController
     /**
      * @param Request $request
      *
-     * @Annotations\QueryParam(
-     *     name="group_key",
-     *     array=false,
-     *     default=null,
-     *     nullable=true
-     * )
-     *
      * @Route("/types")
      * @Method({"GET"})
      *
@@ -44,11 +37,9 @@ class RoomController extends SandboxRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $groupKey = $paramFetcher->get('group_key');
-
         $types = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\RoomTypes')
-            ->getRoomTypesByGroupName($groupKey);
+            ->findAll();
 
         $language = $request->getPreferredLanguage();
 
@@ -77,43 +68,5 @@ class RoomController extends SandboxRestController
         $view->setSerializationContext(SerializationContext::create()->setGroups(['drop_down']));
 
         return $view;
-    }
-
-    /**
-     * @param Request $request
-     *
-     * @Route("/type_groups")
-     * @Method({"GET"})
-     *
-     * @return View
-     */
-    public function getRoomTypeGroupsAction(
-        Request $request
-    ) {
-        $groups = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Room\RoomTypesGroups')
-            ->findAll();
-
-        $imageUrl = $this->getParameter('image_url');
-
-        $response = array();
-        foreach ($groups as $group) {
-            $name = $this->get('translator')->trans(
-                RoomTypesGroups::TRANS_GROUPS_PREFIX.$group->getGroupKey(),
-                array(),
-                null,
-                $request->getPreferredLanguage()
-            );
-
-            array_push($response, array(
-                'id' => $group->getId(),
-                'group_key' => $group->getGroupKey(),
-                'name' => $name,
-                'icon' => $imageUrl.$group->getIcon(),
-                'homepage_icon' => $imageUrl.$group->getHomepageIcon(),
-            ));
-        }
-
-        return new View($response);
     }
 }
