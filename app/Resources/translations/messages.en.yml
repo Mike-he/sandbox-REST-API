@@ -47,7 +47,7 @@ room:
   unit:
     hour: Hour
     day: Day
-    week： Week
+    week: Week
     month: Month
 
 product_order:
