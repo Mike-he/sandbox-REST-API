@@ -205,50 +205,48 @@ class AdminDashBoardController extends SalesRestController
         $start,
         $end
     ) {
-        switch ($roomType) {
-            case Room::TYPE_FLEXIBLE:
-                $orders = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:Order\ProductOrder')
-                    ->getRoomUsersUsage(
-                        $product['id'],
-                        $start,
-                        $end
-                    );
+        $orders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getRoomUsersUsage(
+                $product['id'],
+                $start,
+                $end
+            );
 
-                $orderList = $this->handleFlexibleOrder($orders);
-                break;
-            default:
-                $orders = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:Order\ProductOrder')
-                    ->getRoomUsersUsage(
-                        $product['id'],
-                        $start,
-                        $end
-                    );
+        $orderList = $this->handleOrders($orders);
 
-                $orderList = $this->handleOrders($orders);
+        $status = array(
+            Lease::LEASE_STATUS_CONFIRMED,
+            Lease::LEASE_STATUS_RECONFIRMING,
+            Lease::LEASE_STATUS_PERFORMING,
+            Lease::LEASE_STATUS_END,
+            Lease::LEASE_STATUS_MATURED,
+            Lease::LEASE_STATUS_TERMINATED,
+            Lease::LEASE_STATUS_CLOSED,
+        );
+        $leases = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\Lease')
+            ->getRoomUsersUsage(
+                $product['id'],
+                $start,
+                $end,
+                $status
+            );
 
-                $status = array(
-                    Lease::LEASE_STATUS_CONFIRMED,
-                    Lease::LEASE_STATUS_RECONFIRMING,
-                    Lease::LEASE_STATUS_PERFORMING,
-                    Lease::LEASE_STATUS_END,
-                    Lease::LEASE_STATUS_MATURED,
-                    Lease::LEASE_STATUS_TERMINATED,
-                    Lease::LEASE_STATUS_CLOSED,
+        $leaseList = $this->handleLease($leases);
+
+        $orderList = array_merge($orderList, $leaseList);
+
+        if ($roomType == Room::TYPE_DESK && $product['type_tag'] == 'hot_desk') {
+            $orders = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Order\ProductOrder')
+                ->getRoomUsersUsage(
+                    $product['id'],
+                    $start,
+                    $end
                 );
-                $leases = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:Lease\Lease')
-                    ->getRoomUsersUsage(
-                        $product['id'],
-                        $start,
-                        $end,
-                        $status
-                    );
 
-                $leaseList = $this->handleLease($leases);
-
-                $orderList = array_merge($orderList,$leaseList);
+            $orderList = $this->handleFlexibleOrder($orders);
         }
 
         $attachment = $this->getDoctrine()
@@ -257,7 +255,7 @@ class AdminDashBoardController extends SalesRestController
 
         $product['attachment'] = $attachment;
 
-        if ($product['room_type'] == Room::TYPE_FIXED) {
+        if ($product['room_type'] == Room::TYPE_DESK) {
             $seats = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Room\RoomFixed')
                 ->findBy(array(

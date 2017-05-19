@@ -7,7 +7,7 @@ use Sandbox\ApiBundle\Form\Room\RoomType;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
- * RoomTypeTags
+ * RoomTypeTags.
  *
  * @ORM\Table(name="room_type_tags")
  * @ORM\Entity
@@ -15,7 +15,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 class RoomTypeTags
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -46,7 +46,7 @@ class RoomTypeTags
     private $parentType;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="parent_type_id", type="integer", nullable=true)
      */
@@ -68,11 +68,10 @@ class RoomTypeTags
      */
     private $modificationDate;
 
-
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -80,9 +79,10 @@ class RoomTypeTags
     }
 
     /**
-     * Set tagKey
+     * Set tagKey.
      *
      * @param string $tagKey
+     *
      * @return RoomTypeTags
      */
     public function setTagKey($tagKey)
@@ -93,9 +93,9 @@ class RoomTypeTags
     }
 
     /**
-     * Get tagKey
+     * Get tagKey.
      *
-     * @return string 
+     * @return string
      */
     public function getTagKey()
     {
@@ -103,9 +103,10 @@ class RoomTypeTags
     }
 
     /**
-     * Set icon
+     * Set icon.
      *
      * @param string $icon
+     *
      * @return RoomTypeTags
      */
     public function setIcon($icon)
@@ -116,9 +117,9 @@ class RoomTypeTags
     }
 
     /**
-     * Get icon
+     * Get icon.
      *
-     * @return string 
+     * @return string
      */
     public function getIcon()
     {
@@ -158,9 +159,10 @@ class RoomTypeTags
     }
 
     /**
-     * Set creationDate
+     * Set creationDate.
      *
      * @param \DateTime $creationDate
+     *
      * @return RoomTypeTags
      */
     public function setCreationDate($creationDate)
@@ -171,9 +173,9 @@ class RoomTypeTags
     }
 
     /**
-     * Get creationDate
+     * Get creationDate.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getCreationDate()
     {
@@ -181,9 +183,10 @@ class RoomTypeTags
     }
 
     /**
-     * Set modificationDate
+     * Set modificationDate.
      *
      * @param \DateTime $modificationDate
+     *
      * @return RoomTypeTags
      */
     public function setModificationDate($modificationDate)
@@ -194,9 +197,9 @@ class RoomTypeTags
     }
 
     /**
-     * Get modificationDate
+     * Get modificationDate.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getModificationDate()
     {

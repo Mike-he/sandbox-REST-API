@@ -21,13 +21,10 @@ use Gedmo\Mapping\Annotation as Gedmo;
  */
 class Room
 {
-    const TYPE_FLEXIBLE = 'flexible';
-    const TYPE_FIXED = 'fixed';
     const TYPE_OFFICE = 'office';
     const TYPE_MEETING = 'meeting';
-    const TYPE_STUDIO = 'studio';
-    const TYPE_SPACE = 'space';
-    const TYPE_LONG_TERM = 'longterm';
+    const TYPE_DESK = 'desk';
+    const TYPE_OTHERS = 'others';
 
     /**
      * @var int
