@@ -144,6 +144,13 @@ class Room
     /**
      * @var string
      *
+     * @ORM\Column(name="type_tag", type="string", length=64, nullable=true)
+     */
+    private $typeTag;
+
+    /**
+     * @var string
+     *
      * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "current_order"})
      */
     private $typeDescription;
@@ -486,6 +493,22 @@ class Room
     public function getType()
     {
         return $this->type;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTypeTag()
+    {
+        return $this->typeTag;
+    }
+
+    /**
+     * @param string $typeTag
+     */
+    public function setTypeTag($typeTag)
+    {
+        $this->typeTag = $typeTag;
     }
 
     /**

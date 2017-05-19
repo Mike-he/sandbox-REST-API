@@ -1,0 +1,248 @@
+<?php
+
+namespace Sandbox\ApiBundle\Entity\App;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * AppVersionCheck
+ *
+ * @ORM\Table(name="app_version_check")
+ * @ORM\Entity
+ */
+class AppVersionCheck
+{
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="current_version", type="string", length=64)
+     */
+    private $currentVersion;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="zh_notification", type="string", length=1024)
+     */
+    private $zhNotification;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="en_notification", type="string", length=1024)
+     */
+    private $enNotification;
+
+    private $ios_url;
+
+    private $androidUrl;
+
+    /**
+     * @var boolean
+     *
+     * @ORM\Column(name="is_force", type="boolean")
+     */
+    private $isForce;
+
+    /**
+     * @var boolean
+     *
+     * @ORM\Column(name="visiable", type="boolean")
+     */
+    private $visiable;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="creation_date", type="datetime")
+     */
+    private $creationDate;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="modification_date", type="datetime")
+     */
+    private $modificationDate;
+
+
+    /**
+     * Get id
+     *
+     * @return integer 
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Set currentVersion
+     *
+     * @param string $currentVersion
+     * @return AppVersionCheck
+     */
+    public function setCurrentVersion($currentVersion)
+    {
+        $this->currentVersion = $currentVersion;
+
+        return $this;
+    }
+
+    /**
+     * Get currentVersion
+     *
+     * @return string 
+     */
+    public function getCurrentVersion()
+    {
+        return $this->currentVersion;
+    }
+
+    /**
+     * Set zhNotification
+     *
+     * @param string $zhNotification
+     * @return AppVersionCheck
+     */
+    public function setZhNotification($zhNotification)
+    {
+        $this->zhNotification = $zhNotification;
+
+        return $this;
+    }
+
+    /**
+     * Get zhNotification
+     *
+     * @return string 
+     */
+    public function getZhNotification()
+    {
+        return $this->zhNotification;
+    }
+
+    /**
+     * Set enNotification
+     *
+     * @param string $enNotification
+     * @return AppVersionCheck
+     */
+    public function setEnNotification($enNotification)
+    {
+        $this->enNotification = $enNotification;
+
+        return $this;
+    }
+
+    /**
+     * Get enNotification
+     *
+     * @return string 
+     */
+    public function getEnNotification()
+    {
+        return $this->enNotification;
+    }
+
+    /**
+     * Set isForce
+     *
+     * @param boolean $isForce
+     * @return AppVersionCheck
+     */
+    public function setIsForce($isForce)
+    {
+        $this->isForce = $isForce;
+
+        return $this;
+    }
+
+    /**
+     * Get isForce
+     *
+     * @return boolean 
+     */
+    public function getIsForce()
+    {
+        return $this->isForce;
+    }
+
+    /**
+     * Set visiable
+     *
+     * @param boolean $visiable
+     * @return AppVersionCheck
+     */
+    public function setVisiable($visiable)
+    {
+        $this->visiable = $visiable;
+
+        return $this;
+    }
+
+    /**
+     * Get visiable
+     *
+     * @return boolean 
+     */
+    public function getVisiable()
+    {
+        return $this->visiable;
+    }
+
+    /**
+     * Set creationDate
+     *
+     * @param \DateTime $creationDate
+     * @return AppVersionCheck
+     */
+    public function setCreationDate($creationDate)
+    {
+        $this->creationDate = $creationDate;
+
+        return $this;
+    }
+
+    /**
+     * Get creationDate
+     *
+     * @return \DateTime 
+     */
+    public function getCreationDate()
+    {
+        return $this->creationDate;
+    }
+
+    /**
+     * Set modificationDate
+     *
+     * @param \DateTime $modificationDate
+     * @return AppVersionCheck
+     */
+    public function setModificationDate($modificationDate)
+    {
+        $this->modificationDate = $modificationDate;
+
+        return $this;
+    }
+
+    /**
+     * Get modificationDate
+     *
+     * @return \DateTime 
+     */
+    public function getModificationDate()
+    {
+        return $this->modificationDate;
+    }
+}
