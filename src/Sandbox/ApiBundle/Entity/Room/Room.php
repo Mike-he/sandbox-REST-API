@@ -26,6 +26,10 @@ class Room
     const TYPE_DESK = 'desk';
     const TYPE_OTHERS = 'others';
 
+    const TAG_HOT_DESK = 'hot_desk';
+    const TAG_DEDICATED_DESK = 'dedicated_desk';
+
+
     /**
      * @var int
      *

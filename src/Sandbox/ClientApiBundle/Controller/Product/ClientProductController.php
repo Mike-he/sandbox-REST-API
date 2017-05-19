@@ -7,7 +7,6 @@ use Sandbox\ApiBundle\Controller\Product\ProductController;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\Room\RoomTypes;
-use Sandbox\ApiBundle\Form\Room\RoomType;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
@@ -751,8 +750,9 @@ class ClientProductController extends ProductController
 
         $response = [];
         $type = $product->getRoom()->getType();
+        $tag = $product->getRoom()->getTypetag();
         $rentDate = $paramFetcher->get('rent_date');
-        if (($type == Room::TYPE_MEETING || $type == Room::TYPE_STUDIO || $type == Room::TYPE_SPACE) &&
+        if (($type == Room::TYPE_MEETING || $type == Room::TYPE_OTHERS) &&
             !is_null($rentDate) && !empty($rentDate)
         ) {
             $startDate = new \DateTime($rentDate);
@@ -763,7 +763,7 @@ class ClientProductController extends ProductController
                 $startDate,
                 $endDate
             );
-        } elseif ($type == Room::TYPE_FLEXIBLE) {
+        } elseif ($type == Room::TYPE_DESK && $tag == Room::TAG_HOT_DESK) {
             $monthStart = $paramFetcher->get('month_start');
             $monthEnd = $paramFetcher->get('month_end');
             $allowedPeople = $product->getRoom()->getAllowedPeople();
@@ -777,7 +777,7 @@ class ClientProductController extends ProductController
             }
 
             return new View($response);
-        } elseif ($type == Room::TYPE_FIXED) {
+        } elseif ($type == Room::TYPE_DESK && $tag == Room::TAG_DEDICATED_DESK) {
             $seatId = $paramFetcher->get('seat_id');
             $orders = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Order\ProductOrder')
