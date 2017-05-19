@@ -36,14 +36,10 @@ class AdminRoomTypeController extends SalesRestController
         }
 
         $salesCompanyId = $adminPlatform['sales_company_id'];
-        $salesCompany = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
-            ->find($salesCompanyId);
-
         $salesInfos = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
             ->findBy(array(
-                'company' => $salesCompany,
+                'company' => $salesCompanyId,
                 'status' => true,
             ));
 

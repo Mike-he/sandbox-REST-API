@@ -385,15 +385,6 @@ class AdminProductController extends ProductController
             AdminPermission::OP_LEVEL_VIEW
         );
 
-        $room = $product->getRoom();
-        $roomType = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Room\RoomTypes')
-            ->findOneBy(array(
-                'name' => $room->getType(),
-            ));
-
-        $room->setRentType($roomType->getType());
-
         $favorite = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserFavorite')
             ->countFavoritesByObject(
