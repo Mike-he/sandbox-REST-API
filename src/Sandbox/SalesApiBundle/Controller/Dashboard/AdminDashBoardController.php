@@ -123,16 +123,11 @@ class AdminDashBoardController extends SalesRestController
 
                 break;
             default:
-                $roomTypes = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:Room\RoomTypes')
-                    ->getRoomTypesByGroupName($roomType);
-
-                foreach ($roomTypes as $roomType) {
                     $products = $this->getDoctrine()
                         ->getRepository('SandboxApiBundle:Product\Product')
                         ->findProductIdsByRoomType(
                             $salesCompanyId,
-                            $roomType->getName(),
+                            $roomType,
                             $building,
                             $query,
                             $visible
@@ -141,13 +136,12 @@ class AdminDashBoardController extends SalesRestController
                     foreach ($products as $product) {
                         $usages[] = $this->generateOrders(
                             $product,
-                            $roomType->getName(),
+                            $roomType,
                             $start,
                             $end
                         );
                     }
                 }
-        }
 
         $view = new View();
         $view->setData($usages);
