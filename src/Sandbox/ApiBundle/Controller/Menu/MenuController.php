@@ -396,6 +396,7 @@ class MenuController extends SandboxRestController
         $items,
         $asserts
     ) {
+        $imageUrl = $this->getParameter('image_url');
         foreach ($asserts as $assert) {
             $item_key = $assert['item_key'];
             $limit = $assert['limit'];
@@ -408,7 +409,7 @@ class MenuController extends SandboxRestController
                         $roomTypeItem[] = array(
                             'type' => 'web',
                             'name' => $this->get('translator')->trans(self::ROOM_TYPE.$d->getName()),
-                            'icon_url' => $d->getHomepageIcon(),
+                            'icon_url' => $imageUrl.$d->getHomepageIcon(),
                             'web' => array(
                                 'url' => $this->container->getParameter('room_mobile_url').'/search',
                                 'cookie' => array(

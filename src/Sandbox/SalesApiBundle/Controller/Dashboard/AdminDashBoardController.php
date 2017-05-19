@@ -123,25 +123,25 @@ class AdminDashBoardController extends SalesRestController
 
                 break;
             default:
-                    $products = $this->getDoctrine()
-                        ->getRepository('SandboxApiBundle:Product\Product')
-                        ->findProductIdsByRoomType(
-                            $salesCompanyId,
-                            $roomType,
-                            $building,
-                            $query,
-                            $visible
-                        );
+                $products = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Product\Product')
+                    ->findProductIdsByRoomType(
+                        $salesCompanyId,
+                        $roomType,
+                        $building,
+                        $query,
+                        $visible
+                    );
 
-                    foreach ($products as $product) {
-                        $usages[] = $this->generateOrders(
-                            $product,
-                            $roomType,
-                            $start,
-                            $end
-                        );
-                    }
+                foreach ($products as $product) {
+                    $usages[] = $this->generateOrders(
+                        $product,
+                        $roomType,
+                        $start,
+                        $end
+                    );
                 }
+        }
 
         $view = new View();
         $view->setData($usages);
@@ -217,7 +217,17 @@ class AdminDashBoardController extends SalesRestController
 
                 $orderList = $this->handleFlexibleOrder($orders);
                 break;
-            case Room::TYPE_LONG_TERM:
+            default:
+                $orders = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Order\ProductOrder')
+                    ->getRoomUsersUsage(
+                        $product['id'],
+                        $start,
+                        $end
+                    );
+
+                $orderList = $this->handleOrders($orders);
+
                 $status = array(
                     Lease::LEASE_STATUS_CONFIRMED,
                     Lease::LEASE_STATUS_RECONFIRMING,
@@ -236,18 +246,9 @@ class AdminDashBoardController extends SalesRestController
                         $status
                     );
 
-                $orderList = $this->handleLease($leases);
-                break;
-            default:
-                $orders = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:Order\ProductOrder')
-                    ->getRoomUsersUsage(
-                        $product['id'],
-                        $start,
-                        $end
-                    );
+                $leaseList = $this->handleLease($leases);
 
-                $orderList = $this->handleOrders($orders);
+                $orderList = array_merge($orderList,$leaseList);
         }
 
         $attachment = $this->getDoctrine()
