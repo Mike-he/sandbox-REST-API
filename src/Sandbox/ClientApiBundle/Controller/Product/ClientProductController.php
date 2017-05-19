@@ -272,7 +272,7 @@ class ClientProductController extends ProductController
                 ->getRepository('SandboxApiBundle:Room\RoomTypes')
                 ->findOneBy(['name' => $type]);
             if (!is_null($myType)) {
-                $room->setRentType($myType->getType());
+                $room->setRentType($myType->getName());
             }
 
             if ($type == Room::TYPE_FIXED) {

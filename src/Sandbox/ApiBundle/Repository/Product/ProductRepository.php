@@ -227,11 +227,10 @@ class ProductRepository extends EntityRepository
             ->select('DISTINCT p.id')
             ->leftjoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
             ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'b.id = r.buildingId')
-            ->where('r.type = :office OR r.type = :longterm')
+            ->where('r.type = :office')
             ->andWhere('p.visible = :visible')
             ->andWhere('p.startDate <= :now AND p.endDate >= :now')
             ->setParameter('office', Room::TYPE_OFFICE)
-            ->setParameter('longterm', Room::TYPE_LONG_TERM)
             ->setParameter('visible', true)
             ->setParameter('now', $now);
 
