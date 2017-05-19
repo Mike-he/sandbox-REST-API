@@ -35,8 +35,6 @@ class RoomTypesRepository extends EntityRepository
         $offset
     ) {
         $query = $this->createQueryBuilder('rt')
-            ->where('rt.name != :longterm')
-            ->setParameter('longterm', Room::TYPE_LONG_TERM)
             ->setFirstResult($offset)
             ->setMaxResults($limit)
             ->getQuery();
