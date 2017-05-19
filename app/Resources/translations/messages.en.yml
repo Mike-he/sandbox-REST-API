@@ -34,22 +34,20 @@ property:
 
 room:
   type:
-    office: Private Office
+    office: Office
     meeting: Meeting Room
+    desk: Desk
+    others: Others
     flexible: Hot Desk
     fixed: Dedicate Desk
     studio: Recording Studio
     space: Activity Space
     video_studio: Studio
     longterm: Long Term Office
-  type_group:
-    meeting: Meeting Room
-    desk: Desk
-    office: Office
-    others: Others
   unit:
     hour: Hour
     day: Day
+    week： Week
     month: Month
 
 product_order:
