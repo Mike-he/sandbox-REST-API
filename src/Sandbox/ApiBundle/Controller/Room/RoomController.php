@@ -42,6 +42,7 @@ class RoomController extends SandboxRestController
             ->findAll();
 
         $language = $request->getPreferredLanguage();
+        $imageUrl = $this->getParameter('image_url');
 
         foreach ($types as $type) {
             $typeText = $this->get('translator')->trans(
@@ -51,6 +52,9 @@ class RoomController extends SandboxRestController
                 $language
             );
             $type->setDescription($typeText);
+            $type->setIcon($imageUrl.$type->getIcon());
+            $type->setHomepageIcon($imageUrl.$type->getHomepageIcon());
+
             $units = $type->getUnits();
 
             foreach ($units as $unit) {

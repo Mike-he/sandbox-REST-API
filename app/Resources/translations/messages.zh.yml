@@ -38,12 +38,6 @@ room:
     meeting: 会议室
     desk: 工位
     others: 其他
-    flexible: 共享办公桌
-    fixed: 独享办公桌
-    studio: 录音棚
-    space: 活动空间
-    video_studio: 演播厅
-    longterm: 长租办公室
   unit:
     hour: 小时
     day: 天

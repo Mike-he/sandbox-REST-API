@@ -38,12 +38,6 @@ room:
     meeting: Meeting Room
     desk: Desk
     others: Others
-    flexible: Hot Desk
-    fixed: Dedicate Desk
-    studio: Recording Studio
-    space: Activity Space
-    video_studio: Studio
-    longterm: Long Term Office
   unit:
     hour: Hour
     day: Day
