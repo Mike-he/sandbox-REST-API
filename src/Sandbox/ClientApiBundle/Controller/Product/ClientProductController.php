@@ -275,7 +275,7 @@ class ClientProductController extends ProductController
                 $room->setRentType($myType->getName());
             }
 
-            if ($type == Room::TYPE_FIXED) {
+            if ($room->getTypeTag() == 'dedicated_desk') {
                 $price = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Room\RoomFixed')
                     ->getFixedSeats($room);
@@ -283,16 +283,6 @@ class ClientProductController extends ProductController
                 if (!is_null($price)) {
                     $product->setBasePrice($price);
                 }
-            } elseif ($type == Room::TYPE_LONG_TERM) {
-                $company = $room->getBuilding()->getCompany();
-
-                $collectionMethod = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
-                    ->getCollectionMethod($company, $type);
-
-                $product->setCollectionMethod($collectionMethod);
-
-                $type = Room::TYPE_OFFICE;
             }
 
 //            $unitPrice = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_UNIT.$product->getUnitPrice());
@@ -658,17 +648,19 @@ class ClientProductController extends ProductController
             $endDate->setTime(23, 59, 59);
         }
 
-        $productIds = $this->getRepo('Product\Product')->getWorkspaceProductsForClient(
-            $userId,
-            $cityId,
-            $buildingId,
-            $allowedPeople,
-            $startDate,
-            $endDate,
-            $limit,
-            $offset,
-            Room::TYPE_FIXED
-        );
+        $productIds = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\Product')
+            ->getWorkspaceProductsForClient(
+                $userId,
+                $cityId,
+                $buildingId,
+                $allowedPeople,
+                $startDate,
+                $endDate,
+                $limit,
+                $offset,
+                'dedicated_desk'
+            );
 
         $products = [];
         foreach ($productIds as $productId) {
