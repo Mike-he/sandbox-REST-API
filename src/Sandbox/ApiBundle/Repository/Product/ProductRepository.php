@@ -1341,14 +1341,15 @@ class ProductRepository extends EntityRepository
                     r.name as room_name,
                     r.type as room_type,
                     r.allowedPeople as allowed_people,
-                    r.area
+                    r.area,
+                    r.typeTag as type_tag
                 ')
             ->leftJoin('p.room', 'r')
             ->leftJoin('r.building', 'b')
             ->where('p.isDeleted = FALSE')
             ->andWhere('r.isDeleted = FALSE')
             ->andWhere('b.company = :company')
-            ->andWhere('r.type in (:type)')
+            ->andWhere('r.type = :type')
             ->setParameter('company', $company)
             ->setParameter('type', $type);
 
