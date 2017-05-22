@@ -2,7 +2,7 @@
 
 namespace Sandbox\ApiBundle\Controller\Product;
 
-use Sandbox\ApiBundle\Entity\Room\Room;
+use Sandbox\ApiBundle\Entity\Room\RoomTypeTags;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use FOS\RestBundle\View\View;
 use JMS\Serializer\SerializationContext;
@@ -56,12 +56,24 @@ class ProductController extends SalesRestController
                 self::PRODUCT_NOT_FOUND_MESSAGE
             );
         }
-
+        $room = $product->getRoom();
+        $typeTag = $room->getTypeTag();
+        if (!is_null($typeTag)) {
+            $typeTagDescription = $this->get('translator')->trans(RoomTypeTags::TRANS_PREFIX.$typeTag);
+            $room->setTypeTagDescription($typeTagDescription);
+        }
 
         $productLeasingSets = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Product\ProductLeasingSet')
             ->findBy(array('product' => $product));
+
         $product->setLeasingSets($productLeasingSets);
+
+        $productRentSet = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\ProductRentSet')
+            ->findOneBy(array('product' => $product));
+
+        $product->setRentSet($productRentSet);
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));

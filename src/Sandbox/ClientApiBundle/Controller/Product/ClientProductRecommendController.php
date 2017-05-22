@@ -121,18 +121,6 @@ class ClientProductRecommendController extends ProductController
 
         foreach ($products as $product) {
             $room = $product->getRoom();
-            $type = $room->getType();
-
-//            if ($type == Room::TYPE_FIXED) {
-//                $price = $this->getDoctrine()
-//                    ->getRepository('SandboxApiBundle:Room\RoomFixed')
-//                    ->getFixedSeats($room);
-
-//                if (!is_null($price)) {
-//                    $product->setBasePrice($price);
-//                }
-//            }
-
             $typeTag = $room->getTypeTag();
             if (!is_null($typeTag)) {
                 $typeTagDescription = $this->get('translator')->trans(RoomTypeTags::TRANS_PREFIX.$typeTag);
@@ -144,6 +132,12 @@ class ClientProductRecommendController extends ProductController
                 ->findBy(array('product' => $product));
 
             $product->setLeasingSets($productLeasingSets);
+
+            $productRentSet = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\ProductRentSet')
+                ->findOneBy(array('product' => $product));
+
+            $product->setRentSet($productRentSet);
         }
 
         $view = new View();

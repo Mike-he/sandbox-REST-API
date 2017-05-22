@@ -278,9 +278,6 @@ class ClientProductController extends ProductController
                 }
             }
 
-//            $unitPrice = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_UNIT.$product->getUnitPrice());
-//            $product->setUnitPrice($unitPrice);
-
             $typeDescription = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$type);
             $room->setTypeDescription($typeDescription);
 
@@ -299,8 +296,13 @@ class ClientProductController extends ProductController
                     ->trans(ProductOrderExport::TRANS_ROOM_UNIT.$productLeasingSet->getUnitPrice());
                 $productLeasingSet->setUnitPrice($unitPrice);
             }
-
             $product->setLeasingSets($productLeasingSets);
+
+            $productRentSet = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\ProductRentSet')
+                ->findOneBy(array('product' => $product));
+
+            $product->setRentSet($productRentSet);
         }
 
         $view = new View();
