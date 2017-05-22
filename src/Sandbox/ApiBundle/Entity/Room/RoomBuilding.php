@@ -580,6 +580,60 @@ class RoomBuilding implements JsonSerializable
     private $lessorEmail;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="lessor_bank_account_name", type="string", length=64, nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_building", "lessor"})
+     */
+    private $lessorBankAccountName;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="lessor_bank_account_number", type="string", length=64, nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_building", "lessor"})
+     */
+    private $lessorBankAccountNumber;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="lessor_bank_name", type="string", length=64, nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_building", "lessor"})
+     */
+    private $lessorBankName;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="lease_remarks", type="text", nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_building", "lessor"})
+     */
+    private $leaseRemarks;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="postal_code", type="string", length=16, nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_building", "lessor"})
+     */
+    private $postalCode;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="community_manager_name", type="string", length=16, nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_building", "lessor"})
+     */
+    private $communityManagerName;
+
+    /**
      * @var array
      *
      * @Serializer\Groups({"main", "admin_building"})
@@ -638,6 +692,102 @@ class RoomBuilding implements JsonSerializable
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLessorBankAccountName()
+    {
+        return $this->lessorBankAccountName;
+    }
+
+    /**
+     * @param string $lessorBankAccountName
+     */
+    public function setLessorBankAccountName($lessorBankAccountName)
+    {
+        $this->lessorBankAccountName = $lessorBankAccountName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLessorBankAccountNumber()
+    {
+        return $this->lessorBankAccountNumber;
+    }
+
+    /**
+     * @param string $lessorBankAccountNumber
+     */
+    public function setLessorBankAccountNumber($lessorBankAccountNumber)
+    {
+        $this->lessorBankAccountNumber = $lessorBankAccountNumber;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLessorBankName()
+    {
+        return $this->lessorBankName;
+    }
+
+    /**
+     * @param string $lessorBankName
+     */
+    public function setLessorBankName($lessorBankName)
+    {
+        $this->lessorBankName = $lessorBankName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLeaseRemarks()
+    {
+        return $this->leaseRemarks;
+    }
+
+    /**
+     * @param string $leaseRemarks
+     */
+    public function setLeaseRemarks($leaseRemarks)
+    {
+        $this->leaseRemarks = $leaseRemarks;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPostalCode()
+    {
+        return $this->postalCode;
+    }
+
+    /**
+     * @param string $postalCode
+     */
+    public function setPostalCode($postalCode)
+    {
+        $this->postalCode = $postalCode;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCommunityManagerName()
+    {
+        return $this->communityManagerName;
+    }
+
+    /**
+     * @param string $communityManagerName
+     */
+    public function setCommunityManagerName($communityManagerName)
+    {
+        $this->communityManagerName = $communityManagerName;
     }
 
     /**
