@@ -83,8 +83,6 @@ class Product
      * @var float
      *
      * @ORM\Column(name="basePrice", type="decimal", precision=10, scale=2, nullable=true)
-     *
-     * @Serializer\Groups({"main", "client", "admin_room", "admin_detail", "client_appointment_list"})
      */
     private $basePrice;
 
@@ -92,8 +90,6 @@ class Product
      * @var string
      *
      * @ORM\Column(name="unitPrice", type="string", length=255, nullable=true)
-     *
-     * @Serializer\Groups({"main", "client", "admin_room", "admin_detail", "client_appointment_list"})
      */
     private $unitPrice;
 
@@ -173,8 +169,6 @@ class Product
      * @var bool
      *
      * @ORM\Column(name="isAnnualRent", type="boolean", nullable=false)
-     *
-     * @Serializer\Groups({"main", "admin_room", "admin_detail", "client"})
      */
     private $isAnnualRent = false;
 
@@ -182,8 +176,6 @@ class Product
      * @var float
      *
      * @ORM\Column(name="annualRentUnitPrice", type="decimal", precision=10, scale=2, nullable=true)
-     *
-     * @Serializer\Groups({"main", "admin_room", "admin_detail", "client"})
      */
     private $annualRentUnitPrice;
 
@@ -191,8 +183,6 @@ class Product
      * @var string
      *
      * @ORM\Column(name="annualRentUnit", type="string", length=64, nullable=true)
-     *
-     * @Serializer\Groups({"main", "admin_room", "admin_detail", "client"})
      */
     private $annualRentUnit;
 
@@ -200,8 +190,6 @@ class Product
      * @var string
      *
      * @ORM\Column(name="annualRentDescription", type="text", nullable=true)
-     *
-     * @Serializer\Groups({"main", "admin_room", "admin_detail", "client"})
      */
     private $annualRentDescription;
 
@@ -229,8 +217,6 @@ class Product
      * @var \DateTime
      *
      * @ORM\Column(name="earliestRentDate", type="datetime", nullable=true)
-     *
-     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail"})
      */
     private $earliestRentDate;
 
@@ -238,8 +224,6 @@ class Product
      * @var float
      *
      * @ORM\Column(name="deposit", type="decimal", precision=10, scale=2, nullable=true)
-     *
-     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "client_appointment_list"})
      */
     private $deposit;
 
@@ -247,8 +231,6 @@ class Product
      * @var string
      *
      * @ORM\Column(name="rentalInfo", type="text", nullable=true)
-     *
-     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "client_appointment_detail"})
      */
     private $rentalInfo;
 
@@ -256,8 +238,6 @@ class Product
      * @var string
      *
      * @ORM\Column(name="filename", type="text", nullable=true)
-     *
-     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "client_appointment_detail"})
      */
     private $filename;
 
