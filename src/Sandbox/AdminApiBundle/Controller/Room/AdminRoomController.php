@@ -483,15 +483,6 @@ class AdminRoomController extends RoomController
         ));
         $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
 
-        // set rent type
-        $roomType = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Room\RoomTypes')
-            ->findOneBy(array(
-                'name' => $room->getType(),
-            ));
-
-        $room->setRentType($roomType->getType());
-
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_room']));
         $view->setData($room);

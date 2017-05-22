@@ -180,13 +180,6 @@ class ClientUserFavoriteController extends LocationController
                     $room = $product->getRoom();
                     $roomType = $room->getType();
 
-                    $myType = $this->getDoctrine()
-                        ->getRepository('SandboxApiBundle:Room\RoomTypes')
-                        ->findOneBy(['name' => $roomType]);
-                    if (!is_null($myType)) {
-                        $room->setRentType($myType->getType());
-                    }
-
                     if ($roomType == Room::TYPE_FIXED) {
                         $price = $this->getDoctrine()
                             ->getRepository('SandboxApiBundle:Room\RoomFixed')
