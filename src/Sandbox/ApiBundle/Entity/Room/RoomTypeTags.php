@@ -10,10 +10,12 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * RoomTypeTags.
  *
  * @ORM\Table(name="room_type_tags")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Room\RoomTypeTagsRepository")
  */
 class RoomTypeTags
 {
+    const TRANS_PREFIX = 'room.type_tag.';
+
     /**
      * @var int
      *

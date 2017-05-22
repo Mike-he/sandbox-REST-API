@@ -7,6 +7,7 @@ use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Entity\Room\RoomTypesGroups;
+use Sandbox\ApiBundle\Entity\Room\RoomTypeTags;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpFoundation\Request;
@@ -72,5 +73,43 @@ class RoomController extends SandboxRestController
         $view->setSerializationContext(SerializationContext::create()->setGroups(['drop_down']));
 
         return $view;
+    }
+
+    /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *     name="type",
+     *     nullable=true,
+     *     default=null,
+     *     strict=true
+     * )
+     *
+     * @Route("/type_tags")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getRoomTypeTagsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $typeId = $paramFetcher->get('type');
+
+        $typeTags = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomTypeTags')
+            ->getRoomTypeTags($typeId);
+
+        $response = array();
+        foreach ($typeTags as $tag) {
+            array_push($response, array(
+                'id' => $tag->getId(),
+                'tag_name' => $this->container->get('translator')->trans(RoomTypeTags::TRANS_PREFIX.$tag->getTagKey()),
+//                'icon' => $this->getParameter('image_url').$tag->getIcon(),
+            ));
+        }
+
+        return new View($response);
     }
 }

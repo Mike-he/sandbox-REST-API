@@ -38,6 +38,27 @@ room:
     meeting: Meeting Room
     desk: Desk
     others: Others
+  type_tag:
+    manager_office: Manager Office
+    team_office: Team Office
+    office_suite: Office Suite
+    open_office: Open Office
+    boardroom: Boardroom
+    u_shape: U-Shape
+    classroom: Classroom
+    open_meeting_space: Open Meeting Space
+    hot_desk: Hot Desk
+    dedicated_desk: Dedicated Desk
+    multi_function_room: Multi-function Room
+    dinning_hall: Dinning Hall
+    lecture_hall: Lecture Hall
+    recording_studio: Recording Studio
+    broadcasting_studio: Broadcasting Studio
+    photo_studio: Photo Studio
+    theater: Theater
+    outdoor_space: Outdoor Space
+    exhibition_hall: Exhibition Hall
+    entertainment_space: Entertainment Space
   unit:
     hour: Hour
     day: Day

@@ -38,6 +38,27 @@ room:
     meeting: 会议室
     desk: 工位
     others: 其他
+  type_tag:
+    manager_office: 经理办公室
+    team_office: 团队办公室
+    office_suite: 完整办公套间
+    open_office: 半开敞办公室
+    boardroom: 会议桌布局
+    u_shape: U形桌布局
+    classroom: 教室布局
+    open_meeting_space: 半开放会议区
+    hot_desk: 共享工位
+    dedicated_desk: 固定工位
+    multi_function_room: 多功能厅
+    dinning_hall: 餐饮空间
+    lecture_hall: 阶梯教室
+    recording_studio: 录音棚
+    broadcasting_studio: 演播室
+    photo_studio: 摄影室
+    theater: 放映院
+    outdoor_space: 室外露天
+    exhibition_hall: 会展空间
+    entertainment_space: 娱乐设施
   unit:
     hour: 小时
     day: 天
