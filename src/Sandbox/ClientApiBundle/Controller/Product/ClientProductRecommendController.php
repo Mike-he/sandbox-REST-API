@@ -126,12 +126,12 @@ class ClientProductRecommendController extends ProductController
 //                $price = $this->getDoctrine()
 //                    ->getRepository('SandboxApiBundle:Room\RoomFixed')
 //                    ->getFixedSeats($room);
-//
+
 //                if (!is_null($price)) {
 //                    $product->setBasePrice($price);
 //                }
 //            }
-            
+
             $productLeasingSets = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Product\ProductLeasingSet')
                 ->findBy(array('product' => $product));

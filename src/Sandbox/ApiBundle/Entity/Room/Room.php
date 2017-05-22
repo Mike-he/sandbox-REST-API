@@ -26,6 +26,10 @@ class Room
     const TYPE_DESK = 'desk';
     const TYPE_OTHERS = 'others';
 
+    const TAG_HOT_DESK = 'hot_desk';
+    const TAG_DEDICATED_DESK = 'dedicated_desk';
+
+
     /**
      * @var int
      *
@@ -258,13 +262,6 @@ class Room
      * @Serializer\Groups({"main", "admin_room", "client", "current_order", "client_appointment_list"})
      */
     private $attachment;
-
-    /**
-     * @var string
-     *
-     * @Serializer\Groups({"main", "admin_room", "client"})
-     */
-    private $rentType;
 
     /**
      * Get id.
@@ -774,22 +771,6 @@ class Room
         $this->typeDescription = $description;
 
         return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getRentType()
-    {
-        return $this->rentType;
-    }
-
-    /**
-     * @param string $rentType
-     */
-    public function setRentType($rentType)
-    {
-        $this->rentType = $rentType;
     }
 
     public function degenerateAttachment()

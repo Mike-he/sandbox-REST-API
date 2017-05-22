@@ -57,17 +57,6 @@ class ProductController extends SalesRestController
             );
         }
 
-        $room = $product->getRoom();
-        $type = $room->getType();
-        if ($type == Room::TYPE_LONG_TERM) {
-            $company = $room->getBuilding()->getCompany();
-
-            $collectionMethod = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
-                ->getCollectionMethod($company, $type);
-
-            $product->setCollectionMethod($collectionMethod);
-        }
 
         $productLeasingSets = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Product\ProductLeasingSet')

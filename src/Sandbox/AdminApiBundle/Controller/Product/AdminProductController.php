@@ -411,7 +411,7 @@ class AdminProductController extends ProductController
         $room = $this->getRepo('Room\Room')->find($roomId);
         $type = $room->getType();
 
-        if ($type == Room::TYPE_FIXED) {
+        if ($type == Room::TYPE_DESK) {
             $fixedSeats = $this->getRepo('Room\RoomFixed')->findBy(
                 [
                     'room' => $roomId,
