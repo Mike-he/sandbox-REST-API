@@ -235,17 +235,17 @@ class ClientLeaseBillController extends PaymentController
 
         //check collection method
         $room = $bill->getLease()->getProduct()->getRoom();
-        $type = $room->getType();
-        if ($type == Room::TYPE_LONG_TERM) {
-            $company = $room->getBuilding()->getCompany();
+        $company = $room->getBuilding()->getCompany();
 
-            $collectionMethod = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
-                ->getCollectionMethod($company, $type);
+        $collectionMethod = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
+            ->getCollectionMethod(
+                $company,
+                SalesCompanyServiceInfos::TRADE_TYPE_LONGTERM
+            );
 
-            if ($collectionMethod == SalesCompanyServiceInfos::COLLECTION_METHOD_SALES) {
-                throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILL_COLLECTION_METHOD_MESSAGE);
-            }
+        if ($collectionMethod == SalesCompanyServiceInfos::COLLECTION_METHOD_SALES) {
+            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILL_COLLECTION_METHOD_MESSAGE);
         }
 
         $requestContent = json_decode($request->getContent(), true);
@@ -399,17 +399,17 @@ class ClientLeaseBillController extends PaymentController
 
         //check collection method
         $room = $bill->getLease()->getProduct()->getRoom();
-        $type = $room->getType();
-        if ($type == Room::TYPE_LONG_TERM) {
-            $company = $room->getBuilding()->getCompany();
+        $company = $room->getBuilding()->getCompany();
 
-            $collectionMethod = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
-                ->getCollectionMethod($company, $type);
+        $collectionMethod = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
+            ->getCollectionMethod(
+                $company,
+                SalesCompanyServiceInfos::TRADE_TYPE_LONGTERM
+            );
 
-            if ($collectionMethod != SalesCompanyServiceInfos::COLLECTION_METHOD_SALES) {
-                throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILL_COLLECTION_METHOD_MESSAGE);
-            }
+        if ($collectionMethod != SalesCompanyServiceInfos::COLLECTION_METHOD_SALES) {
+            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILL_COLLECTION_METHOD_MESSAGE);
         }
 
         // check if request user is the same as drawee
@@ -448,21 +448,19 @@ class ClientLeaseBillController extends PaymentController
         $result = array();
         foreach ($bills as $bill) {
             $room = $bill->getLease()->getProduct()->getRoom();
-            $type = $room->getType();
             $building = $room->getBuilding();
+            $company = $building->getCompany();
 
             $attachment = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Room\RoomAttachmentBinding')
                 ->findAttachmentsByRoom($room, 1);
 
-            $collectionMethod = null;
-            if ($type == Room::TYPE_LONG_TERM) {
-                $company = $building->getCompany();
-
-                $collectionMethod = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
-                    ->getCollectionMethod($company, $type);
-            }
+            $collectionMethod = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
+                ->getCollectionMethod(
+                    $company,
+                    SalesCompanyServiceInfos::TRADE_TYPE_LONGTERM
+                );
 
             $transfer = $bill->getTransfer();
 
@@ -506,16 +504,15 @@ class ClientLeaseBillController extends PaymentController
     ) {
         $product = $bill->getLease()->getProduct();
         $room = $product->getRoom();
-        $type = $room->getType();
         $building = $room->getBuilding();
         $company = $building->getCompany();
 
-        $collectionMethod = null;
-        if ($type == Room::TYPE_LONG_TERM) {
-            $collectionMethod = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
-                ->getCollectionMethod($company, $type);
-        }
+        $collectionMethod = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
+            ->getCollectionMethod(
+                $company,
+                SalesCompanyServiceInfos::TRADE_TYPE_LONGTERM
+            );
 
         $drawee = $bill->getDrawee() ? $bill->getDrawee() : $bill->getLease()->getDrawee()->getId();
 
