@@ -132,6 +132,10 @@ class ClientProductRecommendController extends ProductController
 //                }
 //            }
 
+            $typeTag = $room->getTypeTag();
+            $typeTagDescription = $this->get('translator')->trans(RoomTypeTags::TRANS_PREFIX.$typeTag);
+            $room->setTypeTagDescription($typeTagDescription);
+
             $productLeasingSets = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Product\ProductLeasingSet')
                 ->findBy(array('product' => $product));

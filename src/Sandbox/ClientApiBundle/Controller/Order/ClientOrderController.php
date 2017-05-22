@@ -8,6 +8,7 @@ use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
 use Sandbox\ApiBundle\Entity\Order\TransferAttachment;
 use Sandbox\ApiBundle\Entity\Parameter\Parameter;
+use Sandbox\ApiBundle\Entity\Room\RoomTypes;
 use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
 use Sandbox\ApiBundle\Form\Order\OrderOfflineTransferPost;
 use Sandbox\ApiBundle\Form\Order\TransferAttachmentType;
@@ -699,7 +700,7 @@ class ClientOrderController extends OrderController
 
             // check if it's same order from the same user
             // return orderId if so
-            if ($type !== Room::TYPE_FLEXIBLE && $type !== Room::TYPE_FIXED) {
+            if ($type !== RoomTypes::TYPE_NAME_DESK) {
                 $sameOrder = $this->getRepo('Order\ProductOrder')->getOrderFromSameUser(
                     $productId,
                     $userId,
@@ -768,7 +769,8 @@ class ClientOrderController extends OrderController
                 );
             }
 
-            if (Room::TYPE_OFFICE == $type) {
+            $reject = $product->getRoom()->isRejected();
+            if ($reject && Room::TYPE_OFFICE == $type) {
                 $order->setRejected(true);
             }
 

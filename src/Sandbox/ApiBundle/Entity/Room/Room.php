@@ -157,6 +157,13 @@ class Room
     private $typeDescription;
 
     /**
+     * @var string
+     *
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "current_order"})
+     */
+    private $typeTagDescription;
+
+    /**
      * @var int
      *
      * @ORM\Column(name="allowedPeople", type="integer", nullable=false)
@@ -771,6 +778,22 @@ class Room
         $this->typeDescription = $description;
 
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTypeTagDescription()
+    {
+        return $this->typeTagDescription;
+    }
+
+    /**
+     * @param string $typeTagDescription
+     */
+    public function setTypeTagDescription($typeTagDescription)
+    {
+        $this->typeTagDescription = $typeTagDescription;
     }
 
     public function degenerateAttachment()
