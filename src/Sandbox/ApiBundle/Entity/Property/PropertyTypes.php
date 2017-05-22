@@ -46,6 +46,13 @@ class PropertyTypes
 
     /**
      * @var string
+     *
+     * @ORM\Column(name="application_selected_icon", type="text")
+     */
+    private $applicationSelectedIcon;
+
+    /**
+     * @var string
      */
     private $description;
 
@@ -57,6 +64,22 @@ class PropertyTypes
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @return string
+     */
+    public function getApplicationSelectedIcon()
+    {
+        return $this->applicationSelectedIcon;
+    }
+
+    /**
+     * @param string $applicationSelectedIcon
+     */
+    public function setApplicationSelectedIcon($applicationSelectedIcon)
+    {
+        $this->applicationSelectedIcon = $applicationSelectedIcon;
     }
 
     /**

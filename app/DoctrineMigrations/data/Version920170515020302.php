@@ -44,23 +44,27 @@ class Version920170515020302 extends AbstractMigration implements ContainerAware
 
         $type1 = new PropertyTypes();
         $type1->setName('hotel');
-        $type1->setCommunityIcon('/icon/community_property_hotel');
-        $type1->setApplicationIcon('/icon/application_property_hotel');
+        $type1->setCommunityIcon('/icon/community_property_hotel.png');
+        $type1->setApplicationIcon('/icon/application_property_hotel.png');
+        $type1->setApplicationSelectedIcon('/icon/application_property_hotel_selected.png');
 
         $type2 = new PropertyTypes();
         $type2->setName('incubator');
-        $type2->setCommunityIcon('/icon/community_property_incubator');
-        $type2->setApplicationIcon('/icon/application_property_incubator');
+        $type2->setCommunityIcon('/icon/community_property_incubator.png');
+        $type2->setApplicationIcon('/icon/application_property_incubator.png');
+        $type2->setApplicationSelectedIcon('/icon/application_property_incubator_selected.png');
 
         $type3 = new PropertyTypes();
         $type3->setName('commercial_center');
-        $type3->setCommunityIcon('/icon/community_property_commercial_center');
-        $type3->setApplicationIcon('/icon/application_property_commercial_center');
+        $type3->setCommunityIcon('/icon/community_property_commercial_center.png');
+        $type3->setApplicationIcon('/icon/application_property_commercial_center.png');
+        $type3->setApplicationSelectedIcon('/icon/application_property_commercial_center_selected.png');
 
         $type4 = new PropertyTypes();
         $type4->setName('joint_workspace');
-        $type4->setCommunityIcon('/icon/community_property_joint_workspace');
-        $type4->setApplicationIcon('/icon/application_property_joint_workspace');
+        $type4->setCommunityIcon('/icon/community_property_joint_workspace.png');
+        $type4->setApplicationIcon('/icon/application_property_joint_workspace.png');
+        $type4->setApplicationSelectedIcon('/icon/application_property_joint_workspace_selected.png');
 
         $em->persist($type1);
         $em->persist($type2);
