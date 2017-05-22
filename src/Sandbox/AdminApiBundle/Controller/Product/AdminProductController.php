@@ -355,15 +355,6 @@ class AdminProductController extends ProductController
         ));
         $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
 
-        $room = $product->getRoom();
-        $roomType = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Room\RoomTypes')
-            ->findOneBy(array(
-                'name' => $room->getType(),
-            ));
-
-        $room->setRentType($roomType->getType());
-
         $favorite = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserFavorite')
             ->countFavoritesByObject(
@@ -420,7 +411,7 @@ class AdminProductController extends ProductController
         $room = $this->getRepo('Room\Room')->find($roomId);
         $type = $room->getType();
 
-        if ($type == Room::TYPE_FIXED) {
+        if ($type == Room::TYPE_DESK) {
             $fixedSeats = $this->getRepo('Room\RoomFixed')->findBy(
                 [
                     'room' => $roomId,

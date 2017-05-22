@@ -264,13 +264,6 @@ class Room
     private $attachment;
 
     /**
-     * @var string
-     *
-     * @Serializer\Groups({"main", "admin_room", "client"})
-     */
-    private $rentType;
-
-    /**
      * Get id.
      *
      * @return int
@@ -778,22 +771,6 @@ class Room
         $this->typeDescription = $description;
 
         return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getRentType()
-    {
-        return $this->rentType;
-    }
-
-    /**
-     * @param string $rentType
-     */
-    public function setRentType($rentType)
-    {
-        $this->rentType = $rentType;
     }
 
     public function degenerateAttachment()
