@@ -40,6 +40,7 @@ class ProductType extends AbstractType
                     'mapped' => false,
                 )
             )
+            ->add('seats')
             ->add('leasing_sets')
             ->add('rent_set')
             ->add(

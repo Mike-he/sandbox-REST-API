@@ -646,6 +646,7 @@ class AdminProductController extends ProductController
         $rule_exclude = $form['price_rule_exclude_ids']->getData();
         $rentTypeIds = $form['rent_type_include_ids']->getData();
         $leasingSets = $form['leasing_sets']->getData();
+        $rentSet = $form['rent_set']->getData();
 
         $room = $this->getRepo('Room\Room')->find($product->getRoomId());
         $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
@@ -676,7 +677,7 @@ class AdminProductController extends ProductController
         $seats = $form['seats']->getData();
         $type = $room->getType();
 
-        if (!is_null($seats) && $type == Room::TYPE_FIXED) {
+        if (!is_null($seats) && $type == Room::TYPE_DESK) {
             foreach ($seats as $seat) {
                 if (array_key_exists('id', $seat) && array_key_exists('price', $seat)) {
                     $fixed = $this->getRepo('Room\RoomFixed')->findOneBy([
@@ -685,27 +686,6 @@ class AdminProductController extends ProductController
                     ]);
                     !is_null($fixed) ? $fixed->setBasePrice($seat['price']) : null;
                 }
-            }
-        } elseif ($type == Room::TYPE_LONG_TERM) {
-            $earliestRendDate = $form['earliest_rent_date']->getData();
-
-            if (!is_null($earliestRendDate) && !empty($earliestRendDate)) {
-                $earliestRendDate->setTime(00, 00, 00);
-                $product->setEarliestRentDate($earliestRendDate);
-            }
-
-            $deposit = $product->getDeposit();
-            $rentalInfo = $product->getRentalInfo();
-
-            if (is_null($deposit) ||
-                is_null($rentalInfo) ||
-                empty($rentalInfo)
-            ) {
-                return $this->customErrorView(
-                    400,
-                    Product::LONG_TERM_ROOM_MISSING_INFO_CODE,
-                    Product::LONG_TERM_ROOM_MISSING_INFO_MESSAGE
-                );
             }
         }
 
@@ -718,9 +698,9 @@ class AdminProductController extends ProductController
             $rule_exclude
         );
 
-        $this->handleRentTypesPut($rentTypeIds, $product);
-
         $this->handleLeasingSetsPut($leasingSets, $product);
+        $this->handleRentSetPut($rentSet, $product);
+        $this->handleRentTypesPut($rentTypeIds, $product);
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();
@@ -874,7 +854,16 @@ class AdminProductController extends ProductController
     ) {
         if (!is_null($rentDate) && !empty($rentDate)) {
             $rentDate->setTime(0, 0, 0);
-            $product->setEarliestRentDate($rentDate);
+
+            $productRentSet = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\ProductRentSet')
+                ->findOneBy(array('product' => $product));
+
+            if ($productRentSet) {
+                $productRentSet->setEarliestRentDate($rentDate);
+            } else {
+                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            }
         }
     }
 
@@ -1003,10 +992,40 @@ class AdminProductController extends ProductController
             $em = $this->getDoctrine()->getManager();
 
             $earliestRendDate = new \DateTime($rentSet['earliest_rent_date']);
+
             $earliestRendDate->setTime(00, 00, 00);
 
             $productRentSet = new ProductRentSet();
             $productRentSet->setProduct($product);
+            $productRentSet->setBasePrice($rentSet['base_price']);
+            $productRentSet->setUnitPrice($rentSet['unit_price']);
+            $productRentSet->setEarliestRentDate($earliestRendDate);
+            $productRentSet->setDeposit($rentSet['deposit']);
+            $productRentSet->setRentalInfo($rentSet['rental_info']);
+            $productRentSet->setFilename($rentSet['filename']);
+            $em->persist($productRentSet);
+        }
+    }
+
+    private function handleRentSetPut(
+        $rentSet,
+        $product
+    ) {
+        if (!empty($rentSet)) {
+            $em = $this->getDoctrine()->getManager();
+
+            $earliestRendDate = new \DateTime($rentSet['earliest_rent_date']);
+
+            $earliestRendDate->setTime(00, 00, 00);
+
+            $productRentSet = $em->getRepository('SandboxApiBundle:Product\ProductRentSet')
+                ->findOneBy(array('product' => $product));
+
+            if (is_null($productRentSet)) {
+                $productRentSet = new ProductRentSet();
+                $productRentSet->setProduct($product);
+            }
+
             $productRentSet->setBasePrice($rentSet['base_price']);
             $productRentSet->setUnitPrice($rentSet['unit_price']);
             $productRentSet->setEarliestRentDate($earliestRendDate);
