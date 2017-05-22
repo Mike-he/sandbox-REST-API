@@ -466,12 +466,10 @@ class AdminProductController extends ProductController
 
         $rule_include = $form['price_rule_include_ids']->getData();
         $rule_exclude = $form['price_rule_exclude_ids']->getData();
-        $seats = $form['seats']->getData();
         $rentTypeIds = $form['rent_type_include_ids']->getData();
 
         $room = $this->getRepo('Room\Room')->find($product->getRoomId());
         $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
-        $type = $room->getType();
 
         $roomInProduct = $this->getRepo('Product\Product')->findOneBy(
             [
@@ -489,20 +487,6 @@ class AdminProductController extends ProductController
 
         $startDate = $form['start_date']->getData();
         $startDate->setTime(00, 00, 00);
-
-        if (!is_null($seats) && $type == Room::TYPE_FIXED) {
-            foreach ($seats as $seat) {
-                if (array_key_exists('id', $seat) && array_key_exists('price', $seat)) {
-                    $fixed = $this->getRepo('Room\RoomFixed')->findOneBy([
-                        'id' => $seat['id'],
-                        'roomId' => $product->getRoomId(),
-                    ]);
-                    !is_null($fixed) ? $fixed->setBasePrice($seat['price']) : null;
-                }
-            }
-        } elseif ($type == Room::TYPE_FIXED) {
-            throw new NotFoundHttpException(self::NEED_SEAT_NUMBER);
-        }
 
         $product->setRoom($room);
 

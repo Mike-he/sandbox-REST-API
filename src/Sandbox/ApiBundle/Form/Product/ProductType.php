@@ -18,8 +18,6 @@ class ProductType extends AbstractType
             ->add('room_id', 'integer')
             ->add('description', 'text')
             ->add('visible_user_id', 'integer')
-//            ->add('base_price', 'money')
-//            ->add('unit_price')
             ->add('private')
             ->add('renewable')
             ->add('visible')
@@ -42,16 +40,8 @@ class ProductType extends AbstractType
                     'mapped' => false,
                 )
             )
-            ->add('seats')
             ->add('leasing_sets')
-            ->add('earliest_rent_date', 'date', array(
-                    'widget' => 'single_text',
-                    'mapped' => false,
-                )
-            )
-            ->add('deposit')
-            ->add('rental_info')
-            ->add('filename')
+            ->add('rent_set')
             ->add(
                 'rent_type_include_ids',
                 null,

@@ -291,6 +291,13 @@ class Product
     private $leasingSets;
 
     /**
+     * @var array
+     *
+     * @Serializer\Groups({"main", "admin_room", "admin_detail", "client"})
+     */
+    private $rentSet;
+
+    /**
      * @var bool
      *
      * @ORM\Column(name="appointment", type="boolean", options={"default":true})
@@ -1062,5 +1069,21 @@ class Product
     public function setLeasingSets($leasingSets)
     {
         $this->leasingSets = $leasingSets;
+    }
+
+    /**
+     * @return array
+     */
+    public function getRentSet()
+    {
+        return $this->rentSet;
+    }
+
+    /**
+     * @param array $rentSet
+     */
+    public function setRentSet($rentSet)
+    {
+        $this->rentSet = $rentSet;
     }
 }

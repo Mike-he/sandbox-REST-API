@@ -11,6 +11,7 @@ use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Entity\Product\ProductLeasingSet;
+use Sandbox\ApiBundle\Entity\Product\ProductRentSet;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\User\UserFavorite;
@@ -512,9 +513,9 @@ class AdminProductController extends ProductController
 
         $rule_include = $form['price_rule_include_ids']->getData();
         $rule_exclude = $form['price_rule_exclude_ids']->getData();
-        $seats = $form['seats']->getData();
         $rentTypeIds = $form['rent_type_include_ids']->getData();
         $leasingSets = $form['leasing_sets']->getData();
+        $rentSet = $form['rent_set']->getData();
 
         $room = $this->getRepo('Room\Room')->find($product->getRoomId());
         $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
@@ -542,8 +543,6 @@ class AdminProductController extends ProductController
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
-        $type = $room->getType();
-
         $roomInProduct = $this->getRepo('Product\Product')->findOneBy(
             [
                 'roomId' => $product->getRoomId(),
@@ -560,54 +559,19 @@ class AdminProductController extends ProductController
 
         $startDate = $form['start_date']->getData();
         $startDate->setTime(00, 00, 00);
-
-        if (!is_null($seats) && $type == Room::TYPE_FIXED) {
-            foreach ($seats as $seat) {
-                if (array_key_exists('id', $seat) && array_key_exists('price', $seat)) {
-                    $fixed = $this->getRepo('Room\RoomFixed')->findOneBy([
-                        'id' => $seat['id'],
-                        'roomId' => $product->getRoomId(),
-                    ]);
-                    !is_null($fixed) ? $fixed->setBasePrice($seat['price']) : null;
-                }
-            }
-        } elseif ($type == Room::TYPE_FIXED) {
-            throw new NotFoundHttpException(self::NEED_SEAT_NUMBER);
-        } elseif ($type == Room::TYPE_LONG_TERM) {
-            $earliestRendDate = $form['earliest_rent_date']->getData();
-            $deposit = $product->getDeposit();
-            $rentalInfo = $product->getRentalInfo();
-
-            if (is_null($earliestRendDate) ||
-                empty($earliestRendDate) ||
-                is_null($deposit) ||
-                is_null($rentalInfo) ||
-                empty($rentalInfo)
-            ) {
-                return $this->customErrorView(
-                    400,
-                    Product::LONG_TERM_ROOM_MISSING_INFO_CODE,
-                    Product::LONG_TERM_ROOM_MISSING_INFO_MESSAGE
-                );
-            }
-
-            $earliestRendDate->setTime(00, 00, 00);
-            $product->setEarliestRentDate($earliestRendDate);
-        }
+        $now = new \DateTime('now');
 
         $product->setRoom($room);
-
-        $now = new \DateTime('now');
         $product->setStartDate($startDate);
         $product->setCreationDate($now);
         $product->setModificationDate($now);
 
+        $this->handleLeasingSetsPost($leasingSets, $product);
+        $this->handleRentSetPost($rentSet, $product);
         $this->handleRentTypesPost($rentTypeIds, $product);
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($product);
-
-        $this->handleLeasingSetsPost($leasingSets, $product);
 
         $em->flush();
 
@@ -1028,6 +992,28 @@ class AdminProductController extends ProductController
             $productLeasingSet->setBasePrice($leasingSet['base_price']);
             $productLeasingSet->setAmount($leasingSet['amount']);
             $em->persist($productLeasingSet);
+        }
+    }
+
+    private function handleRentSetPost(
+        $rentSet,
+        $product
+    ) {
+        if (!empty($rentSet)) {
+            $em = $this->getDoctrine()->getManager();
+
+            $earliestRendDate = new \DateTime($rentSet['earliest_rent_date']);
+            $earliestRendDate->setTime(00, 00, 00);
+
+            $productRentSet = new ProductRentSet();
+            $productRentSet->setProduct($product);
+            $productRentSet->setBasePrice($rentSet['base_price']);
+            $productRentSet->setUnitPrice($rentSet['unit_price']);
+            $productRentSet->setEarliestRentDate($earliestRendDate);
+            $productRentSet->setDeposit($rentSet['deposit']);
+            $productRentSet->setRentalInfo($rentSet['rental_info']);
+            $productRentSet->setFilename($rentSet['filename']);
+            $em->persist($productRentSet);
         }
     }
 }
