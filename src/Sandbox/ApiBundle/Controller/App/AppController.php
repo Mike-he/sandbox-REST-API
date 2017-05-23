@@ -23,6 +23,14 @@ use FOS\RestBundle\Controller\Annotations;
  */
 class AppController extends SandboxRestController
 {
+    const LANGUAGE_ZH = 'zh';
+    const LANGUAGE_EN = 'en';
+
+    const DEVICE_IPHONE = 'iphone';
+    const DEVICE_ANDROID = 'android';
+
+    const VERSION_STRING = '{{version}}';
+
     /**
      * List all APP Info.
      *
@@ -80,5 +88,100 @@ class AppController extends SandboxRestController
         }
 
         return new View($apps);
+    }
+
+    /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *     name="version",
+     *     nullable=false,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="device",
+     *     nullable=false,
+     *     strict=true
+     * )
+     *
+     * @Route("app_version_check")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function checkAppVersionAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $version = $paramFetcher->get('version');
+        $device = $paramFetcher->get('device');
+
+        $versionCheck = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:App\AppVersionCheck')
+            ->findOneBy(array(
+                'visible' => true,
+            ));
+
+        $checkCurrentVersion = $versionCheck->getCurrentVersion();
+
+        if (version_compare($checkCurrentVersion, $version, '<=')) {
+            return new View();
+        }
+
+        $isForce = $versionCheck->getIsForce();
+        $zhNotification = $versionCheck->getZhNotification();
+        $zhForceNotification = $versionCheck->getZhForceNotification();
+        $enNotification = $versionCheck->getEnNotification();
+        $enForceNotification = $versionCheck->getEnForceNotification();
+        $iosUrl = $versionCheck->getIosUrl();
+        $androidUrl = $versionCheck->getAndroidUrl();
+
+        $zhNotification = preg_replace('/'.self::VERSION_STRING.'/', "$checkCurrentVersion", $zhNotification);
+        $zhForceNotification = preg_replace('/'.self::VERSION_STRING.'/', "$checkCurrentVersion", $zhForceNotification);
+        $enNotification = preg_replace('/'.self::VERSION_STRING.'/', "$checkCurrentVersion", $enNotification);
+        $enForceNotification = preg_replace('/'.self::VERSION_STRING.'/', "$checkCurrentVersion", $enForceNotification);
+
+        $language = $request->getPreferredLanguage(array(
+            self::LANGUAGE_ZH,
+            self::LANGUAGE_EN,
+        ));
+
+        $response = array();
+        if ($isForce) {
+            $response['is_force'] = $isForce;
+
+            switch ($language) {
+                case self::LANGUAGE_ZH:
+                    $response['notification'] = $zhForceNotification;
+                    break;
+                case self::LANGUAGE_EN:
+                    $response['notification'] = $enForceNotification;
+                    break;
+            }
+        } else {
+            $response['is_force'] = $isForce;
+
+            switch ($language) {
+                case self::LANGUAGE_ZH:
+                    $response['notification'] = $zhNotification;
+                    break;
+                case self::LANGUAGE_EN:
+                    $response['notification'] = $enNotification;
+                    break;
+            }
+        }
+
+        switch ($device) {
+            case self::DEVICE_IPHONE:
+                $response['download_url'] = $iosUrl;
+                break;
+            case self::DEVICE_ANDROID:
+                $response['download_url'] = $androidUrl;
+                break;
+        }
+
+        return new View($response);
     }
 }

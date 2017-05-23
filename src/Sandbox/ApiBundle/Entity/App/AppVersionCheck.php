@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\App;
 
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * AppVersionCheck
@@ -38,12 +39,36 @@ class AppVersionCheck
     /**
      * @var string
      *
+     * @ORM\Column(name="zh_force_notification", type="string", length=1024)
+     */
+    private $zhForceNotification;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="en_notification", type="string", length=1024)
      */
     private $enNotification;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="en_force_notification", type="string", length=1024)
+     */
+    private $enForceNotification;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="ios_url", type="string", length=255)
+     */
     private $ios_url;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="android_url", type="string", length=255)
+     */
     private $androidUrl;
 
     /**
@@ -56,13 +81,14 @@ class AppVersionCheck
     /**
      * @var boolean
      *
-     * @ORM\Column(name="visiable", type="boolean")
+     * @ORM\Column(name="visible", type="boolean")
      */
-    private $visiable;
+    private $visible;
 
     /**
      * @var \DateTime
      *
+     * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="creation_date", type="datetime")
      */
     private $creationDate;
@@ -70,6 +96,7 @@ class AppVersionCheck
     /**
      * @var \DateTime
      *
+     * @Gedmo\Timestampable(on="update")
      * @ORM\Column(name="modification_date", type="datetime")
      */
     private $modificationDate;
@@ -155,6 +182,38 @@ class AppVersionCheck
     }
 
     /**
+     * @return string
+     */
+    public function getZhForceNotification()
+    {
+        return $this->zhForceNotification;
+    }
+
+    /**
+     * @param string $zhForceNotification
+     */
+    public function setZhForceNotification($zhForceNotification)
+    {
+        $this->zhForceNotification = $zhForceNotification;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEnForceNotification()
+    {
+        return $this->enForceNotification;
+    }
+
+    /**
+     * @param string $enForceNotification
+     */
+    public function setEnForceNotification($enForceNotification)
+    {
+        $this->enForceNotification = $enForceNotification;
+    }
+
+    /**
      * Set isForce
      *
      * @param boolean $isForce
@@ -178,26 +237,58 @@ class AppVersionCheck
     }
 
     /**
-     * Set visiable
+     * Set visible
      *
-     * @param boolean $visiable
+     * @param boolean $visible
      * @return AppVersionCheck
      */
-    public function setVisiable($visiable)
+    public function setVisible($visible)
     {
-        $this->visiable = $visiable;
+        $this->visible = $visible;
 
         return $this;
     }
 
     /**
-     * Get visiable
+     * Get visible
      *
      * @return boolean 
      */
-    public function getVisiable()
+    public function getVisible()
     {
-        return $this->visiable;
+        return $this->visible;
+    }
+
+    /**
+     * @return string
+     */
+    public function getIosUrl()
+    {
+        return $this->ios_url;
+    }
+
+    /**
+     * @param string $ios_url
+     */
+    public function setIosUrl($ios_url)
+    {
+        $this->ios_url = $ios_url;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAndroidUrl()
+    {
+        return $this->androidUrl;
+    }
+
+    /**
+     * @param string $androidUrl
+     */
+    public function setAndroidUrl($androidUrl)
+    {
+        $this->androidUrl = $androidUrl;
     }
 
     /**
