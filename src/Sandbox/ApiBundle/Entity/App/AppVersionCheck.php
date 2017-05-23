@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
- * AppVersionCheck
+ * AppVersionCheck.
  *
  * @ORM\Table(name="app_version_check")
  * @ORM\Entity
@@ -14,7 +14,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 class AppVersionCheck
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -72,14 +72,14 @@ class AppVersionCheck
     private $androidUrl;
 
     /**
-     * @var boolean
+     * @var bool
      *
      * @ORM\Column(name="is_force", type="boolean")
      */
     private $isForce;
 
     /**
-     * @var boolean
+     * @var bool
      *
      * @ORM\Column(name="visible", type="boolean")
      */
@@ -101,11 +101,10 @@ class AppVersionCheck
      */
     private $modificationDate;
 
-
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -113,9 +112,10 @@ class AppVersionCheck
     }
 
     /**
-     * Set currentVersion
+     * Set currentVersion.
      *
      * @param string $currentVersion
+     *
      * @return AppVersionCheck
      */
     public function setCurrentVersion($currentVersion)
@@ -126,9 +126,9 @@ class AppVersionCheck
     }
 
     /**
-     * Get currentVersion
+     * Get currentVersion.
      *
-     * @return string 
+     * @return string
      */
     public function getCurrentVersion()
     {
@@ -136,9 +136,10 @@ class AppVersionCheck
     }
 
     /**
-     * Set zhNotification
+     * Set zhNotification.
      *
      * @param string $zhNotification
+     *
      * @return AppVersionCheck
      */
     public function setZhNotification($zhNotification)
@@ -149,9 +150,9 @@ class AppVersionCheck
     }
 
     /**
-     * Get zhNotification
+     * Get zhNotification.
      *
-     * @return string 
+     * @return string
      */
     public function getZhNotification()
     {
@@ -159,9 +160,10 @@ class AppVersionCheck
     }
 
     /**
-     * Set enNotification
+     * Set enNotification.
      *
      * @param string $enNotification
+     *
      * @return AppVersionCheck
      */
     public function setEnNotification($enNotification)
@@ -172,9 +174,9 @@ class AppVersionCheck
     }
 
     /**
-     * Get enNotification
+     * Get enNotification.
      *
-     * @return string 
+     * @return string
      */
     public function getEnNotification()
     {
@@ -214,9 +216,10 @@ class AppVersionCheck
     }
 
     /**
-     * Set isForce
+     * Set isForce.
      *
-     * @param boolean $isForce
+     * @param bool $isForce
+     *
      * @return AppVersionCheck
      */
     public function setIsForce($isForce)
@@ -227,9 +230,9 @@ class AppVersionCheck
     }
 
     /**
-     * Get isForce
+     * Get isForce.
      *
-     * @return boolean 
+     * @return bool
      */
     public function getIsForce()
     {
@@ -237,9 +240,10 @@ class AppVersionCheck
     }
 
     /**
-     * Set visible
+     * Set visible.
      *
-     * @param boolean $visible
+     * @param bool $visible
+     *
      * @return AppVersionCheck
      */
     public function setVisible($visible)
@@ -250,9 +254,9 @@ class AppVersionCheck
     }
 
     /**
-     * Get visible
+     * Get visible.
      *
-     * @return boolean 
+     * @return bool
      */
     public function getVisible()
     {
@@ -292,9 +296,10 @@ class AppVersionCheck
     }
 
     /**
-     * Set creationDate
+     * Set creationDate.
      *
      * @param \DateTime $creationDate
+     *
      * @return AppVersionCheck
      */
     public function setCreationDate($creationDate)
@@ -305,9 +310,9 @@ class AppVersionCheck
     }
 
     /**
-     * Get creationDate
+     * Get creationDate.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getCreationDate()
     {
@@ -315,9 +320,10 @@ class AppVersionCheck
     }
 
     /**
-     * Set modificationDate
+     * Set modificationDate.
      *
      * @param \DateTime $modificationDate
+     *
      * @return AppVersionCheck
      */
     public function setModificationDate($modificationDate)
@@ -328,9 +334,9 @@ class AppVersionCheck
     }
 
     /**
-     * Get modificationDate
+     * Get modificationDate.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getModificationDate()
     {

@@ -189,3 +189,9 @@ sandbox_sales_admin_api_user_info:
     resource: "@SandboxSalesApiBundle/Controller/User/AdminUserInfoController.php"
     type:     annotation
     prefix:   /admin
+
+# admin remarks
+sandbox_sales_admin_api_admin_remarks:
+    resource: "@SandboxSalesApiBundle/Controller/Admin/AdminRemarkController.php"
+    type:     annotation
+    prefix:   /admin
