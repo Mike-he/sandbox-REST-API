@@ -84,7 +84,7 @@ class AdminRemarkController extends SandboxRestController
                     'objectId' => $objectId,
                     'platform' => $platform,
                 ],
-                ['creationDate', 'ASC']
+                ['creationDate' => 'ASC']
             );
 
         return new View($remarks);
