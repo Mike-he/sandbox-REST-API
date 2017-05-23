@@ -65,7 +65,7 @@ class AdminRemarkController extends SandboxRestController
         $platform = $adminPlatform['platform'];
 
         $object = $paramFetcher->get('object');
-        $objectId = $paramFetcher->get('$object_id');
+        $objectId = $paramFetcher->get('object_id');
 
         // get keyArray
         $keyArray = $this->getPermissionKeyArray($object);
