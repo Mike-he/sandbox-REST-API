@@ -14,7 +14,6 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class ProductRentSet
 {
-
     const UNIT_MONTH = 'month';
 
     /**

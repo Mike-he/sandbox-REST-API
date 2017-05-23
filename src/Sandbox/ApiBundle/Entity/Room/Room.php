@@ -29,7 +29,6 @@ class Room
     const TAG_HOT_DESK = 'hot_desk';
     const TAG_DEDICATED_DESK = 'dedicated_desk';
 
-
     /**
      * @var int
      *

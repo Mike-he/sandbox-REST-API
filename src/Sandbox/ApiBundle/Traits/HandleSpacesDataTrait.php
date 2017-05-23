@@ -86,7 +86,7 @@ trait HandleSpacesDataTrait
                     $space['product']['rent_set'] = array(
                         'base_price' => $rentSet->getBasePrice(),
                         'unit_price' => $rentSet->getUnitPrice(),
-                        'earliest_rent_date' => $rentSet->getEarliestRentDate()
+                        'earliest_rent_date' => $rentSet->getEarliestRentDate(),
 
                     );
                 }
