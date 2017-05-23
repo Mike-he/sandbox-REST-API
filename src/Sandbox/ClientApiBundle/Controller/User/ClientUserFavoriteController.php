@@ -190,6 +190,18 @@ class ClientUserFavoriteController extends LocationController
                     $type = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$roomType);
                     $room->setTypeDescription($type);
 
+                    $productLeasingSets = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:Product\ProductLeasingSet')
+                        ->findBy(array('product' => $product));
+
+                    $product->setLeasingSets($productLeasingSets);
+
+                    $productRentSet = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:Product\ProductRentSet')
+                        ->findOneBy(array('product' => $product));
+
+                    $product->setRentSet($productRentSet);
+
                     array_push($objects, $product);
                 }
 
