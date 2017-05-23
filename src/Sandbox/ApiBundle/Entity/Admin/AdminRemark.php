@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Admin;
 
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * AdminRemark.
@@ -56,6 +57,7 @@ class AdminRemark
     /**
      * @var \DateTime
      *
+     * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="creationDate", type="datetime")
      */
     private $creationDate;
