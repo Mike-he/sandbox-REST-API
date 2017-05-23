@@ -174,13 +174,10 @@ class ClientUserFavoriteController extends LocationController
                     $product = $content['product'];
                     $product->setDistance($content['distance']);
 
-                    $unitPrice = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_UNIT.$product->getUnitPrice());
-                    $product->setUnitPrice($unitPrice);
-
                     $room = $product->getRoom();
                     $roomType = $room->getType();
 
-                    if ($roomType == Room::TYPE_FIXED) {
+                    if ($roomType == Room::TYPE_DESK) {
                         $price = $this->getDoctrine()
                             ->getRepository('SandboxApiBundle:Room\RoomFixed')
                             ->getFixedSeats($room);
@@ -188,8 +185,6 @@ class ClientUserFavoriteController extends LocationController
                         if (!is_null($price)) {
                             $product->setBasePrice($price);
                         }
-                    } elseif ($roomType == Room::TYPE_LONG_TERM) {
-                        $roomType = Room::TYPE_OFFICE;
                     }
 
                     $type = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$roomType);

@@ -116,14 +116,10 @@ product_order:
   push_message:
     meeting_start: Your meeting room will start in 10 minutes
     meeting_end: Your meeting room will end in 10 minutes
-    studio_start: Your recording studio will start in 10 minutes
-    studio_end: Your recording studio will end in 10 minutes
-    space_start: Your activity space will start in 10 minutes
-    space_end: Your activity space will end in 10 minutes
-    flexible_start: Your hot desk will start tomorrow
-    flexible_end: Your hot desk will end tomorrow
-    fixed_start: Your dedicate desk will start tomorrow
-    fixed_end: Your dedicate desk will end tomorrow
+    others_start: Your others order will start in 10 minutes
+    others_end: Your others order will end in 10 minutes
+    desk_start: Your desk will start tomorrow
+    desk_end: Your desk will end tomorrow
     office_start: Your private office will start tomorrow
     office_end: Your private office will end in 7 days
     office_reject: Your office reservation has been rejected, amount paid will refund back to your payment account in 5~10 working days

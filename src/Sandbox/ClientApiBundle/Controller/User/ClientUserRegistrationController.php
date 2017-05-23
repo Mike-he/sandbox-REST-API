@@ -750,48 +750,4 @@ class ClientUserRegistrationController extends UserRegistrationController
         $weChat->setUserClient($userClient);
         $weChat->setModificationDate($now);
     }
-
-    /**
-     * @Route("/virtual/users")
-     * @Method({"post"})
-     */
-    public function createVirtualUsersAction()
-    {
-        $segments = [161, 162];
-        $phones = [];
-        $password = '202CB962AC59075B964B07152D234B70'; // pwd: 123
-
-        $em = $this->getDoctrine()->getManager();
-
-        foreach ($segments as $segment) {
-            for ($i = 0; $i < 100; ++$i) {
-                $randomNum = random_int(1000, 9999);
-                $phone = $segment.'0000'.$randomNum;
-                $phones[] = $phone;
-
-                $user = new User();
-                $user->setPassword($password);
-
-                $user->setPhone($phone);
-                $user->setPhoneCode('+86');
-
-                // get xmppUsername from response
-                $registrationId = '2'.rand(10000, 99999);
-
-                $response = $this->createXmppUser($user, $registrationId);
-                $responseJson = json_decode($response);
-                $user->setXmppUsername($responseJson->username);
-
-                // create default profile
-                $profile = new UserProfile();
-                $profile->setName('testUSER'.$randomNum);
-                $profile->setUser($user);
-
-                $em->persist($profile);
-                $em->persist($user);
-            }
-        }
-
-        $em->flush();
-    }
 }

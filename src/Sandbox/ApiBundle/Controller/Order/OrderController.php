@@ -657,7 +657,7 @@ class OrderController extends PaymentController
     ) {
         $error = [];
 
-        if ($type == Room::TYPE_OFFICE || $type == Room::TYPE_FIXED || $type == Room::TYPE_FLEXIBLE) {
+        if ($type == Room::TYPE_OFFICE || $type == Room::TYPE_DESK) {
             $nowDate = $now->format('Y-m-d');
             $startPeriod = $startDate->format('Y-m-d');
 

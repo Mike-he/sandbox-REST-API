@@ -116,14 +116,10 @@ product_order:
   push_message:
     meeting_start: 您的会议室将在10分钟后开始使用
     meeting_end: 您的会议室将在10分钟后到期
-    studio_start: 您的录音棚将在10分钟后开始使用
-    studio_end: 您的录音棚将在10分钟后到期
-    space_start: 您的活动空间将在10分钟后开始使用
-    space_end: 您的活动空间将在10分钟后到期
-    flexible_start: 您的共享办公桌将在明天开始使用
-    flexible_end: 您的共享办公桌将在明天到期
-    fixed_start: 您的独享办公桌将在明天开始使用
-    fixed_end: 您的独享办公桌将在明天到期
+    others_start: 您的其他订单将在10分钟后开始使用
+    others_end: 您的其他订单将在10分钟后到期
+    desk_start: 您的工位将在明天开始使用
+    desk_end: 您的工位将在明天到期
     office_start: 您的独享办公室将在明天开始使用
     office_end: 您的独享办公室将在7天后到期
     office_reject: 抱歉，您申请的办公室没有通过审核，钱款将在1~3个工作日退回到您的支付账户下

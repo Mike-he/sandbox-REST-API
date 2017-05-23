@@ -2123,7 +2123,7 @@ class ClientOrderController extends OrderController
         $alertArray = [];
 
         if ($status == ProductOrder::STATUS_PAID && !$order->isRejected()) {
-            if ($type == Room::TYPE_MEETING || $type == Room::TYPE_STUDIO || $type == Room::TYPE_SPACE) {
+            if ($type == Room::TYPE_MEETING || $type == Room::TYPE_OTHERS) {
                 $time = clone $now;
                 $time->modify('+10 minutes');
 
@@ -2133,10 +2133,8 @@ class ClientOrderController extends OrderController
 
                     if ($type == Room::TYPE_MEETING) {
                         $keyStart = ProductOrderMessage::MEETING_START_MESSAGE;
-                    } elseif ($type == Room::TYPE_STUDIO) {
-                        $keyStart = ProductOrderMessage::STUDIO_START_MESSAGE;
                     } else {
-                        $keyStart = ProductOrderMessage::SPACE_START_MESSAGE;
+                        $keyStart = ProductOrderMessage::OTHERS_START_MESSAGE;
                     }
                 }
             } else {
@@ -2146,10 +2144,8 @@ class ClientOrderController extends OrderController
                 if ($time >= $startDate) {
                     if ($type == Room::TYPE_OFFICE) {
                         $keyStart = ProductOrderMessage::OFFICE_START_MESSAGE;
-                    } elseif ($type == Room::TYPE_FLEXIBLE) {
-                        $keyStart = ProductOrderMessage::FLEXIBLE_START_MESSAGE;
-                    } elseif ($type == Room::TYPE_FIXED) {
-                        $keyStart = ProductOrderMessage::FIXED_START_MESSAGE;
+                    } elseif ($type == Room::TYPE_DESK) {
+                        $keyStart = ProductOrderMessage::DESK_START_MESSAGE;
                     }
                 }
             }
@@ -2157,7 +2153,7 @@ class ClientOrderController extends OrderController
             !$order->isRejected() &&
             $endDate > $now
         ) {
-            if ($type == Room::TYPE_MEETING || $type == Room::TYPE_STUDIO || $type == Room::TYPE_SPACE) {
+            if ($type == Room::TYPE_MEETING || $type == Room::TYPE_OTHERS) {
                 $time = clone $now;
                 $time->modify('+10 minutes');
 
@@ -2167,10 +2163,8 @@ class ClientOrderController extends OrderController
 
                     if ($type == Room::TYPE_MEETING) {
                         $keyEnd = ProductOrderMessage::MEETING_END_MESSAGE;
-                    } elseif ($type == Room::TYPE_STUDIO) {
-                        $keyEnd = ProductOrderMessage::STUDIO_END_MESSAGE;
                     } else {
-                        $keyEnd = ProductOrderMessage::SPACE_END_MESSAGE;
+                        $keyEnd = ProductOrderMessage::OTHERS_END_MESSAGE;
                     }
                 }
             } elseif ($type == Room::TYPE_OFFICE) {
@@ -2193,10 +2187,8 @@ class ClientOrderController extends OrderController
                 $time->modify('+8 hours');
 
                 if ($time >= $endDate) {
-                    if ($type == Room::TYPE_FLEXIBLE) {
-                        $keyEnd = ProductOrderMessage::FLEXIBLE_END_MESSAGE;
-                    } elseif ($type == Room::TYPE_FIXED) {
-                        $keyEnd = ProductOrderMessage::FIXED_END_MESSAGE;
+                    if ($type == Room::TYPE_DESK) {
+                        $keyEnd = ProductOrderMessage::DESK_END_MESSAGE;
                     }
                 }
             }

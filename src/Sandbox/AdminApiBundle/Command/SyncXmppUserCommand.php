@@ -2,7 +2,6 @@
 
 namespace Sandbox\AdminApiBundle\Command;
 
-use Sandbox\ApiBundle\Entity\Evaluation\Evaluation;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -31,7 +30,7 @@ class SyncXmppUserCommand extends ContainerAwareCommand
         $responseJson = json_decode($response);
         $user->setXmppUsername($responseJson->username);
 
-        $output->writeln('Calculate Evaluation Star Success!');
+        $output->writeln('Sync Success!');
     }
 
     private function createXmppUser(
