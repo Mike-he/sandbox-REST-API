@@ -257,7 +257,7 @@ class ClientEventOrderController extends PaymentController
         }
 
         // check duplication
-        $this->eventOrderDuplicationCheck(
+        $eventOrderCheck = $this->eventOrderDuplicationCheck(
             $em,
             $event->getId(),
             $userId
@@ -292,6 +292,7 @@ class ClientEventOrderController extends PaymentController
         }
 
         $em->persist($order);
+        $em->remove($eventOrderCheck);
         $em->flush();
 
         $view = new View();
@@ -564,5 +565,7 @@ class ClientEventOrderController extends PaymentController
 
             throw new ConflictHttpException(self::ORDER_CONFLICT_MESSAGE);
         }
+
+        return $eventOrderCheck;
     }
 }
