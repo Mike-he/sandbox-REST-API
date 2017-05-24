@@ -104,6 +104,7 @@ class RoomController extends SandboxRestController
         foreach ($typeTags as $tag) {
             array_push($response, array(
                 'id' => $tag->getId(),
+                'tag_key' => $tag->getTagKey(),
                 'tag_name' => $this->container->get('translator')->trans(RoomTypeTags::TRANS_PREFIX.$tag->getTagKey()),
 //                'icon' => $this->getParameter('image_url').$tag->getIcon(),
             ));
