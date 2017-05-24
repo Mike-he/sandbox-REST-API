@@ -83,6 +83,8 @@ class Product
      * @var float
      *
      * @ORM\Column(name="basePrice", type="decimal", precision=10, scale=2, nullable=true)
+     *
+     * @Serializer\Groups({"client"})
      */
     private $basePrice;
 
@@ -90,6 +92,8 @@ class Product
      * @var string
      *
      * @ORM\Column(name="unitPrice", type="string", length=255, nullable=true)
+     *
+     * @Serializer\Groups({"client"})
      */
     private $unitPrice;
 

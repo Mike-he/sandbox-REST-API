@@ -291,12 +291,19 @@ class ClientProductController extends ProductController
                 ->getRepository('SandboxApiBundle:Product\ProductLeasingSet')
                 ->findBy(array('product' => $product));
 
+            $basePrice = [];
             foreach ($productLeasingSets as $productLeasingSet) {
                 $unitPrice = $this->get('translator')
                     ->trans(ProductOrderExport::TRANS_ROOM_UNIT.$productLeasingSet->getUnitPrice());
                 $productLeasingSet->setUnitPrice($unitPrice);
+
+                $basePrice[$unitPrice] = $productLeasingSet->getBasePrice();
             }
             $product->setLeasingSets($productLeasingSets);
+
+            $pos = array_search(min($basePrice), $basePrice);
+            $product->setBasePrice($basePrice[$pos]);
+            $product->setUnitPrice($pos);
 
             $productRentSet = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Product\ProductRentSet')
