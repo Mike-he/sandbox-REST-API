@@ -131,13 +131,15 @@ class ClientProductRecommendController extends ProductController
                 ->getRepository('SandboxApiBundle:Product\ProductLeasingSet')
                 ->findBy(array('product' => $product));
 
-            $product->setLeasingSets($productLeasingSets);
-
             $basePrice = [];
             foreach ($productLeasingSets as $productLeasingSet) {
-                $unitPrice = $productLeasingSet->getUnitPrice();
+                $unitPrice = $this->get('translator')
+                    ->trans(ProductOrderExport::TRANS_ROOM_UNIT.$productLeasingSet->getUnitPrice());
+                $productLeasingSet->setUnitPrice($unitPrice);
+
                 $basePrice[$unitPrice] = $productLeasingSet->getBasePrice();
             }
+            $product->setLeasingSets($productLeasingSets);
 
             $pos = array_search(min($basePrice), $basePrice);
             $product->setBasePrice($basePrice[$pos]);
