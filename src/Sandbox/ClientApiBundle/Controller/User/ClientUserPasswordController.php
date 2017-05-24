@@ -73,12 +73,6 @@ class ClientUserPasswordController extends UserPasswordController
     const ERROR_SAME_PASSWORD_CODE = 400011;
     const ERROR_SAME_PASSWORD_MESSAGE = 'client.account.same_password';
 
-    const ZH_SMS_RESET_PASSWORD_BEFORE = '【展想创合】您正在重置账号密码，如确认是本人行为，请提交以下验证码完成操作：';
-    const ZH_SMS_RESET_PASSWORD_AFTER = '。验证码在10分钟内有效。';
-
-    const EN_SMS_RESET_PASSWORD_BEFORE = '【Sandbox3】Your verification code is ';
-    const EN_SMS_RESET_PASSWORD_AFTER = '.';
-
     /**
      * Forget password submit email or phone.
      *
@@ -378,7 +372,7 @@ class ClientUserPasswordController extends UserPasswordController
         if (!is_null($email)) {
 
             // send verification URL to email
-            $subject = '【展想创合】'.$this->before('@', $email).'，您正在重置账号密码。';
+            $subject = '【创合秒租】'.$this->before('@', $email).'，您正在重置账号密码。';
             $this->sendEmail($subject, $email, $this->before('@', $email),
                 'Emails/forget_password_email_verification.html.twig',
                 array(
@@ -388,11 +382,11 @@ class ClientUserPasswordController extends UserPasswordController
         } else {
             if (UserPhoneCode::DEFAULT_PHONE_CODE == $phoneCode) {
                 // sms verification code to phone
-                $smsText = self::ZH_SMS_RESET_PASSWORD_BEFORE
-                    .$forgetPassword->getCode().self::ZH_SMS_RESET_PASSWORD_AFTER;
+                $smsText = self::ZH_SMS_BEFORE
+                    .$forgetPassword->getCode().self::ZH_SMS_AFTER;
             } else {
-                $smsText = self::EN_SMS_RESET_PASSWORD_BEFORE
-                    .$forgetPassword->getCode().self::EN_SMS_RESET_PASSWORD_AFTER;
+                $smsText = self::EN_SMS_BEFORE
+                    .$forgetPassword->getCode().self::EN_SMS_AFTER;
             }
 
             $this->send_sms($phone, $smsText);
