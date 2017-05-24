@@ -56,6 +56,8 @@ class AdminRoomTypeController extends SalesRestController
             ->getRepository('SandboxApiBundle:Room\RoomTypes')
             ->getTypesByKeys($typeKeys);
 
+        $imageUrl = $this->getParameter('image_url');
+
         // translate
         foreach ($types as $type) {
             $typeText = $this->get('translator')->trans(
@@ -65,6 +67,9 @@ class AdminRoomTypeController extends SalesRestController
                 $request->getPreferredLanguage()
             );
             $type->setDescription($typeText);
+
+            $type->setIcon($imageUrl.$type->getIcon());
+            $type->setHomepageIcon($imageUrl.$type->getHomepageIcon());
         }
 
         $view = new View($types);
