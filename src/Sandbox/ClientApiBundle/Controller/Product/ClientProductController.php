@@ -267,16 +267,7 @@ class ClientProductController extends ProductController
         foreach ($products as $product) {
             $room = $product->getRoom();
             $type = $room->getType();
-
-            if ($room->getTypeTag() == 'dedicated_desk') {
-                $price = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:Room\RoomFixed')
-                    ->getFixedSeats($room);
-
-                if (!is_null($price)) {
-                    $product->setBasePrice($price);
-                }
-            }
+            $tag = $room->getTypeTag();
 
             $typeDescription = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$type);
             $room->setTypeDescription($typeDescription);
@@ -301,9 +292,19 @@ class ClientProductController extends ProductController
             }
             $product->setLeasingSets($productLeasingSets);
 
-            $pos = array_search(min($basePrice), $basePrice);
-            $product->setBasePrice($basePrice[$pos]);
-            $product->setUnitPrice($pos);
+            if ($type == Room::TYPE_DESK && $tag == Room::TAG_DEDICATED_DESK) {
+                $price = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomFixed')
+                    ->getFixedSeats($room);
+                if (!is_null($price)) {
+                    $product->setBasePrice($price);
+                    $product->setUnitPrice($unitPrice);
+                }
+            } else {
+                $pos = array_search(min($basePrice), $basePrice);
+                $product->setBasePrice($basePrice[$pos]);
+                $product->setUnitPrice($pos);
+            }
 
             $productRentSet = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Product\ProductRentSet')

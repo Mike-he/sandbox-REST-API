@@ -176,16 +176,7 @@ class ClientUserFavoriteController extends LocationController
 
                     $room = $product->getRoom();
                     $roomType = $room->getType();
-
-                    if ($roomType == Room::TYPE_DESK) {
-                        $price = $this->getDoctrine()
-                            ->getRepository('SandboxApiBundle:Room\RoomFixed')
-                            ->getFixedSeats($room);
-
-                        if (!is_null($price)) {
-                            $product->setBasePrice($price);
-                        }
-                    }
+                    $typeTag = $room->getTypeTag();
 
                     $type = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$roomType);
                     $room->setTypeDescription($type);
@@ -204,10 +195,19 @@ class ClientUserFavoriteController extends LocationController
                     }
                     $product->setLeasingSets($productLeasingSets);
 
-                    $pos = array_search(min($basePrice), $basePrice);
-                    $product->setBasePrice($basePrice[$pos]);
-                    $product->setUnitPrice($pos);
-
+                    if ($roomType == Room::TYPE_DESK && $typeTag == Room::TAG_DEDICATED_DESK) {
+                        $price = $this->getDoctrine()
+                            ->getRepository('SandboxApiBundle:Room\RoomFixed')
+                            ->getFixedSeats($room);
+                        if (!is_null($price)) {
+                            $product->setBasePrice($price);
+                            $product->setUnitPrice($unitPrice);
+                        }
+                    } else {
+                        $pos = array_search(min($basePrice), $basePrice);
+                        $product->setBasePrice($basePrice[$pos]);
+                        $product->setUnitPrice($pos);
+                    }
                     $productRentSet = $this->getDoctrine()
                         ->getRepository('SandboxApiBundle:Product\ProductRentSet')
                         ->findOneBy(array('product' => $product));

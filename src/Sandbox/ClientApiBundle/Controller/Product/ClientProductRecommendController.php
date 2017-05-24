@@ -122,6 +122,7 @@ class ClientProductRecommendController extends ProductController
 
         foreach ($products as $product) {
             $room = $product->getRoom();
+            $type = $room->getType();
             $typeTag = $room->getTypeTag();
             if (!is_null($typeTag)) {
                 $typeTagDescription = $this->get('translator')->trans(RoomTypeTags::TRANS_PREFIX.$typeTag);
@@ -142,9 +143,19 @@ class ClientProductRecommendController extends ProductController
             }
             $product->setLeasingSets($productLeasingSets);
 
-            $pos = array_search(min($basePrice), $basePrice);
-            $product->setBasePrice($basePrice[$pos]);
-            $product->setUnitPrice($pos);
+            if ($type == Room::TYPE_DESK && $typeTag == Room::TAG_DEDICATED_DESK) {
+                $price = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomFixed')
+                    ->getFixedSeats($room);
+                if (!is_null($price)) {
+                    $product->setBasePrice($price);
+                    $product->setUnitPrice($unitPrice);
+                }
+            } else {
+                $pos = array_search(min($basePrice), $basePrice);
+                $product->setBasePrice($basePrice[$pos]);
+                $product->setUnitPrice($pos);
+            }
 
             $productRentSet = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Product\ProductRentSet')
