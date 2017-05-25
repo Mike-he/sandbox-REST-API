@@ -629,7 +629,28 @@ class ClientOrderController extends OrderController
                 ->getRepository('SandboxApiBundle:Product\Product')
                 ->find($productId);
 
+            // check if start is in remove dates
             $startDate = new \DateTime($order->getStartDate());
+            $building = $product->getRoom()->getBuilding();
+            $removeDates = $building->getRemoveDates();
+
+            if (!is_null($removeDates) && !empty($removeDates)) {
+                $key = $startDate->format('Y-m');
+                $value = $startDate->format('d');
+
+                if (array_key_exists($key, $removeDates)) {
+                    foreach ($removeDates[$key] as $removeDate) {
+                        var_dump(0);
+                        if ($removeDate == $value) {
+                            return $this->customErrorView(
+                                400,
+                                self::PRODUCT_NOT_AVAILABLE_CODE,
+                                self::PRODUCT_NOT_AVAILABLE_MESSAGE
+                            );
+                        }
+                    }
+                }
+            }
 
             // check product
             $error = $this->checkIfProductAvailable(

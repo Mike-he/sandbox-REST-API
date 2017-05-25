@@ -145,7 +145,7 @@ class Room
      * @var string
      *
      * @ORM\Column(name="type_tag", type="string", length=64, nullable=true)
-     * 
+     *
      * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "current_order", "client_appointment_detail"})
      */
     private $typeTag;
