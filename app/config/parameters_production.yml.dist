@@ -105,6 +105,8 @@ parameters:
     rest_api_local_url: localhost.api.rest
     top_level_domain: sandbox3.cn
     jpush_apns_option: true
+
+    image_hostname: https://image.sandbox3.cn
     image_url: https://image.sandbox3.cn
     file_server_url: https://xmpp.sandbox3.cn/plugins/fileServer/fileservice
     rest_file_server_url: https://rest.sandbox3.cn/plugins/fileServer/fileservice
