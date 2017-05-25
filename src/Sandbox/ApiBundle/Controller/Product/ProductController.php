@@ -262,13 +262,14 @@ class ProductController extends SalesRestController
 
         $product->setRentSet($productRentSet);
 
-        // set collection method
         if ($type == Room::TYPE_OFFICE && empty($productLeasingSets) && !is_null($productRentSet)) {
             $product->setBasePrice($productRentSet->getBasePrice());
             $product->setUnitPrice($productRentSet->getUnitPrice());
+        }
 
+        // set collection method
+        if ($type == Room::TYPE_OFFICE && !is_null($productRentSet)) {
             $company = $room->getBuilding()->getCompany();
-
             $service = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
                 ->findOneBy(array(
