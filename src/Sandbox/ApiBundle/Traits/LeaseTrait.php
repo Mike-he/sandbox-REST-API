@@ -168,14 +168,11 @@ trait LeaseTrait
         $dir = '/data/openfire/image';
         $avatar = $dir.'/person/'.$userId.'/avatar_small.jpg';
 
-        if (file_exists($avatar)) {
-            $imageDomain = $this->container->getParameter('image_hostname');
-            $avatarUrl = $imageDomain.'/person/'.$userId.'/avatar_small.jpg';
-        } else {
-            $avatarUrl = 'https://property.sandbox3.cn/img/head.png';
+        if (!file_exists($avatar)) {
+            $avatar = 'https://property.sandbox3.cn/img/head.png';
         }
 
-        return $avatarUrl;
+        return $avatar;
     }
 
     /**
