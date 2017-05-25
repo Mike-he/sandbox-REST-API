@@ -495,8 +495,13 @@ class AdminProductController extends ProductController
         $product->setModificationDate($now);
 
         $this->handleLeasingSetsPost($leasingSets, $product);
-        $this->handleRentSetPost($rentSet, $product);
-        $this->handleRentTypesPost($rentTypeIds, $product);
+
+        if (!empty($rentSet)) {
+            if ($rentSet['status'] == 1) {
+                $this->handleRentSetPost($rentSet, $product);
+                $this->handleRentTypesPost($rentTypeIds, $product);
+            }
+        }
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($product);
@@ -627,8 +632,20 @@ class AdminProductController extends ProductController
         );
 
         $this->handleLeasingSetsPut($leasingSets, $product);
-        $this->handleRentSetPut($rentSet, $product);
-        $this->handleRentTypesPut($rentTypeIds, $product);
+
+        if (!empty($rentSet)) {
+            if ($rentSet['status'] == 1) {
+                $this->handleRentSetPut($rentSet, $product);
+                $this->handleRentTypesPut($rentTypeIds, $product);
+            } else {
+                $productRentSet = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Product\ProductRentSet')
+                    ->findOneBy(array('product' => $product));
+                if ($productRentSet) {
+                    $productRentSet->setStatus(0);
+                }
+            }
+        }
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();
@@ -916,51 +933,48 @@ class AdminProductController extends ProductController
         $rentSet,
         $product
     ) {
-        if (!empty($rentSet)) {
-            $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager();
 
-            $earliestRendDate = new \DateTime($rentSet['earliest_rent_date']);
+        $earliestRendDate = new \DateTime($rentSet['earliest_rent_date']);
 
-            $earliestRendDate->setTime(00, 00, 00);
+        $earliestRendDate->setTime(00, 00, 00);
 
-            $productRentSet = new ProductRentSet();
-            $productRentSet->setProduct($product);
-            $productRentSet->setBasePrice($rentSet['base_price']);
-            $productRentSet->setUnitPrice($rentSet['unit_price']);
-            $productRentSet->setEarliestRentDate($earliestRendDate);
-            $productRentSet->setDeposit($rentSet['deposit']);
-            $productRentSet->setRentalInfo($rentSet['rental_info']);
-            $productRentSet->setFilename($rentSet['filename']);
-            $em->persist($productRentSet);
-        }
+        $productRentSet = new ProductRentSet();
+        $productRentSet->setProduct($product);
+        $productRentSet->setBasePrice($rentSet['base_price']);
+        $productRentSet->setUnitPrice($rentSet['unit_price']);
+        $productRentSet->setEarliestRentDate($earliestRendDate);
+        $productRentSet->setDeposit($rentSet['deposit']);
+        $productRentSet->setRentalInfo($rentSet['rental_info']);
+        $productRentSet->setFilename($rentSet['filename']);
+        $em->persist($productRentSet);
     }
 
     private function handleRentSetPut(
         $rentSet,
         $product
     ) {
-        if (!empty($rentSet)) {
-            $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager();
 
-            $earliestRendDate = new \DateTime($rentSet['earliest_rent_date']);
+        $earliestRendDate = new \DateTime($rentSet['earliest_rent_date']);
 
-            $earliestRendDate->setTime(00, 00, 00);
+        $earliestRendDate->setTime(00, 00, 00);
 
-            $productRentSet = $em->getRepository('SandboxApiBundle:Product\ProductRentSet')
-                ->findOneBy(array('product' => $product));
+        $productRentSet = $em->getRepository('SandboxApiBundle:Product\ProductRentSet')
+            ->findOneBy(array('product' => $product));
 
-            if (is_null($productRentSet)) {
-                $productRentSet = new ProductRentSet();
-                $productRentSet->setProduct($product);
-            }
-
-            $productRentSet->setBasePrice($rentSet['base_price']);
-            $productRentSet->setUnitPrice($rentSet['unit_price']);
-            $productRentSet->setEarliestRentDate($earliestRendDate);
-            $productRentSet->setDeposit($rentSet['deposit']);
-            $productRentSet->setRentalInfo($rentSet['rental_info']);
-            $productRentSet->setFilename($rentSet['filename']);
-            $em->persist($productRentSet);
+        if (is_null($productRentSet)) {
+            $productRentSet = new ProductRentSet();
+            $productRentSet->setProduct($product);
         }
+
+        $productRentSet->setBasePrice($rentSet['base_price']);
+        $productRentSet->setUnitPrice($rentSet['unit_price']);
+        $productRentSet->setEarliestRentDate($earliestRendDate);
+        $productRentSet->setDeposit($rentSet['deposit']);
+        $productRentSet->setRentalInfo($rentSet['rental_info']);
+        $productRentSet->setFilename($rentSet['filename']);
+        $productRentSet->setStatus(1);
+        $em->persist($productRentSet);
     }
 }

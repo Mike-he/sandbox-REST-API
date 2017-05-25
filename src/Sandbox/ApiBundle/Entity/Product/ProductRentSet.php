@@ -90,6 +90,15 @@ class ProductRentSet
     private $filename;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="status", type="boolean")
+     *
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "client_appointment_detail"})
+     */
+    private $status = true;
+
+    /**
      * @var \DateTime
      *
      * @Gedmo\Timestampable(on="create")
@@ -257,5 +266,21 @@ class ProductRentSet
     public function setModificationDate($modificationDate)
     {
         $this->modificationDate = $modificationDate;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isStatus()
+    {
+        return $this->status;
+    }
+
+    /**
+     * @param bool $status
+     */
+    public function setStatus($status)
+    {
+        $this->status = $status;
     }
 }
