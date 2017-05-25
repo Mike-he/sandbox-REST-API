@@ -10,7 +10,7 @@ use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-class Version920170519055822 extends AbstractMigration implements ContainerAwareInterface
+class Version920170519055823 extends AbstractMigration implements ContainerAwareInterface
 {
     use ContainerAwareTrait;
 
@@ -35,8 +35,10 @@ class Version920170519055822 extends AbstractMigration implements ContainerAware
 
             switch ($typeKey) {
                 case 'meeting':
+                    $room->setTypeTag('boardroom');
                     break;
                 case 'office':
+                    $room->setTypeTag('team_office');
                     break;
                 case 'fixed':
                     $room->setType('desk');
@@ -48,12 +50,15 @@ class Version920170519055822 extends AbstractMigration implements ContainerAware
                     break;
                 case 'studio':
                     $room->setType('others');
+                    $room->setTypeTag('multi_function_room');
                     break;
                 case 'space':
                     $room->setType('others');
+                    $room->setTypeTag('multi_function_room');
                     break;
                 case 'longterm':
                     $room->setType('office');
+                    $room->setTypeTag('boardroom');
                     break;
             }
 

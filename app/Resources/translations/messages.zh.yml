@@ -43,9 +43,9 @@ room:
     team_office: 团队办公室
     office_suite: 完整办公套间
     open_office: 半开敞办公室
-    boardroom: 会议桌布局
-    u_shape: U形桌布局
-    classroom: 教室布局
+    boardroom: 标准会议室
+    u_shape: U-形桌布局
+    classroom: 教室
     open_meeting_space: 半开放会议区
     hot_desk: 共享工位
     dedicated_desk: 固定工位
