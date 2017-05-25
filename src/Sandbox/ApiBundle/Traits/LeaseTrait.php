@@ -165,15 +165,17 @@ trait LeaseTrait
     private function generateAvatarUrl(
         $userId
     ) {
-        $imageDomain = $this->container->getParameter('image_url');
-        $supervisorAvatarUrl = $imageDomain.'/person/'.$userId.'/avatar_small.jpg';
-        $ch = curl_init($supervisorAvatarUrl);
-        $this->callAPI($ch, 'GET');
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $dir = '/data/openfire/image';
+        $avatar = $dir.'/person/'.$userId.'/avatar_small.jpg';
 
-        if ($httpCode == '404') {
-            return 'https://property.sandbox3.cn/img/head.png';
+        if (file_exists($avatar)) {
+            $imageDomain = $this->container->getParameter('image_hostname');
+            $avatarUrl = $imageDomain.'/person/'.$userId.'/avatar_small.jpg';
+        } else {
+            $avatarUrl = 'https://property.sandbox3.cn/img/head.png';
         }
+
+        return $avatarUrl;
     }
 
     /**
