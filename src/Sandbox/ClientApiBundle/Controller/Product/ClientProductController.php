@@ -8,6 +8,8 @@ use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\Room\RoomTypes;
 use Sandbox\ApiBundle\Entity\Room\RoomTypeTags;
+use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
+use Sandbox\ApiBundle\Form\Room\RoomType;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
@@ -265,52 +267,7 @@ class ClientProductController extends ProductController
         }
 
         foreach ($products as $product) {
-            $room = $product->getRoom();
-            $type = $room->getType();
-            $tag = $room->getTypeTag();
-
-            $typeDescription = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$type);
-            $room->setTypeDescription($typeDescription);
-
-            $typeTag = $room->getTypeTag();
-            if (!is_null($typeTag)) {
-                $typeTagDescription = $this->get('translator')->trans(RoomTypeTags::TRANS_PREFIX.$typeTag);
-                $room->setTypeTagDescription($typeTagDescription);
-            }
-
-            $productLeasingSets = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Product\ProductLeasingSet')
-                ->findBy(array('product' => $product));
-
-            $basePrice = [];
-            foreach ($productLeasingSets as $productLeasingSet) {
-                $unitPrice = $this->get('translator')
-                    ->trans(ProductOrderExport::TRANS_ROOM_UNIT.$productLeasingSet->getUnitPrice());
-                $productLeasingSet->setUnitPrice($unitPrice);
-
-                $basePrice[$unitPrice] = $productLeasingSet->getBasePrice();
-            }
-            $product->setLeasingSets($productLeasingSets);
-
-            if ($type == Room::TYPE_DESK && $tag == Room::TAG_DEDICATED_DESK) {
-                $price = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:Room\RoomFixed')
-                    ->getFixedSeats($room);
-                if (!is_null($price)) {
-                    $product->setBasePrice($price);
-                    $product->setUnitPrice($unitPrice);
-                }
-            } else {
-                $pos = array_search(min($basePrice), $basePrice);
-                $product->setBasePrice($basePrice[$pos]);
-                $product->setUnitPrice($pos);
-            }
-
-            $productRentSet = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Product\ProductRentSet')
-                ->findOneBy(array('product' => $product));
-
-            $product->setRentSet($productRentSet);
+            $this->generateProductInfo($product);
         }
 
         $view = new View();
