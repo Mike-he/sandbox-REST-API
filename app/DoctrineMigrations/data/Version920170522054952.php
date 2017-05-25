@@ -45,6 +45,7 @@ class Version920170522054952 extends AbstractMigration implements ContainerAware
                     $productRentSet->setDeposit($product->getDeposit());
                     $productRentSet->setRentalInfo($product->getRentalInfo());
                     $productRentSet->setFilename($product->getFilename());
+                    $productRentSet->setStatus(1);
                     $em->persist($productRentSet);
                 }
             }
