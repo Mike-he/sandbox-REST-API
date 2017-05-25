@@ -94,8 +94,6 @@ class RoomBuildingPostType extends AbstractType
                 )
             )
             ->add('property_type_id')
-            ->add('remove_saturday')
-            ->add('remove_sunday')
             ->add('remove_dates')
         ;
     }

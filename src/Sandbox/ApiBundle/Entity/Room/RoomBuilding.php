@@ -685,25 +685,9 @@ class RoomBuilding implements JsonSerializable
     private $propertyType;
 
     /**
-     * @var bool
-     *
-     * @ORM\Column(name="remove_saturday", type="boolean", options={"default": false})
-     * @Serializer\Groups({"main", "admin_building", "client"})
-     */
-    private $removeSaturday = false;
-
-    /**
-     * @var bool
-     *
-     * @ORM\Column(name="remove_sunday", type="boolean", options={"default": false})
-     * @Serializer\Groups({"main", "admin_building", "client"})
-     */
-    private $removeSunday = false;
-
-    /**
      * @var array
      *
-     * @ORM\Column(name="remove_dates", type="simple_array", nullable=true)
+     * @ORM\Column(name="remove_dates", type="json_array", nullable=true)
      * @Serializer\Groups({"main", "admin_building", "client"})
      */
     private $removeDates;
@@ -716,38 +700,6 @@ class RoomBuilding implements JsonSerializable
     public function getId()
     {
         return $this->id;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isRemoveSaturday()
-    {
-        return $this->removeSaturday;
-    }
-
-    /**
-     * @param bool $removeSaturday
-     */
-    public function setRemoveSaturday($removeSaturday)
-    {
-        $this->removeSaturday = $removeSaturday;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isRemoveSunday()
-    {
-        return $this->removeSunday;
-    }
-
-    /**
-     * @param bool $removeSunday
-     */
-    public function setRemoveSunday($removeSunday)
-    {
-        $this->removeSunday = $removeSunday;
     }
 
     /**
