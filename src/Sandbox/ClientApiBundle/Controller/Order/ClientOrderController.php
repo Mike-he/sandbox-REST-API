@@ -640,7 +640,6 @@ class ClientOrderController extends OrderController
 
                 if (array_key_exists($key, $removeDates)) {
                     foreach ($removeDates[$key] as $removeDate) {
-                        var_dump(0);
                         if ($removeDate == $value) {
                             return $this->customErrorView(
                                 400,
