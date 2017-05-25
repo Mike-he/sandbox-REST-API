@@ -263,8 +263,11 @@ class ProductController extends SalesRestController
         $product->setRentSet($productRentSet);
 
         if ($type == Room::TYPE_OFFICE && empty($productLeasingSets) && !is_null($productRentSet)) {
+            $unitPrice = $this->get('translator')
+                ->trans(ProductOrderExport::TRANS_ROOM_UNIT.$productRentSet->getUnitPrice());
+
             $product->setBasePrice($productRentSet->getBasePrice());
-            $product->setUnitPrice($productRentSet->getUnitPrice());
+            $product->setUnitPrice($unitPrice);
         }
 
         // set collection method
