@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Form\Room;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
@@ -93,6 +94,9 @@ class RoomBuildingPostType extends AbstractType
                 )
             )
             ->add('property_type_id')
+            ->add('remove_saturday')
+            ->add('remove_sunday')
+            ->add('remove_dates')
         ;
     }
 

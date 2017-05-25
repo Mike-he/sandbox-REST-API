@@ -87,6 +87,9 @@ class RoomBuildingPutType extends AbstractType
             ->add('community_manager_name')
             ->add('customer_services')
             ->add('property_type_id')
+            ->add('remove_saturday')
+            ->add('remove_sunday')
+            ->add('remove_dates')
         ;
     }
 
