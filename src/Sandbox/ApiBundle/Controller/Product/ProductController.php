@@ -79,6 +79,12 @@ class ProductController extends SalesRestController
 
         $product->setRentSet($productRentSet);
 
+        $building = $room->getBuilding();
+        $removeDates = $building->getRemoveDatesInfo();
+        if (!is_null($removeDates) && !empty($removeDates)) {
+            $building->setRemoveDates(json_decode($removeDates, true));
+        }
+
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
         $view->setData($product);

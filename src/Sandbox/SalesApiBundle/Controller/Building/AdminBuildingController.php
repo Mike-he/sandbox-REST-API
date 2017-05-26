@@ -774,6 +774,7 @@ class AdminBuildingController extends LocationController
         $buildingAttachments = $building->getBuildingAttachments();
         $buildingCompany = $building->getBuildingCompany();
         $customerServicesIds = $building->getCustomerServices();
+        $removeDates = $building->getRemoveDates();
 
         $salesCompany = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
@@ -845,11 +846,13 @@ class AdminBuildingController extends LocationController
         );
 
         // add customer services
-        $this->addCustomerService(
-            $building,
-            $customerServicesIds,
-            $em
-        );
+//        $this->addCustomerService(
+//            $building,
+//            $customerServicesIds,
+//            $em
+//        );
+
+        $building = $this->addRemoveDates($building, $removeDates);
 
         $em->flush();
 
@@ -860,6 +863,23 @@ class AdminBuildingController extends LocationController
         );
 
         return new View($response);
+    }
+
+    /**
+     * @param $building
+     * @param $removeDates
+     * @return mixed
+     */
+    private function addRemoveDates(
+        $building,
+        $removeDates
+    ) {
+        if (!is_null($removeDates) && !empty($removeDates)) {
+            $removeDatesArray = json_encode($removeDates, true);
+            $building->setRemoveDatesInfo($removeDatesArray);
+        }
+
+        return $building;
     }
 
     /**
@@ -879,6 +899,7 @@ class AdminBuildingController extends LocationController
         $buildingAttachments = $building->getBuildingAttachments();
         $buildingCompany = $building->getBuildingCompany();
         $buildingServices = $building->getBuildingServices();
+        $removeDates = $building->getRemoveDates();
 
         // check city
         $roomCity = !is_null($building->getCityId()) ?
@@ -983,6 +1004,8 @@ class AdminBuildingController extends LocationController
             $building,
             $em
         );
+
+        $building = $this->addRemoveDates($building, $removeDates);
 
         $em->flush();
 

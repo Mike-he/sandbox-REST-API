@@ -8,7 +8,7 @@ use Doctrine\DBAL\Schema\Schema;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-class Version20170525023327 extends AbstractMigration
+class Version20170525023328 extends AbstractMigration
 {
     /**
      * @param Schema $schema
@@ -18,7 +18,7 @@ class Version20170525023327 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE room_building ADD remove_saturday TINYINT(1) DEFAULT \'0\' NOT NULL, ADD remove_sunday TINYINT(1) DEFAULT \'0\' NOT NULL, ADD remove_dates LONGTEXT DEFAULT NULL COMMENT \'(DC2Type:simple_array)\'');
+        $this->addSql('ALTER TABLE room_building ADD remove_dates_info LONGTEXT DEFAULT NULL');
     }
 
     /**
@@ -29,6 +29,6 @@ class Version20170525023327 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE room_building DROP remove_saturday, DROP remove_sunday, DROP remove_dates');
+        $this->addSql('ALTER TABLE room_building, DROP remove_dates_info');
     }
 }

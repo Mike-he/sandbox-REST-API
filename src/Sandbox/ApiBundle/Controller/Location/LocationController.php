@@ -699,6 +699,11 @@ class LocationController extends SalesRestController
             ]);
         }
 
+        $removeDates = $building->getRemoveDatesInfo();
+        if (!is_null($removeDates) && !empty($removeDates)) {
+            $building->setRemoveDates(json_decode($removeDates, true));
+        }
+
         return $building;
     }
 
