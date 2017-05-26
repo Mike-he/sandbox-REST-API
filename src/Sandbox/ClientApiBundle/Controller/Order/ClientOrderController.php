@@ -603,6 +603,7 @@ class ClientOrderController extends OrderController
     public function createOrdersAction(
         Request $request
     ) {
+        $language = $request->getPreferredLanguage();
         $em = $this->getDoctrine()->getManager();
         $orderCheck = null;
         $now = new \DateTime();
@@ -831,7 +832,8 @@ class ClientOrderController extends OrderController
             $this->storeRoomRecord(
                 $em,
                 $order,
-                $product
+                $product,
+                $language
             );
 
             // set sales user
