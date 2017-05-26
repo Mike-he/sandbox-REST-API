@@ -518,13 +518,12 @@ class LocationController extends SalesRestController
             ->findOneBy(array('key' => 'quick_booking'));
 
         $tmpUrl = $quickBooking->getValue().'buildingid='.$building->getId().'&btype=';
-
+        $imageUrl = $this->getParameter('image_url');
         foreach ($types as $type) {
             $typeText = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$type->getName());
             $type->setDescription($typeText);
-
-            $url = $tmpUrl.$type->getName();
-            $type->setQuickBookingUrl($url);
+            $type->setIcon($imageUrl.$type->getIcon());
+            $type->setQuickBookingUrl($tmpUrl.$type->getName());
         }
         $building->setBuildingRoomTypes($types);
 
