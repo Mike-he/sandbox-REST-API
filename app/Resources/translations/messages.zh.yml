@@ -273,6 +273,7 @@ client:
     my_invoice: 我的发票
     my_membership_card: 我的会员卡
     reset_password: 重置密码
+    payment_password: 支付密码
     email: 绑定邮箱
     phone: 绑定手机
     about_us: 关于创合秒租

@@ -274,6 +274,7 @@ client:
     my_invoice: My Invoice
     my_membership_card: Membership Card
     reset_password: Reset Password
+    payment_password: Payment Password
     email: Email
     phone: Phone
     about_us: About Us
