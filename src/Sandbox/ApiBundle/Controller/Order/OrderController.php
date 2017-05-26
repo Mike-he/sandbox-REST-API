@@ -311,13 +311,15 @@ class OrderController extends PaymentController
     ) {
         $orderCheck = null;
         try {
-            if ($type == Room::TYPE_FLEXIBLE) {
+            if ($type == Room::TYPE_DESK) {
                 //check if flexible room is full before order creation
-                $orderCount = $this->getRepo('Order\ProductOrder')->checkFlexibleForClient(
-                    $productId,
-                    $startDate,
-                    $endDate
-                );
+                $orderCount = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Order\ProductOrder')
+                    ->checkFlexibleForClient(
+                        $productId,
+                        $startDate,
+                        $endDate
+                    );
 
                 if ($allowedPeople <= $orderCount) {
                     throw new ConflictHttpException(self::ORDER_CONFLICT_MESSAGE);

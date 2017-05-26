@@ -788,9 +788,8 @@ class ClientOrderController extends OrderController
                     $error['message']
                 );
             }
-
-            $reject = $product->getRoom()->isRejected();
-            if ($reject && Room::TYPE_OFFICE == $type) {
+            
+            if (Room::TYPE_OFFICE == $type) {
                 $order->setRejected(true);
             }
 
