@@ -32,7 +32,7 @@ class ClientUserPaymentCheckController extends SandboxRestController
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/payment/check_code/submit")
-     * @Method({"POST"})
+     * @Method({"GET"})
      *
      * @return View
      */
