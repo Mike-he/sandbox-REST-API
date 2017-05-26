@@ -7,13 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * User registration.
  *
- * @ORM\Table(
- *      name="user_check_codes",
- *      uniqueConstraints={
- *          @ORM\UniqueConstraint(name="phone_and_phone_code_UNIQUE", columns={"phone", "phoneCode"}),
- *          @ORM\UniqueConstraint(name="email_UNIQUE", columns={"email"})
- *      }
- * )
+ * @ORM\Table(name="user_check_codes")
  * @ORM\Entity
  */
 class UserCheckCode
