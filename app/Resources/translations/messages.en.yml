@@ -303,6 +303,9 @@ client:
     email_already_used: Email address already used.
   payment_check:
     invalid_verification: Invalid Verification
+    password_first_error: Wrong password, you still have 2 times.
+    password_second_error: Wrong password, you still have 1 times.
+    lock_error: Your password is locked for 3 hours. You also can unlock it by resetting password.
 
 event_order:
   status:

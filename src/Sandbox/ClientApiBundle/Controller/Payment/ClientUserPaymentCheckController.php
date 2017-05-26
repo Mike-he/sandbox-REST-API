@@ -8,6 +8,7 @@ use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\User\UserCheckCode;
 use Sandbox\ApiBundle\Entity\User\UserPayment;
+use Sandbox\ApiBundle\Entity\User\UserPaymentValidationCheck;
 use Sandbox\ApiBundle\Entity\User\UserPhoneCode;
 use Sandbox\ApiBundle\Traits\StringUtil;
 use Sandbox\ApiBundle\Traits\YunPianSms;
@@ -27,8 +28,17 @@ class ClientUserPaymentCheckController extends SandboxRestController
     const ERROR_INVALID_VERIFICATION_CODE = '400001';
     const ERROR_INVALID_VERIFICATION_MESSAGE = 'client.payment_check.invalid_verification';
 
+    const ERROR_PASSWORD_FIRST_TIME_CODE = '400002';
+    const ERROR_PASSWORD_FIRST_TIME_MESSAGE = 'client.payment_check.password_first_error';
+
+    const ERROR_PASSWORD_SECOND_TIME_CODE = '400003';
+    const ERROR_PASSWORD_SECOND_TIME_MESSAGE = 'client.payment_check.password_second_error';
+
+    const ERROR_PASSWORD_LOCK_CODE = '400004';
+    const ERROR_PASSWORD_LOCK_MESSAGE = 'client.payment_check.lock_error';
+
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/payment/check_code/submit")
@@ -47,16 +57,16 @@ class ClientUserPaymentCheckController extends SandboxRestController
         $userCheckCode = $this->saveUserCheckCode($userId, $em);
 
         // send verification code by sms
-        $this->sendSMSNotification(
+        $recipient = $this->sendSMSNotification(
             $userId,
             $userCheckCode
         );
 
-        return new View();
+        return new View($recipient);
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/payment/check_code/verify")
@@ -81,7 +91,7 @@ class ClientUserPaymentCheckController extends SandboxRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/payment/check_my")
@@ -112,6 +122,93 @@ class ClientUserPaymentCheckController extends SandboxRestController
             'has_payment_password' => true,
             'has_touch_id' => $userPayment->getTouchId(),
         ));
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/payment/password_check")
+     * @Method({"POST"})
+     *
+     * @return View
+     */
+    public function checkUserPaymentPasswordAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $userId = $this->getUserId();
+
+        $data = json_decode($request->getContent(), true);
+        if (!array_key_exists('password', $data)) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $userPayment = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserPayment')
+            ->findOneBy(array(
+                'userId' => $userId,
+            ));
+
+        if (is_null($userPayment)) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        if ($userPayment->getPassword() == $data['password']) {
+            return new View();
+        }
+
+        $em = $this->getDoctrine()->getManager();
+
+        $userPaymentValidationCheck = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserPaymentValidationCheck')
+            ->findOneBy(array(
+                'userId' => $userId,
+            ));
+
+        if (is_null($userPaymentValidationCheck)) {
+            $userPaymentValidationCheck = new UserPaymentValidationCheck();
+            $userPaymentValidationCheck->setUserId($userId);
+
+            $em->persist($userPaymentValidationCheck);
+        }
+
+        $now = new \DateTime('now');
+        $validationDate = $userPaymentValidationCheck->getModificationDate()->modify('+3 hour');
+
+        if ($now > $validationDate) {
+            $userPaymentValidationCheck->setValidationFailsCount(0);
+            $em->flush();
+        }
+
+        $counts = $userPaymentValidationCheck->getValidationFailsCount();
+        if ($counts == 0) {
+            $currentValidationCounts = $counts + 1;
+            $userPaymentValidationCheck->setValidationFailsCount($currentValidationCounts);
+            $em->flush();
+
+            return $this->customErrorView(
+                400,
+                self::ERROR_PASSWORD_FIRST_TIME_CODE,
+                self::ERROR_PASSWORD_FIRST_TIME_MESSAGE
+            );
+        } elseif ($counts == 1) {
+            $currentValidationCounts = $counts + 1;
+            $userPaymentValidationCheck->setValidationFailsCount($currentValidationCounts);
+            $em->flush();
+
+            return $this->customErrorView(
+                400,
+                self::ERROR_PASSWORD_SECOND_TIME_CODE,
+                self::ERROR_PASSWORD_SECOND_TIME_MESSAGE
+            );
+        } elseif ($counts == 2) {
+            return $this->customErrorView(
+                400,
+                self::ERROR_PASSWORD_LOCK_CODE,
+                self::ERROR_PASSWORD_LOCK_MESSAGE
+            );
+        }
     }
 
     /**
@@ -184,7 +281,7 @@ class ClientUserPaymentCheckController extends SandboxRestController
     }
 
     /**
-     * @param integer       $userId
+     * @param int           $userId
      * @param EntityManager $em
      *
      * @return object|UserCheckCode
@@ -222,8 +319,10 @@ class ClientUserPaymentCheckController extends SandboxRestController
     }
 
     /**
-     * @param integer       $userId
+     * @param int           $userId
      * @param UserCheckCode $userCheckCode
+     *
+     * @return array
      */
     private function sendSMSNotification(
         $userId,
@@ -248,6 +347,11 @@ class ClientUserPaymentCheckController extends SandboxRestController
                 $phoneCode.$phone,
                 $smsText
             );
+
+            $recipient = array(
+                'type' => 'phone',
+                'recipient' => $phoneCode.' '.$phone,
+            );
         } else {
             // send verification URL to email
             $subject = '【创合秒租】'.$this->before('@', $email).'，用户支付密码设置';
@@ -256,6 +360,13 @@ class ClientUserPaymentCheckController extends SandboxRestController
                 array(
                     'code' => $code,
                 ));
+
+            $recipient = array(
+                'type' => 'email',
+                'recipient' => $email,
+            );
         }
+
+        return $recipient;
     }
 }

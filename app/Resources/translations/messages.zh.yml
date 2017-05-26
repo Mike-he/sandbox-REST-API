@@ -302,6 +302,9 @@ client:
     email_already_used: 该邮箱已被使用
   payment_check:
     invalid_verification: 验证码无效
+    password_first_error: 密码不正确，你还可以输入2次
+    password_second_error: 密码不正确，你还可以输入1次
+    lock_error: 支付密码被锁定，将于3个小时解锁。您还可以通过找回密码来解锁。
 
 event_order:
   status:
