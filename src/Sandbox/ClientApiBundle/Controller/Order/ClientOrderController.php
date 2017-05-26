@@ -736,7 +736,6 @@ class ClientOrderController extends OrderController
             }
 
             $seatId = $order->getSeatId();
-            $basePrice = $product->getBasePrice();
             if (!is_null($seatId)) {
                 $seat = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Room\RoomFixed')
@@ -747,6 +746,20 @@ class ClientOrderController extends OrderController
                 $this->throwNotFoundIfNull($seat, self::NOT_FOUND_MESSAGE);
 
                 $basePrice = $seat->getBasePrice();
+            } else {
+                $leasingSet = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Product\ProductLeasingSet')
+                    ->findOneBy(array('product' => $product,'unitPrice'=>$timeUnit));
+
+                if ($leasingSet) {
+                    $basePrice = $leasingSet->getBasePrice();
+                } else {
+                    return $this->customErrorView(
+                        400,
+                        self::UNIT_NOT_FOUND_CODE,
+                        self::UNIT_NOT_FOUND_MESSAGE
+                    );
+                }
             }
 
             // check if price match

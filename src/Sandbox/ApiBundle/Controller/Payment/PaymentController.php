@@ -121,6 +121,8 @@ class PaymentController extends DoorController
     const OFFICIAL_INVOICE_PROFILE_CHANGED_MESSAGE = 'Official Invoice Profile Has Been Changed';
     const SHORT_RENT_INVOICE_APPLICATION_WRONG_STATUS_CODE = 400034;
     const SHORT_RENT_INVOICE_APPLICATION_WRONG_STATUS_MESSAGE = 'Application Status Error';
+    const UNIT_NOT_FOUND_CODE = 400035;
+    const UNIT_NOT_FOUND_MESSAGE = 'The Unit Not Found';
     const PAYMENT_CHANNEL_ALIPAY_WAP = 'alipay_wap';
     const PAYMENT_CHANNEL_UPACP_WAP = 'upacp_wap';
     const PAYMENT_CHANNEL_ACCOUNT = 'account';

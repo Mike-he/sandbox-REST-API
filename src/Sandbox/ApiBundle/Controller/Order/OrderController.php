@@ -757,6 +757,7 @@ class OrderController extends PaymentController
      * @param $period
      * @param $startDate
      * @param $endDate
+     * @param $basePrice
      *
      * @return array
      */
