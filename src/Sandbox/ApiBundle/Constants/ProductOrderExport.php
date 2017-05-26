@@ -33,6 +33,7 @@ class ProductOrderExport
 
     const TRANS_ROOM_TYPE = 'room.type.';
     const TRANS_ROOM_UNIT = 'room.unit.';
+    const TRANS_PREFIX = 'room.type_tag.';
 
     const TRANS_CLIENT_PROFILE_EVENT_ORDER = 'client.profile.event_order';
     const TRANS_CLIENT_PROFILE_LONG_RENT_ORDER = 'client.profile.long_rent_order';

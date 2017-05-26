@@ -1574,8 +1574,16 @@ class ClientOrderController extends OrderController
             null,
             $language
         );
+        $typeTag = $room->getTypeTag();
+        $tagDescription = $this->get('translator')->trans(
+            ProductOrderExport::TRANS_PREFIX.$typeTag,
+            array(),
+            null,
+            $language
+        );
 
         $room->setTypeDescription($description);
+        $room->setTypeTagDescription($tagDescription);
         $productId = $order->getProductId();
         $status = $order->getStatus();
         $startDate = $order->getStartDate();
