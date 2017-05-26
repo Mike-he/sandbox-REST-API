@@ -415,11 +415,14 @@ class OrderController extends PaymentController
     }
 
     /**
+     * @param $language
      * @param $product
+     * @param null $seatId
      *
      * @return string
      */
     protected function storeRoomInfo(
+        $language,
         $product,
         $seatId = null
     ) {
@@ -509,6 +512,13 @@ class OrderController extends PaymentController
             );
         }
 
+        $tagDescription = $this->get('translator')->trans(
+            ProductOrderExport::TRANS_PREFIX.$room->getTypeTag(),
+            array(),
+            null,
+            $language
+        );
+
         $productInfo = [
             'id' => $product->getId(),
             'description' => $product->getDescription(),
@@ -537,6 +547,7 @@ class OrderController extends PaymentController
                 'area' => $room->getArea(),
                 'type' => $room->getType(),
                 'type_tag' => $room->getTypeTag(),
+                'type_tag_description' => $tagDescription,
                 'allowed_people' => $room->getAllowedPeople(),
                 'office_supplies' => $supplyArray,
                 'meeting' => $meetingArray,
@@ -557,7 +568,8 @@ class OrderController extends PaymentController
     protected function storeRoomRecord(
         $em,
         $order,
-        $product
+        $product,
+        $language = 'zh_CN'
     ) {
         $room = $this->getRepo('Room\Room')->find($product->getRoomId());
 
@@ -573,7 +585,8 @@ class OrderController extends PaymentController
         $this->storeProductOrderInfo(
             $em,
             $product,
-            $order
+            $order,
+            $language
         );
     }
 
@@ -974,9 +987,11 @@ class OrderController extends PaymentController
     protected function storeProductOrderInfo(
         $em,
         $product,
-        $order
+        $order,
+        $language
     ) {
         $productInfo = $this->storeRoomInfo(
+            $language,
             $product,
             $order->getSeatId()
         );
