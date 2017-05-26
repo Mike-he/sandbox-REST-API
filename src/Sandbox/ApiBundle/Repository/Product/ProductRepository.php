@@ -1289,9 +1289,9 @@ class ProductRepository extends EntityRepository
             ->andWhere('p.visible = TRUE')
             ->andWhere('p.isDeleted = FALSE')
             ->andWhere('p.appointment = TRUE')
-            ->andWhere('r.type = :longterm')
+            ->andWhere('r.type = :office')
             ->setParameter('id', $id)
-            ->setParameter('longterm', Room::TYPE_LONG_TERM);
+            ->setParameter('office', Room::TYPE_OFFICE);
 
         return $query->getQuery()->getOneOrNullResult();
     }
