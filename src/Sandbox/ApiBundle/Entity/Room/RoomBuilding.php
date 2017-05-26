@@ -685,9 +685,16 @@ class RoomBuilding implements JsonSerializable
     private $propertyType;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="remove_dates_info", type="text", nullable=true)
+     * @Serializer\Groups({"main"})
+     */
+    private $removeDatesInfo;
+
+    /**
      * @var array
      *
-     * @ORM\Column(name="remove_dates", type="json_array", nullable=true)
      * @Serializer\Groups({"main", "admin_building", "client"})
      */
     private $removeDates;
@@ -700,6 +707,22 @@ class RoomBuilding implements JsonSerializable
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRemoveDatesInfo()
+    {
+        return $this->removeDatesInfo;
+    }
+
+    /**
+     * @param string $removeDatesInfo
+     */
+    public function setRemoveDatesInfo($removeDatesInfo)
+    {
+        $this->removeDatesInfo = $removeDatesInfo;
     }
 
     /**

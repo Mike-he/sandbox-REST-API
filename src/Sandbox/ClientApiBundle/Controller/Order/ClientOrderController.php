@@ -633,7 +633,7 @@ class ClientOrderController extends OrderController
             // check if start is in remove dates
             $startDate = new \DateTime($order->getStartDate());
             $building = $product->getRoom()->getBuilding();
-            $removeDates = $building->getRemoveDates();
+            $removeDates = json_decode($building->getRemoveDatesInfo(), true);
 
             if (!is_null($removeDates) && !empty($removeDates)) {
                 $key = $startDate->format('Y-m');
