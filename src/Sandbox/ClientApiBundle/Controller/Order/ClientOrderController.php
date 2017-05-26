@@ -788,7 +788,7 @@ class ClientOrderController extends OrderController
                     $error['message']
                 );
             }
-            
+
             if (Room::TYPE_OFFICE == $type) {
                 $order->setRejected(true);
             }

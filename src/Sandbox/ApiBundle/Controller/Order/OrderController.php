@@ -536,6 +536,7 @@ class OrderController extends PaymentController
                 'number' => $room->getNumber(),
                 'area' => $room->getArea(),
                 'type' => $room->getType(),
+                'type_tag' => $room->getTypeTag(),
                 'allowed_people' => $room->getAllowedPeople(),
                 'office_supplies' => $supplyArray,
                 'meeting' => $meetingArray,
