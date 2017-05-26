@@ -301,6 +301,8 @@ client:
     same_password: Same password.
     phone_number_used: Phone number already used.
     email_already_used: Email address already used.
+  payment_check:
+    invalid_verification: Invalid Verification
 
 event_order:
   status:

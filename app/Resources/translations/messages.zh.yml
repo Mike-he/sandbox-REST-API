@@ -300,6 +300,8 @@ client:
     same_password: 新密码与旧密码不能相同
     phone_number_used: 该手机号已被使用
     email_already_used: 该邮箱已被使用
+  payment_check:
+    invalid_verification: 验证码无效
 
 event_order:
   status:

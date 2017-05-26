@@ -35,10 +35,10 @@ class Version920170522095616 extends AbstractMigration implements ContainerAware
 
         $appVersionCheck = new AppVersionCheck();
         $appVersionCheck->setCurrentVersion('2.7.1');
-        $appVersionCheck->setZhNotification('检测到新版本{{version}}。更新创合秒租，为您带来更好的体验。');
-        $appVersionCheck->setEnNotification('Find a new V{{version}} ! Update it to enjoy better experience !');
-        $appVersionCheck->setZhForceNotification('检测到最新版本{{version}}。您当前的版本过低，可能导致部分功能无法使用，请立即更新。');
-        $appVersionCheck->setEnForceNotification('Find a new V{{version}} ! Your version is too old, which could affect some functions. Please update now!');
+        $appVersionCheck->setZhNotification('<p><b>检测到新版本{{version}}</b></p><p>更新创合秒租，为您带来更好的体验。</p><p><br></p>');
+        $appVersionCheck->setEnNotification('<p><b>Find&nbsp;a&nbsp;new&nbsp;V{{version}}&nbsp;!</b></p><p>Update&nbsp;it&nbsp;to&nbsp;enjoy&nbsp;better&nbsp;experience&nbsp;!<br></p><p><br></p>');
+        $appVersionCheck->setZhForceNotification('<p><b>检测到最新版本{{version}}</b></p><p>您当前的版本过低，可能导致部分功能无法使用，请立即更新。</p><p><br></p>');
+        $appVersionCheck->setEnForceNotification('<p><b>Find&nbsp;a&nbsp;new&nbsp;V{{version}}&nbsp;!&nbsp;</b></p><p>Your&nbsp;version&nbsp;is&nbsp;too&nbsp;old,&nbsp;which&nbsp;could&nbsp;affect&nbsp;some&nbsp;functions.&nbsp;Please&nbsp;update&nbsp;now!</p><p><br></p>');
         $appVersionCheck->setIosUrl('itms-apps://itunes.apple.com/app/id1015843788');
         $appVersionCheck->setAndroidUrl('http://download.sandbox3.cn/Sandbox3.apk');
         $appVersionCheck->setIsForce(true);

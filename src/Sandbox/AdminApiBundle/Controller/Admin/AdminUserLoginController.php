@@ -313,6 +313,7 @@ class AdminUserLoginController extends AdminRestController
                 array(
                     'phoneCode' => $admin->getPhoneCode(),
                     'phone' => $admin->getPhone(),
+                    'type' => 0,
                 )
             );
 
