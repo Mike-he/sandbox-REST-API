@@ -725,11 +725,13 @@ class ClientProductController extends ProductController
             $startDate = new \DateTime($rentDate);
             $endDate = clone $startDate;
             $endDate->setTime(23, 59, 59);
-            $orders = $this->getRepo('Order\ProductOrder')->getTimesByDate(
-                $id,
-                $startDate,
-                $endDate
-            );
+            $orders = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Order\ProductOrder')
+                ->getTimesByDate(
+                    $id,
+                    $startDate,
+                    $endDate
+                );
         } elseif ($type == Room::TYPE_DESK && $tag == Room::TAG_HOT_DESK) {
             $monthStart = $paramFetcher->get('month_start');
             $monthEnd = $paramFetcher->get('month_end');

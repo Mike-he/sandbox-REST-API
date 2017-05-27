@@ -401,6 +401,12 @@ class AdminProductController extends ProductController
 
         $product->setLeasingSets($productLeasingSets);
 
+        $productRentSet = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\ProductRentSet')
+            ->findOneBy(array('product' => $product));
+
+        $product->setRentSet($productRentSet);
+
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_room']));
         $view->setData($product);
