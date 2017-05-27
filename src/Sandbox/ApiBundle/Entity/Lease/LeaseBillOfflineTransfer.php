@@ -19,6 +19,7 @@ class LeaseBillOfflineTransfer
     const STATUS_RETURNED = 'returned';
     const STATUS_PAID = 'paid';
     const STATUS_VERIFY = 'verify';
+    const STATUS_CLOSED = 'closed';
 
     /**
      * @var int
@@ -27,7 +28,7 @@ class LeaseBillOfflineTransfer
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      *
-     * @Serializer\Groups({"main","lease_bill"})
+     * @Serializer\Groups({"main","client","lease_bill"})
      */
     private $id;
 

@@ -483,15 +483,6 @@ class AdminRoomController extends RoomController
         ));
         $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
 
-        // set rent type
-        $roomType = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Room\RoomTypes')
-            ->findOneBy(array(
-                'name' => $room->getType(),
-            ));
-
-        $room->setRentType($roomType->getType());
-
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_room']));
         $view->setData($room);
@@ -900,7 +891,7 @@ class AdminRoomController extends RoomController
 
         // handle meeting rooms
         if (!is_null($meeting) &&
-            ($type == Room::TYPE_MEETING || $type == Room::TYPE_SPACE || $type == Room::TYPE_STUDIO)
+            ($type == Room::TYPE_MEETING || $type == Room::TYPE_OTHERS)
         ) {
             $roomMeeting = $this->getRepo('Room\RoomMeeting')->findOneByRoom($room);
             // remove the old data
@@ -918,7 +909,7 @@ class AdminRoomController extends RoomController
         }
 
         // handle fixed rooms
-        if (!is_null($fixed) && !empty($fixed) && $type == Room::TYPE_FIXED) {
+        if (!is_null($fixed) && !empty($fixed) && $type == Room::TYPE_DESK) {
             $this->handleRoomFixed(
                 $em,
                 $room,
@@ -1223,7 +1214,7 @@ class AdminRoomController extends RoomController
                 $em->persist($roomMeeting);
                 $em->flush();
                 break;
-            case Room::TYPE_SPACE:
+            case Room::TYPE_OTHERS:
                 $format = 'H:i:s';
 
                 $start = \DateTime::createFromFormat(
@@ -1244,28 +1235,7 @@ class AdminRoomController extends RoomController
                 $em->persist($roomMeeting);
                 $em->flush();
                 break;
-            case Room::TYPE_STUDIO:
-                $format = 'H:i:s';
-
-                $start = \DateTime::createFromFormat(
-                    $format,
-                    $meeting['start_hour']
-                );
-
-                $end = \DateTime::createFromFormat(
-                    $format,
-                    $meeting['end_hour']
-                );
-
-                $roomMeeting = new RoomMeeting();
-                $roomMeeting->setRoom($room);
-                $roomMeeting->setStartHour($start);
-                $roomMeeting->setEndHour($end);
-
-                $em->persist($roomMeeting);
-                $em->flush();
-                break;
-            case Room::TYPE_FIXED:
+            case Room::TYPE_DESK:
                 foreach ($roomsFixed as $fixed) {
                     $oldSeat = $this->getDoctrine()
                         ->getRepository('SandboxApiBundle:Room\RoomFixed')

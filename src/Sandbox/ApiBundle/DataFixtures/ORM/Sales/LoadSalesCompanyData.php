@@ -36,7 +36,7 @@ class LoadSalesCompanyData extends AbstractFixture implements OrderedFixtureInte
 
         $scs3 = new SalesCompanyServiceInfos();
         $scs3->setCompany($sc1);
-        $scs3->setTradeTypes(Room::TYPE_LONG_TERM);
+        $scs3->setTradeTypes('longterm');
         $scs3->setServiceFee(10);
         $scs3->setCollectionMethod(SalesCompanyServiceInfos::COLLECTION_METHOD_SALES);
         $scs3->setDrawer(SalesCompanyServiceInfos::DRAWER_SALES);

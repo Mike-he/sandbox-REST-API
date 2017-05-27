@@ -25,19 +25,44 @@ register:
     expired_verification: 验证码过期
     invalid_inviter: 邀请人非创合用户
 
+property:
+  type:
+    hotel: 酒店
+    incubator: 孵化器
+    commercial_center: 商务中心
+    joint_workspace: 联合办公空间
+
 room:
   type:
-    office: 独享办公室
+    office: 办公室
     meeting: 会议室
-    flexible: 共享办公桌
-    fixed: 独享办公桌
-    studio: 录音棚
-    space: 活动空间
-    video_studio: 演播厅
-    longterm: 长租办公室
+    desk: 工位
+    others: 其他
+  type_tag:
+    manager_office: 经理办公室
+    team_office: 团队办公室
+    office_suite: 完整办公套间
+    open_office: 半开敞办公室
+    boardroom: 标准会议室
+    u_shape: U-形桌布局
+    classroom: 教室
+    open_meeting_space: 半开放会议区
+    hot_desk: 共享工位
+    dedicated_desk: 固定工位
+    multi_function_room: 多功能厅
+    dinning_hall: 餐饮空间
+    lecture_hall: 阶梯教室
+    recording_studio: 录音棚
+    broadcasting_studio: 演播室
+    photo_studio: 摄影室
+    theater: 放映院
+    outdoor_space: 室外露天
+    exhibition_hall: 会展空间
+    entertainment_space: 娱乐设施
   unit:
     hour: 小时
     day: 天
+    week: 周
     month: 月
 
 product_order:
@@ -91,14 +116,10 @@ product_order:
   push_message:
     meeting_start: 您的会议室将在10分钟后开始使用
     meeting_end: 您的会议室将在10分钟后到期
-    studio_start: 您的录音棚将在10分钟后开始使用
-    studio_end: 您的录音棚将在10分钟后到期
-    space_start: 您的活动空间将在10分钟后开始使用
-    space_end: 您的活动空间将在10分钟后到期
-    flexible_start: 您的共享办公桌将在明天开始使用
-    flexible_end: 您的共享办公桌将在明天到期
-    fixed_start: 您的独享办公桌将在明天开始使用
-    fixed_end: 您的独享办公桌将在明天到期
+    others_start: 您的其他订单将在10分钟后开始使用
+    others_end: 您的其他订单将在10分钟后到期
+    desk_start: 您的工位将在明天开始使用
+    desk_end: 您的工位将在明天到期
     office_start: 您的独享办公室将在明天开始使用
     office_end: 您的独享办公室将在7天后到期
     office_reject: 抱歉，您申请的办公室没有通过审核，钱款将在1~3个工作日退回到您的支付账户下
@@ -252,6 +273,7 @@ client:
     my_invoice: 我的发票
     my_membership_card: 我的会员卡
     reset_password: 重置密码
+    payment_password: 支付密码
     email: 绑定邮箱
     phone: 绑定手机
     about_us: 关于创合秒租
@@ -279,6 +301,11 @@ client:
     same_password: 新密码与旧密码不能相同
     phone_number_used: 该手机号已被使用
     email_already_used: 该邮箱已被使用
+  payment_check:
+    invalid_verification: 验证码无效
+    password_first_error: 密码不正确，你还可以输入2次
+    password_second_error: 密码不正确，你还可以输入1次
+    lock_error: 支付密码被锁定，将于3个小时解锁。您还可以通过找回密码来解锁。
 
 event_order:
   status:

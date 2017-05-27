@@ -21,13 +21,13 @@ use Gedmo\Mapping\Annotation as Gedmo;
  */
 class Room
 {
-    const TYPE_FLEXIBLE = 'flexible';
-    const TYPE_FIXED = 'fixed';
     const TYPE_OFFICE = 'office';
     const TYPE_MEETING = 'meeting';
-    const TYPE_STUDIO = 'studio';
-    const TYPE_SPACE = 'space';
-    const TYPE_LONG_TERM = 'longterm';
+    const TYPE_DESK = 'desk';
+    const TYPE_OTHERS = 'others';
+
+    const TAG_HOT_DESK = 'hot_desk';
+    const TAG_DEDICATED_DESK = 'dedicated_desk';
 
     /**
      * @var int
@@ -144,9 +144,25 @@ class Room
     /**
      * @var string
      *
+     * @ORM\Column(name="type_tag", type="string", length=64, nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "current_order", "client_appointment_detail"})
+     */
+    private $typeTag;
+
+    /**
+     * @var string
+     *
      * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "current_order"})
      */
     private $typeDescription;
+
+    /**
+     * @var string
+     *
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "current_order"})
+     */
+    private $typeTagDescription;
 
     /**
      * @var int
@@ -254,13 +270,6 @@ class Room
      * @Serializer\Groups({"main", "admin_room", "client", "current_order", "client_appointment_list"})
      */
     private $attachment;
-
-    /**
-     * @var string
-     *
-     * @Serializer\Groups({"main", "admin_room", "client"})
-     */
-    private $rentType;
 
     /**
      * Get id.
@@ -486,6 +495,22 @@ class Room
     public function getType()
     {
         return $this->type;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTypeTag()
+    {
+        return $this->typeTag;
+    }
+
+    /**
+     * @param string $typeTag
+     */
+    public function setTypeTag($typeTag)
+    {
+        $this->typeTag = $typeTag;
     }
 
     /**
@@ -759,17 +784,17 @@ class Room
     /**
      * @return string
      */
-    public function getRentType()
+    public function getTypeTagDescription()
     {
-        return $this->rentType;
+        return $this->typeTagDescription;
     }
 
     /**
-     * @param string $rentType
+     * @param string $typeTagDescription
      */
-    public function setRentType($rentType)
+    public function setTypeTagDescription($typeTagDescription)
     {
-        $this->rentType = $rentType;
+        $this->typeTagDescription = $typeTagDescription;
     }
 
     public function degenerateAttachment()

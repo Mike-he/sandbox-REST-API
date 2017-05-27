@@ -51,6 +51,14 @@ class ClientThirdPartyController extends ThirdPartyController
             throw new UnauthorizedHttpException(null, self::UNAUTHED_API_CALL);
         }
 
+        $groupUser = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
+            ->findOneBy(array('userId' => $user->getId()));
+
+        if (is_null($groupUser)) {
+            throw new UnauthorizedHttpException(null, self::UNAUTHED_API_CALL);
+        }
+
         return new View(array(
             'id' => $user->getId(),
         ));

@@ -227,11 +227,10 @@ class ProductRepository extends EntityRepository
             ->select('DISTINCT p.id')
             ->leftjoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
             ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'b.id = r.buildingId')
-            ->where('r.type = :office OR r.type = :longterm')
+            ->where('r.type = :office')
             ->andWhere('p.visible = :visible')
             ->andWhere('p.startDate <= :now AND p.endDate >= :now')
             ->setParameter('office', Room::TYPE_OFFICE)
-            ->setParameter('longterm', Room::TYPE_LONG_TERM)
             ->setParameter('visible', true)
             ->setParameter('now', $now);
 
@@ -371,7 +370,7 @@ class ProductRepository extends EntityRepository
                         p.id IN (
                             SELECT po2.productId FROM SandboxApiBundle:Order\ProductOrder po2
                             WHERE po2.status != :status
-                            AND (r.type = :flex OR r.type = :fixed)
+                            AND (r.type = :desk)
                             AND
                             (
                                 (po2.startDate <= :startDate AND po2.endDate > :startDate) OR
@@ -384,8 +383,7 @@ class ProductRepository extends EntityRepository
                     )'
                 )
                 ->setParameter('status', ProductOrder::STATUS_CANCELLED)
-                ->setParameter('flex', Room::TYPE_FLEXIBLE)
-                ->setParameter('fixed', Room::TYPE_FIXED)
+                ->setParameter('desk', Room::TYPE_DESK)
                 ->setParameter('startDate', $startDate)
                 ->setParameter('endDate', $endDate);
         }
@@ -1291,9 +1289,9 @@ class ProductRepository extends EntityRepository
             ->andWhere('p.visible = TRUE')
             ->andWhere('p.isDeleted = FALSE')
             ->andWhere('p.appointment = TRUE')
-            ->andWhere('r.type = :longterm')
+            ->andWhere('r.type = :office')
             ->setParameter('id', $id)
-            ->setParameter('longterm', Room::TYPE_LONG_TERM);
+            ->setParameter('office', Room::TYPE_OFFICE);
 
         return $query->getQuery()->getOneOrNullResult();
     }
@@ -1322,6 +1320,7 @@ class ProductRepository extends EntityRepository
      * @param $type
      * @param $building
      * @param $search
+     * @param $visible
      *
      * @return array
      */
@@ -1329,18 +1328,19 @@ class ProductRepository extends EntityRepository
         $company,
         $type,
         $building,
-        $search
+        $search,
+        $visible
     ) {
         $query = $this->createQueryBuilder('p')
             ->select('
                     p.id,
-                    p.basePrice as base_price,
-                    p.unitPrice as unit_price,
                     p.visible,
                     r.id as room_id,
                     r.name as room_name,
                     r.type as room_type,
-                    r.allowedPeople as allowed_people
+                    r.allowedPeople as allowed_people,
+                    r.area,
+                    r.typeTag as type_tag
                 ')
             ->leftJoin('p.room', 'r')
             ->leftJoin('r.building', 'b')
@@ -1359,6 +1359,11 @@ class ProductRepository extends EntityRepository
         if ($search) {
             $query->andWhere('r.name LIKE :search')
                 ->setParameter('search', '%'.$search.'%');
+        }
+
+        if (!is_null($visible)) {
+            $query->andWhere('p.visible = :visible')
+                ->setParameter('visible', $visible);
         }
 
         $result = $query->getQuery()->getResult();

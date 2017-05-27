@@ -478,12 +478,9 @@ class UserViewRepository extends EntityRepository
         }
 
         // filters by query
-        if (is_null($name)) {
-            $queryResults->andWhere('u.id IN (:ids)');
-            $queryResults->setParameter('ids', $userIds);
-        } else {
-            $queryResults->andWhere('u.name = :name')
-                ->setParameter('name', $name);
+        if (!is_null($name)) {
+            $queryResults->andWhere('u.name LIKE :name')
+                ->setParameter('name', '%'.$name.'%');
         }
 
         if (!is_null($banned)) {
@@ -509,6 +506,9 @@ class UserViewRepository extends EntityRepository
                 $queryResults->andWhere('u.cardNo IS NULL');
             }
         }
+
+        $queryResults->andWhere('u.id IN (:ids)');
+        $queryResults->setParameter('ids', $userIds);
 
         return $queryResults;
     }

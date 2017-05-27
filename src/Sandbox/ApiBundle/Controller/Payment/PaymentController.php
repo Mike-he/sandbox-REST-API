@@ -121,6 +121,8 @@ class PaymentController extends DoorController
     const OFFICIAL_INVOICE_PROFILE_CHANGED_MESSAGE = 'Official Invoice Profile Has Been Changed';
     const SHORT_RENT_INVOICE_APPLICATION_WRONG_STATUS_CODE = 400034;
     const SHORT_RENT_INVOICE_APPLICATION_WRONG_STATUS_MESSAGE = 'Application Status Error';
+    const UNIT_NOT_FOUND_CODE = 400035;
+    const UNIT_NOT_FOUND_MESSAGE = 'The Unit Not Found';
     const PAYMENT_CHANNEL_ALIPAY_WAP = 'alipay_wap';
     const PAYMENT_CHANNEL_UPACP_WAP = 'upacp_wap';
     const PAYMENT_CHANNEL_ACCOUNT = 'account';
@@ -1660,7 +1662,7 @@ class PaymentController extends DoorController
 
             // send email
             if (!is_null($building->getEmail())) {
-                $subject = '【展想创合】'.$title;
+                $subject = '【创合秒租】'.$title;
                 $emails = explode(',', $building->getEmail());
                 foreach ($emails as $email) {
                     $this->sendEmail($subject, $email, $this->before('@', $email),
@@ -1691,7 +1693,7 @@ class PaymentController extends DoorController
                 $rent_time = $order->getStartDate()->format('Y/m/d H:i').' - '.$order->getEndDate()->format('Y/m/d H:i');
                 $payment = $order->getDiscountPrice();
 
-                $smsText = '【展想创合】您有一笔来自'.$username.'于'.$time_action.$txt.'的新订单：'.$orderNumber.'。订单商品为：'.$product.'；租赁时间为：'.$rent_time.'；付款金额为：￥'.$payment;
+                $smsText = '【创合秒租】您有一笔来自'.$username.'于'.$time_action.$txt.'的新订单：'.$orderNumber.'。订单商品为：'.$product.'；租赁时间为：'.$rent_time.'；付款金额为：￥'.$payment;
 
                 $phones = explode(',', $building->getOrderRemindPhones());
                 foreach ($phones as $phone) {

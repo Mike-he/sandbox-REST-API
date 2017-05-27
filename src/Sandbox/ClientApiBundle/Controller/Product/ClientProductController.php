@@ -6,6 +6,10 @@ use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Controller\Product\ProductController;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Entity\Room\Room;
+use Sandbox\ApiBundle\Entity\Room\RoomTypes;
+use Sandbox\ApiBundle\Entity\Room\RoomTypeTags;
+use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
+use Sandbox\ApiBundle\Form\Room\RoomType;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
@@ -167,9 +171,8 @@ class ClientProductController extends ProductController
         $endTime = null;
         $productIds = [];
 
-        if ($type == Room::TYPE_MEETING ||
-            $type == Room::TYPE_STUDIO ||
-            $type == Room::TYPE_SPACE
+        if (RoomTypes::TYPE_NAME_MEETING == $type ||
+            RoomTypes::TYPE_NAME_OTHERS == $type
         ) {
             $startHour = null;
             $endHour = null;
@@ -199,7 +202,7 @@ class ClientProductController extends ProductController
                     $includeIds,
                     $excludeIds
             );
-        } elseif ($type == Room::TYPE_FIXED || $type == Room::TYPE_FLEXIBLE) {
+        } elseif (RoomTypes::TYPE_NAME_DESK == $type) {
             if (!is_null($start) && !is_null($end) && !empty($start) && !empty($end)) {
                 $startTime = new \DateTime($start);
                 $startTime->setTime(0, 0, 0);
@@ -220,7 +223,7 @@ class ClientProductController extends ProductController
                     $includeIds,
                     $excludeIds
             );
-        } elseif ($type == Room::TYPE_OFFICE) {
+        } elseif (RoomTypes::TYPE_NAME_OFFICE == $type) {
             if (!is_null($start) && !is_null($end) && !empty($start) && !empty($end)) {
                 $startTime = new \DateTime($start);
                 $startTime->setTime(0, 0, 0);
@@ -264,41 +267,7 @@ class ClientProductController extends ProductController
         }
 
         foreach ($products as $product) {
-            $room = $product->getRoom();
-            $type = $room->getType();
-
-            $myType = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Room\RoomTypes')
-                ->findOneBy(['name' => $type]);
-            if (!is_null($myType)) {
-                $room->setRentType($myType->getType());
-            }
-
-            if ($type == Room::TYPE_FIXED) {
-                $price = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:Room\RoomFixed')
-                    ->getFixedSeats($room);
-
-                if (!is_null($price)) {
-                    $product->setBasePrice($price);
-                }
-            } elseif ($type == Room::TYPE_LONG_TERM) {
-                $company = $room->getBuilding()->getCompany();
-
-                $collectionMethod = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
-                    ->getCollectionMethod($company, $type);
-
-                $product->setCollectionMethod($collectionMethod);
-
-                $type = Room::TYPE_OFFICE;
-            }
-
-            $unitPrice = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_UNIT.$product->getUnitPrice());
-            $product->setUnitPrice($unitPrice);
-
-            $typeDescription = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$type);
-            $room->setTypeDescription($typeDescription);
+            $this->generateProductInfo($product);
         }
 
         $view = new View();
@@ -645,17 +614,19 @@ class ClientProductController extends ProductController
             $endDate->setTime(23, 59, 59);
         }
 
-        $productIds = $this->getRepo('Product\Product')->getWorkspaceProductsForClient(
-            $userId,
-            $cityId,
-            $buildingId,
-            $allowedPeople,
-            $startDate,
-            $endDate,
-            $limit,
-            $offset,
-            Room::TYPE_FIXED
-        );
+        $productIds = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\Product')
+            ->getWorkspaceProductsForClient(
+                $userId,
+                $cityId,
+                $buildingId,
+                $allowedPeople,
+                $startDate,
+                $endDate,
+                $limit,
+                $offset,
+                'dedicated_desk'
+            );
 
         $products = [];
         foreach ($productIds as $productId) {
@@ -746,19 +717,22 @@ class ClientProductController extends ProductController
 
         $response = [];
         $type = $product->getRoom()->getType();
+        $tag = $product->getRoom()->getTypetag();
         $rentDate = $paramFetcher->get('rent_date');
-        if (($type == Room::TYPE_MEETING || $type == Room::TYPE_STUDIO || $type == Room::TYPE_SPACE) &&
+        if (($type == Room::TYPE_MEETING || $type == Room::TYPE_OTHERS) &&
             !is_null($rentDate) && !empty($rentDate)
         ) {
             $startDate = new \DateTime($rentDate);
             $endDate = clone $startDate;
             $endDate->setTime(23, 59, 59);
-            $orders = $this->getRepo('Order\ProductOrder')->getTimesByDate(
-                $id,
-                $startDate,
-                $endDate
-            );
-        } elseif ($type == Room::TYPE_FLEXIBLE) {
+            $orders = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Order\ProductOrder')
+                ->getTimesByDate(
+                    $id,
+                    $startDate,
+                    $endDate
+                );
+        } elseif ($type == Room::TYPE_DESK && $tag == Room::TAG_HOT_DESK) {
             $monthStart = $paramFetcher->get('month_start');
             $monthEnd = $paramFetcher->get('month_end');
             $allowedPeople = $product->getRoom()->getAllowedPeople();
@@ -772,7 +746,7 @@ class ClientProductController extends ProductController
             }
 
             return new View($response);
-        } elseif ($type == Room::TYPE_FIXED) {
+        } elseif ($type == Room::TYPE_DESK && $tag == Room::TAG_DEDICATED_DESK) {
             $seatId = $paramFetcher->get('seat_id');
             $orders = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Order\ProductOrder')

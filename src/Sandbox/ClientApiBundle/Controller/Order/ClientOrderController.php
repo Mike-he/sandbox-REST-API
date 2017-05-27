@@ -8,6 +8,7 @@ use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
 use Sandbox\ApiBundle\Entity\Order\TransferAttachment;
 use Sandbox\ApiBundle\Entity\Parameter\Parameter;
+use Sandbox\ApiBundle\Entity\Room\RoomTypes;
 use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
 use Sandbox\ApiBundle\Form\Order\OrderOfflineTransferPost;
 use Sandbox\ApiBundle\Form\Order\TransferAttachmentType;
@@ -602,6 +603,7 @@ class ClientOrderController extends OrderController
     public function createOrdersAction(
         Request $request
     ) {
+        $language = $request->getPreferredLanguage();
         $em = $this->getDoctrine()->getManager();
         $orderCheck = null;
         $now = new \DateTime();
@@ -628,7 +630,27 @@ class ClientOrderController extends OrderController
                 ->getRepository('SandboxApiBundle:Product\Product')
                 ->find($productId);
 
+            // check if start is in remove dates
             $startDate = new \DateTime($order->getStartDate());
+            $building = $product->getRoom()->getBuilding();
+            $removeDates = json_decode($building->getRemoveDatesInfo(), true);
+
+            if (!is_null($removeDates) && !empty($removeDates)) {
+                $key = $startDate->format('Y-m');
+                $value = $startDate->format('d');
+
+                if (array_key_exists($key, $removeDates)) {
+                    foreach ($removeDates[$key] as $removeDate) {
+                        if ($removeDate == $value) {
+                            return $this->customErrorView(
+                                400,
+                                self::PRODUCT_NOT_AVAILABLE_CODE,
+                                self::PRODUCT_NOT_AVAILABLE_MESSAGE
+                            );
+                        }
+                    }
+                }
+            }
 
             // check product
             $error = $this->checkIfProductAvailable(
@@ -699,7 +721,7 @@ class ClientOrderController extends OrderController
 
             // check if it's same order from the same user
             // return orderId if so
-            if ($type !== Room::TYPE_FLEXIBLE && $type !== Room::TYPE_FIXED) {
+            if ($type !== RoomTypes::TYPE_NAME_DESK) {
                 $sameOrder = $this->getRepo('Order\ProductOrder')->getOrderFromSameUser(
                     $productId,
                     $userId,
@@ -715,7 +737,6 @@ class ClientOrderController extends OrderController
             }
 
             $seatId = $order->getSeatId();
-            $basePrice = $product->getBasePrice();
             if (!is_null($seatId)) {
                 $seat = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Room\RoomFixed')
@@ -726,6 +747,20 @@ class ClientOrderController extends OrderController
                 $this->throwNotFoundIfNull($seat, self::NOT_FOUND_MESSAGE);
 
                 $basePrice = $seat->getBasePrice();
+            } else {
+                $leasingSet = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Product\ProductLeasingSet')
+                    ->findOneBy(array('product' => $product,'unitPrice'=>$timeUnit));
+
+                if ($leasingSet) {
+                    $basePrice = $leasingSet->getBasePrice();
+                } else {
+                    return $this->customErrorView(
+                        400,
+                        self::UNIT_NOT_FOUND_CODE,
+                        self::UNIT_NOT_FOUND_MESSAGE
+                    );
+                }
             }
 
             // check if price match
@@ -797,7 +832,8 @@ class ClientOrderController extends OrderController
             $this->storeRoomRecord(
                 $em,
                 $order,
-                $product
+                $product,
+                $language
             );
 
             // set sales user
@@ -1553,8 +1589,16 @@ class ClientOrderController extends OrderController
             null,
             $language
         );
+        $typeTag = $room->getTypeTag();
+        $tagDescription = $this->get('translator')->trans(
+            ProductOrderExport::TRANS_PREFIX.$typeTag,
+            array(),
+            null,
+            $language
+        );
 
         $room->setTypeDescription($description);
+        $room->setTypeTagDescription($tagDescription);
         $productId = $order->getProductId();
         $status = $order->getStatus();
         $startDate = $order->getStartDate();
@@ -2121,7 +2165,7 @@ class ClientOrderController extends OrderController
         $alertArray = [];
 
         if ($status == ProductOrder::STATUS_PAID && !$order->isRejected()) {
-            if ($type == Room::TYPE_MEETING || $type == Room::TYPE_STUDIO || $type == Room::TYPE_SPACE) {
+            if ($type == Room::TYPE_MEETING || $type == Room::TYPE_OTHERS) {
                 $time = clone $now;
                 $time->modify('+10 minutes');
 
@@ -2131,10 +2175,8 @@ class ClientOrderController extends OrderController
 
                     if ($type == Room::TYPE_MEETING) {
                         $keyStart = ProductOrderMessage::MEETING_START_MESSAGE;
-                    } elseif ($type == Room::TYPE_STUDIO) {
-                        $keyStart = ProductOrderMessage::STUDIO_START_MESSAGE;
                     } else {
-                        $keyStart = ProductOrderMessage::SPACE_START_MESSAGE;
+                        $keyStart = ProductOrderMessage::OTHERS_START_MESSAGE;
                     }
                 }
             } else {
@@ -2144,10 +2186,8 @@ class ClientOrderController extends OrderController
                 if ($time >= $startDate) {
                     if ($type == Room::TYPE_OFFICE) {
                         $keyStart = ProductOrderMessage::OFFICE_START_MESSAGE;
-                    } elseif ($type == Room::TYPE_FLEXIBLE) {
-                        $keyStart = ProductOrderMessage::FLEXIBLE_START_MESSAGE;
-                    } elseif ($type == Room::TYPE_FIXED) {
-                        $keyStart = ProductOrderMessage::FIXED_START_MESSAGE;
+                    } elseif ($type == Room::TYPE_DESK) {
+                        $keyStart = ProductOrderMessage::DESK_START_MESSAGE;
                     }
                 }
             }
@@ -2155,7 +2195,7 @@ class ClientOrderController extends OrderController
             !$order->isRejected() &&
             $endDate > $now
         ) {
-            if ($type == Room::TYPE_MEETING || $type == Room::TYPE_STUDIO || $type == Room::TYPE_SPACE) {
+            if ($type == Room::TYPE_MEETING || $type == Room::TYPE_OTHERS) {
                 $time = clone $now;
                 $time->modify('+10 minutes');
 
@@ -2165,10 +2205,8 @@ class ClientOrderController extends OrderController
 
                     if ($type == Room::TYPE_MEETING) {
                         $keyEnd = ProductOrderMessage::MEETING_END_MESSAGE;
-                    } elseif ($type == Room::TYPE_STUDIO) {
-                        $keyEnd = ProductOrderMessage::STUDIO_END_MESSAGE;
                     } else {
-                        $keyEnd = ProductOrderMessage::SPACE_END_MESSAGE;
+                        $keyEnd = ProductOrderMessage::OTHERS_END_MESSAGE;
                     }
                 }
             } elseif ($type == Room::TYPE_OFFICE) {
@@ -2191,10 +2229,8 @@ class ClientOrderController extends OrderController
                 $time->modify('+8 hours');
 
                 if ($time >= $endDate) {
-                    if ($type == Room::TYPE_FLEXIBLE) {
-                        $keyEnd = ProductOrderMessage::FLEXIBLE_END_MESSAGE;
-                    } elseif ($type == Room::TYPE_FIXED) {
-                        $keyEnd = ProductOrderMessage::FIXED_END_MESSAGE;
+                    if ($type == Room::TYPE_DESK) {
+                        $keyEnd = ProductOrderMessage::DESK_END_MESSAGE;
                     }
                 }
             }

@@ -115,6 +115,7 @@ class AdminCommunityController extends SandboxRestController
 
         $roomTypes = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomTypes')->findAll();
 
+        $imageUrl = $this->getParameter('image_url');
         $result = array();
         foreach ($roomTypes as $roomType) {
             $using_number = $this->getDoctrine()
@@ -137,7 +138,7 @@ class AdminCommunityController extends SandboxRestController
                     'id' => $roomType->getId(),
                     'type' => $roomType->getName(),
                     'name' => $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$roomType->getName()),
-                    'icon' => $roomType->getIcon(),
+                    'icon' => $imageUrl.$roomType->getIcon(),
                     'building_id' => $id,
                     'using_number' => (int) $using_number,
                     'all_number' => (int) $all_number,

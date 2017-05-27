@@ -25,19 +25,44 @@ register:
     expired_verification: Expired verification
     invalid_inviter: Inviter isn't sandbox3 user
 
+property:
+  type:
+    hotel: Hotel
+    incubator: Incubator
+    commercial_center: Commercial Center
+    joint_workspace: Joint Workspace
+
 room:
   type:
-    office: Private Office
+    office: Office
     meeting: Meeting Room
-    flexible: Hot Desk
-    fixed: Dedicate Desk
-    studio: Recording Studio
-    space: Activity Space
-    video_studio: Studio
-    longterm: Long Term Office
+    desk: Desk
+    others: Others
+  type_tag:
+    manager_office: Manager Office
+    team_office: Team Office
+    office_suite: Office Suite
+    open_office: Open Office
+    boardroom: Boardroom
+    u_shape: U-Shape Meeting Room
+    classroom: Classroom
+    open_meeting_space: Open Meeting Space
+    hot_desk: Hot Desk
+    dedicated_desk: Dedicated Desk
+    multi_function_room: Multi-function Room
+    dinning_hall: Dinning Hall
+    lecture_hall: Lecture Hall
+    recording_studio: Recording Studio
+    broadcasting_studio: Broadcasting Studio
+    photo_studio: Photo Studio
+    theater: Theater
+    outdoor_space: Outdoor Space
+    exhibition_hall: Exhibition Hall
+    entertainment_space: Entertainment Space
   unit:
     hour: Hour
     day: Day
+    week: Week
     month: Month
 
 product_order:
@@ -91,14 +116,10 @@ product_order:
   push_message:
     meeting_start: Your meeting room will start in 10 minutes
     meeting_end: Your meeting room will end in 10 minutes
-    studio_start: Your recording studio will start in 10 minutes
-    studio_end: Your recording studio will end in 10 minutes
-    space_start: Your activity space will start in 10 minutes
-    space_end: Your activity space will end in 10 minutes
-    flexible_start: Your hot desk will start tomorrow
-    flexible_end: Your hot desk will end tomorrow
-    fixed_start: Your dedicate desk will start tomorrow
-    fixed_end: Your dedicate desk will end tomorrow
+    others_start: Your others order will start in 10 minutes
+    others_end: Your others order will end in 10 minutes
+    desk_start: Your desk will start tomorrow
+    desk_end: Your desk will end tomorrow
     office_start: Your private office will start tomorrow
     office_end: Your private office will end in 7 days
     office_reject: Your office reservation has been rejected, amount paid will refund back to your payment account in 5~10 working days
@@ -253,6 +274,7 @@ client:
     my_invoice: My Invoice
     my_membership_card: Membership Card
     reset_password: Reset Password
+    payment_password: Payment Password
     email: Email
     phone: Phone
     about_us: About Us
@@ -280,6 +302,11 @@ client:
     same_password: Same password.
     phone_number_used: Phone number already used.
     email_already_used: Email address already used.
+  payment_check:
+    invalid_verification: Invalid Verification
+    password_first_error: Wrong password, you still have 2 times.
+    password_second_error: Wrong password, you still have 1 times.
+    lock_error: Your password is locked for 3 hours. You also can unlock it by resetting password.
 
 event_order:
   status:

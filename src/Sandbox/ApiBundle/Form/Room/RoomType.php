@@ -34,6 +34,7 @@ class RoomType extends AbstractType
                 )
             )
             ->add('type')
+            ->add('type_tag')
             ->add('attachment_id',
                 null,
                 array(

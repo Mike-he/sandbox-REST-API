@@ -1,6 +1,6 @@
 parameters:
     database_driver: pdo_mysql
-    database_host: 172.19.0.2
+    database_host: sandbox_db
     database_port: '3306'
     database_name: sandbox_rest_db
     database_user: sandbox
@@ -28,8 +28,9 @@ parameters:
     expired_verification_time: +10 minutes
     time_for_half_hour_early: -30 minutes
     time_for_preorder_cancel: + 1 day
+    
     xmpp_domain: devxmpp.sandbox3.cn
-    openfire_innet_url: http://192.168.0.2:9090
+    openfire_innet_url: openfire:9090
     openfire_plugin_bstuser: /plugins/bstuser
     openfire_plugin_bstuser_users: /users
     openfire_plugin_bstuser_property_name_ezuser: ezuser
@@ -44,10 +45,7 @@ parameters:
     openfire_plugin_bstios_chatconfig: /chatconfig
     openfire_plugin_bstios_apns: /apns
     openfire_plugin_file_server: /plugins/fileServer/fileservice
-    openfire_url: http://192.168.0.2:9090/plugins/restapi/v1
-    openfire_secret: c2qY08h1Che33HsD
-    openfire_servicename: conference
-    openfire_servername: 192.168.0.2
+
     sms_api_url: http://yunpian.com/v1/sms/send.json
     sms_api_key: 21c29536f85636a862306aa6f8ffdf74
     email_from_address: notification@sandbox3.cn
@@ -55,7 +53,7 @@ parameters:
     sandbox_auth_key: sandbox_auth_test
     food_api_url: http://testfood.sandbox3.cn
     food_api_payment_callback: /index.php?route=payment/sandbox_wechat/callback
-    crm_api_url: http://devcrm.sandbox3.cn
+    crm_api_url: crmserver
     crm_api_client_user_account_authentication: /client/user/account/authentication
     crm_api_client_user_account_vip: /client/user/account/vip
     crm_api_admin_user_account_vip: /admin/useraccounts/{userId}/vip
@@ -108,13 +106,14 @@ parameters:
     wechat_refund_fee_multiplier: 0
     foreign_credit_refund_fee_multiplier: 0
     rest_api_local_url: localhost.api.rest
+    top_level_domain: sandbox3.cn
+    jpush_apns_option: false
+
     image_url: http://devimage.sandbox3.cn
     file_server_url: http://devxmpp.sandbox3.cn/plugins/fileServer/fileservice
     rest_file_server_url: http://devrest.sandbox3.cn/plugins/fileServer/fileservice
     mobile_url: http://devm.sandbox3.cn
     room_mobile_url: http://devmobile.sandbox3.cn
-    top_level_domain: sandbox3.cn
-    jpush_apns_option: false
     orders_url: http://devorders.sandbox3.cn
     coffee_url: http://devcoffee.sandbox3.cn
     invoice_url: http://devinvoice.sandbox3.cn

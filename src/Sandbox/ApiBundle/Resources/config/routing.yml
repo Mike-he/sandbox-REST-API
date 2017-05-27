@@ -147,3 +147,9 @@ sandbox_api_duiba:
     resource: "@SandboxApiBundle/Controller/Duiba/DuibaController.php"
     type:     annotation
     prefix:   /
+
+# Property
+sandbox_api_property_types:
+    resource: "@SandboxApiBundle/Controller/Property/PropertyTypeController.php"
+    type:     annotation
+    prefix:   /property

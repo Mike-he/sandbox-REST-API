@@ -386,4 +386,30 @@ class MembershipCardOrderRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param $card
+     * @param $start
+     * @param $end
+     *
+     * @return int
+     */
+    public function countMembershipOrdersByDate(
+        $card,
+        $start,
+        $end
+    ) {
+        $query = $this->createQueryBuilder('mo')
+            ->select('count(mo.id)')
+            ->where('mo.card = :card')
+            ->andWhere('mo.paymentDate >= :start')
+            ->andWhere('mo.paymentDate <= :end')
+            ->setParameter('card', $card)
+            ->setParameter('start', $start)
+            ->setParameter('end', $end);
+
+        $result = $query->getQuery()->getSingleScalarResult();
+
+        return (int) $result;
+    }
 }
