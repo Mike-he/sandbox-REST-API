@@ -1589,6 +1589,8 @@ class AdminRoomController extends SalesRestController
             'isDeleted' => false,
         ]);
 
+        $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
+
         // check user permission
         $this->checkPermissionForRoomUsage($room->getBuildingId());
 
