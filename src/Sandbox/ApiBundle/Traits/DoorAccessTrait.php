@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\Traits;
 use Sandbox\ApiBundle\Constants\BundleConstants;
 use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Entity\Door\DoorAccess;
+use Sandbox\ApiBundle\Entity\Door\DoorDepartmentUsers;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Symfony\Component\DomCrawler\Crawler;
 use Sandbox\ApiBundle\Constants\DoorAccessConstants;
@@ -194,6 +195,30 @@ trait DoorAccessTrait
 
             if ($periodArray['result'] != DoorAccessConstants::RESULT_OK) {
                 error_log('Door Access Error');
+            } else {
+                $em = $this->getContainer()->get('doctrine')->getManager();
+
+                $departmentUser = $this->getContainer()
+                    ->get('doctrine')
+                    ->getRepository('SandboxApiBundle:Door\DoorDepartmentUsers')
+                    ->findOneBy(array(
+                        'userId' => $userId,
+                        'buildingServer' => $base,
+                    ));
+                if (DoorAccessConstants::METHOD_ADD == $method) {
+                    if (is_null($departmentUser)) {
+                        $departmentUser = new DoorDepartmentUsers();
+                        $departmentUser->setUserId($userId);
+                        $departmentUser->setBuildingServer($base);
+                        $em->persist($departmentUser);
+                        $em->flush();
+                    }
+                } elseif(DoorAccessConstants::METHOD_DELETE == $method) {
+                    if ($departmentUser) {
+                        $em->remove($departmentUser);
+                        $em->flush();
+                    }
+                }
             }
         } catch (\Exception $e) {
             error_log('Door Access Error');
@@ -478,20 +503,30 @@ trait DoorAccessTrait
         $userId,
         $cardNo
     ) {
-        $userProfile = $this->getContainer()
-                            ->get('doctrine')
-                            ->getRepository(BundleConstants::BUNDLE.':'.'User\UserProfile')
-                            ->findOneByUserId($userId);
+        $departmentUser = $this->getContainer()
+            ->get('doctrine')
+            ->getRepository('SandboxApiBundle:Door\DoorDepartmentUsers')
+            ->findOneBy(array(
+                'userId' => $userId,
+                'buildingServer' => $base,
+            ));
 
-        $userName = $userProfile->getName();
+        if (!$departmentUser) {
+            $userProfile = $this->getContainer()
+                ->get('doctrine')
+                ->getRepository(BundleConstants::BUNDLE.':'.'User\UserProfile')
+                ->findOneByUserId($userId);
 
-        $this->setEmployeeCard(
-            $base,
-            $userId,
-            $userName,
-            $cardNo,
-            DoorAccessConstants::METHOD_ADD
-        );
+            $userName = $userProfile->getName();
+
+            $this->setEmployeeCard(
+                $base,
+                $userId,
+                $userName,
+                $cardNo,
+                DoorAccessConstants::METHOD_ADD
+            );
+        }
     }
 
     /**
@@ -740,7 +775,6 @@ trait DoorAccessTrait
 
             $em = $this->getDoctrine()->getManager();
 
-            $userArray = array();
             foreach ($userIds as $userId) {
                 $this->storeDoorAccess(
                     $em,
@@ -762,26 +796,10 @@ trait DoorAccessTrait
                         $userId,
                         $result['card_no']
                     );
-
-                    array_push(
-                        $userArray,
-                        array(
-                            'empid' => "$userId",
-                        )
-                    );
                 }
             }
 
             $em->flush();
-
-            // send door access to door server
-//            if (!empty($userArray)) {
-//                $this->addEmployeeToOrder(
-//                    $base,
-//                    $accessNo,
-//                    $userArray
-//                );
-//            }
         }
     }
 
