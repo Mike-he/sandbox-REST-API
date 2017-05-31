@@ -37,13 +37,6 @@ class UserPayment
     private $password;
 
     /**
-     * @var boolean
-     *
-     * @ORM\Column(name="touch_id", type="boolean")
-     */
-    private $touchId;
-
-    /**
      * @var \DateTime
      *
      * @Gedmo\Timestampable(on="create")
@@ -114,29 +107,6 @@ class UserPayment
     public function getPassword()
     {
         return $this->password;
-    }
-
-    /**
-     * Set touchId
-     *
-     * @param boolean $touchId
-     * @return UserPayment
-     */
-    public function setTouchId($touchId)
-    {
-        $this->touchId = $touchId;
-
-        return $this;
-    }
-
-    /**
-     * Get touchId
-     *
-     * @return boolean 
-     */
-    public function getTouchId()
-    {
-        return $this->touchId;
     }
 
     /**

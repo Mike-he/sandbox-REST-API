@@ -12,11 +12,7 @@ class UserPaymentCheckType extends AbstractType
     {
         $builder
             ->add('code')
-            ->add('password')
-            ->add('touchID',
-                null,
-                array('required' => false)
-            );
+            ->add('password');
     }
 
     public function setDefaultOptions(OptionsResolverInterface $resolver)

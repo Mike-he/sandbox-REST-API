@@ -120,7 +120,6 @@ class ClientUserPaymentCheckController extends SandboxRestController
 
         return new View(array(
             'has_payment_password' => true,
-            'has_touch_id' => $userPayment->getTouchId(),
         ));
     }
 
@@ -224,7 +223,6 @@ class ClientUserPaymentCheckController extends SandboxRestController
         $userId = $this->getUserId();
         $code = $check->getCode();
         $password = $check->getPassword();
-        $touchID = is_null($check->isTouchID()) ? false : $check->isTouchID();
 
         $checkCode = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserCheckCode')
@@ -270,7 +268,6 @@ class ClientUserPaymentCheckController extends SandboxRestController
             $em->persist($userPayment);
         }
 
-        $userPayment->setTouchId($touchID);
         $userPayment->setPassword($password);
 
         $em->flush();
