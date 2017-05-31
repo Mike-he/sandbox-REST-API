@@ -180,7 +180,7 @@ trait DoorAccessTrait
                 'ads_emp_card' => [
                     'empid' => "$userId", //from user account
                     'empname' => $name, //from user account
-                    'department' => 'SANDBOX',
+                    'department' => 'SANDBOX3',
                     'cardno' => $cardNumber,
                     'expiredate' => '2099-07-01 08:00:00',
                     'operation' => $method,
@@ -775,13 +775,13 @@ trait DoorAccessTrait
             $em->flush();
 
             // send door access to door server
-            if (!empty($userArray)) {
-                $this->addEmployeeToOrder(
-                    $base,
-                    $accessNo,
-                    $userArray
-                );
-            }
+//            if (!empty($userArray)) {
+//                $this->addEmployeeToOrder(
+//                    $base,
+//                    $accessNo,
+//                    $userArray
+//                );
+//            }
         }
     }
 
