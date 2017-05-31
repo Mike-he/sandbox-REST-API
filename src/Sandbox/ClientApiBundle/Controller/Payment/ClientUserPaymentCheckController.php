@@ -114,7 +114,6 @@ class ClientUserPaymentCheckController extends SandboxRestController
         if (is_null($userPayment)) {
             return new View(array(
                 'has_payment_password' => false,
-                'has_touch_id' => false,
             ));
         }
 
