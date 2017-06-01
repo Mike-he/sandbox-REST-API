@@ -108,6 +108,15 @@ class ClientProductAppointmentController extends ProductController
                 'userId' => $user->getId(),
             ]);
 
+        $product = $appointment->getProduct();
+        $productRentSet = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\ProductRentSet')
+            ->findOneBy(array(
+                'product' => $product,
+                'status' => true,
+            ));
+        $product->setRentSet($productRentSet);
+
         $view = new View($appointment);
         $view->setSerializationContext(
             SerializationContext::create()->setGroups([

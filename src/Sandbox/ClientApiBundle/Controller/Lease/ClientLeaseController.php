@@ -78,6 +78,14 @@ class ClientLeaseController extends SandboxRestController
             switch ($firstLetter) {
                 case ProductAppointment::APPOINTMENT_NUMBER_LETTER:
                     $responseArray = $this->getAppointmentResponseArray($number);
+                    $product = $responseArray->getProduct();
+                    $productRentSet = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:Product\ProductRentSet')
+                        ->findOneBy(array(
+                            'product' => $product,
+                            'status' => true,
+                        ));
+                    $product->setRentSet($productRentSet);
                     break;
                 case Lease::LEASE_LETTER_HEAD:
                     $responseArray = $this->getLeaseResponseArray($number);
