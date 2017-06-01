@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\Traits;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Constants\EventOrderExport;
 use Sandbox\ApiBundle\Constants\LeaseConstants;
+use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
@@ -559,12 +560,14 @@ trait FinanceSalesExportTraits
                 $language
             );
 
-            $channel = $this->get('translator')->trans(
-                ProductOrderExport::TRANS_PRODUCT_ORDER_CHANNEL.$order->getPayChannel(),
-                array(),
-                null,
-                $language
-            );
+            if ($type != ProductOrder::PREORDER_TYPE || $price != 0) {
+                $channel = $this->get('translator')->trans(
+                    ProductOrderExport::TRANS_PRODUCT_ORDER_CHANNEL.$order->getPayChannel(),
+                    array(),
+                    null,
+                    $language
+                );
+            }
 
             $body = $this->getExportBody(
                 $collection,
