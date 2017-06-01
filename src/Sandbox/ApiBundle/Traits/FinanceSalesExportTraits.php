@@ -279,6 +279,13 @@ trait FinanceSalesExportTraits
                 $language
             );
 
+            $channel = $this->get('translator')->trans(
+                ProductOrderExport::TRANS_PRODUCT_ORDER_CHANNEL.$event->getPayChannel(),
+                array(),
+                null,
+                $language
+            );
+
             $body = $this->getExportBody(
                 $collection,
                 $buildingName,
@@ -297,7 +304,8 @@ trait FinanceSalesExportTraits
                 $creationDate,
                 $payDate,
                 $status,
-                $orderType
+                $orderType,
+                $channel
             );
 
             $eventBody[] = $body;
@@ -551,6 +559,13 @@ trait FinanceSalesExportTraits
                 $language
             );
 
+            $channel = $this->get('translator')->trans(
+                ProductOrderExport::TRANS_PRODUCT_ORDER_CHANNEL.$order->getPayChannel(),
+                array(),
+                null,
+                $language
+            );
+
             $body = $this->getExportBody(
                 $collection,
                 $buildingName,
@@ -569,7 +584,8 @@ trait FinanceSalesExportTraits
                 $creationDate,
                 $payDate,
                 $status,
-                $orderType
+                $orderType,
+                $channel
             );
 
             $shortBody[] = $body;
@@ -695,6 +711,13 @@ trait FinanceSalesExportTraits
                 $language
             );
 
+            $channel = $this->get('translator')->trans(
+                ProductOrderExport::TRANS_PRODUCT_ORDER_CHANNEL.$longBill->getPayChannel(),
+                array(),
+                null,
+                $language
+            );
+
             $body = $this->getExportBody(
                 $collection,
                 $buildingName,
@@ -713,7 +736,8 @@ trait FinanceSalesExportTraits
                 $creationDate,
                 $payDate,
                 $status,
-                $orderType
+                $orderType,
+                $channel
             );
 
             $longBody[] = $body;
