@@ -1982,6 +1982,20 @@ class AdminOrderController extends OrderController
                 $this->throwNotFoundIfNull($seat, self::NOT_FOUND_MESSAGE);
 
                 $basePrice = $seat->getBasePrice();
+            } else {
+                $leasingSet = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Product\ProductLeasingSet')
+                    ->findOneBy(array('product' => $product,'unitPrice'=>$timeUnit));
+
+                if ($leasingSet) {
+                    $basePrice = $leasingSet->getBasePrice();
+                } else {
+                    return $this->customErrorView(
+                        400,
+                        self::UNIT_NOT_FOUND_CODE,
+                        self::UNIT_NOT_FOUND_MESSAGE
+                    );
+                }
             }
 
             $calculatedPrice = $basePrice * $period;
