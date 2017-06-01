@@ -560,7 +560,7 @@ trait FinanceSalesExportTraits
                 $language
             );
 
-            if ($price != 0) {
+            if ($order->getPayChannel()) {
                 $channel = $this->get('translator')->trans(
                     ProductOrderExport::TRANS_PRODUCT_ORDER_CHANNEL.$order->getPayChannel(),
                     array(),
