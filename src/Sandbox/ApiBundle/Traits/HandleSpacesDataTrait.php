@@ -87,7 +87,7 @@ trait HandleSpacesDataTrait
                         'base_price' => $rentSet->getBasePrice(),
                         'unit_price' => $rentSet->getUnitPrice(),
                         'earliest_rent_date' => $rentSet->getEarliestRentDate(),
-                        'status' => $rentSet->getStatus(),
+                        'status' => $rentSet->isStatus(),
                     );
                 }
             }
