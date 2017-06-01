@@ -1970,8 +1970,6 @@ class AdminOrderController extends OrderController
 
             // check if price match
             $seatId = $order->getSeatId();
-            $basePrice = $product->getBasePrice();
-
             if (!is_null($seatId)) {
                 $seat = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Room\RoomFixed')
