@@ -21,7 +21,14 @@ class PreOrderType extends AbstractType
         $builder
             ->add('rule_id')
             ->add('price')
-            ->add('discount_price');
+            ->add('discount_price')
+            ->add(
+                'time_unit',
+                'text',
+                array(
+                    'mapped' => false,
+                )
+            );
     }
 
     /**
