@@ -868,6 +868,7 @@ class AdminBuildingController extends LocationController
     /**
      * @param $building
      * @param $removeDates
+     *
      * @return mixed
      */
     private function addRemoveDates(

@@ -284,7 +284,7 @@ class ProductController extends SalesRestController
                 ->findOneBy(array(
                     'company' => $company,
                     'tradeTypes' => SalesCompanyServiceInfos::TRADE_TYPE_LONGTERM,
-                    'status' => true
+                    'status' => true,
                 ));
 
             if ($service) {

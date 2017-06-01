@@ -3,6 +3,7 @@
 namespace Sandbox\ClientApiBundle\Controller\ThirdParty;
 
 use Sandbox\ApiBundle\Controller\ThirdParty\ThirdPartyController;
+use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\User\User;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -51,16 +52,65 @@ class ClientThirdPartyController extends ThirdPartyController
             throw new UnauthorizedHttpException(null, self::UNAUTHED_API_CALL);
         }
 
-        $groupUser = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
-            ->findOneBy(array('userId' => $user->getId()));
+        $userId = $user->getId();
+        $now = new \DateTime();
 
-        if (is_null($groupUser)) {
-            throw new UnauthorizedHttpException(null, self::UNAUTHED_API_CALL);
+        // membership order
+        $membershipOrder = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:MembershipCard\MembershipOrder')
+            ->countValidOrder(
+                $userId,
+                $now
+            );
+
+        if ($membershipOrder > 0) {
+            return new View(array('id' => $userId));
         }
 
-        return new View(array(
-            'id' => $user->getId(),
-        ));
+        // product order
+        $productOrder = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->countValidOrder(
+                $userId,
+                $now
+            );
+
+        if ($productOrder > 0) {
+            return new View(array('id' => $userId));
+        }
+
+        // event order
+        $eventOrder = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventOrder')
+            ->countValidOrder(
+                $userId,
+                $now
+            );
+
+        if ($eventOrder > 0) {
+            return new View(array('id' => $userId));
+        }
+
+        // lease
+        $status = array(
+            Lease::LEASE_STATUS_CONFIRMING,
+            Lease::LEASE_STATUS_CONFIRMED,
+            Lease::LEASE_STATUS_RECONFIRMING,
+            Lease::LEASE_STATUS_PERFORMING,
+        );
+
+        $lease = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\Lease')
+            ->countValidOrder(
+                $userId,
+                $now,
+                $status
+            );
+
+        if ($lease > 0) {
+            return new View(array('id' => $userId));
+        }
+
+        throw new UnauthorizedHttpException(null, self::UNAUTHED_API_CALL);
     }
 }

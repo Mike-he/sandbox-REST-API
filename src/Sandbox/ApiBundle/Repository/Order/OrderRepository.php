@@ -4293,4 +4293,28 @@ class OrderRepository extends EntityRepository
 
         return $result;
     }
+
+    public function countValidOrder(
+        $userId,
+        $now
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->select('count(o.id)')
+            ->leftJoin('SandboxApiBundle:Order\InvitedPeople', 'i', 'WITH', 'i.orderId = o.id')
+            ->where(
+                '(
+                    o.userId = :userId OR
+                    i.userId = :userId
+                )'
+            )
+            ->andWhere('o.status != :cancelled')
+            ->andWhere('o.startDate <= :now AND o.endDate > :now')
+            ->setParameter('now', $now)
+            ->setParameter('userId', $userId)
+            ->setParameter('cancelled', ProductOrder::STATUS_CANCELLED);
+
+        $result = $query->getQuery()->getSingleScalarResult();
+
+        return (int) $result;
+    }
 }

@@ -1983,7 +1983,7 @@ class AdminOrderController extends OrderController
             } else {
                 $leasingSet = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Product\ProductLeasingSet')
-                    ->findOneBy(array('product' => $product,'unitPrice'=>$timeUnit));
+                    ->findOneBy(array('product' => $product, 'unitPrice' => $timeUnit));
 
                 if ($leasingSet) {
                     $basePrice = $leasingSet->getBasePrice();
