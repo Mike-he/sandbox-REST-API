@@ -194,6 +194,7 @@ trait FinanceSalesExportTraits
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_PAYMENT_TIME, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_STATUS, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_TYPE, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_PAYMENT_CHANNEL, array(), null, $language),
         ];
     }
 
@@ -405,6 +406,13 @@ trait FinanceSalesExportTraits
                 $language
             );
 
+            $channel = $this->get('translator')->trans(
+                ProductOrderExport::TRANS_PRODUCT_ORDER_CHANNEL.$order->getPayChannel(),
+                array(),
+                null,
+                $language
+            );
+
             $body = $this->getExportBody(
                 $collection,
                 $buildingName,
@@ -423,7 +431,8 @@ trait FinanceSalesExportTraits
                 $creationDate,
                 $payDate,
                 $status,
-                $orderType
+                $orderType,
+                $channel
             );
 
             $membershipBody[] = $body;
@@ -732,6 +741,7 @@ trait FinanceSalesExportTraits
      * @param $payDate
      * @param $status
      * @param $orderType
+     * @param $channel
      *
      * @return array
      */
@@ -753,7 +763,8 @@ trait FinanceSalesExportTraits
         $creationDate,
         $payDate,
         $status,
-        $orderType
+        $orderType,
+        $channel = null
     ) {
         // set excel body
         $body = array(
@@ -775,6 +786,7 @@ trait FinanceSalesExportTraits
             ProductOrderExport::PAYMENT_TIME => $payDate,
             ProductOrderExport::ORDER_STATUS => $status,
             ProductOrderExport::ORDER_TYPE => $orderType,
+            ProductOrderExport::PAYMENT_CHANNEL => $channel,
         );
 
         return $body;
