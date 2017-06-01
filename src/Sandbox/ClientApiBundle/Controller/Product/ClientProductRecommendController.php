@@ -2,10 +2,8 @@
 
 namespace Sandbox\ClientApiBundle\Controller\Product;
 
-use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Controller\Product\ProductController;
 use Sandbox\ApiBundle\Entity\Room\Room;
-use Sandbox\ApiBundle\Entity\Room\RoomTypeTags;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;

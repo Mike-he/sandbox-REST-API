@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
- * UserPayment
+ * UserPayment.
  *
  * @ORM\Table(name="user_payment")
  * @ORM\Entity
@@ -14,7 +14,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 class UserPayment
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -23,7 +23,7 @@ class UserPayment
     private $id;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="user_id", type="integer")
      */
@@ -52,11 +52,10 @@ class UserPayment
      */
     private $modificationDate;
 
-
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -64,9 +63,10 @@ class UserPayment
     }
 
     /**
-     * Set userId
+     * Set userId.
      *
-     * @param integer $userId
+     * @param int $userId
+     *
      * @return UserPayment
      */
     public function setUserId($userId)
@@ -77,9 +77,9 @@ class UserPayment
     }
 
     /**
-     * Get userId
+     * Get userId.
      *
-     * @return integer 
+     * @return int
      */
     public function getUserId()
     {
@@ -87,9 +87,10 @@ class UserPayment
     }
 
     /**
-     * Set password
+     * Set password.
      *
      * @param string $password
+     *
      * @return UserPayment
      */
     public function setPassword($password)
@@ -100,9 +101,9 @@ class UserPayment
     }
 
     /**
-     * Get password
+     * Get password.
      *
-     * @return string 
+     * @return string
      */
     public function getPassword()
     {
@@ -110,9 +111,10 @@ class UserPayment
     }
 
     /**
-     * Set creationDate
+     * Set creationDate.
      *
      * @param \DateTime $creationDate
+     *
      * @return UserPayment
      */
     public function setCreationDate($creationDate)
@@ -123,9 +125,9 @@ class UserPayment
     }
 
     /**
-     * Get creationDate
+     * Get creationDate.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getCreationDate()
     {
@@ -133,9 +135,10 @@ class UserPayment
     }
 
     /**
-     * Set modificationDate
+     * Set modificationDate.
      *
      * @param \DateTime $modificationDate
+     *
      * @return UserPayment
      */
     public function setModificationDate($modificationDate)
@@ -146,9 +149,9 @@ class UserPayment
     }
 
     /**
-     * Get modificationDate
+     * Get modificationDate.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getModificationDate()
     {

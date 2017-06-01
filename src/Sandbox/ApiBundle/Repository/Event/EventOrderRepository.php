@@ -518,4 +518,25 @@ class EventOrderRepository extends EntityRepository
 
         return $eventOrderQuery->getQuery()->getResult();
     }
+
+    public function countValidOrder(
+        $userId,
+        $now
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->select('count(o.id)')
+            ->leftJoin('SandboxApiBundle:Event\Event', 'e', 'WITH', 'e.id = o.eventId')
+            ->where('o.status = :paid OR o.status = :completed')
+            ->andWhere('o.userId = :userId')
+            ->andWhere('e.eventStartDate <= :now')
+            ->andWhere('e.eventEndDate >= :now')
+            ->setParameter('paid', EventOrder::STATUS_PAID)
+            ->setParameter('completed', EventOrder::STATUS_COMPLETED)
+            ->setParameter('userId', $userId)
+            ->setParameter('now', $now);
+
+        $result = $query->getQuery()->getSingleScalarResult();
+
+        return (int) $result;
+    }
 }
