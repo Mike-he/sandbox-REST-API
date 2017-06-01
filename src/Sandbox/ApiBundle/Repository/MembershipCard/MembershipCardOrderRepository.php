@@ -412,4 +412,21 @@ class MembershipCardOrderRepository extends EntityRepository
 
         return (int) $result;
     }
+
+    public function countValidOrder(
+        $userId,
+        $now
+    ) {
+        $query = $this->createQueryBuilder('mo')
+            ->select('count(mo.id)')
+            ->where('mo.user = :userId')
+            ->andWhere('mo.startDate <= :now')
+            ->andWhere('mo.endDate >= :now')
+            ->setParameter('userId', $userId)
+            ->setParameter('now', $now);
+
+        $result = $query->getQuery()->getSingleScalarResult();
+
+        return (int) $result;
+    }
 }

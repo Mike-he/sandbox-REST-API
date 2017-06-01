@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
- * UserPaymentValidationCheck
+ * UserPaymentValidationCheck.
  *
  * @ORM\Table(name="user_payment_validation_check")
  * @ORM\Entity
@@ -14,7 +14,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 class UserPaymentValidationCheck
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -23,14 +23,14 @@ class UserPaymentValidationCheck
     private $id;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="user_id", type="integer")
      */
     private $userId;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="validation_fails_count", type="integer")
      */
@@ -52,11 +52,10 @@ class UserPaymentValidationCheck
      */
     private $modificationDate;
 
-
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -64,9 +63,10 @@ class UserPaymentValidationCheck
     }
 
     /**
-     * Set userId
+     * Set userId.
      *
-     * @param integer $userId
+     * @param int $userId
+     *
      * @return UserPaymentValidationCheck
      */
     public function setUserId($userId)
@@ -77,9 +77,9 @@ class UserPaymentValidationCheck
     }
 
     /**
-     * Get userId
+     * Get userId.
      *
-     * @return integer 
+     * @return int
      */
     public function getUserId()
     {
@@ -87,9 +87,10 @@ class UserPaymentValidationCheck
     }
 
     /**
-     * Set validationFailsCount
+     * Set validationFailsCount.
      *
-     * @param integer $validationFailsCount
+     * @param int $validationFailsCount
+     *
      * @return UserPaymentValidationCheck
      */
     public function setValidationFailsCount($validationFailsCount)
@@ -100,9 +101,9 @@ class UserPaymentValidationCheck
     }
 
     /**
-     * Get validationFailsCount
+     * Get validationFailsCount.
      *
-     * @return integer 
+     * @return int
      */
     public function getValidationFailsCount()
     {
@@ -110,9 +111,10 @@ class UserPaymentValidationCheck
     }
 
     /**
-     * Set creationDate
+     * Set creationDate.
      *
      * @param \DateTime $creationDate
+     *
      * @return UserPaymentValidationCheck
      */
     public function setCreationDate($creationDate)
@@ -123,9 +125,9 @@ class UserPaymentValidationCheck
     }
 
     /**
-     * Get creationDate
+     * Get creationDate.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getCreationDate()
     {
@@ -133,9 +135,10 @@ class UserPaymentValidationCheck
     }
 
     /**
-     * Set modificationDate
+     * Set modificationDate.
      *
      * @param \DateTime $modificationDate
+     *
      * @return UserPaymentValidationCheck
      */
     public function setModificationDate($modificationDate)
@@ -146,9 +149,9 @@ class UserPaymentValidationCheck
     }
 
     /**
-     * Get modificationDate
+     * Get modificationDate.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getModificationDate()
     {
