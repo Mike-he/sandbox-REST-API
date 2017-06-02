@@ -425,27 +425,9 @@ class AdminFinanceOfflineController extends SandboxRestController
         $payStart = $paramFetcher->get('pay_start');
         $payEnd = $paramFetcher->get('pay_end');
 
-        $limit = $pageLimit;
-        $offset = ($pageIndex - 1) * $pageLimit;
-
         $transfers = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Offline\OfflineTransfer')
             ->getOfflineTransferForAdmin(
-                $type,
-                $status,
-                $keyword,
-                $keywordSearch,
-                $amountStart,
-                $amountEnd,
-                $payStart,
-                $payEnd,
-                $limit,
-                $offset
-            );
-
-        $count = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Offline\OfflineTransfer')
-            ->countOfflineTransferForAdmin(
                 $type,
                 $status,
                 $keyword,
@@ -460,22 +442,22 @@ class AdminFinanceOfflineController extends SandboxRestController
         foreach ($transfers as $transfer) {
             $transferDetail = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Offline\OfflineTransfer')
-                ->findOneBy(array('orderNumber' => $transfer['orderNumber']));
+                ->findOneBy(
+                    array('orderNumber' => $transfer['orderNumber']),
+                    array('id'=> 'DESC')
+                );
 
             $data[] = $transferDetail;
         }
 
-        $view = new View();
-        $view->setData(
-            array(
-                'current_page_number' => $pageIndex,
-                'num_items_per_page' => (int) $pageLimit,
-                'items' => $data,
-                'total_count' => (int) $count,
-            )
+        $paginator = new Paginator();
+        $pagination = $paginator->paginate(
+            $data,
+            $pageIndex,
+            $pageLimit
         );
 
-        return $view;
+        return new View($pagination);
     }
 
     /**
