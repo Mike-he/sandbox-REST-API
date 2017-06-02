@@ -10,7 +10,6 @@ use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentServiceBill;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Parameter\Parameter;
-use Sandbox\ApiBundle\Entity\Room\RoomTypes;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Sandbox\ApiBundle\Traits\FinanceTrait;
 use Sandbox\ApiBundle\Traits\SendNotification;
@@ -741,7 +740,7 @@ class AdminLeaseBillController extends SalesRestController
             if (!$bill) {
                 continue;
             }
-            if (!is_null($payload['revised_amount'])) {
+            if (isset($payload['revised_amount']) && !is_null($payload['revised_amount'])) {
                 $bill->setRevisedAmount($payload['revised_amount']);
                 if (is_null($payload['revision_note'])) {
                     throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILLS_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE);
@@ -872,7 +871,7 @@ class AdminLeaseBillController extends SalesRestController
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
             ->findOneBy(array(
                 'company' => $salesCompany,
-                'tradeTypes' => RoomTypes::TYPE_NAME_LONGTERM,
+                'tradeTypes' => SalesCompanyServiceInfos::TRADE_TYPE_LONGTERM,
                 'status' => true,
             ));
 
