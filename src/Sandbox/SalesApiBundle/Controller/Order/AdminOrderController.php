@@ -1606,7 +1606,7 @@ class AdminOrderController extends OrderController
                 );
             }
 
-            $timeUnit = $product->getUnitPrice();
+            $timeUnit = $form['time_unit']->getData();
             $period = $order->getRentPeriod();
 
             // get endDate

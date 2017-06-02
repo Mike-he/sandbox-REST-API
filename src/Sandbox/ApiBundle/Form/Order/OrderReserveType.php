@@ -17,6 +17,15 @@ class OrderReserveType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $this->addOrderField($builder);
+
+        $builder
+            ->add(
+                'time_unit',
+                'text',
+                array(
+                    'mapped' => false,
+                )
+            );
     }
 
     /**
