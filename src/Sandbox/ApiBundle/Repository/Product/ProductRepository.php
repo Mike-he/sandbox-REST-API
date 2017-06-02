@@ -1340,10 +1340,13 @@ class ProductRepository extends EntityRepository
                     r.type as room_type,
                     r.allowedPeople as allowed_people,
                     r.area,
-                    r.typeTag as type_tag
+                    r.typeTag as type_tag,
+                    rm.startHour as start_hour,
+                    rm.endHour as end_hour
                 ')
             ->leftJoin('p.room', 'r')
             ->leftJoin('r.building', 'b')
+            ->leftJoin('SandboxApiBundle:Room\RoomMeeting', 'rm', 'WITH', 'r.id = rm.room')
             ->where('p.isDeleted = FALSE')
             ->andWhere('r.isDeleted = FALSE')
             ->andWhere('b.company = :company')
