@@ -876,9 +876,10 @@ class AdminBuildingController extends LocationController
         $removeDates
     ) {
         if (!is_null($removeDates) && !empty($removeDates)) {
-            $removeDatesArray = json_encode($removeDates, true);
-            $building->setRemoveDatesInfo($removeDatesArray);
+            $removeDates = json_encode($removeDates, true);
         }
+
+        $building->setRemoveDatesInfo($removeDates);
 
         return $building;
     }
