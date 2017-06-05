@@ -79,7 +79,7 @@ class AdminRemark
     /**
      * @var int
      *
-     * @ORM\Column(name="objectId", type="integer")
+     * @ORM\Column(name="objectId", type="string", length=64)
      */
     private $objectId;
 
