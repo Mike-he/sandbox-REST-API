@@ -25,8 +25,10 @@ class SyncXmppUserCommand extends ContainerAwareCommand
 
         $em = $this->getContainer()->get('doctrine')->getManager();
         $user = $em->getRepository('SandboxApiBundle:User\User')->find($userId);
+        $profile = $em->getRepository('SandboxApiBundle:User\UserProfile')->findOneBy(array('userId'=>$userId));
+        $name = $profile->getName();
 
-        $response = $this->createXmppUser($user);
+        $response = $this->createXmppUser($user,$name);
         $responseJson = json_decode($response);
         $user->setXmppUsername($responseJson->username);
 
@@ -34,7 +36,8 @@ class SyncXmppUserCommand extends ContainerAwareCommand
     }
 
     private function createXmppUser(
-        $user
+        $user,
+        $name
     ) {
         // get globals
         $twig = $this->getContainer()->get('twig');
@@ -51,7 +54,8 @@ class SyncXmppUserCommand extends ContainerAwareCommand
         // request json
         $jsonData = $this->createJsonData(
             $username,
-            $user->getPassword()
+            $user->getPassword(),
+            $name
         );
 
         // set ezUser secret to basic auth
@@ -80,11 +84,13 @@ class SyncXmppUserCommand extends ContainerAwareCommand
 
     private function createJsonData(
         $username,
-        $password
+        $password,
+        $name
     ) {
         $dataArray = array();
         $dataArray['username'] = $username;
         $dataArray['password'] = $password;
+        $dataArray['name'] = $name;
 
         return json_encode($dataArray);
     }
