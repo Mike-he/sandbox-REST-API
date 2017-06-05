@@ -73,14 +73,18 @@ class AdminPlatformController extends AdminRestController
 
         if (is_null($adminPlatform)) {
             $adminPlatform = new AdminPlatform();
+            $adminPlatform->setUser($user);
+            $adminPlatform->setClient($client);
         }
 
-        $adminPlatform->setUser($user);
-        $adminPlatform->setClient($client);
         $adminPlatform->setPlatform($platform);
-        $adminPlatform->setCreationDate(new \DateTime('now'));
 
         if ($platform == AdminPermission::PERMISSION_PLATFORM_OFFICIAL) {
+            if ($platform == $adminPlatform->getPlatform()) {
+                return new View(array(
+                    'id' => $adminPlatform->getId(),
+                ));
+            }
             $salesCompany = null;
         } else {
             if (!isset($data['sales_company_id'])) {
@@ -90,8 +94,16 @@ class AdminPlatformController extends AdminRestController
                     self::ERROR_INVALID_SALES_COMPANY_ID_MESSAGE
                 );
             }
-
             $salesCompanyId = $data['sales_company_id'];
+
+            if ($platform == $adminPlatform->getPlatform() &&
+                $salesCompanyId == $adminPlatform->getSalesCompanyId()
+            ) {
+                return new View(array(
+                    'id' => $adminPlatform->getId(),
+                ));
+            }
+
             $salesCompany = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
                 ->find($salesCompanyId);
@@ -99,6 +111,7 @@ class AdminPlatformController extends AdminRestController
         }
 
         $adminPlatform->setSalesCompany($salesCompany);
+        $adminPlatform->setCreationDate(new \DateTime('now'));
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($adminPlatform);
