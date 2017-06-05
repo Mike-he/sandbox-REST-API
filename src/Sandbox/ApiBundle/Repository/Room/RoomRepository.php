@@ -679,7 +679,8 @@ class RoomRepository extends EntityRepository
                     c.name as sales_company_name,
                     r.type,
                     r.area, 
-                    r.allowedPeople as allowed_people
+                    r.allowedPeople as allowed_people,
+                    r.typeTag as type_tag
             ')
             ->leftJoin('r.building', 'b')
             ->leftJoin('b.company', 'c')
