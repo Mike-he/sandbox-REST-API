@@ -134,7 +134,7 @@ class EventOrderRepository extends EntityRepository
         }
 
         if (!is_null($company)) {
-            $query->andWhere('b.company = :company')
+            $query->andWhere('e.salesCompanyId = :company')
                 ->setParameter('company', $company);
         }
 
@@ -355,8 +355,10 @@ class EventOrderRepository extends EntityRepository
         }
 
         // filter by user
-        $query->andWhere('eo.userId = :userId')
-            ->setParameter('userId', $userId);
+        if(!is_null($userId)) {
+            $query->andWhere('eo.userId = :userId')
+                ->setParameter('userId', $userId);
+        }
 
         // order by
         $query->orderBy('eo.creationDate', 'DESC');
