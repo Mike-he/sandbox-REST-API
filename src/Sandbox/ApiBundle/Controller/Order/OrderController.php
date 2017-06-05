@@ -12,6 +12,7 @@ use Sandbox\ApiBundle\Entity\Order\ProductOrderInfo;
 use Sandbox\ApiBundle\Entity\Order\ProductOrderRecord;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Entity\Room\Room;
+use Sandbox\ApiBundle\Entity\Room\RoomTypeUnit;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesUser;
 use Sandbox\ApiBundle\Traits\ProductOrderNotification;
@@ -669,7 +670,8 @@ class OrderController extends PaymentController
         $now,
         $startDate,
         $endDate,
-        $product
+        $product,
+        $timeUnit
     ) {
         $error = [];
 
@@ -706,16 +708,18 @@ class OrderController extends PaymentController
             $meeting = $this->getRepo('Room\RoomMeeting')->findOneBy(['room' => $roomId]);
 
             if (!is_null($meeting)) {
-                $allowedStart = $meeting->getStartHour();
-                $allowedStart = $allowedStart->format('H:i:s');
-                $allowedEnd = $meeting->getEndHour();
-                $allowedEnd = $allowedEnd->format('H:i:s');
+                if ($timeUnit == RoomTypeUnit::UNIT_HOUR) {
+                    $allowedStart = $meeting->getStartHour();
+                    $allowedStart = $allowedStart->format('H:i:s');
+                    $allowedEnd = $meeting->getEndHour();
+                    $allowedEnd = $allowedEnd->format('H:i:s');
 
-                if ($startHour < $allowedStart || $endHour > $allowedEnd) {
-                    return $this->setErrorArray(
-                        self::ROOM_NOT_OPEN_CODE,
-                        self::ROOM_NOT_OPEN_MESSAGE
-                    );
+                    if ($startHour < $allowedStart || $endHour > $allowedEnd) {
+                        return $this->setErrorArray(
+                            self::ROOM_NOT_OPEN_CODE,
+                            self::ROOM_NOT_OPEN_MESSAGE
+                        );
+                    }
                 }
             }
         }
@@ -925,6 +929,7 @@ class OrderController extends PaymentController
      * @param $endDate
      * @param $user
      * @param $type
+     * @param $timeUnit
      *
      * @return array
      */
@@ -937,7 +942,8 @@ class OrderController extends PaymentController
         $startDate,
         $endDate,
         $user,
-        $type
+        $type,
+        $timeUnit = null
     ) {
         // check booking dates
         $error = $this->checkIfRoomOpen(
@@ -945,7 +951,8 @@ class OrderController extends PaymentController
             $now,
             $startDate,
             $endDate,
-            $product
+            $product,
+            $timeUnit
         );
 
         if (!empty($error)) {

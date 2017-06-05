@@ -13,6 +13,12 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class RoomTypeUnit
 {
+
+    const UNIT_HOUR = 'hour';
+    const UNIT_DAY = 'day';
+    const UNIT_WEEK = 'week';
+    const UNIT_MONTH = 'month';
+
     /**
      * @var int
      *
