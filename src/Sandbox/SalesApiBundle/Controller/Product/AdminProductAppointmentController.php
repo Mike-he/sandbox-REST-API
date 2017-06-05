@@ -284,6 +284,15 @@ class AdminProductAppointmentController extends AdminProductController
             AdminPermission::OP_LEVEL_VIEW
         );
 
+        $product = $appointment->getProduct();
+        $productRentSet = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\ProductRentSet')
+            ->findOneBy(array(
+                'product' => $product,
+                'status' => true,
+            ));
+        $product->setRentSet($productRentSet);
+
         $view = new View($appointment);
         $view->setSerializationContext(
             SerializationContext::create()->setGroups([
@@ -479,6 +488,15 @@ class AdminProductAppointmentController extends AdminProductController
             if (!is_null($lease)) {
                 $appointment->setLeaseId($lease->getId());
             }
+
+            $product = $appointment->getProduct();
+            $productRentSet = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\ProductRentSet')
+                ->findOneBy(array(
+                    'product' => $product,
+                    'status' => true,
+                ));
+            $product->setRentSet($productRentSet);
         }
 
         $view = new View();
