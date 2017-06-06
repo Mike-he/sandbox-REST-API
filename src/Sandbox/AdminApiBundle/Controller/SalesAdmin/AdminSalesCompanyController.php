@@ -1355,10 +1355,6 @@ class AdminSalesCompanyController extends SandboxRestController
                 'op_level' => 2,
             ],
             [
-                'key' => AdminPermission::KEY_SALES_PLATFORM_AUDIT,
-                'op_level' => 1,
-            ],
-            [
                 'key' => AdminPermission::KEY_SALES_BUILDING_BUILDING,
                 'op_level' => 2,
             ],
@@ -1385,26 +1381,6 @@ class AdminSalesCompanyController extends SandboxRestController
             [
                 'key' => AdminPermission::KEY_SALES_PLATFORM_INVOICE,
                 'op_level' => 1,
-            ],
-            [
-                'key' => AdminPermission::KEY_SALES_PLATFORM_LONG_TERM_SERVICE_BILLS,
-                'op_level' => 2,
-            ],
-            [
-                'key' => AdminPermission::KEY_SALES_PLATFORM_MONTHLY_BILLS,
-                'op_level' => 2,
-            ],
-            [
-                'key' => AdminPermission::KEY_SALES_PLATFORM_FINANCIAL_SUMMARY,
-                'op_level' => 2,
-            ],
-            [
-                'key' => AdminPermission::KEY_SALES_PLATFORM_WITHDRAWAL,
-                'op_level' => 2,
-            ],
-            [
-                'key' => AdminPermission::KEY_SALES_PLATFORM_ACCOUNT,
-                'op_level' => 2,
             ],
         ];
 
@@ -1478,7 +1454,6 @@ class AdminSalesCompanyController extends SandboxRestController
             AdminPermissionGroups::GROUP_KEY_SPACE,
             AdminPermissionGroups::GROUP_KEY_USER,
             AdminPermissionGroups::GROUP_KEY_ADMIN,
-            AdminPermissionGroups::GROUP_KEY_FINANCE,
         ];
 
         $permissions = [
@@ -1521,26 +1496,6 @@ class AdminSalesCompanyController extends SandboxRestController
             [
                 'key' => AdminPermission::KEY_SALES_PLATFORM_INVOICE,
                 'op_level' => 1,
-            ],
-            [
-                'key' => AdminPermission::KEY_SALES_PLATFORM_LONG_TERM_SERVICE_BILLS,
-                'op_level' => 2,
-            ],
-            [
-                'key' => AdminPermission::KEY_SALES_PLATFORM_MONTHLY_BILLS,
-                'op_level' => 2,
-            ],
-            [
-                'key' => AdminPermission::KEY_SALES_PLATFORM_FINANCIAL_SUMMARY,
-                'op_level' => 2,
-            ],
-            [
-                'key' => AdminPermission::KEY_SALES_PLATFORM_WITHDRAWAL,
-                'op_level' => 2,
-            ],
-            [
-                'key' => AdminPermission::KEY_SALES_PLATFORM_ACCOUNT,
-                'op_level' => 2,
             ],
         ];
 
