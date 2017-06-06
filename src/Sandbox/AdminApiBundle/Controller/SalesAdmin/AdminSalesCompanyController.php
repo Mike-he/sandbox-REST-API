@@ -1269,7 +1269,7 @@ class AdminSalesCompanyController extends SandboxRestController
                 ],
                 [
                     'key' => AdminPermission::KEY_SALES_PLATFORM_EVENT_ORDER,
-                    'op_level' => 2,
+                    'op_level' => 1,
                 ]
             );
 
@@ -1284,7 +1284,7 @@ class AdminSalesCompanyController extends SandboxRestController
                 ],
                 [
                     'key' => AdminPermission::KEY_SALES_PLATFORM_MEMBERSHIP_CARD_ORDER,
-                    'op_level' => 2,
+                    'op_level' => 1,
                 ],
                 [
                     'key' => AdminPermission::KEY_SALES_PLATFORM_MEMBERSHIP_CARD_PRODUCT,
@@ -1397,7 +1397,7 @@ class AdminSalesCompanyController extends SandboxRestController
                 ],
                 [
                     'key' => AdminPermission::KEY_SALES_PLATFORM_EVENT_ORDER,
-                    'op_level' => 2,
+                    'op_level' => 1,
                 ]
             );
 
@@ -1412,7 +1412,7 @@ class AdminSalesCompanyController extends SandboxRestController
                 ],
                 [
                     'key' => AdminPermission::KEY_SALES_PLATFORM_MEMBERSHIP_CARD_ORDER,
-                    'op_level' => 2,
+                    'op_level' => 1,
                 ],
                 [
                     'key' => AdminPermission::KEY_SALES_PLATFORM_MEMBERSHIP_CARD_PRODUCT,
