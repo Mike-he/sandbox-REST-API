@@ -29,13 +29,15 @@ class Version920170515020301 extends AbstractMigration implements ContainerAware
             ->findBy(array('isDeleted'=> 0));
 
         foreach ($products as $product) {
-            $productLeasingSet = new ProductLeasingSet();
-            $productLeasingSet->setProduct($product);
-            $productLeasingSet->setBasePrice($product->getBasePrice());
-            $productLeasingSet->setUnitPrice($product->getUnitPrice());
-            $productLeasingSet->setAmount(0);
+            if (!$product->getEarliestRentDate()) {
+                $productLeasingSet = new ProductLeasingSet();
+                $productLeasingSet->setProduct($product);
+                $productLeasingSet->setBasePrice($product->getBasePrice());
+                $productLeasingSet->setUnitPrice($product->getUnitPrice());
+                $productLeasingSet->setAmount(0);
 
-            $em->persist($productLeasingSet);
+                $em->persist($productLeasingSet);
+            }
         }
 
         $em->flush();
