@@ -60,6 +60,8 @@ class Version920170519055823 extends AbstractMigration implements ContainerAware
                     $room->setType('office');
                     $room->setTypeTag('boardroom');
                     break;
+                default:
+                    break;
             }
 
             $em->flush();
