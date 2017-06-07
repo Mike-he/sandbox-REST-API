@@ -542,6 +542,13 @@ class AdminEventOrderController extends AdminOrderController
         $dates = $this->getRepo('Event\EventDate')->findByEvent($event);
         $event->setDates($dates);
 
+        $attachments = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventAttachment')
+            ->findBy(array(
+                'event' => $event,
+            ));
+        $event->setAttachments($attachments);
+
         $user = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\User')
             ->find($order->getUserId());
