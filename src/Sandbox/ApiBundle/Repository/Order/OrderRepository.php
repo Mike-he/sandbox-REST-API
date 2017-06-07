@@ -4304,6 +4304,7 @@ class OrderRepository extends EntityRepository
             ->where(
                 '(
                     o.userId = :userId OR
+                    o.appointed = :userId OR
                     i.userId = :userId
                 )'
             )

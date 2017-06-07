@@ -559,7 +559,7 @@ class OrderController extends PaymentController
                 'leasing_set' => $leasingSetArray,
             ],
             'order' => [
-                'unit_price' =>$timeUnit,
+                'unit_price' => $timeUnit,
             ],
         ];
 
