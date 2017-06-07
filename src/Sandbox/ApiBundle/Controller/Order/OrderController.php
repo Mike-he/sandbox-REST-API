@@ -418,6 +418,7 @@ class OrderController extends PaymentController
     /**
      * @param $language
      * @param $product
+     * @param $timeUnit
      * @param null $seatId
      *
      * @return string
@@ -425,6 +426,7 @@ class OrderController extends PaymentController
     protected function storeRoomInfo(
         $language,
         $product,
+        $timeUnit,
         $seatId = null
     ) {
         $room = $this->getRepo('Room\Room')->find($product->getRoomId());
@@ -556,6 +558,9 @@ class OrderController extends PaymentController
                 'seat' => $seatArray,
                 'leasing_set' => $leasingSetArray,
             ],
+            'order' => [
+                'unit_price' =>$timeUnit,
+            ],
         ];
 
         return json_encode($productInfo);
@@ -565,11 +570,14 @@ class OrderController extends PaymentController
      * @param $em
      * @param $order
      * @param $product
+     * @param $timeUnit
+     * @param $language
      */
     protected function storeRoomRecord(
         $em,
         $order,
         $product,
+        $timeUnit,
         $language = 'zh_CN'
     ) {
         $room = $this->getRepo('Room\Room')->find($product->getRoomId());
@@ -587,6 +595,7 @@ class OrderController extends PaymentController
             $em,
             $product,
             $order,
+            $timeUnit,
             $language
         );
     }
@@ -990,16 +999,20 @@ class OrderController extends PaymentController
      * @param $em
      * @param $product
      * @param $order
+     * @param $timeUnit
+     * @param $language
      */
     protected function storeProductOrderInfo(
         $em,
         $product,
         $order,
+        $timeUnit,
         $language
     ) {
         $productInfo = $this->storeRoomInfo(
             $language,
             $product,
+            $timeUnit,
             $order->getSeatId()
         );
 
