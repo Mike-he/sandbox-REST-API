@@ -199,6 +199,31 @@ class RoomCity
     private $type;
 
     /**
+     * @var string
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_room",
+     *      "client",
+     *      "admin_detail",
+     *      "admin_event",
+     *      "client_detail",
+     *      "client_event",
+     *      "current_order",
+     *      "building_nearby",
+     *      "admin_building",
+     *      "admin_shop",
+     *      "client_order",
+     *      "shop_nearby",
+     *      "client_shop",
+     *      "admin_appointment"
+     * })
+     *
+     * @ORM\Column(name="timezone", type="string", length=64 ,nullable=true)
+     */
+    private $timezone;
+
+    /**
      * Get id.
      *
      * @return int
@@ -206,6 +231,22 @@ class RoomCity
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTimezone()
+    {
+        return $this->timezone;
+    }
+
+    /**
+     * @param string $timezone
+     */
+    public function setTimezone($timezone)
+    {
+        $this->timezone = $timezone;
     }
 
     /**

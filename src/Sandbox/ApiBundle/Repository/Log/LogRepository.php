@@ -22,6 +22,7 @@ class LogRepository extends EntityRepository
      * @param $mark
      * @param $startDate
      * @param $endDate
+     * @param $platform
      *
      * @return array
      */
@@ -34,11 +35,17 @@ class LogRepository extends EntityRepository
         $search = null,
         $key = null,
         $objectId = null,
-        $mark = null
+        $mark = null,
+        $platform = null
     ) {
         $query = $this->createQueryBuilder('l')
             ->where('1=1')
             ->orderBy('l.creationDate', 'DESC');
+
+        if (!is_null($platform)) {
+            $query->andWhere('l.platform = :platform')
+                ->setParameter('platform', $platform);
+        }
 
         if (!is_null($adminId)) {
             $query->andWhere('l.adminUsername = :adminId')
@@ -63,13 +70,23 @@ class LogRepository extends EntityRepository
         }
 
         if (!is_null($search) && !empty($search)) {
+            $userQuery = $this->createQueryBuilder('e')
+                ->select('DISTINCT up.userId')
+                ->from('SandboxApiBundle:User\UserProfile', 'up')
+                ->where('up.name LIKE :name')
+                ->setParameter('name', "%$search%");
+
+            $users = $userQuery->getQuery()->getResult();
+            $userIds = array_map('current', $users);
+
             $query->leftJoin('l.salesCompany', 'c')
                 ->andWhere('
-                    (l.adminUsername LIKE :search OR 
-                    c.name LIKE :search OR 
+                    (l.adminUsername IN (:userIds) OR
+                    c.name LIKE :search OR
                     l.logAction LIKE :search)
                 ')
-                ->setParameter('search', '%'.$search.'%');
+                ->setParameter('search', '%'.$search.'%')
+                ->setParameter('userIds', $userIds);
         }
 
         if (!is_null($mark)) {

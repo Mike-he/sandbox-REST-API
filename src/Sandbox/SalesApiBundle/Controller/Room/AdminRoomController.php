@@ -637,15 +637,6 @@ class AdminRoomController extends SalesRestController
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
-        // set rent type
-        $roomType = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Room\RoomTypes')
-            ->findOneBy(array(
-                'name' => $room->getType(),
-            ));
-
-        $room->setRentType($roomType->getType());
-
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['admin_room']));
         $view->setData($room);
@@ -1133,7 +1124,7 @@ class AdminRoomController extends SalesRestController
 
         // handle meeting rooms
         if (!is_null($meeting) &&
-            ($type == Room::TYPE_MEETING || $type == Room::TYPE_STUDIO || $type == Room::TYPE_SPACE)
+            ($type == Room::TYPE_MEETING || $type == Room::TYPE_OTHERS)
         ) {
             $roomMeeting = $this->getRepo('Room\RoomMeeting')->findOneByRoom($room);
             // remove the old data
@@ -1151,7 +1142,7 @@ class AdminRoomController extends SalesRestController
         }
 
         // handle fixed rooms
-        if (!is_null($fixed) && !empty($fixed) && $type == Room::TYPE_FIXED) {
+        if (!is_null($fixed) && !empty($fixed) && $type == Room::TYPE_DESK) {
             $this->handleRoomFixed(
                 $em,
                 $room,
@@ -1470,7 +1461,7 @@ class AdminRoomController extends SalesRestController
                 $em->persist($roomMeeting);
                 $em->flush();
                 break;
-            case Room::TYPE_STUDIO:
+            case Room::TYPE_OTHERS:
                 $format = 'H:i:s';
 
                 $start = \DateTime::createFromFormat(
@@ -1491,28 +1482,7 @@ class AdminRoomController extends SalesRestController
                 $em->persist($roomMeeting);
                 $em->flush();
                 break;
-            case Room::TYPE_SPACE:
-                $format = 'H:i:s';
-
-                $start = \DateTime::createFromFormat(
-                    $format,
-                    $meeting['start_hour']
-                );
-
-                $end = \DateTime::createFromFormat(
-                    $format,
-                    $meeting['end_hour']
-                );
-
-                $roomMeeting = new RoomMeeting();
-                $roomMeeting->setRoom($room);
-                $roomMeeting->setStartHour($start);
-                $roomMeeting->setEndHour($end);
-
-                $em->persist($roomMeeting);
-                $em->flush();
-                break;
-            case Room::TYPE_FIXED:
+            case Room::TYPE_DESK:
                 foreach ($roomsFixed as $fixed) {
                     $oldSeat = $this->getDoctrine()
                         ->getRepository('SandboxApiBundle:Room\RoomFixed')
@@ -1614,7 +1584,12 @@ class AdminRoomController extends SalesRestController
         $room = $this->getRepo('Room\Room')->find($id);
         $this->throwNotFoundIfNull($room, self::NOT_FOUND_MESSAGE);
 
-        $products = $this->getRepo('Product\Product')->findBy(['roomId' => $id]);
+        $product = $this->getRepo('Product\Product')->findOneBy([
+            'roomId' => $id,
+            'isDeleted' => false,
+        ]);
+
+        $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
 
         // check user permission
         $this->checkPermissionForRoomUsage($room->getBuildingId());
@@ -1629,15 +1604,34 @@ class AdminRoomController extends SalesRestController
             $yearEnd = $yearEnd->modify('last day of December'.$yearString);
             $yearEnd->setTime(23, 59, 59);
 
-            foreach ($products as $product) {
-                $productId = $product->getId();
+            $productId = $product->getId();
 
-                $results = $this->getRepo('Room\RoomUsageView')->getSalesRoomUsersUsage(
+            $results = $this->getRepo('Room\RoomUsageView')->getSalesRoomUsersUsage(
+                $productId,
+                $yearStart,
+                $yearEnd
+            );
+
+            $leaseStatus = array(
+                Lease::LEASE_STATUS_CONFIRMED,
+                Lease::LEASE_STATUS_RECONFIRMING,
+                Lease::LEASE_STATUS_PERFORMING,
+                Lease::LEASE_STATUS_END,
+                Lease::LEASE_STATUS_MATURED,
+                Lease::LEASE_STATUS_TERMINATED,
+                Lease::LEASE_STATUS_CLOSED,
+            );
+
+            $leaseResults = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Lease\Lease')
+                ->getRoomUsersUsage(
                     $productId,
                     $yearStart,
-                    $yearEnd
+                    $yearEnd,
+                    $leaseStatus
                 );
-            }
+
+            $results = array_merge($results, $leaseResults);
         }
 
         $view = new View();
@@ -1863,72 +1857,6 @@ class AdminRoomController extends SalesRestController
                 $start,
                 $end
             );
-        }
-
-        $view = new View();
-        $view->setSerializationContext(SerializationContext::create()->setGroups(['room_usage']));
-        $view->setData($results);
-
-        return $view;
-    }
-
-    /**
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
-     * @param $id
-     *
-     * @Route("/rooms/longterm/{id}/usage")
-     * @Method({"GET"})
-     *
-     * @Annotations\QueryParam(
-     *    name="year",
-     *    nullable=false,
-     *    description=""
-     * )
-     *
-     * @return View
-     */
-    public function getLongtermRoomUsageAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher,
-        $id
-    ) {
-        $product = $this->getRepo('Product\Product')->findOneBy([
-            'roomId' => $id,
-            'isDeleted' => false,
-        ]);
-        $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
-
-        // check user permission
-        $this->checkPermissionForRoomUsage($product->getRoom()->getBuildingId());
-
-        $yearString = $paramFetcher->get('year');
-        $results = [];
-        if (!is_null($product) && !is_null($yearString) && !empty($yearString)) {
-            $productId = $product->getId();
-            $yearStart = new \DateTime($yearString);
-            $yearStart = $yearStart->modify('first day of January'.$yearString);
-            $yearStart->setTime(0, 0, 0);
-            $yearEnd = new \DateTime($yearString);
-            $yearEnd = $yearEnd->modify('last day of December'.$yearString);
-            $yearEnd->setTime(23, 59, 59);
-            $status = array(
-                Lease::LEASE_STATUS_CONFIRMED,
-                Lease::LEASE_STATUS_RECONFIRMING,
-                Lease::LEASE_STATUS_PERFORMING,
-                Lease::LEASE_STATUS_END,
-                Lease::LEASE_STATUS_MATURED,
-                Lease::LEASE_STATUS_TERMINATED,
-                Lease::LEASE_STATUS_CLOSED,
-            );
-            $results = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Lease\Lease')
-                ->getRoomUsersUsage(
-                    $productId,
-                    $yearStart,
-                    $yearEnd,
-                    $status
-                );
         }
 
         $view = new View();

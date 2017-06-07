@@ -587,7 +587,7 @@ class RoomRepository extends EntityRepository
             throw new BadRequestHttpException();
         }
 
-        if ($type != Room::TYPE_FIXED) {
+        if ($type != Room::TYPE_DESK) {
             $query = $this->createQueryBuilder('r')
                 ->where('r.floor = :floor')
                 ->andWhere('
@@ -678,9 +678,9 @@ class RoomRepository extends EntityRepository
                     b.name as building_name,
                     c.name as sales_company_name,
                     r.type,
-                    rt.type as rent_type,
                     r.area, 
-                    r.allowedPeople as allowed_people
+                    r.allowedPeople as allowed_people,
+                    r.typeTag as type_tag
             ')
             ->leftJoin('r.building', 'b')
             ->leftJoin('b.company', 'c')
@@ -745,7 +745,6 @@ class RoomRepository extends EntityRepository
                     b.name as building_name,
                     c.name as sales_company_name,
                     r.type,
-                    rt.type as rent_type,
                     r.area, 
                     r.allowedPeople as allowed_people,
                     p.sortTime,

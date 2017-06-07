@@ -50,7 +50,7 @@ class LogModules
      *
      * @param string $name
      *
-     * @return LogModule
+     * @return LogModules
      */
     public function setName($name)
     {
@@ -74,7 +74,7 @@ class LogModules
      *
      * @param string $description
      *
-     * @return LogModule
+     * @return LogModules
      */
     public function setDescription($description)
     {

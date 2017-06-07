@@ -37,13 +37,6 @@ class AdminUserLoginController extends AdminRestController
     use YunPianSms;
     use HandleAdminLoginDataTrait;
 
-    const VERIFICATION_CODE_LENGTH = 6;
-    const ZH_SMS_BEFORE = '【展想创合】您正在登陆管理员账号，如确认是本人行为，请提交以下验证码完成操作：';
-    const ZH_SMS_AFTER = '。验证码在10分钟内有效。';
-
-    const EN_SMS_BEFORE = '【Sandbox3】Your verification code is ';
-    const EN_SMS_AFTER = '. The verification code will be expired after 10 minutes.';
-
     const PREFIX_ACCESS_TOKEN = 'access_token';
     const PREFIX_FRESH_TOKEN = 'fresh_token';
 
@@ -320,6 +313,7 @@ class AdminUserLoginController extends AdminRestController
                 array(
                     'phoneCode' => $admin->getPhoneCode(),
                     'phone' => $admin->getPhone(),
+                    'type' => 0,
                 )
             );
 
@@ -373,12 +367,13 @@ class AdminUserLoginController extends AdminRestController
         $checkCode,
         $phone
     ) {
-        $userCheckCode = $this->getRepo('User\UserCheckCode')->findOneBy(
-            array(
+        $userCheckCode = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCheckCode')
+            ->findOneBy(array(
                 'code' => $checkCode,
                 'phone' => $phone,
-            )
-        );
+                'type' => 0,
+            ));
 
         if (is_null($userCheckCode)) {
             return $this->customErrorView(

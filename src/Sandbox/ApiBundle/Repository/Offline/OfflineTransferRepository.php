@@ -30,6 +30,7 @@ class OfflineTransferRepository extends EntityRepository
         $payEnd
     ) {
         $query = $this->createQueryBuilder('o')
+            ->select('o.orderNumber')
             ->where('o.transferStatus != :unpaid')
             ->setParameter('unpaid', OfflineTransfer::STATUS_UNPAID);
 
@@ -75,10 +76,12 @@ class OfflineTransferRepository extends EntityRepository
             }
         }
 
-        $query->orderBy('o.creationDate', 'DESC');
+        $query->groupBy('o.orderNumber');
+
 
         return $query->getQuery()->getResult();
     }
+
 
     /**
      * @param $status
@@ -91,6 +94,7 @@ class OfflineTransferRepository extends EntityRepository
         $status
     ) {
         $query = $this->createQueryBuilder('o')
+            ->select('o.orderNumber')
             ->where('o.userId = :userId')
             ->andWhere('o.type = :topup')
             ->setParameter('userId', $userId)
@@ -101,7 +105,9 @@ class OfflineTransferRepository extends EntityRepository
                 ->setParameter('status', $status);
         }
 
-        $query->orderBy('o.creationDate', 'DESC');
+        $query->groupBy('o.orderNumber');
+
+        $query->orderBy('o.orderNumber', 'DESC');
 
         return $query->getQuery()->getResult();
     }

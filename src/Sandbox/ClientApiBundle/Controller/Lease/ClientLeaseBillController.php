@@ -11,7 +11,6 @@ use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBillOfflineTransfer;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBillTransferAttachment;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
-use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Sandbox\ApiBundle\Form\Lease\LeaseBillOfflineTransferPost;
@@ -236,17 +235,17 @@ class ClientLeaseBillController extends PaymentController
 
         //check collection method
         $room = $bill->getLease()->getProduct()->getRoom();
-        $type = $room->getType();
-        if ($type == Room::TYPE_LONG_TERM) {
-            $company = $room->getBuilding()->getCompany();
+        $company = $room->getBuilding()->getCompany();
 
-            $collectionMethod = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
-                ->getCollectionMethod($company, $type);
+        $collectionMethod = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
+            ->getCollectionMethod(
+                $company,
+                SalesCompanyServiceInfos::TRADE_TYPE_LONGTERM
+            );
 
-            if ($collectionMethod == SalesCompanyServiceInfos::COLLECTION_METHOD_SALES) {
-                throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILL_COLLECTION_METHOD_MESSAGE);
-            }
+        if ($collectionMethod == SalesCompanyServiceInfos::COLLECTION_METHOD_SALES) {
+            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILL_COLLECTION_METHOD_MESSAGE);
         }
 
         $requestContent = json_decode($request->getContent(), true);
@@ -319,10 +318,12 @@ class ClientLeaseBillController extends PaymentController
      *
      * @throws \Exception
      */
-    public function updateTransferAction(
+    public function addTransferAction(
         Request $request,
         $id
     ) {
+        $em = $this->getDoctrine()->getManager();
+
         $bill = $this->getDoctrine()
             ->getRepository("SandboxApiBundle:Lease\LeaseBill")
             ->findOneBy(
@@ -334,24 +335,9 @@ class ClientLeaseBillController extends PaymentController
             );
         $this->throwNotFoundIfNull($bill, CustomErrorMessagesConstants::ERROR_BILL_NOT_FOUND_MESSAGE);
 
-        $transfer = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Lease\LeaseBillOfflineTransfer')
-            ->findOneBy(array('bill' => $id));
-
-        if (is_null($transfer)) {
-            return new View();
-        }
-
-        $transferStatus = $transfer->getTransferStatus();
-        if ($transferStatus != LeaseBillOfflineTransfer::STATUS_UNPAID &&
-            $transferStatus != LeaseBillOfflineTransfer::STATUS_RETURNED
-        ) {
-            return $this->customErrorView(
-                400,
-                self::WRONG_ORDER_STATUS_CODE,
-                self::WRONG_ORDER_STATUS_MESSAGE
-            );
-        }
+        $transfer = new LeaseBillOfflineTransfer();
+        $transfer->setBill($bill);
+        $transfer->setTransferStatus(LeaseBillOfflineTransfer::STATUS_PENDING);
 
         $form = $this->createForm(new LeaseBillOfflineTransferPost(), $transfer);
         $form->submit(json_decode($request->getContent(), true));
@@ -369,16 +355,6 @@ class ClientLeaseBillController extends PaymentController
             return new View();
         }
 
-        $em = $this->getDoctrine()->getManager();
-
-        $transferAttachments = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Lease\LeaseBillTransferAttachment')
-            ->findBy(array('transfer' => $transfer));
-
-        foreach ($transferAttachments as $transferAttachment) {
-            $em->remove($transferAttachment);
-        }
-
         $attachment = new LeaseBillTransferAttachment();
         $attachment->setContent($attachmentArray[0]['content']);
         $attachment->setAttachmentType($attachmentArray[0]['attachment_type']);
@@ -386,9 +362,9 @@ class ClientLeaseBillController extends PaymentController
         $attachment->setPreview($attachmentArray[0]['preview']);
         $attachment->setSize($attachmentArray[0]['size']);
         $attachment->setTransfer($transfer);
-        $em->persist($attachment);
 
-        $transfer->setTransferStatus(LeaseBillOfflineTransfer::STATUS_PENDING);
+        $em->persist($transfer);
+        $em->persist($attachment);
 
         $em->flush();
 
@@ -423,17 +399,17 @@ class ClientLeaseBillController extends PaymentController
 
         //check collection method
         $room = $bill->getLease()->getProduct()->getRoom();
-        $type = $room->getType();
-        if ($type == Room::TYPE_LONG_TERM) {
-            $company = $room->getBuilding()->getCompany();
+        $company = $room->getBuilding()->getCompany();
 
-            $collectionMethod = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
-                ->getCollectionMethod($company, $type);
+        $collectionMethod = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
+            ->getCollectionMethod(
+                $company,
+                SalesCompanyServiceInfos::TRADE_TYPE_LONGTERM
+            );
 
-            if ($collectionMethod != SalesCompanyServiceInfos::COLLECTION_METHOD_SALES) {
-                throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILL_COLLECTION_METHOD_MESSAGE);
-            }
+        if ($collectionMethod != SalesCompanyServiceInfos::COLLECTION_METHOD_SALES) {
+            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILL_COLLECTION_METHOD_MESSAGE);
         }
 
         // check if request user is the same as drawee
@@ -472,21 +448,19 @@ class ClientLeaseBillController extends PaymentController
         $result = array();
         foreach ($bills as $bill) {
             $room = $bill->getLease()->getProduct()->getRoom();
-            $type = $room->getType();
             $building = $room->getBuilding();
+            $company = $building->getCompany();
 
             $attachment = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Room\RoomAttachmentBinding')
                 ->findAttachmentsByRoom($room, 1);
 
-            $collectionMethod = null;
-            if ($type == Room::TYPE_LONG_TERM) {
-                $company = $building->getCompany();
-
-                $collectionMethod = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
-                    ->getCollectionMethod($company, $type);
-            }
+            $collectionMethod = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
+                ->getCollectionMethod(
+                    $company,
+                    SalesCompanyServiceInfos::TRADE_TYPE_LONGTERM
+                );
 
             $transfer = $bill->getTransfer();
 
@@ -530,16 +504,15 @@ class ClientLeaseBillController extends PaymentController
     ) {
         $product = $bill->getLease()->getProduct();
         $room = $product->getRoom();
-        $type = $room->getType();
         $building = $room->getBuilding();
         $company = $building->getCompany();
 
-        $collectionMethod = null;
-        if ($type == Room::TYPE_LONG_TERM) {
-            $collectionMethod = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
-                ->getCollectionMethod($company, $type);
-        }
+        $collectionMethod = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
+            ->getCollectionMethod(
+                $company,
+                SalesCompanyServiceInfos::TRADE_TYPE_LONGTERM
+            );
 
         $drawee = $bill->getDrawee() ? $bill->getDrawee() : $bill->getLease()->getDrawee()->getId();
 
@@ -617,12 +590,7 @@ class ClientLeaseBillController extends PaymentController
             return new View();
         }
 
-        $transfer = new LeaseBillOfflineTransfer();
-        $transfer->setBill($bill);
-
         $em = $this->getDoctrine()->getManager();
-        $em->persist($transfer);
-
         $em->flush();
 
         return new View();

@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\Traits;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Constants\EventOrderExport;
 use Sandbox\ApiBundle\Constants\LeaseConstants;
+use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
@@ -194,6 +195,7 @@ trait FinanceSalesExportTraits
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_PAYMENT_TIME, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_STATUS, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_TYPE, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_PAYMENT_CHANNEL, array(), null, $language),
         ];
     }
 
@@ -278,6 +280,13 @@ trait FinanceSalesExportTraits
                 $language
             );
 
+            $channel = $this->get('translator')->trans(
+                ProductOrderExport::TRANS_PRODUCT_ORDER_CHANNEL.$event->getPayChannel(),
+                array(),
+                null,
+                $language
+            );
+
             $body = $this->getExportBody(
                 $collection,
                 $buildingName,
@@ -296,7 +305,8 @@ trait FinanceSalesExportTraits
                 $creationDate,
                 $payDate,
                 $status,
-                $orderType
+                $orderType,
+                $channel
             );
 
             $eventBody[] = $body;
@@ -405,6 +415,13 @@ trait FinanceSalesExportTraits
                 $language
             );
 
+            $channel = $this->get('translator')->trans(
+                ProductOrderExport::TRANS_PRODUCT_ORDER_CHANNEL.$order->getPayChannel(),
+                array(),
+                null,
+                $language
+            );
+
             $body = $this->getExportBody(
                 $collection,
                 $buildingName,
@@ -423,7 +440,8 @@ trait FinanceSalesExportTraits
                 $creationDate,
                 $payDate,
                 $status,
-                $orderType
+                $orderType,
+                $channel
             );
 
             $membershipBody[] = $body;
@@ -542,6 +560,16 @@ trait FinanceSalesExportTraits
                 $language
             );
 
+            $channel = '';
+            if ($order->getPayChannel()) {
+                $channel = $this->get('translator')->trans(
+                    ProductOrderExport::TRANS_PRODUCT_ORDER_CHANNEL.$order->getPayChannel(),
+                    array(),
+                    null,
+                    $language
+                );
+            }
+
             $body = $this->getExportBody(
                 $collection,
                 $buildingName,
@@ -560,7 +588,8 @@ trait FinanceSalesExportTraits
                 $creationDate,
                 $payDate,
                 $status,
-                $orderType
+                $orderType,
+                $channel
             );
 
             $shortBody[] = $body;
@@ -686,6 +715,13 @@ trait FinanceSalesExportTraits
                 $language
             );
 
+            $channel = $this->get('translator')->trans(
+                ProductOrderExport::TRANS_PRODUCT_ORDER_CHANNEL.$longBill->getPayChannel(),
+                array(),
+                null,
+                $language
+            );
+
             $body = $this->getExportBody(
                 $collection,
                 $buildingName,
@@ -704,7 +740,8 @@ trait FinanceSalesExportTraits
                 $creationDate,
                 $payDate,
                 $status,
-                $orderType
+                $orderType,
+                $channel
             );
 
             $longBody[] = $body;
@@ -732,6 +769,7 @@ trait FinanceSalesExportTraits
      * @param $payDate
      * @param $status
      * @param $orderType
+     * @param $channel
      *
      * @return array
      */
@@ -753,7 +791,8 @@ trait FinanceSalesExportTraits
         $creationDate,
         $payDate,
         $status,
-        $orderType
+        $orderType,
+        $channel = null
     ) {
         // set excel body
         $body = array(
@@ -775,6 +814,7 @@ trait FinanceSalesExportTraits
             ProductOrderExport::PAYMENT_TIME => $payDate,
             ProductOrderExport::ORDER_STATUS => $status,
             ProductOrderExport::ORDER_TYPE => $orderType,
+            ProductOrderExport::PAYMENT_CHANNEL => $channel,
         );
 
         return $body;

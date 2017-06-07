@@ -439,4 +439,25 @@ class LeaseRepository extends EntityRepository
 
         return $result;
     }
+
+    public function countValidOrder(
+        $userId,
+        $now,
+        $status
+    ) {
+        $query = $this->createQueryBuilder('l')
+            ->select('count(l.id)')
+            ->leftJoin('l.invitedPeople', 'p')
+            ->where('l.status IN (:status)')
+            ->andWhere('(l.drawee = :userId OR l.supervisor = :userId OR p.id = :userId)')
+            ->andWhere('l.startDate <= :now')
+            ->andWhere('l.endDate >= :now')
+            ->setParameter('status', $status)
+            ->setParameter('userId', $userId)
+            ->setParameter('now', $now);
+
+        $result = $query->getQuery()->getSingleScalarResult();
+
+        return (int) $result;
+    }
 }

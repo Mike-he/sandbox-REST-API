@@ -50,6 +50,7 @@ class MenuController extends SandboxRestController
     const CLIENT_MENU_MY_INVOICE = 'client.menu.my_invoice';
     const CLIENT_MENU_MEMBERSHIP_CARD = 'client.menu.my_membership_card';
     const CLIENT_MENU_RESET_PASSWORD = 'client.menu.reset_password';
+    const CLIENT_MENU_PAYMENT_PASSWORD = 'client.menu.payment_password';
     const CLIENT_MENU_EMAIL = 'client.menu.email';
     const CLIENT_MENU_PHONE = 'client.menu.phone';
     const CLIENT_MENU_ABOUT_US = 'client.menu.about_us';
@@ -165,6 +166,7 @@ class MenuController extends SandboxRestController
             self::CLIENT_MENU_MY_INVOICE,
             self::CLIENT_MENU_MEMBERSHIP_CARD,
             self::CLIENT_MENU_RESET_PASSWORD,
+            self::CLIENT_MENU_PAYMENT_PASSWORD,
             self::CLIENT_MENU_EMAIL,
             self::CLIENT_MENU_PHONE,
             self::CLIENT_MENU_ABOUT_US,
@@ -396,6 +398,7 @@ class MenuController extends SandboxRestController
         $items,
         $asserts
     ) {
+        $imageUrl = $this->getParameter('image_url');
         foreach ($asserts as $assert) {
             $item_key = $assert['item_key'];
             $limit = $assert['limit'];
@@ -408,7 +411,7 @@ class MenuController extends SandboxRestController
                         $roomTypeItem[] = array(
                             'type' => 'web',
                             'name' => $this->get('translator')->trans(self::ROOM_TYPE.$d->getName()),
-                            'icon_url' => $d->getHomepageIcon(),
+                            'icon_url' => $imageUrl.$d->getHomepageIcon(),
                             'web' => array(
                                 'url' => $this->container->getParameter('room_mobile_url').'/search',
                                 'cookie' => array(

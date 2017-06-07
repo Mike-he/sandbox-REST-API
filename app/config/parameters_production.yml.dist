@@ -105,6 +105,7 @@ parameters:
     rest_api_local_url: localhost.api.rest
     top_level_domain: sandbox3.cn
     jpush_apns_option: true
+
     image_url: https://image.sandbox3.cn
     file_server_url: https://xmpp.sandbox3.cn/plugins/fileServer/fileservice
     rest_file_server_url: https://rest.sandbox3.cn/plugins/fileServer/fileservice
@@ -118,6 +119,6 @@ parameters:
     openfire_db_user: production_xmpp
     openfire_db_password: Sandhill2290
 
-    duiba_app_key: 2ZqB9vFoKu2nibZ4R5EDRkoLnWe9
-    duiba_app_secret: mugee2DfByHGkMczL5yhLw56vEL
+    duiba_app_key: YSK9PSuahvtV6C3AQtZ85CJ2isw
+    duiba_app_secret: z3jDWM6BXhyEryGpZVpVdEczsUE
     duiba_app_env: pro

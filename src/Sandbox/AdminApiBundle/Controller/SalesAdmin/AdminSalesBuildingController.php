@@ -165,7 +165,7 @@ class AdminSalesBuildingController extends LocationController
         );
         foreach ($buildings as $building) {
             // set more information
-            $this->setRoomBuildingMoreInformation($building);
+            $this->setRoomBuildingMoreInformation($building, $request);
         }
 
         $paginator = new Paginator();
@@ -213,7 +213,7 @@ class AdminSalesBuildingController extends LocationController
         $this->throwNotFoundIfNull($building, self::NOT_FOUND_MESSAGE);
 
         // set more information
-        $this->setRoomBuildingMoreInformation($building);
+        $this->setRoomBuildingMoreInformation($building, $request);
 
         // set view
         $view = new View($building);

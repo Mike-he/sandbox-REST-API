@@ -19,6 +19,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
  */
 class AdminDashBoardController extends SalesRestController
 {
+    const TYPE_MEMBERSHIP_CARD = 'membership_card';
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
@@ -58,6 +59,15 @@ class AdminDashBoardController extends SalesRestController
      *    description=""
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="visible",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by visibility"
+     * )
+     *
      * @Route("/dashboard/rooms/usage")
      * @Method({"GET"})
      *
@@ -78,29 +88,64 @@ class AdminDashBoardController extends SalesRestController
         $endString = $paramFetcher->get('end');
         $building = $paramFetcher->get('building');
         $query = $paramFetcher->get('query');
+        $visible = $paramFetcher->get('visible');
 
         $start = new \DateTime($startString);
         $start->setTime(0, 0, 0);
         $end = new \DateTime($endString);
         $end->setTime(23, 59, 59);
 
-        $products = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Product\Product')
-            ->findProductIdsByRoomType(
-                $salesCompanyId,
-                $roomType,
-                $building,
-                $query
-            );
-
         $usages = array();
-        foreach ($products as $product) {
-            $usages[] = $this->generateOrders(
-                $product,
-                $roomType,
-                $start,
-                $end
-            );
+        switch ($roomType) {
+            case self::TYPE_MEMBERSHIP_CARD:
+                $cardIds = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:User\UserGroupDoors')
+                    ->getMembershipCard(
+                        $building
+                    );
+
+                $membershipCards = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:MembershipCard\MembershipCard')
+                    ->getCards(
+                        $salesCompanyId,
+                        $cardIds,
+                        $visible,
+                        $query
+                    );
+
+                foreach ($membershipCards as $membershipCard) {
+                    $specification = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:MembershipCard\MembershipCardSpecification')
+                        ->findBy(array('card' => $membershipCard));
+                    if ($specification) {
+                        $usages[] = $this->generateMembershipCardOrders(
+                            $membershipCard,
+                            $start,
+                            $end
+                        );
+                    }
+                }
+
+                break;
+            default:
+                $products = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Product\Product')
+                    ->findProductIdsByRoomType(
+                        $salesCompanyId,
+                        $roomType,
+                        $building,
+                        $query,
+                        $visible
+                    );
+
+                foreach ($products as $product) {
+                    $usages[] = $this->generateOrders(
+                        $product,
+                        $roomType,
+                        $start,
+                        $end
+                    );
+                }
         }
 
         $view = new View();
@@ -165,49 +210,48 @@ class AdminDashBoardController extends SalesRestController
         $start,
         $end
     ) {
-        switch ($roomType) {
-            case Room::TYPE_FLEXIBLE:
-                $orders = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:Order\ProductOrder')
-                    ->getRoomUsersUsage(
-                        $product['id'],
-                        $start,
-                        $end
-                    );
+        $orders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getRoomUsersUsage(
+                $product['id'],
+                $start,
+                $end
+            );
 
-                $orderList = $this->handleFlexibleOrder($orders);
-                break;
-            case Room::TYPE_LONG_TERM:
-                $status = array(
-                    Lease::LEASE_STATUS_CONFIRMED,
-                    Lease::LEASE_STATUS_RECONFIRMING,
-                    Lease::LEASE_STATUS_PERFORMING,
-                    Lease::LEASE_STATUS_END,
-                    Lease::LEASE_STATUS_MATURED,
-                    Lease::LEASE_STATUS_TERMINATED,
-                    Lease::LEASE_STATUS_CLOSED,
+        $orderList = $this->handleOrders($orders);
+
+        $status = array(
+            Lease::LEASE_STATUS_CONFIRMED,
+            Lease::LEASE_STATUS_RECONFIRMING,
+            Lease::LEASE_STATUS_PERFORMING,
+            Lease::LEASE_STATUS_END,
+            Lease::LEASE_STATUS_MATURED,
+            Lease::LEASE_STATUS_TERMINATED,
+            Lease::LEASE_STATUS_CLOSED,
+        );
+        $leases = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\Lease')
+            ->getRoomUsersUsage(
+                $product['id'],
+                $start,
+                $end,
+                $status
+            );
+
+        $leaseList = $this->handleLease($leases);
+
+        $orderList = array_merge($orderList, $leaseList);
+
+        if ($roomType == Room::TYPE_DESK && $product['type_tag'] == 'hot_desk') {
+            $orders = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Order\ProductOrder')
+                ->getRoomUsersUsage(
+                    $product['id'],
+                    $start,
+                    $end
                 );
-                $leases = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:Lease\Lease')
-                    ->getRoomUsersUsage(
-                        $product['id'],
-                        $start,
-                        $end,
-                        $status
-                    );
 
-                $orderList = $this->handleLease($leases);
-                break;
-            default:
-                $orders = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:Order\ProductOrder')
-                    ->getRoomUsersUsage(
-                        $product['id'],
-                        $start,
-                        $end
-                    );
-
-                $orderList = $this->handleOrders($orders);
+            $orderList = $this->handleFlexibleOrder($orders);
         }
 
         $attachment = $this->getDoctrine()
@@ -216,7 +260,7 @@ class AdminDashBoardController extends SalesRestController
 
         $product['attachment'] = $attachment;
 
-        if ($product['room_type'] == Room::TYPE_FIXED) {
+        if ($product['room_type'] == Room::TYPE_DESK) {
             $seats = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Room\RoomFixed')
                 ->findBy(array(
@@ -235,8 +279,79 @@ class AdminDashBoardController extends SalesRestController
             $product['seats'] = $productSeats;
         }
 
+        $productLeasingSets = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\ProductLeasingSet')
+            ->findBy(array('product' => $product['id']));
+
+        foreach ($productLeasingSets as $productLeasingSet) {
+            $product['leasing_sets'][] = array(
+                'base_price' => $productLeasingSet->getBasePrice(),
+                'unit_price' => $productLeasingSet->getUnitPrice(),
+                'amount' => $productLeasingSet->getAmount(),
+            );
+        }
+
         $result = array(
             'product' => $product,
+            'orders' => $orderList,
+        );
+
+        return $result;
+    }
+
+    /**
+     * @param $card
+     * @param $start
+     * @param $end
+     *
+     * @return array
+     */
+    private function generateMembershipCardOrders(
+        $card,
+        $start,
+        $end
+    ) {
+        $months = new \DatePeriod(
+            $start,
+            new \DateInterval('P1M'),
+            $end
+        );
+
+        $orderList = array();
+        $max = 0;
+        foreach ($months as $month) {
+            $startDate = $month;
+            $endDate = clone $month;
+            $endDate = $endDate->modify('last day of this month');
+            $endDate->setTime(23, 59, 59);
+
+            $count = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:MembershipCard\MembershipOrder')
+                ->countMembershipOrdersByDate(
+                    $card,
+                    $startDate,
+                    $endDate
+                );
+
+            if ($count > $max) {
+                $max = $count;
+            }
+
+            $orderList[] = array(
+                'month' => $month,
+                'count' => $count,
+            );
+        }
+
+        $specification = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:MembershipCard\MembershipCardSpecification')
+            ->findBy(array('card' => $card));
+
+        $card->setSpecification($specification);
+
+        $result = array(
+            'card' => $card,
+            'max' => $max,
             'orders' => $orderList,
         );
 

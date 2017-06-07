@@ -160,12 +160,6 @@ class AdminCommunityController extends SalesRestController
         $this->checkAdminCommunityPermissions(AdminPermission::OP_LEVEL_VIEW);
 
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
-        $platform = $adminPlatform['platform'];
-
-        if ($platform != AdminPermission::PERMISSION_PLATFORM_SALES) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-        }
-
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
         $building = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')->find($id);
@@ -174,6 +168,8 @@ class AdminCommunityController extends SalesRestController
         $UsedRoomTypes = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
             ->getCompanyService($salesCompanyId);
+
+        $imageUrl = $this->getParameter('image_url');
 
         $result = array();
         foreach ($UsedRoomTypes as $usedRoomType) {
@@ -205,7 +201,7 @@ class AdminCommunityController extends SalesRestController
                     'id' => $roomType->getId(),
                     'type' => $roomType->getName(),
                     'name' => $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$roomType->getName()),
-                    'icon' => $roomType->getIcon(),
+                    'icon' => $imageUrl.$roomType->getIcon(),
                     'building_id' => $id,
                     'using_number' => (int) $using_number,
                     'all_number' => (int) $all_number,

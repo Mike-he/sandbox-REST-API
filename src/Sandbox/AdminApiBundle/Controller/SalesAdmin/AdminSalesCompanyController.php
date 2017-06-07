@@ -8,6 +8,8 @@ use Sandbox\ApiBundle\Entity\Admin\AdminExcludePermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionGroups;
 use Sandbox\ApiBundle\Entity\Admin\AdminPosition;
+use Sandbox\ApiBundle\Entity\Admin\AdminPositionGroupBinding;
+use Sandbox\ApiBundle\Entity\Admin\AdminPositionPermissionMap;
 use Sandbox\ApiBundle\Entity\Admin\AdminPositionUserBinding;
 use Sandbox\ApiBundle\Entity\Finance\FinanceSalesWallet;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
@@ -474,6 +476,8 @@ class AdminSalesCompanyController extends SandboxRestController
 
         $em->persist($wallet);
         $em->flush();
+
+        $this->addDefaultPositionsForSales($salesCompany, $excludePermissions);
 
         // set view
         $view = new View();
@@ -1112,5 +1116,609 @@ class AdminSalesCompanyController extends SandboxRestController
             $admins,
             $platform
         );
+    }
+
+    /**
+     * @param SalesCompany $salesCompany
+     * @param              $excludePermissions
+     */
+    private function addDefaultPositionsForSales(
+        $salesCompany,
+        $excludePermissions
+    ) {
+        $em = $this->getDoctrine()->getManager();
+
+        $this->addGeneralManagerPosition(
+            $em,
+            $salesCompany,
+            $excludePermissions
+        );
+
+        $this->addManagerPosition(
+            $em,
+            $salesCompany,
+            $excludePermissions
+        );
+
+        $this->addStaffPosition(
+            $em,
+            $salesCompany,
+            $excludePermissions
+        );
+
+        $this->addFinancePosition(
+            $em,
+            $salesCompany,
+            $excludePermissions
+        );
+
+        $em->flush();
+    }
+
+    /**
+     * @param $em
+     * @param $salesCompany
+     * @param $excludePermissions
+     */
+    private function addGeneralManagerPosition(
+        $em,
+        $salesCompany,
+        $excludePermissions
+    ) {
+        $defaultGroups = array();
+        $defaultPermissions = array();
+
+        $generalManagerGroups = [
+            AdminPermissionGroups::GROUP_KEY_DASHBOARD,
+            AdminPermissionGroups::GROUP_KEY_TRADE,
+            AdminPermissionGroups::GROUP_KEY_SPACE,
+            AdminPermissionGroups::GROUP_KEY_USER,
+            AdminPermissionGroups::GROUP_KEY_ADMIN,
+            AdminPermissionGroups::GROUP_KEY_FINANCE,
+        ];
+
+        $generalManagerPermissions = [
+            [
+                'key' => AdminPermission::KEY_SALES_PLATFORM_DASHBOARD,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_PREORDER,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_RESERVE,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_BUILDING_ORDER,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_BUILDING_LONG_TERM_APPOINTMENT,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_BUILDING_LONG_TERM_LEASE,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_PLATFORM_AUDIT,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_BUILDING_BUILDING,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_PLATFORM_BUILDING,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_BUILDING_ROOM,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_BUILDING_USER,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_PLATFORM_ADMIN,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_PLATFORM_INVOICE,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_PLATFORM_LONG_TERM_SERVICE_BILLS,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_PLATFORM_MONTHLY_BILLS,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_PLATFORM_FINANCIAL_SUMMARY,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_PLATFORM_WITHDRAWAL,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_PLATFORM_ACCOUNT,
+                'op_level' => 2,
+            ],
+        ];
+
+        $excludePermissionsKeyArray = array();
+        foreach ($excludePermissions as $excludePermission) {
+            array_push($excludePermissionsKeyArray, $excludePermission['group_key']);
+        }
+
+        if (!in_array(AdminPermissionGroups::GROUP_KEY_EVENT, $excludePermissionsKeyArray)) {
+            array_push($defaultPermissions,
+                [
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_EVENT,
+                    'op_level' => 2,
+                ],
+                [
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_EVENT_ORDER,
+                    'op_level' => 1,
+                ]
+            );
+
+            array_push($defaultGroups, AdminPermissionGroups::GROUP_KEY_EVENT);
+        }
+
+        if (!in_array(AdminPermissionGroups::GROUP_KEY_MEMBERSHIP_CARD, $excludePermissionsKeyArray)) {
+            array_push($defaultPermissions,
+                [
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_MEMBERSHIP_CARD,
+                    'op_level' => 2,
+                ],
+                [
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_MEMBERSHIP_CARD_ORDER,
+                    'op_level' => 1,
+                ],
+                [
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_MEMBERSHIP_CARD_PRODUCT,
+                    'op_level' => 2,
+                ]
+            );
+
+            array_push($defaultGroups, AdminPermissionGroups::GROUP_KEY_MEMBERSHIP_CARD);
+        }
+
+        $generalManagerGroups = array_merge($generalManagerGroups, $defaultGroups);
+        $generalManagerPermissions = array_merge($generalManagerPermissions, $defaultPermissions);
+
+        $this->addPosition(
+            $em,
+            $generalManagerPermissions,
+            $generalManagerGroups,
+            $salesCompany,
+            '项目总经理'
+        );
+    }
+
+    /**
+     * @param $em
+     * @param $salesCompany
+     * @param $excludePermissions
+     */
+    private function addManagerPosition(
+        $em,
+        $salesCompany,
+        $excludePermissions
+    ) {
+        $defaultGroups = array();
+        $defaultPermissions = array();
+
+        $groups = [
+            AdminPermissionGroups::GROUP_KEY_DASHBOARD,
+            AdminPermissionGroups::GROUP_KEY_TRADE,
+            AdminPermissionGroups::GROUP_KEY_SPACE,
+            AdminPermissionGroups::GROUP_KEY_USER,
+            AdminPermissionGroups::GROUP_KEY_ADMIN,
+            AdminPermissionGroups::GROUP_KEY_FINANCE,
+        ];
+
+        $permissions = [
+            [
+                'key' => AdminPermission::KEY_SALES_PLATFORM_DASHBOARD,
+                'op_level' => 1,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_PREORDER,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_RESERVE,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_BUILDING_ORDER,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_BUILDING_LONG_TERM_APPOINTMENT,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_BUILDING_LONG_TERM_LEASE,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_BUILDING_BUILDING,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_PLATFORM_BUILDING,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_BUILDING_ROOM,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_BUILDING_USER,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_PLATFORM_ADMIN,
+                'op_level' => 1,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_PLATFORM_INVOICE,
+                'op_level' => 1,
+            ],
+        ];
+
+        $excludePermissionsKeyArray = array();
+        foreach ($excludePermissions as $excludePermission) {
+            array_push($excludePermissionsKeyArray, $excludePermission['group_key']);
+        }
+
+        if (!in_array(AdminPermissionGroups::GROUP_KEY_EVENT, $excludePermissionsKeyArray)) {
+            array_push($defaultPermissions,
+                [
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_EVENT,
+                    'op_level' => 2,
+                ],
+                [
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_EVENT_ORDER,
+                    'op_level' => 1,
+                ]
+            );
+
+            array_push($defaultGroups, AdminPermissionGroups::GROUP_KEY_EVENT);
+        }
+
+        if (!in_array(AdminPermissionGroups::GROUP_KEY_MEMBERSHIP_CARD, $excludePermissionsKeyArray)) {
+            array_push($defaultPermissions,
+                [
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_MEMBERSHIP_CARD,
+                    'op_level' => 2,
+                ],
+                [
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_MEMBERSHIP_CARD_ORDER,
+                    'op_level' => 1,
+                ],
+                [
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_MEMBERSHIP_CARD_PRODUCT,
+                    'op_level' => 2,
+                ]
+            );
+
+            array_push($defaultGroups, AdminPermissionGroups::GROUP_KEY_MEMBERSHIP_CARD);
+        }
+
+        $groups = array_merge($groups, $defaultGroups);
+        $permissions = array_merge($permissions, $defaultPermissions);
+
+        $this->addPosition(
+            $em,
+            $permissions,
+            $groups,
+            $salesCompany,
+            '项目经理'
+        );
+    }
+
+    /**
+     * @param $em
+     * @param $salesCompany
+     * @param $excludePermissions
+     */
+    private function addStaffPosition(
+        $em,
+        $salesCompany,
+        $excludePermissions
+    ) {
+        $defaultGroups = array();
+        $defaultPermissions = array();
+
+        $groups = [
+            AdminPermissionGroups::GROUP_KEY_DASHBOARD,
+            AdminPermissionGroups::GROUP_KEY_TRADE,
+            AdminPermissionGroups::GROUP_KEY_SPACE,
+            AdminPermissionGroups::GROUP_KEY_USER,
+            AdminPermissionGroups::GROUP_KEY_ADMIN,
+        ];
+
+        $permissions = [
+            [
+                'key' => AdminPermission::KEY_SALES_PLATFORM_DASHBOARD,
+                'op_level' => 1,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_BUILDING_ORDER,
+                'op_level' => 1,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_BUILDING_LONG_TERM_APPOINTMENT,
+                'op_level' => 1,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_BUILDING_LONG_TERM_LEASE,
+                'op_level' => 1,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_BUILDING_BUILDING,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_BUILDING_ROOM,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_BUILDING_USER,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_PLATFORM_ADMIN,
+                'op_level' => 1,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_PLATFORM_INVOICE,
+                'op_level' => 1,
+            ],
+        ];
+
+        $excludePermissionsKeyArray = array();
+        foreach ($excludePermissions as $excludePermission) {
+            array_push($excludePermissionsKeyArray, $excludePermission['group_key']);
+        }
+
+        if (!in_array(AdminPermissionGroups::GROUP_KEY_EVENT, $excludePermissionsKeyArray)) {
+            array_push($defaultPermissions,
+                [
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_EVENT,
+                    'op_level' => 2,
+                ],
+                [
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_EVENT_ORDER,
+                    'op_level' => 1,
+                ]
+            );
+
+            array_push($defaultGroups, AdminPermissionGroups::GROUP_KEY_EVENT);
+        }
+
+        if (!in_array(AdminPermissionGroups::GROUP_KEY_MEMBERSHIP_CARD, $excludePermissionsKeyArray)) {
+            array_push($defaultPermissions,
+                [
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_MEMBERSHIP_CARD,
+                    'op_level' => 1,
+                ],
+                [
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_MEMBERSHIP_CARD_ORDER,
+                    'op_level' => 1,
+                ],
+                [
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_MEMBERSHIP_CARD_PRODUCT,
+                    'op_level' => 1,
+                ]
+            );
+
+            array_push($defaultGroups, AdminPermissionGroups::GROUP_KEY_MEMBERSHIP_CARD);
+        }
+
+        $groups = array_merge($groups, $defaultGroups);
+        $permissions = array_merge($permissions, $defaultPermissions);
+
+        $this->addPosition(
+            $em,
+            $permissions,
+            $groups,
+            $salesCompany,
+            '员工'
+        );
+    }
+
+    /**
+     * @param $em
+     * @param $salesCompany
+     * @param $excludePermissions
+     */
+    private function addFinancePosition(
+        $em,
+        $salesCompany,
+        $excludePermissions
+    ) {
+        $defaultGroups = array();
+        $defaultPermissions = array();
+
+        $groups = [
+            AdminPermissionGroups::GROUP_KEY_DASHBOARD,
+            AdminPermissionGroups::GROUP_KEY_TRADE,
+            AdminPermissionGroups::GROUP_KEY_SPACE,
+            AdminPermissionGroups::GROUP_KEY_USER,
+            AdminPermissionGroups::GROUP_KEY_ADMIN,
+            AdminPermissionGroups::GROUP_KEY_FINANCE,
+        ];
+
+        $permissions = [
+            [
+                'key' => AdminPermission::KEY_SALES_PLATFORM_DASHBOARD,
+                'op_level' => 1,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_BUILDING_ORDER,
+                'op_level' => 1,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_BUILDING_LONG_TERM_APPOINTMENT,
+                'op_level' => 1,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_BUILDING_LONG_TERM_LEASE,
+                'op_level' => 1,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_PLATFORM_AUDIT,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_BUILDING_USER,
+                'op_level' => 1,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_PLATFORM_INVOICE,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_PLATFORM_LONG_TERM_SERVICE_BILLS,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_PLATFORM_MONTHLY_BILLS,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_PLATFORM_FINANCIAL_SUMMARY,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_PLATFORM_WITHDRAWAL,
+                'op_level' => 2,
+            ],
+            [
+                'key' => AdminPermission::KEY_SALES_PLATFORM_ACCOUNT,
+                'op_level' => 2,
+            ],
+        ];
+
+        $excludePermissionsKeyArray = array();
+        foreach ($excludePermissions as $excludePermission) {
+            array_push($excludePermissionsKeyArray, $excludePermission['group_key']);
+        }
+
+        if (!in_array(AdminPermissionGroups::GROUP_KEY_EVENT, $excludePermissionsKeyArray)) {
+            array_push($defaultPermissions,
+                [
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_EVENT_ORDER,
+                    'op_level' => 1,
+                ]
+            );
+
+            array_push($defaultGroups, AdminPermissionGroups::GROUP_KEY_EVENT);
+        }
+
+        if (!in_array(AdminPermissionGroups::GROUP_KEY_MEMBERSHIP_CARD, $excludePermissionsKeyArray)) {
+            array_push($defaultPermissions,
+                [
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_MEMBERSHIP_CARD,
+                    'op_level' => 1,
+                ],
+                [
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_MEMBERSHIP_CARD_ORDER,
+                    'op_level' => 1,
+                ],
+                [
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_MEMBERSHIP_CARD_PRODUCT,
+                    'op_level' => 1,
+                ]
+            );
+
+            array_push($defaultGroups, AdminPermissionGroups::GROUP_KEY_MEMBERSHIP_CARD);
+        }
+
+        $groups = array_merge($groups, $defaultGroups);
+        $permissions = array_merge($permissions, $defaultPermissions);
+
+        $this->addPosition(
+            $em,
+            $permissions,
+            $groups,
+            $salesCompany,
+            '财务'
+        );
+    }
+
+    /**
+     * @param $em
+     * @param $permissions
+     * @param $groups
+     * @param $salesCompany
+     * @param $positionName
+     */
+    private function addPosition(
+        $em,
+        $permissions,
+        $groups,
+        $salesCompany,
+        $positionName
+    ) {
+        $icon = $this->getDoctrine()->getRepository('SandboxApiBundle:Admin\AdminPositionIcons')->find(1);
+
+        $positionGeneralManager = new AdminPosition();
+        $positionGeneralManager->setName($positionName);
+        $positionGeneralManager->setPlatform(AdminPosition::PLATFORM_SALES);
+        $positionGeneralManager->setSalesCompany($salesCompany);
+        $positionGeneralManager->setIcon($icon);
+        $em->persist($positionGeneralManager);
+
+        foreach ($permissions as $permissionArray) {
+            $permission = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPermission')
+                ->findOneBy(array(
+                    'key' => $permissionArray['key'],
+                ));
+
+            $adminPositionPermissionMap = new AdminPositionPermissionMap();
+            $adminPositionPermissionMap->setPosition($positionGeneralManager);
+            $adminPositionPermissionMap->setPermission($permission);
+            $adminPositionPermissionMap->setOpLevel($permissionArray['op_level']);
+            $em->persist($adminPositionPermissionMap);
+        }
+
+        foreach ($groups as $generalManagerGroup) {
+            $group = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminPermissionGroups')
+                ->findOneBy(array(
+                    'groupKey' => $generalManagerGroup,
+                    'platform' => AdminPermissionGroups::GROUP_PLATFORM_SALES,
+                ));
+
+            $adminPositionGroupMap = new AdminPositionGroupBinding();
+            $adminPositionGroupMap->setGroup($group);
+            $adminPositionGroupMap->setPosition($positionGeneralManager);
+            $em->persist($adminPositionGroupMap);
+        }
     }
 }

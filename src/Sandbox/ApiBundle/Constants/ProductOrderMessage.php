@@ -7,17 +7,11 @@ class ProductOrderMessage
     const MEETING_START_MESSAGE = 'product_order.push_message.meeting_start';
     const MEETING_END_MESSAGE = 'product_order.push_message.meeting_end';
 
-    const FLEXIBLE_START_MESSAGE = 'product_order.push_message.flexible_start';
-    const FLEXIBLE_END_MESSAGE = 'product_order.push_message.flexible_end';
+    const DESK_START_MESSAGE = 'product_order.push_message.desk_start';
+    const DESK_END_MESSAGE = 'product_order.push_message.desk_end';
 
-    const FIXED_START_MESSAGE = 'product_order.push_message.fixed_start';
-    const FIXED_END_MESSAGE = 'product_order.push_message.fixed_end';
-
-    const STUDIO_START_MESSAGE = 'product_order.push_message.studio_start';
-    const STUDIO_END_MESSAGE = 'product_order.push_message.studio_end';
-
-    const SPACE_START_MESSAGE = 'product_order.push_message.space_start';
-    const SPACE_END_MESSAGE = 'product_order.push_message.space_end';
+    const OTHERS_START_MESSAGE = 'product_order.push_message.others_start';
+    const OTHERS_END_MESSAGE = 'product_order.push_message.others_end';
 
     const OFFICE_START_MESSAGE = 'product_order.push_message.office_start';
     const OFFICE_END_MESSAGE = 'product_order.push_message.office_end';

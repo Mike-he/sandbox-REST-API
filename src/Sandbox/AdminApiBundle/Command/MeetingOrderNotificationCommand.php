@@ -39,17 +39,9 @@ class MeetingOrderNotificationCommand extends ContainerAwareCommand
         $this->sendMessages(
             $now,
             $meetingTime,
-            Room::TYPE_STUDIO,
-            ProductOrderMessage::STUDIO_START_MESSAGE,
-            ProductOrderMessage::STUDIO_END_MESSAGE
-        );
-
-        $this->sendMessages(
-            $now,
-            $meetingTime,
-            Room::TYPE_SPACE,
-            ProductOrderMessage::SPACE_START_MESSAGE,
-            ProductOrderMessage::SPACE_END_MESSAGE
+            Room::TYPE_OTHERS,
+            ProductOrderMessage::OTHERS_START_MESSAGE,
+            ProductOrderMessage::OTHERS_END_MESSAGE
         );
     }
 

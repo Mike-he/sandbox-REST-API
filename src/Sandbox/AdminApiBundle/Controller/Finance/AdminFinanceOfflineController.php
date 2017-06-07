@@ -438,9 +438,21 @@ class AdminFinanceOfflineController extends SandboxRestController
                 $payEnd
             );
 
+        $data = array();
+        foreach ($transfers as $transfer) {
+            $transferDetail = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Offline\OfflineTransfer')
+                ->findOneBy(
+                    array('orderNumber' => $transfer['orderNumber']),
+                    array('id'=> 'DESC')
+                );
+
+            $data[] = $transferDetail;
+        }
+
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
-            $transfers,
+            $data,
             $pageIndex,
             $pageLimit
         );
@@ -496,6 +508,18 @@ class AdminFinanceOfflineController extends SandboxRestController
                     );
                 }
 
+                // closed old transfer
+                $oldTransfers = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Offline\OfflineTransfer')
+                    ->findBy(array('orderNumber' => $transfer->getOrderNumber()));
+
+                foreach ($oldTransfers as $oldTransfer) {
+                    if ($oldTransfer->getId() == $transfer->getId()) {
+                        continue;
+                    }
+                    $oldTransfer->setTransferStatus(OfflineTransfer::STATUS_CLOSED);
+                }
+
                 if ($transfer->getType() == OfflineTransfer::TYPE_TOPUP) {
                     $channel = ProductOrder::CHANNEL_OFFLINE;
                     $price = $transfer->getPrice();
@@ -527,16 +551,16 @@ class AdminFinanceOfflineController extends SandboxRestController
                 }
 
                 break;
-            case OfflineTransfer::STATUS_RETURNED:
-                if ($oldStatus != OfflineTransfer::STATUS_PENDING) {
-                    return $this->customErrorView(
-                        400,
-                        CustomErrorMessagesConstants::ERROR_TRANSFER_STATUS_CODE,
-                        CustomErrorMessagesConstants::ERROR_TRANSFER_STATUS_MESSAGE
-                    );
-                }
+//            case OfflineTransfer::STATUS_RETURNED:
+//                if ($oldStatus != OfflineTransfer::STATUS_PENDING) {
+//                    return $this->customErrorView(
+//                        400,
+//                        CustomErrorMessagesConstants::ERROR_TRANSFER_STATUS_CODE,
+//                        CustomErrorMessagesConstants::ERROR_TRANSFER_STATUS_MESSAGE
+//                    );
+//                }
 
-                break;
+//                break;
         }
 
         $em->flush();
@@ -544,6 +568,52 @@ class AdminFinanceOfflineController extends SandboxRestController
         return new View();
     }
 
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/finance/offline/transfer/detail")
+     * @Method({"GET"})
+     *
+     * @Annotations\QueryParam(
+     *    name="order_number",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
+     * @throws \Exception
+     *
+     * @return View
+     */
+    public function getTransferAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        // check user permission
+        $this->checkAdminFinanceOfflinePermission(AdminPermission::OP_LEVEL_VIEW);
+
+        $orderNumber = $paramFetcher->get('order_number');
+
+        $transfers = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Offline\OfflineTransfer')
+            ->findBy(
+                array('orderNumber' => $orderNumber),
+                array('id' => 'DESC')
+            );
+
+        return new View($transfers);
+    }
+
+    /**
+     * @param $em
+     * @param $userId
+     * @param $price
+     * @param $orderNumber
+     * @param $channel
+     * @param bool $refundToAccount
+     * @param null $refundNumber
+     */
     private function setTopUpOrder(
         $em,
         $userId,

@@ -79,7 +79,15 @@ class RoomBuildingPutType extends AbstractType
             ->add('lessor_contact')
             ->add('lessor_phone')
             ->add('lessor_email')
+            ->add('lessor_bank_account_name')
+            ->add('lessor_bank_account_number')
+            ->add('lessor_bank_name')
+            ->add('lease_remarks')
+            ->add('postal_code')
+            ->add('community_manager_name')
             ->add('customer_services')
+            ->add('property_type_id')
+            ->add('remove_dates')
         ;
     }
 

@@ -2,6 +2,9 @@
 
 namespace Sandbox\ApiBundle\Traits;
 
+use Sandbox\ApiBundle\Entity\Room\Room;
+use Sandbox\ApiBundle\Entity\User\UserFavorite;
+
 /**
  * Handle Data of spaces Trait.
  *
@@ -39,7 +42,7 @@ trait HandleSpacesDataTrait
 
             $space['product'] = [];
             if (!is_null($product)) {
-                if ($space['type'] == 'fixed') {
+                if ($space['type'] == Room::TYPE_DESK) {
                     $seats = $this->getDoctrine()
                         ->getRepository('SandboxApiBundle:Room\RoomFixed')
                         ->findBy(array(
@@ -47,17 +50,47 @@ trait HandleSpacesDataTrait
                         ));
 
                     $space['product']['seats'] = $seats;
-                } else {
-                    $space['product']['base_price'] = $product->getBasePrice();
                 }
 
                 $space['product']['id'] = $product->getId();
-                $space['product']['unit_price'] = $product->getUnitPrice();
                 $space['product']['start_date'] = $product->getStartDate();
                 $space['product']['recommend'] = $product->isRecommend();
                 $space['product']['visible'] = $product->getVisible();
-                $space['product']['earliest_rent_date'] = $product->getEarliestRentDate();
                 $space['product']['sales_recommend'] = $product->isSalesRecommend();
+
+                $favorite = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:User\UserFavorite')
+                    ->countFavoritesByObject(
+                        UserFavorite::OBJECT_PRODUCT,
+                        $product->getId()
+                    );
+
+                $space['product']['favorite'] = $favorite;
+
+                $productLeasingSets = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Product\ProductLeasingSet')
+                    ->findBy(array('product' => $product));
+
+                foreach ($productLeasingSets as $productLeasingSet) {
+                    $space['product']['leasing_sets'][] = array(
+                        'base_price' => $productLeasingSet->getBasePrice(),
+                        'unit_price' => $productLeasingSet->getUnitPrice(),
+                        'amount' => $productLeasingSet->getAmount(),
+                    );
+                }
+
+                $rentSet = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Product\ProductRentSet')
+                    ->findOneBy(array('product' => $product));
+
+                if ($rentSet) {
+                    $space['product']['rent_set'] = array(
+                        'base_price' => $rentSet->getBasePrice(),
+                        'unit_price' => $rentSet->getUnitPrice(),
+                        'earliest_rent_date' => $rentSet->getEarliestRentDate(),
+                        'status' => $rentSet->isStatus(),
+                    );
+                }
             }
         }
 

@@ -12,6 +12,7 @@ use Sandbox\ApiBundle\Entity\Order\ProductOrderInfo;
 use Sandbox\ApiBundle\Entity\Order\ProductOrderRecord;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Entity\Room\Room;
+use Sandbox\ApiBundle\Entity\Room\RoomTypeUnit;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesUser;
 use Sandbox\ApiBundle\Traits\ProductOrderNotification;
@@ -311,13 +312,15 @@ class OrderController extends PaymentController
     ) {
         $orderCheck = null;
         try {
-            if ($type == Room::TYPE_FLEXIBLE) {
+            if ($type == Room::TYPE_DESK) {
                 //check if flexible room is full before order creation
-                $orderCount = $this->getRepo('Order\ProductOrder')->checkFlexibleForClient(
-                    $productId,
-                    $startDate,
-                    $endDate
-                );
+                $orderCount = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Order\ProductOrder')
+                    ->checkFlexibleForClient(
+                        $productId,
+                        $startDate,
+                        $endDate
+                    );
 
                 if ($allowedPeople <= $orderCount) {
                     throw new ConflictHttpException(self::ORDER_CONFLICT_MESSAGE);
@@ -413,12 +416,17 @@ class OrderController extends PaymentController
     }
 
     /**
+     * @param $language
      * @param $product
+     * @param $timeUnit
+     * @param null $seatId
      *
      * @return string
      */
     protected function storeRoomInfo(
+        $language,
         $product,
+        $timeUnit,
         $seatId = null
     ) {
         $room = $this->getRepo('Room\Room')->find($product->getRoomId());
@@ -427,6 +435,9 @@ class OrderController extends PaymentController
         $floor = $this->getRepo('Room\RoomFloor')->find($room->getFloorId());
         $supplies = $this->getRepo('Room\RoomSupplies')->findBy(['room' => $room->getId()]);
         $meeting = $this->getRepo('Room\RoomMeeting')->findOneBy(['room' => $room->getId()]);
+        $productLeasingSets = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\ProductLeasingSet')
+            ->findBy(array('product' => $product));
 
         $seatArray = [];
         if (!is_null($seatId)) {
@@ -495,11 +506,25 @@ class OrderController extends PaymentController
             }
         }
 
+        $leasingSetArray = array();
+        foreach ($productLeasingSets as $productLeasingSet) {
+            $leasingSetArray[] = array(
+                'base_price' => $productLeasingSet->getBasePrice(),
+                'unit_price' => $productLeasingSet->getUnitPrice(),
+                'amount' => $productLeasingSet->getAmount(),
+            );
+        }
+
+        $tagDescription = $this->get('translator')->trans(
+            ProductOrderExport::TRANS_PREFIX.$room->getTypeTag(),
+            array(),
+            null,
+            $language
+        );
+
         $productInfo = [
             'id' => $product->getId(),
             'description' => $product->getDescription(),
-            'base_price' => $product->getBasePrice(),
-            'unit_price' => $product->getUnitPrice(),
             'renewable' => $product->getRenewable(),
             'start_date' => $product->getStartDate(),
             'end_date' => $product->getEndDate(),
@@ -524,11 +549,17 @@ class OrderController extends PaymentController
                 'number' => $room->getNumber(),
                 'area' => $room->getArea(),
                 'type' => $room->getType(),
+                'type_tag' => $room->getTypeTag(),
+                'type_tag_description' => $tagDescription,
                 'allowed_people' => $room->getAllowedPeople(),
                 'office_supplies' => $supplyArray,
                 'meeting' => $meetingArray,
                 'attachment' => $attachmentArray,
                 'seat' => $seatArray,
+                'leasing_set' => $leasingSetArray,
+            ],
+            'order' => [
+                'unit_price' => $timeUnit,
             ],
         ];
 
@@ -539,11 +570,15 @@ class OrderController extends PaymentController
      * @param $em
      * @param $order
      * @param $product
+     * @param $timeUnit
+     * @param $language
      */
     protected function storeRoomRecord(
         $em,
         $order,
-        $product
+        $product,
+        $timeUnit,
+        $language = 'zh_CN'
     ) {
         $room = $this->getRepo('Room\Room')->find($product->getRoomId());
 
@@ -559,7 +594,9 @@ class OrderController extends PaymentController
         $this->storeProductOrderInfo(
             $em,
             $product,
-            $order
+            $order,
+            $timeUnit,
+            $language
         );
     }
 
@@ -625,6 +662,8 @@ class OrderController extends PaymentController
             $endDate->setDate($year, 3, 1);
         }
 
+        $endDate->modify('-1 seconds');
+
         return $endDate;
     }
 
@@ -642,11 +681,12 @@ class OrderController extends PaymentController
         $now,
         $startDate,
         $endDate,
-        $product
+        $product,
+        $timeUnit
     ) {
         $error = [];
 
-        if ($type == Room::TYPE_OFFICE || $type == Room::TYPE_FIXED || $type == Room::TYPE_FLEXIBLE) {
+        if ($type == Room::TYPE_OFFICE || $type == Room::TYPE_DESK) {
             $nowDate = $now->format('Y-m-d');
             $startPeriod = $startDate->format('Y-m-d');
 
@@ -656,9 +696,6 @@ class OrderController extends PaymentController
                     self::WRONG_BOOKING_DATE_MESSAGE
                 );
             }
-
-            $endDate->modify('- 1 day');
-            $endDate->setTime(23, 59, 59);
         } else {
             $timeModify = $this->getGlobal('time_for_half_hour_early');
             $halfHour = clone $now;
@@ -679,16 +716,18 @@ class OrderController extends PaymentController
             $meeting = $this->getRepo('Room\RoomMeeting')->findOneBy(['room' => $roomId]);
 
             if (!is_null($meeting)) {
-                $allowedStart = $meeting->getStartHour();
-                $allowedStart = $allowedStart->format('H:i:s');
-                $allowedEnd = $meeting->getEndHour();
-                $allowedEnd = $allowedEnd->format('H:i:s');
+                if ($timeUnit == RoomTypeUnit::UNIT_HOUR) {
+                    $allowedStart = $meeting->getStartHour();
+                    $allowedStart = $allowedStart->format('H:i:s');
+                    $allowedEnd = $meeting->getEndHour();
+                    $allowedEnd = $allowedEnd->format('H:i:s');
 
-                if ($startHour < $allowedStart || $endHour > $allowedEnd) {
-                    return $this->setErrorArray(
-                        self::ROOM_NOT_OPEN_CODE,
-                        self::ROOM_NOT_OPEN_MESSAGE
-                    );
+                    if ($startHour < $allowedStart || $endHour > $allowedEnd) {
+                        return $this->setErrorArray(
+                            self::ROOM_NOT_OPEN_CODE,
+                            self::ROOM_NOT_OPEN_MESSAGE
+                        );
+                    }
                 }
             }
         }
@@ -743,6 +782,7 @@ class OrderController extends PaymentController
      * @param $period
      * @param $startDate
      * @param $endDate
+     * @param $basePrice
      *
      * @return array
      */
@@ -897,6 +937,7 @@ class OrderController extends PaymentController
      * @param $endDate
      * @param $user
      * @param $type
+     * @param $timeUnit
      *
      * @return array
      */
@@ -909,7 +950,8 @@ class OrderController extends PaymentController
         $startDate,
         $endDate,
         $user,
-        $type
+        $type,
+        $timeUnit = null
     ) {
         // check booking dates
         $error = $this->checkIfRoomOpen(
@@ -917,7 +959,8 @@ class OrderController extends PaymentController
             $now,
             $startDate,
             $endDate,
-            $product
+            $product,
+            $timeUnit
         );
 
         if (!empty($error)) {
@@ -955,14 +998,20 @@ class OrderController extends PaymentController
      * @param $em
      * @param $product
      * @param $order
+     * @param $timeUnit
+     * @param $language
      */
     protected function storeProductOrderInfo(
         $em,
         $product,
-        $order
+        $order,
+        $timeUnit,
+        $language
     ) {
         $productInfo = $this->storeRoomInfo(
+            $language,
             $product,
+            $timeUnit,
             $order->getSeatId()
         );
 

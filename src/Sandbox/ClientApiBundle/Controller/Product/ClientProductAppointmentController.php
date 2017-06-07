@@ -108,6 +108,15 @@ class ClientProductAppointmentController extends ProductController
                 'userId' => $user->getId(),
             ]);
 
+        $product = $appointment->getProduct();
+        $productRentSet = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\ProductRentSet')
+            ->findOneBy(array(
+                'product' => $product,
+                'status' => true,
+            ));
+        $product->setRentSet($productRentSet);
+
         $view = new View($appointment);
         $view->setSerializationContext(
             SerializationContext::create()->setGroups([
@@ -251,7 +260,17 @@ class ClientProductAppointmentController extends ProductController
         $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
 
         $period = $appointment->getRentTimeLength();
-        $unit = $product->getUnitPrice();
+
+        $rentSet = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\ProductRentSet')
+            ->findOneBy(array(
+                'product' => $product,
+                'status' => true,
+            ));
+        if (is_null($rentSet)) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+        $unit = $rentSet->getUnitPrice();
 
         $startRentDate = new \DateTime($appointment->getStartRentDate());
         $startRentDate->setTime(00, 00, 00);

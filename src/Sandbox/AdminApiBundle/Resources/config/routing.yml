@@ -308,3 +308,8 @@ sandbox_admin_api_user_bean:
     resource: "@SandboxAdminApiBundle/Controller/User/AdminUserBeanController.php"
     type:     annotation
     prefix:   /
+
+sandbox_admin_api_admin_remarks:
+    resource: "@SandboxAdminApiBundle/Controller/Admin/AdminRemarkController.php"
+    type:     annotation
+    prefix:   /

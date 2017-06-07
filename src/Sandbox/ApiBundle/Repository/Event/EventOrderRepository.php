@@ -134,7 +134,7 @@ class EventOrderRepository extends EntityRepository
         }
 
         if (!is_null($company)) {
-            $query->andWhere('b.company = :company')
+            $query->andWhere('e.salesCompanyId = :company')
                 ->setParameter('company', $company);
         }
 
@@ -355,8 +355,10 @@ class EventOrderRepository extends EntityRepository
         }
 
         // filter by user
-        $query->andWhere('eo.userId = :userId')
-            ->setParameter('userId', $userId);
+        if(!is_null($userId)) {
+            $query->andWhere('eo.userId = :userId')
+                ->setParameter('userId', $userId);
+        }
 
         // order by
         $query->orderBy('eo.creationDate', 'DESC');
@@ -517,5 +519,26 @@ class EventOrderRepository extends EntityRepository
             ->setParameter('end', $endDate);
 
         return $eventOrderQuery->getQuery()->getResult();
+    }
+
+    public function countValidOrder(
+        $userId,
+        $now
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->select('count(o.id)')
+            ->leftJoin('SandboxApiBundle:Event\Event', 'e', 'WITH', 'e.id = o.eventId')
+            ->where('o.status = :paid OR o.status = :completed')
+            ->andWhere('o.userId = :userId')
+            ->andWhere('e.eventStartDate <= :now')
+            ->andWhere('e.eventEndDate >= :now')
+            ->setParameter('paid', EventOrder::STATUS_PAID)
+            ->setParameter('completed', EventOrder::STATUS_COMPLETED)
+            ->setParameter('userId', $userId)
+            ->setParameter('now', $now);
+
+        $result = $query->getQuery()->getSingleScalarResult();
+
+        return (int) $result;
     }
 }

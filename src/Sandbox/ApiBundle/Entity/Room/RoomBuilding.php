@@ -580,11 +580,124 @@ class RoomBuilding implements JsonSerializable
     private $lessorEmail;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="lessor_bank_account_name", type="string", length=64, nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_building", "lessor"})
+     */
+    private $lessorBankAccountName;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="lessor_bank_account_number", type="string", length=64, nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_building", "lessor"})
+     */
+    private $lessorBankAccountNumber;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="lessor_bank_name", type="string", length=64, nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_building", "lessor"})
+     */
+    private $lessorBankName;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="lease_remarks", type="text", nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_building", "lessor"})
+     */
+    private $leaseRemarks;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="postal_code", type="string", length=16, nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_building", "lessor"})
+     */
+    private $postalCode;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="community_manager_name", type="string", length=16, nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_building", "lessor"})
+     */
+    private $communityManagerName;
+
+    /**
      * @var array
      *
      * @Serializer\Groups({"main", "admin_building"})
      */
     private $customerServices;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="property_type_id", type="integer", nullable=true)
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $propertyTypeId;
+
+    /**
+     * @var array
+     *
+     * @Serializer\Groups(
+     *  {
+     *      "main",
+     *      "admin_room",
+     *      "client",
+     *      "profile",
+     *      "profile_basic",
+     *      "profile_stranger",
+     *      "profile_basic_stranger",
+     *      "buddy",
+     *      "member",
+     *      "admin_detail",
+     *      "company_info",
+     *      "company_basic",
+     *      "feed",
+     *      "admin_event",
+     *      "client_detail",
+     *      "client_event",
+     *      "current_order",
+     *      "building_nearby",
+     *      "admin_building",
+     *      "admin_shop",
+     *      "client_order",
+     *      "shop_nearby",
+     *      "client_shop",
+     *      "admin_appointment",
+     *      "admin_position_bind_view"
+     *  }
+     * )
+     */
+    private $propertyType;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="remove_dates_info", type="text", nullable=true)
+     * @Serializer\Groups({"main"})
+     */
+    private $removeDatesInfo;
+
+    /**
+     * @var array
+     *
+     * @Serializer\Groups({"main", "admin_building", "client"})
+     */
+    private $removeDates;
 
     /**
      * Get id.
@@ -594,6 +707,166 @@ class RoomBuilding implements JsonSerializable
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRemoveDatesInfo()
+    {
+        return $this->removeDatesInfo;
+    }
+
+    /**
+     * @param string $removeDatesInfo
+     */
+    public function setRemoveDatesInfo($removeDatesInfo)
+    {
+        $this->removeDatesInfo = $removeDatesInfo;
+    }
+
+    /**
+     * @return array
+     */
+    public function getRemoveDates()
+    {
+        return $this->removeDates;
+    }
+
+    /**
+     * @param array $removeDates
+     */
+    public function setRemoveDates($removeDates)
+    {
+        $this->removeDates = $removeDates;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLessorBankAccountName()
+    {
+        return $this->lessorBankAccountName;
+    }
+
+    /**
+     * @param string $lessorBankAccountName
+     */
+    public function setLessorBankAccountName($lessorBankAccountName)
+    {
+        $this->lessorBankAccountName = $lessorBankAccountName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLessorBankAccountNumber()
+    {
+        return $this->lessorBankAccountNumber;
+    }
+
+    /**
+     * @param string $lessorBankAccountNumber
+     */
+    public function setLessorBankAccountNumber($lessorBankAccountNumber)
+    {
+        $this->lessorBankAccountNumber = $lessorBankAccountNumber;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLessorBankName()
+    {
+        return $this->lessorBankName;
+    }
+
+    /**
+     * @param string $lessorBankName
+     */
+    public function setLessorBankName($lessorBankName)
+    {
+        $this->lessorBankName = $lessorBankName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLeaseRemarks()
+    {
+        return $this->leaseRemarks;
+    }
+
+    /**
+     * @param string $leaseRemarks
+     */
+    public function setLeaseRemarks($leaseRemarks)
+    {
+        $this->leaseRemarks = $leaseRemarks;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPostalCode()
+    {
+        return $this->postalCode;
+    }
+
+    /**
+     * @param string $postalCode
+     */
+    public function setPostalCode($postalCode)
+    {
+        $this->postalCode = $postalCode;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCommunityManagerName()
+    {
+        return $this->communityManagerName;
+    }
+
+    /**
+     * @param string $communityManagerName
+     */
+    public function setCommunityManagerName($communityManagerName)
+    {
+        $this->communityManagerName = $communityManagerName;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPropertyTypeId()
+    {
+        return $this->propertyTypeId;
+    }
+
+    /**
+     * @param int $propertyTypeId
+     */
+    public function setPropertyTypeId($propertyTypeId)
+    {
+        $this->propertyTypeId = $propertyTypeId;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPropertyType()
+    {
+        return $this->propertyType;
+    }
+
+    /**
+     * @param array $propertyType
+     */
+    public function setPropertyType($propertyType)
+    {
+        $this->propertyType = $propertyType;
     }
 
     /**

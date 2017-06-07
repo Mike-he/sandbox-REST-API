@@ -1606,7 +1606,7 @@ class AdminOrderController extends OrderController
                 );
             }
 
-            $timeUnit = $product->getUnitPrice();
+            $timeUnit = $form['time_unit']->getData();
             $period = $order->getRentPeriod();
 
             // get endDate
@@ -1627,7 +1627,8 @@ class AdminOrderController extends OrderController
                 $startDate,
                 $endDate,
                 $user,
-                $type
+                $type,
+                $timeUnit
             );
 
             if (!empty($error)) {
@@ -1652,7 +1653,8 @@ class AdminOrderController extends OrderController
             $this->storeRoomRecord(
                 $em,
                 $order,
-                $product
+                $product,
+                $timeUnit
             );
 
             $em->flush();
@@ -1958,7 +1960,7 @@ class AdminOrderController extends OrderController
                 );
             }
 
-            $timeUnit = $product->getUnitPrice();
+            $timeUnit = $form['time_unit']->getData();
             $period = $order->getRentPeriod();
 
             // get endDate
@@ -1970,8 +1972,6 @@ class AdminOrderController extends OrderController
 
             // check if price match
             $seatId = $order->getSeatId();
-            $basePrice = $product->getBasePrice();
-
             if (!is_null($seatId)) {
                 $seat = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Room\RoomFixed')
@@ -1982,6 +1982,20 @@ class AdminOrderController extends OrderController
                 $this->throwNotFoundIfNull($seat, self::NOT_FOUND_MESSAGE);
 
                 $basePrice = $seat->getBasePrice();
+            } else {
+                $leasingSet = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Product\ProductLeasingSet')
+                    ->findOneBy(array('product' => $product, 'unitPrice' => $timeUnit));
+
+                if ($leasingSet) {
+                    $basePrice = $leasingSet->getBasePrice();
+                } else {
+                    return $this->customErrorView(
+                        400,
+                        self::UNIT_NOT_FOUND_CODE,
+                        self::UNIT_NOT_FOUND_MESSAGE
+                    );
+                }
             }
 
             $calculatedPrice = $basePrice * $period;
@@ -2005,7 +2019,8 @@ class AdminOrderController extends OrderController
                 $startDate,
                 $endDate,
                 $user,
-                $type
+                $type,
+                $timeUnit
             );
 
             if (!empty($error)) {
@@ -2072,7 +2087,8 @@ class AdminOrderController extends OrderController
             $this->storeRoomRecord(
                 $em,
                 $order,
-                $product
+                $product,
+                $timeUnit
             );
 
             // set sales user

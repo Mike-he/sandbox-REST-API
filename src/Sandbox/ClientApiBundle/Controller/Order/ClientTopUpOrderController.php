@@ -62,7 +62,16 @@ class ClientTopUpOrderController extends PaymentController
                 $status
             );
 
-        return new View($transfers);
+        $data = array();
+        foreach ($transfers as $transfer) {
+            $transferDetail = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Offline\OfflineTransfer')
+                ->findOneBy(array('orderNumber' => $transfer['orderNumber']));
+
+            $data[] = $transferDetail;
+        }
+
+        return new View($data);
     }
 
     /**
@@ -88,7 +97,18 @@ class ClientTopUpOrderController extends PaymentController
                 'type' => OfflineTransfer::TYPE_TOPUP,
             ));
 
-        return new View($transfer);
+        if (!$transfer) {
+            return new View();
+        }
+
+        $transfers = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Offline\OfflineTransfer')
+            ->findBy(
+                array('orderNumber' => $transfer->getOrderNumber()),
+                array('id' => 'DESC')
+            );
+
+        return new View($transfers);
     }
 
     /**
@@ -117,11 +137,10 @@ class ClientTopUpOrderController extends PaymentController
 
         $transfer = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Offline\OfflineTransfer')
-            ->findOneBy(array(
+            ->findBy(array(
                 'userId' => $userId,
                 'type' => OfflineTransfer::TYPE_TOPUP,
                 'orderNumber' => $orderNumber,
-                'transferStatus' => OfflineTransfer::STATUS_PAID,
             ));
 
         return new View($transfer);
@@ -356,14 +375,85 @@ class ClientTopUpOrderController extends PaymentController
             return new View();
         }
 
+        $attachment = new OfflineTransferAttachment();
+        $attachment->setContent($attachmentArray[0]['content']);
+        $attachment->setAttachmentType($attachmentArray[0]['attachment_type']);
+        $attachment->setFilename($attachmentArray[0]['filename']);
+        $attachment->setPreview($attachmentArray[0]['preview']);
+        $attachment->setSize($attachmentArray[0]['size']);
+        $attachment->setTransfer($transfer);
+
         $em = $this->getDoctrine()->getManager();
+        $em->persist($attachment);
 
-        $transferAttachments = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Offline\OfflineTransferAttachment')
-            ->findBy(array('transfer' => $transfer));
+        $transfer->setTransferStatus(OfflineTransfer::STATUS_PENDING);
 
-        foreach ($transferAttachments as $transferAttachment) {
-            $em->remove($transferAttachment);
+        $em->flush();
+
+        return new View();
+    }
+
+    /**
+     * Add new Transfe.
+     *
+     * @param Request $request
+     * @param $id
+     *
+     * @Route("/topup/{id}/transfer")
+     * @Method({"POST"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function postNewTransferAction(
+        Request $request,
+        $id
+    ) {
+        $userId = $this->getUserId();
+
+        $transfer = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Offline\OfflineTransfer')
+            ->findOneBy(array('id' => $id, 'userId' => $userId));
+
+        if (is_null($transfer)) {
+            return $this->customErrorView(
+                400,
+                self::ORDER_NOT_FOUND_CODE,
+                self::ORDER_NOT_FOUND_MESSAGE
+            );
+        }
+
+        $transferStatus = $transfer->getTransferStatus();
+        if ($transferStatus != OfflineTransfer::STATUS_PENDING) {
+            return $this->customErrorView(
+                400,
+                self::WRONG_ORDER_STATUS_CODE,
+                self::WRONG_ORDER_STATUS_MESSAGE
+            );
+        }
+
+        $newTransfer = new OfflineTransfer();
+        $newTransfer->setOrderNumber($transfer->getOrderNumber());
+        $newTransfer->setType(OfflineTransfer::TYPE_TOPUP);
+        $newTransfer->setPrice($transfer->getPrice());
+        $newTransfer->setUserId($this->getUserId());
+        $newTransfer->setTransferStatus(OfflineTransfer::STATUS_PENDING);
+
+        $form = $this->createForm(new OfflineTransferPost(), $newTransfer);
+        $form->submit(json_decode($request->getContent(), true));
+
+        if (!$form->isValid()) {
+            return $this->customErrorView(
+                400,
+                self::INVALID_FORM_CODE,
+                self::INVALID_FORM_MESSAGE
+            );
+        }
+
+        $attachmentArray = $newTransfer->getAttachments();
+        if (empty($attachmentArray)) {
+            return new View();
         }
 
         $attachment = new OfflineTransferAttachment();
@@ -372,10 +462,11 @@ class ClientTopUpOrderController extends PaymentController
         $attachment->setFilename($attachmentArray[0]['filename']);
         $attachment->setPreview($attachmentArray[0]['preview']);
         $attachment->setSize($attachmentArray[0]['size']);
-        $attachment->setTransfer($transfer);
-        $em->persist($attachment);
+        $attachment->setTransfer($newTransfer);
 
-        $transfer->setTransferStatus(OfflineTransfer::STATUS_PENDING);
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($newTransfer);
+        $em->persist($attachment);
 
         $em->flush();
 

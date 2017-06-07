@@ -4,10 +4,10 @@ parameters:
     database_port: '3306'
 
     # production data
-    #database_name: staging_rest_api_db_pro
+    database_name: staging_rest_api_db_pro
 
     # staging data
-    database_name: staging_rest_api_db
+    #database_name: staging_rest_api_db
 
     database_user: staging_rest
     database_password: S3deb0x_2016
@@ -109,6 +109,7 @@ parameters:
     wechat_refund_fee_multiplier: 0
     foreign_credit_refund_fee_multiplier: 0
     rest_api_local_url: localhost.api.rest
+
     image_url: https://testimage.sandbox3.cn
     file_server_url: https://testxmpp.sandbox3.cn/plugins/fileServer/fileservice
     rest_file_server_url: https://testrest.sandbox3.cn/plugins/fileServer/fileservice

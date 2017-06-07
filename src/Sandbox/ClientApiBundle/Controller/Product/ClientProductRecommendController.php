@@ -119,28 +119,7 @@ class ClientProductRecommendController extends ProductController
 //        }
 
         foreach ($products as $product) {
-            $room = $product->getRoom();
-            $type = $room->getType();
-
-            if ($type == Room::TYPE_FIXED) {
-                $price = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:Room\RoomFixed')
-                    ->getFixedSeats($room);
-
-                if (!is_null($price)) {
-                    $product->setBasePrice($price);
-                }
-            }
-
-            if ($type == Room::TYPE_LONG_TERM) {
-                $company = $room->getBuilding()->getCompany();
-
-                $collectionMethod = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
-                    ->getCollectionMethod($company, $type);
-
-                $product->setCollectionMethod($collectionMethod);
-            }
+            $this->generateProductInfo($product);
         }
 
         $view = new View();

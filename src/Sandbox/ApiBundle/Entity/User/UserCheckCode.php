@@ -7,13 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * User registration.
  *
- * @ORM\Table(
- *      name="user_check_codes",
- *      uniqueConstraints={
- *          @ORM\UniqueConstraint(name="phone_and_phone_code_UNIQUE", columns={"phone", "phoneCode"}),
- *          @ORM\UniqueConstraint(name="email_UNIQUE", columns={"email"})
- *      }
- * )
+ * @ORM\Table(name="user_check_codes")
  * @ORM\Entity
  */
 class UserCheckCode
@@ -50,7 +44,8 @@ class UserCheckCode
 
     /**
      * Type Of code.
-     * 0. CHeck code for admin login.
+     * 0. Check code for admin login.
+     * 1. Check code for user payment check api.
      *
      * @var int
      *
@@ -64,6 +59,13 @@ class UserCheckCode
      * @ORM\Column(name="code", type="string", length=6, nullable=false)
      */
     private $code;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="user_id", type="integer", nullable=true)
+     */
+    private $userId;
 
     /**
      * @var \DateTime
@@ -201,6 +203,22 @@ class UserCheckCode
     public function getCode()
     {
         return $this->code;
+    }
+
+    /**
+     * @return int
+     */
+    public function getUserId()
+    {
+        return $this->userId;
+    }
+
+    /**
+     * @param int $userId
+     */
+    public function setUserId($userId)
+    {
+        $this->userId = $userId;
     }
 
     /**
