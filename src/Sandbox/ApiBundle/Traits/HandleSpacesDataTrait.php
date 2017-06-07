@@ -75,6 +75,7 @@ trait HandleSpacesDataTrait
                     $space['product']['leasing_sets'][] = array(
                         'base_price' => $productLeasingSet->getBasePrice(),
                         'unit_price' => $productLeasingSet->getUnitPrice(),
+                        'amount' => $productLeasingSet->getAmount(),
                     );
                 }
 
