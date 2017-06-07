@@ -662,6 +662,8 @@ class OrderController extends PaymentController
             $endDate->setDate($year, 3, 1);
         }
 
+        $endDate->modify('-1 seconds');
+
         return $endDate;
     }
 
@@ -694,9 +696,6 @@ class OrderController extends PaymentController
                     self::WRONG_BOOKING_DATE_MESSAGE
                 );
             }
-
-            $endDate->modify('- 1 day');
-            $endDate->setTime(23, 59, 59);
         } else {
             $timeModify = $this->getGlobal('time_for_half_hour_early');
             $halfHour = clone $now;
