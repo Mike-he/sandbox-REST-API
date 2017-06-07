@@ -834,6 +834,7 @@ class ClientOrderController extends OrderController
                 $em,
                 $order,
                 $product,
+                $timeUnit,
                 $language
             );
 

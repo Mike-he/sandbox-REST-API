@@ -1565,7 +1565,8 @@ class AdminOrderController extends OrderController
             $this->storeRoomRecord(
                 $em,
                 $order,
-                $product
+                $product,
+                $timeUnit
             );
 
             $em->flush();
@@ -1773,7 +1774,8 @@ class AdminOrderController extends OrderController
             $this->storeRoomRecord(
                 $em,
                 $order,
-                $product
+                $product,
+                $timeUnit
             );
 
             // set sales user
