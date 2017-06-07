@@ -114,11 +114,16 @@ class AdminDashBoardController extends SalesRestController
                     );
 
                 foreach ($membershipCards as $membershipCard) {
-                    $usages[] = $this->generateMembershipCardOrders(
-                        $membershipCard,
-                        $start,
-                        $end
-                    );
+                    $specification = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:MembershipCard\MembershipCardSpecification')
+                        ->findBy(array('card' => $membershipCard));
+                    if ($specification) {
+                        $usages[] = $this->generateMembershipCardOrders(
+                            $membershipCard,
+                            $start,
+                            $end
+                        );
+                    }
                 }
 
                 break;
