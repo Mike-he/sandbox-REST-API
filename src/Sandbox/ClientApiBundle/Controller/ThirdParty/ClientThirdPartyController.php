@@ -55,6 +55,18 @@ class ClientThirdPartyController extends ThirdPartyController
         $userId = $user->getId();
         $now = new \DateTime();
 
+        $groupName = '创合员工';
+        $groupUser = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
+            ->checkUser(
+                $userId,
+                $groupName
+            );
+
+        if ($groupUser > 0) {
+            return new View(array('id' => $userId));
+        }
+
         // membership order
         $membershipOrder = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:MembershipCard\MembershipOrder')
