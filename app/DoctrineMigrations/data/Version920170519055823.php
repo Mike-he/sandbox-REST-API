@@ -63,9 +63,9 @@ class Version920170519055823 extends AbstractMigration implements ContainerAware
                 default:
                     break;
             }
-
-            $em->flush();
         }
+
+        $em->flush();
     }
 
     /**
