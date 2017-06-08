@@ -6,11 +6,11 @@ parameters:
     database_user: sandbox
     database_password: sandbox
 
-    database_host_slave1:     192.168.0.10
-    database_port_slave1:     3306
-    database_name_slave1:     sandbox_rest_db
-    database_user_slave1:     root
-    database_password_slave1: root
+    #database_host_slave1:     192.168.0.10
+    #database_port_slave1:     3306
+    #database_name_slave1:     sandbox_rest_db
+    #database_user_slave1:     root
+    #database_password_slave1: root
 
     #database_host_slave2:     192.168.0.11
     #database_port_slave2:     3306
