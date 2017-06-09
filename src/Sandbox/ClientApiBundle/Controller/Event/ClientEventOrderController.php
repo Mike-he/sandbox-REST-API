@@ -113,6 +113,9 @@ class ClientEventOrderController extends PaymentController
             $attachments = $this->getRepo('Event\EventAttachment')->findByEvent($event);
             $dates = $this->getRepo('Event\EventDate')->findByEvent($event);
             $forms = $this->getRepo('Event\EventForm')->findByEvent($event);
+            $registration = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Event\EventRegistration')
+                ->findOneBy(array('event' => $event, 'userId' => $userId));
             $registrationCounts = $this->getRepo('Event\EventRegistration')
                 ->getRegistrationCounts($event->getId());
 
@@ -128,6 +131,7 @@ class ClientEventOrderController extends PaymentController
             $event->setDates($dates);
             $event->setForms($forms);
             $event->setRegisteredPersonNumber((int) $registrationCounts);
+            $eventOrder->setRegistration($registration);
         }
 
         $view = new View();
