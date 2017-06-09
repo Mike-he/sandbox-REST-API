@@ -15,6 +15,22 @@ class OrderRepository extends EntityRepository
     const COMPLETED = "'completed'";
     const CANCELLED = "'cancelled'";
 
+    public function getUserAllOrders(
+        $userId,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->where('o.userId = :userId')
+            ->setParameter('userId', $userId)
+            ->orderBy('o.modificationDate', 'DESC')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
     /**
      * @param $userId
      * @param $limit
