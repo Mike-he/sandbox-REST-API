@@ -5,6 +5,7 @@ namespace Sandbox\AdminApiBundle\Controller\DashBoard;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Sandbox\ApiBundle\Entity\User\UserBeanFlow;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -77,11 +78,13 @@ class AdminDashBoardController extends SandboxRestController
         // check user permission
         $this->checkAdminDashboardPermission(AdminPermission::OP_LEVEL_VIEW);
 
-        $repo = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserView');
-        $count = $repo->countTotalUsers();
+        $result = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\User')
+            ->countTotalUsers();
 
         return new View(array(
-            'total' => $count,
+            'total' => (int) $result['total'],
+            'beans' => (int) $result['bean'],
         ));
     }
 
@@ -858,9 +861,69 @@ class AdminDashBoardController extends SandboxRestController
     }
 
     /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="start_date",
+     *    array=false,
+     *    default=null,
+     *    nullable=false,
+     *    strict=true,
+     *    description="startDate"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="end_date",
+     *    array=false,
+     *    default=null,
+     *    nullable=false,
+     *    strict=true,
+     *    description="endDate"
+     * )
+     *
+     * @Route("/dashboard/users/beans")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getUserBeansAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        // check user permission
+        $this->checkAdminDashboardPermission(AdminPermission::OP_LEVEL_VIEW);
+
+        $startDate = $paramFetcher->get('start_date');
+        $endDate = $paramFetcher->get('end_date');
+        $endDate = $endDate.' 23:59:59';
+        $now = new \DateTime('now');
+
+        $repo = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserBeanFlow');
+
+        $add = $repo->sumBeans($startDate, $endDate, UserBeanFlow::TYPE_ADD);
+        $consume = $repo->sumBeans($startDate, $endDate, UserBeanFlow::TYPE_CONSUME);
+        $balance = $repo->sumBeans($startDate, $now);
+
+        $total = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\User')
+            ->countTotalUsers();
+
+        $beans = $total['bean'] - $balance;
+
+        return new View(array(
+            'add' => (int) $add,
+            'consume' => (int) $consume,
+            'balance' => $beans,
+        ));
+    }
+
+    /**
      * Check user permission.
      *
      * @param int $opLevel
+     * @param $adminId
      */
     private function checkAdminDashboardPermission(
         $opLevel,

@@ -200,4 +200,20 @@ class UserRepository extends EntityRepository
 
         return $query->getQuery()->getOneOrNullResult();
     }
+
+    /**
+     * @return mixed
+     */
+    public function countTotalUsers()
+    {
+        $query = $this->createQueryBuilder('u')
+            ->select('
+                COUNT(u.id) as total,
+                sum(u.bean) as bean
+            ');
+
+        $result = $query->getQuery()->getOneOrNullResult();
+
+        return $result;
+    }
 }
