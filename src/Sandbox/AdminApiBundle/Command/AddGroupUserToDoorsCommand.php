@@ -65,8 +65,6 @@ class AddGroupUserToDoorsCommand extends ContainerAwareCommand
                     ->find($buildingId);
 
                 $base = $building->getServer();
-
-                $userArray = array();
                 if ($base) {
                     foreach ($users as $user) {
                         $this->storeDoorAccess(
@@ -88,24 +86,9 @@ class AddGroupUserToDoorsCommand extends ContainerAwareCommand
                                 $user,
                                 $result['card_no']
                             );
-
-                            array_push(
-                                $userArray,
-                                array(
-                                    'empid' => "$user",
-                                )
-                            );
                         }
                     }
                     $em->flush();
-                }
-
-                if (!empty($userArray)) {
-                    $this->addEmployeeToOrder(
-                        $base,
-                        $accessNo,
-                        $userArray
-                    );
                 }
             }
         }
