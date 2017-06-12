@@ -87,7 +87,7 @@ class LoadRoomData extends AbstractFixture implements OrderedFixtureInterface
         $room6->setFloor($this->getReference('room-floor-1'));
         $room6->setNumber(100006);
         $room6->setArea(200);
-        $room6->setType('fixed');
+        $room6->setType('desk');
         $room6->setAllowedPeople(20);
         $this->addReference('fixed-room-for-get-spaces-data-structure', $room6);
 
@@ -98,7 +98,7 @@ class LoadRoomData extends AbstractFixture implements OrderedFixtureInterface
         $room7->setBuilding($this->getReference('room-building-for-data-structure'));
         $room7->setFloor($this->getReference('room-floor-1'));
         $room7->setArea(200);
-        $room7->setType('longterm');
+        $room7->setType('office');
         $room7->setAllowedPeople(30);
         $this->addReference('longterm-room-1', $room7);
 
