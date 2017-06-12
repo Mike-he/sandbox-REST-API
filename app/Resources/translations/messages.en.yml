@@ -255,14 +255,14 @@ client:
     community: Home
     red_bean: Red Bean Shop
     blog: Blogs
-    message: Messages
+    message: My Messages
     contact: Contacts
     member: Members
     company: Companies
     my_company: My Company
     scan_qr: Scan QR Code
     balance: Balance
-    my_order: Room Order
+    my_order: My Order
     my_lease: Contract
     my_long_term_appointment: Application
     my_shop_order: Shop Order
@@ -270,7 +270,7 @@ client:
     my_room: My Rooms
     my_favorite: My Favorites
     my_evaluation: My Reviews
-    notification: Notification
+    notification: Sandbox public no.
     my_invoice: My Invoice
     my_membership_card: Membership Card
     reset_password: Reset Password
@@ -279,6 +279,9 @@ client:
     phone: Phone
     about_us: About Us
     setting: Settings
+    my_center: Personal Center
+    add_buddy: Add friends
+    my_qr: My QR Code
   profile:
     room_order: Room Order
     shop_order: Shop Order
