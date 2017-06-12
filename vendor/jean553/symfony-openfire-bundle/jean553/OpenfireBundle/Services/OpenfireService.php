@@ -198,6 +198,24 @@ class OpenfireService
 
     /**
      * @param string $chatRoomName
+     * @param string $role
+     * @param string $username
+     */
+    public function deleteUserInChatRoomWithSpecificService(
+        $chatRoomName,
+        $role,
+        $username,
+        $serviceName
+    ) {
+        $this->client->request(
+            'delete',
+            '/chatrooms/'.$chatRoomName.'/'.$role.'/'.$username.'?servicename='.$serviceName,
+            array()
+        );
+    }
+
+    /**
+     * @param string $chatRoomName
      */
     public function deleteChatRoom($chatRoomName)
     {
