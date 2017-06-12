@@ -414,7 +414,7 @@ class ClientPaymentController extends PaymentController
             [$targetUserId],
             ['lang_zh'],
             $bodyZh,
-            '展想创合',
+            '创合秒租',
             $contentArray
         );
 

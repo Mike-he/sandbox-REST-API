@@ -3,9 +3,10 @@
 namespace Sandbox\ApiBundle\Entity\Message;
 
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
- * Message.
+ * Message
  *
  * @ORM\Table(name="messages")
  * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Message\MessageRepository")
@@ -13,7 +14,7 @@ use Doctrine\ORM\Mapping as ORM;
 class Message
 {
     /**
-     * @var int
+     * @var integer
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -24,21 +25,30 @@ class Message
     /**
      * @var string
      *
-     * @ORM\Column(name="content", type="text")
+     * @ORM\Column(name="body", type="text")
      */
-    private $content;
+    private $body;
+
+    /**
+     * @var boolean
+     *
+     * @ORM\Column(name="visible", type="boolean")
+     */
+    private $visible = true;
 
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="creationDate", type="datetime")
+     * @Gedmo\Timestampable(on="create")
+     * @ORM\Column(name="creation_date", type="datetime")
      */
     private $creationDate;
 
+
     /**
-     * Get id.
+     * Get id
      *
-     * @return int
+     * @return integer 
      */
     public function getId()
     {
@@ -46,34 +56,55 @@ class Message
     }
 
     /**
-     * Set content.
+     * Set body
      *
-     * @param string $content
-     *
+     * @param string $body
      * @return Message
      */
-    public function setContent($content)
+    public function setBody($body)
     {
-        $this->content = $content;
+        $this->body = $body;
 
         return $this;
     }
 
     /**
-     * Get content.
+     * Get body
      *
-     * @return string
+     * @return string 
      */
-    public function getContent()
+    public function getBody()
     {
-        return $this->content;
+        return $this->body;
     }
 
     /**
-     * Set creationDate.
+     * Set visible
+     *
+     * @param boolean $visible
+     * @return Message
+     */
+    public function setVisible($visible)
+    {
+        $this->visible = $visible;
+
+        return $this;
+    }
+
+    /**
+     * Get visible
+     *
+     * @return boolean 
+     */
+    public function getVisible()
+    {
+        return $this->visible;
+    }
+
+    /**
+     * Set creationDate
      *
      * @param \DateTime $creationDate
-     *
      * @return Message
      */
     public function setCreationDate($creationDate)
@@ -84,17 +115,12 @@ class Message
     }
 
     /**
-     * Get creationDate.
+     * Get creationDate
      *
-     * @return \DateTime
+     * @return \DateTime 
      */
     public function getCreationDate()
     {
         return $this->creationDate;
-    }
-
-    public function __construct()
-    {
-        $this->setCreationDate(new \DateTime('now'));
     }
 }

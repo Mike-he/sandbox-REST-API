@@ -20,6 +20,7 @@ class MessageRepository extends EntityRepository
     public function getMessageList()
     {
         $query = $this->createQueryBuilder('m')
+            ->where('m.visible = TRUE')
             ->orderBy('m.creationDate', 'DESC');
 
         return $query->getQuery()->getResult();

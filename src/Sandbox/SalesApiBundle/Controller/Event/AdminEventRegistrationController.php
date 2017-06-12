@@ -117,7 +117,7 @@ class AdminEventRegistrationController extends SalesRestController
                     [$user->getId()],
                     ['lang_zh'],
                     null,
-                    '展想创合',
+                    '创合秒租',
                     $contentArray
                 );
 

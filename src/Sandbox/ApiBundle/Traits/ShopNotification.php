@@ -133,7 +133,7 @@ trait ShopNotification
                 [$userId],
                 ['lang_zh'],
                 $zhBody,
-                '展想创合',
+                '创合秒租',
                 $contentArray
             );
 
