@@ -58,14 +58,14 @@ class Version920170612063805 extends AbstractMigration implements ContainerAware
         $messagePermissionNew->setMaxOpLevel('2');
         $em->persist($messagePermissionNew);
 
-        $messageConsultationPermision = new AdminPermission();
-        $messageConsultationPermision->setKey(AdminPermission::KEY_OFFICIAL_PLATFORM_MESSAGE_CONSULTATION);
-        $messageConsultationPermision->setPlatform('official');
-        $messageConsultationPermision->setLevel('global');
-        $messageConsultationPermision->setName('用户咨询');
-        $messageConsultationPermision->setOpLevelSelect('2');
-        $messageConsultationPermision->setMaxOpLevel('2');
-        $em->persist($messageConsultationPermision);
+        $messageConsultationPermission = new AdminPermission();
+        $messageConsultationPermission->setKey(AdminPermission::KEY_OFFICIAL_PLATFORM_MESSAGE_CONSULTATION);
+        $messageConsultationPermission->setPlatform('official');
+        $messageConsultationPermission->setLevel('global');
+        $messageConsultationPermission->setName('用户咨询');
+        $messageConsultationPermission->setOpLevelSelect('2');
+        $messageConsultationPermission->setMaxOpLevel('2');
+        $em->persist($messageConsultationPermission);
 
         $map1 = new AdminPermissionGroupMap();
         $map1->setGroup($officialMessageGroup);
@@ -74,7 +74,7 @@ class Version920170612063805 extends AbstractMigration implements ContainerAware
 
         $map2 = new AdminPermissionGroupMap();
         $map2->setGroup($officialMessageGroup);
-        $map2->setPermission($messageConsultationPermision);
+        $map2->setPermission($messageConsultationPermission);
         $em->persist($map2);
 
         $em->flush();
