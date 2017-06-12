@@ -7,12 +7,12 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class SyncXmppUserCommand extends ContainerAwareCommand
+class UpdateXmppUserCommand extends ContainerAwareCommand
 {
     protected function configure()
     {
-        $this->setName('sandbox:api-bundle:sync:xmpp_user')
-            ->setDescription('Sync Xmpp User')
+        $this->setName('sandbox:api-bundle:update:xmpp_user')
+            ->setDescription('Update Xmpp User')
             ->addArgument('userId', InputArgument::REQUIRED, 'user ID');
     }
 
@@ -23,20 +23,22 @@ class SyncXmppUserCommand extends ContainerAwareCommand
 
         $em = $this->getContainer()->get('doctrine')->getManager();
         $user = $em->getRepository('SandboxApiBundle:User\User')->find($userId);
+        $profile = $em->getRepository('SandboxApiBundle:User\UserProfile')->findOneBy(array('userId' => $userId));
+        $name = $profile->getName();
 
         $xmppUserName = $user->getXmppUsername();
-        $password = $user->getPassword();
 
-        $this->createXmppUser($xmppUserName, $password);
+        $this->updateXmppUser($xmppUserName, null, $name);
 
-        $output->writeln('Sync Success!');
+        $output->writeln('Update Success!');
     }
 
-    private function createXmppUser(
+    private function updateXmppUser(
         $xmppUserName,
-        $password
+        $password,
+        $name
     ) {
         $service = $this->getContainer()->get('openfire.service');
-        $service->createUser($xmppUserName, $password);
+        $service->editUser($xmppUserName, $password, $name);
     }
 }

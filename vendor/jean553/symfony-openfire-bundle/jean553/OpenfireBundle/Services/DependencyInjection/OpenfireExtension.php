@@ -6,7 +6,6 @@ use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\Config\FileLocator;
-use jean553\OpenfireBundle\DependencyInjection\Configuration;
 
 class OpenfireExtension extends Extension
 {

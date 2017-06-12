@@ -3,12 +3,11 @@
 namespace jean553\OpenfireBundle\Services;
 
 use jean553\OpenfireBundle\Logic\OpenfireClient;
-
 use GuzzleHttp\Exception\RequestException;
 
 class OpenfireService
 {
-    const REQUEST_ERROR_MESSAGE = "Openfire server error.";
+    const REQUEST_ERROR_MESSAGE = 'Openfire server error.';
 
     /**
      * @var OpenfireClient
@@ -28,7 +27,7 @@ class OpenfireService
 
     /**
      * Create a new user with the given username
-     * if this user does not already exists
+     * if this user does not already exists.
      *
      * @param string $username
      * @param string $password
@@ -39,14 +38,13 @@ class OpenfireService
         $username,
         $password
     ) {
-
         try {
             $this->client->request(
                 'post',
                 '/users',
                 array(
                     'username' => $username,
-                    'password' => $password
+                    'password' => $password,
                 )
             );
         } catch (RequestException $e) {
@@ -64,13 +62,12 @@ class OpenfireService
         $username,
         $password
     ) {
-
         try {
             $this->client->request(
                 'put',
                 '/users/'.$username,
                 array(
-                    'password' => $password
+                    'password' => $password,
                 )
             );
         } catch (RequestException $e) {
@@ -79,7 +76,7 @@ class OpenfireService
     }
 
     /**
-     * @param integer $chatRoomId
+     * @param int    $chatRoomId
      * @param string $chatRoomName
      * @param string $ownerName
      */
@@ -88,7 +85,6 @@ class OpenfireService
         $chatRoomName,
         $ownerName
     ) {
-
         $ownerInfos =
             $ownerName.'@'.$this->config['servicename'].'.'.$this->config['servername'];
 
@@ -100,15 +96,15 @@ class OpenfireService
                 'naturalName' => $chatRoomName,
                 'description' => $chatRoomName,
                 'owners' => array(
-                    'owner' => $ownerInfos
+                    'owner' => $ownerInfos,
                 ),
-                'persistent' => true
+                'persistent' => true,
             )
         );
     }
 
     /**
-     * @param integer $chatRoomId
+     * @param int    $chatRoomId
      * @param string $chatRoomName
      * @param string $ownerName
      * @param string $serviceName
@@ -119,7 +115,6 @@ class OpenfireService
         $ownerName,
         $serviceName
     ) {
-
         $ownerInfos =
             $ownerName.'@'.$serviceName.'.'.$this->config['servername'];
 
@@ -131,9 +126,9 @@ class OpenfireService
                 'naturalName' => $chatRoomName,
                 'description' => $chatRoomName,
                 'owners' => array(
-                    'owner' => $ownerInfos
+                    'owner' => $ownerInfos,
                 ),
-                'persistent' => true
+                'persistent' => true,
             )
         );
     }
@@ -148,7 +143,6 @@ class OpenfireService
         $role,
         $username
     ) {
-
         $this->client->request(
             'post',
             '/chatrooms/'.$chatRoomName.'/'.$role.'/'.$username,
@@ -168,7 +162,6 @@ class OpenfireService
         $username,
         $serviceName
     ) {
-
         $this->client->request(
             'post',
             '/chatrooms/'.$chatRoomName.'/'.$role.'/'.$username.'?servicename='.$serviceName,
@@ -186,7 +179,6 @@ class OpenfireService
         $role,
         $username
     ) {
-
         $this->client->request(
             'delete',
             '/chatrooms/'.$chatRoomName.'/'.$role.'/'.$username,
@@ -199,7 +191,6 @@ class OpenfireService
      */
     public function deleteChatRoom($chatRoomName)
     {
-
         $this->client->request(
             'delete',
             '/chatrooms/'.$chatRoomName,
@@ -215,7 +206,6 @@ class OpenfireService
         $chatRoomName,
         $serviceName
     ) {
-
         $this->client->request(
             'delete',
             '/chatrooms/'.$chatRoomName.'?servicename='.$serviceName,
@@ -250,15 +240,15 @@ class OpenfireService
                 'roomName' => $chatRoomId,
                 'naturalName' => $chatRoomName,
                 'description' => $chatRoomName,
-                'persistent' => true
+                'persistent' => true,
             )
         );
     }
 
     /**
-     * @param integer $chatRoomId
+     * @param int    $chatRoomId
      * @param string $chatRoomName
-     * @param array $membersIds
+     * @param array  $membersIds
      * @param string $ownerName
      */
     public function putChatRoom(
@@ -268,13 +258,13 @@ class OpenfireService
         $ownerName
     ) {
 
-        // TODO: For some reasons, the provided data is an 
+        // TODO: For some reasons, the provided data is an
         // associative array sometimes, we change it into
         // a single array.
-    
+
         $membersIds = array_values($membersIds);
-        
-        $membersNames = array_map(function($memberId) {
+
+        $membersNames = array_map(function ($memberId) {
             return $this->getUserJID($memberId);
         }, $membersIds);
 
@@ -290,19 +280,19 @@ class OpenfireService
                 'description' => $chatRoomName,
                 'persistent' => true,
                 'members' => [
-                    'member' => $membersNames
+                    'member' => $membersNames,
                 ],
                 'owners' => [
-                    'owner' => $ownerInfos 
-                ]
+                    'owner' => $ownerInfos,
+                ],
             )
         );
     }
 
     /**
-     * @param integer $chatRoomId
+     * @param int    $chatRoomId
      * @param string $chatRoomName
-     * @param array $membersIds
+     * @param array  $membersIds
      * @param string $ownerName
      * @param string $serviceName
      */
@@ -314,13 +304,13 @@ class OpenfireService
         $serviceName
     ) {
 
-        // TODO: For some reasons, the provided data is an 
+        // TODO: For some reasons, the provided data is an
         // associative array sometimes, we change it into
         // a single array.
-    
+
         $membersIds = array_values($membersIds);
-        
-        $membersNames = array_map(function($memberId) {
+
+        $membersNames = array_map(function ($memberId) {
             return $this->getUserJID($memberId);
         }, $membersIds);
 
@@ -336,11 +326,11 @@ class OpenfireService
                 'description' => $chatRoomName,
                 'persistent' => true,
                 'members' => [
-                    'member' => $membersNames
+                    'member' => $membersNames,
                 ],
                 'owners' => [
-                    'owner' => $ownerInfos 
-                ]
+                    'owner' => $ownerInfos,
+                ],
             )
         );
     }

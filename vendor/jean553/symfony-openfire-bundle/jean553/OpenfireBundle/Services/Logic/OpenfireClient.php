@@ -30,69 +30,68 @@ class OpenfireClient
     /**
      * Execute a request according to the given type, url and parameters.
      *
-     * @param string $type post, get, put, delete
+     * @param string $type   post, get, put, delete
      * @param string $action endpoint to call
-     * @param array $params request parameters
+     * @param array  $params request parameters
      */
     public function request(
-        $type, 
-        $action, 
+        $type,
+        $action,
         $params
     ) {
         $headers = array(
             'Accept' => 'application/json',
-            'Authorization' => $this->config['secret']
+            'Authorization' => $this->config['secret'],
         );
 
         $body = json_encode($params);
 
         // TODO: similar logic for each method, should be refactored
-        switch($type)
-        {
+        switch ($type) {
             case 'get':
 
-                $result = 
+                $result =
                     $this->client->get(
                         $this->config['url'].$action,
                         array(
-                            'headers' => $headers
-                        ) 
+                            'headers' => $headers,
+                        )
                     );
                 break;
             case 'post':
                 $headers += ['Content-Type' => 'application/json'];
 
-                $result = 
+                $result =
                     $this->client->post(
                         $this->config['url'].$action,
                         array(
                             'headers' => $headers,
-                            'body' => $body
-                        ) 
+                            'body' => $body,
+                        )
                     );
                 break;
             case 'put':
                 $headers += ['Content-Type' => 'application/json'];
 
-                $result = 
+                $result =
                     $this->client->put(
                         $this->config['url'].$action,
                         array(
                             'headers' => $headers,
-                            'body' => $body
-                        ) 
+                            'body' => $body,
+                        )
                     );
                 break;
             case 'delete':
                 $headers += ['Content-Type' => 'application/json'];
 
-                $result = 
+                $result =
                     $this->client->delete(
                         $this->config['url'].$action,
                         array(
                             'headers' => $headers,
-                            'body' => $body
-                        ) 
+                            'body' => $body,
+                        )
                     );
                 break;
         }

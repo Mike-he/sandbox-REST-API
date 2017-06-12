@@ -59,7 +59,7 @@ class DummyOpenfireService
     }
 
     /**
-     * @param integer $chatRoomId
+     * @param int    $chatRoomId
      * @param string $chatRoomName
      * @param string $ownerName
      * @param string $serviceName
@@ -125,9 +125,9 @@ class DummyOpenfireService
     }
 
     /**
-     * @param integer $chatRoomId
+     * @param int    $chatRoomId
      * @param string $chatRoomName
-     * @param array $membersIds
+     * @param array  $membersIds
      * @param string $ownerName
      */
     public function putChatRoom(
@@ -139,9 +139,9 @@ class DummyOpenfireService
     }
 
     /**
-     * @param integer $chatRoomId
+     * @param int    $chatRoomId
      * @param string $chatRoomName
-     * @param array $membersIds
+     * @param array  $membersIds
      * @param string $ownerName
      * @param string $serviceName
      */
