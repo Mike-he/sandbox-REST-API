@@ -218,80 +218,10 @@ class OpenServerUserController extends SandboxRestController
 
         // generate xmpp user
         $response = $this->createXmppUser($user, $userProfile->getId());
-        $responseJson = json_decode($response);
-        $user->setXmppUsername($responseJson->username);
+        $user->setXmppUsername($response);
 
         $em->flush();
 
         return $user;
-    }
-
-    /**
-     * @param User $user
-     * @param int  $userProfileId
-     *
-     * @return mixed|void
-     */
-    private function createXmppUser(
-        $user,
-        $userProfileId
-    ) {
-        // get globals
-        $twig = $this->container->get('twig');
-        $globals = $twig->getGlobals();
-
-        // Openfire API URL
-        $apiUrl = $globals['openfire_innet_url'].
-            $globals['openfire_plugin_bstuser'].
-            $globals['openfire_plugin_bstuser_users'];
-
-        // generate username
-        $username = strval(5000000 + $userProfileId);
-
-        // request json
-        $jsonData = $this->createJsonData(
-            $username,
-            $user->getPassword()
-        );
-
-        // set ezUser secret to basic auth
-        $userNameSecret = $globals['openfire_plugin_bstuser_property_name_ezuser'].':'.
-            $globals['openfire_plugin_bstuser_property_secret_ezuser'];
-
-        $basicAuth = 'Basic '.base64_encode($userNameSecret);
-
-        // init curl
-        $ch = curl_init($apiUrl);
-
-        // get then response when post OpenFire API
-        $response = $this->callAPI(
-            $ch,
-            'POST',
-            array('Authorization: '.$basicAuth),
-            $jsonData);
-
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        if ($httpCode != self::HTTP_STATUS_OK) {
-            return;
-        }
-
-        return $response;
-    }
-
-    /**
-     * @param string $username
-     * @param string $password
-     *
-     * @return string
-     */
-    private function createJsonData(
-        $username,
-        $password
-    ) {
-        $dataArray = array();
-        $dataArray['username'] = $username;
-        $dataArray['password'] = $password;
-
-        return json_encode($dataArray);
     }
 }
