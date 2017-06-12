@@ -83,10 +83,6 @@ class RemoveGroupUserToDoorsCommand extends ContainerAwareCommand
             $groupId = $data['group_id'];
             $users = $data['users'];
 
-            $group = $em->getRepository('SandboxApiBundle:User\UserGroup')->find($groupId);
-            $card = $em->getRepository('SandboxApiBundle:MembershipCard\MembershipCard')->find($group->getCard());
-            $accessNo = $card->getAccessNo();
-
             $buildingIds = $em->getRepository('SandboxApiBundle:User\UserGroupDoors')
                 ->getBuildingIdsByGroup(
                     $groupId
@@ -98,28 +94,22 @@ class RemoveGroupUserToDoorsCommand extends ContainerAwareCommand
 
                 $base = $building->getServer();
 
-                $userArray = array();
                 if ($base) {
                     foreach ($users as $user) {
-                        // set action of door access to delete
-                        $this->setAccessActionToDelete(
-                            $accessNo,
+                        $userInfo = $em->getRepository('SandboxApiBundle:User\UserView')
+                            ->find($user);
+                        $userName = $userInfo->getName();
+                        $cardNo = $userInfo->getCardNo();
+
+                        $this->setEmployeeCard(
+                            $base,
                             $user,
+                            $userName,
+                            $cardNo,
                             DoorAccessConstants::METHOD_DELETE
                         );
-
-                        $empUser = ['empid' => $user];
-                        array_push($userArray, $empUser);
                     }
                     $em->flush();
-                }
-
-                if (!empty($userArray)) {
-                    $this->deleteEmployeeToOrder(
-                        $base,
-                        $accessNo,
-                        $userArray
-                    );
                 }
             }
         }
