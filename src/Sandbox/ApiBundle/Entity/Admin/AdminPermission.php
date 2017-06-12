@@ -40,6 +40,7 @@ class AdminPermission
     const KEY_OFFICIAL_PLATFORM_EVENT = 'platform.event';
     const KEY_OFFICIAL_PLATFORM_BANNER = 'platform.banner';
     const KEY_OFFICIAL_PLATFORM_NEWS = 'platform.news';
+    const KEY_OFFICIAL_PLATFORM_MESSAGE_CONSULTATION = 'platform.message_consultation';
     const KEY_OFFICIAL_PLATFORM_MESSAGE = 'platform.message';
     const KEY_OFFICIAL_PLATFORM_BUILDING = 'platform.building';
     const KEY_OFFICIAL_PLATFORM_VERIFY = 'platform.verify';

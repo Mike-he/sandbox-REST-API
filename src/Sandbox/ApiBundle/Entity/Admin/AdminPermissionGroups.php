@@ -23,6 +23,7 @@ class AdminPermissionGroups
     const GROUP_KEY_SPACE = 'space';
     const GROUP_KEY_USER = 'user';
     const GROUP_KEY_ADMIN = 'admin';
+    const GROUP_KEY_MESSAGE = 'message';
 
     const GROUP_PLATFORM_OFFICIAL = 'official';
     const GROUP_PLATFORM_SALES = 'sales';
