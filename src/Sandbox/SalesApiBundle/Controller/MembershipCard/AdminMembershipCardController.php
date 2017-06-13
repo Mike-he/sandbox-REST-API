@@ -3,7 +3,6 @@
 namespace Sandbox\SalesApiBundle\Controller\MembershipCard;
 
 use Rs\Json\Patch;
-use Sandbox\ApiBundle\Entity\MembershipCard\MembershipCardAccessNo;
 use Sandbox\ApiBundle\Form\MembershipCard\MembershipCardPatchType;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
@@ -176,13 +175,6 @@ class AdminMembershipCardController extends SalesRestController
 
         $em->flush();
 
-        //Add Door Access
-        $this->storeDoorAccessNoRecord(
-            $em,
-            $membershipCard,
-            $accessNo
-        );
-
         $this->storeGroupUsers(
             $em,
             $membershipCard,
@@ -242,42 +234,10 @@ class AdminMembershipCardController extends SalesRestController
 
         $userGroup->setName($membershipCard->getName());
 
-        // Record Old door access no
-        $doorControls = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserGroupDoors')
-            ->getBuildingIdsByGroup(null, $id);
-
-        foreach ($doorControls as $doorControl) {
-            $membershipCardAccessNo = new MembershipCardAccessNo();
-            $membershipCardAccessNo->setAccessNo($membershipCard->getAccessNo());
-            $membershipCardAccessNo->setCard($id);
-            $membershipCardAccessNo->setBuildingId($doorControl);
-            $em->persist($membershipCardAccessNo);
-        }
-
         $this->handleDoorsControl(
             $em,
             $membershipCard,
             $userGroup
-        );
-
-        $newAccessNo = $this->generateSerialNumber(MembershipCard::CARD_LETTER_HEAD);
-
-        $membershipCard->setAccessNo($newAccessNo);
-
-        $em->flush();
-
-        //Add Door Access
-        $this->storeDoorAccessNoRecord(
-            $em,
-            $membershipCard,
-            $newAccessNo
-        );
-
-        $this->storeGroupUserToDoorAccess(
-            $em,
-            $userGroup,
-            $membershipCard
         );
 
         $em->flush();
@@ -437,49 +397,6 @@ class AdminMembershipCardController extends SalesRestController
 
     /**
      * @param $em
-     * @param $membershipCard
-     * @param $accessNo
-     */
-    private function storeDoorAccessNoRecord(
-        $em,
-        $membershipCard,
-        $accessNo
-    ) {
-        $buildingIds = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserGroupDoors')
-            ->getBuildingIdsByGroup(
-                null,
-                $membershipCard
-            );
-
-        $now = new \DateTime('now');
-        $startDate = $now->setTime(0, 0, 0);
-        $endDate = new \DateTime('2099-12-30 23:59:59');
-        $userId = 1;
-
-        foreach ($buildingIds as $buildingId) {
-            $building = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Room\RoomBuilding')
-                ->find($buildingId);
-
-            $base = $building->getServer();
-
-            if ($base) {
-                $this->setMembershipCardDoorAccess(
-                    $em,
-                    $base,
-                    $accessNo,
-                    $userId,
-                    $buildingId,
-                    $startDate,
-                    $endDate
-                );
-            }
-        }
-    }
-
-    /**
-     * @param $em
      * @param $card
      * @param $group
      */
@@ -488,10 +405,6 @@ class AdminMembershipCardController extends SalesRestController
         $card,
         $group
     ) {
-        $now = new \DateTime('now');
-        $now->setTime(0, 0, 0);
-        $accessNo = $card->getAccessNo();
-
         $buildings = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserGroupDoors')
             ->getBuildingIdsByGroup(
@@ -503,11 +416,6 @@ class AdminMembershipCardController extends SalesRestController
 
         foreach ($allOrders as $allOrder) {
             $users = $allOrder['user'];
-            $building = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Room\RoomBuilding')
-                ->find($allOrder['building']);
-
-            $userArray = [];
             foreach ($users as $user) {
                 $this->get('sandbox_api.group_user')->storeGroupUser(
                     $em,
@@ -517,108 +425,6 @@ class AdminMembershipCardController extends SalesRestController
                     $allOrder['start'],
                     $allOrder['end'],
                     $allOrder['order_number']
-                );
-
-                $base = $building->getServer();
-                if ($base) {
-                    if ($allOrder['start'] <= $now) {
-                        $this->storeDoorAccess(
-                            $em,
-                            $card->getAccessNo(),
-                            $user,
-                            $building->getId(),
-                            null,
-                            $allOrder['start'],
-                            $allOrder['end']
-                        );
-
-                        $userArray = $this->getUserArrayIfAuthed(
-                            $base,
-                            $user,
-                            $userArray
-                        );
-                    }
-                }
-            }
-
-            $em->flush();
-
-            // set room access
-            if (!empty($userArray)) {
-                $this->addEmployeeToOrder(
-                    $base,
-                    $accessNo,
-                    $userArray
-                );
-            }
-        }
-    }
-
-    /**
-     * @param $em
-     * @param $group
-     * @param $card
-     */
-    private function storeGroupUserToDoorAccess(
-        $em,
-        $group,
-        $card
-    ) {
-        $now = new \DateTime('now');
-        $accessNo = $card->getAccessNo();
-
-        $groupUsers = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
-            ->findBy(array('groupId' => $group));
-
-        $buildingIds = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserGroupDoors')
-            ->getBuildingIdsByGroup(
-                $group,
-                $card
-            );
-
-        foreach ($buildingIds as $buildingId) {
-            $building = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Room\RoomBuilding')
-                ->find($buildingId);
-            $base = $building->getServer();
-
-            if (is_null($base) || empty($base)) {
-                continue;
-            }
-
-            $userArray = [];
-            foreach ($groupUsers as $groupUser) {
-                $userId = $groupUser->getUserId();
-                if ($groupUser->getStartDate() <= $now &&
-                    $groupUser->getEndDate() >= $now
-                ) {
-                    $this->storeDoorAccess(
-                        $em,
-                        $accessNo,
-                        $userId,
-                        $buildingId,
-                        null,
-                        $groupUser->getStartDate(),
-                        $groupUser->getEndDate()
-                    );
-                }
-
-                $userArray = $this->getUserArrayIfAuthed(
-                    $base,
-                    $userId,
-                    $userArray
-                );
-            }
-
-            $em->flush();
-            // set room access
-            if (!empty($userArray)) {
-                $this->addEmployeeToOrder(
-                    $base,
-                    $accessNo,
-                    $userArray
                 );
             }
         }
