@@ -5,7 +5,6 @@ namespace Sandbox\ApiBundle\Traits;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Constants\EventOrderExport;
 use Sandbox\ApiBundle\Constants\LeaseConstants;
-use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 

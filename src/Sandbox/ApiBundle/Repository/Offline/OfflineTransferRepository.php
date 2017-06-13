@@ -78,10 +78,8 @@ class OfflineTransferRepository extends EntityRepository
 
         $query->groupBy('o.orderNumber');
 
-
         return $query->getQuery()->getResult();
     }
-
 
     /**
      * @param $status

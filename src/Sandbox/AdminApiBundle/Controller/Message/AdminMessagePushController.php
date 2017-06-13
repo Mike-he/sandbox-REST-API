@@ -88,7 +88,7 @@ class AdminMessagePushController extends AdminRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/messages/{id}")
@@ -113,7 +113,7 @@ class AdminMessagePushController extends AdminRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/messages/{id}")
@@ -143,7 +143,7 @@ class AdminMessagePushController extends AdminRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -197,7 +197,7 @@ class AdminMessagePushController extends AdminRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/message_materials/{id}")
@@ -222,7 +222,7 @@ class AdminMessagePushController extends AdminRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/message_materials/{id}")
@@ -289,7 +289,7 @@ class AdminMessagePushController extends AdminRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/messages/{id}")
@@ -380,7 +380,8 @@ class AdminMessagePushController extends AdminRestController
             $contentArray
         );
 
-        $this->sendJpushNotification($data);}
+        $this->sendJpushNotification($data);
+    }
 
     /**
      * Check user permission.

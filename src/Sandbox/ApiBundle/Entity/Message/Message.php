@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
- * Message
+ * Message.
  *
  * @ORM\Table(name="messages")
  * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Message\MessageRepository")
@@ -14,7 +14,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 class Message
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -30,7 +30,7 @@ class Message
     private $body;
 
     /**
-     * @var boolean
+     * @var bool
      *
      * @ORM\Column(name="visible", type="boolean")
      */
@@ -44,11 +44,10 @@ class Message
      */
     private $creationDate;
 
-
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -56,9 +55,10 @@ class Message
     }
 
     /**
-     * Set body
+     * Set body.
      *
      * @param string $body
+     *
      * @return Message
      */
     public function setBody($body)
@@ -69,9 +69,9 @@ class Message
     }
 
     /**
-     * Get body
+     * Get body.
      *
-     * @return string 
+     * @return string
      */
     public function getBody()
     {
@@ -79,9 +79,10 @@ class Message
     }
 
     /**
-     * Set visible
+     * Set visible.
      *
-     * @param boolean $visible
+     * @param bool $visible
+     *
      * @return Message
      */
     public function setVisible($visible)
@@ -92,9 +93,9 @@ class Message
     }
 
     /**
-     * Get visible
+     * Get visible.
      *
-     * @return boolean 
+     * @return bool
      */
     public function getVisible()
     {
@@ -102,9 +103,10 @@ class Message
     }
 
     /**
-     * Set creationDate
+     * Set creationDate.
      *
      * @param \DateTime $creationDate
+     *
      * @return Message
      */
     public function setCreationDate($creationDate)
@@ -115,9 +117,9 @@ class Message
     }
 
     /**
-     * Get creationDate
+     * Get creationDate.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getCreationDate()
     {
