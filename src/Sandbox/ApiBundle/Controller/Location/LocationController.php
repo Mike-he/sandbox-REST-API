@@ -110,6 +110,45 @@ class LocationController extends SalesRestController
     }
 
     /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/districts")
+     * @Method({"GET"})
+     *
+     * @Annotations\QueryParam(
+     *    name="parent",
+     *    default=null,
+     *    nullable=false,
+     *    description="parent id"
+     * )
+     *
+     * @return View
+     */
+    public function getAdministrativeRegionsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $parentId = $paramFetcher->get('parent');
+
+        $regions = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomCity')
+            ->findBy(array(
+                'parentId' => $parentId,
+            ));
+
+        $response = array();
+        foreach ($regions as $region) {
+            array_push($response, array(
+                'id' => $region->getId(),
+                'name' => $region->getName(),
+            ));
+        }
+
+        return new View($response);
+    }
+
+    /**
      * @Get("/buildings")
      *
      * @Annotations\QueryParam(
