@@ -78,6 +78,9 @@ class SandboxRestController extends FOSRestController
     const EN_SMS_BEFORE = '【Sandbox3】Your verification code is';
     const EN_SMS_AFTER = '. It will be expired after 10 minutes. Please do not reveal it to others.';
 
+    const ZH_SMS_APPOINTMENT_BEFORE = '【创合秒租】您的“';
+    const ZH_SMS_APPOINTMENT_AFTER = '”收到一位用户的办公室申请，请登录创合秒租管理平台查看。';
+
     //-------------------- Global --------------------//
 
     /**
