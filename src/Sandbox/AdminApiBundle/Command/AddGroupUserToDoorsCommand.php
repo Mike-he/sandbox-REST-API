@@ -51,10 +51,6 @@ class AddGroupUserToDoorsCommand extends ContainerAwareCommand
             $groupId = $data['group_id'];
             $users = $data['users'];
 
-            $group = $em->getRepository('SandboxApiBundle:User\UserGroup')->find($groupId);
-            $card = $em->getRepository('SandboxApiBundle:MembershipCard\MembershipCard')->find($group->getCard());
-            $accessNo = $card->getAccessNo();
-
             $buildingIds = $em->getRepository('SandboxApiBundle:User\UserGroupDoors')
                 ->getBuildingIdsByGroup(
                     $groupId
@@ -67,15 +63,6 @@ class AddGroupUserToDoorsCommand extends ContainerAwareCommand
                 $base = $building->getServer();
                 if ($base) {
                     foreach ($users as $user) {
-                        $this->storeDoorAccess(
-                            $em,
-                            $accessNo,
-                            $user,
-                            $buildingId,
-                            null,
-                            $now,
-                            $now
-                        );
                         $result = $this->getCardNoByUser($user);
                         if (
                             !is_null($result) && !empty($result) &&
