@@ -106,7 +106,8 @@ class RoomController extends SandboxRestController
                 'id' => $tag->getId(),
                 'tag_key' => $tag->getTagKey(),
                 'tag_name' => $this->container->get('translator')->trans(RoomTypeTags::TRANS_PREFIX.$tag->getTagKey()),
-//                'icon' => $this->getParameter('image_url').$tag->getIcon(),
+                'icon' => $this->getParameter('image_url').$tag->getIcon(),
+                'icon_selected' => $this->getParameter('image_url').$tag->getIconSelected(),
             ));
         }
 

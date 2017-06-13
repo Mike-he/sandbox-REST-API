@@ -40,8 +40,8 @@ class Version920170612090129 extends AbstractMigration implements ContainerAware
         $menuIphone = new Menu();
         $menuIphone->setComponent(Menu::COMPONENT_CLIENT);
         $menuIphone->setPlatform(Menu::PLATFORM_IPHONE);
-        $menuIphone->setMinVersion('2.8.0');
-        $menuIphone->setMaxVersion('2.8.99');
+        $menuIphone->setMinVersion('3.0.0');
+        $menuIphone->setMaxVersion('3.0.99');
         $menuIphone->setMainJson($mainJson);
         $menuIphone->setProfileJson($profileJson);
         $menuIphone->setHomeJson($homeJson);
@@ -50,8 +50,8 @@ class Version920170612090129 extends AbstractMigration implements ContainerAware
         $menuAndroid = new Menu();
         $menuAndroid->setComponent(Menu::COMPONENT_CLIENT);
         $menuAndroid->setPlatform(Menu::PLATFORM_ANDROID);
-        $menuAndroid->setMinVersion('2.8.0');
-        $menuAndroid->setMaxVersion('2.8.99');
+        $menuAndroid->setMinVersion('3.0.0');
+        $menuAndroid->setMaxVersion('3.0.99');
         $menuAndroid->setMainJson($mainJson);
         $menuAndroid->setProfileJson($profileJson);
         $menuAndroid->setHomeJson($homeJson);
