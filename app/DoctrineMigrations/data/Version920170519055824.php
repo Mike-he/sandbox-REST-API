@@ -10,7 +10,7 @@ use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-class Version920170519055823 extends AbstractMigration implements ContainerAwareInterface
+class Version920170519055824 extends AbstractMigration implements ContainerAwareInterface
 {
     use ContainerAwareTrait;
 
@@ -58,7 +58,7 @@ class Version920170519055823 extends AbstractMigration implements ContainerAware
                     break;
                 case 'longterm':
                     $room->setType('office');
-                    $room->setTypeTag('boardroom');
+                    $room->setTypeTag('team_office');
                     break;
                 default:
                     break;
