@@ -3,6 +3,7 @@
 namespace Sandbox\AdminApiBundle\Command;
 
 use Sandbox\ApiBundle\Constants\DoorAccessConstants;
+use Sandbox\ApiBundle\Entity\User\UserGroup;
 use Sandbox\ApiBundle\Traits\DoorAccessTrait;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
@@ -21,6 +22,22 @@ class RemoveGroupUserToDoorsCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $em = $this->getContainer()->get('doctrine')->getManager();
+
+        $groups = $em->getRepository('SandboxApiBundle:User\UserGroup')
+            ->findBy(array('type' => UserGroup::TYPE_CARD));
+
+        $now = new \DateTime('now');
+
+        foreach ($groups as $group) {
+            $groupId = $group->getId();
+
+            $groupUsers = $em->getRepository('SandboxApiBundle:User\UserGroupHasUser')
+                ->findFinishedUsers($groupId, $now);
+
+            foreach ($groupUsers as $groupUser) {
+                $em->remove($groupUser);
+            }
+        }
 
         $doorDepartmentUsers = $em->getRepository('SandboxApiBundle:Door\DoorDepartmentUsers')->findAll();
         foreach ($doorDepartmentUsers as $doorDepartmentUser) {
