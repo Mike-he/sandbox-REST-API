@@ -1362,7 +1362,7 @@ class PaymentController extends DoorController
             UserGroupHasUser::TYPE_CARD
         );
 
-        // add user to door access$doorBuildingIds = $this->getDoctrine()
+        // add user to door access
         $doorBuildingIds = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserGroupDoors')
             ->getBuildingIdsByGroup(
