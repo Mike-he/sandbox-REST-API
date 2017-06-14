@@ -776,16 +776,6 @@ trait DoorAccessTrait
             $em = $this->getDoctrine()->getManager();
 
             foreach ($userIds as $userId) {
-                $this->storeDoorAccess(
-                    $em,
-                    $accessNo,
-                    $userId,
-                    $buildingId,
-                    null,
-                    $orderStartDate,
-                    $orderEndDate
-                );
-
                 $result = $this->getCardNoByUser($userId);
                 if (
                     !is_null($result) &&
