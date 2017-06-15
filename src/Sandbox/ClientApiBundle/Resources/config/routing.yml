@@ -405,3 +405,8 @@ sandbox_client_api_message_api:
     resource: "@SandboxClientApiBundle/Controller/Message/ClientMessageController.php"
     type:     annotation
     prefix:   /
+
+sandbox_client_communities_api:
+    resource: "@SandboxClientApiBundle/Controller/Community/ClientCommunityController.php"
+    type:     annotation
+    prefix:   /

@@ -199,6 +199,11 @@ security:
             security: false
             methods: [GET]
 
+        client_communities_api:
+            pattern: ^/client/communities
+            security: false
+            methods: [GET]
+
         main:
             pattern: ^/
             anonymous: true
@@ -254,3 +259,4 @@ security:
         - { path: ^/openserver/client/auth/login$, role: ROLE_USER }
         - { path: ^/plugins/fileServer/fileservice, roles: ROLE_CLIENT_API }
         - { path: ^/duiba, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
+        - { path: ^/client/communities, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }

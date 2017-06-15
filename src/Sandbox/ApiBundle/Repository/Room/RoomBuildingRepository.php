@@ -536,4 +536,112 @@ class RoomBuildingRepository extends EntityRepository
 
         return $buildingsQuery->getQuery()->getResult();
     }
+
+    /**
+     * @param $lat
+     * @param $lng
+     * @param $range
+     * @param $excludeIds
+     * @param $roomType
+     * @return array
+     */
+    public function findClientCommunities(
+        $lat,
+        $lng,
+        $range,
+        $excludeIds,
+        $roomType
+    ) {
+        $query = $this->createQueryBuilder('rb')
+            ->select('
+                rb,
+                (
+                    6371
+                    * acos(cos(radians(:latitude)) * cos(radians(rb.lat))
+                    * cos(radians(rb.lng) - radians(:longitude))
+                    + sin(radians(:latitude)) * sin(radians(rb.lat)))
+                ) as HIDDEN distance
+            ')
+            ->where('rb.status = :accept')
+            ->andWhere('rb.visible = TRUE')
+            ->andWhere('rb.isDeleted = FALSE')
+            ->andWhere('rb.companyId NOT IN (:ids)')
+            ->having('distance < :range')
+            ->orderBy('distance', 'ASC')
+            ->setParameter('latitude', $lat)
+            ->setParameter('longitude', $lng)
+            ->setParameter('range', $range)
+            ->setParameter('ids', $excludeIds)
+            ->setParameter('accept', RoomBuilding::STATUS_ACCEPT);
+
+        // filter by room types
+        if (!is_null($roomType) && !empty($roomType)) {
+            $query
+                ->leftJoin(
+                    'SandboxApiBundle:Room\Room',
+                    'r',
+                    'WITH',
+                    'rb.id = r.building'
+                )
+                ->leftJoin(
+                    'SandboxApiBundle:Room\RoomTypes',
+                    'rt',
+                    'WITH',
+                    'rt.name = r.type'
+                )
+                ->leftJoin(
+                    'SandboxApiBundle:Product\Product',
+                    'p',
+                    'WITH',
+                    'r.id = p.room'
+                )
+                ->andWhere('rt.id = :spaceTypes')
+                ->andWhere('p.isDeleted = FALSE')
+                ->andWhere('p.visible = TRUE')
+                ->setParameter('spaceTypes', $roomType);
+        }
+
+        return $query->getQuery()->getResult();
+    }
+
+    public function getMinProductLeasingSetByBuilding(
+        $buildingId
+    ) {
+        $query = $this->createQueryBuilder('rb')
+            ->leftJoin(
+                'SandboxApiBundle:Room\Room',
+                'r',
+                'WITH',
+                'rb.id = r.building'
+            )
+            ->leftJoin(
+                'SandboxApiBundle:Product\Product',
+                'p',
+                'WITH',
+                'r.id = p.room'
+            )
+            ->leftJoin(
+                'SandboxApiBundle:Product\ProductLeasingSet',
+                's',
+                'WITH',
+                's.product = p.id'
+            )
+            ->select('p.id')
+            ->where('r.buildingId = :building')
+            ->andWhere('p.id IS NOT NULL')
+            ->setParameter('building', $buildingId);
+
+        $productIds = $query->getQuery()->getResult();
+        $productIds = array_map('current', $productIds);
+
+        $leasingSetQuery = $this->getEntityManager()
+            ->createQueryBuilder()
+            ->select('min(s.basePrice) as min_base_price, min(s.unitPrice) as min_unit_price')
+            ->from('SandboxApiBundle:Product\ProductLeasingSet', 's')
+            ->where('s.product IN (:productIds)')
+            ->setParameter('productIds', $productIds)
+            ->setMaxResults(1);
+
+        return $leasingSetQuery->getQuery()->getOneOrNullResult();
+    }
 }
