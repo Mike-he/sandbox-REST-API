@@ -601,6 +601,18 @@ trait DoorAccessTrait
 
             $userName = $userProfile->getName();
 
+            //remove user from 'SANDBOX' GROUP
+            $this->setEmployeeCard(
+                $base,
+                $userId,
+                $userName,
+                $cardNo,
+                DoorAccessConstants::METHOD_DELETE
+            );
+
+            sleep(5);
+            
+            // add user to 'SANDBOX3' GROUP
             $this->setMembershipEmployeeCard(
                 $base,
                 $userId,
