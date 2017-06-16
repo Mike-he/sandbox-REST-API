@@ -10,6 +10,7 @@ use Sandbox\ApiBundle\Entity\Message\Message;
 use Sandbox\ApiBundle\Entity\Message\MessageMaterial;
 use Sandbox\ApiBundle\Form\Message\MessagePushType;
 use Sandbox\ApiBundle\Traits\MessagePushNotification;
+use Sandbox\ApiBundle\Traits\OpenfireApi;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -21,6 +22,65 @@ use FOS\RestBundle\Controller\Annotations;
 class AdminMessagePushController extends AdminRestController
 {
     use MessagePushNotification;
+    use OpenfireApi;
+
+    /**
+     * Get History Message.
+     *
+     * @param Request               $request      the request object
+     * @param ParamFetcherInterface $paramFetcher param fetcher service
+     *
+     * @Annotations\QueryParam(
+     *    name="fromJID",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description=""
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="toJID",
+     *    array=false,
+     *    default=null,
+     *    nullable=false,
+     *    strict=true,
+     *    description=""
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="type",
+     *    array=false,
+     *    default=null,
+     *    nullable=false,
+     *    strict=true,
+     *    description=""
+     * )
+     *
+     * @Route("/messages/service_history_message")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getHistoryMessageAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        // check user permission
+        $this->checkAdminMessagePermission(AdminPermission::OP_LEVEL_VIEW);
+
+        $fromJID = $paramFetcher->get('fromJID');
+        $toJID = $paramFetcher->get('toJID');
+        $type = $paramFetcher->get('type');
+
+        $fromJID = '"'.$fromJID.'"';
+        $toJID = '"'.$toJID.'"';
+        $type = '"'.$type.'"';
+
+        $message = $this->getHistoryMessage($fromJID, $toJID, $type);
+
+        return new View($message);
+    }
 
     /**
      * Get Message List.
