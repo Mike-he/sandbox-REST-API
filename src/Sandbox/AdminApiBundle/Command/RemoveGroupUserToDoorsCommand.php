@@ -28,33 +28,38 @@ class RemoveGroupUserToDoorsCommand extends ContainerAwareCommand
 
         $now = new \DateTime('now');
 
+        $removeUsers = array();
         foreach ($groups as $group) {
             $groupId = $group->getId();
-
             $groupUsers = $em->getRepository('SandboxApiBundle:User\UserGroupHasUser')
                 ->findFinishedUsers($groupId, $now);
-
             foreach ($groupUsers as $groupUser) {
+                $removeUsers[] = $groupUser->getUserId();
                 $em->remove($groupUser);
             }
         }
 
-        $doorDepartmentUsers = $em->getRepository('SandboxApiBundle:Door\DoorDepartmentUsers')->findAll();
-        foreach ($doorDepartmentUsers as $doorDepartmentUser) {
-            $base = $doorDepartmentUser->getBuildingServer();
-            $user = $doorDepartmentUser->getUserId();
+        foreach ($removeUsers as $user) {
+            $doorDepartmentUsers = $em->getRepository('SandboxApiBundle:Door\DoorDepartmentUsers')
+                ->findBy(array('userId' => $user));
 
-            $userInfo = $em->getRepository('SandboxApiBundle:User\UserView')->find($user);
-            $userName = $userInfo->getName();
-            $cardNo = $userInfo->getCardNo();
+            if ($doorDepartmentUsers) {
+                $userInfo = $em->getRepository('SandboxApiBundle:User\UserView')->find($user);
+                $userName = $userInfo->getName();
+                $cardNo = $userInfo->getCardNo();
 
-            $this->setMembershipEmployeeCard(
-                $base,
-                $user,
-                $userName,
-                $cardNo,
-                DoorAccessConstants::METHOD_DELETE
-            );
+                foreach ($doorDepartmentUsers as $doorDepartmentUser) {
+                    $base = $doorDepartmentUser->getBuildingServer();
+
+                    $this->setMembershipEmployeeCard(
+                        $base,
+                        $user,
+                        $userName,
+                        $cardNo,
+                        DoorAccessConstants::METHOD_DELETE
+                    );
+                }
+            }
         }
 
         $output->writeln('Finished !');
