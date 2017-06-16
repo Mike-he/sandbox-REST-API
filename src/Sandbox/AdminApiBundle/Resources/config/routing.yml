@@ -130,6 +130,12 @@ sandbox_admin_api_news:
     type:     annotation
     prefix:   /
 
+# Message History
+sandbox_admin_api_message_history:
+    resource: "@SandboxAdminApiBundle/Controller/Message/AdminMessageHistoryController.php"
+    type:     annotation
+    prefix:   /
+
 # MessagePush /admin/push/messages
 sandbox_admin_api_message_push:
     resource: "@SandboxAdminApiBundle/Controller/Message/AdminMessagePushController.php"
