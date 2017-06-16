@@ -68,7 +68,7 @@ class AddGroupUserToDoorsCommand extends ContainerAwareCommand
                             !is_null($result) && !empty($result) &&
                             $result['status'] === DoorController::STATUS_AUTHED
                         ) {
-                            $this->setEmployeeCardForOneBuilding(
+                            $this->setMembershipEmployeeCardForOneBuilding(
                                 $base,
                                 $user,
                                 $result['card_no']
