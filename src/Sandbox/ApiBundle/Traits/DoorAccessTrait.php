@@ -610,6 +610,8 @@ trait DoorAccessTrait
                 DoorAccessConstants::METHOD_DELETE
             );
 
+            sleep(5);
+            
             // add user to 'SANDBOX3' GROUP
             $this->setMembershipEmployeeCard(
                 $base,
