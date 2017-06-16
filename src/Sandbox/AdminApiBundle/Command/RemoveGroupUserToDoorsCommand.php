@@ -48,7 +48,7 @@ class RemoveGroupUserToDoorsCommand extends ContainerAwareCommand
             $userName = $userInfo->getName();
             $cardNo = $userInfo->getCardNo();
 
-            $this->setEmployeeCard(
+            $this->setMembershipEmployeeCard(
                 $base,
                 $user,
                 $userName,
