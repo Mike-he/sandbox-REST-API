@@ -543,6 +543,10 @@ class RoomBuildingRepository extends EntityRepository
      * @param $range
      * @param $excludeIds
      * @param $roomType
+     * @param $buildingTags
+     * @param $buildingServices
+     * @param $propertyTypes
+     *
      * @return array
      */
     public function findClientCommunities(
@@ -550,11 +554,16 @@ class RoomBuildingRepository extends EntityRepository
         $lng,
         $range,
         $excludeIds,
-        $roomType
+        $roomType,
+        $buildingTags,
+        $buildingServices,
+        $propertyTypes,
+        $cityId = null,
+        $districtId = null
     ) {
         $query = $this->createQueryBuilder('rb')
             ->select('
-                rb,
+                rb.id,
                 (
                     6371
                     * acos(cos(radians(:latitude)) * cos(radians(rb.lat))
@@ -566,13 +575,16 @@ class RoomBuildingRepository extends EntityRepository
             ->andWhere('rb.visible = TRUE')
             ->andWhere('rb.isDeleted = FALSE')
             ->andWhere('rb.companyId NOT IN (:ids)')
-            ->having('distance < :range')
             ->orderBy('distance', 'ASC')
             ->setParameter('latitude', $lat)
             ->setParameter('longitude', $lng)
-            ->setParameter('range', $range)
             ->setParameter('ids', $excludeIds)
             ->setParameter('accept', RoomBuilding::STATUS_ACCEPT);
+
+        if (!is_null($range)) {
+            $query->having('distance < :range')
+                ->setParameter('range', $range);
+        }
 
         // filter by room types
         if (!is_null($roomType) && !empty($roomType)) {
@@ -601,7 +613,50 @@ class RoomBuildingRepository extends EntityRepository
                 ->setParameter('spaceTypes', $roomType);
         }
 
-        return $query->getQuery()->getResult();
+        // filter by building tags
+        if (!is_null($buildingTags) && !empty($buildingTags)) {
+            $query->leftJoin(
+                    'SandboxApiBundle:Room\RoomBuildingTagBinding',
+                    'rbt',
+                    'WITH',
+                    'rb.id = rbt.building'
+                )
+                ->andWhere('rbt.tag IN (:buildingTags)')
+                ->setParameter('buildingTags', $buildingTags);
+        }
+
+        // filter by building services
+        if (!is_null($buildingServices) && !empty($buildingServices)) {
+            $query->leftJoin(
+                    'SandboxApiBundle:Room\RoomBuildingServiceBinding',
+                    'rbs',
+                    'WITH',
+                    'rb.id = rbs.building'
+                )
+                ->andWhere('rbs.service IN (:buildingServices)')
+                ->setParameter('buildingServices', $buildingServices);
+        }
+
+        // filter by property types
+        if ($propertyTypes) {
+            $query->andWhere('rb.propertyTypeId IN (:propertyTypeIds)')
+                ->setParameter('propertyTypeIds', $propertyTypes);
+        }
+
+        if (!is_null($cityId) && !empty($cityId)) {
+            $query->andWhere('rb.city = :cityId')
+                ->setParameter('cityId', $cityId);
+        }
+
+        if (!is_null($districtId)) {
+            $query->andWhere('rb.districtId = :districtId')
+                ->setParameter('districtId', $districtId);
+        }
+
+        $ids = $query->getQuery()->getScalarResult();
+        $ids = array_map('current', $ids);
+
+        return $ids;
     }
 
     public function getMinProductLeasingSetByBuilding(
