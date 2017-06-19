@@ -24,41 +24,21 @@ class ClientCommunityController extends ProductController
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
-     *    name="lat",
-     *    array=false,
-     *    default=null,
-     *    nullable=false,
-     *    requirements="-?\d*(\.\d+)?$",
-     *    strict=true,
-     *    description="coordinate lat"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="lng",
-     *    array=false,
-     *    default=null,
-     *    nullable=false,
-     *    requirements="-?\d*(\.\d+)?$",
-     *    strict=true,
-     *    description="coordinate lng"
-     * )
-     *
-     * @Annotations\QueryParam(
      *    name="range",
      *    array=false,
      *    default=null,
-     *    nullable=false,
+     *    nullable=true,
      *    requirements="-?\d*(\.\d+)?$",
      *    strict=true,
      *    description="coordinate range"
      * )
      *
      * @Annotations\QueryParam(
-     *    name="type",
+     *    name="room_type_tags",
      *    default=null,
      *    nullable=true,
-     *    array=false,
-     *    description="types of room"
+     *    array=true,
+     *    description="types tags of room"
      * )
      *
      * @Annotations\QueryParam(
@@ -85,12 +65,163 @@ class ClientCommunityController extends ProductController
      *    description="property types of building"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="city",
+     *    default=null,
+     *    nullable=true,
+     *    description="city id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="district",
+     *    default=null,
+     *    nullable=true,
+     *    description="district id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="buildings",
+     *    array=true,
+     *    default=null,
+     *    nullable=true,
+     *    description="building ids"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="start",
+     *    default=null,
+     *    nullable=true,
+     *    description="start time"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="end",
+     *    default=null,
+     *    nullable=true,
+     *    description="end time"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="min_allowed_people",
+     *    default=null,
+     *    nullable=true,
+     *    description="min allowed people"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="max_allowed_people",
+     *    default=null,
+     *    nullable=true,
+     *    description="max allowed people"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit for the page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="offset",
+     *    array=false,
+     *    default="0",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="start of the page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="type",
+     *    default=null,
+     *    nullable=true,
+     *    description="room type"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="unit",
+     *    default=null,
+     *    nullable=true,
+     *    description="product unit"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="include_company_id",
+     *    array=true,
+     *    default=null,
+     *    nullable=true,
+     *    description="include_company_id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="exclude_company_id",
+     *    array=true,
+     *    nullable=true,
+     *    description="exclude_company_id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="lat",
+     *    array=false,
+     *    default=0,
+     *    nullable=true,
+     *    requirements="-?\d*(\.\d+)?$",
+     *    strict=true,
+     *    description="coordinate lat"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="lng",
+     *    array=false,
+     *    default=0,
+     *    nullable=true,
+     *    requirements="-?\d*(\.\d+)?$",
+     *    strict=true,
+     *    description="coordinate lng"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="sales_recommend",
+     *    array=false,
+     *    default=false,
+     *    nullable=true,
+     *    strict=true,
+     *    description="sales recommend"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="is_favorite",
+     *    array=false,
+     *    default=false,
+     *    nullable=true,
+     *    strict=true,
+     *    description="my favorite"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="min_base_price",
+     *    default=null,
+     *    nullable=true,
+     *    description="min base price"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="max_base_price",
+     *    default=null,
+     *    nullable=true,
+     *    description="max base price"
+     * )
+     *
      * @Route("/communities")
      * @Method({"GET"})
      *
      * @return View
      */
-    public function getCommunitiesAction(
+    public function getCommunitiesSearchAction(
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
@@ -99,31 +230,60 @@ class ClientCommunityController extends ProductController
             $userId = $this->getUserId();
         }
 
+        // get params
+        $cityId = $paramFetcher->get('city');
+        $districtId = $paramFetcher->get('district');
         $lat = $paramFetcher->get('lat');
         $lng = $paramFetcher->get('lng');
         $range = $paramFetcher->get('range');
-        $roomType = $paramFetcher->get('type');
         $buildingTags = $paramFetcher->get('building_tags');
         $buildingServices = $paramFetcher->get('building_services');
         $propertyTypes = $paramFetcher->get('property_types');
 
-        // exclude xiehe app data
+        $start = $paramFetcher->get('start');
+        $end = $paramFetcher->get('end');
+        $type = $paramFetcher->get('type');
+        $roomTypeTags = $paramFetcher->get('room_type_tags');
+        $includeIds = $paramFetcher->get('include_company_id');
         $excludeIds = [9];
+        $unit = $paramFetcher->get('unit');
+        $isFavorite = (bool) $paramFetcher->get('is_favorite');
+        $minAllowedPeople = $paramFetcher->get('min_allowed_people');
+        $maxAllowedPeople = $paramFetcher->get('max_allowed_people');
+        $minBasePrice = $paramFetcher->get('min_base_price');
+        $maxBasePrice = $paramFetcher->get('max_base_price');
 
-        $communityIds = $this->getDoctrine()
+        $buildingIds = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\RoomBuilding')
             ->findClientCommunities(
                 $lat,
                 $lng,
                 $range,
                 $excludeIds,
-                $roomType,
+                $type,
                 $buildingTags,
                 $buildingServices,
-                $propertyTypes
+                $propertyTypes,
+                $cityId,
+                $districtId
             );
 
-        $communities = $this->handleCommunitiesData($communityIds, $userId);
+        $communities = $this->handleCommunitiesData(
+            $buildingIds,
+            $userId,
+            $minAllowedPeople,
+            $maxAllowedPeople,
+            $start,
+            $end,
+            $type,
+            $includeIds,
+            $excludeIds,
+            $isFavorite,
+            $minBasePrice,
+            $maxBasePrice,
+            $roomTypeTags,
+            $unit
+        );
 
         return new View($communities);
     }
@@ -359,7 +519,7 @@ class ClientCommunityController extends ProductController
         $excludeIds = [9];
         $recommend = $paramFetcher->get('sales_recommend');
         $unit = $paramFetcher->get('unit');
-        $isFavorite = (boolean) $paramFetcher->get('is_favorite');
+        $isFavorite = (bool) $paramFetcher->get('is_favorite');
         $minAllowedPeople = $paramFetcher->get('min_allowed_people');
         $maxAllowedPeople = $paramFetcher->get('max_allowed_people');
         $minBasePrice = $paramFetcher->get('min_base_price');
@@ -380,6 +540,170 @@ class ClientCommunityController extends ProductController
                 $districtId
             );
 
+        $productIds = $this->getProductIds(
+            $userId,
+            $buildingIds,
+            $minAllowedPeople,
+            $maxAllowedPeople,
+            $start,
+            $end,
+            $type,
+            $includeIds,
+            $excludeIds,
+            $isFavorite,
+            $minBasePrice,
+            $maxBasePrice,
+            $roomTypeTags,
+            $unit
+        );
+
+        if (is_null($type)) {
+            $products = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\Product')
+                ->getAllProductsForCommunities(
+                    $buildingIds,
+                    $userId,
+                    $limit,
+                    $offset,
+                    $includeIds,
+                    $recommend
+                );
+        } else {
+            $products = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\Product')
+                ->productSortByNearestBuilding(
+                    $lat,
+                    $lng,
+                    $productIds,
+                    $limit,
+                    $offset
+                );
+        }
+
+        foreach ($products as $product) {
+            $this->generateProductInfo($product);
+        }
+
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
+        $view->setData($products);
+
+        return $view;
+    }
+
+    /**
+     * @param $communityIds
+     * @param $userId
+     * @param $minAllowedPeople
+     * @param $maxAllowedPeople
+     * @param $start
+     * @param $end
+     * @param $type
+     * @param $includeIds
+     * @param $excludeIds
+     * @param $isFavorite
+     * @param $minBasePrice
+     * @param $maxBasePrice
+     * @param $roomTypeTags
+     * @param $unit
+     *
+     * @return array
+     */
+    public function handleCommunitiesData(
+        $communityIds,
+        $userId,
+        $minAllowedPeople,
+        $maxAllowedPeople,
+        $start,
+        $end,
+        $type,
+        $includeIds,
+        $excludeIds,
+        $isFavorite,
+        $minBasePrice,
+        $maxBasePrice,
+        $roomTypeTags,
+        $unit
+    ) {
+        $communitiesArray = [];
+
+        foreach ($communityIds as $communityId) {
+            $community = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                ->find($communityId);
+
+            $productIds = $this->getProductIds(
+                $userId,
+                [$communityId],
+                $minAllowedPeople,
+                $maxAllowedPeople,
+                $start,
+                $end,
+                $type,
+                $includeIds,
+                $excludeIds,
+                $isFavorite,
+                $minBasePrice,
+                $maxBasePrice,
+                $roomTypeTags,
+                $unit
+            );
+
+            $minPrice = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\Product')
+                ->getMinPriceByProducts(
+                    $productIds
+                );
+
+            $communityArray = [
+                'id' => $community->getId(),
+                'name' => $community->getName(),
+                'evaluation_star' => $community->getEvaluationStar(),
+                'total_evaluation_number' => $community->getOrderEvaluationNumber() + $community->getBuildingEvaluationNumber(),
+                'product' => [
+                    'count' => count($productIds),
+                    'min_base_price' => $minPrice['base_price'],
+                    'min_unit_price' => $unitPrice = $this->get('translator')
+                        ->trans(ProductOrderExport::TRANS_ROOM_UNIT.$minPrice['unit_price']),
+                ],
+            ];
+
+            if (!is_null($userId)) {
+                $favorite = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:User\UserFavorite')
+                    ->findOneBy(array(
+                        'userId' => $userId,
+                        'object' => UserFavorite::OBJECT_BUILDING,
+                        'objectId' => $community->getId(),
+                    ));
+
+                if ($favorite) {
+                    $communityArray['is_favorite'] = true;
+                }
+            }
+
+            array_push($communitiesArray, $communityArray);
+        }
+
+        return $communitiesArray;
+    }
+
+    private function getProductIds(
+        $userId,
+        $buildingIds,
+        $minAllowedPeople,
+        $maxAllowedPeople,
+        $start,
+        $end,
+        $type,
+        $includeIds,
+        $excludeIds,
+        $isFavorite,
+        $minBasePrice,
+        $maxBasePrice,
+        $roomTypeTags,
+        $unit
+    ) {
         $startTime = null;
         $endTime = null;
         $productIds = [];
@@ -465,82 +789,6 @@ class ClientCommunityController extends ProductController
                 );
         }
 
-        if (is_null($type)) {
-            $products = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Product\Product')
-                ->getAllProductsForCommunities(
-                    $buildingIds,
-                    $userId,
-                    $limit,
-                    $offset,
-                    $includeIds,
-                    $recommend
-                );
-        } else {
-            $products = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Product\Product')
-                ->productSortByNearestBuilding(
-                    $lat,
-                    $lng,
-                    $productIds,
-                    $limit,
-                    $offset
-                );
-        }
-
-        foreach ($products as $product) {
-            $this->generateProductInfo($product);
-        }
-
-        $view = new View();
-        $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
-        $view->setData($products);
-
-        return $view;
-    }
-
-
-    /**
-     * @param $communityIds
-     * @param $userId
-     *
-     * @return array
-     */
-    public function handleCommunitiesData(
-        $communityIds,
-        $userId
-    ) {
-        $communitiesArray = [];
-
-        foreach ($communityIds as $communityId) {
-            $community = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Room\RoomBuilding')
-                ->find($communityId);
-
-            $communityArray = [
-                'id' => $community->getId(),
-                'name' => $community->getName(),
-                'evaluation_star' => $community->getEvaluationStar(),
-                'total_evaluation_number' => $community->getOrderEvaluationNumber() + $community->getBuildingEvaluationNumber(),
-            ];
-
-            if (!is_null($userId)) {
-                $favorite = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:User\UserFavorite')
-                    ->findOneBy(array(
-                        'userId' => $userId,
-                        'object' => UserFavorite::OBJECT_BUILDING,
-                        'objectId' => $community->getId(),
-                    ));
-
-                if ($favorite) {
-                    $communityArray['is_favorite'] = true;
-                }
-            }
-
-            array_push($communitiesArray, $communityArray);
-        }
-
-        return $communitiesArray;
+        return $productIds;
     }
 }

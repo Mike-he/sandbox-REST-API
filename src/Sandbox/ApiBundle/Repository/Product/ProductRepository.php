@@ -1542,7 +1542,7 @@ class ProductRepository extends EntityRepository
             }
         }
 
-        if (!is_null($roomTypeTags)) {
+        if (!is_null($roomTypeTags) && !empty($roomTypeTags)) {
             $query->leftJoin('SandboxApiBundle:Room\RoomTypeTags', 'rtt', 'WITH', 'rtt.tagKey = :r.typeTag')
                 ->andWhere('rtt.id IN (:typeTags)')
                 ->setParameter('typeTags', $roomTypeTags);
@@ -1873,5 +1873,23 @@ class ProductRepository extends EntityRepository
         }
 
         return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $productIds
+     *
+     * @return array
+     */
+    public function getMinPriceByProducts(
+        $productIds
+    ) {
+        $query = $this->createQueryBuilder('p')
+            ->leftJoin('SandboxApiBundle:Product\ProductLeasingSet', 'pls', 'WITH', 'pls.product = p.id')
+            ->select('min(pls.basePrice) as base_price, min(pls.unitPrice) as unit_price')
+            ->andWhere('p.id IN (:productIds)')
+            ->setParameter('productIds', $productIds)
+            ->setMaxResults(1);
+
+        return $query->getQuery()->getOneOrNullResult();
     }
 }
