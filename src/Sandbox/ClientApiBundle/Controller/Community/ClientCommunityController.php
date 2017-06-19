@@ -586,7 +586,10 @@ class ClientCommunityController extends ProductController
 
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
-        $view->setData($products);
+        $view->setData(array(
+            'items' => $products,
+            'total_num' => count($productIds),
+        ));
 
         return $view;
     }
