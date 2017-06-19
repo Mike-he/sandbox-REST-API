@@ -632,6 +632,10 @@ class ClientCommunityController extends ProductController
                 ->getRepository('SandboxApiBundle:Room\RoomBuilding')
                 ->find($communityId);
 
+            if (!is_null($community->getDistrict())) {
+                $districtId = $community->getDistrictId();
+            }
+
             $productIds = $this->getProductIds(
                 $userId,
                 [$communityId],
@@ -666,6 +670,7 @@ class ClientCommunityController extends ProductController
                     'min_unit_price' => $unitPrice = $this->get('translator')
                         ->trans(ProductOrderExport::TRANS_ROOM_UNIT.$minPrice['unit_price']),
                 ],
+                'district_id' => !is_null($community->getDistrictId()) ? $community->getDistrictId() : null,
             ];
 
             if (!is_null($userId)) {
