@@ -827,7 +827,7 @@ class LocationController extends SalesRestController
                 'id' => $city->getId(),
                 'name' => $name,
                 'key' => $city->getKey(),
-                'key_baidu' => $name,
+                'key_baidu' => $city->getName(),
                 'capital' => $city->isCapital(),
                 'latitude' => $city->getLat(),
                 'longitude' => $city->getLng(),
