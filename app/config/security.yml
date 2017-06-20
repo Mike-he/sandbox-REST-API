@@ -239,6 +239,7 @@ security:
         - { path: ^/client/auth/token$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/client/thirdparty/oauth/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/client/thirdparty/auth$, role: ROLE_USER }
+        - { path: ^/client/communities, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
         - { path: ^/client, role: ROLE_CLIENT_API }
         - { path: ^/sales/admin/events/orders/export$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/sales/admin/orders/export$, role: IS_AUTHENTICATED_ANONYMOUSLY }
@@ -254,4 +255,3 @@ security:
         - { path: ^/openserver/client/auth/login$, role: ROLE_USER }
         - { path: ^/plugins/fileServer/fileservice, roles: ROLE_CLIENT_API }
         - { path: ^/duiba, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
-        - { path: ^/client/communities, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
