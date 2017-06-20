@@ -664,6 +664,8 @@ class ClientCommunityController extends ProductController
             $communityArray = [
                 'id' => $community->getId(),
                 'name' => $community->getName(),
+                'lat' => $community->getLat(),
+                'lng' => $community->getLng(),
                 'evaluation_star' => $community->getEvaluationStar(),
                 'total_evaluation_number' => $community->getOrderEvaluationNumber() + $community->getBuildingEvaluationNumber(),
                 'product' => [
