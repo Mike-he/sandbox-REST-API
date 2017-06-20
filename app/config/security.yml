@@ -199,11 +199,6 @@ security:
             security: false
             methods: [GET]
 
-        client_communities_api:
-            pattern: ^/client/communities
-            security: false
-            methods: [GET]
-
         main:
             pattern: ^/
             anonymous: true
