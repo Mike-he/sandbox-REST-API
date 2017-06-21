@@ -746,6 +746,7 @@ class ClientCommunityController extends ProductController
                     $type,
                     $includeIds,
                     $excludeIds,
+                    $unit,
                     $isFavorite,
                     $minBasePrice,
                     $maxBasePrice,

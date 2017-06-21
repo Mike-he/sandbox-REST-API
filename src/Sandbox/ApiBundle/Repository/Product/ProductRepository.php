@@ -1403,6 +1403,7 @@ class ProductRepository extends EntityRepository
         $type,
         $includeIds,
         $excludeIds,
+        $unit,
         $isFavorite,
         $minBasePrice,
         $maxBasePrice,
@@ -1526,10 +1527,10 @@ class ProductRepository extends EntityRepository
                 ->setParameter('endHour', $endHour);
         }
 
-        if (!is_null($minBasePrice) || !is_null($maxBasePrice)) {
+        if (!is_null($unit) || !is_null($minBasePrice) || !is_null($maxBasePrice)) {
             $query->leftJoin('SandboxApiBundle:Product\ProductLeasingSet', 'ls', 'WITH', 'ls.product = p.id')
                 ->andWhere('ls.unitPrice = :unit')
-                ->setParameter('unit', 'hour');
+                ->setParameter('unit', $unit);
 
             if ($minBasePrice) {
                 $query->andWhere('ls.basePrice >= :minBasePrice')
