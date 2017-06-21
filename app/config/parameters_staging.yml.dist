@@ -58,7 +58,8 @@ parameters:
     sandbox_auth_key: sandbox_auth_test
     food_api_url: http://testfood.sandbox3.cn
     food_api_payment_callback: /index.php?route=payment/sandbox_wechat/callback
-    crm_api_url: http://localhost.api.crm
+
+    crm_api_url: crmserver
     crm_api_client_user_account_authentication: /client/user/account/authentication
     crm_api_client_user_account_vip: /client/user/account/vip
     crm_api_admin_user_account_vip: /admin/useraccounts/{userId}/vip
@@ -76,6 +77,7 @@ parameters:
     crm_api_sales_admin_invoices: /sales/admin/invoices
     crm_api_admin_user_create: /admin/useraccounts/{userId}/create
     crm_api_client_user_price_calculate: /client/user/price/rules/{rule_id}/calculate
+
     door_api_username: admin
     door_api_password: admin
     door_api_login: /Login
@@ -102,6 +104,8 @@ parameters:
     door_api_add_emp: RoomOrderAddEmp=
     door_api_delete_emp: RoomOrderDelEmp=
     door_api_order_no: OrderNo=
+
+    jpush_apns_option: false
     customer_service_phone: xxx-xxx
     client_version_ios: 2.0.5
     client_version_android: 2.0.5
@@ -110,7 +114,7 @@ parameters:
     union_refund_fee_multiplier: 0
     wechat_refund_fee_multiplier: 0
     foreign_credit_refund_fee_multiplier: 0
-    rest_api_local_url: localhost.api.rest
+    rest_api_local_url: restserver
 
     image_url: https://testimage.sandbox3.cn
     file_server_url: https://testxmpp.sandbox3.cn/plugins/fileServer/fileservice
@@ -118,7 +122,6 @@ parameters:
     mobile_url: https://testm.sandbox3.cn
     room_mobile_url: https://testmobile.sandbox3.cn
     top_level_domain: sandbox3.cn
-    jpush_apns_option: false
     orders_url: https://testorders.sandbox3.cn
     coffee_url: https://testcoffee.sandbox3.cn
     invoice_url: https://testinvoice.sandbox3.cn
