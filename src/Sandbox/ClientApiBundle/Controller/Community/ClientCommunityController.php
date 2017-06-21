@@ -772,7 +772,10 @@ class ClientCommunityController extends ProductController
                     $includeIds,
                     $excludeIds,
                     $unit,
-                    $isFavorite
+                    $isFavorite,
+                    $minBasePrice,
+                    $maxBasePrice,
+                    $roomTypeTags
                 );
         } elseif (RoomTypes::TYPE_NAME_OFFICE == $type) {
             if (!is_null($start) && !is_null($end) && !empty($start) && !empty($end)) {
@@ -793,7 +796,10 @@ class ClientCommunityController extends ProductController
                     $endTime,
                     $includeIds,
                     $excludeIds,
-                    $isFavorite
+                    $isFavorite,
+                    $minBasePrice,
+                    $maxBasePrice,
+                    $roomTypeTags
                 );
         }
 

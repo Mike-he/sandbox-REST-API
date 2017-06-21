@@ -607,7 +607,7 @@ class RoomBuildingRepository extends EntityRepository
                     'WITH',
                     'r.id = p.room'
                 )
-                ->andWhere('rt.id = :spaceTypes')
+                ->andWhere('rt.name = :spaceTypes')
                 ->andWhere('p.isDeleted = FALSE')
                 ->andWhere('p.visible = TRUE')
                 ->setParameter('spaceTypes', $roomType);

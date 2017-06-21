@@ -1543,7 +1543,7 @@ class ProductRepository extends EntityRepository
         }
 
         if (!is_null($roomTypeTags) && !empty($roomTypeTags)) {
-            $query->leftJoin('SandboxApiBundle:Room\RoomTypeTags', 'rtt', 'WITH', 'rtt.tagKey = :r.typeTag')
+            $query->leftJoin('SandboxApiBundle:Room\RoomTypeTags', 'rtt', 'WITH', 'rtt.tagKey = r.typeTag')
                 ->andWhere('rtt.id IN (:typeTags)')
                 ->setParameter('typeTags', $roomTypeTags);
         }
@@ -1641,7 +1641,7 @@ class ProductRepository extends EntityRepository
             $query = $query->andWhere('p.startDate <= :startDate')
                 ->andWhere('p.endDate >= :startDate')
                 ->andWhere(
-                    '(                      
+                    '(
                         p.id IN (
                             SELECT po2.productId FROM SandboxApiBundle:Order\ProductOrder po2
                             WHERE po2.status != :status
@@ -1679,8 +1679,8 @@ class ProductRepository extends EntityRepository
             }
         }
 
-        if (!is_null($roomTypeTags)) {
-            $query->leftJoin('SandboxApiBundle:Room\RoomTypeTags', 'rtt', 'WITH', 'rtt.tagKey = :r.typeTag')
+        if (!is_null($roomTypeTags) && !empty($roomTypeTags)) {
+            $query->leftJoin('SandboxApiBundle:Room\RoomTypeTags', 'rtt', 'WITH', 'rtt.tagKey = r.typeTag')
                 ->andWhere('rtt.id IN (:typeTags)')
                 ->setParameter('typeTags', $roomTypeTags);
         }
@@ -1808,8 +1808,8 @@ class ProductRepository extends EntityRepository
             }
         }
 
-        if (!is_null($roomTypeTags)) {
-            $query->leftJoin('SandboxApiBundle:Room\RoomTypeTags', 'rtt', 'WITH', 'rtt.tagKey = :r.typeTag')
+        if (!is_null($roomTypeTags) && !empty($roomTypeTags)) {
+            $query->leftJoin('SandboxApiBundle:Room\RoomTypeTags', 'rtt', 'WITH', 'rtt.tagKey = r.typeTag')
                 ->andWhere('rtt.id IN (:typeTags)')
                 ->setParameter('typeTags', $roomTypeTags);
         }
