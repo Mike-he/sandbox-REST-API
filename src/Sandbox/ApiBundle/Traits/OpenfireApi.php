@@ -104,6 +104,7 @@ trait OpenfireApi
         $query = "select * from ofmessagearchive where status = 'message' and toJID = ".$toJID." and type=".$type;
 
         if (!is_null($fromJID)) {
+            $fromJID = '"'.$fromJID.'"';
             $query .= " and fromJID =".$fromJID;
         }
 
