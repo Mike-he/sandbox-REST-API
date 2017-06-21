@@ -444,7 +444,7 @@ class AdminFinanceOfflineController extends SandboxRestController
                 ->getRepository('SandboxApiBundle:Offline\OfflineTransfer')
                 ->findOneBy(
                     array('orderNumber' => $transfer['orderNumber']),
-                    array('id'=> 'DESC')
+                    array('id' => 'DESC')
                 );
 
             $data[] = $transferDetail;

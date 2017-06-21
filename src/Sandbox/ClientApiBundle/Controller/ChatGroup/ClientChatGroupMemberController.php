@@ -143,7 +143,7 @@ class ClientChatGroupMemberController extends ClientChatGroupController
         $em->flush();
 
         // update chat group in Openfire
-        $this->handleXmppChatGroupMember($chatGroup, $myUser, $members, 'POST');
+        $this->addXmppChatGroupMember($chatGroup, $members);
 
         return new view();
     }
@@ -233,7 +233,8 @@ class ClientChatGroupMemberController extends ClientChatGroupController
             $em->flush();
 
             // update chat group in Openfire
-            $this->handleXmppChatGroupMember($chatGroup, $user, array($user), 'DELETE');
+
+            $this->deleteXmppChatGroupMember($chatGroup, array($user));
         }
 
         return new View();
@@ -261,13 +262,16 @@ class ClientChatGroupMemberController extends ClientChatGroupController
 
         foreach ($memberIds as $memberId) {
             try {
-                $chatGroupMember = $this->getRepo('ChatGroup\ChatGroupMember')->find($memberId);
-                if (is_null($chatGroupMember)) {
+                // ignore creator
+                if ($chatGroup->getCreator()->getId() == $memberId) {
                     continue;
                 }
 
-                // ignore creator
-                if ($chatGroup->getCreator() == $chatGroupMember->getUser()) {
+                $chatGroupMember = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:ChatGroup\ChatGroupMember')
+                    ->findOneBy(array('chatGroup' => $chatGroup, 'user' => $memberId));
+
+                if (is_null($chatGroupMember)) {
                     continue;
                 }
 
@@ -283,7 +287,7 @@ class ClientChatGroupMemberController extends ClientChatGroupController
         $em->flush();
 
         // update chat group in Openfire
-        $this->handleXmppChatGroupMember($chatGroup, $user, $members, 'DELETE');
+        $this->deleteXmppChatGroupMember($chatGroup, $members);
 
         return new View();
     }

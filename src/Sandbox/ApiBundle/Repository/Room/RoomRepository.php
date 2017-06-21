@@ -747,6 +747,7 @@ class RoomRepository extends EntityRepository
                     r.type,
                     r.area, 
                     r.allowedPeople as allowed_people,
+                    r.typeTag as type_tag,
                     p.sortTime,
                     p.salesSortTime
             ')

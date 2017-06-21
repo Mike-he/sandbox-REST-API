@@ -269,7 +269,7 @@ trait DoorAccessTrait
                         $em->persist($departmentUser);
                         $em->flush();
                     }
-                } elseif(DoorAccessConstants::METHOD_DELETE == $method) {
+                } elseif (DoorAccessConstants::METHOD_DELETE == $method) {
                     if ($departmentUser) {
                         $em->remove($departmentUser);
                         $em->flush();

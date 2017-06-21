@@ -138,30 +138,35 @@ class ClientShopOrderController extends ShopRestController
         $status = $paramFetcher->get('status');
         $orders = [];
 
+        $repo = $this->getDoctrine()->getRepository('SandboxApiBundle:Shop\ShopOrder');
         switch ($status) {
             case ProductOrder::COMBINE_STATUS_PENDING:
-                $orders = $this->getRepo('Shop\ShopOrder')->getUserPendingOrders(
+                $orders = $repo->getUserPendingOrders(
                     $userId,
                     $limit,
                     $offset
                 );
-
                 break;
             case ProductOrder::STATUS_COMPLETED:
-                $orders = $this->getRepo('Shop\ShopOrder')->getUserCompletedOrders(
+                $orders = $repo->getUserCompletedOrders(
                     $userId,
                     $limit,
                     $offset
                 );
-
                 break;
             case ProductOrder::COMBINE_STATUS_REFUND:
-                $orders = $this->getRepo('Shop\ShopOrder')->getUserRefundOrders(
+                $orders = $repo->getUserRefundOrders(
                     $userId,
                     $limit,
                     $offset
                 );
-
+                break;
+            case ProductOrder::COMBINE_STATUS_ALL:
+                $orders = $repo->getUserAllOrders(
+                    $userId,
+                    $limit,
+                    $offset
+                );
                 break;
         }
 

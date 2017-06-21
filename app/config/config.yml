@@ -397,8 +397,8 @@ knp_snappy:
 #            entity_manager: default
 
 
-#openfire:
-#    url: '%openfire_url%'
-#    secret: '%openfire_secret%'
-#    servicename: '%openfire_servicename%'
-#    servername: '%openfire_servername%'
+openfire:
+    url: '%openfire_url%'
+    secret: '%openfire_secret%'
+    servicename: '%openfire_servicename%'
+    servername: '%openfire_servername%'

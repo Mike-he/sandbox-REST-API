@@ -50,6 +50,7 @@ class PropertyTypeController extends SandboxRestController
             $type->setDescription($typeText);
             $type->setApplicationIcon($imageUrl.$type->getApplicationIcon());
             $type->setCommunityIcon($imageUrl.$type->getCommunityIcon());
+            $type->setApplicationSelectedIcon($imageUrl.$type->getApplicationSelectedIcon());
         }
 
         return new View($types);

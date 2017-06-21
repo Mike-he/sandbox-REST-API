@@ -35,6 +35,7 @@ class AppKernel extends Kernel
             new Sandbox\SalesApiBundle\SandboxSalesApiBundle(),
             new Stof\DoctrineExtensionsBundle\StofDoctrineExtensionsBundle(),
             new Knp\Bundle\SnappyBundle\KnpSnappyBundle(),
+            new jean553\OpenfireBundle\OpenfireBundle()
 //            new Snc\RedisBundle\SncRedisBundle(),
         );
 

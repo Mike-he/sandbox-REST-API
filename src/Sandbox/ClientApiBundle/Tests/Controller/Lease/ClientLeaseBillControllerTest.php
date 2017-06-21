@@ -80,7 +80,7 @@ class ClientLeaseBillControllerTest extends WebTestCase
         $this->given('lease_bill_for_type_other');
         $bill = $this->entity;
 
-        $this->given('seventh-room-type');
+        $this->given('first-room-type');
         $roomType = $this->entity;
 
         $this->given('room-building-for-data-structure');

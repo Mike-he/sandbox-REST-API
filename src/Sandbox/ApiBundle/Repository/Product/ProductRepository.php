@@ -10,6 +10,7 @@ use Sandbox\ApiBundle\Entity\Room\RoomCity;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\AdminApiBundle\Data\Product\ProductRecommendPosition;
+use Sandbox\ApiBundle\Entity\User\UserFavorite;
 
 class ProductRepository extends EntityRepository
 {
@@ -1372,5 +1373,523 @@ class ProductRepository extends EntityRepository
         $result = $query->getQuery()->getResult();
 
         return $result;
+    }
+
+    /**
+     * @param $userId
+     * @param $buildingIds
+     * @param $minAllowedPeople
+     * @param $maxAllowedPeople
+     * @param $startTime
+     * @param $endTime
+     * @param $startHour
+     * @param $endHour
+     * @param $type
+     * @param $includeIds
+     * @param $excludeIds
+     * @param $isFavorite
+     *
+     * @return array
+     */
+    public function getMeetingProductsForClientCommunities(
+        $userId,
+        $buildingIds,
+        $minAllowedPeople,
+        $maxAllowedPeople,
+        $startTime,
+        $endTime,
+        $startHour,
+        $endHour,
+        $type,
+        $includeIds,
+        $excludeIds,
+        $isFavorite,
+        $minBasePrice,
+        $maxBasePrice,
+        $roomTypeTags
+    ) {
+        $now = new \DateTime();
+
+        $query = $this->createQueryBuilder('p')
+            ->select('DISTINCT p.id')
+            ->leftjoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
+            ->leftJoin('SandboxApiBundle:Room\RoomMeeting', 'm', 'WITH', 'p.roomId = m.room')
+            ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'b.id = r.buildingId')
+            ->where('r.type = :type')
+            ->andWhere('p.visible = :visible')
+            ->andWhere('p.startDate <= :now AND p.endDate >= :now')
+            ->setParameter('type', $type)
+            ->setParameter('visible', true)
+            ->setParameter('now', $now);
+
+        if (!is_null($includeIds) && !empty($includeIds)) {
+            $query->andWhere('b.companyId IN (:includeIds)')
+                ->setParameter('includeIds', $includeIds);
+        }
+
+        if (!is_null($excludeIds) && !empty($excludeIds)) {
+            $query->andWhere('b.companyId NOT IN (:excludeIds)')
+                ->setParameter('excludeIds', $excludeIds);
+        }
+
+        if (!is_null($userId)) {
+            $query->andWhere('p.visibleUserId = :userId OR p.private = :private')
+                ->setParameter('private', false);
+
+            if ($isFavorite) {
+                $query->leftJoin('SandboxApiBundle:User\UserFavorite', 'uf', 'WITH', 'uf.objectId = p.id')
+                    ->andWhere('uf.userId = :userId')
+                    ->andWhere('uf.object = :product')
+                    ->setParameter('product', UserFavorite::OBJECT_PRODUCT);
+            }
+
+            $query->setParameter('userId', $userId);
+        } else {
+            $query->andWhere('p.private = :private')
+                ->setParameter('private', false);
+        }
+
+        if (!is_null($buildingIds)) {
+            $query = $query->andWhere('r.building IN (:buildingIds)')
+                ->setParameter('buildingIds', $buildingIds);
+        }
+
+        if (!is_null($minAllowedPeople) && !empty($minAllowedPeople)) {
+            $query = $query->andWhere('r.allowedPeople >= :minAllowedPeople')
+                ->setParameter('minAllowedPeople', $minAllowedPeople);
+        }
+
+        if (!is_null($maxAllowedPeople) && !empty($maxAllowedPeople)) {
+            $query = $query->andWhere('r.allowedPeople >= :maxAllowedPeople')
+                ->setParameter('maxAllowedPeople', $maxAllowedPeople);
+        }
+
+        if (!is_null($startTime) && !empty($startTime) && (is_null($endTime) || empty($endTime))) {
+            $currentDateStart = clone $startTime;
+            $currentDateStart->setTime(00, 00, 00);
+            $currentDateEnd = clone $startTime;
+            $currentDateEnd->setTime(23, 59, 59);
+
+            $query = $query->andWhere('m.endHour > :startHour')
+                ->andWhere('p.startDate <= :startTime AND p.endDate >= :startTime')
+                ->andWhere(
+                    'p.id NOT IN (
+                        SELECT po.productId
+                        FROM SandboxApiBundle:Order\ProductOrder po
+                        WHERE po.status != :status
+                        AND po.startDate >= :currentDateStart
+                        AND po.endDate <= :currentDateEnd
+                        AND po.endDate > :startTime
+                        GROUP BY po.productId
+                        HAVING (
+                            (
+                                (
+                                    CASE
+                                        WHEN time(:startHour) < m.startHour
+                                        THEN hour((m.endHour - m.startHour))
+                                        WHEN MIN(po.startDate) >= :startTime
+                                        THEN hour((m.endHour - time(:startHour)))
+                                        ELSE hour((m.endHour - time(MIN(po.startDate))))
+                                    END
+                                ) <= hour((sum(po.endDate) - sum(po.startDate)))
+                            )
+                        )
+                    )'
+                )
+                ->setParameter('status', ProductOrder::STATUS_CANCELLED)
+                ->setParameter('currentDateStart', $currentDateStart)
+                ->setParameter('currentDateEnd', $currentDateEnd)
+                ->setParameter('startTime', $startTime)
+                ->setParameter('startHour', $startHour);
+        }
+
+        if (!is_null($startTime) && !is_null($endTime) && !empty($startTime) && !empty($endTime)) {
+            $query = $query->andWhere('m.startHour <= :startHour AND m.endHour >= :endHour')
+                ->andWhere('p.startDate <= :startTime')
+                ->andWhere('p.endDate >= :startTime')
+                ->andWhere(
+                    'p.id NOT IN (
+                        SELECT po.productId FROM SandboxApiBundle:Order\ProductOrder po
+                        WHERE po.status != :status
+                        AND
+                        (
+                            (po.startDate <= :startTime AND po.endDate > :startTime) OR
+                            (po.startDate < :endTime AND po.endDate >= :endTime) OR
+                            (po.startDate >= :startTime AND po.endDate <= :endTime)
+                        )
+                    )'
+                )
+                ->setParameter('status', ProductOrder::STATUS_CANCELLED)
+                ->setParameter('startTime', $startTime)
+                ->setParameter('endTime', $endTime)
+                ->setParameter('startHour', $startHour)
+                ->setParameter('endHour', $endHour);
+        }
+
+        if (!is_null($minBasePrice) || !is_null($maxBasePrice)) {
+            $query->leftJoin('SandboxApiBundle:Product\ProductLeasingSet', 'ls', 'WITH', 'ls.product = p.id')
+                ->andWhere('ls.unitPrice = :unit')
+                ->setParameter('unit', 'hour');
+
+            if ($minBasePrice) {
+                $query->andWhere('ls.basePrice >= :minBasePrice')
+                    ->setParameter('minBasePrice', $minBasePrice);
+            }
+
+            if ($maxBasePrice) {
+                $query->andWhere('ls.basePrice <= :maxBasePrice')
+                    ->setParameter('maxBasePrice', $maxBasePrice);
+            }
+        }
+
+        if (!is_null($roomTypeTags) && !empty($roomTypeTags)) {
+            $query->leftJoin('SandboxApiBundle:Room\RoomTypeTags', 'rtt', 'WITH', 'rtt.tagKey = r.typeTag')
+                ->andWhere('rtt.id IN (:typeTags)')
+                ->setParameter('typeTags', $roomTypeTags);
+        }
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $userId
+     * @param $buildingIds
+     * @param $minAllowedPeople
+     * @param $maxAllowedPeople
+     * @param $startDate
+     * @param $endDate
+     * @param $type
+     * @param $includeIds
+     * @param $excludeIds
+     * @param $unit
+     * @param $isFavorite
+     *
+     * @return array
+     */
+    public function getWorkspaceProductsForClientCommunities(
+        $userId,
+        $buildingIds,
+        $minAllowedPeople,
+        $maxAllowedPeople,
+        $startDate,
+        $endDate,
+        $type,
+        $includeIds,
+        $excludeIds,
+        $unit,
+        $isFavorite,
+        $minBasePrice,
+        $maxBasePrice,
+        $roomTypeTags
+    ) {
+        $now = new \DateTime();
+
+        $query = $this->createQueryBuilder('p')
+            ->select('DISTINCT p.id')
+            ->leftjoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
+            ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'b.id = r.buildingId')
+            ->where('r.type = :type')
+            ->andWhere('p.visible = :visible')
+            ->andWhere('p.startDate <= :now AND p.endDate >= :now')
+            ->setParameter('type', $type)
+            ->setParameter('visible', true)
+            ->setParameter('now', $now);
+
+        if (!is_null($includeIds) && !empty($includeIds)) {
+            $query->andWhere('b.companyId IN (:includeIds)')
+                ->setParameter('includeIds', $includeIds);
+        }
+
+        if (!is_null($excludeIds) && !empty($excludeIds)) {
+            $query->andWhere('b.companyId NOT IN (:excludeIds)')
+                ->setParameter('excludeIds', $excludeIds);
+        }
+
+        if (!is_null($userId)) {
+            $query->andWhere('p.visibleUserId = :userId OR p.private = :private')
+                ->setParameter('private', false);
+
+            if ($isFavorite) {
+                $query->leftJoin('SandboxApiBundle:User\UserFavorite', 'uf', 'WITH', 'uf.objectId = p.id')
+                    ->andWhere('uf.userId = :userId')
+                    ->andWhere('uf.object = :product')
+                    ->setParameter('product', UserFavorite::OBJECT_PRODUCT);
+            }
+
+            $query->setParameter('userId', $userId);
+        } else {
+            $query->andWhere('p.private = :private')
+                ->setParameter('private', false);
+        }
+
+        if (!is_null($buildingIds)) {
+            $query = $query->andWhere('r.building IN (:buildingIds)')
+                ->setParameter('buildingIds', $buildingIds);
+        }
+
+        if (!is_null($minAllowedPeople) && !empty($minAllowedPeople)) {
+            $query = $query->andWhere('r.allowedPeople >= :minAllowedPeople')
+                ->setParameter('minAllowedPeople', $minAllowedPeople);
+        }
+
+        if (!is_null($maxAllowedPeople) && !empty($maxAllowedPeople)) {
+            $query = $query->andWhere('r.allowedPeople >= :maxAllowedPeople')
+                ->setParameter('maxAllowedPeople', $maxAllowedPeople);
+        }
+
+        if (!is_null($startDate) && !is_null($endDate) && !empty($startDate) && !empty($endDate)) {
+            $query = $query->andWhere('p.startDate <= :startDate')
+                ->andWhere('p.endDate >= :startDate')
+                ->andWhere(
+                    '(
+                        p.id IN (
+                            SELECT po2.productId FROM SandboxApiBundle:Order\ProductOrder po2
+                            WHERE po2.status != :status
+                            AND (r.type = :desk)
+                            AND
+                            (
+                                (po2.startDate <= :startDate AND po2.endDate > :startDate) OR
+                                (po2.startDate < :endDate AND po2.endDate >= :endDate) OR
+                                (po2.startDate >= :startDate AND po2.endDate <= :endDate)
+                            )
+                            GROUP BY po2.productId
+                            HAVING COUNT(po2.productId) < r.allowedPeople
+                        )
+                    )'
+                )
+                ->setParameter('status', ProductOrder::STATUS_CANCELLED)
+                ->setParameter('desk', Room::TYPE_DESK)
+                ->setParameter('startDate', $startDate)
+                ->setParameter('endDate', $endDate);
+        }
+
+        if (!is_null($unit) || !is_null($minBasePrice) || !is_null($maxBasePrice)) {
+            $query->leftJoin('SandboxApiBundle:Product\ProductLeasingSet', 'ls', 'WITH', 'ls.product = p.id')
+                ->andWhere('ls.unitPrice = :unit')
+                ->setParameter('unit', $unit);
+
+            if ($minBasePrice) {
+                $query->andWhere('ls.basePrice >= :minBasePrice')
+                    ->setParameter('minBasePrice', $minBasePrice);
+            }
+
+            if ($maxBasePrice) {
+                $query->andWhere('ls.basePrice <= :maxBasePrice')
+                    ->setParameter('maxBasePrice', $maxBasePrice);
+            }
+        }
+
+        if (!is_null($roomTypeTags) && !empty($roomTypeTags)) {
+            $query->leftJoin('SandboxApiBundle:Room\RoomTypeTags', 'rtt', 'WITH', 'rtt.tagKey = r.typeTag')
+                ->andWhere('rtt.id IN (:typeTags)')
+                ->setParameter('typeTags', $roomTypeTags);
+        }
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $userId
+     * @param $buildingIds
+     * @param $minAllowedPeople
+     * @param $maxAllowedPeople
+     * @param $startDate
+     * @param $endDate
+     * @param $includeIds
+     * @param $excludeIds
+     * @param $isFavorite
+     * @param $minBasePrice
+     * @param $maxBasePrice
+     *
+     * @return array
+     */
+    public function getOfficeProductsForClientCommunities(
+        $userId,
+        $buildingIds,
+        $minAllowedPeople,
+        $maxAllowedPeople,
+        $startDate,
+        $endDate,
+        $includeIds,
+        $excludeIds,
+        $isFavorite,
+        $minBasePrice,
+        $maxBasePrice,
+        $roomTypeTags
+    ) {
+        $now = new \DateTime();
+
+        $query = $this->createQueryBuilder('p')
+            ->select('DISTINCT p.id')
+            ->leftjoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
+            ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'b.id = r.buildingId')
+            ->where('r.type = :office')
+            ->andWhere('p.visible = :visible')
+            ->andWhere('p.startDate <= :now AND p.endDate >= :now')
+            ->setParameter('office', Room::TYPE_OFFICE)
+            ->setParameter('visible', true)
+            ->setParameter('now', $now);
+
+        if (!is_null($includeIds) && !empty($includeIds)) {
+            $query->andWhere('b.companyId IN (:includeIds)')
+                ->setParameter('includeIds', $includeIds);
+        }
+
+        if (!is_null($excludeIds) && !empty($excludeIds)) {
+            $query->andWhere('b.companyId NOT IN (:excludeIds)')
+                ->setParameter('excludeIds', $excludeIds);
+        }
+
+        if (!is_null($userId)) {
+            $query->andWhere('p.visibleUserId = :userId OR p.private = :private')
+                ->setParameter('private', false);
+
+            if ($isFavorite) {
+                $query->leftJoin('SandboxApiBundle:User\UserFavorite', 'uf', 'WITH', 'uf.objectId = p.id')
+                    ->andWhere('uf.userId = :userId')
+                    ->andWhere('uf.object = :product')
+                    ->setParameter('product', UserFavorite::OBJECT_PRODUCT);
+            }
+
+            $query->setParameter('userId', $userId);
+        } else {
+            $query->andWhere('p.private = :private')
+                ->setParameter('private', false);
+        }
+
+        if (!is_null($buildingIds)) {
+            $query = $query->andWhere('r.building IN (:buildingIds)')
+                ->setParameter('buildingIds', $buildingIds);
+        }
+
+        if (!is_null($minAllowedPeople) && !empty($minAllowedPeople)) {
+            $query = $query->andWhere('r.allowedPeople >= :minAllowedPeople')
+                ->setParameter('minAllowedPeople', $minAllowedPeople);
+        }
+
+        if (!is_null($maxAllowedPeople) && !empty($maxAllowedPeople)) {
+            $query = $query->andWhere('r.allowedPeople >= :maxAllowedPeople')
+                ->setParameter('maxAllowedPeople', $maxAllowedPeople);
+        }
+
+        if (!is_null($startDate) && !is_null($endDate) && !empty($startDate) && !empty($endDate)) {
+            $query = $query->andWhere('p.startDate <= :startDate')
+                ->andWhere('p.endDate >= :startDate')
+                ->andWhere(
+                    'p.id NOT IN (
+                        SELECT po.productId FROM SandboxApiBundle:Order\ProductOrder po
+                        WHERE po.status != :status
+                        AND
+                        (
+                            (po.startDate <= :startDate AND po.endDate > :startDate) OR
+                            (po.startDate < :endDate AND po.endDate >= :endDate) OR
+                            (po.startDate >= :startDate AND po.endDate <= :endDate)
+                        )
+                    )'
+                )
+                ->setParameter('status', ProductOrder::STATUS_CANCELLED)
+                ->setParameter('startDate', $startDate)
+                ->setParameter('endDate', $endDate);
+        }
+
+        if (!is_null($minBasePrice) || !is_null($maxBasePrice)) {
+            $query->leftJoin('SandboxApiBundle:Product\ProductLeasingSet', 'ls', 'WITH', 'ls.product = p.id')
+                ->andWhere('ls.unitPrice = :unit')
+                ->setParameter('unit', 'month');
+
+            if ($minBasePrice) {
+                $query->andWhere('ls.basePrice >= :minBasePrice')
+                    ->setParameter('minBasePrice', $minBasePrice);
+            }
+
+            if ($maxBasePrice) {
+                $query->andWhere('ls.basePrice <= :maxBasePrice')
+                    ->setParameter('maxBasePrice', $maxBasePrice);
+            }
+        }
+
+        if (!is_null($roomTypeTags) && !empty($roomTypeTags)) {
+            $query->leftJoin('SandboxApiBundle:Room\RoomTypeTags', 'rtt', 'WITH', 'rtt.tagKey = r.typeTag')
+                ->andWhere('rtt.id IN (:typeTags)')
+                ->setParameter('typeTags', $roomTypeTags);
+        }
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $buildingIds
+     * @param $userId
+     * @param $limit
+     * @param $offset
+     * @param $includeIds
+     *
+     * @return array
+     */
+    public function getAllProductsForCommunities(
+        $buildingIds,
+        $userId,
+        $limit,
+        $offset,
+        $includeIds,
+        $recommend
+    ) {
+        $query = $this->createQueryBuilder('p')
+            ->select('DISTINCT p')
+            ->leftjoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
+            ->where('p.visible = TRUE')
+            ->andWhere('p.isDeleted = FALSE')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+        ;
+
+        if (!is_null($buildingIds)) {
+            $query->andWhere('r.buildingId IN (:buildingIds)')
+                ->setParameter('buildingIds', $buildingIds);
+        }
+
+        if ($recommend) {
+            $query->orderBy('p.salesRecommend', 'DESC')
+                ->addOrderBy('p.salesSortTime', 'DESC')
+                ->addOrderBy('p.creationDate', 'DESC');
+        } else {
+            $query->orderBy('p.recommend', 'DESC')
+                ->addOrderBy('p.creationDate', 'DESC');
+        }
+
+        if (!is_null($includeIds) && !empty($includeIds)) {
+            $query->leftjoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'b.id = r.buildingId')
+                ->andWhere('b.companyId IN (:ids)')
+                ->setParameter('ids', $includeIds);
+        }
+
+        if (!is_null($userId)) {
+            $query->andWhere('p.visibleUserId = :userId OR p.private = :private')
+                ->setParameter('userId', $userId)
+                ->setParameter('private', false);
+        } else {
+            $query->andWhere('p.private = :private')
+                ->setParameter('private', false);
+        }
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $productIds
+     *
+     * @return array
+     */
+    public function getMinPriceByProducts(
+        $productIds
+    ) {
+        $query = $this->createQueryBuilder('p')
+            ->leftJoin('SandboxApiBundle:Product\ProductLeasingSet', 'pls', 'WITH', 'pls.product = p.id')
+            ->select('min(pls.basePrice) as base_price, min(pls.unitPrice) as unit_price')
+            ->andWhere('p.id IN (:productIds)')
+            ->setParameter('productIds', $productIds)
+            ->setMaxResults(1);
+
+        return $query->getQuery()->getOneOrNullResult();
     }
 }

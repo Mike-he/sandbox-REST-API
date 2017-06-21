@@ -602,6 +602,31 @@ class ShopOrderRepository extends EntityRepository
      *
      * @return array
      */
+    public function getUserAllOrders(
+        $userId,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->where('o.unoriginal = :unoriginal')
+            ->andWhere('o.userId = :userId')
+            ->orderBy('o.modificationDate', 'DESC')
+            ->setParameter('unoriginal', false)
+            ->setParameter('userId', $userId)
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
+    /**
+     * @param $userId
+     * @param $limit
+     * @param $offset
+     *
+     * @return array
+     */
     public function getUserPendingOrders(
         $userId,
         $limit,

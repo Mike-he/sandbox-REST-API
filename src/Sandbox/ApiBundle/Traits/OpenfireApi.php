@@ -75,12 +75,16 @@ trait OpenfireApi
     }
 
     /**
+     * @param $fromJID
      * @param $toJID
+     * @param $type
      *
      * @return array
      */
     protected function getHistoryMessage(
-        $toJID
+        $fromJID,
+        $toJID,
+        $type
     ) {
         header('Content-type:text/html;charset=utf-8');  //统一输出编码为utf-8
 
@@ -97,7 +101,12 @@ trait OpenfireApi
 
         mysqli_query($mysqli, 'set names utf8');
 
-        $query = "select * from ofmessagearchive where status = 'message' and toJID = ".$toJID;
+        $query = "select * from ofmessagearchive where status = 'message' and toJID = ".$toJID." and type=".$type;
+
+        if (!is_null($fromJID)) {
+            $fromJID = '"'.$fromJID.'"';
+            $query .= " and fromJID =".$fromJID;
+        }
 
         $result = $mysqli->query($query);
         $message = array();

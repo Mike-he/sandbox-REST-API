@@ -238,12 +238,18 @@ trait SendNotification
             ->getGlobals();
         $option = $globals['jpush_apns_option'];
 
-        $data = [
-            'platform' => 'all',
-            'audience' => [
+        if ($users == 'all') {
+            $audience = 'all';
+        } else {
+            $audience = [
                 'alias' => $users,
                 'tag' => $language,
-            ],
+            ];
+        }
+
+        $data = [
+            'platform' => 'all',
+            'audience' => $audience,
             'notification' => [
                 'alert' => $message,
                 'android' => [
@@ -409,7 +415,7 @@ trait SendNotification
             $receivers,
             ['lang_zh'],
             $bodyZh,
-            '展想创合',
+            '创合秒租',
             $contentArray
         );
 

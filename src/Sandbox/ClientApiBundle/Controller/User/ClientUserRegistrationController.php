@@ -483,8 +483,7 @@ class ClientUserRegistrationController extends UserRegistrationController
 
         // get xmppUsername from response
         $response = $this->createXmppUser($user, $registrationId);
-        $responseJson = json_decode($response);
-        $user->setXmppUsername($responseJson->username);
+        $user->setXmppUsername($response);
 
         return $user;
     }
@@ -517,75 +516,6 @@ class ClientUserRegistrationController extends UserRegistrationController
         $registration->setCode($this->generateVerificationCode(self::VERIFICATION_CODE_LENGTH));
 
         return $registration;
-    }
-
-    /**
-     * @param User $user
-     * @param int  $registrationId
-     *
-     * @return mixed
-     */
-    private function createXmppUser(
-        $user,
-        $registrationId
-    ) {
-        // get globals
-        $twig = $this->container->get('twig');
-        $globals = $twig->getGlobals();
-
-        // Openfire API URL
-        $apiUrl = $globals['openfire_innet_url'].
-            $globals['openfire_plugin_bstuser'].
-            $globals['openfire_plugin_bstuser_users'];
-
-        // generate username
-        $username = strval(1000000 + $registrationId);
-
-        // request json
-        $jsonData = $this->createJsonData(
-            $username,
-            $user->getPassword()
-        );
-
-        // set ezUser secret to basic auth
-        $userNameSecret = $globals['openfire_plugin_bstuser_property_name_ezuser'].':'.
-            $globals['openfire_plugin_bstuser_property_secret_ezuser'];
-
-        $basicAuth = 'Basic '.base64_encode($userNameSecret);
-
-        // init curl
-        $ch = curl_init($apiUrl);
-
-        // get then response when post OpenFire API
-        $response = $this->callAPI(
-            $ch,
-            'POST',
-            array('Authorization: '.$basicAuth),
-            $jsonData);
-
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        if ($httpCode != self::HTTP_STATUS_OK) {
-            return;
-        }
-
-        return $response;
-    }
-
-    /**
-     * @param string $username
-     * @param string $password
-     *
-     * @return string
-     */
-    private function createJsonData(
-        $username,
-        $password
-    ) {
-        $dataArray = array();
-        $dataArray['username'] = $username;
-        $dataArray['password'] = $password;
-
-        return json_encode($dataArray);
     }
 
     /**

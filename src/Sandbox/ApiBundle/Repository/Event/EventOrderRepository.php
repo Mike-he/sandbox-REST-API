@@ -355,7 +355,7 @@ class EventOrderRepository extends EntityRepository
         }
 
         // filter by user
-        if(!is_null($userId)) {
+        if (!is_null($userId)) {
             $query->andWhere('eo.userId = :userId')
                 ->setParameter('userId', $userId);
         }

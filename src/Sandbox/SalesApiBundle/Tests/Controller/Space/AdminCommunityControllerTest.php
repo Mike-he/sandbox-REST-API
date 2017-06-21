@@ -12,7 +12,7 @@ class AdminCommunityControllerTest extends WebTestCase
     use ApiHelpersTrait;
     use CommonTestsUtilsTrait;
 
-    const SPACE_FIELDS_AMOUNT = 12;
+    const SPACE_FIELDS_AMOUNT = 11;
 
     public function setUp()
     {
@@ -86,7 +86,7 @@ class AdminCommunityControllerTest extends WebTestCase
         $this->givenLoggedInAs('client-2', 'user-token-2');
 
         $limit = 1;
-        $paramRoomType = '&room_types[]=fixed';
+        $paramRoomType = '&room_types[]=desk';
 
         $this->given('room-building-for-data-structure');
         $this->performSalesGetSpacesByCommunity(
@@ -201,9 +201,6 @@ class AdminCommunityControllerTest extends WebTestCase
         $this->given('room-for-get-spaces-data-structure');
         $room = $this->entity;
 
-        $this->given('second-room-type');
-        $roomType = $this->entity;
-
         $this->given('room-attachment-1');
         $roomAttachment = $this->entity;
 
@@ -212,19 +209,17 @@ class AdminCommunityControllerTest extends WebTestCase
             'name' => $room->getName(),
             'building_id' => $room->getBuildingId(),
             'type' => $room->getType(),
-            'rent_type' => $roomType->getType(),
             'area' => $room->getArea(),
             'allowed_people' => $room->getAllowedPeople(),
             'preview' => $roomAttachment->getPreview(),
             'content' => $roomAttachment->getContent(),
             'product' => [
                 'id' => $product->getId(),
-                'unit_price' => $product->getUnitPrice(),
                 'visible' => $product->getVisible(),
                 'start_date' => $product->getStartDate()->format("Y-m-d\TH:i:sO"),
-                'base_price' => $product->getBasePrice(),
                 'recommend' => $product->isRecommend(),
                 'sales_recommend' => $product->isSalesRecommend(),
+                'favorite' => 0,
             ],
         ];
 
@@ -238,9 +233,6 @@ class AdminCommunityControllerTest extends WebTestCase
 
         $this->given('fixed-room-for-get-spaces-data-structure');
         $room = $this->entity;
-
-        $this->given('second-room-type');
-        $roomType = $this->entity;
 
         $this->given('room-seat-1');
         $firstRoomSeat = $this->entity;
@@ -256,14 +248,12 @@ class AdminCommunityControllerTest extends WebTestCase
             'name' => $room->getName(),
             'building_id' => $room->getBuildingId(),
             'type' => $room->getType(),
-            'rent_type' => $roomType->getType(),
             'area' => $room->getArea(),
             'allowed_people' => $room->getAllowedPeople(),
             'preview' => $roomAttachment->getPreview(),
             'content' => $roomAttachment->getContent(),
             'product' => [
                 'id' => $product->getId(),
-                'unit_price' => $product->getUnitPrice(),
                 'visible' => $product->getVisible(),
                 'start_date' => $product->getStartDate()->format("Y-m-d\TH:i:sO"),
                 'seats' => [
@@ -280,6 +270,7 @@ class AdminCommunityControllerTest extends WebTestCase
                 ],
                 'recommend' => $product->isRecommend(),
                 'sales_recommend' => $product->isSalesRecommend(),
+                'favorite' => 0,
             ],
         ];
 
@@ -294,29 +285,17 @@ class AdminCommunityControllerTest extends WebTestCase
         $this->given('first-room-type');
         $roomType1 = $this->entity;
 
-        $this->given('seventh-room-type');
-        $roomType2 = $this->entity;
-
+        $imageUrl = $this->getContainer()->getParameter('image_url');
         $data = [
             [
                 'id' => $roomType1->getId(),
                 'type' => $roomType1->getName(),
                 'name' => $this->getContainer()->get('translator')
                     ->trans(ProductOrderExport::TRANS_ROOM_TYPE.$roomType1->getName()),
-                'icon' => $roomType1->getIcon(),
+                'icon' => $imageUrl.$roomType1->getIcon(),
                 'building_id' => $building->getId(),
-                'using_number' => 1,
-                'all_number' => 3,
-            ],
-            [
-                'id' => $roomType2->getId(),
-                'type' => $roomType2->getName(),
-                'name' => $this->getContainer()->get('translator')
-                    ->trans(ProductOrderExport::TRANS_ROOM_TYPE.$roomType2->getName()),
-                'icon' => $roomType2->getIcon(),
-                'building_id' => $building->getId(),
-                'using_number' => 1,
-                'all_number' => 1,
+                'using_number' => 2,
+                'all_number' => 4,
             ],
         ];
 

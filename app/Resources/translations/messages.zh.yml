@@ -254,22 +254,22 @@ client:
     community: 首页
     red_bean: 赤豆商城
     blog: 创合博客
-    message: 消息
+    message: 我的消息
     contact: 我的联系人
     member: 会员
     company: 创合企业
     my_company: 我的企业
     scan_qr: 扫一扫
     balance: 账户余额
-    my_order: 空间订单
+    my_order: 我的订单
     my_lease: 合同及账单
     my_long_term_appointment: 长租申请
     my_shop_order: 店铺订单
     my_activity_order: 活动订单
-    my_room: 我的可用房间
+    my_room: 我的房间
     my_favorite: 我的收藏
     my_evaluation: 我的评价
-    notification: 通知
+    notification: 服务通知
     my_invoice: 我的发票
     my_membership_card: 我的会员卡
     reset_password: 重置密码
@@ -278,6 +278,9 @@ client:
     phone: 绑定手机
     about_us: 关于创合秒租
     setting: 设置
+    my_center: 个人中心
+    add_buddy: 添加朋友
+    my_qr: 我的二维码
   profile:
     room_order: 空间订单
     shop_order: 店铺订单

@@ -40,6 +40,13 @@ class RoomTypeTags
     private $icon = '';
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="icon_selected", type="string", length=1024, nullable=true)
+     */
+    private $iconSelected;
+
+    /**
      * @var RoomType
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomTypes")
@@ -206,5 +213,21 @@ class RoomTypeTags
     public function getModificationDate()
     {
         return $this->modificationDate;
+    }
+
+    /**
+     * @return string
+     */
+    public function getIconSelected()
+    {
+        return $this->iconSelected;
+    }
+
+    /**
+     * @param string $iconSelected
+     */
+    public function setIconSelected($iconSelected)
+    {
+        $this->iconSelected = $iconSelected;
     }
 }

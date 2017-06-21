@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
- * DoorDepartmentUsers
+ * DoorDepartmentUsers.
  *
  * @ORM\Table(name="door_department_users")
  * @ORM\Entity
@@ -14,7 +14,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 class DoorDepartmentUsers
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -23,7 +23,7 @@ class DoorDepartmentUsers
     private $id;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="user_id", type="integer")
      */
@@ -44,11 +44,10 @@ class DoorDepartmentUsers
      */
     private $creationDate;
 
-
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -56,9 +55,10 @@ class DoorDepartmentUsers
     }
 
     /**
-     * Set userId
+     * Set userId.
      *
-     * @param integer $userId
+     * @param int $userId
+     *
      * @return DoorDepartmentUsers
      */
     public function setUserId($userId)
@@ -69,9 +69,9 @@ class DoorDepartmentUsers
     }
 
     /**
-     * Get userId
+     * Get userId.
      *
-     * @return integer 
+     * @return int
      */
     public function getUserId()
     {
@@ -79,9 +79,10 @@ class DoorDepartmentUsers
     }
 
     /**
-     * Set buildingServer
+     * Set buildingServer.
      *
      * @param string $buildingServer
+     *
      * @return DoorDepartmentUsers
      */
     public function setBuildingServer($buildingServer)
@@ -92,9 +93,9 @@ class DoorDepartmentUsers
     }
 
     /**
-     * Get buildingServer
+     * Get buildingServer.
      *
-     * @return string 
+     * @return string
      */
     public function getBuildingServer()
     {
@@ -102,9 +103,10 @@ class DoorDepartmentUsers
     }
 
     /**
-     * Set creationDate
+     * Set creationDate.
      *
      * @param \DateTime $creationDate
+     *
      * @return DoorDepartmentUsers
      */
     public function setCreationDate($creationDate)
@@ -115,9 +117,9 @@ class DoorDepartmentUsers
     }
 
     /**
-     * Get creationDate
+     * Get creationDate.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getCreationDate()
     {
