@@ -1449,7 +1449,7 @@ class ProductRepository extends EntityRepository
                 ->setParameter('private', false);
         }
 
-        if (!is_null($buildingIds) && !empty($buildingIds)) {
+        if (!is_null($buildingIds)) {
             $query = $query->andWhere('r.building IN (:buildingIds)')
                 ->setParameter('buildingIds', $buildingIds);
         }
