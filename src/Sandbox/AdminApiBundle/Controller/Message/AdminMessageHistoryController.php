@@ -3,6 +3,7 @@
 namespace Sandbox\AdminApiBundle\Controller\Message;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Traits\OpenfireApi;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -13,6 +14,47 @@ use Symfony\Component\HttpFoundation\Request;
 class AdminMessageHistoryController extends AdminMessagePushController
 {
     use OpenfireApi;
+
+    /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/messages/service_authorization")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getServiceAuthorizationAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        // check user permission
+        $this->checkAdminMessagePermission(AdminPermission::OP_LEVEL_VIEW);
+
+        $em = $this->getDoctrine()->getManager();
+
+        $user = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\User')
+            ->findOneBy(array(
+                'xmppUsername' => 'service',
+            ));
+
+        $userToken = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserToken')
+            ->findOneBy(array(
+                'user' => $user,
+            ));
+
+        $userToken->setCreationDate(new \DateTime('now'));
+        $userToken->setModificationDate(new \DateTime('now'));
+        $em->flush();
+
+        $authorization = 'Basic ' . base64_encode($userToken->getToken() . ':' . $userToken->getClientId());
+
+        return new View(array(
+            'Authorization' => $authorization,
+        ));
+    }
 
     /**
      * Get History Message.
