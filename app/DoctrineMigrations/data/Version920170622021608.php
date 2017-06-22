@@ -39,26 +39,28 @@ class Version920170622021608 extends AbstractMigration implements ContainerAware
                 'xmppUsername' => 'service',
             ));
 
-        $userClient = new UserClient();
-        $userClient->setName('Sandbox Service');
-        $userClient->setOs('Sandbox Service');
-        $userClient->setVersion('1.0');
-        $userClient->setIpAddress('127.0.0.1');
-        $userClient->setCreationDate(new \DateTime('now'));
-        $userClient->setModificationDate(new \DateTime('now'));
-        $em->persist($userClient);
+        if (!is_null($user)) {
+            $userClient = new UserClient();
+            $userClient->setName('Sandbox Service');
+            $userClient->setOs('Sandbox Service');
+            $userClient->setVersion('1.0');
+            $userClient->setIpAddress('127.0.0.1');
+            $userClient->setCreationDate(new \DateTime('now'));
+            $userClient->setModificationDate(new \DateTime('now'));
+            $em->persist($userClient);
 
-        $userToken = new UserToken();
-        $userToken->setUser($user);
-        $userToken->setClient($userClient);
-        $userToken->setToken(md5(uniqid('service'.rand(), true)));
-        $userToken->setRefreshToken(md5(uniqid('service'.rand(), true)));
-        $userToken->setOnline(true);
-        $userToken->setCreationDate(new \DateTime('now'));
-        $userToken->setModificationDate(new \DateTime('now'));
-        $em->persist($userToken);
+            $userToken = new UserToken();
+            $userToken->setUser($user);
+            $userToken->setClient($userClient);
+            $userToken->setToken(md5(uniqid('service'.rand(), true)));
+            $userToken->setRefreshToken(md5(uniqid('service'.rand(), true)));
+            $userToken->setOnline(true);
+            $userToken->setCreationDate(new \DateTime('now'));
+            $userToken->setModificationDate(new \DateTime('now'));
+            $em->persist($userToken);
 
-        $em->flush();
+            $em->flush();
+        }
     }
 
     /**
