@@ -199,7 +199,7 @@ class AdminMessageHistoryController extends AdminMessagePushController
                 'phone' => $user->getPhone(),
                 'email' => $user->getEmail(),
                 'authorized' => $user->isAuthorized(),
-                'xmppUsername' => $user->getXmppUsername(),
+                'jid' => $jid,
                 'message' => [
                     'body' => $lastMessage[0]['body'],
                     'sentDate' => $lastMessage[0]['sentDate'],
