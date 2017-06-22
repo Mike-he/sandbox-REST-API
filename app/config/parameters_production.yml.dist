@@ -123,7 +123,7 @@ parameters:
     duiba_app_secret: z3jDWM6BXhyEryGpZVpVdEczsUE
     duiba_app_env: pro
 
-    openfire_url: https://xmpp.sandbox3.cn/plugins/restapi/v1
+    openfire_url: http://xmpp.sandbox3.cn/plugins/restapi/v1
     openfire_secret: Rw0TrCzAH68s0L1x
     openfire_servicename: conference
     openfire_servername: xmpp.sandbox3.cn
