@@ -191,11 +191,19 @@ class AdminMessageHistoryController extends AdminMessagePushController
                     'user' => $user,
                 ]);
 
+            $lastMessage = $this->getHistoryMessage($jid, $toJID, '"single"', true, 1);
+
             array_push($usersArray, [
+                'id' => $user->getId(),
                 'name' => $userProfile->getName(),
                 'phone' => $user->getPhone(),
                 'email' => $user->getEmail(),
                 'authorized' => $user->isAuthorized(),
+                'xmppUsername' => $user->getXmppUsername(),
+                'message' => [
+                    'body' => $lastMessage[0]['body'],
+                    'sentDate' => $lastMessage[0]['sentDate'],
+                ],
             ]);
         }
 
