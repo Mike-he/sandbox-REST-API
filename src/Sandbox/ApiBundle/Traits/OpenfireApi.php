@@ -84,7 +84,9 @@ trait OpenfireApi
     protected function getHistoryMessage(
         $fromJID,
         $toJID,
-        $type
+        $type,
+        $byCreationDateDESC = null,
+        $limit = null
     ) {
         header('Content-type:text/html;charset=utf-8');  //统一输出编码为utf-8
 
@@ -106,6 +108,14 @@ trait OpenfireApi
         if (!is_null($fromJID)) {
             $fromJID = '"'.$fromJID.'"';
             $query .= " and fromJID =".$fromJID;
+        }
+
+        if ($byCreationDateDESC) {
+            $query .= " order by sentDate DESC";
+        }
+
+        if ($limit) {
+            $query .= " limit ".$limit;
         }
 
         $result = $mysqli->query($query);
