@@ -146,6 +146,26 @@ class AdminMessageHistoryController extends AdminMessagePushController
      *    description=""
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many rooms to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number "
+     * )
+     *
      * @Route("/messages/service_clients")
      * @Method({"GET"})
      *
@@ -161,6 +181,12 @@ class AdminMessageHistoryController extends AdminMessagePushController
         $fromJID = $paramFetcher->get('fromJID');
         $toJID = $paramFetcher->get('toJID');
         $type = $paramFetcher->get('type');
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+
+        $min = ($pageIndex - 1) * $pageLimit;
+        $max = $min + $pageLimit - 1;
+//        var_dump($min, $max);exit;
 
         $toJID = '"'.$toJID.'"';
         $type = '"'.$type.'"';
@@ -174,8 +200,17 @@ class AdminMessageHistoryController extends AdminMessagePushController
 
         $fromJIDs = array_unique($fromJIDs);
 
+        $count = count($fromJIDs);
+
+        $userJIDs = [];
+        foreach ($fromJIDs as $key => $jid) {
+            if ($min <= $key && $key <= $max) {
+                array_push($userJIDs, $jid);
+            }
+        }
+
         $usersArray = [];
-        foreach ($fromJIDs as $jid) {
+        foreach ($userJIDs as $jid) {
             $xmppUsername = explode('@', $jid);
             $xmppUsername = $xmppUsername[0];
 
@@ -191,7 +226,7 @@ class AdminMessageHistoryController extends AdminMessagePushController
                     'user' => $user,
                 ]);
 
-            $lastMessage = $this->getHistoryMessage($jid, $toJID, '"single"', true, 1);
+            $lastMessage = $this->getHistoryMessage($jid, $toJID, '"single"', 0, 1);
 
             array_push($usersArray, [
                 'id' => $user->getId(),
@@ -199,7 +234,7 @@ class AdminMessageHistoryController extends AdminMessagePushController
                 'phone' => $user->getPhone(),
                 'email' => $user->getEmail(),
                 'authorized' => $user->isAuthorized(),
-                'xmppUsername' => $user->getXmppUsername(),
+                'jid' => $jid,
                 'message' => [
                     'body' => $lastMessage[0]['body'],
                     'sentDate' => $lastMessage[0]['sentDate'],
@@ -207,6 +242,9 @@ class AdminMessageHistoryController extends AdminMessagePushController
             ]);
         }
 
-        return new View($usersArray);
+        return new View(array(
+            'total_count' => $count,
+            'items' => $usersArray,
+        ));
     }
 }
