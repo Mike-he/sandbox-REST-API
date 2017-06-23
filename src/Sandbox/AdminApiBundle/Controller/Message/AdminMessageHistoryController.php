@@ -198,7 +198,7 @@ class AdminMessageHistoryController extends AdminMessagePushController
             array_push($fromJIDs, $message['fromJID']);
         }
 
-        $fromJIDs = array_unique($fromJIDs);
+        $fromJIDs = array_values(array_unique($fromJIDs));
 
         $count = count($fromJIDs);
 
