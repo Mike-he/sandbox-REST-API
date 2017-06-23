@@ -66,7 +66,7 @@ class AdminMessageHistoryController extends AdminMessagePushController
      *    name="fromJID",
      *    array=false,
      *    default=null,
-     *    nullable=true,
+     *    nullable=false,
      *    strict=true,
      *    description=""
      * )
@@ -105,10 +105,11 @@ class AdminMessageHistoryController extends AdminMessagePushController
         $toJID = $paramFetcher->get('toJID');
         $type = $paramFetcher->get('type');
 
+        $fromJID = '"'.$fromJID.'"';
         $toJID = '"'.$toJID.'"';
         $type = '"'.$type.'"';
 
-        $message = $this->getHistoryMessage($fromJID, $toJID, $type);
+        $message = $this->getHistoryMessageForService($fromJID, $toJID, $type);
 
         return new View($message);
     }
@@ -186,7 +187,6 @@ class AdminMessageHistoryController extends AdminMessagePushController
 
         $min = ($pageIndex - 1) * $pageLimit;
         $max = $min + $pageLimit - 1;
-//        var_dump($min, $max);exit;
 
         $toJID = '"'.$toJID.'"';
         $type = '"'.$type.'"';
