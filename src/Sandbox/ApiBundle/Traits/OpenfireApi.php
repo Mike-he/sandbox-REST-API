@@ -103,7 +103,7 @@ trait OpenfireApi
 
         mysqli_query($mysqli, 'set names utf8');
 
-        $query = "select * from ofmessagearchive where status = IS NOT NULL and toJID = ".$toJID." and type=".$type;
+        $query = "select * from ofmessagearchive where status IS NOT NULL and toJID = ".$toJID." and type=".$type;
 
         if (!is_null($fromJID)) {
             $fromJID = '"'.$fromJID.'"';
@@ -173,7 +173,7 @@ trait OpenfireApi
 
         mysqli_query($mysqli, 'set names utf8');
 
-        $query = "select * from ofmessagearchive where status = IS NOT NULL and type = $type";
+        $query = "select * from ofmessagearchive where status IS NOT NULL and type = $type";
 
         $query .=  "and ((toJID = $toJID and fromJID = $fromJID) or (toJID = $fromJID and fromJID = $toJID ))";
 
