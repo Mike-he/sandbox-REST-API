@@ -1528,9 +1528,12 @@ class ProductRepository extends EntityRepository
         }
 
         if (!is_null($unit) || !is_null($minBasePrice) || !is_null($maxBasePrice)) {
-            $query->leftJoin('SandboxApiBundle:Product\ProductLeasingSet', 'ls', 'WITH', 'ls.product = p.id')
-                ->andWhere('ls.unitPrice = :unit')
-                ->setParameter('unit', $unit);
+            $query->leftJoin('SandboxApiBundle:Product\ProductLeasingSet', 'ls', 'WITH', 'ls.product = p.id');
+
+            if (!is_null($unit)) {
+                $query->andWhere('ls.unitPrice = :unit')
+                    ->setParameter('unit', $unit);
+            }
 
             if ($minBasePrice) {
                 $query->andWhere('ls.basePrice >= :minBasePrice')
@@ -1665,9 +1668,12 @@ class ProductRepository extends EntityRepository
         }
 
         if (!is_null($unit) || !is_null($minBasePrice) || !is_null($maxBasePrice)) {
-            $query->leftJoin('SandboxApiBundle:Product\ProductLeasingSet', 'ls', 'WITH', 'ls.product = p.id')
-                ->andWhere('ls.unitPrice = :unit')
-                ->setParameter('unit', $unit);
+            $query->leftJoin('SandboxApiBundle:Product\ProductLeasingSet', 'ls', 'WITH', 'ls.product = p.id');
+
+            if (!is_null($unit)) {
+                $query->andWhere('ls.unitPrice = :unit')
+                    ->setParameter('unit', $unit);
+            }
 
             if ($minBasePrice) {
                 $query->andWhere('ls.basePrice >= :minBasePrice')
