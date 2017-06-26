@@ -1657,16 +1657,16 @@ class ProductRepository extends EntityRepository
         }
 
         if (!is_null($maxAllowedPeople) && !empty($maxAllowedPeople)) {
-            $query = $query->andWhere('r.allowedPeople <= :maxAllowedPeople')
+            $query->andWhere('r.allowedPeople <= :maxAllowedPeople')
                 ->setParameter('maxAllowedPeople', $maxAllowedPeople);
         }
 
         if (!is_null($startDate) && !is_null($endDate) && !empty($startDate) && !empty($endDate)) {
-            $query = $query->andWhere('p.startDate <= :startDate')
+            $query->andWhere('p.startDate <= :startDate')
                 ->andWhere('p.endDate >= :startDate')
                 ->andWhere(
                     '(
-                        p.id IN (
+                        p.id NOT IN (
                             SELECT po2.productId FROM SandboxApiBundle:Order\ProductOrder po2
                             WHERE po2.status != :status
                             AND (r.type = :desk)
