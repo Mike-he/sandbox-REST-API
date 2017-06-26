@@ -1505,11 +1505,12 @@ class ProductRepository extends EntityRepository
         }
 
         if (!is_null($startTime) && !is_null($endTime) && !empty($startTime) && !empty($endTime)) {
-            $query = $query->andWhere('m.startHour <= :startHour AND m.endHour >= :endHour')
-                ->andWhere('p.startDate <= :startTime')
-                ->andWhere('p.endDate >= :startTime')
-                ->andWhere(
-                    'p.id NOT IN (
+            if (is_null($unit)) {
+                $query->andWhere('m.startHour <= :startHour AND m.endHour >= :endHour')
+                    ->andWhere('p.startDate <= :startTime')
+                    ->andWhere('p.endDate >= :startTime')
+                    ->andWhere(
+                        'p.id NOT IN (
                         SELECT po.productId FROM SandboxApiBundle:Order\ProductOrder po
                         WHERE po.status != :status
                         AND
@@ -1519,12 +1520,31 @@ class ProductRepository extends EntityRepository
                             (po.startDate >= :startTime AND po.endDate <= :endTime)
                         )
                     )'
-                )
-                ->setParameter('status', ProductOrder::STATUS_CANCELLED)
-                ->setParameter('startTime', $startTime)
-                ->setParameter('endTime', $endTime)
-                ->setParameter('startHour', $startHour)
-                ->setParameter('endHour', $endHour);
+                    )
+                    ->setParameter('status', ProductOrder::STATUS_CANCELLED)
+                    ->setParameter('startTime', $startTime)
+                    ->setParameter('endTime', $endTime)
+                    ->setParameter('startHour', $startHour)
+                    ->setParameter('endHour', $endHour);
+            } else {
+                $query->andWhere('p.startDate <= :startTime')
+                    ->andWhere('p.endDate >= :startTime')
+                    ->andWhere(
+                        'p.id NOT IN (
+                        SELECT po.productId FROM SandboxApiBundle:Order\ProductOrder po
+                        WHERE po.status != :status
+                        AND
+                        (
+                            (po.startDate > :startTime AND po.startDate < :endTime) OR
+                            (po.endDate > :startTime AND po.endDate < :endTime) OR
+                            (po.startDate < :startTime AND po.endDate > :endTime)
+                        )
+                    )'
+                    )
+                    ->setParameter('status', ProductOrder::STATUS_CANCELLED)
+                    ->setParameter('startTime', $startTime)
+                    ->setParameter('endTime', $endTime);
+            }
         }
 
         if (!is_null($unit) || !is_null($minBasePrice) || !is_null($maxBasePrice)) {
