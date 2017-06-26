@@ -1451,17 +1451,17 @@ class ProductRepository extends EntityRepository
         }
 
         if (!is_null($buildingIds)) {
-            $query = $query->andWhere('r.building IN (:buildingIds)')
+            $query->andWhere('r.building IN (:buildingIds)')
                 ->setParameter('buildingIds', $buildingIds);
         }
 
         if (!is_null($minAllowedPeople) && !empty($minAllowedPeople)) {
-            $query = $query->andWhere('r.allowedPeople >= :minAllowedPeople')
+            $query->andWhere('r.allowedPeople >= :minAllowedPeople')
                 ->setParameter('minAllowedPeople', $minAllowedPeople);
         }
 
         if (!is_null($maxAllowedPeople) && !empty($maxAllowedPeople)) {
-            $query = $query->andWhere('r.allowedPeople >= :maxAllowedPeople')
+            $query->andWhere('r.allowedPeople <= :maxAllowedPeople')
                 ->setParameter('maxAllowedPeople', $maxAllowedPeople);
         }
 
@@ -1637,7 +1637,7 @@ class ProductRepository extends EntityRepository
         }
 
         if (!is_null($maxAllowedPeople) && !empty($maxAllowedPeople)) {
-            $query = $query->andWhere('r.allowedPeople >= :maxAllowedPeople')
+            $query = $query->andWhere('r.allowedPeople <= :maxAllowedPeople')
                 ->setParameter('maxAllowedPeople', $maxAllowedPeople);
         }
 
@@ -1775,7 +1775,7 @@ class ProductRepository extends EntityRepository
         }
 
         if (!is_null($maxAllowedPeople) && !empty($maxAllowedPeople)) {
-            $query = $query->andWhere('r.allowedPeople >= :maxAllowedPeople')
+            $query = $query->andWhere('r.allowedPeople <= :maxAllowedPeople')
                 ->setParameter('maxAllowedPeople', $maxAllowedPeople);
         }
 
