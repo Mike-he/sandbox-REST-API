@@ -395,6 +395,7 @@ class AdminMessagePushController extends AdminRestController
             $this->getAdminId(),
             [
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_MESSAGE],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_MESSAGE_CONSULTATION],
             ],
             $opLevel
         );
