@@ -654,7 +654,7 @@ class RoomBuildingRepository extends EntityRepository
         }
 
         $ids = $query->getQuery()->getScalarResult();
-        $ids = array_map('current', $ids);
+        $ids = array_unique(array_map('current', $ids));
 
         return $ids;
     }
