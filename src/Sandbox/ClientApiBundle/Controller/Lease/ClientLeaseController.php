@@ -693,7 +693,7 @@ class ClientLeaseController extends SandboxRestController
         $longTermArray = array_merge($longTermArray, $pendingProductAppointmentNumbers);
         $longTermArray = array_merge($longTermArray, $validLeaseNumbers);
 
-        if ($status = ProductAppointment::STATUS_PENDING) {
+        if ($status == ProductAppointment::STATUS_PENDING) {
             // for pagination
             $numbers = array();
             for ($i = $offset; $i < $offset + $limit; ++$i) {
