@@ -276,9 +276,11 @@ class AdminMessagePushController extends AdminRestController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($messageMaterial);
-        $em->flush();
+        if (!is_null($messageMaterial->getContent())) {
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($messageMaterial);
+            $em->flush();
+        }
 
         // send message to all client
         if (!is_null($messageMaterial->getUrl()) || $messageMaterial->getAction() == MessageMaterial::ACTION_PUSH) {
