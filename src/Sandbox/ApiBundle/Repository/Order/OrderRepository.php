@@ -872,7 +872,7 @@ class OrderRepository extends EntityRepository
         $query = $this->createQueryBuilder('o')
             ->where('o.productId = :productId')
             ->andWhere('o.status <> \'cancelled\'')
-            ->andWhere('o.startDate >= :startDate')
+            ->andWhere('o.endDate >= :startDate')
 //            ->andWhere('o.endDate <= :endDate')
             ->orderBy('o.startDate', 'ASC')
             ->setParameter('productId', $id)
