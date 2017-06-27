@@ -760,6 +760,9 @@ class ClientCommunityController extends ProductController
                 $endTime->setTime(23, 59, 59);
             }
 
+            $startDate = "'".$startTime->format('Y-m-d H:i:s')."'";
+            $endDate = "'".$endTime->format('Y-m-d H:i:s')."'";
+
             $productIds = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Product\Product')
                 ->getWorkspaceProductsForClientCommunities(
@@ -767,8 +770,9 @@ class ClientCommunityController extends ProductController
                     $buildingIds,
                     $minAllowedPeople,
                     $maxAllowedPeople,
+                    $startDate,
+                    $endDate,
                     $startTime,
-                    $endTime,
                     $type,
                     $includeIds,
                     $excludeIds,
@@ -786,6 +790,9 @@ class ClientCommunityController extends ProductController
                 $endTime->setTime(23, 59, 59);
             }
 
+            $startDate = "'".$startTime->format('Y-m-d H:i:s')."'";
+            $endDate = "'".$endTime->format('Y-m-d H:i:s')."'";
+
             $productIds = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Product\Product')
                 ->getOfficeProductsForClientCommunities(
@@ -793,8 +800,9 @@ class ClientCommunityController extends ProductController
                     $buildingIds,
                     $minAllowedPeople,
                     $maxAllowedPeople,
+                    $startDate,
+                    $endDate,
                     $startTime,
-                    $endTime,
                     $includeIds,
                     $excludeIds,
                     $isFavorite,

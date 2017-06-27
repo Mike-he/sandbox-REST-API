@@ -1592,6 +1592,7 @@ class ProductRepository extends EntityRepository
         $maxAllowedPeople,
         $startDate,
         $endDate,
+        $startTime,
         $type,
         $includeIds,
         $excludeIds,
@@ -1656,31 +1657,12 @@ class ProductRepository extends EntityRepository
                 ->setParameter('maxAllowedPeople', $maxAllowedPeople);
         }
 
-        if (!is_null($startDate) && !is_null($endDate) && !empty($startDate) && !empty($endDate)) {
-            $query->andWhere('p.startDate <= :startDate')
-                ->andWhere('p.endDate >= :startDate')
-                ->andWhere(
-                    '(
-                        p.id NOT IN (
-                            SELECT po2.productId FROM SandboxApiBundle:Order\ProductOrder po2
-                            WHERE po2.status != :status
-                            AND (r.type = :desk)
-                            AND
-                            (
-                                (po2.startDate <= :startDate AND po2.endDate > :startDate) OR
-                                (po2.startDate < :endDate AND po2.endDate >= :endDate) OR
-                                (po2.startDate >= :startDate AND po2.endDate <= :endDate)
-                            )
-                            GROUP BY po2.productId
-                            HAVING COUNT(po2.productId) <= r.allowedPeople
-                        )
-                    )'
-                )
-                ->setParameter('status', ProductOrder::STATUS_CANCELLED)
-                ->setParameter('desk', Room::TYPE_DESK)
-                ->setParameter('startDate', $startDate)
-                ->setParameter('endDate', $endDate);
-        }
+        $query = $this->getProductsByTimeQuery(
+            $query,
+            $startDate,
+            $endDate,
+            $startTime
+        );
 
         if (!is_null($unit) || !is_null($minBasePrice) || !is_null($maxBasePrice)) {
             $query->leftJoin('SandboxApiBundle:Product\ProductLeasingSet', 'ls', 'WITH', 'ls.product = p.id');
@@ -1732,6 +1714,7 @@ class ProductRepository extends EntityRepository
         $maxAllowedPeople,
         $startDate,
         $endDate,
+        $startTime,
         $includeIds,
         $excludeIds,
         $isFavorite,
@@ -1794,25 +1777,12 @@ class ProductRepository extends EntityRepository
                 ->setParameter('maxAllowedPeople', $maxAllowedPeople);
         }
 
-        if (!is_null($startDate) && !is_null($endDate) && !empty($startDate) && !empty($endDate)) {
-            $query = $query->andWhere('p.startDate <= :startDate')
-                ->andWhere('p.endDate >= :startDate')
-                ->andWhere(
-                    'p.id NOT IN (
-                        SELECT po.productId FROM SandboxApiBundle:Order\ProductOrder po
-                        WHERE po.status != :status
-                        AND
-                        (
-                            (po.startDate <= :startDate AND po.endDate > :startDate) OR
-                            (po.startDate < :endDate AND po.endDate >= :endDate) OR
-                            (po.startDate >= :startDate AND po.endDate <= :endDate)
-                        )
-                    )'
-                )
-                ->setParameter('status', ProductOrder::STATUS_CANCELLED)
-                ->setParameter('startDate', $startDate)
-                ->setParameter('endDate', $endDate);
-        }
+        $query = $this->getProductsByTimeQuery(
+            $query,
+            $startDate,
+            $endDate,
+            $startTime
+        );
 
         if (!is_null($minBasePrice) || !is_null($maxBasePrice)) {
             $query->leftJoin('SandboxApiBundle:Product\ProductLeasingSet', 'ls', 'WITH', 'ls.product = p.id')
@@ -1913,5 +1883,72 @@ class ProductRepository extends EntityRepository
             ->setMaxResults(1);
 
         return $query->getQuery()->getOneOrNullResult();
+    }
+
+    /**
+     * @param $query
+     * @param $startDate
+     * @param $endDate
+     * @param $startTime
+     *
+     * @return QueryBuilder
+     */
+    public function getProductsByTimeQuery(
+        $query,
+        $startDate,
+        $endDate,
+        $startTime
+    ) {
+        if (!is_null($startDate) && !is_null($endDate) && !empty($startDate) && !empty($endDate)) {
+            $status = ProductOrder::STATUS_CANCELLED;
+
+            $em = $this->getEntityManager();
+            $connection = $em->getConnection();
+            $stat = $connection->prepare("
+                          SELECT
+                              pid
+                            FROM (SELECT
+                                (CASE
+                                  WHEN (po.startDate >= $startDate AND po.endDate <= $endDate)
+                                    THEN DATEDIFF(po.endDate, po.startDate)
+                                  END) AS sum_day1,
+                                (CASE
+                                  WHEN (po.startDate <= $startDate AND po.endDate >= $startDate)
+                                    THEN DATEDIFF(po.endDate, $startDate)
+                                  END) AS sum_day2,
+                                (CASE
+                                  WHEN (po.startDate <= $endDate AND po.endDate >= $endDate)
+                                    THEN DATEDIFF($endDate, po.startDate)
+                                  END) AS sum_day3,
+                                (CASE
+                                  WHEN (po.startDate >= $startDate AND po.endDate <= $endDate) OR
+                                       (po.startDate <= $startDate AND po.endDate >= $startDate) OR
+                                       (po.startDate <= $endDate AND po.endDate >= $endDate)
+                                    THEN
+                                      COUNT(id)
+                                  END) AS count,
+                                po.productId AS pid
+                              FROM product_order `po`
+                              WHERE `po`.status != '$status'
+                              GROUP BY po.id
+                            ) AS p
+                            GROUP BY pid
+                            HAVING (DATEDIFF($endDate, $startDate) + 1) > (IFNULL(SUM(sum_day1), 0) + IFNULL(SUM(sum_day2), 0) + IFNULL(SUM(sum_day3), 0) + SUM(count))
+              ");
+            $stat->execute();
+            $pids = array_map('current', $stat->fetchAll());
+
+            $query->andWhere('p.startDate <= :startDate')
+                ->andWhere('p.endDate >= :startDate')
+                ->andWhere(
+                    '(
+                        p.id IN (:pids)
+                    )'
+                )
+                ->setParameter('startDate', $startTime)
+                ->setParameter('pids', $pids);
+        }
+
+        return $query;
     }
 }
