@@ -873,11 +873,11 @@ class OrderRepository extends EntityRepository
             ->where('o.productId = :productId')
             ->andWhere('o.status <> \'cancelled\'')
             ->andWhere('o.startDate >= :startDate')
-            ->andWhere('o.endDate <= :endDate')
+//            ->andWhere('o.endDate <= :endDate')
             ->orderBy('o.startDate', 'ASC')
             ->setParameter('productId', $id)
             ->setParameter('startDate', $startDate)
-            ->setParameter('endDate', $endDate)
+//            ->setParameter('endDate', $endDate)
             ->getQuery();
 
         return $query->getResult();
