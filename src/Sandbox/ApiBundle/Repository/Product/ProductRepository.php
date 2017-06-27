@@ -1934,6 +1934,15 @@ class ProductRepository extends EntityRepository
                             ) AS p
                             GROUP BY pid
                             HAVING (DATEDIFF($endDate, $startDate) + 1) > (IFNULL(SUM(sum_day1), 0) + IFNULL(SUM(sum_day2), 0) + IFNULL(SUM(sum_day3), 0) + SUM(count))
+                            
+                            UNION 
+
+                            SELECT p.id
+                            FROM product AS p
+                              LEFT JOIN product_order AS po ON po.productId = p.id
+                              LEFT JOIN room AS r ON r.id = p.roomId
+                            WHERE po.id IS NULL
+                            AND r.type = 'desk';
               ");
             $stat->execute();
             $pids = array_map('current', $stat->fetchAll());
