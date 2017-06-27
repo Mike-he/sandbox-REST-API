@@ -753,15 +753,17 @@ class ClientCommunityController extends ProductController
                     $roomTypeTags
                 );
         } elseif (RoomTypes::TYPE_NAME_DESK == $type) {
+            $startDate = null;
+            $endDate = null;
             if (!is_null($start) && !is_null($end) && !empty($start) && !empty($end)) {
                 $startTime = new \DateTime($start);
                 $startTime->setTime(0, 0, 0);
                 $endTime = new \DateTime($end);
                 $endTime->setTime(23, 59, 59);
-            }
 
-            $startDate = "'".$startTime->format('Y-m-d H:i:s')."'";
-            $endDate = "'".$endTime->format('Y-m-d H:i:s')."'";
+                $startDate = "'".$startTime->format('Y-m-d H:i:s')."'";
+                $endDate = "'".$endTime->format('Y-m-d H:i:s')."'";
+            }
 
             $productIds = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Product\Product')
@@ -783,15 +785,17 @@ class ClientCommunityController extends ProductController
                     $roomTypeTags
                 );
         } elseif (RoomTypes::TYPE_NAME_OFFICE == $type) {
+            $startDate = null;
+            $endDate = null;
             if (!is_null($start) && !is_null($end) && !empty($start) && !empty($end)) {
                 $startTime = new \DateTime($start);
                 $startTime->setTime(0, 0, 0);
                 $endTime = new \DateTime($end);
                 $endTime->setTime(23, 59, 59);
-            }
 
-            $startDate = "'".$startTime->format('Y-m-d H:i:s')."'";
-            $endDate = "'".$endTime->format('Y-m-d H:i:s')."'";
+                $startDate = "'".$startTime->format('Y-m-d H:i:s')."'";
+                $endDate = "'".$endTime->format('Y-m-d H:i:s')."'";
+            }
 
             $productIds = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Product\Product')
