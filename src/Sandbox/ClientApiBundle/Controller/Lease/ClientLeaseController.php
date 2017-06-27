@@ -55,6 +55,13 @@ class ClientLeaseController extends SandboxRestController
      *     nullable=true
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="status",
+     *    default=null,
+     *    nullable=true,
+     *    description="status"
+     * )
+     *
      * @Route("/leases")
      * @Method({"GET"})
      *
@@ -68,8 +75,9 @@ class ClientLeaseController extends SandboxRestController
 
         $offset = $paramFetcher->get('offset');
         $limit = $paramFetcher->get('limit');
+        $status = $paramFetcher->get('status');
 
-        $longTermNumbersArray = $this->generateLongTermNumbersArray($userId, $offset, $limit);
+        $longTermNumbersArray = $this->generateLongTermNumbersArray($userId, $status, $offset, $limit);
 
         $response = array();
         foreach ($longTermNumbersArray as $number) {
@@ -635,6 +643,7 @@ class ClientLeaseController extends SandboxRestController
      */
     private function generateLongTermNumbersArray(
         $userId,
+        $status,
         $offset,
         $limit
     ) {
@@ -683,6 +692,19 @@ class ClientLeaseController extends SandboxRestController
         $longTermArray = array();
         $longTermArray = array_merge($longTermArray, $pendingProductAppointmentNumbers);
         $longTermArray = array_merge($longTermArray, $validLeaseNumbers);
+
+        if ($status = ProductAppointment::STATUS_PENDING) {
+            // for pagination
+            $numbers = array();
+            for ($i = $offset; $i < $offset + $limit; ++$i) {
+                if (isset($longTermArray[$i])) {
+                    array_push($numbers, $longTermArray[$i]);
+                }
+            }
+
+            return $numbers;
+        }
+
         $longTermArray = array_merge($longTermArray, $invalidLeaseNumbers);
         $longTermArray = array_merge($longTermArray, $invalidProductAppointmentNumbers);
 
