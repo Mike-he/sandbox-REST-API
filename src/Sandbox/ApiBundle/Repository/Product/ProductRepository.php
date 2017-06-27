@@ -1535,9 +1535,9 @@ class ProductRepository extends EntityRepository
                         WHERE po.status != :status
                         AND
                         (
-                            (po.startDate > :startTime AND po.startDate < :endTime) OR
-                            (po.endDate > :startTime AND po.endDate < :endTime) OR
-                            (po.startDate < :startTime AND po.endDate > :endTime)
+                            (po.startDate >= :startTime AND po.startDate <= :endTime) OR
+                            (po.endDate >= :startTime AND po.endDate <= :endTime) OR
+                            (po.startDate <= :startTime AND po.endDate >= :endTime)
                         )
                     )'
                     )
@@ -1547,13 +1547,8 @@ class ProductRepository extends EntityRepository
             }
         }
 
-        if (!is_null($unit) || !is_null($minBasePrice) || !is_null($maxBasePrice)) {
+        if (!is_null($minBasePrice) || !is_null($maxBasePrice)) {
             $query->leftJoin('SandboxApiBundle:Product\ProductLeasingSet', 'ls', 'WITH', 'ls.product = p.id');
-
-            if (!is_null($unit)) {
-                $query->andWhere('ls.unitPrice = :unit')
-                    ->setParameter('unit', $unit);
-            }
 
             if ($minBasePrice) {
                 $query->andWhere('ls.basePrice >= :minBasePrice')
@@ -1677,7 +1672,7 @@ class ProductRepository extends EntityRepository
                                 (po2.startDate >= :startDate AND po2.endDate <= :endDate)
                             )
                             GROUP BY po2.productId
-                            HAVING COUNT(po2.productId) < r.allowedPeople
+                            HAVING COUNT(po2.productId) <= r.allowedPeople
                         )
                     )'
                 )
