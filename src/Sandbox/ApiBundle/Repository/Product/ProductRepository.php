@@ -1936,7 +1936,7 @@ class ProductRepository extends EntityRepository
                               GROUP BY po.id
                             ) AS p
                             GROUP BY pid
-                            HAVING (DATEDIFF($endDate, $startDate) + 1) > (IFNULL(SUM(sum_day1), 0) + IFNULL(SUM(sum_day2), 0) + IFNULL(SUM(sum_day3), 0) + SUM(count))
+                            HAVING (DATEDIFF($endDate, $startDate) + 1) > (IFNULL(SUM(sum_day1), 0) + IFNULL(SUM(sum_day2), 0) + IFNULL(SUM(sum_day3), 0) + IFNULL(SUM(`count`), 0))
                             
                             UNION 
 
