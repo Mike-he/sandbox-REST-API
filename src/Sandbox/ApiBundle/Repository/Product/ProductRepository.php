@@ -1661,7 +1661,8 @@ class ProductRepository extends EntityRepository
             $query,
             $startDate,
             $endDate,
-            $startTime
+            $startTime,
+            $type
         );
 
         if (!is_null($unit) || !is_null($minBasePrice) || !is_null($maxBasePrice)) {
@@ -1781,7 +1782,8 @@ class ProductRepository extends EntityRepository
             $query,
             $startDate,
             $endDate,
-            $startTime
+            $startTime,
+            Room::TYPE_OFFICE
         );
 
         if (!is_null($minBasePrice) || !is_null($maxBasePrice)) {
@@ -1897,7 +1899,8 @@ class ProductRepository extends EntityRepository
         $query,
         $startDate,
         $endDate,
-        $startTime
+        $startTime,
+        $roomType
     ) {
         if (!is_null($startDate) && !is_null($endDate) && !empty($startDate) && !empty($endDate)) {
             $status = ProductOrder::STATUS_CANCELLED;
@@ -1942,7 +1945,7 @@ class ProductRepository extends EntityRepository
                               LEFT JOIN product_order AS po ON po.productId = p.id
                               LEFT JOIN room AS r ON r.id = p.roomId
                             WHERE po.id IS NULL
-                            AND r.type = 'desk';
+                            AND r.type = '$roomType';
               ");
             $stat->execute();
             $pids = array_map('current', $stat->fetchAll());
