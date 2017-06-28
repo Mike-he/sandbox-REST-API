@@ -4,6 +4,7 @@ namespace Sandbox\ClientApiBundle\Controller\Community;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
+use Sandbox\ApiBundle\Constants\LocationConstants;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Controller\Product\ProductController;
 use Sandbox\ApiBundle\Entity\Room\RoomTypes;
@@ -253,6 +254,10 @@ class ClientCommunityController extends ProductController
         $minBasePrice = $paramFetcher->get('min_base_price');
         $maxBasePrice = $paramFetcher->get('max_base_price');
 
+        $location = $this->baiduToGaode($lat, $lng);
+        $lat = $location['lat'];
+        $lng = $location['lng'];
+
         $buildingIds = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\RoomBuilding')
             ->findClientCommunities(
@@ -284,6 +289,8 @@ class ClientCommunityController extends ProductController
             $roomTypeTags,
             $unit
         );
+
+        $communities = $this->transformLocation($communities);
 
         return new View($communities);
     }
@@ -524,6 +531,10 @@ class ClientCommunityController extends ProductController
         $maxAllowedPeople = $paramFetcher->get('max_allowed_people');
         $minBasePrice = $paramFetcher->get('min_base_price');
         $maxBasePrice = $paramFetcher->get('max_base_price');
+
+        $location = $this->baiduToGaode($lat, $lng);
+        $lat = $location['lat'];
+        $lng = $location['lng'];
 
         $buildingIds = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\RoomBuilding')
@@ -817,5 +828,84 @@ class ClientCommunityController extends ProductController
         }
 
         return $productIds;
+    }
+
+    /**
+     * @param array $buildings
+     *
+     * @return array
+     */
+    private function transformLocation(
+        $buildings
+    ) {
+        $transformBuildings = [];
+        foreach ($buildings as $building) {
+            if (is_array($building)) {
+                $lat = $building['lat'];
+                $lng = $building['lng'];
+            } else {
+                $lat = $building->getLat();
+                $lng = $building->getLng();
+            }
+
+            $locationArray = $this->gaodeToBaidu($lat, $lng);
+
+            if (array_key_exists('lat', $locationArray) && array_key_exists('lon', $locationArray)) {
+                if (is_array($building)) {
+                    $building['lat'] = $locationArray['lat'];
+                    $building['lng'] = $locationArray['lon'];
+                } else {
+                    $building->setLat($locationArray['lat']);
+                    $building->setLng($locationArray['lon']);
+                }
+            }
+
+            array_push($transformBuildings, $building);
+        }
+
+        return $transformBuildings;
+    }
+
+    /**
+     * 火星坐标系 (GCJ-02) 与百度坐标系 (BD-09) 的转换算法 将 GCJ-02 坐标转换成 BD-09 坐标.
+     *
+     * @param gg_lat
+     * @param gg_lon
+     *
+     * @return array
+     */
+    private function gaodeToBaidu($gg_lat, $gg_lon)
+    {
+        $x = $gg_lon;
+        $y = $gg_lat;
+
+        $z = sqrt($x * $x + $y * $y) + 0.00002 * sin($y * LocationConstants::$pi);
+        $theta = atan2($y, $x) + 0.000003 * cos($x * LocationConstants::$pi);
+        $bd_lon = $z * cos($theta) + 0.0065;
+        $bd_lat = $z * sin($theta) + 0.006;
+
+        return  array('lat' => $bd_lat, 'lon' => $bd_lon);
+    }
+
+    /**
+     * @param $lat
+     * @param $lng
+     *
+     * @return array
+     */
+    private function baiduToGaode(
+        $lat,
+        $lng
+    ) {
+        $x = $lng - 0.0065;
+        $y = $lat - 0.006;
+
+        $z = sqrt($x * $x + $y * $y) - 0.00002 * sin($y * LocationConstants::$pi);
+        $theta = atan2($y, $x) - 0.000003 * cos($x * LocationConstants::$pi);
+
+        $gg_lon = $z * cos($theta);
+        $gg_lat = $z * sin($theta);
+
+        return  array('lat' => $gg_lat, 'lon' => $gg_lon);
     }
 }
