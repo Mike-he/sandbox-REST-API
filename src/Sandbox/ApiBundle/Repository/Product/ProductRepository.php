@@ -1657,14 +1657,6 @@ class ProductRepository extends EntityRepository
                 ->setParameter('maxAllowedPeople', $maxAllowedPeople);
         }
 
-        $query = $this->getProductsByTimeQuery(
-            $query,
-            $startDate,
-            $endDate,
-            $startTime,
-            $type
-        );
-
         if (!is_null($unit) || !is_null($minBasePrice) || !is_null($maxBasePrice)) {
             $query->leftJoin('SandboxApiBundle:Product\ProductLeasingSet', 'ls', 'WITH', 'ls.product = p.id');
 
