@@ -211,6 +211,14 @@ class ClientOrderController extends OrderController
                 );
 
                 break;
+            case ProductOrder::COMBINE_STATUS_INCOMPLETE:
+                $orders = $orderRepo->getUserIncompleteOrders(
+                    $userId,
+                    $limit,
+                    $offset
+                );
+
+                break;
             case ProductOrder::COMBINE_STATUS_ALL:
                 $orders = $orderRepo->getUserAllOrders(
                     $userId,
