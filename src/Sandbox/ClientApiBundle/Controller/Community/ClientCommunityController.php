@@ -256,7 +256,7 @@ class ClientCommunityController extends ProductController
 
         $location = $this->baiduToGaode($lat, $lng);
         $lat = $location['lat'];
-        $lng = $location['lng'];
+        $lng = $location['lon'];
 
         $buildingIds = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\RoomBuilding')
@@ -534,7 +534,7 @@ class ClientCommunityController extends ProductController
 
         $location = $this->baiduToGaode($lat, $lng);
         $lat = $location['lat'];
-        $lng = $location['lng'];
+        $lng = $location['lon'];
 
         $buildingIds = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\RoomBuilding')
