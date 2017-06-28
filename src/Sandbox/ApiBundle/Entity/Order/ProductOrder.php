@@ -18,6 +18,7 @@ class ProductOrder
     const COMBINE_STATUS_ALL = 'all';
     const COMBINE_STATUS_PENDING = 'pending';
     const COMBINE_STATUS_REFUND = 'refund';
+    const COMBINE_STATUS_INCOMPLETE = 'incomplete';
 
     const STATUS_CANCELLED = 'cancelled';
     const STATUS_PAID = 'paid';
