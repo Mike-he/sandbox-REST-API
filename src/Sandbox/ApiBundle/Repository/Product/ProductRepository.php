@@ -1503,6 +1503,7 @@ class ProductRepository extends EntityRepository
                     ->setParameter('startTime', $startTime)
                     ->setParameter('startHour', $startHour);
             } else {
+                $endTime->setTime(23, 59, 59);
                 $query->andWhere('p.startDate <= :startTime')
                     ->andWhere('p.endDate >= :startTime')
                     ->andWhere(
