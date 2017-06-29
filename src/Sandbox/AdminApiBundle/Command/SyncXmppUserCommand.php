@@ -29,7 +29,7 @@ class SyncXmppUserCommand extends ContainerAwareCommand
             foreach ($users as $user) {
                 $xmppUserName = $user->getXmppUsername();
                 $password = $user->getPassword();
-                $userProfile = $em->getRepository('SandboxApiBundle:User\UserProfile')->findOneBy(array('userId' => $userId));
+                $userProfile = $em->getRepository('SandboxApiBundle:User\UserProfile')->findOneBy(array('userId' => $user->getId()));
 
                 $name = $userProfile ? $userProfile->getName() : '';
 
