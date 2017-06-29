@@ -736,11 +736,15 @@ class ClientCommunityController extends ProductController
             if (!is_null($start) && !empty($start)) {
                 $startTime = new \DateTime($start);
                 $startHour = $startTime->format('H:i:s');
+
+                $startDateString = "'".$startTime->format('Y-m-d H:i:s')."'";
             }
 
             if (!is_null($end) && !empty($end)) {
                 $endTime = new \DateTime($end);
                 $endHour = $endTime->format('H:i:s');
+
+                $endDateString = "'".$endTime->format('Y-m-d H:i:s')."'";
             }
 
             $productIds = $this->getDoctrine()
@@ -761,7 +765,9 @@ class ClientCommunityController extends ProductController
                     $isFavorite,
                     $minBasePrice,
                     $maxBasePrice,
-                    $roomTypeTags
+                    $roomTypeTags,
+                    $startDateString,
+                    $endDateString
                 );
         } elseif (RoomTypes::TYPE_NAME_DESK == $type) {
             $startDate = null;
