@@ -10,6 +10,7 @@ use Sandbox\ApiBundle\Entity\Room\RoomCity;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\AdminApiBundle\Data\Product\ProductRecommendPosition;
+use Sandbox\ApiBundle\Entity\Room\RoomTypes;
 use Sandbox\ApiBundle\Entity\User\UserFavorite;
 
 class ProductRepository extends EntityRepository
@@ -1472,7 +1473,8 @@ class ProductRepository extends EntityRepository
                 $query = $this->getMeetingProductsQuery(
                     $query,
                     $startDateString,
-                    $endDateString
+                    $endDateString,
+                    RoomTypes::TYPE_NAME_MEETING
                 );
             } else {
                 $endTime->setTime(23, 59, 59);
@@ -1933,13 +1935,14 @@ class ProductRepository extends EntityRepository
      * @param $query
      * @param $startDate
      * @param $endDate
-     * 
+     *
      * @return mixed
      */
     private function getMeetingProductsQuery(
         $query,
         $startDate,
-        $endDate
+        $endDate,
+        $roomType
     ) {
         $em = $this->getEntityManager();
         $connection = $em->getConnection();
@@ -1959,6 +1962,15 @@ class ProductRepository extends EntityRepository
                 ) `po_view`
                 GROUP BY `pid`
                 HAVING UNIX_TIMESTAMP($endDate) - UNIX_TIMESTAMP($startDate) > IFNULL(SUM(`sum_day1`), 0) + IFNULL(SUM(`sum_day2`), 0) + IFNULL(SUM(`sum_day3`), 0);
+                
+                UNION 
+
+                SELECT p.id
+                FROM product AS p
+                  LEFT JOIN product_order AS po ON po.productId = p.id
+                  LEFT JOIN room AS r ON r.id = p.roomId
+                WHERE po.id IS NULL
+                AND r.type = '$roomType'
               ");
         $stat->execute();
         $pids = array_map('current', $stat->fetchAll());

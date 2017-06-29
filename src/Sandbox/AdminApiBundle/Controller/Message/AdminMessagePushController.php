@@ -147,6 +147,13 @@ class AdminMessagePushController extends AdminRestController
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
+     *     name="query",
+     *     array=false,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="pageLimit",
      *    array=false,
      *    default="20",
@@ -181,10 +188,11 @@ class AdminMessagePushController extends AdminRestController
         // filters
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
+        $search = $paramFetcher->get('query');
 
         $messages = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Message\MessageMaterial')
-            ->getMessageMaterialList();
+            ->getMessageMaterialList($search);
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
@@ -276,14 +284,18 @@ class AdminMessagePushController extends AdminRestController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
-        if (!is_null($messageMaterial->getContent())) {
+        if ($messageMaterial->getType() == MessageMaterial::TYPE_MATERIAL) {
+            if (!is_null($messageMaterial->getContent())) {
+                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            }
+
             $em = $this->getDoctrine()->getManager();
             $em->persist($messageMaterial);
             $em->flush();
         }
 
         // send message to all client
-        if (!is_null($messageMaterial->getUrl()) || $messageMaterial->getAction() == MessageMaterial::ACTION_PUSH) {
+        if ($messageMaterial->getType() == MessageMaterial::TYPE_MESSAGE || !is_null($messageMaterial->getUrl()) || $messageMaterial->getAction() == MessageMaterial::ACTION_PUSH) {
             $this->sendMessages($messageMaterial);
         }
 
