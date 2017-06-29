@@ -7,6 +7,7 @@ use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Constants\LocationConstants;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Controller\Product\ProductController;
+use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\Room\RoomTypes;
 use Sandbox\ApiBundle\Entity\User\UserFavorite;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -272,6 +273,12 @@ class ClientCommunityController extends ProductController
                 $cityId,
                 $districtId
             );
+
+        $buildingIds = $this->filterCommunities(
+            $type,
+            $buildingIds,
+            $start
+        );
 
         $communities = $this->handleCommunitiesData(
             $buildingIds,
@@ -551,6 +558,12 @@ class ClientCommunityController extends ProductController
                 $districtId
             );
 
+        $buildingIds = $this->filterCommunities(
+            $type,
+            $buildingIds,
+            $start
+        );
+
         $productIds = $this->getProductIds(
             $userId,
             $buildingIds,
@@ -662,6 +675,10 @@ class ClientCommunityController extends ProductController
                 $roomTypeTags,
                 $unit
             );
+
+            if (count($productIds) == 0) {
+                continue;
+            }
 
             $minPrice = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Product\Product')
@@ -919,5 +936,45 @@ class ClientCommunityController extends ProductController
         $gg_lat = $z * sin($theta);
 
         return  array('lat' => $gg_lat, 'lon' => $gg_lon);
+    }
+
+    /**
+     * @param $type
+     * @param $communityIds
+     * @param $start
+     * @return array
+     */
+    public function filterCommunities(
+        $type,
+        $communityIds,
+        $start
+    ) {
+        $response = [];
+
+        foreach ($communityIds as $communityId) {
+            $community = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                ->find($communityId);
+
+            /** @var RoomBuilding $community */
+            if (RoomTypes::TYPE_NAME_MEETING == $type ||
+                RoomTypes::TYPE_NAME_OTHERS == $type) {
+                $removeDates = json_decode($community->getRemoveDatesInfo(), true);
+
+                $time = new \DateTime($start);
+                $year = $time->format('Y-m');
+                $day = $time->format('d');
+
+                if (array_key_exists($year, $removeDates)) {
+                    if (in_array($day, $removeDates[$year])) {
+                        continue;
+                    }
+                }
+            }
+
+            array_push($response, $community);
+        }
+
+        return $response;
     }
 }
