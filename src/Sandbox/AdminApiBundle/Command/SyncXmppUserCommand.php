@@ -23,19 +23,31 @@ class SyncXmppUserCommand extends ContainerAwareCommand
 
         $service = $this->getContainer()->get('openfire.service');
         $em = $this->getContainer()->get('doctrine')->getManager();
-        $user = $em->getRepository('SandboxApiBundle:User\User')->find($userId);
 
-        $xmppUserName = $user->getXmppUsername();
-        $password = $user->getPassword();
+        if ($userId == 'all') {
+            $users = $em->getRepository('SandboxApiBundle:User\User')->findAll();
+            foreach ($users as $user) {
+                $xmppUserName = $user->getXmppUsername();
+                $password = $user->getPassword();
+                $userProfile = $em->getRepository('SandboxApiBundle:User\UserProfile')->findOneBy(array('userId' => $userId));
 
-        $userProfile = $em->getRepository('SandboxApiBundle:User\UserProfile')->findOneBy(array('userId' => $userId));
+                $name = $userProfile ? $userProfile->getName() : '';
 
-        $name = $userProfile ? $userProfile->getName() : '';
+                $service->syncUser($xmppUserName, $password, $name);
+            }
+        } else {
+            $user = $em->getRepository('SandboxApiBundle:User\User')->find($userId);
 
+            $xmppUserName = $user->getXmppUsername();
+            $password = $user->getPassword();
 
-        var_dump($xmppUserName, $password, $name);
-        // Sync User
-        $service->syncUser($xmppUserName, $password, $name);
+            $userProfile = $em->getRepository('SandboxApiBundle:User\UserProfile')->findOneBy(array('userId' => $userId));
+
+            $name = $userProfile ? $userProfile->getName() : '';
+
+            // Sync User
+            $service->syncUser($xmppUserName, $password, $name);
+        }
 
         $output->writeln('Sync Success!');
     }
