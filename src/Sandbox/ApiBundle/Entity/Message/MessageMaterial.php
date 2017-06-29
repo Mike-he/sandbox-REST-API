@@ -16,6 +16,9 @@ class MessageMaterial
     const ACTION_SAVE = 'save';
     const ACTION_PUSH = 'push';
 
+    const TYPE_MESSAGE = 'message';
+    const TYPE_MATERIAL = 'material';
+
     /**
      * @var int
      *
@@ -35,7 +38,7 @@ class MessageMaterial
     /**
      * @var string
      *
-     * @ORM\Column(name="cover", type="string", length=255)
+     * @ORM\Column(name="cover", type="string", length=255, nullable=true)
      */
     private $cover;
 
@@ -62,6 +65,11 @@ class MessageMaterial
      * @var string
      */
     private $action;
+
+    /**
+     * @var string
+     */
+    private $type;
 
     /**
      * @var \DateTime
@@ -231,5 +239,21 @@ class MessageMaterial
     public function setUrl($url)
     {
         $this->url = $url;
+    }
+
+    /**
+     * @return string
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * @param string $type
+     */
+    public function setType($type)
+    {
+        $this->type = $type;
     }
 }

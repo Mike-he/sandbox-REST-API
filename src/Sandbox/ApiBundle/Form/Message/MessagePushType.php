@@ -16,6 +16,7 @@ class MessagePushType extends AbstractType
     {
         $builder->add('title')
             ->add('cover')
+            ->add('type', null, array('required' => false))
             ->add('action', null, array('required' => false))
             ->add('url', null, array('required' => false))
             ->add('content', null, array('required' => false));
