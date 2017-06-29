@@ -1468,16 +1468,15 @@ class ProductRepository extends EntityRepository
                 ->setParameter('maxAllowedPeople', $maxAllowedPeople);
         }
 
-        if (!is_null($startTime) && !is_null($endTime) && !empty($startTime) && !empty($endTime)) {
+        if (!is_null($startTime) && !is_null($endTime) && !is_null($startDateString) && !is_null($endDateString)) {
             if (is_null($unit)) {
                 $query = $this->getMeetingProductsQuery(
                     $query,
                     $startDateString,
                     $endDateString,
-                    RoomTypes::TYPE_NAME_MEETING
+                    $type
                 );
             } else {
-                $endTime->setTime(23, 59, 59);
                 $query->andWhere('p.startDate <= :startTime')
                     ->andWhere('p.endDate >= :startTime')
                     ->andWhere(
