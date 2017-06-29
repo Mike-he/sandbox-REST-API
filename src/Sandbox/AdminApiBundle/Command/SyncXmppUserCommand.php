@@ -21,22 +21,34 @@ class SyncXmppUserCommand extends ContainerAwareCommand
         $arguments = $input->getArguments();
         $userId = $arguments['userId'];
 
+        $service = $this->getContainer()->get('openfire.service');
         $em = $this->getContainer()->get('doctrine')->getManager();
-        $user = $em->getRepository('SandboxApiBundle:User\User')->find($userId);
 
-        $xmppUserName = $user->getXmppUsername();
-        $password = $user->getPassword();
+        if ($userId == 'all') {
+            $users = $em->getRepository('SandboxApiBundle:User\User')->findAll();
+            foreach ($users as $user) {
+                $xmppUserName = $user->getXmppUsername();
+                $password = $user->getPassword();
+                $userProfile = $em->getRepository('SandboxApiBundle:User\UserProfile')->findOneBy(array('userId' => $userId));
 
-        $this->createXmppUser($xmppUserName, $password);
+                $name = $userProfile ? $userProfile->getName() : '';
+
+                $service->syncUser($xmppUserName, $password, $name);
+            }
+        } else {
+            $user = $em->getRepository('SandboxApiBundle:User\User')->find($userId);
+
+            $xmppUserName = $user->getXmppUsername();
+            $password = $user->getPassword();
+
+            $userProfile = $em->getRepository('SandboxApiBundle:User\UserProfile')->findOneBy(array('userId' => $userId));
+
+            $name = $userProfile ? $userProfile->getName() : '';
+
+            // Sync User
+            $service->syncUser($xmppUserName, $password, $name);
+        }
 
         $output->writeln('Sync Success!');
-    }
-
-    private function createXmppUser(
-        $xmppUserName,
-        $password
-    ) {
-        $service = $this->getContainer()->get('openfire.service');
-        $service->createUser($xmppUserName, $password);
     }
 }
