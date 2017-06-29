@@ -21,22 +21,22 @@ class SyncXmppUserCommand extends ContainerAwareCommand
         $arguments = $input->getArguments();
         $userId = $arguments['userId'];
 
+        $service = $this->getContainer()->get('openfire.service');
         $em = $this->getContainer()->get('doctrine')->getManager();
         $user = $em->getRepository('SandboxApiBundle:User\User')->find($userId);
 
         $xmppUserName = $user->getXmppUsername();
         $password = $user->getPassword();
 
-        $this->createXmppUser($xmppUserName, $password);
+        $userProfile = $em->getRepository('SandboxApiBundle:User\UserProfile')->findOneBy(array('userId' => $userId));
+
+        $name = $userProfile ? $userProfile->getName() : '';
+
+
+        var_dump($xmppUserName, $password, $name);
+        // Sync User
+        $service->syncUser($xmppUserName, $password, $name);
 
         $output->writeln('Sync Success!');
-    }
-
-    private function createXmppUser(
-        $xmppUserName,
-        $password
-    ) {
-        $service = $this->getContainer()->get('openfire.service');
-        $service->createUser($xmppUserName, $password);
     }
 }

@@ -53,11 +53,40 @@ class OpenfireService
     }
 
     /**
-     * @param string $username
-     * @param string $password
-     * @param string $name
+     * Sync User
      *
-     * @throws Exception
+     * @param $username
+     * @param $password
+     * @param $name
+     *
+     * @throws \Exception
+     */
+    public function syncUser(
+        $username,
+        $password,
+        $name
+    ) {
+        try {
+            $this->client->request(
+                'post',
+                '/users',
+                array(
+                    'username' => $username,
+                    'password' => $password,
+                    'name' => $name,
+                )
+            );
+        } catch (RequestException $e) {
+            throw new \Exception(self::REQUEST_ERROR_MESSAGE);
+        }
+    }
+
+    /**
+     * @param $username
+     * @param null $password
+     * @param null $name
+     *
+     * @throws \Exception
      */
     public function editUser(
         $username,
