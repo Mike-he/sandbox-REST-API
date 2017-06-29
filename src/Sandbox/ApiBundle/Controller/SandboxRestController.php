@@ -1317,7 +1317,7 @@ class SandboxRestController extends FOSRestController
         $registrationId
     ) {
         // generate username
-        $username = strval(1000000 + $registrationId);
+        $username = strval(2000000 + $registrationId);
         $password = $user->getPassword();
 
         $service = $this->get('openfire.service');
