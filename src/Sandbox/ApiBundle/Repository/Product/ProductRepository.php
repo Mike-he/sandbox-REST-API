@@ -1470,12 +1470,19 @@ class ProductRepository extends EntityRepository
 
         if (!is_null($startTime) && !is_null($endTime) && !is_null($startDateString) && !is_null($endDateString)) {
             if (is_null($unit)) {
-                $query = $this->getMeetingProductsQuery(
-                    $query,
-                    $startDateString,
-                    $endDateString,
-                    $type
-                );
+                if ($type == RoomTypes::TYPE_NAME_MEETING) {
+                    $query = $this->getMeetingProductsQuery(
+                        $query,
+                        $startDateString,
+                        $endDateString
+                    );
+                } elseif ($type == RoomTypes::TYPE_NAME_OTHERS) {
+                    $query = $this->getOthersProductsQuery(
+                        $query,
+                        $startDate,
+                        $endDate
+                    );
+                }
             } else {
                 $query->andWhere('p.startDate <= :startTime')
                     ->andWhere('p.endDate >= :startTime')
@@ -1940,8 +1947,92 @@ class ProductRepository extends EntityRepository
     private function getMeetingProductsQuery(
         $query,
         $startDate,
-        $endDate,
-        $roomType
+        $endDate
+    ) {
+        $em = $this->getEntityManager();
+        $connection = $em->getConnection();
+        $stat = $connection->prepare("
+            SELECT `pid`
+            FROM (
+                  SELECT
+                    meeting_hour.order_start_hour as starthour,
+                    meeting_hour.order_end_hour AS endHour,
+                    CASE WHEN `po`.`startDate` >= meeting_hour.order_start_hour AND `po`.`endDate` <= meeting_hour.order_end_hour
+                      THEN UNIX_TIMESTAMP(`po`.`endDate`) -  UNIX_TIMESTAMP(`po`.`startDate`) END AS `sum_day1`,
+                    CASE WHEN `po`.`startDate` <= meeting_hour.order_start_hour AND `po`.`endDate` >= meeting_hour.order_start_hour
+                      THEN UNIX_TIMESTAMP(`po`.`endDate`) - UNIX_TIMESTAMP($startDate) END AS `sum_day2`,
+                    CASE WHEN `po`.`startDate` <= meeting_hour.order_end_hour AND `po`.`endDate` >= meeting_hour.order_end_hour
+                      THEN UNIX_TIMESTAMP(meeting_hour.order_end_hour) - UNIX_TIMESTAMP(`po`.`startDate`) END AS `sum_day3`,
+                    `po`.productId AS `pid`
+                    FROM product_order AS `po`
+                      LEFT JOIN (
+                        SELECT
+                        po.productId,
+                        CASE
+                          WHEN TIME($startDate) < m.endHour AND TIME($endDate) > m.endHour AND m.startHour < TIME($startDate)
+                            THEN $startDate
+                          WHEN TIME($startDate) < m.endHour AND TIME($endDate) > m.endHour AND m.startHour >= TIME($startDate)
+                            THEN CONCAT(DATE($startDate),' ',m.startHour)
+                          WHEN TIME($endDate) < m.endHour AND TIME($endDate) > m.startHour AND m.startHour >= TIME($startDate)
+                            THEN CONCAT(DATE($startDate),' ',m.startHour)
+                          WHEN TIME($startDate) > m.startHour AND TIME($endDate) < m.endHour
+                            THEN $startDate
+                        END AS order_start_hour,
+                        CASE
+                          WHEN TIME($startDate) < m.endHour AND TIME($endDate) > m.endHour
+                            THEN CONCAT(DATE($startDate),' ',m.endHour)
+                          WHEN TIME($startDate) < m.endHour AND TIME($endDate) > m.endHour AND m.startHour >= TIME($startDate)
+                            THEN CONCAT(DATE($startDate),' ',m.startHour)
+                          WHEN TIME($endDate) < m.endHour AND TIME($endDate) > m.startHour AND m.startHour >= TIME($startDate)
+                            THEN $endDate
+                          WHEN TIME($startDate) > m.startHour AND TIME($endDate) < m.endHour
+                            THEN $endDate
+                        END AS order_end_hour
+                      FROM product_order AS po
+                        LEFT JOIN product AS p ON p.id = po.productId
+                        LEFT JOIN room AS r ON r.id = p.roomId
+                        LEFT JOIN room_meeting AS m ON m.roomId = r.id
+                      WHERE po.status != 'cancelled'
+                      AND r.type = 'meeting'
+                      GROUP BY po.productId
+                      HAVING order_start_hour IS NOT NULL AND order_end_hour IS NOT NULL
+                        ) AS meeting_hour ON meeting_hour.productId = po.productId
+                      WHERE meeting_hour.order_start_hour IS NOT NULL AND meeting_hour.order_end_hour IS NOT NULL
+                      AND po.status != 'cancelled'
+                    GROUP BY `po`.id
+            ) `po_view`
+            GROUP BY `pid` DESC
+            HAVING (UNIX_TIMESTAMP($endDate) - UNIX_TIMESTAMP($startDate)) > IFNULL(SUM(`sum_day1`), 0) + IFNULL(SUM(`sum_day2`), 0) + IFNULL(SUM(`sum_day3`), 0)
+            
+            UNION 
+
+            SELECT p.id AS pid
+            FROM product AS p
+              LEFT JOIN product_order AS po ON po.productId = p.id
+              LEFT JOIN room AS r ON r.id = p.roomId
+            WHERE po.id IS NULL
+            AND r.type = 'meeting'
+              ");
+        $stat->execute();
+        $pids = array_map('current', $stat->fetchAll());
+
+        $query->andWhere('p.id IN (:pids)')
+            ->setParameter('pids', $pids);
+
+        return $query;
+    }
+
+    /**
+     * @param $query
+     * @param $startDate
+     * @param $endDate
+     *
+     * @return mixed
+     */
+    private function getOthersProductsQuery(
+        $query,
+        $startDate,
+        $endDate
     ) {
         $em = $this->getEntityManager();
         $connection = $em->getConnection();
@@ -1964,12 +2055,12 @@ class ProductRepository extends EntityRepository
                 
                 UNION 
 
-                SELECT p.id
+                SELECT p.id AS pid
                 FROM product AS p
                   LEFT JOIN product_order AS po ON po.productId = p.id
                   LEFT JOIN room AS r ON r.id = p.roomId
                 WHERE po.id IS NULL
-                AND r.type = '$roomType'
+                AND r.type = 'others'
               ");
         $stat->execute();
         $pids = array_map('current', $stat->fetchAll());
