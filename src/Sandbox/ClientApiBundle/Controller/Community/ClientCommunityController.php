@@ -732,6 +732,8 @@ class ClientCommunityController extends ProductController
         ) {
             $startHour = null;
             $endHour = null;
+            $startDateString = null;
+            $endDateString = null;
 
             if (!is_null($start) && !empty($start)) {
                 $startTime = new \DateTime($start);
@@ -742,6 +744,7 @@ class ClientCommunityController extends ProductController
 
             if (!is_null($end) && !empty($end)) {
                 $endTime = new \DateTime($end);
+                $endTime->setTime(23, 59, 59);
                 $endHour = $endTime->format('H:i:s');
 
                 $endDateString = "'".$endTime->format('Y-m-d H:i:s')."'";
