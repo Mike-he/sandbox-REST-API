@@ -376,7 +376,8 @@ class AdminMessagePushController extends AdminRestController
         if (!is_null($messageUrl)) {
             $url = $messageUrl;
         } else {
-            $url = ''.'?type=message&id='.$message->getId();
+            $mobileUrl = $this->getParameter('room_mobile_url');
+            $url = $mobileUrl.'/message?id='.$message->getId();
         }
 
         $contentArray = [
