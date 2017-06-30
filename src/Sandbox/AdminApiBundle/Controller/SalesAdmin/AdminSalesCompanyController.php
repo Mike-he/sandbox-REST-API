@@ -220,15 +220,15 @@ class AdminSalesCompanyController extends SandboxRestController
             $company->setShopCounts((int) $shopCounts);
 
             // new pending building
-            $pendingBuilding = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')
-                ->findOneBy(array(
-                    'companyId' => $company,
-                    'status' => RoomBuilding::STATUS_PENDING,
-                    'isDeleted' => false,
-                ));
-            if (!is_null($pendingBuilding)) {
-                $company->setHasPendingBuilding(true);
-            }
+//            $pendingBuilding = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')
+//                ->findOneBy(array(
+//                    'companyId' => $company,
+//                    'status' => RoomBuilding::STATUS_PENDING,
+//                    'isDeleted' => false,
+//                ));
+//            if (!is_null($pendingBuilding)) {
+//                $company->setHasPendingBuilding(true);
+//            }
 
             // new pending shop
             foreach ($shops as $shop) {
@@ -350,15 +350,15 @@ class AdminSalesCompanyController extends SandboxRestController
         $company->setShopCounts((int) $shopCounts);
 
         // new pending building
-        $pendingBuilding = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')
-            ->findOneBy(array(
-                'companyId' => $company,
-                'status' => RoomBuilding::STATUS_PENDING,
-                'isDeleted' => false,
-            ));
-        if (!is_null($pendingBuilding)) {
-            $company->setHasPendingBuilding(true);
-        }
+//        $pendingBuilding = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')
+//            ->findOneBy(array(
+//                'companyId' => $company,
+//                'status' => RoomBuilding::STATUS_PENDING,
+//                'isDeleted' => false,
+//            ));
+//        if (!is_null($pendingBuilding)) {
+//            $company->setHasPendingBuilding(true);
+//        }
 
         // new pending shop
         foreach ($shops as $shop) {
