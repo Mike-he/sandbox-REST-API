@@ -701,12 +701,24 @@ class OrderController extends PaymentController
             $halfHour = clone $now;
             $halfHour->modify($timeModify);
 
-            // check to allow ordering half an hour early
-            if ($halfHour > $startDate) {
-                return $this->setErrorArray(
-                    self::WRONG_BOOKING_DATE_CODE,
-                    self::WRONG_BOOKING_DATE_MESSAGE
-                );
+            if ($timeUnit == RoomTypeUnit::UNIT_DAY) {
+                $nowDate = $now->format('Y-m-d');
+                $startPeriod = $startDate->format('Y-m-d');
+
+                if ($nowDate > $startPeriod) {
+                    return $this->setErrorArray(
+                        self::WRONG_BOOKING_DATE_CODE,
+                        self::WRONG_BOOKING_DATE_MESSAGE
+                    );
+                }
+            } else {
+                // check to allow ordering half an hour early
+                if ($halfHour > $startDate) {
+                    return $this->setErrorArray(
+                        self::WRONG_BOOKING_DATE_CODE,
+                        self::WRONG_BOOKING_DATE_MESSAGE
+                    );
+                }
             }
 
             $startHour = $startDate->format('H:i:s');
