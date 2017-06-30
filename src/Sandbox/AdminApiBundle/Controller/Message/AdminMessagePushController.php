@@ -395,7 +395,6 @@ class AdminMessagePushController extends AdminRestController
             '创合秒租',
             $contentArray
         );
-        var_dump($data);exit;
 
         $this->sendJpushNotification($data);
     }
