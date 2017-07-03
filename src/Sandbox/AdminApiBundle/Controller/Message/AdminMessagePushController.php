@@ -383,6 +383,7 @@ class AdminMessagePushController extends AdminRestController
         $contentArray = [
             'type' => 'service',
             'action' => 'push',
+            'id' => $message->getId(),
             'title' => $messageTitle,
             'url' => $url,
             'cover' => $messageCover,
