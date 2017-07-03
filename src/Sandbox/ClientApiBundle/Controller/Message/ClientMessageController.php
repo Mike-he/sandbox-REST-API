@@ -36,4 +36,29 @@ class ClientMessageController extends SandboxRestController
 
         return new View($message);
     }
+
+    /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/messages")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getMessagesAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $message = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Message\Message')
+            ->findBy(
+                array('visible' => true),
+                array('id' => 'DESC'),
+                1
+            );
+        $this->throwNotFoundIfNull($message, self::NOT_FOUND_MESSAGE);
+
+        return new View($message);
+    }
 }
