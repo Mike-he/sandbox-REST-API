@@ -230,7 +230,8 @@ trait SendNotification
         $language,
         $message,
         $title,
-        $contentArray
+        $contentArray,
+        $sendMessage = false
     ) {
         // get globals
         $globals = $this->getContainer()
@@ -268,6 +269,15 @@ trait SendNotification
                 'apns_production' => filter_var($option, FILTER_VALIDATE_BOOLEAN),
             ],
         ];
+
+        if ($sendMessage) {
+            $data['message'] = [
+                'msg_content' => $message,
+                'content_type' => 'text',
+                'title' => $title,
+                'extras' => $contentArray,
+            ];
+        }
 
         return json_encode($data);
     }

@@ -394,7 +394,8 @@ class AdminMessagePushController extends AdminRestController
             ['lang_zh'],
             $messageTitle,
             '创合秒租',
-            $contentArray
+            $contentArray,
+            true
         );
 
         $this->sendJpushNotification($data);
