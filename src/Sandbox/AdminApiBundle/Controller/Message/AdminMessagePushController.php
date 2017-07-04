@@ -285,7 +285,7 @@ class AdminMessagePushController extends AdminRestController
         }
 
         if ($messageMaterial->getType() == MessageMaterial::TYPE_MATERIAL) {
-            if (!is_null($messageMaterial->getContent())) {
+            if (is_null($messageMaterial->getContent())) {
                 throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
             }
 

@@ -15,7 +15,7 @@ class MessagePushType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->add('title')
-            ->add('cover')
+            ->add('cover', null, array('required' => false))
             ->add('type', null, array('required' => false))
             ->add('action', null, array('required' => false))
             ->add('url', null, array('required' => false))
