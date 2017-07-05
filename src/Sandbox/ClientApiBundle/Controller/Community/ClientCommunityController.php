@@ -1001,7 +1001,7 @@ class ClientCommunityController extends ProductController
             /** @var RoomBuilding $community */
             if ((RoomTypes::TYPE_NAME_MEETING == $type
                 || RoomTypes::TYPE_NAME_OTHERS == $type)
-                && !empty($community->getRemoveDatesInfo())
+                && !is_null($community->getRemoveDatesInfo())
                 && !is_null($start)
             ) {
                 $removeDates = json_decode($community->getRemoveDatesInfo(), true);

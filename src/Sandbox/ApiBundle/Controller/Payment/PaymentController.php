@@ -1655,7 +1655,7 @@ class PaymentController extends DoorController
 
             $status = $this->get('translator')->trans('product_order.status.'.$orderStatus);
             $roomType = $this->get('translator')->trans('room.type.'.$order->getProduct()->getRoom()->getType());
-            $unitPrice = $this->get('translator')->trans('room.unit.'.$productInfo['unit_price']);
+            $unitPrice = $this->get('translator')->trans('room.unit.'.$productInfo['order']['unit_price']);
 
             $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($order->getUserId());
             $user = $userProfile->getUser();

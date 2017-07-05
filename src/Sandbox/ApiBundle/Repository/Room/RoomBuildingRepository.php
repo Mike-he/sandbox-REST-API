@@ -409,6 +409,7 @@ class RoomBuildingRepository extends EntityRepository
                 rb.name,
                 rb.evaluationStar as evaluation_star,
                 rb.avatar,
+                rb.districtId as district_id,
                 rb.lat,
                 rb.lng,
                 (rb.orderEvaluationNumber + rb.buildingEvaluationNumber) as total_evaluation_number
