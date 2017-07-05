@@ -7,6 +7,7 @@ namespace Composer\Autoload;
 class ComposerStaticInit42c73cf4dec95db6e30a2f354aa5457f
 {
     public static $files = array (
+        'ad155f8f1cf0d418fe49e248db8c661b' => __DIR__ . '/..' . '/react/promise/src/functions_include.php',
         '2c102faa651ef8ea5874edb585946bce' => __DIR__ . '/..' . '/swiftmailer/swiftmailer/lib/swift_required.php',
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
         '5255c38a0faeba867671b61dfda6d864' => __DIR__ . '/..' . '/paragonie/random_compat/lib/random.php',
@@ -55,6 +56,10 @@ class ComposerStaticInit42c73cf4dec95db6e30a2f354aa5457f
             'Stof\\DoctrineExtensionsBundle\\' => 30,
             'Snc\\RedisBundle\\' => 16,
         ),
+        'R' => 
+        array (
+            'React\\Promise\\' => 14,
+        ),
         'P' => 
         array (
             'Psr\\Log\\' => 8,
@@ -83,6 +88,12 @@ class ComposerStaticInit42c73cf4dec95db6e30a2f354aa5457f
         'H' => 
         array (
             'Hautelook\\TemplatedUriRouter\\' => 29,
+        ),
+        'G' => 
+        array (
+            'GuzzleHttp\\Stream\\' => 18,
+            'GuzzleHttp\\Ring\\' => 16,
+            'GuzzleHttp\\' => 11,
         ),
         'F' => 
         array (
@@ -202,6 +213,10 @@ class ComposerStaticInit42c73cf4dec95db6e30a2f354aa5457f
         array (
             0 => __DIR__ . '/..' . '/snc/redis-bundle',
         ),
+        'React\\Promise\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/react/promise/src',
+        ),
         'Psr\\Log\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/log/Psr/Log',
@@ -245,6 +260,18 @@ class ComposerStaticInit42c73cf4dec95db6e30a2f354aa5457f
         'Hautelook\\TemplatedUriRouter\\' => 
         array (
             0 => __DIR__ . '/..' . '/hautelook/templated-uri-router',
+        ),
+        'GuzzleHttp\\Stream\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/guzzlehttp/streams/src',
+        ),
+        'GuzzleHttp\\Ring\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/guzzlehttp/ringphp/src',
+        ),
+        'GuzzleHttp\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/guzzlehttp/guzzle/src',
         ),
         'FOS\\HttpCache\\Tests\\' => 
         array (
@@ -301,6 +328,13 @@ class ComposerStaticInit42c73cf4dec95db6e30a2f354aa5457f
     );
 
     public static $prefixesPsr0 = array (
+        'j' => 
+        array (
+            'jean553\\OpenfireBundle' => 
+            array (
+                0 => __DIR__ . '/..' . '/jean553/symfony-openfire-bundle',
+            ),
+        ),
         'T' => 
         array (
             'Twig_Extensions_' => 

@@ -9,11 +9,65 @@ use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
+use Symfony\Component\Validator\Constraints\DateTime;
 
 class OrderRepository extends EntityRepository
 {
     const COMPLETED = "'completed'";
     const CANCELLED = "'cancelled'";
+
+    /**
+     * @param $userId
+     * @param $limit
+     * @param $offset
+     *
+     * @return array
+     */
+    public function getUserAllOrders(
+        $userId,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->where('o.userId = :userId')
+            ->setParameter('userId', $userId)
+            ->orderBy('o.modificationDate', 'DESC')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
+    /**
+     * @param $userId
+     * @param $limit
+     * @param $offset
+     *
+     * @return array
+     */
+    public function getUserIncompleteOrders(
+        $userId,
+        $limit,
+        $offset
+    ) {
+        $now = new \DateTime();
+        $query = $this->createQueryBuilder('o')
+            ->where('
+                    o.status = \'paid\' OR 
+                    o.status = \'unpaid\' OR
+                    (o.status = \'completed\' and o.endDate >= :now)
+                ')
+            ->andWhere('o.userId = :userId')
+            ->setParameter('userId', $userId)
+            ->setParameter('now', $now)
+            ->orderBy('o.modificationDate', 'DESC')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->getQuery();
+
+        return $query->getResult();
+    }
 
     /**
      * @param $userId
@@ -856,12 +910,12 @@ class OrderRepository extends EntityRepository
         $query = $this->createQueryBuilder('o')
             ->where('o.productId = :productId')
             ->andWhere('o.status <> \'cancelled\'')
-            ->andWhere('o.startDate >= :startDate')
-            ->andWhere('o.endDate <= :endDate')
+            ->andWhere('o.endDate >= :startDate')
+//            ->andWhere('o.endDate <= :endDate')
             ->orderBy('o.startDate', 'ASC')
             ->setParameter('productId', $id)
             ->setParameter('startDate', $startDate)
-            ->setParameter('endDate', $endDate)
+//            ->setParameter('endDate', $endDate)
             ->getQuery();
 
         return $query->getResult();

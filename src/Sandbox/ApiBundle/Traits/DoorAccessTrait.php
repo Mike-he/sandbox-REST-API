@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\Traits;
 use Sandbox\ApiBundle\Constants\BundleConstants;
 use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Entity\Door\DoorAccess;
+use Sandbox\ApiBundle\Entity\Door\DoorDepartmentUsers;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Symfony\Component\DomCrawler\Crawler;
 use Sandbox\ApiBundle\Constants\DoorAccessConstants;
@@ -194,6 +195,86 @@ trait DoorAccessTrait
 
             if ($periodArray['result'] != DoorAccessConstants::RESULT_OK) {
                 error_log('Door Access Error');
+            }
+        } catch (\Exception $e) {
+            error_log('Door Access Error');
+            if (!is_null($sessionId) && !empty($sessionId)) {
+                $this->logOut($sessionId, $base);
+            }
+        }
+    }
+
+    /**
+     * @param $base
+     * @param $userId
+     * @param $name
+     * @param $cardNumber
+     * @param $method
+     */
+    public function setMembershipEmployeeCard(
+        $base,
+        $userId,
+        $name,
+        $cardNumber,
+        $method
+    ) {
+        if (is_null($userId)
+            || is_null($cardNumber)
+            || is_null($method)) {
+            return;
+        }
+
+        $globals = $this->getContainer()
+            ->get('twig')
+            ->getGlobals();
+
+        $sessionId = null;
+
+        try {
+            $sessionId = $this->getSessionId($base);
+
+            $data = [
+                'ads_emp_card' => [
+                    'empid' => "$userId", //from user account
+                    'empname' => $name, //from user account
+                    'department' => 'SANDBOX3',
+                    'cardno' => $cardNumber,
+                    'expiredate' => '2099-07-01 08:00:00',
+                    'operation' => $method,
+                ],
+            ];
+            $json = json_encode($data);
+            $data = $globals['door_api_session_id'].$sessionId.'&'.$globals['door_api_employee_card'].$json;
+
+            $periodArray = $this->postDoorApi($base.$globals['door_api_set_employee_card'], $data);
+            $this->logOut($sessionId, $base);
+
+            if ($periodArray['result'] != DoorAccessConstants::RESULT_OK) {
+                error_log('Door Access Error');
+            } else {
+                $em = $this->getContainer()->get('doctrine')->getManager();
+
+                $departmentUser = $this->getContainer()
+                    ->get('doctrine')
+                    ->getRepository('SandboxApiBundle:Door\DoorDepartmentUsers')
+                    ->findOneBy(array(
+                        'userId' => $userId,
+                        'buildingServer' => $base,
+                    ));
+                if (DoorAccessConstants::METHOD_ADD == $method) {
+                    if (is_null($departmentUser)) {
+                        $departmentUser = new DoorDepartmentUsers();
+                        $departmentUser->setUserId($userId);
+                        $departmentUser->setBuildingServer($base);
+                        $em->persist($departmentUser);
+                        $em->flush();
+                    }
+                } elseif (DoorAccessConstants::METHOD_DELETE == $method) {
+                    if ($departmentUser) {
+                        $em->remove($departmentUser);
+                        $em->flush();
+                    }
+                }
             }
         } catch (\Exception $e) {
             error_log('Door Access Error');
@@ -479,9 +560,9 @@ trait DoorAccessTrait
         $cardNo
     ) {
         $userProfile = $this->getContainer()
-                            ->get('doctrine')
-                            ->getRepository(BundleConstants::BUNDLE.':'.'User\UserProfile')
-                            ->findOneByUserId($userId);
+            ->get('doctrine')
+            ->getRepository(BundleConstants::BUNDLE.':'.'User\UserProfile')
+            ->findOneByUserId($userId);
 
         $userName = $userProfile->getName();
 
@@ -492,6 +573,54 @@ trait DoorAccessTrait
             $cardNo,
             DoorAccessConstants::METHOD_ADD
         );
+    }
+
+    /**
+     * @param $base
+     * @param $userId
+     * @param $cardNo
+     */
+    public function setMembershipEmployeeCardForOneBuilding(
+        $base,
+        $userId,
+        $cardNo
+    ) {
+        $departmentUser = $this->getContainer()
+            ->get('doctrine')
+            ->getRepository('SandboxApiBundle:Door\DoorDepartmentUsers')
+            ->findOneBy(array(
+                'userId' => $userId,
+                'buildingServer' => $base,
+            ));
+
+        if (!$departmentUser) {
+            $userProfile = $this->getContainer()
+                ->get('doctrine')
+                ->getRepository(BundleConstants::BUNDLE.':'.'User\UserProfile')
+                ->findOneByUserId($userId);
+
+            $userName = $userProfile->getName();
+
+            //remove user from 'SANDBOX' GROUP
+            $this->setEmployeeCard(
+                $base,
+                $userId,
+                $userName,
+                $cardNo,
+                DoorAccessConstants::METHOD_DELETE
+            );
+
+            sleep(5);
+            
+            // add user to 'SANDBOX3' GROUP
+            $this->setMembershipEmployeeCard(
+                $base,
+                $userId,
+                $userName,
+                $cardNo,
+                DoorAccessConstants::METHOD_ADD
+            );
+        }
     }
 
     /**
@@ -740,48 +869,21 @@ trait DoorAccessTrait
 
             $em = $this->getDoctrine()->getManager();
 
-            $userArray = array();
             foreach ($userIds as $userId) {
-                $this->storeDoorAccess(
-                    $em,
-                    $accessNo,
-                    $userId,
-                    $buildingId,
-                    null,
-                    $orderStartDate,
-                    $orderEndDate
-                );
-
                 $result = $this->getCardNoByUser($userId);
                 if (
                     !is_null($result) &&
                     $result['status'] === DoorController::STATUS_AUTHED
                 ) {
-                    $this->setEmployeeCardForOneBuilding(
+                    $this->setMembershipEmployeeCardForOneBuilding(
                         $base,
                         $userId,
                         $result['card_no']
-                    );
-
-                    array_push(
-                        $userArray,
-                        array(
-                            'empid' => "$userId",
-                        )
                     );
                 }
             }
 
             $em->flush();
-
-            // send door access to door server
-            if (!empty($userArray)) {
-                $this->addEmployeeToOrder(
-                    $base,
-                    $accessNo,
-                    $userArray
-                );
-            }
         }
     }
 

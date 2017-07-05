@@ -38,4 +38,33 @@ class UserBeanFlowRepository extends EntityRepository
 
         return $result;
     }
+
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @param null $type
+     *
+     * @return mixed
+     */
+    public function sumBeans(
+        $startDate,
+        $endDate,
+        $type = null
+    ) {
+        $query = $this->createQueryBuilder('ubf')
+            ->select('sum(ubf.changeAmount)')
+            ->where('ubf.creationDate >= :startDate')
+            ->andWhere('ubf.creationDate <= :endDate')
+            ->setParameter('startDate', $startDate)
+            ->setParameter('endDate', $endDate);
+
+        if ($type) {
+            $query->andWhere('ubf.type = :type')
+                ->setParameter('type', $type);
+        }
+
+        $result = $query->getQuery()->getSingleScalarResult();
+
+        return $result;
+    }
 }

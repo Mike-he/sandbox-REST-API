@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Traits;
 
 use Sandbox\ApiBundle\Entity\Room\Room;
+use Sandbox\ApiBundle\Entity\Room\RoomTypeTags;
 use Sandbox\ApiBundle\Entity\User\UserFavorite;
 
 /**
@@ -22,6 +23,11 @@ trait HandleSpacesDataTrait
     ) {
         $limit = 1;
         foreach ($spaces as &$space) {
+            if (!is_null($space['type_tag'])) {
+                $typeTagDescription = $this->get('translator')->trans(RoomTypeTags::TRANS_PREFIX.$space['type_tag']);
+                $space['type_tag_description'] = $typeTagDescription;
+            }
+
             $attachment = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Room\RoomAttachmentBinding')
                 ->findAttachmentsByRoom($space['id'], $limit);

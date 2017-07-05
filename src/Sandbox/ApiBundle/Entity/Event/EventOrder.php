@@ -154,6 +154,13 @@ class EventOrder
     private $user;
 
     /**
+     * @var
+     *
+     * @Serializer\Groups({"client_event"})
+     */
+    private $registration;
+
+    /**
      * @return float
      */
     public function getServiceFee()
@@ -458,5 +465,21 @@ class EventOrder
     {
         $this->creationDate = new \DateTime('now');
         $this->modificationDate = new \DateTime('now');
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getRegistration()
+    {
+        return $this->registration;
+    }
+
+    /**
+     * @param mixed $registration
+     */
+    public function setRegistration($registration)
+    {
+        $this->registration = $registration;
     }
 }

@@ -557,17 +557,6 @@ class UserViewRepository extends EntityRepository
     }
 
     /**
-     * @return int
-     */
-    public function countTotalUsers()
-    {
-        $queryResults = $this->createQueryBuilder('u')
-            ->select('COUNT(u)');
-
-        return (int) $queryResults->getQuery()->getSingleScalarResult();
-    }
-
-    /**
      * @param $startDate
      * @param $endDate
      *

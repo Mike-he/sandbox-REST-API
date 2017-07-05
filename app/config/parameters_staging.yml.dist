@@ -4,10 +4,10 @@ parameters:
     database_port: '3306'
 
     # production data
-    database_name: staging_rest_api_db_pro
+    #database_name: staging_rest_api_db_pro
 
     # staging data
-    #database_name: staging_rest_api_db
+    database_name: staging_rest_api_db
 
     database_user: staging_rest
     database_password: S3deb0x_2016
@@ -33,6 +33,7 @@ parameters:
     expired_verification_time: +10 minutes
     time_for_half_hour_early: -30 minutes
     time_for_preorder_cancel: + 1 day
+
     xmpp_domain: testxmpp.sandbox3.cn
     openfire_innet_url: http://127.0.0.1:9090
     openfire_plugin_bstuser: /plugins/bstuser
@@ -49,6 +50,7 @@ parameters:
     openfire_plugin_bstios_chatconfig: /chatconfig
     openfire_plugin_bstios_apns: /apns
     openfire_plugin_file_server: /plugins/fileServer/fileservice
+
     sms_api_url: http://yunpian.com/v1/sms/send.json
     sms_api_key: 21c29536f85636a862306aa6f8ffdf74
     email_from_address: notification@sandbox3.cn
@@ -56,7 +58,8 @@ parameters:
     sandbox_auth_key: sandbox_auth_test
     food_api_url: http://testfood.sandbox3.cn
     food_api_payment_callback: /index.php?route=payment/sandbox_wechat/callback
-    crm_api_url: http://localhost.api.crm
+
+    crm_api_url: crmserver
     crm_api_client_user_account_authentication: /client/user/account/authentication
     crm_api_client_user_account_vip: /client/user/account/vip
     crm_api_admin_user_account_vip: /admin/useraccounts/{userId}/vip
@@ -74,6 +77,7 @@ parameters:
     crm_api_sales_admin_invoices: /sales/admin/invoices
     crm_api_admin_user_create: /admin/useraccounts/{userId}/create
     crm_api_client_user_price_calculate: /client/user/price/rules/{rule_id}/calculate
+
     door_api_username: admin
     door_api_password: admin
     door_api_login: /Login
@@ -100,6 +104,8 @@ parameters:
     door_api_add_emp: RoomOrderAddEmp=
     door_api_delete_emp: RoomOrderDelEmp=
     door_api_order_no: OrderNo=
+
+    jpush_apns_option: false
     customer_service_phone: xxx-xxx
     client_version_ios: 2.0.5
     client_version_android: 2.0.5
@@ -108,7 +114,7 @@ parameters:
     union_refund_fee_multiplier: 0
     wechat_refund_fee_multiplier: 0
     foreign_credit_refund_fee_multiplier: 0
-    rest_api_local_url: localhost.api.rest
+    rest_api_local_url: restserver
 
     image_url: https://testimage.sandbox3.cn
     file_server_url: https://testxmpp.sandbox3.cn/plugins/fileServer/fileservice
@@ -116,7 +122,6 @@ parameters:
     mobile_url: https://testm.sandbox3.cn
     room_mobile_url: https://testmobile.sandbox3.cn
     top_level_domain: sandbox3.cn
-    jpush_apns_option: false
     orders_url: https://testorders.sandbox3.cn
     coffee_url: https://testcoffee.sandbox3.cn
     invoice_url: https://testinvoice.sandbox3.cn
@@ -128,3 +133,9 @@ parameters:
     duiba_app_key: XUPB5iAdCbHnc6C8fcmpB8fcxLu
     duiba_app_secret: 3ynCsWqXzcErULFvSEojLH94pnxb
     duiba_app_env: sta
+
+    openfire_url: https://testxmpp.sandbox3.cn/plugins/restapi/v1
+    openfire_secret: WKs1fEY3ppR45O7q
+    openfire_servicename: conference
+    openfire_servername: testxmpp.sandbox3.cn
+    openfire_service: 'jean553\OpenfireBundle\Services\OpenfireService'

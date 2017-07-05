@@ -319,6 +319,14 @@ class AdminProductAppointmentController extends SandboxRestController
             if (!is_null($lease)) {
                 $appointment->setLeaseId($lease->getId());
             }
+            $product = $appointment->getProduct();
+            $productRentSet = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\ProductRentSet')
+                ->findOneBy(array(
+                    'product' => $product,
+                    'status' => true,
+                ));
+            $product->setRentSet($productRentSet);
         }
 
         $view = new View();

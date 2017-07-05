@@ -62,6 +62,24 @@ class OrderController extends PaymentController
 
             // set product type
             $productTypeKey = $productInfo['room']['type'];
+
+            switch ($productTypeKey) {
+                case 'studio':
+                    $productTypeKey = 'others';
+                    break;
+                case 'space':
+                    $productTypeKey = 'others';
+                    break;
+                case 'fixed':
+                    $productTypeKey = 'desk';
+                    break;
+                case 'flexible':
+                    $productTypeKey = 'desk';
+                    break;
+                default:
+                    break;
+            }
+
             $productType = $this->get('translator')->trans(
                 ProductOrderExport::TRANS_ROOM_TYPE.$productTypeKey,
                 array(),
@@ -70,7 +88,25 @@ class OrderController extends PaymentController
             );
 
             // set unit price
-            $unitPriceKey = $productInfo['unit_price'];
+            $basePrice = null;
+            if (isset($productInfo['unit_price']) && isset($productInfo['base_price'])) {
+                $unitPriceKey = $productInfo['unit_price'];
+                $basePrice = $productInfo['base_price'];
+            } elseif (isset($productInfo['order']['unit_price'])) {
+                $unitPriceKey = $productInfo['order']['unit_price'];
+
+                if (isset($productInfo['room']['leasing_set'])) {
+                    foreach ($productInfo['room']['leasing_set'] as $item) {
+                        if ($item['unit_price'] == $unitPriceKey) {
+                            $basePrice = $item['base_price'];
+                        }
+                    }
+                }
+            } elseif (isset($productInfo['room']['leasing_set'])) {
+                $unitPriceKey = $productInfo['room']['leasing_set'][0]['unit_price'];
+                $basePrice = $productInfo['room']['leasing_set'][0]['base_price'];
+            }
+
             $unitPrice = $this->get('translator')->trans(
                 ProductOrderExport::TRANS_ROOM_UNIT.$unitPriceKey,
                 array(),
@@ -159,7 +195,7 @@ class OrderController extends PaymentController
                 ProductOrderExport::PRODUCT_NAME => $productName,
                 ProductOrderExport::ROOM_TYPE => $productType,
                 ProductOrderExport::USER_ID => $userId,
-                ProductOrderExport::BASE_PRICE => $productInfo['base_price'],
+                ProductOrderExport::BASE_PRICE => $basePrice,
                 ProductOrderExport::UNIT_PRICE => $unitPrice,
                 ProductOrderExport::AMOUNT => $order->getPrice(),
                 ProductOrderExport::DISCOUNT_PRICE => $price,
@@ -701,12 +737,24 @@ class OrderController extends PaymentController
             $halfHour = clone $now;
             $halfHour->modify($timeModify);
 
-            // check to allow ordering half an hour early
-            if ($halfHour > $startDate) {
-                return $this->setErrorArray(
-                    self::WRONG_BOOKING_DATE_CODE,
-                    self::WRONG_BOOKING_DATE_MESSAGE
-                );
+            if ($timeUnit == RoomTypeUnit::UNIT_DAY) {
+                $nowDate = $now->format('Y-m-d');
+                $startPeriod = $startDate->format('Y-m-d');
+
+                if ($nowDate > $startPeriod) {
+                    return $this->setErrorArray(
+                        self::WRONG_BOOKING_DATE_CODE,
+                        self::WRONG_BOOKING_DATE_MESSAGE
+                    );
+                }
+            } else {
+                // check to allow ordering half an hour early
+                if ($halfHour > $startDate) {
+                    return $this->setErrorArray(
+                        self::WRONG_BOOKING_DATE_CODE,
+                        self::WRONG_BOOKING_DATE_MESSAGE
+                    );
+                }
             }
 
             $startHour = $startDate->format('H:i:s');

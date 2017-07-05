@@ -82,7 +82,6 @@ class Product
     /**
      * @var float
      *
-     * @ORM\Column(name="basePrice", type="decimal", precision=10, scale=2, nullable=true)
      *
      * @Serializer\Groups({"client"})
      */
@@ -91,7 +90,6 @@ class Product
     /**
      * @var string
      *
-     * @ORM\Column(name="unitPrice", type="string", length=255, nullable=true)
      *
      * @Serializer\Groups({"client"})
      */
@@ -170,34 +168,6 @@ class Product
     private $isDeleted = false;
 
     /**
-     * @var bool
-     *
-     * @ORM\Column(name="isAnnualRent", type="boolean", nullable=false)
-     */
-    private $isAnnualRent = false;
-
-    /**
-     * @var float
-     *
-     * @ORM\Column(name="annualRentUnitPrice", type="decimal", precision=10, scale=2, nullable=true)
-     */
-    private $annualRentUnitPrice;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="annualRentUnit", type="string", length=64, nullable=true)
-     */
-    private $annualRentUnit;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="annualRentDescription", type="text", nullable=true)
-     */
-    private $annualRentDescription;
-
-    /**
      * @var \DateTime
      *
      * @Gedmo\Timestampable(on="create")
@@ -216,34 +186,6 @@ class Product
      * @Serializer\Groups({"main", "admin_room"})
      */
     private $modificationDate;
-
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="earliestRentDate", type="datetime", nullable=true)
-     */
-    private $earliestRentDate;
-
-    /**
-     * @var float
-     *
-     * @ORM\Column(name="deposit", type="decimal", precision=10, scale=2, nullable=true)
-     */
-    private $deposit;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="rentalInfo", type="text", nullable=true)
-     */
-    private $rentalInfo;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="filename", type="text", nullable=true)
-     */
-    private $filename;
 
     /**
      * @var int
@@ -399,70 +341,6 @@ class Product
     public function getId()
     {
         return $this->id;
-    }
-
-    /**
-     * @return \DateTime
-     */
-    public function getEarliestRentDate()
-    {
-        return $this->earliestRentDate;
-    }
-
-    /**
-     * @param \DateTime $earliestRentDate
-     */
-    public function setEarliestRentDate($earliestRentDate)
-    {
-        $this->earliestRentDate = $earliestRentDate;
-    }
-
-    /**
-     * @return float
-     */
-    public function getDeposit()
-    {
-        return $this->deposit;
-    }
-
-    /**
-     * @param float $deposit
-     */
-    public function setDeposit($deposit)
-    {
-        $this->deposit = $deposit;
-    }
-
-    /**
-     * @return string
-     */
-    public function getRentalInfo()
-    {
-        return $this->rentalInfo;
-    }
-
-    /**
-     * @param string $rentalInfo
-     */
-    public function setRentalInfo($rentalInfo)
-    {
-        $this->rentalInfo = $rentalInfo;
-    }
-
-    /**
-     * @return string
-     */
-    public function getFilename()
-    {
-        return $this->filename;
-    }
-
-    /**
-     * @param string $filename
-     */
-    public function setFilename($filename)
-    {
-        $this->filename = $filename;
     }
 
     /**
@@ -741,70 +619,6 @@ class Product
     public function setIsDeleted($isDeleted)
     {
         $this->isDeleted = $isDeleted;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isAnnualRent()
-    {
-        return $this->isAnnualRent;
-    }
-
-    /**
-     * @param bool $isAnnualRent
-     */
-    public function setIsAnnualRent($isAnnualRent)
-    {
-        $this->isAnnualRent = $isAnnualRent;
-    }
-
-    /**
-     * @return float
-     */
-    public function getAnnualRentUnitPrice()
-    {
-        return $this->annualRentUnitPrice;
-    }
-
-    /**
-     * @param float $annualRentUnitPrice
-     */
-    public function setAnnualRentUnitPrice($annualRentUnitPrice)
-    {
-        $this->annualRentUnitPrice = $annualRentUnitPrice;
-    }
-
-    /**
-     * @return string
-     */
-    public function getAnnualRentUnit()
-    {
-        return $this->annualRentUnit;
-    }
-
-    /**
-     * @param string $annualRentUnit
-     */
-    public function setAnnualRentUnit($annualRentUnit)
-    {
-        $this->annualRentUnit = $annualRentUnit;
-    }
-
-    /**
-     * @return string
-     */
-    public function getAnnualRentDescription()
-    {
-        return $this->annualRentDescription;
-    }
-
-    /**
-     * @param string $annualRentDescription
-     */
-    public function setAnnualRentDescription($annualRentDescription)
-    {
-        $this->annualRentDescription = $annualRentDescription;
     }
 
     /**

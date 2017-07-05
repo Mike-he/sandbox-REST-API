@@ -122,3 +122,9 @@ parameters:
     duiba_app_key: YSK9PSuahvtV6C3AQtZ85CJ2isw
     duiba_app_secret: z3jDWM6BXhyEryGpZVpVdEczsUE
     duiba_app_env: pro
+
+    openfire_url: https://xmpp.sandbox3.cn/plugins/restapi/v1
+    openfire_secret: Rw0TrCzAH68s0L1x
+    openfire_servicename: conference
+    openfire_servername: xmpp.sandbox3.cn
+    openfire_service: 'jean553\OpenfireBundle\Services\OpenfireService'

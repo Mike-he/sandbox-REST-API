@@ -332,7 +332,7 @@ class ClientChatGroupController extends ChatGroupController
         $em->flush();
 
         // update chat group in Openfire
-        $this->updateXmppChatGroup($chatGroup, $myUser);
+        $this->updateXmppChatGroup($chatGroup);
 
         return new View();
     }
@@ -377,7 +377,7 @@ class ClientChatGroupController extends ChatGroupController
         }
 
         // update chat group in Openfire
-        $this->deleteXmppChatGroup($chatGroup, $myUser);
+        $this->deleteXmppChatGroup($chatGroup);
 
         // remove from db
         $em = $this->getDoctrine()->getManager();

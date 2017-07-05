@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Message;
 
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * Message.
@@ -24,14 +25,22 @@ class Message
     /**
      * @var string
      *
-     * @ORM\Column(name="content", type="text")
+     * @ORM\Column(name="body", type="text")
      */
-    private $content;
+    private $body;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="visible", type="boolean")
+     */
+    private $visible = true;
 
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="creationDate", type="datetime")
+     * @Gedmo\Timestampable(on="create")
+     * @ORM\Column(name="creation_date", type="datetime")
      */
     private $creationDate;
 
@@ -46,27 +55,51 @@ class Message
     }
 
     /**
-     * Set content.
+     * Set body.
      *
-     * @param string $content
+     * @param string $body
      *
      * @return Message
      */
-    public function setContent($content)
+    public function setBody($body)
     {
-        $this->content = $content;
+        $this->body = $body;
 
         return $this;
     }
 
     /**
-     * Get content.
+     * Get body.
      *
      * @return string
      */
-    public function getContent()
+    public function getBody()
     {
-        return $this->content;
+        return $this->body;
+    }
+
+    /**
+     * Set visible.
+     *
+     * @param bool $visible
+     *
+     * @return Message
+     */
+    public function setVisible($visible)
+    {
+        $this->visible = $visible;
+
+        return $this;
+    }
+
+    /**
+     * Get visible.
+     *
+     * @return bool
+     */
+    public function getVisible()
+    {
+        return $this->visible;
     }
 
     /**
@@ -91,10 +124,5 @@ class Message
     public function getCreationDate()
     {
         return $this->creationDate;
-    }
-
-    public function __construct()
-    {
-        $this->setCreationDate(new \DateTime('now'));
     }
 }

@@ -14,7 +14,12 @@ class MessagePushType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('content', 'text');
+        $builder->add('title')
+            ->add('cover', null, array('required' => false))
+            ->add('type', null, array('required' => false))
+            ->add('action', null, array('required' => false))
+            ->add('url', null, array('required' => false))
+            ->add('content', null, array('required' => false));
     }
 
     /**
@@ -23,7 +28,7 @@ class MessagePushType extends AbstractType
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Sandbox\ApiBundle\Entity\Message\MessagePush',
+            'data_class' => 'Sandbox\ApiBundle\Entity\Message\MessageMaterial',
         ));
     }
 

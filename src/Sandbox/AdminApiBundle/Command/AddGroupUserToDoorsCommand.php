@@ -51,10 +51,6 @@ class AddGroupUserToDoorsCommand extends ContainerAwareCommand
             $groupId = $data['group_id'];
             $users = $data['users'];
 
-            $group = $em->getRepository('SandboxApiBundle:User\UserGroup')->find($groupId);
-            $card = $em->getRepository('SandboxApiBundle:MembershipCard\MembershipCard')->find($group->getCard());
-            $accessNo = $card->getAccessNo();
-
             $buildingIds = $em->getRepository('SandboxApiBundle:User\UserGroupDoors')
                 ->getBuildingIdsByGroup(
                     $groupId
@@ -65,47 +61,21 @@ class AddGroupUserToDoorsCommand extends ContainerAwareCommand
                     ->find($buildingId);
 
                 $base = $building->getServer();
-
-                $userArray = array();
                 if ($base) {
                     foreach ($users as $user) {
-                        $this->storeDoorAccess(
-                            $em,
-                            $accessNo,
-                            $user,
-                            $buildingId,
-                            null,
-                            $now,
-                            $now
-                        );
                         $result = $this->getCardNoByUser($user);
                         if (
                             !is_null($result) && !empty($result) &&
                             $result['status'] === DoorController::STATUS_AUTHED
                         ) {
-                            $this->setEmployeeCardForOneBuilding(
+                            $this->setMembershipEmployeeCardForOneBuilding(
                                 $base,
                                 $user,
                                 $result['card_no']
                             );
-
-                            array_push(
-                                $userArray,
-                                array(
-                                    'empid' => "$user",
-                                )
-                            );
                         }
                     }
                     $em->flush();
-                }
-
-                if (!empty($userArray)) {
-                    $this->addEmployeeToOrder(
-                        $base,
-                        $accessNo,
-                        $userArray
-                    );
                 }
             }
         }

@@ -55,6 +55,9 @@ class MenuController extends SandboxRestController
     const CLIENT_MENU_PHONE = 'client.menu.phone';
     const CLIENT_MENU_ABOUT_US = 'client.menu.about_us';
     const CLIENT_MENU_SETTING = 'client.menu.setting';
+    const CLIENT_MENU_MY_CENTER = 'client.menu.my_center';
+    const CLIENT_MENU_ADD_BUDDY = 'client.menu.add_buddy';
+    const CLIENT_MENU_MY_QR = 'client.menu.my_qr';
     const ROOM_TYPE = 'room.type.';
 
     const URL_IMAGE = '{{image}}';
@@ -171,6 +174,9 @@ class MenuController extends SandboxRestController
             self::CLIENT_MENU_PHONE,
             self::CLIENT_MENU_ABOUT_US,
             self::CLIENT_MENU_SETTING,
+            self::CLIENT_MENU_MY_CENTER,
+            self::CLIENT_MENU_ADD_BUDDY,
+            self::CLIENT_MENU_MY_QR,
         );
 
         // translate json

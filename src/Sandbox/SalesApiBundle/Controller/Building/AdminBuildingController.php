@@ -1153,12 +1153,7 @@ class AdminBuildingController extends LocationController
                 ->find($key);
 
             // call openfire
-            $this->handleXmppChatGroupMember(
-                $group,
-                $group->getCreator(),
-                $vals,
-                'POST'
-            );
+            $this->addXmppChatGroupMember($group, $vals);
         }
     }
 
@@ -1237,12 +1232,7 @@ class AdminBuildingController extends LocationController
                 ->find($key);
 
             // call openfire
-            $this->handleXmppChatGroupMember(
-                $group,
-                $group->getCreator(),
-                $vals,
-                'DELETE'
-            );
+            $this->deleteXmppChatGroupMember($group, $vals);
         }
     }
 

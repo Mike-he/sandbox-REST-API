@@ -23,102 +23,40 @@ class RemoveGroupUserToDoorsCommand extends ContainerAwareCommand
     {
         $em = $this->getContainer()->get('doctrine')->getManager();
 
-        //First step: remove old access no
-        $memberships = $em->getRepository('SandboxApiBundle:MembershipCard\MembershipCardAccessNo')->findAll();
-
-        foreach ($memberships as $membership) {
-            $doorAccess = $em->getRepository('SandboxApiBundle:Door\DoorAccess')
-                ->findBy(array('accessNo' => $membership->getAccessNo()));
-
-            foreach ($doorAccess as $access) {
-                $em->remove($access);
-            }
-
-            $buildingId = $membership->getBuildingId();
-            $building = $em->getRepository('SandboxApiBundle:Room\RoomBuilding')->find($buildingId);
-            $base = $building->getServer();
-            if ($base) {
-                $this->repealRoomOrder(
-                    $building->getServer(),
-                    $membership->getAccessNo()
-                );
-            } else {
-                $em->remove($membership);
-            }
-        }
-        $em->flush();
-
-        //Second step: remove Door Access
         $groups = $em->getRepository('SandboxApiBundle:User\UserGroup')
             ->findBy(array('type' => UserGroup::TYPE_CARD));
 
         $now = new \DateTime('now');
 
-        $removeData = array();
+        $removeUsers = array();
         foreach ($groups as $group) {
             $groupId = $group->getId();
-
             $groupUsers = $em->getRepository('SandboxApiBundle:User\UserGroupHasUser')
                 ->findFinishedUsers($groupId, $now);
-
-            $removeUsers = array();
             foreach ($groupUsers as $groupUser) {
-                if ($groupUser->getUserId() == 1) {
-                    continue;
-                }
                 $removeUsers[] = $groupUser->getUserId();
-
                 $em->remove($groupUser);
             }
-
-            $removeData[] = array(
-                'group_id' => $groupId,
-                'users' => $removeUsers,
-            );
         }
 
-        $em->flush();
+        foreach ($removeUsers as $user) {
+            $doorDepartmentUsers = $em->getRepository('SandboxApiBundle:Door\DoorDepartmentUsers')
+                ->findBy(array('userId' => $user));
 
-        foreach ($removeData as $data) {
-            $groupId = $data['group_id'];
-            $users = $data['users'];
+            if ($doorDepartmentUsers) {
+                $userInfo = $em->getRepository('SandboxApiBundle:User\UserView')->find($user);
+                $userName = $userInfo->getName();
+                $cardNo = $userInfo->getCardNo();
 
-            $group = $em->getRepository('SandboxApiBundle:User\UserGroup')->find($groupId);
-            $card = $em->getRepository('SandboxApiBundle:MembershipCard\MembershipCard')->find($group->getCard());
-            $accessNo = $card->getAccessNo();
+                foreach ($doorDepartmentUsers as $doorDepartmentUser) {
+                    $base = $doorDepartmentUser->getBuildingServer();
 
-            $buildingIds = $em->getRepository('SandboxApiBundle:User\UserGroupDoors')
-                ->getBuildingIdsByGroup(
-                    $groupId
-                );
-
-            foreach ($buildingIds as $buildingId) {
-                $building = $em->getRepository('SandboxApiBundle:Room\RoomBuilding')
-                    ->find($buildingId);
-
-                $base = $building->getServer();
-
-                $userArray = array();
-                if ($base) {
-                    foreach ($users as $user) {
-                        // set action of door access to delete
-                        $this->setAccessActionToDelete(
-                            $accessNo,
-                            $user,
-                            DoorAccessConstants::METHOD_DELETE
-                        );
-
-                        $empUser = ['empid' => $user];
-                        array_push($userArray, $empUser);
-                    }
-                    $em->flush();
-                }
-
-                if (!empty($userArray)) {
-                    $this->deleteEmployeeToOrder(
+                    $this->setMembershipEmployeeCard(
                         $base,
-                        $accessNo,
-                        $userArray
+                        $user,
+                        $userName,
+                        $cardNo,
+                        DoorAccessConstants::METHOD_DELETE
                     );
                 }
             }

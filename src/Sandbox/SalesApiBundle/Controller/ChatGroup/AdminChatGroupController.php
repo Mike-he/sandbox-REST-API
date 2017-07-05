@@ -430,9 +430,27 @@ class AdminChatGroupController extends ChatGroupController
      * @param Request $request the request object
      *
      * @Annotations\QueryParam(
+     *    name="fromJID",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description=""
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="toJID",
      *    array=false,
      *    default=null,
+     *    nullable=false,
+     *    strict=true,
+     *    description=""
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="type",
+     *    array=false,
+     *    default="group",
      *    nullable=true,
      *    strict=true,
      *    description=""
@@ -447,11 +465,15 @@ class AdminChatGroupController extends ChatGroupController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $fromJID = $paramFetcher->get('fromJID');
         $toJID = $paramFetcher->get('toJID');
+        $type = $paramFetcher->get('type');
 
+        $fromJID = '"'.$fromJID.'"';
         $toJID = '"'.$toJID.'"';
+        $type = '"'.$type.'"';
 
-        $message = $this->getHistoryMessage($toJID);
+        $message = $this->getHistoryMessage($fromJID, $toJID, $type);
 
         return new View($message);
     }

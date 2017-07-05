@@ -115,7 +115,7 @@ class AdminEventRegistrationController extends SandboxRestController
                     [$user->getId()],
                     ['lang_zh'],
                     '',
-                    '展想创合',
+                    '创合秒租',
                     $contentArray
                 );
 

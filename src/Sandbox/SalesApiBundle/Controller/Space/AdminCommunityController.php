@@ -292,6 +292,21 @@ class AdminCommunityController extends SalesRestController
         $query = $paramFetcher->get('query');
         $building = $paramFetcher->get('building');
 
+        // get my buildings list
+        $myBuildingIds = $this->getMySalesBuildingIds(
+            $this->getAdminId(),
+            array(
+                AdminPermission::KEY_SALES_BUILDING_PRODUCT,
+                AdminPermission::KEY_SALES_BUILDING_SPACE,
+                AdminPermission::KEY_SALES_BUILDING_BUILDING,
+                AdminPermission::KEY_SALES_BUILDING_ROOM,
+            )
+        );
+
+        if (!in_array($building, $myBuildingIds)) {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        }
+
         $spaces = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\Room')
             ->findSpacesByBuilding(
