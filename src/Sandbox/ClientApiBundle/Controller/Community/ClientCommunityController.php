@@ -334,7 +334,7 @@ class ClientCommunityController extends ProductController
                     'district_id' => $district->getId(),
                     'lat' => $district->getLat(),
                     'lng' => $district->getLng(),
-                    'communities' => $communitiesArray,
+                    'communities' => count($communitiesArray),
                 ]);
             }
 
