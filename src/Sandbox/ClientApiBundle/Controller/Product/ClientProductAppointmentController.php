@@ -10,6 +10,7 @@ use Sandbox\ApiBundle\Entity\Product\ProductAppointment;
 use Sandbox\ApiBundle\Form\Product\ProductAppointmentPatchType;
 use Sandbox\ApiBundle\Form\Product\ProductAppointmentPostType;
 use Sandbox\ApiBundle\Traits\HasAccessToEntityRepositoryTrait;
+use Sandbox\ApiBundle\Traits\StringUtil;
 use Sandbox\ApiBundle\Traits\YunPianSms;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Request\ParamFetcherInterface;
@@ -34,6 +35,7 @@ class ClientProductAppointmentController extends ProductController
 {
     use HasAccessToEntityRepositoryTrait;
     use YunPianSms;
+    use StringUtil;
 
     /**
      * @param Request               $request
@@ -328,7 +330,7 @@ class ClientProductAppointmentController extends ProductController
             // send email
             $subject = '【创合秒租】'.$this->before('@', $email).'，办公室申请';
             $this->sendEmail($subject, $email, $this->before('@', $email),
-                'Emails/user_payment_check_email_verification.html.twig',
+                'Emails/product_appointment_email.html.twig',
                 array(
                     'building' => $buildingName,
                 ));
