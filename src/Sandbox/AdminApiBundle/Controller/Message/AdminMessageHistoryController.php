@@ -227,6 +227,21 @@ class AdminMessageHistoryController extends AdminMessagePushController
                 ]);
 
             $lastMessage = $this->getHistoryMessage($jid, $toJID, '"single"', 0, 1);
+            $messageFromJid = $lastMessage[0]['fromJID'];
+            $xmppUsernameMessage = explode('@', $messageFromJid);
+            $xmppUsernameMessage = $xmppUsernameMessage[0];
+
+            $userMessage = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\User')
+                ->findOneBy([
+                    'xmppUsername' => $xmppUsernameMessage,
+                ]);
+
+            $userProfileMessage = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserProfile')
+                ->findOneBy([
+                    'user' => $userMessage,
+                ]);
 
             array_push($usersArray, [
                 'id' => $user->getId(),
@@ -236,6 +251,7 @@ class AdminMessageHistoryController extends AdminMessagePushController
                 'authorized' => $user->isAuthorized(),
                 'jid' => $jid,
                 'message' => [
+                    'from_user_profile_name' => $userProfileMessage->getName(),
                     'body' => $lastMessage[0]['body'],
                     'sentDate' => $lastMessage[0]['sentDate'],
                 ],
