@@ -218,6 +218,13 @@ class ClientCommunityController extends ProductController
      *    description="max base price"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="district_level",
+     *    default=null,
+     *    nullable=true,
+     *    description="district level"
+     * )
+     *
      * @Route("/communities")
      * @Method({"GET"})
      *
@@ -254,6 +261,7 @@ class ClientCommunityController extends ProductController
         $maxAllowedPeople = $paramFetcher->get('max_allowed_people');
         $minBasePrice = $paramFetcher->get('min_base_price');
         $maxBasePrice = $paramFetcher->get('max_base_price');
+        $districtLevel = (bool) $paramFetcher->get('district_level');
 
         $location = $this->baiduToGaode($lat, $lng);
         $lat = $location['lat'];
@@ -298,6 +306,40 @@ class ClientCommunityController extends ProductController
         );
 
         $communities = $this->transformLocation($communities);
+
+        if ($districtLevel) {
+            $districts = [];
+            foreach ($communities as $community) {
+                if (isset($community['district_id'])) {
+                    array_push($districts, $community['district_id']);
+                }
+            }
+
+            $districts = array_unique($districts);
+
+            $response = [];
+            foreach ($districts as $districtId) {
+                $district = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomCity')
+                    ->find($districtId);
+
+                $communitiesArray = [];
+                foreach ($communities as $community) {
+                    if ($community['district_id'] == $districtId) {
+                        array_push($communitiesArray, $community);
+                    }
+                }
+
+                array_push($response, [
+                    'district_id' => $district->getId(),
+                    'lat' => $district->getLat(),
+                    'lng' => $district->getLng(),
+                    'communities' => $communitiesArray,
+                ]);
+            }
+
+            return new View($response);
+        }
 
         return new View($communities);
     }
@@ -957,8 +999,11 @@ class ClientCommunityController extends ProductController
                 ->find($communityId);
 
             /** @var RoomBuilding $community */
-            if (RoomTypes::TYPE_NAME_MEETING == $type ||
-                RoomTypes::TYPE_NAME_OTHERS == $type) {
+            if ((RoomTypes::TYPE_NAME_MEETING == $type
+                || RoomTypes::TYPE_NAME_OTHERS == $type)
+                && !empty($community->getRemoveDatesInfo())
+                && !is_null($start)
+            ) {
                 $removeDates = json_decode($community->getRemoveDatesInfo(), true);
 
                 $time = new \DateTime($start);
@@ -972,7 +1017,7 @@ class ClientCommunityController extends ProductController
                 }
             }
 
-            array_push($response, $community);
+            array_push($response, $communityId);
         }
 
         return $response;
