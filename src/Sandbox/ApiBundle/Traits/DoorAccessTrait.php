@@ -257,7 +257,7 @@ trait DoorAccessTrait
                 $departmentUser = $this->getContainer()
                     ->get('doctrine')
                     ->getRepository('SandboxApiBundle:Door\DoorDepartmentUsers')
-                    ->findOneBy(array(
+                    ->findBy(array(
                         'userId' => $userId,
                         'buildingServer' => $base,
                     ));
@@ -271,7 +271,9 @@ trait DoorAccessTrait
                     }
                 } elseif (DoorAccessConstants::METHOD_DELETE == $method) {
                     if ($departmentUser) {
-                        $em->remove($departmentUser);
+                        foreach ($departmentUser as $dUser){
+                            $em->remove($dUser);
+                        }
                         $em->flush();
                     }
                 }
