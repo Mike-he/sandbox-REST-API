@@ -59,7 +59,7 @@ class AdminProductAppointmentController extends AdminProductController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="buildingId",
+     *    name="building",
      *    array=false,
      *    default=null,
      *    nullable=true,
@@ -191,7 +191,7 @@ class AdminProductAppointmentController extends AdminProductController
         // filters
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
-        $buildingId = $paramFetcher->get('buildingId');
+        $buildingId = $paramFetcher->get('building');
         $roomId = $paramFetcher->get('room');
         $status = $paramFetcher->get('status');
 
