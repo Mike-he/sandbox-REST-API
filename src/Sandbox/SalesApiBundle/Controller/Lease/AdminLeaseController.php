@@ -270,6 +270,16 @@ class AdminLeaseController extends SalesRestController
      *    description="Filter by user id"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by building id"
+     * )
+     *
      * @return View
      */
     public function getLeasesAction(
@@ -313,6 +323,7 @@ class AdminLeaseController extends SalesRestController
         $endDate = $paramFetcher->get('end_date');
 
         $userId = $paramFetcher->get('user');
+        $buildingId = $paramFetcher->get('building');
 
         //get my buildings list
         $myBuildingIds = $this->getMySalesBuildingIds(
@@ -321,6 +332,10 @@ class AdminLeaseController extends SalesRestController
                 AdminPermission::KEY_SALES_BUILDING_LONG_TERM_LEASE,
             )
         );
+
+        if (!is_null($buildingId)) {
+            $myBuildingIds = array((int) $buildingId);
+        }
 
         $leases = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\Lease')
