@@ -1006,13 +1006,15 @@ class ClientCommunityController extends ProductController
             ) {
                 $removeDates = json_decode($community->getRemoveDatesInfo(), true);
 
-                $time = new \DateTime($start);
-                $year = $time->format('Y-m');
-                $day = $time->format('d');
+                if (is_array($removeDates)) {
+                    $time = new \DateTime($start);
+                    $year = $time->format('Y-m');
+                    $day = $time->format('d');
 
-                if (array_key_exists($year, $removeDates)) {
-                    if (in_array($day, $removeDates[$year])) {
-                        continue;
+                    if (array_key_exists($year, $removeDates)) {
+                        if (in_array($day, $removeDates[$year])) {
+                            continue;
+                        }
                     }
                 }
             }
