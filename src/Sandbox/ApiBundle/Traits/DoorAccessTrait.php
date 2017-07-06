@@ -262,7 +262,7 @@ trait DoorAccessTrait
                         'buildingServer' => $base,
                     ));
                 if (DoorAccessConstants::METHOD_ADD == $method) {
-                    if (is_null($departmentUser)) {
+                    if (!$departmentUser) {
                         $departmentUser = new DoorDepartmentUsers();
                         $departmentUser->setUserId($userId);
                         $departmentUser->setBuildingServer($base);
