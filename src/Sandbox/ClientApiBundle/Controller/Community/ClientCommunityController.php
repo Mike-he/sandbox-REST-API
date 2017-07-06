@@ -728,6 +728,24 @@ class ClientCommunityController extends ProductController
                     $productIds
                 );
 
+            if (is_null($minPrice['base_price'])) {
+                $product = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Product\Product')
+                    ->find($minPrice['product_id']);
+                $roomId = $product->getRoomId();
+
+                $roomfixed = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomFixed')
+                    ->findBy(array('roomId' => $roomId));
+
+                $basePrices = [];
+                foreach ($roomfixed as $item) {
+                    array_push($basePrices, $item->getBasePrice());
+                }
+
+                $minPrice['base_price'] = min($basePrices);
+            }
+
             $unitPrice = !is_null($minPrice['unit_price']) ? $this->get('translator')
                 ->trans(ProductOrderExport::TRANS_ROOM_UNIT.$minPrice['unit_price']) : null;
 

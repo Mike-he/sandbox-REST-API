@@ -1847,12 +1847,14 @@ class ProductRepository extends EntityRepository
               *
             FROM (
               SELECT
+                pls.product_id,
                 pls.base_price,
                 pls.unit_price
               FROM product_leasing_set AS pls
               WHERE pls.product_id IN ($idsString)
                 UNION
               SELECT
+                prs.product_id,
                 prs.base_price,
                 prs.unit_price
               FROM product_rent_set AS prs
