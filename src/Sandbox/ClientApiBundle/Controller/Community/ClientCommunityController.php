@@ -740,7 +740,9 @@ class ClientCommunityController extends ProductController
 
                 $basePrices = [];
                 foreach ($roomfixed as $item) {
-                    array_push($basePrices, $item->getBasePrice());
+                    if (!is_null($item->getBasePrice())) {
+                        array_push($basePrices, $item->getBasePrice());
+                    }
                 }
 
                 $minPrice['base_price'] = min($basePrices);
