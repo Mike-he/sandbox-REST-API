@@ -401,7 +401,7 @@ class OrderRepository extends EntityRepository
     ) {
         $now = new \DateTime();
         $query = $this->createQueryBuilder('o')
-            ->select('o.startDate, o.endDate, up.name as username, b.address, r.name, r.type, p.roomId, o.productId, o.creationDate')
+            ->select('o.userId, o.startDate, o.endDate, up.name as username, b.address, r.name, r.type, p.roomId, o.productId, o.creationDate')
             ->leftJoin('SandboxApiBundle:Order\InvitedPeople', 'i', 'WITH', 'i.orderId = o.id')
             ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'up.userId = o.userId')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')

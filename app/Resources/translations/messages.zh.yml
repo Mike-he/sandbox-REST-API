@@ -66,6 +66,9 @@ room:
     month: 月
 
 product_order:
+  role:
+    owner: 拥有者
+    invited: 受邀人
   channel:
     wx: 微信支付
     upacp: 银联支付

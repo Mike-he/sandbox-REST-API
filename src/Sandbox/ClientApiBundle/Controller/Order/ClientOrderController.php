@@ -525,6 +525,8 @@ class ClientOrderController extends OrderController
         $search = $paramFetcher->get('search');
 
         $roomUrl = $this->getParameter('room_mobile_url');
+        $owner = $this->get('translator')->trans(ProductOrderExport::TRANS_ORDER_ROLE.'owner');
+        $invited = $this->get('translator')->trans(ProductOrderExport::TRANS_ORDER_ROLE.'invited');
 
         $orders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
@@ -545,8 +547,19 @@ class ClientOrderController extends OrderController
             }
 
             $type = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$order['type']);
-            $start = $order['startDate']->format('Y-m-d h:i:s');
-            $end = $order['endDate']->format('Y-m-d h:i:s');
+
+            $buildingName = $room->getBuilding()->getName();
+
+            $diff = date_diff($order['startDate'], $order['endDate']);
+            if ($diff->format('%R%a') > 0) {
+                $start = $order['startDate']->format('Y-m-d h:i:s');
+                $end = $order['endDate']->format('Y-m-d h:i:s');
+            } else {
+                $start = $order['startDate']->format('h:i');
+                $end = $order['endDate']->format('h:i');
+            }
+
+            $userRole = $order['userId'] == $userId ? $owner : $invited;
 
             $currentArray = [
                 'username' => $order['username'],
@@ -557,6 +570,8 @@ class ClientOrderController extends OrderController
                 'attachment' => $attachment,
                 'url' => "$roomUrl/book?ptype=detail&productid=".$order['productId'].'&btype='.$order['type'],
                 'creation_date' => $order['creationDate'],
+                'building_name' => $buildingName,
+                'user_role' => $userRole,
             ];
 
             array_push($finalArray, $currentArray);
@@ -580,8 +595,19 @@ class ClientOrderController extends OrderController
             }
 
             $type = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$lease['type']);
-            $start = $lease['startDate']->format('Y-m-d h:i:s');
-            $end = $lease['endDate']->format('Y-m-d h:i:s');
+
+            $diff = date_diff($lease['startDate'], $lease['endDate']);
+            if ($diff->format('%R%a') > 0) {
+                $start = $lease['startDate']->format('Y-m-d h:i:s');
+                $end = $lease['endDate']->format('Y-m-d h:i:s');
+            } else {
+                $start = $lease['startDate']->format('h:i');
+                $end = $lease['endDate']->format('h:i');
+            }
+
+            $buildingName = $room->getBuilding()->getName();
+
+            $userRole = $lease['supervisor'] == $userId ? $owner : $invited;
 
             $currentArray = [
                 'username' => $lease['username'],
@@ -592,6 +618,8 @@ class ClientOrderController extends OrderController
                 'attachment' => $attachment,
                 'url' => "$roomUrl/book?ptype=detail&productid=".$lease['productId'].'&btype='.$lease['type'],
                 'creation_date' => $lease['creationDate'],
+                'building_name' => $buildingName,
+                'user_role' => $userRole,
             ];
 
             array_push($finalArray, $currentArray);
