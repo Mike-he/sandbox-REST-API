@@ -552,8 +552,8 @@ class ClientOrderController extends OrderController
 
             $diff = date_diff($order['startDate'], $order['endDate']);
             if ($diff->format('%R%a') > 0) {
-                $start = $order['startDate']->format('Y-m-d h:i:s');
-                $end = $order['endDate']->format('Y-m-d h:i:s');
+                $start = $order['startDate']->format('Y-m-d');
+                $end = $order['endDate']->format('Y-m-d');
             } else {
                 $start = $order['startDate']->format('h:i');
                 $end = $order['endDate']->format('h:i');
@@ -598,8 +598,8 @@ class ClientOrderController extends OrderController
 
             $diff = date_diff($lease['startDate'], $lease['endDate']);
             if ($diff->format('%R%a') > 0) {
-                $start = $lease['startDate']->format('Y-m-d h:i:s');
-                $end = $lease['endDate']->format('Y-m-d h:i:s');
+                $start = $lease['startDate']->format('Y-m-d');
+                $end = $lease['endDate']->format('Y-m-d');
             } else {
                 $start = $lease['startDate']->format('h:i');
                 $end = $lease['endDate']->format('h:i');
