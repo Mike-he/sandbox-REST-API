@@ -1479,8 +1479,8 @@ class ProductRepository extends EntityRepository
                 } elseif ($type == RoomTypes::TYPE_NAME_OTHERS) {
                     $query = $this->getOthersProductsQuery(
                         $query,
-                        $startDate,
-                        $endDate
+                        $startDateString,
+                        $endDateString
                     );
                 }
             } else {
