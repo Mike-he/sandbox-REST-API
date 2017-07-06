@@ -67,9 +67,30 @@ class ClientBannerController extends BannerController
             ->getRepository('SandboxApiBundle:Banner\Banner')
             ->getLimitList($limit, 0);
 
+        $bannerItem = array();
+        foreach ($banners as $banner) {
+            if ($banner->getSource() == 'url' || $banner->getSource() == 'blank_block') {
+                $url = $banner->getContent();
+            } else {
+                $url = $this->container->getParameter('mobile_url').'/'.$banner->getSource().'?ptype=detail&id='.$banner->getSourceId();
+            }
+            $bannerItem[] = array(
+                'title' => $banner->getTitle(),
+                'cover' => $banner->getCover(),
+                'web' => array(
+                    'url' => $url,
+                    'cookie' => array(
+                        array(
+                            'key' => 'btype',
+                            'value' => 'bannerCarousel',
+                        ),
+                    ),
+                ),
+            );
+        }
+
         $view = new View();
-        $view->setSerializationContext(SerializationContext::create()->setGroups(['client_list']));
-        $view->setData($banners);
+        $view->setData($bannerItem);
 
         return $view;
     }
