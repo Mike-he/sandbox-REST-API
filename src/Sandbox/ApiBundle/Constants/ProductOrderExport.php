@@ -75,4 +75,6 @@ class ProductOrderExport
     const TRANS_PRODUCT_ORDER_HEADER_COMMISSION = 'product_order.export_header.commission';
     const TRANS_PRODUCT_ORDER_HEADER_COLLECTION_METHOD = 'product_order.export_header.collection_method';
     const TRANS_PRODUCT_ORDER_HEADER_ORDER_CATEGORY = 'product_order.export_header.order_category';
+
+    const TRANS_ORDER_ROLE = 'product_order.role.';
 }

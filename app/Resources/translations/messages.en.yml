@@ -66,6 +66,9 @@ room:
     month: Month
 
 product_order:
+  role:
+    owner: Owner
+    invited: Invited
   channel:
     wx: WechatPay
     upacp: UnionPay
