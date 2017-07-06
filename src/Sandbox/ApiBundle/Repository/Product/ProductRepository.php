@@ -1834,14 +1834,43 @@ class ProductRepository extends EntityRepository
     public function getMinPriceByProducts(
         $productIds
     ) {
-        $query = $this->createQueryBuilder('p')
-            ->leftJoin('SandboxApiBundle:Product\ProductLeasingSet', 'pls', 'WITH', 'pls.product = p.id')
-            ->select('min(pls.basePrice) as base_price, min(pls.unitPrice) as unit_price')
-            ->andWhere('p.id IN (:productIds)')
-            ->setParameter('productIds', $productIds)
-            ->setMaxResults(1);
+        $idsString = '';
+        foreach ($productIds as $id) {
+            $idsString .= $id['id'].',';
+        }
+        $idsString = substr($idsString,0,strlen($idsString)-1);
 
-        return $query->getQuery()->getOneOrNullResult();
+        $em = $this->getEntityManager();
+        $connection = $em->getConnection();
+        $stat = $connection->prepare("
+            SELECT
+              *
+            FROM (
+              SELECT
+                pls.base_price,
+                pls.unit_price
+              FROM product_leasing_set AS pls
+              WHERE pls.product_id IN ($idsString)
+                UNION
+              SELECT
+                prs.base_price,
+                prs.unit_price
+              FROM product_rent_set AS prs
+              WHERE prs.product_id IN ($idsString)
+              AND prs.status = 1
+            ) AS price
+            ORDER BY
+                CASE WHEN price.unit_price = 'hour' THEN 1 END DESC,
+                CASE WHEN price.unit_price = 'day' THEN 2 END DESC,
+                CASE WHEN price.unit_price = 'week' THEN 3 END DESC,
+                CASE WHEN price.unit_price = 'month' THEN 4 END DESC,
+                price.base_price ASC
+            LIMIT 1
+        ");
+        $stat->execute();
+        $re = $stat->fetchAll();
+
+        return $re[0];
     }
 
     /**
