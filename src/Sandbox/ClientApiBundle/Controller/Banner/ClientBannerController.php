@@ -46,6 +46,35 @@ class ClientBannerController extends BannerController
     }
 
     /**
+     * Get list of banners.
+     *
+     * @Route("/banners/carousel")
+     * @Method({"GET"})
+     *
+     * @param Request $request
+     *
+     * @return View
+     */
+    public function getBannerCarouselAction(
+        Request $request
+    ) {
+        $bannerTop = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Parameter\Parameter')
+            ->findOneBy(array('key' => 'banner_top'));
+        $limit = $bannerTop->getValue();
+
+        $banners = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Banner\Banner')
+            ->getLimitList($limit, 0);
+
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['client_list']));
+        $view->setData($banners);
+
+        return $view;
+    }
+
+    /**
      * Get Banner By Id.
      *
      * @param Request $request the request object
