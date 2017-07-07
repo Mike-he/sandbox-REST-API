@@ -1838,7 +1838,7 @@ class ProductRepository extends EntityRepository
         foreach ($productIds as $id) {
             $idsString .= $id['id'].',';
         }
-        $idsString = substr($idsString,0,strlen($idsString)-1);
+        $idsString = substr($idsString, 0, strlen($idsString) - 1);
 
         $em = $this->getEntityManager();
         $connection = $em->getConnection();
@@ -1872,7 +1872,7 @@ class ProductRepository extends EntityRepository
         $stat->execute();
         $re = $stat->fetchAll();
 
-        return $re[0];
+        return $re ? $re[0] : null;
     }
 
     /**
