@@ -756,6 +756,7 @@ class ClientCommunityController extends ProductController
                     'lat' => $community->getLat(),
                     'lng' => $community->getLng(),
                     'evaluation_star' => $community->getEvaluationStar(),
+                    'address' => $community->getAddress(),
                     'total_evaluation_number' => $community->getOrderEvaluationNumber() + $community->getBuildingEvaluationNumber(),
                     'product' => [
                         'count' => count($productIds),
