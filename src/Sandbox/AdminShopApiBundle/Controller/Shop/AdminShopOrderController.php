@@ -307,7 +307,9 @@ class AdminShopOrderController extends ShopController
         Request $request,
         $id
     ) {
-        $order = $this->findEntityById($id, 'Shop\ShopOrder');
+        $order = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Shop\ShopOrder')
+            ->find($id);
 
         // check user permission
         $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
@@ -385,12 +387,14 @@ class AdminShopOrderController extends ShopController
                         if ($price > $refund) {
                             $invoice = $price - $refund;
 
-                            // set invoice amount
-                            $amount = $this->postConsumeBalance(
-                                $userId,
-                                $invoice,
-                                $order->getOrderNumber()
-                            );
+                            if ($order->getPayChannel() != ShopOrder::CHANNEL_ACCOUNT) {
+                                // set invoice amount
+                                $amount = $this->postConsumeBalance(
+                                    $userId,
+                                    $invoice,
+                                    $order->getOrderNumber()
+                                );
+                            }
 
 //                            $this->get('sandbox_api.bean')->postBeanChange(
 //                                $userId,
@@ -401,12 +405,14 @@ class AdminShopOrderController extends ShopController
                         }
                     }
                 } else {
-                    // set invoice amount
-                    $amount = $this->postConsumeBalance(
-                        $userId,
-                        $order->getPrice(),
-                        $order->getOrderNumber()
-                    );
+                    if ($order->getPayChannel() != ShopOrder::CHANNEL_ACCOUNT) {
+                        // set invoice amount
+                        $amount = $this->postConsumeBalance(
+                            $userId,
+                            $order->getPrice(),
+                            $order->getOrderNumber()
+                        );
+                    }
 
 //                    $this->get('sandbox_api.bean')->postBeanChange(
 //                        $userId,
