@@ -727,60 +727,60 @@ class ClientCommunityController extends ProductController
                 ->getMinPriceByProducts(
                     $productIds
                 );
+            if ($minPrice) {
+                if (is_null($minPrice['base_price'])) {
+                    $product = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:Product\Product')
+                        ->find($minPrice['product_id']);
+                    $roomId = $product->getRoomId();
 
-            if (is_null($minPrice['base_price'])) {
-                $product = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:Product\Product')
-                    ->find($minPrice['product_id']);
-                $roomId = $product->getRoomId();
+                    $roomfixed = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:Room\RoomFixed')
+                        ->findBy(array('roomId' => $roomId));
 
-                $roomfixed = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:Room\RoomFixed')
-                    ->findBy(array('roomId' => $roomId));
+                    $basePrices = [];
+                    foreach ($roomfixed as $item) {
+                        if (!is_null($item->getBasePrice())) {
+                            array_push($basePrices, $item->getBasePrice());
+                        }
+                    }
 
-                $basePrices = [];
-                foreach ($roomfixed as $item) {
-                    if (!is_null($item->getBasePrice())) {
-                        array_push($basePrices, $item->getBasePrice());
+                    $minPrice['base_price'] = min($basePrices);
+                }
+                $unitPrice = !is_null($minPrice['unit_price']) ? $this->get('translator')
+                    ->trans(ProductOrderExport::TRANS_ROOM_UNIT.$minPrice['unit_price']) : null;
+
+                $communityArray = [
+                    'id' => $community->getId(),
+                    'name' => $community->getName(),
+                    'lat' => $community->getLat(),
+                    'lng' => $community->getLng(),
+                    'evaluation_star' => $community->getEvaluationStar(),
+                    'total_evaluation_number' => $community->getOrderEvaluationNumber() + $community->getBuildingEvaluationNumber(),
+                    'product' => [
+                        'count' => count($productIds),
+                        'min_base_price' => $minPrice['base_price'],
+                        'min_unit_price' => $unitPrice,
+                    ],
+                    'district_id' => !is_null($community->getDistrictId()) ? $community->getDistrictId() : null,
+                ];
+
+                if (!is_null($userId)) {
+                    $favorite = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:User\UserFavorite')
+                        ->findOneBy(array(
+                            'userId' => $userId,
+                            'object' => UserFavorite::OBJECT_BUILDING,
+                            'objectId' => $community->getId(),
+                        ));
+
+                    if ($favorite) {
+                        $communityArray['is_favorite'] = true;
                     }
                 }
 
-                $minPrice['base_price'] = min($basePrices);
+                array_push($communitiesArray, $communityArray);
             }
-
-            $unitPrice = !is_null($minPrice['unit_price']) ? $this->get('translator')
-                ->trans(ProductOrderExport::TRANS_ROOM_UNIT.$minPrice['unit_price']) : null;
-
-            $communityArray = [
-                'id' => $community->getId(),
-                'name' => $community->getName(),
-                'lat' => $community->getLat(),
-                'lng' => $community->getLng(),
-                'evaluation_star' => $community->getEvaluationStar(),
-                'total_evaluation_number' => $community->getOrderEvaluationNumber() + $community->getBuildingEvaluationNumber(),
-                'product' => [
-                    'count' => count($productIds),
-                    'min_base_price' => $minPrice['base_price'],
-                    'min_unit_price' => $unitPrice,
-                ],
-                'district_id' => !is_null($community->getDistrictId()) ? $community->getDistrictId() : null,
-            ];
-
-            if (!is_null($userId)) {
-                $favorite = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:User\UserFavorite')
-                    ->findOneBy(array(
-                        'userId' => $userId,
-                        'object' => UserFavorite::OBJECT_BUILDING,
-                        'objectId' => $community->getId(),
-                    ));
-
-                if ($favorite) {
-                    $communityArray['is_favorite'] = true;
-                }
-            }
-
-            array_push($communitiesArray, $communityArray);
         }
 
         return $communitiesArray;
@@ -1004,6 +1004,7 @@ class ClientCommunityController extends ProductController
      * @param $type
      * @param $communityIds
      * @param $start
+     *
      * @return array
      */
     public function filterCommunities(
