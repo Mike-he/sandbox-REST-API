@@ -652,8 +652,11 @@ class ClientProductController extends ProductController
         $product = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Product\Product')
             ->find($id);
-        
-        return $this->generateProductInfo($product);
+
+        $view = new View($this->generateProductInfo($product));
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
+
+        return $view;
     }
 
     /**
