@@ -653,6 +653,8 @@ class ClientProductController extends ProductController
             ->getRepository('SandboxApiBundle:Product\Product')
             ->find($id);
 
+        $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
+
         $view = new View($this->generateProductInfo($product));
         $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
 
