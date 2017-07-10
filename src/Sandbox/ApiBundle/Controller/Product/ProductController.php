@@ -291,5 +291,7 @@ class ProductController extends SalesRestController
                 $product->setCollectionMethod($service->getCollectionMethod());
             }
         }
+
+        return $product;
     }
 }
