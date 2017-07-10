@@ -61,6 +61,7 @@ class ProductController extends SalesRestController
             );
         }
         $room = $product->getRoom();
+        $type = $room->getType();
         $typeTag = $room->getTypeTag();
         if (!is_null($typeTag)) {
             $typeTagDescription = $this->get('translator')->trans(RoomTypeTags::TRANS_PREFIX.$typeTag);
@@ -71,7 +72,31 @@ class ProductController extends SalesRestController
             ->getRepository('SandboxApiBundle:Product\ProductLeasingSet')
             ->findBy(array('product' => $product));
 
-        $product->setLeasingSets($productLeasingSets);
+        $basePrice = [];
+        if (!empty($productLeasingSets)) {
+            foreach ($productLeasingSets as $productLeasingSet) {
+                $unitPrice = $this->get('translator')
+                    ->trans(ProductOrderExport::TRANS_ROOM_UNIT.$productLeasingSet->getUnitPrice());
+                $productLeasingSet->setUnitPrice($unitPrice);
+
+                $basePrice[$unitPrice] = $productLeasingSet->getBasePrice();
+            }
+            $product->setLeasingSets($productLeasingSets);
+
+            if ($type == Room::TYPE_DESK && $typeTag == Room::TAG_DEDICATED_DESK) {
+                $price = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomFixed')
+                    ->getFixedSeats($room);
+                if (!is_null($price)) {
+                    $product->setBasePrice($price);
+                    $product->setUnitPrice($unitPrice);
+                }
+            } else {
+                $pos = array_search(min($basePrice), $basePrice);
+                $product->setBasePrice($basePrice[$pos]);
+                $product->setUnitPrice($pos);
+            }
+        }
 
         $productRentSet = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Product\ProductRentSet')
