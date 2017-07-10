@@ -58,6 +58,13 @@ class ProductLeasingSet
     private $unitPrice;
 
     /**
+     * @var string
+     *
+     * @Serializer\Groups({"main", "admin_room", "admin_detail", "client"})
+     */
+    private $unitType;
+
+    /**
      * @var float
      *
      * @ORM\Column(name="amount", type="float")
@@ -138,6 +145,22 @@ class ProductLeasingSet
     public function setUnitPrice($unitPrice)
     {
         $this->unitPrice = $unitPrice;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUnitType()
+    {
+        return $this->unitType;
+    }
+
+    /**
+     * @param string $unitType
+     */
+    public function setUnitType($unitType)
+    {
+        $this->unitType = $unitType;
     }
 
     /**

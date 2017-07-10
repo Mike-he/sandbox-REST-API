@@ -52,7 +52,9 @@ class ProductController extends SalesRestController
     public function getOneProduct(
         $id
     ) {
-        $product = $this->getRepo('Product\Product')->find($id);
+        $product = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\Product')
+            ->find($id);
         if (is_null($product)) {
             return $this->customErrorView(
                 400,
@@ -75,9 +77,11 @@ class ProductController extends SalesRestController
         $basePrice = [];
         if (!empty($productLeasingSets)) {
             foreach ($productLeasingSets as $productLeasingSet) {
+                $unitType = $productLeasingSet->getUnitPrice();
                 $unitPrice = $this->get('translator')
-                    ->trans(ProductOrderExport::TRANS_ROOM_UNIT.$productLeasingSet->getUnitPrice());
+                    ->trans(ProductOrderExport::TRANS_ROOM_UNIT.$unitType);
                 $productLeasingSet->setUnitPrice($unitPrice);
+                $productLeasingSet->setUnitType($unitType);
 
                 $basePrice[$unitPrice] = $productLeasingSet->getBasePrice();
             }
