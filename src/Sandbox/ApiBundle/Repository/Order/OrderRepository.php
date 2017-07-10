@@ -420,7 +420,7 @@ class OrderRepository extends EntityRepository
                     o.status = \''.ProductOrder::STATUS_PAID.'\' OR '
                     .'o.status = \''.ProductOrder::STATUS_COMPLETED.'\'
                 )')
-            ->andWhere('o.startDate <= :now AND o.endDate > :now')
+            ->andWhere('o.endDate > :now')
             ->setParameter('now', $now)
             ->setParameter('userId', $userId);
 
