@@ -525,6 +525,8 @@ class ClientOrderController extends OrderController
         $search = $paramFetcher->get('search');
 
         $roomUrl = $this->getParameter('room_mobile_url');
+        $orderUrl = $this->getParameter('orders_url');
+
         $owner = $this->get('translator')->trans(ProductOrderExport::TRANS_ORDER_ROLE.'owner');
         $invited = $this->get('translator')->trans(ProductOrderExport::TRANS_ORDER_ROLE.'invited');
 
@@ -568,10 +570,11 @@ class ClientOrderController extends OrderController
                 'date' => "$start - $end",
                 'address' => $order['address'],
                 'attachment' => $attachment,
-                'url' => "$roomUrl/book?ptype=detail&productid=".$order['productId'].'&btype='.$order['type'],
+                'url' => "$roomUrl/order?ptype=order&orderid=".$order['id'],
                 'creation_date' => $order['creationDate'],
                 'building_name' => $buildingName,
                 'user_role' => $userRole,
+                'start_date' => $order['startDate'],
             ];
 
             array_push($finalArray, $currentArray);
@@ -616,20 +619,21 @@ class ClientOrderController extends OrderController
                 'date' => "$start - $end",
                 'address' => $lease['address'],
                 'attachment' => $attachment,
-                'url' => "$roomUrl/book?ptype=detail&productid=".$lease['productId'].'&btype='.$lease['type'],
+                'url' => "$orderUrl/contract?ptype=leasesDetail&leasesId=".$lease['id'],
                 'creation_date' => $lease['creationDate'],
                 'building_name' => $buildingName,
                 'user_role' => $userRole,
+                'start_date' => $lease['startDate'],
             ];
 
             array_push($finalArray, $currentArray);
         }
 
         foreach ($finalArray as $key => $row) {
-            $current[$key] = $row['creation_date'];
+            $current[$key] = $row['start_date'];
         }
 
-        array_multisort($current, SORT_DESC, $finalArray);
+        array_multisort($current, SORT_ASC, $finalArray);
         $finalArray = array_slice($finalArray, $offset, $limit);
 
         return new View($finalArray);
