@@ -354,7 +354,7 @@ class LeaseRepository extends EntityRepository
         $search
     ) {
         $query = $this->createQueryBuilder('l')
-            ->select('u.id, l.startDate, l.endDate, up.name as username, b.address, r.name, r.type, p.roomId, p.id as productId, l.creationDate')
+            ->select('l.id, u.id as supervisor, l.startDate, l.endDate, up.name as username, b.address, r.name, r.type, p.roomId, p.id as productId, l.creationDate')
             ->leftJoin('l.supervisor', 'u')
             ->leftJoin('u.userProfile', 'up')
             ->leftJoin('l.product', 'p')
