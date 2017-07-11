@@ -33,6 +33,46 @@ class AdminLeaseBillController extends LeaseController
     use FinanceTrait;
 
     /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/leases/bills_sync/{id}")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function syncLeaseBillsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        $bill = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->find($id);
+
+        $em = $this->getDoctrine()->getManager();
+
+        $this->generateLongRentServiceFee(
+            $bill,
+            FinanceLongRentServiceBill::TYPE_BILL_SERVICE_FEE
+        );
+
+        // add invoice amount
+        if (!$bill->isSalesInvoice()) {
+            $this->postConsumeBalance(
+                $bill->getLease()->getDraweeId(),
+                $bill->getRevisedAmount(),
+                $bill->getLease()->getSerialNumber()
+            );
+
+            $bill->setInvoiced(true);
+            $em->flush();
+        }
+
+        return $bill->getId();
+    }
+
+    /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
