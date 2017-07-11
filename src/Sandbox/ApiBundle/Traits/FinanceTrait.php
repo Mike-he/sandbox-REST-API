@@ -8,6 +8,7 @@ use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Constants\FinanceDashboardConstants;
+use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 
 /**
  * Finance Trait.
@@ -93,7 +94,7 @@ trait FinanceTrait
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
             ->getCompanyServiceByType(
                 $companyId,
-                Room::TYPE_LONG_TERM
+                SalesCompanyServiceInfos::TRADE_TYPE_LONGTERM
             );
 
         $serviceFee = $serviceInfo ? $serviceInfo->getServiceFee() : 0;
