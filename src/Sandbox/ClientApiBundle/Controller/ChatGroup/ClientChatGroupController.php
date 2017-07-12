@@ -308,8 +308,12 @@ class ClientChatGroupController extends ChatGroupController
         }
 
         // get chatGroup
-        $chatGroup = $this->getRepo('ChatGroup\ChatGroup')->find($id);
+        $chatGroup = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:ChatGroup\ChatGroup')
+            ->find($id);
         $this->throwNotFoundIfNull($chatGroup, self::NOT_FOUND_MESSAGE);
+
+        $userId = $chatGroup->getCreatorId();
 
         $tag = $chatGroup->getTag();
         if (!is_null($tag)) {
@@ -326,6 +330,7 @@ class ClientChatGroupController extends ChatGroupController
 
         // set chatGroup
         $chatGroup->setModificationDate(new \DateTime('now'));
+        $chatGroup->setCreatorId($userId);
 
         // update to db
         $em = $this->getDoctrine()->getManager();
