@@ -469,7 +469,7 @@ class AdminChatGroupController extends ChatGroupController
         $toJID = $paramFetcher->get('toJID');
         $type = $paramFetcher->get('type');
 
-        $fromJID = '"'.$fromJID.'"';
+        $fromJID = $fromJID ? '"'.$fromJID.'"' : null;
         $toJID = '"'.$toJID.'"';
         $type = '"'.$type.'"';
 

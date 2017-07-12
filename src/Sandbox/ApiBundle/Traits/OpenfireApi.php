@@ -78,6 +78,8 @@ trait OpenfireApi
      * @param $fromJID
      * @param $toJID
      * @param $type
+     * @param $offset
+     * @param $limit
      *
      * @return array
      */
