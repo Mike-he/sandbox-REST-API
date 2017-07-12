@@ -184,14 +184,14 @@ sandbox_sales_admin_api_user_group:
     type:     annotation
     prefix:   /admin
 
-# User info
-sandbox_sales_admin_api_user_info:
-    resource: "@SandboxSalesApiBundle/Controller/User/AdminUserInfoController.php"
-    type:     annotation
-    prefix:   /admin
-
 # admin remarks
 sandbox_sales_admin_api_admin_remarks:
     resource: "@SandboxSalesApiBundle/Controller/Admin/AdminRemarkController.php"
+    type:     annotation
+    prefix:   /admin
+
+# admin user customer
+sandbox_sales_admin_api_user_customer:
+    resource: "@SandboxSalesApiBundle/Controller/Customer/AdminCustomerController.php"
     type:     annotation
     prefix:   /admin

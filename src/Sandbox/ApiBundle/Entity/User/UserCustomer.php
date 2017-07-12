@@ -3,15 +3,16 @@
 namespace Sandbox\ApiBundle\Entity\User;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * UserInfo.
  *
- * @ORM\Table(name="user_info")
+ * @ORM\Table(name="user_customer")
  * @ORM\Entity
  */
-class UserInfo
+class UserCustomer
 {
     /**
      * @var int
@@ -39,6 +40,29 @@ class UserInfo
     /**
      * @var string
      *
+     * @Assert\NotBlank();
+     * @ORM\Column(name="phone_code", type="string", length=16, nullable=false)
+     */
+    private $phoneCode;
+
+    /**
+     * @var string
+     *
+     * @Assert\NotBlank();
+     * @ORM\Column(name="phone", type="string", length=64, nullable=false)
+     */
+    private $phone;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="avatar", type="string", length=255, nullable=true)
+     */
+    private $avatar;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="name", type="string", length=64, nullable=true)
      */
     private $name;
@@ -49,13 +73,6 @@ class UserInfo
      * @ORM\Column(name="sex", type="string", length=16, nullable=true)
      */
     private $sex;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="phone", type="string", length=64, nullable=true)
-     */
-    private $phone;
 
     /**
      * @var string
@@ -167,7 +184,7 @@ class UserInfo
      *
      * @param int $companyId
      *
-     * @return UserInfo
+     * @return UserCustomer
      */
     public function setCompanyId($companyId)
     {
@@ -191,7 +208,7 @@ class UserInfo
      *
      * @param string $name
      *
-     * @return UserInfo
+     * @return UserCustomer
      */
     public function setName($name)
     {
@@ -215,7 +232,7 @@ class UserInfo
      *
      * @param string $sex
      *
-     * @return UserInfo
+     * @return UserCustomer
      */
     public function setSex($sex)
     {
@@ -239,7 +256,7 @@ class UserInfo
      *
      * @param string $phone
      *
-     * @return UserInfo
+     * @return UserCustomer
      */
     public function setPhone($phone)
     {
@@ -259,11 +276,43 @@ class UserInfo
     }
 
     /**
+     * @return string
+     */
+    public function getPhoneCode()
+    {
+        return $this->phoneCode;
+    }
+
+    /**
+     * @param string $phoneCode
+     */
+    public function setPhoneCode($phoneCode)
+    {
+        $this->phoneCode = $phoneCode;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAvatar()
+    {
+        return $this->avatar;
+    }
+
+    /**
+     * @param string $avatar
+     */
+    public function setAvatar($avatar)
+    {
+        $this->avatar = $avatar;
+    }
+
+    /**
      * Set email.
      *
      * @param string $email
      *
-     * @return UserInfo
+     * @return UserCustomer
      */
     public function setEmail($email)
     {
@@ -287,7 +336,7 @@ class UserInfo
      *
      * @param string $nationality
      *
-     * @return UserInfo
+     * @return UserCustomer
      */
     public function setNationality($nationality)
     {
@@ -311,7 +360,7 @@ class UserInfo
      *
      * @param string $idType
      *
-     * @return UserInfo
+     * @return UserCustomer
      */
     public function setIdType($idType)
     {
@@ -335,7 +384,7 @@ class UserInfo
      *
      * @param string $idNumber
      *
-     * @return UserInfo
+     * @return UserCustomer
      */
     public function setIdNumber($idNumber)
     {
@@ -359,7 +408,7 @@ class UserInfo
      *
      * @param string $language
      *
-     * @return UserInfo
+     * @return UserCustomer
      */
     public function setLanguage($language)
     {
@@ -383,7 +432,7 @@ class UserInfo
      *
      * @param string $birthday
      *
-     * @return UserInfo
+     * @return UserCustomer
      */
     public function setBirthday($birthday)
     {
@@ -407,7 +456,7 @@ class UserInfo
      *
      * @param string $companyName
      *
-     * @return UserInfo
+     * @return UserCustomer
      */
     public function setCompanyName($companyName)
     {
@@ -431,7 +480,7 @@ class UserInfo
      *
      * @param string $position
      *
-     * @return UserInfo
+     * @return UserCustomer
      */
     public function setPosition($position)
     {
@@ -455,7 +504,7 @@ class UserInfo
      *
      * @param string $comment
      *
-     * @return UserInfo
+     * @return UserCustomer
      */
     public function setComment($comment)
     {
@@ -479,7 +528,7 @@ class UserInfo
      *
      * @param \DateTime $creationDate
      *
-     * @return UserInfo
+     * @return UserCustomer
      */
     public function setCreationDate($creationDate)
     {
@@ -503,7 +552,7 @@ class UserInfo
      *
      * @param \DateTime $modificationDate
      *
-     * @return UserInfo
+     * @return UserCustomer
      */
     public function setModificationDate($modificationDate)
     {
