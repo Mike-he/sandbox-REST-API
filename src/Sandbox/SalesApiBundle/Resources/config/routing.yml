@@ -100,18 +100,6 @@ sandbox_admin_api_space:
     type:     annotation
     prefix:   /admin/space
 
-# Admin Lease /sales/admin/leases
-sandbox_admin_api_lease:
-    resource: "@SandboxSalesApiBundle/Controller/Lease/AdminLeaseController.php"
-    type:     annotation
-    prefix:   /admin
-
-# Admin Lease Bill /sales/admin/leases/bills
-sandbox_admin_api_lease_bill:
-    resource: "@SandboxSalesApiBundle/Controller/Lease/AdminLeaseBillController.php"
-    type:     annotation
-    prefix:   /admin
-
 # Admin Product Appointments /sales/admin/products/appointments
 sandbox_sales_admin_products_appointments:
     resource: "@SandboxSalesApiBundle/Controller/Product/AdminProductAppointmentController.php"
@@ -195,3 +183,10 @@ sandbox_sales_admin_api_user_customer:
     resource: "@SandboxSalesApiBundle/Controller/Customer/AdminCustomerController.php"
     type:     annotation
     prefix:   /admin
+
+# Admin Lease
+sandbox_sales_admin_lease_api:
+    resource: "@SandboxSalesApiBundle/Resources/config/lease/routing.yml"
+    type: rest
+    prefix: /admin
+

@@ -1,0 +1,17 @@
+# Admin Lease /sales/admin/leases
+sandbox_admin_api_lease:
+    resource: "@SandboxSalesApiBundle/Controller/Lease/AdminLeaseController.php"
+    type:     annotation
+    prefix:   /
+
+# Admin Lease Bill /sales/admin/leases/bills
+sandbox_admin_api_lease_bill:
+    resource: "@SandboxSalesApiBundle/Controller/Lease/AdminLeaseBillController.php"
+    type:     annotation
+    prefix:   /
+
+# Admin Lease Bill /sales/admin/leases/clues
+sandbox_admin_api_lease_clue:
+    resource: "@SandboxSalesApiBundle/Controller/Lease/AdminLeaseClueController.php"
+    type:     annotation
+    prefix:   /
