@@ -33,7 +33,7 @@ class UserCustomer
     /**
      * @var int
      *
-     * @ORM\Column(name="user_id", type="integer")
+     * @ORM\Column(name="user_id", type="integer", nullable=true)
      */
     private $userId;
 
@@ -41,7 +41,7 @@ class UserCustomer
      * @var string
      *
      * @Assert\NotBlank();
-     * @ORM\Column(name="phone_code", type="string", length=16, nullable=false)
+     * @ORM\Column(name="phone_code", type="string", length=16, nullable=true)
      */
     private $phoneCode;
 
@@ -49,7 +49,7 @@ class UserCustomer
      * @var string
      *
      * @Assert\NotBlank();
-     * @ORM\Column(name="phone", type="string", length=64, nullable=false)
+     * @ORM\Column(name="phone", type="string", length=64, nullable=true)
      */
     private $phone;
 
@@ -63,6 +63,7 @@ class UserCustomer
     /**
      * @var string
      *
+     * @Assert\NotBlank();
      * @ORM\Column(name="name", type="string", length=64, nullable=true)
      */
     private $name;
