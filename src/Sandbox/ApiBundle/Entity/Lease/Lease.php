@@ -29,6 +29,9 @@ class Lease
     const LEASE_STATUS_MATURED = 'matured';
     const LEASE_LETTER_HEAD = 'C';
 
+    const LEASE_LESSEE_TYPE_ENTERPRISE = 'enterprise';
+    const LEASE_LESSEE_TYPE_PERSONAL = 'personal';
+
     /**
      * @var int
      *
@@ -256,6 +259,27 @@ class Lease
      * @Serializer\Groups({"main", "lease_list"})
      */
     private $lesseeEmail;
+
+    /**
+     * @var string 承租方类型
+     *
+     * @ORM\Column(name="lessee_type", type="string", length=40)
+     */
+    private $lesseeType;
+
+    /**
+     * @var int 承租企业
+     *
+     * @ORM\Column(name="lessee_enterprise", type="integer", length=20, nullable=true)
+     */
+    private $lesseeEnterprise;
+
+    /**
+     * @var int 承租方联系人
+     *
+     * @ORM\Column(name="lessee_customer", type="integer", length=20)
+     */
+    private $lesseeCustomer;
 
     /**
      * @var string
@@ -1236,5 +1260,53 @@ class Lease
     public function setPlanDay($planDay)
     {
         $this->planDay = $planDay;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLesseeType()
+    {
+        return $this->lesseeType;
+    }
+
+    /**
+     * @param string $lesseeType
+     */
+    public function setLesseeType($lesseeType)
+    {
+        $this->lesseeType = $lesseeType;
+    }
+
+    /**
+     * @return int
+     */
+    public function getLesseeEnterprise()
+    {
+        return $this->lesseeEnterprise;
+    }
+
+    /**
+     * @param int $lesseeEnterprise
+     */
+    public function setLesseeEnterprise($lesseeEnterprise)
+    {
+        $this->lesseeEnterprise = $lesseeEnterprise;
+    }
+
+    /**
+     * @return int
+     */
+    public function getLesseeCustomer()
+    {
+        return $this->lesseeCustomer;
+    }
+
+    /**
+     * @param int $lesseeCustomer
+     */
+    public function setLesseeCustomer($lesseeCustomer)
+    {
+        $this->lesseeCustomer = $lesseeCustomer;
     }
 }

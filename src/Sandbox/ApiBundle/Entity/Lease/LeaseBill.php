@@ -225,6 +225,15 @@ class LeaseBill
     private $drawee;
 
     /**
+     * @var integer
+     *
+     * @ORM\Column(name="customer_id", type="integer", nullable=true)
+     *
+     * @Serializer\Groups({"main","client","lease_bill"})
+     */
+    private $customerId;
+
+    /**
      * @var int
      *
      * @ORM\Column(name="payment_user_id", type="integer", nullable=true)
@@ -721,5 +730,21 @@ class LeaseBill
     public function setInvoiced($invoiced)
     {
         $this->invoiced = $invoiced;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCustomerId()
+    {
+        return $this->customerId;
+    }
+
+    /**
+     * @param int $customerId
+     */
+    public function setCustomerId($customerId)
+    {
+        $this->customerId = $customerId;
     }
 }
