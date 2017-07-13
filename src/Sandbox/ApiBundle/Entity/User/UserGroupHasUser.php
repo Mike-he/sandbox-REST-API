@@ -30,7 +30,7 @@ class UserGroupHasUser
     /**
      * @var int
      *
-     * @ORM\Column(name="user_id", type="integer")
+     * @ORM\Column(name="user_id", type="integer", nullable=true)
      */
     private $userId;
 
@@ -68,6 +68,13 @@ class UserGroupHasUser
      * @ORM\Column(name="order_number", type="string", length=64, nullable=true)
      */
     private $orderNumber;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="customer_id", type="integer", nullable=true)
+     */
+    private $customerId;
 
     /**
      * @var \DateTime
@@ -195,5 +202,21 @@ class UserGroupHasUser
     public function setOrderNumber($orderNumber)
     {
         $this->orderNumber = $orderNumber;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCustomerId()
+    {
+        return $this->customerId;
+    }
+
+    /**
+     * @param int $customerId
+     */
+    public function setCustomerId($customerId)
+    {
+        $this->customerId = $customerId;
     }
 }

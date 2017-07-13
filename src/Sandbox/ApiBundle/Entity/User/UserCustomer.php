@@ -10,7 +10,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * UserInfo.
  *
  * @ORM\Table(name="user_customer")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Customer\UserCustomerRepository")
  */
 class UserCustomer
 {
@@ -153,6 +153,11 @@ class UserCustomer
      * @ORM\Column(name="modification_date", type="datetime")
      */
     private $modificationDate;
+
+    /**
+     * @var array
+     */
+    private $groups;
 
     /**
      * Get id.
@@ -570,5 +575,21 @@ class UserCustomer
     public function getModificationDate()
     {
         return $this->modificationDate;
+    }
+
+    /**
+     * @return array
+     */
+    public function getGroups()
+    {
+        return $this->groups;
+    }
+
+    /**
+     * @param array $groups
+     */
+    public function setGroups($groups)
+    {
+        $this->groups = $groups;
     }
 }

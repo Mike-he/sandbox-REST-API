@@ -3,8 +3,10 @@
 namespace Sandbox\SalesApiBundle\Controller\Customer;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
+use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Entity\User\UserCustomer;
+use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
 use Sandbox\ApiBundle\Form\User\UserCustomerPatchType;
 use Sandbox\ApiBundle\Form\User\UserCustomerType;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
@@ -12,6 +14,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\Request;
+use FOS\RestBundle\Controller\Annotations;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class AdminCustomerController extends SalesRestController
@@ -176,5 +179,153 @@ class AdminCustomerController extends SalesRestController
         $em->flush();
 
         return new View();
+    }
+
+    /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many admins to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="query",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="group_id",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     requirements="\d+",
+     *     strict=true
+     * )
+     *
+     * @Route("/customers")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getCustomersAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+
+        $query = $paramFetcher->get('query');
+        $groupId = $paramFetcher->get('group_id');
+
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
+        $customers = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->getSalesAdminCustomers(
+                $salesCompanyId,
+                $query,
+                $groupId,
+                $pageLimit,
+                $pageIndex
+            );
+
+        foreach ($customers as $customer) {
+            $this->generateCustomer($customer);
+        }
+
+        if ($pageIndex && $pageLimit) {
+            $count = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserCustomer')
+                ->getSalesAdminCustomers(
+                    $salesCompanyId,
+                    $query,
+                    $groupId,
+                    null,
+                    null,
+                    true
+                );
+
+            $customers = [
+                'items' => $customers,
+                'total_count' => $count,
+            ];
+        }
+
+        return new View($customers);
+    }
+
+    /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/customers/{id}")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getCustomerAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        $customer = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->find($id);
+        $this->throwNotFoundIfNull($customer, self::NOT_FOUND_MESSAGE);
+
+        $this->generateCustomer($customer);
+
+        return new View($customer);
+    }
+
+    /**
+     * @param $customer
+     */
+    private function generateCustomer(
+        $customer
+    ) {
+        /** @var UserCustomer $customer */
+        $groupBinds= $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
+            ->findBy(array(
+                'customerId' => $customer->getId(),
+            ));
+
+        $customerGroupArray = [];
+        foreach ($groupBinds as $bind) {
+            /** @var UserGroupHasUser $bind */
+            $group = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserGroup')
+                ->find($bind->getGroupId());
+
+            array_push($customerGroupArray, [
+                'id' => $group->getId(),
+                'name' => $group->getName(),
+                'type' => $group->getType(),
+            ]);
+        }
+
+        $customer->setGroups($customerGroupArray);
     }
 }
