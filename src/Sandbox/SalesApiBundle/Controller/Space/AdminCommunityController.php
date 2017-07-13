@@ -27,6 +27,76 @@ class AdminCommunityController extends SalesRestController
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
+     *
+     * @Annotations\QueryParam(
+     *    name="query",
+     *    default=null,
+     *    nullable=true,
+     *    array=false,
+     *    description="search spaces"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    default=null,
+     *    nullable=true,
+     *    array=false,
+     *    description="id of building"
+     * )
+     *
+     * @Route("/search")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function findSpacesAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        // check user permission
+
+        $query = $paramFetcher->get('query');
+        $buildingId = $paramFetcher->get('building');
+
+        // get my buildings list
+        $myBuildingIds = $this->getMySalesBuildingIds(
+            $this->getAdminId(),
+            array(
+                AdminPermission::KEY_SALES_BUILDING_PRODUCT,
+                AdminPermission::KEY_SALES_BUILDING_SPACE,
+                AdminPermission::KEY_SALES_BUILDING_BUILDING,
+                AdminPermission::KEY_SALES_BUILDING_ROOM,
+            )
+        );
+
+        $spaces = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\Room')
+            ->findSpaces(
+                $buildingId,
+                $query,
+                $myBuildingIds
+            );
+
+        foreach ($spaces as &$space) {
+            $attachment = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomAttachmentBinding')
+                ->findAttachmentsByRoom($space['room_id'], 1);
+
+            if (!empty($attachment)) {
+                $space['content'] = $attachment[0]['content'];
+                $space['preview'] = $attachment[0]['preview'];
+            }
+        }
+
+        $view = new View($spaces);
+
+        return $view;
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
      * @Route("/administrative_region")
      * @Method({"GET"})
      *
