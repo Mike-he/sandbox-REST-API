@@ -303,7 +303,7 @@ class AdminCommunityController extends SalesRestController
             )
         );
 
-        if (!in_array($building, $myBuildingIds)) {
+        if ($building && !in_array($building, $myBuildingIds)) {
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
