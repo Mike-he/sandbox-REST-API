@@ -10,8 +10,14 @@ sandbox_admin_api_lease_bill:
     type:     annotation
     prefix:   /
 
-# Admin Lease Bill /sales/admin/leases/clues
+# Admin Lease Clue /sales/admin/lease/clues
 sandbox_admin_api_lease_clue:
     resource: "@SandboxSalesApiBundle/Controller/Lease/AdminLeaseClueController.php"
+    type:     annotation
+    prefix:   /
+
+# Admin Lease Offer /sales/admin/lease/offers
+sandbox_admin_api_lease_offer:
+    resource: "@SandboxSalesApiBundle/Controller/Lease/AdminLeaseOfferController.php"
     type:     annotation
     prefix:   /

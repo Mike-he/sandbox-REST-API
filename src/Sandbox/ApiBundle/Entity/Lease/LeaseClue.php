@@ -35,6 +35,13 @@ class LeaseClue
     private $serialNumber;
 
     /**
+     * @var Sandbox\ApiBundle\Entity\Room\RoomBuilding
+     *
+     * @ORM\Column(name="building_id",type="integer", nullable=true)
+     */
+    private $buildingId;
+
+    /**
      * @var Sandbox\ApiBundle\Entity\Product\Product
      *
      * @ORM\Column(name="product_id",type="integer", nullable=true)
@@ -114,7 +121,7 @@ class LeaseClue
     /**
      * @var string
      *
-     * @ORM\Column(name="status", type="string", length=15, nullable=true)
+     * @ORM\Column(name="status", type="string", length=15)
      */
     private $status;
 
@@ -163,6 +170,22 @@ class LeaseClue
     public function setSerialNumber($serialNumber)
     {
         $this->serialNumber = $serialNumber;
+    }
+
+    /**
+     * @return Sandbox\ApiBundle\Entity\Room\RoomBuilding
+     */
+    public function getBuildingId()
+    {
+        return $this->buildingId;
+    }
+
+    /**
+     * @param Sandbox\ApiBundle\Entity\Room\RoomBuilding $buildingId
+     */
+    public function setBuildingId($buildingId)
+    {
+        $this->buildingId = $buildingId;
     }
 
     /**
@@ -372,7 +395,6 @@ class LeaseClue
     {
         $this->productAppointmentId = $productAppointmentId;
     }
-
 
     /**
      * @return \DateTime

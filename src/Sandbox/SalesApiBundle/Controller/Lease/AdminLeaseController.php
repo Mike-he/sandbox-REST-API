@@ -972,6 +972,10 @@ class AdminLeaseController extends SalesRestController
         return;
     }
 
+    /**
+     * @param $leaseRentTypeIds
+     * @param Lease $lease
+     */
     private function handleLeaseRentTypesPost(
         $leaseRentTypeIds,
         $lease

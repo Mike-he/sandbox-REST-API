@@ -6,7 +6,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
-class LeaseCluePostType extends AbstractType
+class LeaseOfferType extends AbstractType
 {
     /**
      * @param FormBuilderInterface $builder
@@ -17,18 +17,30 @@ class LeaseCluePostType extends AbstractType
         $builder
             ->add('building_id')
             ->add('product_id')
-            ->add('lessee_name')
-            ->add('lessee_address')
+            ->add('lessor_name')
+            ->add('lessor_address')
+            ->add('lessor_contact')
+            ->add('lessor_phone')
+            ->add('lessor_email')
+            ->add('lessee_type')
+            ->add('lessee_enterprise')
             ->add('lessee_customer')
-            ->add('lessee_phone')
-            ->add('lessee_email')
             ->add('start_date')
             ->add('end_date')
-            ->add('cycle')
             ->add('monthly_rent')
-            ->add('number')
+            ->add('total_rent')
+            ->add('deposit')
+            ->add('purpose')
+            ->add('other_expenses')
+            ->add('supplementary_terms')
             ->add('status')
-            ->add('product_appointment_id')
+            ->add('lease_clue_id')
+            ->add('rent_type_ids',
+                null,
+                array(
+                    'mapped' => false,
+                )
+            )
         ;
     }
 
@@ -38,7 +50,7 @@ class LeaseCluePostType extends AbstractType
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Sandbox\ApiBundle\Entity\Lease\LeaseClue',
+            'data_class' => 'Sandbox\ApiBundle\Entity\Lease\LeaseOffer',
         ));
     }
 

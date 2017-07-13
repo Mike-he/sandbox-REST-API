@@ -4,8 +4,8 @@ namespace Sandbox\SalesApiBundle\Controller\Lease;
 
 use FOS\RestBundle\View\View;
 use Knp\Component\Pager\Paginator;
-use Sandbox\ApiBundle\Entity\Lease\LeaseClue;
-use Sandbox\ApiBundle\Form\Lease\LeaseCluePostType;
+use Sandbox\ApiBundle\Entity\Lease\LeaseOffer;
+use Sandbox\ApiBundle\Form\Lease\LeaseOfferType;
 use Sandbox\ApiBundle\Traits\GenerateSerialNumberTrait;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -15,12 +15,12 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 
-class AdminLeaseClueController extends SalesRestController
+class AdminLeaseOfferController extends SalesRestController
 {
     use GenerateSerialNumberTrait;
 
     /**
-     * Get Lease Clues.
+     * Get Lease Offers.
      *
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
@@ -46,14 +46,14 @@ class AdminLeaseClueController extends SalesRestController
      *    description="page number"
      * )
      *
-     * @Route("/lease/clues")
+     * @Route("/lease/offers")
      * @Method({"GET"})
      *
      * @return View
      *
      * @throws \Exception
      */
-    public function getCluesListsAction(
+    public function geOfferListsAction(
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
@@ -61,7 +61,7 @@ class AdminLeaseClueController extends SalesRestController
         $pageIndex = $paramFetcher->get('pageIndex');
 
         $clues = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Lease\LeaseClue')
+            ->getRepository('SandboxApiBundle:Lease\LeaseOffer')
             ->findAll();
 
         $paginator = new Paginator();
@@ -75,23 +75,23 @@ class AdminLeaseClueController extends SalesRestController
     }
 
     /**
-     * Get clue info.
+     * Get offer info.
      *
      * @param Request $request
      * @param int     $id
      *
-     * @Route("/lease/clues/{id}")
+     * @Route("/lease/offers/{id}")
      * @Method({"GET"})
      *
      * @throws \Exception
      *
      * @return View
      */
-    public function getClueByIdAction(
+    public function getOfferByIdAction(
         Request $request,
         $id
     ) {
-        $clue = $this->getDoctrine()->getRepository('SandboxApiBundle:Lease\LeaseClue')->find($id);
+        $clue = $this->getDoctrine()->getRepository('SandboxApiBundle:Lease\LeaseOffer')->find($id);
         $this->throwNotFoundIfNull($clue, self::NOT_FOUND_MESSAGE);
 
         $view = new View();
@@ -105,26 +105,29 @@ class AdminLeaseClueController extends SalesRestController
      *
      * @param $request
      *
-     * @Route("/lease/clues")
+     * @Route("/lease/offers")
      * @Method({"POST"})
      *
      * @return View
      */
-    public function postLeaseCluesAction(
+    public function postLeaseOffersAction(
         Request $request
     ) {
         // check user permission
 
-        $clue = new LeaseClue();
-        $form = $this->createForm(new LeaseCluePostType(), $clue);
+        $offer = new LeaseOffer();
+        $form = $this->createForm(new LeaseOfferType(), $offer);
         $form->handleRequest($request);
 
         if (!$form->isValid()) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
-        return $this->saveLeaseClue(
-            $clue,
+        $leaseRentTypeIds = $form['rent_type_ids']->getData();
+
+        return $this->saveLeaseOffer(
+            $offer,
+            $leaseRentTypeIds,
             'POST'
         );
     }
@@ -134,21 +137,21 @@ class AdminLeaseClueController extends SalesRestController
      *
      * @param $request
      *
-     * @Route("/lease/clues/{id}")
+     * @Route("/lease/offers/{id}")
      * @Method({"PUT"})
      *
      * @return View
      */
-    public function putLeaseCluesAction(
+    public function putLeaseOffersAction(
         Request $request,
         $id
     ) {
-        $clue = $this->getDoctrine()->getRepository('SandboxApiBundle:Lease\LeaseClue')->find($id);
-        $this->throwNotFoundIfNull($clue, self::NOT_FOUND_MESSAGE);
+        $offer = $this->getDoctrine()->getRepository('SandboxApiBundle:Lease\LeaseOffer')->find($id);
+        $this->throwNotFoundIfNull($offer, self::NOT_FOUND_MESSAGE);
 
         $form = $this->createForm(
-            new LeaseCluePostType(),
-            $clue,
+            new LeaseOfferType(),
+            $offer,
             array('method' => 'PUT')
         );
         $form->handleRequest($request);
@@ -157,25 +160,30 @@ class AdminLeaseClueController extends SalesRestController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
-        return $this->saveLeaseClue(
-            $clue,
+        $leaseRentTypeIds = $form['rent_type_ids']->getData();
+
+        return $this->saveLeaseOffer(
+            $offer,
+            $leaseRentTypeIds,
             'PUT'
         );
     }
 
     /**
-     * @param LeaseClue $clue
+     * @param LeaseOffer $offer
+     * @param $leaseRentTypeIds
      * @param $method
      *
      * @return View
      */
-    private function saveLeaseClue(
-        $clue,
+    private function saveLeaseOffer(
+        $offer,
+        $leaseRentTypeIds,
         $method
     ) {
         $em = $this->getDoctrine()->getManager();
 
-        $customerId = $clue->getLesseeCustomer();
+        $customerId = $offer->getLesseeCustomer();
         if (is_null($customerId)) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         } else {
@@ -183,45 +191,66 @@ class AdminLeaseClueController extends SalesRestController
             $this->throwNotFoundIfNull($customer, self::NOT_FOUND_MESSAGE);
         }
 
-        $buildingId = $clue->getBuildingId();
+        if ($offer->getLesseeType() == LeaseOffer::LEASE_OFFER_LESSEE_TYPE_ENTERPRISE) {
+            $enterpriseId = $offer->getLesseeEnterprise();
+            if (is_null($enterpriseId)) {
+                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            } else {
+                // todo: check salse enterprise
+            }
+        }
+
+        $buildingId = $offer->getBuildingId();
         if ($buildingId) {
             $building = $em->getRepository('SandboxApiBundle:Room\RoomBuilding')->find($buildingId);
             $this->throwNotFoundIfNull($building, self::NOT_FOUND_MESSAGE);
         }
 
-        $productId = $clue->getProductId();
+        $productId = $offer->getProductId();
         if ($productId) {
             $product = $em->getRepository('SandboxApiBundle:Product\Product')->find($productId);
             $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
         }
 
-        $productAppointmentId = $clue->getProductAppointmentId();
-        if ($productAppointmentId) {
-            $productAppointment = $em->getRepository('SandboxApiBundle:Product\ProductAppointment')->find($productAppointmentId);
-            $this->throwNotFoundIfNull($productAppointment, self::NOT_FOUND_MESSAGE);
+        $leaseClueId = $offer->getLeaseClueId();
+        if ($leaseClueId) {
+            $leaseClue = $em->getRepository('SandboxApiBundle:Lease\LeaseClue')->find($leaseClueId);
+            $this->throwNotFoundIfNull($leaseClue, self::NOT_FOUND_MESSAGE);
         }
 
-        $startDate = $clue->getStartDate();
+        $startDate = $offer->getStartDate();
         if ($startDate) {
-            $clue->setStartDate(new \DateTime($startDate));
+            $offer->setStartDate(new \DateTime($startDate));
         }
 
-        $endDate = $clue->getEndDate();
+        $endDate = $offer->getEndDate();
         if ($endDate) {
-            $clue->setEndDate(new \DateTime($endDate));
+            $offer->setEndDate(new \DateTime($endDate));
         }
 
         if ($method == 'POST') {
-            $serialNumber = $this->generateSerialNumber(LeaseClue::LEASE_CLUE_LETTER_HEAD);
-            $clue->setSerialNumber($serialNumber);
+            $serialNumber = $this->generateSerialNumber(LeaseOffer::LEASE_OFFER_LETTER_HEAD);
+            $offer->setSerialNumber($serialNumber);
         }
 
-        $em->persist($clue);
+        $leaseRentTypes = $offer->getLeaseRentTypes();
+        foreach ($leaseRentTypes as $leaseRentType) {
+            $offer->removeLeaseRentTypes($leaseRentType);
+        }
+
+        foreach ($leaseRentTypeIds as $leaseRentTypeId) {
+            $leaseRentType = $em->getRepository('SandboxApiBundle:Lease\LeaseRentTypes')->find($leaseRentTypeId);
+            if ($leaseRentType) {
+                $offer->addLeaseRentTypes($leaseRentType);
+            }
+        }
+
+        $em->persist($offer);
         $em->flush();
 
         if ($method == 'POST') {
             $response = array(
-                'id' => $clue->getId(),
+                'id' => $offer->getId(),
             );
 
             return new View($response, 201);
