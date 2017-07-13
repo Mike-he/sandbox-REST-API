@@ -56,6 +56,64 @@ class AdminBuildingController extends LocationController
     const ROOM_FLOOR_BAK = '.bak';
 
     /**
+     * Get Room Buildings.
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     *
+     * @Annotations\QueryParam(
+     *    name="query",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    description="query key word"
+     * )
+     *
+     * @Route("/buildings/search")
+     * @Method({"GET"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function findAdminBuildingsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        // filters
+        $query = $paramFetcher->get('query');
+
+        // get my buildings list
+        $buildingIds = $this->getMySalesBuildingIds(
+            $this->getAdminId(),
+            array(
+                AdminPermission::KEY_SALES_PLATFORM_BUILDING,
+                AdminPermission::KEY_SALES_BUILDING_BUILDING,
+            )
+        );
+
+        $buildings = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+            ->getMySalesBuildings(
+                $query,
+                $buildingIds
+            );
+
+        $result = array();
+        foreach ($buildings as $building) {
+            $result[] = array(
+                'id' => $building->getId(),
+                'name' => $building->getName(),
+                'avatar' => $building->getAvatar(),
+                'address' => $building->getAddress(),
+            );
+        }
+
+        return new View($result);
+    }
+
+    /**
      * @Route("/buildings/{id}/room/attachment")
      * @Method({"POST"})
      *
