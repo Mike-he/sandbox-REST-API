@@ -33,7 +33,7 @@ class AdminLeaseBillController extends LeaseController
     use FinanceTrait;
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/leases/bills_sync/{id}")

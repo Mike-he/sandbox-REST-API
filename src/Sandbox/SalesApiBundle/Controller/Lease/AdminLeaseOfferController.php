@@ -225,7 +225,9 @@ class AdminLeaseOfferController extends SalesRestController
 
         $endDate = $offer->getEndDate();
         if ($endDate) {
-            $offer->setEndDate(new \DateTime($endDate));
+            $endDate = new \DateTime($endDate);
+            $endDate->setTime(23, 59, 59);
+            $offer->setEndDate($endDate);
         }
 
         if ($method == 'POST') {

@@ -17,16 +17,18 @@ use Gedmo\Mapping\Annotation as Gedmo;
  */
 class Lease
 {
-    const LEASE_STATUS_DRAFTING = 'drafting';
+    const LEASE_STATUS_DRAFTING = 'drafting'; //未生效
+    const LEASE_STATUS_PERFORMING = 'performing'; //生效,履行中
+    const LEASE_STATUS_TERMINATED = 'terminated'; //已终止
+    const LEASE_STATUS_MATURED = 'matured'; //已到期
+    const LEASE_STATUS_END = 'end'; //已结束
+    const LEASE_STATUS_CLOSED = 'closed'; //已关闭,作废
+
     const LEASE_STATUS_RECONFIRMING = 'reconfirming';
     const LEASE_STATUS_CONFIRMING = 'confirming';
     const LEASE_STATUS_CONFIRMED = 'confirmed';
-    const LEASE_STATUS_PERFORMING = 'performing';
-    const LEASE_STATUS_END = 'end';
     const LEASE_STATUS_EXPIRED = 'expired';
-    const LEASE_STATUS_TERMINATED = 'terminated';
-    const LEASE_STATUS_CLOSED = 'closed';
-    const LEASE_STATUS_MATURED = 'matured';
+
     const LEASE_LETTER_HEAD = 'C';
 
     const LEASE_LESSEE_TYPE_ENTERPRISE = 'enterprise';
@@ -53,233 +55,28 @@ class Lease
     private $serialNumber;
 
     /**
-     * @var User
+     * @var Sandbox\ApiBundle\Entity\Room\RoomBuilding
      *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User")
-     * @ORM\JoinColumn(name="drawee", referencedColumnName="id", onDelete="SET NULL")
-     *
-     * @Serializer\Groups({"client"})
+     * @ORM\Column(name="building_id",type="integer", nullable=true)
      */
-    private $drawee;
+    private $buildingId;
+
+    /**
+     * @var Sandbox\ApiBundle\Entity\Product\Product
+     *
+     * @ORM\Column(name="product_id",type="integer", nullable=true)
+     */
+    private $productId;
 
     /**
      * @var string
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Product\Product")
-     * @ORM\JoinColumn(name="product_id", referencedColumnName="id", onDelete="CASCADE")
+     * @ORM\JoinColumn(name="product_id", referencedColumnName="id", onDelete="SET NULL")
      *
      * @Serializer\Groups({"client"})
      */
     private $product;
-
-    /**
-     * Person in charge.
-     *
-     * @var User
-     *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User")
-     * @ORM\JoinColumn(name="supervisor", referencedColumnName="id", onDelete="SET NULL")
-     */
-    private $supervisor;
-
-    /**
-     * House used purpose.
-     *
-     * @var string
-     *
-     * @ORM\Column(name="purpose", type="text", nullable=true)
-     *
-     * @Serializer\Groups({"main"})
-     */
-    private $purpose;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="other_expenses", type="text", nullable=true)
-     *
-     * @Serializer\Groups({"main"})
-     */
-    private $otherExpenses;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="supplementary_terms", type="text", nullable=true)
-     *
-     * @Serializer\Groups({"main"})
-     */
-    private $supplementaryTerms;
-
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="start_date", type="datetime", nullable=true)
-     *
-     * @Serializer\Groups({"main", "lease_list", "room_usage"})
-     */
-    private $startDate;
-
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="end_date", type="datetime", nullable=true)
-     *
-     * @Serializer\Groups({"main", "lease_list", "room_usage"})
-     */
-    private $endDate;
-
-    /**
-     * @var \DateTime
-     *
-     * @Gedmo\Timestampable(on="create")
-     * @ORM\Column(name="creation_date", type="datetime", nullable=true)
-     *
-     * @Serializer\Groups({"main", "lease_list"})
-     */
-    private $creationDate;
-
-    /**
-     * @var \DateTime
-     *
-     * @Gedmo\Timestampable(on="update")
-     * @ORM\Column(name="modification_date", type="datetime", nullable=true)
-     *
-     * @Serializer\Groups({"main", "lease_list"})
-     */
-    private $modificationDate;
-
-    /**
-     * The creation date of formal lease.
-     *
-     * @var \DateTime
-     *
-     * @ORM\Column(name="confirming_date", type="datetime", nullable=true)
-     *
-     * @Serializer\Groups({"main", "lease_list"})
-     */
-    private $confirmingDate;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="status", type="string", length=15, nullable=true)
-     *
-     * @Serializer\Groups({"main", "lease_list"})
-     */
-    private $status;
-
-    /**
-     * @var float
-     *
-     * @ORM\Column(name="monthly_rent", type="decimal", precision=10, scale=2, nullable=true)
-     *
-     * @Serializer\Groups({"main"})
-     */
-    private $monthlyRent;
-
-    /**
-     * @var float
-     *
-     * @ORM\Column(name="total_rent", type="decimal", precision=10, scale=2, nullable=true)
-     *
-     * @Serializer\Groups({"main", "lease_list"})
-     */
-    private $totalRent;
-
-    /**
-     * @var float
-     *
-     * @ORM\Column(name="deposit", type="decimal", precision=10, scale=2, nullable=true)
-     *
-     * @Serializer\Groups({"main"})
-     */
-    private $deposit;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="deposit_note", type="string", length=255, nullable=true)
-     *
-     * @Serializer\Groups({"main"})
-     */
-    private $depositNote;
-
-    /**
-     * @var ProductAppointment
-     *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Product\ProductAppointment")
-     * @ORM\JoinColumn(name="product_appointment_id", referencedColumnName="id", onDelete="SET NULL")
-     *
-     * @Serializer\Groups({"main"})
-     */
-    private $productAppointment;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="lessee_name", type="string", length=40, nullable=true)
-     *
-     * @Serializer\Groups({"main", "lease_list"})
-     */
-    private $lesseeName;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="lessee_address", type="string", length=255, nullable=true)
-     *
-     * @Serializer\Groups({"main", "lease_list"})
-     */
-    private $lesseeAddress;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="lessee_contact", type="string", length=20, nullable=true)
-     *
-     * @Serializer\Groups({"main"})
-     */
-    private $lesseeContact;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="lessee_phone", type="string", length=128, nullable=true)
-     *
-     * @Serializer\Groups({"main", "lease_list"})
-     */
-    private $lesseePhone;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="lessee_email", type="string", length=128, nullable=true)
-     *
-     * @Serializer\Groups({"main", "lease_list"})
-     */
-    private $lesseeEmail;
-
-    /**
-     * @var string 承租方类型
-     *
-     * @ORM\Column(name="lessee_type", type="string", length=40)
-     */
-    private $lesseeType;
-
-    /**
-     * @var int 承租企业
-     *
-     * @ORM\Column(name="lessee_enterprise", type="integer", length=20, nullable=true)
-     */
-    private $lesseeEnterprise;
-
-    /**
-     * @var int 承租方联系人
-     *
-     * @ORM\Column(name="lessee_customer", type="integer", length=20)
-     */
-    private $lesseeCustomer;
 
     /**
      * @var string
@@ -327,6 +124,139 @@ class Lease
     private $lessorEmail;
 
     /**
+     * @var string 承租方类型
+     *
+     * @ORM\Column(name="lessee_type", type="string", length=40)
+     */
+    private $lesseeType;
+
+    /**
+     * @var int 承租企业
+     *
+     * @ORM\Column(name="lessee_enterprise", type="integer", length=20, nullable=true)
+     */
+    private $lesseeEnterprise;
+
+    /**
+     * @var int 承租方联系人
+     *
+     * @ORM\Column(name="lessee_customer", type="integer", length=20)
+     */
+    private $lesseeCustomer;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="start_date", type="datetime", nullable=true)
+     *
+     * @Serializer\Groups({"main", "lease_list", "room_usage"})
+     */
+    private $startDate;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="end_date", type="datetime", nullable=true)
+     *
+     * @Serializer\Groups({"main", "lease_list", "room_usage"})
+     */
+    private $endDate;
+
+    /**
+     * @var float
+     *
+     * @ORM\Column(name="monthly_rent", type="decimal", precision=10, scale=2, nullable=true)
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $monthlyRent;
+
+    /**
+     * @var float
+     *
+     * @ORM\Column(name="total_rent", type="decimal", precision=10, scale=2, nullable=true)
+     *
+     * @Serializer\Groups({"main", "lease_list"})
+     */
+    private $totalRent;
+
+    /**
+     * @var float
+     *
+     * @ORM\Column(name="deposit", type="decimal", precision=10, scale=2, nullable=true)
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $deposit;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="deposit_note", type="string", length=255, nullable=true)
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $depositNote;
+
+    /**
+     * House used purpose.
+     *
+     * @var string
+     *
+     * @ORM\Column(name="purpose", type="text", nullable=true)
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $purpose;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="other_expenses", type="text", nullable=true)
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $otherExpenses;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="supplementary_terms", type="text", nullable=true)
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $supplementaryTerms;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="status", type="string", length=15, nullable=true)
+     *
+     * @Serializer\Groups({"main", "lease_list"})
+     */
+    private $status;
+
+    /**
+     * @var \DateTime
+     *
+     * @Gedmo\Timestampable(on="create")
+     * @ORM\Column(name="creation_date", type="datetime", nullable=true)
+     *
+     * @Serializer\Groups({"main", "lease_list"})
+     */
+    private $creationDate;
+
+    /**
+     * @var \DateTime
+     *
+     * @Gedmo\Timestampable(on="update")
+     * @ORM\Column(name="modification_date", type="datetime", nullable=true)
+     *
+     * @Serializer\Groups({"main", "lease_list"})
+     */
+    private $modificationDate;
+
+    /**
      * @var LeaseRentTypes
      *
      * @ORM\ManyToMany(targetEntity="LeaseRentTypes")
@@ -339,6 +269,92 @@ class Lease
      * @Serializer\Groups({"main"})
      */
     private $leaseRentTypes;
+
+    /**
+     * @var Sandbox\ApiBundle\Entity\Lease\LeaseClue
+     *
+     * @ORM\Column(name="lease_clue_id", type="integer", nullable=true)
+     */
+    private $LeaseClueId;
+
+    /**
+     * @var Sandbox\ApiBundle\Entity\Lease\LeaseOffer
+     *
+     * @ORM\Column(name="lease_offer_id", type="integer", nullable=true)
+     */
+    private $LeaseOfferId;
+
+    /**
+     * @var User
+     *
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User")
+     * @ORM\JoinColumn(name="drawee", referencedColumnName="id", onDelete="SET NULL")
+     */
+    private $drawee;
+
+    /**
+     * Person in charge.
+     *
+     * @var User
+     *
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User")
+     * @ORM\JoinColumn(name="supervisor", referencedColumnName="id", onDelete="SET NULL")
+     */
+    private $supervisor;
+
+    /**
+     * The creation date of formal lease.
+     *
+     * @var \DateTime
+     *
+     * @ORM\Column(name="confirming_date", type="datetime", nullable=true)
+     *
+     * @Serializer\Groups({"main", "lease_list"})
+     */
+    private $confirmingDate;
+
+    /**
+     * @var ProductAppointment
+     *
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Product\ProductAppointment")
+     * @ORM\JoinColumn(name="product_appointment_id", referencedColumnName="id", onDelete="SET NULL")
+     */
+    private $productAppointment;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="lessee_name", type="string", length=40, nullable=true)
+     */
+    private $lesseeName;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="lessee_address", type="string", length=255, nullable=true)
+     */
+    private $lesseeAddress;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="lessee_contact", type="string", length=20, nullable=true)
+     */
+    private $lesseeContact;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="lessee_phone", type="string", length=128, nullable=true)
+     */
+    private $lesseePhone;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="lessee_email", type="string", length=128, nullable=true)
+     */
+    private $lesseeEmail;
 
     /**
      * @var array
@@ -1078,14 +1094,6 @@ class Lease
     }
 
     /**
-     * @return int
-     */
-    public function getBuildingId()
-    {
-        return $this->product->getRoom()->getBuilding()->getId();
-    }
-
-    /**
      * @return RoomBuilding
      */
     public function getBuilding()
@@ -1308,5 +1316,69 @@ class Lease
     public function setLesseeCustomer($lesseeCustomer)
     {
         $this->lesseeCustomer = $lesseeCustomer;
+    }
+
+    /**
+     * @return Sandbox\ApiBundle\Entity\Room\RoomBuilding
+     */
+    public function getBuildingId()
+    {
+        return $this->buildingId;
+    }
+
+    /**
+     * @param Sandbox\ApiBundle\Entity\Room\RoomBuilding $buildingId
+     */
+    public function setBuildingId($buildingId)
+    {
+        $this->buildingId = $buildingId;
+    }
+
+    /**
+     * @return Sandbox\ApiBundle\Entity\Product\Product
+     */
+    public function getProductId()
+    {
+        return $this->productId;
+    }
+
+    /**
+     * @param Sandbox\ApiBundle\Entity\Product\Product $productId
+     */
+    public function setProductId($productId)
+    {
+        $this->productId = $productId;
+    }
+
+    /**
+     * @return Sandbox\ApiBundle\Entity\Lease\LeaseClue
+     */
+    public function getLeaseClueId()
+    {
+        return $this->LeaseClueId;
+    }
+
+    /**
+     * @param Sandbox\ApiBundle\Entity\Lease\LeaseClue $LeaseClueId
+     */
+    public function setLeaseClueId($LeaseClueId)
+    {
+        $this->LeaseClueId = $LeaseClueId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLeaseOfferId()
+    {
+        return $this->LeaseOfferId;
+    }
+
+    /**
+     * @param mixed $LeaseOfferId
+     */
+    public function setLeaseOfferId($LeaseOfferId)
+    {
+        $this->LeaseOfferId = $LeaseOfferId;
     }
 }

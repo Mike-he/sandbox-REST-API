@@ -225,7 +225,7 @@ class LeaseBill
     private $drawee;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="customer_id", type="integer", nullable=true)
      *

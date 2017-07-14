@@ -6,7 +6,6 @@ use Sandbox\ApiBundle\Entity\Finance\FinanceDashboard;
 use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentServiceBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
-use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Constants\FinanceDashboardConstants;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 

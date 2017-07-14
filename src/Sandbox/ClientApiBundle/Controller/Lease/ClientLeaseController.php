@@ -5,7 +5,6 @@ namespace Sandbox\ClientApiBundle\Controller\Lease;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use JMS\Serializer\SerializationContext;
-use Rs\Json\Patch;
 use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
 use Sandbox\ApiBundle\Constants\DoorAccessConstants;
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
@@ -13,7 +12,6 @@ use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
-use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Sandbox\ApiBundle\Entity\Product\ProductAppointment;
@@ -224,125 +222,6 @@ class ClientLeaseController extends SandboxRestController
         $view->setData($lease);
 
         return $view;
-    }
-
-    /**
-     * Patch Lease Status.
-     *
-     * @param $request
-     * @param $id
-     *
-     * @Route("/leases/{id}/status")
-     * @Method({"PATCH"})
-     *
-     * @throws \Exception
-     *
-     * @return View
-     */
-    public function patchLeaseStatusAction(
-        Request $request,
-        $id
-    ) {
-        $payload = json_decode($request->getContent(), true);
-
-        $lease = $this->getDoctrine()->getRepository('SandboxApiBundle:Lease\Lease')->find($id);
-        $this->throwNotFoundIfNull($lease, CustomErrorMessagesConstants::ERROR_LEASE_NOT_FOUND_MESSAGE);
-
-        // check user permission
-        $this->checkUserLeasePermission($lease);
-
-        $status = $lease->getStatus();
-
-        if (
-            $payload['status'] != Lease::LEASE_STATUS_CONFIRMED ||
-            ($status != Lease::LEASE_STATUS_RECONFIRMING &&
-            $status != Lease::LEASE_STATUS_CONFIRMING)
-        ) {
-            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE);
-        }
-
-        $em = $this->getDoctrine()->getManager();
-        if ($status == Lease::LEASE_STATUS_CONFIRMING) {
-            $lease->setAccessNo($this->generateAccessNumber());
-
-            $base = $lease->getBuilding()->getServer();
-            $roomDoors = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Room\RoomDoors')
-                ->findBy(['room' => $lease->getRoom()]);
-
-            if (!is_null($base) && !empty($base) && !empty($roomDoors)) {
-                $this->storeDoorAccess(
-                    $em,
-                    $lease->getAccessNo(),
-                    $lease->getSupervisorId(),
-                    $lease->getBuildingId(),
-                    $lease->getRoomId(),
-                    $lease->getStartDate(),
-                    $lease->getEndDate()
-                );
-
-                $em->flush();
-
-                $userArray = $this->getUserArrayIfAuthed(
-                    $base,
-                    $lease->getSupervisorId(),
-                    []
-                );
-
-                // set room access
-                if (!empty($userArray)) {
-                    $this->callSetRoomOrderCommand(
-                        $base,
-                        $userArray,
-                        $roomDoors,
-                        $lease->getAccessNo(),
-                        $lease->getStartDate(),
-                        $lease->getEndDate()
-                    );
-                }
-            }
-
-            // set product invisible and can't be appointed
-            $product = $lease->getProduct();
-            if (!is_null($product)) {
-                $product->setVisible(false);
-                $product->setAppointment(false);
-            }
-
-            $this->setDoorAccessForMembershipCard(
-                $lease->getBuildingId(),
-                [$lease->getSupervisorId()],
-                $lease->getStartDate(),
-                $lease->getEndDate(),
-                $lease->getSerialNumber(),
-                UserGroupHasUser::TYPE_LEASE
-            );
-        }
-
-        // If the lease has been executed, when the state 'reconfirming' is reconfirmed
-        // the lease status should be changed to 'performing'
-        $log = $this->getLogsRepo()->findOneBy(array(
-            'logModule' => Log::MODULE_LEASE,
-            'logAction' => Log::ACTION_PERFORMING,
-            'logObjectId' => $lease->getId(),
-        ));
-
-        if (!is_null($log)) {
-            $lease->setStatus(Lease::LEASE_STATUS_PERFORMING);
-        } else {
-            $lease->setStatus($payload['status']);
-        }
-
-        $lease->setConformedDate(new \DateTime('now'));
-        $em->flush();
-
-        // aout push bills
-        if ($lease->isIsAuto()) {
-            $now = new \DateTime();
-            $this->autoPushBills($lease, $now);
-        }
-
-        return new View();
     }
 
     /**

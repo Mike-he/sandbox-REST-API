@@ -271,7 +271,7 @@ trait DoorAccessTrait
                     }
                 } elseif (DoorAccessConstants::METHOD_DELETE == $method) {
                     if ($departmentUser) {
-                        foreach ($departmentUser as $dUser){
+                        foreach ($departmentUser as $dUser) {
                             $em->remove($dUser);
                         }
                         $em->flush();
@@ -613,7 +613,7 @@ trait DoorAccessTrait
             );
 
             sleep(5);
-            
+
             // add user to 'SANDBOX3' GROUP
             $this->setMembershipEmployeeCard(
                 $base,

@@ -3,7 +3,6 @@
 namespace Sandbox\SalesApiBundle\Controller\Customer;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
-use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Entity\User\UserCustomer;
 use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
@@ -23,7 +22,7 @@ class AdminCustomerController extends SalesRestController
     const ERROR_CUSTOMER_EXIST_MESSAGE = 'Customer exist';
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/customers")
@@ -81,7 +80,7 @@ class AdminCustomerController extends SalesRestController
         $em->persist($customer);
         $em->flush();
 
-        return new View(array('id' => $customer->getId(),), 201);
+        return new View(array('id' => $customer->getId()), 201);
     }
 
     /**
@@ -150,7 +149,7 @@ class AdminCustomerController extends SalesRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/customers/{id}")
@@ -182,7 +181,7 @@ class AdminCustomerController extends SalesRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -276,7 +275,7 @@ class AdminCustomerController extends SalesRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/customers/{id}")
@@ -306,7 +305,7 @@ class AdminCustomerController extends SalesRestController
         $customer
     ) {
         /** @var UserCustomer $customer */
-        $groupBinds= $this->getDoctrine()
+        $groupBinds = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
             ->findBy(array(
                 'customerId' => $customer->getId(),

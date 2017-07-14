@@ -105,17 +105,17 @@ trait OpenfireApi
 
         mysqli_query($mysqli, 'set names utf8mb4');
 
-        $query = "select * from ofmessagearchive where status IS NOT NULL and toJID = ".$toJID." and type=".$type;
+        $query = 'select * from ofmessagearchive where status IS NOT NULL and toJID = '.$toJID.' and type='.$type;
 
         if (!is_null($fromJID)) {
             $fromJID = '"'.$fromJID.'"';
-            $query .= " and fromJID =".$fromJID;
+            $query .= ' and fromJID ='.$fromJID;
         }
 
-        $query .= " order by sentDate DESC";
+        $query .= ' order by sentDate DESC';
 
         if ($offset && $limit) {
-            $query .= " limit ".$offset.','.$limit;
+            $query .= ' limit '.$offset.','.$limit;
         }
 
         $result = $mysqli->query($query);
@@ -177,12 +177,12 @@ trait OpenfireApi
 
         $query = "select * from ofmessagearchive where status IS NOT NULL and type = $type";
 
-        $query .=  "and ((toJID = $toJID and fromJID = $fromJID) or (toJID = $fromJID and fromJID = $toJID ))";
+        $query .= "and ((toJID = $toJID and fromJID = $fromJID) or (toJID = $fromJID and fromJID = $toJID ))";
 
-        $query .= " order by sentDate DESC";
+        $query .= ' order by sentDate DESC';
 
         if ($offset && $limit) {
-            $query .= " limit ".$offset.','.$limit;
+            $query .= ' limit '.$offset.','.$limit;
         }
 
         $result = $mysqli->query($query);

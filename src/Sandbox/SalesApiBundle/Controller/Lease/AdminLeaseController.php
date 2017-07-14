@@ -13,9 +13,9 @@ use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
-use Sandbox\ApiBundle\Entity\Product\ProductAppointment;
 use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
 use Sandbox\ApiBundle\Form\Lease\LeasePatchType;
+use Sandbox\ApiBundle\Form\Lease\LeaseType;
 use Sandbox\ApiBundle\Traits\GenerateSerialNumberTrait;
 use Sandbox\ApiBundle\Traits\HasAccessToEntityRepositoryTrait;
 use Sandbox\ApiBundle\Traits\LeaseNotificationTrait;
@@ -411,11 +411,24 @@ class AdminLeaseController extends SalesRestController
         Request $request
     ) {
         // check user permission
-        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_EDIT);
+//        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_EDIT);
 
-        $payload = json_decode($request->getContent(), true);
+        $lease = new Lease();
+        $form = $this->createForm(new LeaseType(), $lease);
+        $form->handleRequest($request);
 
-        return $this->handleLeasePost($payload);
+        if (!$form->isValid()) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $bills = $form['bills']->getData();
+        $leaseRentTypeIds = $form['lease_rent_types']->getData();
+
+        return $this->handleLeasePost(
+            $lease,
+            $bills,
+            $leaseRentTypeIds
+        );
     }
 
     /**
@@ -436,9 +449,37 @@ class AdminLeaseController extends SalesRestController
         // check user permission
         $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_EDIT);
 
-        $payload = json_decode($request->getContent(), true);
+        $lease = $this->getDoctrine()->getRepository('SandboxApiBundle:Lease\Lease')->find($id);
+        $this->throwNotFoundIfNull($lease, self::NOT_FOUND_MESSAGE);
 
-        return $this->handleLeasePut($payload, $id);
+        $oldStatus = $lease->getStatus();
+        $oldLesseeCustomer = $lease->getLesseeCustomer();
+        $oldStartDate = $lease->getStartDate();
+        $oldEndDate = $lease->getEndDate();
+
+        $form = $this->createForm(
+            new LeaseType(),
+            $lease,
+            array('method' => 'PUT')
+        );
+        $form->handleRequest($request);
+
+        if (!$form->isValid()) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $bills = $form['bills']->getData();
+        $leaseRentTypeIds = $form['lease_rent_types']->getData();
+
+        return $this->handleLeasePut(
+            $lease,
+            $bills,
+            $leaseRentTypeIds,
+            $oldStatus,
+            $oldLesseeCustomer,
+            $oldStartDate,
+            $oldEndDate
+        );
     }
 
     /**
@@ -461,15 +502,15 @@ class AdminLeaseController extends SalesRestController
         // check user permission
         $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_EDIT);
 
+        $em = $this->getDoctrine()->getManager();
+
         $payload = json_decode($request->getContent(), true);
 
-        $lease = $this->getLeaseRepo()->find($id);
+        $lease = $this->getDoctrine()->getRepository('SandboxApiBundle:Lease\Lease')->find($id);
         $this->throwNotFoundIfNull(
             $lease,
             CustomErrorMessagesConstants::ERROR_LEASE_NOT_FOUND_MESSAGE
         );
-
-        $em = $this->getDoctrine()->getManager();
 
         $status = $lease->getStatus();
         $newStatus = $payload['status'];
@@ -478,118 +519,49 @@ class AdminLeaseController extends SalesRestController
         $urlParam = 'ptype=leasesDetail&leasesId='.$leaseId;
         $contentArray = $this->generateLeaseContentArray($urlParam);
 
+        $userId = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->getUserIdByCustomerId($lease->getLesseeCustomer());
+
         $now = new \DateTime('now');
         switch ($newStatus) {
-            case Lease::LEASE_STATUS_CONFIRMING:
+            case Lease::LEASE_STATUS_PERFORMING:
                 if ($status != Lease::LEASE_STATUS_DRAFTING) {
                     throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE);
                 }
-
                 $lease->setConfirmingDate($now);
 
-                // send Jpush notification
-                $this->generateJpushNotification(
-                    [
-                        $lease->getSupervisorId(),
-                    ],
-                    LeaseConstants::LEASE_CONFIRMING_MESSAGE,
-                    null,
-                    $contentArray
-                );
+                if ($userId) {
+                    $this->addDoorAccess($lease, $userId);
 
-                $action = Log::ACTION_CONFORMING;
-                break;
-            case Lease::LEASE_STATUS_PERFORMING:
-                if ($status != Lease::LEASE_STATUS_CONFIRMED) {
-                    throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE);
+                    // send Jpush notification
+                    $this->generateJpushNotification(
+                        [
+                            $userId,
+                        ],
+                        LeaseConstants::LEASE_PERFORMING_MESSAGE,
+                        null,
+                        $contentArray
+                    );
                 }
-
-                // send Jpush notification
-                $this->generateJpushNotification(
-                    [
-                        $lease->getSupervisorId(),
-                    ],
-                    LeaseConstants::LEASE_PERFORMING_MESSAGE,
-                    null,
-                    $contentArray
-                );
 
                 $action = Log::ACTION_PERFORMING;
                 break;
             case Lease::LEASE_STATUS_CLOSED:
-                if (
-                    $status != Lease::LEASE_STATUS_DRAFTING &&
-                    $status != Lease::LEASE_STATUS_CONFIRMING &&
-                    $status != Lease::LEASE_STATUS_CONFIRMED
-                ) {
+                if ($status != Lease::LEASE_STATUS_DRAFTING) {
                     throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE);
                 }
 
-                // send Jpush notification
-                $this->generateJpushNotification(
-                    [
-                        $lease->getSupervisorId(),
-                    ],
-                    LeaseConstants::LEASE_CLOSED_MESSAGE,
-                    null,
-                    $contentArray
-                );
-
-                if ($status == Lease::LEASE_STATUS_CONFIRMED) {
-                    $this->setAccessActionToDelete($lease->getAccessNo());
-
-                    $em->flush();
-
-                    // remove door access
-                    $this->callRepealRoomOrderCommand(
-                        $lease->getBuilding()->getServer(),
-                        $lease->getAccessNo()
+                if ($userId) {
+                    // send Jpush notification
+                    $this->generateJpushNotification(
+                        [
+                            $userId,
+                        ],
+                        LeaseConstants::LEASE_CLOSED_MESSAGE,
+                        null,
+                        $contentArray
                     );
-
-                    // send notification to removed users
-                    $removeUsers = $lease->getInvitedPeopleIds();
-                    array_push($removeUsers, $lease->getSupervisorId());
-                    if (!empty($removeUsers)) {
-                        $this->sendXmppLeaseNotification(
-                            $lease,
-                            $removeUsers,
-                            ProductOrder::ACTION_INVITE_REMOVE,
-                            $lease->getSupervisorId(),
-                            [],
-                            ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART1,
-                            ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART2
-                        );
-                    }
-
-                    // Remove old supervisor to User Group
-                    $door = $this->getDoctrine()
-                        ->getRepository('SandboxApiBundle:User\UserGroupDoors')
-                        ->getGroupsByBuilding(
-                            $lease->getBuildingId(),
-                            true
-                        );
-
-                    if ($door) {
-                        $card = $door->getCard();
-
-                        $this->addUserToUserGroup(
-                            $em,
-                            $removeUsers,
-                            $card,
-                            $lease->getStartDate(),
-                            new \DateTime('now'),
-                            $lease->getSerialNumber(),
-                            UserGroupHasUser::TYPE_LEASE
-                        );
-                    }
-                }
-
-                $unpaidBills = $this->getLeaseBillRepo()->findBy(array(
-                    'lease' => $lease,
-                    'status' => LeaseBill::STATUS_UNPAID,
-                ));
-                foreach ($unpaidBills as $unpaidBill) {
-                    $unpaidBill->setStatus(LeaseBill::STATUS_CANCELLED);
                 }
 
                 $action = Log::ACTION_CLOSE;
@@ -597,82 +569,83 @@ class AdminLeaseController extends SalesRestController
             case Lease::LEASE_STATUS_END:
                 if (
                     $status != Lease::LEASE_STATUS_MATURED &&
-                    $status != Lease::LEASE_STATUS_PERFORMING &&
-                    $status != Lease::LEASE_STATUS_RECONFIRMING
+                    $status != Lease::LEASE_STATUS_PERFORMING
                 ) {
-                    throw new BadRequestHttpException(
-                        CustomErrorMessagesConstants::ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE
-                    );
+                    throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE);
                 }
 
-                $unpaidBills = $this->getLeaseBillRepo()->findBy(array(
-                    'lease' => $lease,
-                    'status' => LeaseBill::STATUS_UNPAID,
-                ));
+                $unpaidBills = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+                    ->findBy(array(
+                        'lease' => $lease,
+                        'status' => LeaseBill::STATUS_UNPAID,
+                    ));
 
-                if ($now < $lease->getEndDate()) {
-                    foreach ($unpaidBills as $unpaidBill) {
-                        $unpaidBill->setStatus(LeaseBill::STATUS_CANCELLED);
-                    }
+                if ($userId) {
+                    if ($now < $lease->getEndDate()) {
+                        foreach ($unpaidBills as $unpaidBill) {
+                            $unpaidBill->setStatus(LeaseBill::STATUS_CANCELLED);
+                        }
 
-                    $this->setAccessActionToDelete($lease->getAccessNo());
+                        $this->setAccessActionToDelete($lease->getAccessNo());
 
-                    $em->flush();
+                        $em->flush();
 
-                    // remove door access
-                    $this->callRepealRoomOrderCommand(
-                        $lease->getBuilding()->getServer(),
-                        $lease->getAccessNo()
-                    );
-
-                    // send notification to removed users
-                    $removeUsers = $lease->getInvitedPeopleIds();
-                    array_push($removeUsers, $lease->getSupervisorId());
-                    if (!empty($removeUsers)) {
-                        $this->sendXmppLeaseNotification(
-                            $lease,
-                            $removeUsers,
-                            ProductOrder::ACTION_INVITE_REMOVE,
-                            $lease->getSupervisorId(),
-                            [],
-                            ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART1,
-                            ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART2
+                        // remove door access
+                        $this->callRepealRoomOrderCommand(
+                            $lease->getBuilding()->getServer(),
+                            $lease->getAccessNo()
                         );
+
+                        // send notification to removed users
+                        $removeUsers = $lease->getInvitedPeopleIds();
+                        array_push($removeUsers, $userId);
+                        if (!empty($removeUsers)) {
+                            $this->sendXmppLeaseNotification(
+                                $lease,
+                                $removeUsers,
+                                ProductOrder::ACTION_INVITE_REMOVE,
+                                $lease->getSupervisorId(),
+                                [],
+                                ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART1,
+                                ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART2
+                            );
+                        }
+
+                        $newStatus = Lease::LEASE_STATUS_TERMINATED;
+                        $action = Log::ACTION_TERMINATE;
+
+                        // send Jpush notification
+                        $this->generateJpushNotification(
+                            [
+                                $userId,
+                            ],
+                            LeaseConstants::LEASE_TERMINATED_MESSAGE,
+                            null,
+                            $contentArray
+                        );
+
+                        // set user group end date to now
+                        $this->removeUserFromUserGroup(
+                            $lease->getBuildingId(),
+                            $removeUsers,
+                            $lease->getStartDate(),
+                            $lease->getSerialNumber(),
+                            UserGroupHasUser::TYPE_LEASE
+                        );
+                    } else {
+                        // send Jpush notification
+                        $this->generateJpushNotification(
+                            [
+                                $userId,
+                            ],
+                            LeaseConstants::LEASE_ENDED_MESSAGE,
+                            null,
+                            $contentArray
+                        );
+
+                        $action = Log::ACTION_END;
                     }
-
-                    $newStatus = Lease::LEASE_STATUS_TERMINATED;
-                    $action = Log::ACTION_TERMINATE;
-
-                    // send Jpush notification
-                    $this->generateJpushNotification(
-                        [
-                            $lease->getSupervisorId(),
-                        ],
-                        LeaseConstants::LEASE_TERMINATED_MESSAGE,
-                        null,
-                        $contentArray
-                    );
-
-                    // set user group end date to now
-                    $this->removeUserFromUserGroup(
-                        $lease->getBuilding()->getId(),
-                        $removeUsers,
-                        $lease->getStartDate(),
-                        $lease->getSerialNumber(),
-                        UserGroupHasUser::TYPE_LEASE
-                    );
-                } else {
-                    // send Jpush notification
-                    $this->generateJpushNotification(
-                        [
-                            $lease->getSupervisorId(),
-                        ],
-                        LeaseConstants::LEASE_ENDED_MESSAGE,
-                        null,
-                        $contentArray
-                    );
-
-                    $action = Log::ACTION_END;
                 }
 
                 break;
@@ -683,10 +656,6 @@ class AdminLeaseController extends SalesRestController
         $lease->setStatus($newStatus);
 
         $em->flush();
-
-        if ($payload['status'] == Lease::LEASE_STATUS_CONFIRMING) {
-            $this->setAppointmentStatusToAccepted($lease);
-        }
 
         // generate log
         $this->generateAdminLogs(array(
@@ -782,116 +751,67 @@ class AdminLeaseController extends SalesRestController
     }
 
     /**
-     * @param $payload
+     * @param Lease $lease
+     * @param $bills
+     * @param $leaseRentTypeIds
      *
      * @return View
      */
     private function handleLeasePost(
-        $payload
+        $lease,
+        $bills,
+        $leaseRentTypeIds
     ) {
-        if (
-            $payload['status'] !== Lease::LEASE_STATUS_CONFIRMING &&
-            $payload['status'] !== Lease::LEASE_STATUS_DRAFTING
-        ) {
-            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE);
-        }
-
-        $this->checkLeaseAttributesIsValid($payload);
-
         $em = $this->getDoctrine()->getManager();
-        $lease = new Lease();
 
-        if (!empty($payload['drawee'])) {
-            $drawee = $this->getUserRepo()->find($payload['drawee']);
-            $this->throwNotFoundIfNull($drawee, CustomErrorMessagesConstants::ERROR_DRAWEE_NOT_FOUND_MESSAGE);
-            $lease->setDrawee($drawee);
+        $lease = $this->checkLeaseData($lease);
+
+        $this->handleLeaseRentTypesPost($leaseRentTypeIds, $lease);
+
+        if (!empty($bills['add'])) {
+            $this->addBills($bills['add'], $lease);
         }
 
-        if (!empty($payload['supervisor'])) {
-            $supervisor = $this->getUserRepo()->find($payload['supervisor']);
-            $this->throwNotFoundIfNull($supervisor, CustomErrorMessagesConstants::ERROR_SUPERVISOR_NOT_FOUND_MESSAGE);
-            $lease->setSupervisor($supervisor);
-        }
-
-        $product = $this->getProductRepo()->find($payload['product']);
-        $this->throwNotFoundIfNull($product, CustomErrorMessagesConstants::ERROR_PRODUCT_NOT_FOUND_MESSAGE);
-        $lease->setProduct($product);
-
-        $startDate = new \DateTime($payload['start_date']);
-        $endDate = new \DateTime($payload['end_date']);
-        $endDate->setTime(23, 59, 59);
-
-        $lease->setDeposit($payload['deposit']);
-        $lease->setEndDate($endDate);
-        $lease->setLesseeAddress($payload['lessee_address']);
-        $lease->setLesseeContact($payload['lessee_contact']);
-        $lease->setLesseeEmail($payload['lessee_email']);
-        $lease->setLesseeName($payload['lessee_name']);
-        $lease->setLesseePhone($payload['lessee_phone']);
-        $lease->setLessorAddress($payload['lessor_address']);
-        $lease->setLessorName($payload['lessor_name']);
-        $lease->setLessorPhone($payload['lessor_phone']);
-        $lease->setLessorEmail($payload['lessor_email']);
-        $lease->setLessorContact($payload['lessor_contact']);
-        $lease->setMonthlyRent($payload['monthly_rent']);
-        $lease->setPurpose($payload['purpose']);
-        $lease->setStatus($payload['status']);
-        $lease->setStartDate($startDate);
         $lease->setSerialNumber($this->generateLeaseSerialNumber());
-        $lease->setTotalRent($payload['total_rent']);
-        $lease->setOtherExpenses($payload['other_expenses']);
-        $lease->setSupplementaryTerms($payload['supplementary_terms']);
 
-        if ($payload['is_auto']) {
-            $lease->setIsAuto($payload['is_auto']);
-        }
-
-        if ($payload['plan_day']) {
-            $lease->setPlanDay($payload['plan_day']);
-        }
-
-        // If lease create from product appointment
-        if (
-            isset($payload['product_appointment'])
-        ) {
-            $productAppointment = $this->getProductAppointmentRepo()
-                ->find($payload['product_appointment']);
-
-            $this->throwNotFoundIfNull($productAppointment, CustomErrorMessagesConstants::ERROR_APPOINTMENT_NOT_FOUND_MESSAGE);
-
-            $lease->setProductAppointment($productAppointment);
-        }
-
-        if ($payload['status'] == Lease::LEASE_STATUS_CONFIRMING) {
+        if ($lease->getStatus() == Lease::LEASE_STATUS_PERFORMING) {
             $lease->setConfirmingDate(new \DateTime('now'));
-        }
 
-        $this->handleLeaseRentTypesPost($payload['lease_rent_types'], $lease);
-        $this->handleLeaseBillPost($payload, $lease, $em);
+            // set product invisible and can't be appointed
+            $product = $lease->getProduct();
+            if (!is_null($product)) {
+                $product->setVisible(false);
+                $product->setAppointment(false);
+            }
+        }
 
         $em->persist($lease);
         $em->flush();
 
+        $userId = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->getUserIdByCustomerId($lease->getLesseeCustomer());
+
+        if ($lease->getStatus() == Lease::LEASE_STATUS_PERFORMING) {
+            if ($userId) {
+                $this->addDoorAccess($lease, $userId);
+
+                $urlParam = 'ptype=leasesDetail&leasesId='.$lease->getId();
+                $contentArray = $this->generateLeaseContentArray($urlParam);
+                $this->generateJpushNotification(
+                    [
+                        $userId,
+                    ],
+                    LeaseConstants::LEASE_PERFORMING_MESSAGE,
+                    null,
+                    $contentArray
+                );
+            }
+        }
+
         $response = array(
             'id' => $lease->getId(),
         );
-
-        $leaseId = $lease->getId();
-        $urlParam = 'ptype=leasesDetail&leasesId='.$leaseId;
-        $contentArray = $this->generateLeaseContentArray($urlParam);
-        // send Jpush notification
-        if ($payload['status'] == Lease::LEASE_STATUS_CONFIRMING) {
-            $this->generateJpushNotification(
-                [
-                    $lease->getSupervisorId(),
-                ],
-                LeaseConstants::LEASE_CONFIRMING_MESSAGE,
-                null,
-                $contentArray
-            );
-
-            $this->setAppointmentStatusToAccepted($lease);
-        }
 
         // generate log
         $this->generateAdminLogs(array(
@@ -902,74 +822,6 @@ class AdminLeaseController extends SalesRestController
         ));
 
         return new View($response, 201);
-    }
-
-    private function checkLeaseAttributesIsValid($payload)
-    {
-        if (
-            !key_exists('lessee_address', $payload) ||
-            !key_exists('lessee_contact', $payload) ||
-            !key_exists('lessee_email', $payload) ||
-            !key_exists('lessee_name', $payload) ||
-            !key_exists('lessee_phone', $payload) ||
-            !key_exists('lessor_address', $payload) ||
-            !key_exists('lessor_name', $payload) ||
-            !key_exists('lessor_phone', $payload) ||
-            !key_exists('lessor_email', $payload) ||
-            !key_exists('lessor_contact', $payload) ||
-            !key_exists('deposit', $payload) ||
-            !key_exists('monthly_rent', $payload) ||
-            !key_exists('total_rent', $payload) ||
-            !key_exists('status', $payload) ||
-            !key_exists('purpose', $payload) ||
-            !key_exists('start_date', $payload) ||
-            !key_exists('end_date', $payload) ||
-            !key_exists('drawee', $payload) ||
-            !key_exists('supervisor', $payload) ||
-            !key_exists('product', $payload) ||
-            !key_exists('product', $payload) ||
-            !key_exists('product', $payload) ||
-            !key_exists('lease_rent_types', $payload) ||
-            !key_exists('bills', $payload) ||
-            gettype($payload['lease_rent_types']) != 'array'
-        ) {
-            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE);
-        }
-
-        if (
-            $payload['status'] !== Lease::LEASE_STATUS_DRAFTING
-        ) {
-            if (
-                (gettype($payload['deposit']) != 'double' && gettype($payload['deposit']) != 'integer') ||
-                (gettype($payload['monthly_rent']) != 'double' && gettype($payload['deposit']) != 'integer') ||
-                (gettype($payload['total_rent']) != 'double' && gettype($payload['deposit']) != 'integer') ||
-                is_null($payload['deposit']) ||
-                is_null($payload['monthly_rent']) ||
-                is_null($payload['total_rent']) ||
-                empty($payload['lease_rent_types']) ||
-                !preg_match('/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/', $payload['start_date']) ||
-                !preg_match('/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/', $payload['end_date']) ||
-                !filter_var($payload['lessee_address'], FILTER_DEFAULT) ||
-                !filter_var($payload['lessee_contact'], FILTER_DEFAULT) ||
-                !filter_var($payload['lessee_name'], FILTER_DEFAULT) ||
-                !filter_var($payload['lessee_phone'], FILTER_DEFAULT) ||
-                !filter_var($payload['lessee_email'], FILTER_VALIDATE_EMAIL) ||
-                !filter_var($payload['lessor_email'], FILTER_VALIDATE_EMAIL) ||
-                !filter_var($payload['lessor_address'], FILTER_DEFAULT) ||
-                !filter_var($payload['lessor_name'], FILTER_DEFAULT) ||
-                !filter_var($payload['lessor_phone'], FILTER_DEFAULT) ||
-                !filter_var($payload['lessor_contact'], FILTER_DEFAULT) ||
-                !filter_var($payload['purpose'], FILTER_DEFAULT) ||
-                !filter_var($payload['status'], FILTER_DEFAULT) ||
-                !filter_var($payload['drawee'], FILTER_VALIDATE_INT) ||
-                !filter_var($payload['supervisor'], FILTER_VALIDATE_INT) ||
-                !filter_var($payload['product'], FILTER_VALIDATE_INT)
-            ) {
-                throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE);
-            }
-        }
-
-        return;
     }
 
     /**
@@ -989,359 +841,87 @@ class AdminLeaseController extends SalesRestController
         }
     }
 
-    private function handleLeaseBillPost(
-        $payload,
-        $lease,
-        $em
-    ) {
-        if (!empty($payload['bills']['add'])) {
-            $this->addBills($payload, $em, $lease);
-        }
-    }
-
     /**
-     * @param $payload
-     * @param $leaseId
+     * @param Lease $lease
+     * @param $bills
+     * @param $leaseRentTypeIds
+     * @param $oldStatus
+     * @param $oldLesseeCustomer
+     * @param $oldStartDate
+     * @param $oldEndDate
      *
      * @return View
      */
-    private function handleLeasePut($payload, $leaseId)
-    {
-        $this->checkLeaseAttributesIsValid($payload);
-
+    private function handleLeasePut(
+        $lease,
+        $bills,
+        $leaseRentTypeIds,
+        $oldStatus,
+        $oldLesseeCustomer,
+        $oldStartDate,
+        $oldEndDate
+    ) {
         $em = $this->getDoctrine()->getManager();
-        $lease = $this->getLeaseRepo()->find($leaseId);
-        $this->throwNotFoundIfNull($lease, CustomErrorMessagesConstants::ERROR_LEASE_NOT_FOUND_MESSAGE);
 
-        if (!empty($payload['drawee'])) {
-            $drawee = $this->getUserRepo()->find($payload['drawee']);
-            $this->throwNotFoundIfNull($drawee, CustomErrorMessagesConstants::ERROR_DRAWEE_NOT_FOUND_MESSAGE);
-            $lease->setDrawee($drawee);
-        }
+        $userId = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->getUserIdByCustomerId($lease->getLesseeCustomer());
 
-        if (!empty($payload['supervisor'])) {
-            $previousSupervisorId = $lease->getSupervisorId();
-            $supervisor = $this->getUserRepo()->find($payload['supervisor']);
-            $this->throwNotFoundIfNull($supervisor, CustomErrorMessagesConstants::ERROR_SUPERVISOR_NOT_FOUND_MESSAGE);
+        $lease = $this->checkLeaseData($lease);
 
-            if ($previousSupervisorId !== $payload['supervisor']) {
-                if (
-                    $payload['status'] == Lease::LEASE_STATUS_RECONFIRMING
-                ) {
-                    $base = $lease->getBuilding()->getServer();
-                    $roomDoors = $this->getDoctrine()
-                        ->getRepository('SandboxApiBundle:Room\RoomDoors')
-                        ->findBy(['room' => $lease->getRoom()]);
-
-                    if (!is_null($base) && !empty($base) && !empty($roomDoors)) {
-                        $this->setAccessActionToDelete($lease->getAccessNo());
-
-                        $em->flush();
-
-                        // remove the previous supervisor from door access
-                        $this->callRemoveFromOrderCommand(
-                            $lease->getBuilding()->getServer(),
-                            $lease->getAccessNo(),
-                            [$previousSupervisorId]
-                        );
-
-                        // send notification to removed users
-                        $this->sendXmppLeaseNotification(
-                            $lease,
-                            [$previousSupervisorId],
-                            ProductOrder::ACTION_INVITE_REMOVE,
-                            $payload['supervisor'],
-                            [],
-                            ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART1,
-                            ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART2
-                        );
-
-                        // add the new supervisor to door access
-                        $this->storeDoorAccess(
-                            $em,
-                            $lease->getAccessNo(),
-                            $payload['supervisor'],
-                            $lease->getBuildingId(),
-                            $lease->getRoomId(),
-                            $lease->getStartDate(),
-                            $lease->getEndDate()
-                        );
-
-                        $em->flush();
-
-                        $userArray = $this->getUserArrayIfAuthed(
-                            $base,
-                            $payload['supervisor'],
-                            []
-                        );
-
-                        // set room access
-                        if (!empty($userArray)) {
-                            $this->callSetRoomOrderCommand(
-                                $base,
-                                $userArray,
-                                $roomDoors,
-                                $lease->getAccessNo(),
-                                $lease->getStartDate(),
-                                $lease->getEndDate()
-                            );
-                        }
-
-                        // send notification to the new supervisor
-                        $this->sendXmppLeaseNotification(
-                            $lease,
-                            [$payload['supervisor']],
-                            ProductOrder::ACTION_INVITE_ADD,
-                            $lease->getSupervisorId(),
-                            [],
-                            ProductOrderMessage::APPOINT_MESSAGE_PART1,
-                            ProductOrderMessage::APPOINT_MESSAGE_PART2
-                        );
-                    }
-
-                    // Remove old supervisor to User Group
-                    $door = $this->getDoctrine()
-                        ->getRepository('SandboxApiBundle:User\UserGroupDoors')
-                        ->getGroupsByBuilding(
-                            $lease->getBuildingId(),
-                            true
-                        );
-
-                    if ($door) {
-                        $card = $door->getCard();
-
-                        $this->addUserToUserGroup(
-                            $em,
-                            [$previousSupervisorId],
-                            $card,
-                            $lease->getStartDate(),
-                            new \DateTime('now'),
-                            $lease->getSerialNumber(),
-                            UserGroupHasUser::TYPE_LEASE
-                        );
-                    }
-
-                    // Add new supervisor to User Group
-                    $this->setDoorAccessForMembershipCard(
-                        $lease->getBuildingId(),
-                        [$payload['supervisor']],
-                        $lease->getStartDate(),
-                        $lease->getEndDate(),
-                        $lease->getSerialNumber(),
-                        UserGroupHasUser::TYPE_LEASE
-                    );
-                }
-            }
-
-            $lease->setSupervisor($supervisor);
-        }
-
-        $product = $this->getProductRepo()->find($payload['product']);
-        $this->throwNotFoundIfNull($product, CustomErrorMessagesConstants::ERROR_PRODUCT_NOT_FOUND_MESSAGE);
-        $lease->setProduct($product);
-
-        $lease->setDeposit($payload['deposit']);
-        $lease->setLesseeAddress($payload['lessee_address']);
-        $lease->setLesseeContact($payload['lessee_contact']);
-        $lease->setLesseeEmail($payload['lessee_email']);
-        $lease->setLesseeName($payload['lessee_name']);
-        $lease->setLesseePhone($payload['lessee_phone']);
-        $lease->setLessorAddress($payload['lessor_address']);
-        $lease->setLessorName($payload['lessor_name']);
-        $lease->setLessorPhone($payload['lessor_phone']);
-        $lease->setLessorEmail($payload['lessor_email']);
-        $lease->setLessorContact($payload['lessor_contact']);
-        $lease->setMonthlyRent($payload['monthly_rent']);
-        $lease->setPurpose($payload['purpose']);
-        $lease->setTotalRent($payload['total_rent']);
-        $lease->setModificationDate(new \DateTime('now'));
-        $lease->setOtherExpenses($payload['other_expenses']);
-        $lease->setSupplementaryTerms($payload['supplementary_terms']);
-
-        if ($payload['is_auto']) {
-            $lease->setIsAuto($payload['is_auto']);
-        }
-
-        if ($payload['plan_day']) {
-            $lease->setPlanDay($payload['plan_day']);
-        }
-
-        // If lease created by product appointment
-        if (
-            isset($payload['product_appointment'])
-        ) {
-            $productAppointment = $this->getProductAppointmentRepo()
-                ->find($payload['product_appointment']);
-            $this->throwNotFoundIfNull($productAppointment, CustomErrorMessagesConstants::ERROR_APPOINTMENT_NOT_FOUND_MESSAGE);
-
-            $lease->setProductAppointment($productAppointment);
-        }
-
-        $urlParam = 'ptype=leasesDetail&leasesId='.$leaseId;
-        $contentArray = $this->generateLeaseContentArray($urlParam);
-        switch ($lease->getStatus()) {
+        switch ($oldStatus) {
             case Lease::LEASE_STATUS_DRAFTING:
-                if (
-                    $payload['status'] != Lease::LEASE_STATUS_CONFIRMING &&
-                    $payload['status'] != Lease::LEASE_STATUS_DRAFTING
-                ) {
-                    throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE);
-                }
-
-                $lease->setStatus($payload['status']);
-
-                if ($payload['status'] == Lease::LEASE_STATUS_CONFIRMING) {
+                if ($lease->getStatus() == Lease::LEASE_STATUS_PERFORMING) {
                     $lease->setConfirmingDate(new \DateTime('now'));
-
-                    // send Jpush notification
-                    $this->generateJpushNotification(
-                        [
-                            $lease->getSupervisorId(),
-                        ],
-                        LeaseConstants::LEASE_CONFIRMING_MESSAGE,
-                        null,
-                        $contentArray
-                    );
                 }
-
-                break;
-            case Lease::LEASE_STATUS_CONFIRMING:
-                if (
-                    $payload['status'] != Lease::LEASE_STATUS_CONFIRMING
-                ) {
-                    throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE);
-                }
-
-                // send Jpush notification
-                $this->generateJpushNotification(
-                    [
-                        $lease->getSupervisorId(),
-                    ],
-                    LeaseConstants::LEASE_RECONFIRMING_MESSAGE,
-                    null,
-                    $contentArray
-                );
-
-                break;
-            case Lease::LEASE_STATUS_CONFIRMED:
-                if ($payload['status'] != Lease::LEASE_STATUS_RECONFIRMING) {
-                    throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE);
-                }
-                $lease->setStatus(Lease::LEASE_STATUS_RECONFIRMING);
-
-                // send Jpush notification
-                $this->generateJpushNotification(
-                    [
-                        $lease->getSupervisorId(),
-                    ],
-                    LeaseConstants::LEASE_RECONFIRMING_MESSAGE,
-                    null,
-                    $contentArray
-                );
-
-                break;
-            case Lease::LEASE_STATUS_RECONFIRMING:
-                if ($payload['status'] != Lease::LEASE_STATUS_RECONFIRMING) {
-                    throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE);
-                }
-                $lease->setStatus(Lease::LEASE_STATUS_RECONFIRMING);
-
-                // send Jpush notification
-                $this->generateJpushNotification(
-                    [
-                        $lease->getSupervisorId(),
-                    ],
-                    LeaseConstants::LEASE_RECONFIRMING_MESSAGE,
-                    null,
-                    $contentArray
-                );
 
                 break;
             case Lease::LEASE_STATUS_PERFORMING:
-                if ($payload['status'] != Lease::LEASE_STATUS_RECONFIRMING) {
-                    throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-                }
-                $lease->setStatus(Lease::LEASE_STATUS_RECONFIRMING);
-
-                // send Jpush notification
-                $this->generateJpushNotification(
-                    [
-                        $lease->getSupervisorId(),
-                    ],
-                    LeaseConstants::LEASE_RECONFIRMING_MESSAGE,
-                    null,
-                    $contentArray
-                );
+                $lease->setStatus(Lease::LEASE_STATUS_PERFORMING);
 
                 break;
             default:
                 throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE);
         }
 
-        $this->handleLeaseRentTypesPut($payload['lease_rent_types'], $lease);
-        $this->handleLeaseBillPut($payload, $lease, $em);
-
-        $startDate = new \DateTime($payload['start_date']);
-        $endDate = new \DateTime($payload['end_date']);
-        $endDate->setTime(23, 59, 59);
-
-        if (
-            $startDate != $lease->getStartDate() ||
-            $endDate != $lease->getEndDate()
-        ) {
-            $base = $lease->getBuilding()->getServer();
-            $roomDoors = $lease->getRoom()->getDoorControl();
-
-            if (!is_null($base) && !empty($base) && !empty($roomDoors)) {
-                $this->setAccessActionToDelete($lease->getAccessNo());
-
-                $em->flush();
-
-                $this->callRepealRoomOrderCommand(
-                    $lease->getBuilding()->getServer(),
-                    $lease->getAccessNo()
-                );
-
-                $lease->setAccessNo($this->generateAccessNumber());
-                $lease->setStartDate($startDate);
-                $lease->setEndDate($endDate);
-
-                $users = $lease->getInvitedPeopleIds();
-                array_push($users, $lease->getSupervisorId());
-                $this->addPeople(
-                    $users,
-                    $lease,
-                    $lease->getBuilding()->getServer()
-                );
-            }
-
-            // Edit user to User Group
-            $door = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:User\UserGroupDoors')
-                ->getGroupsByBuilding(
-                    $lease->getBuildingId(),
-                    true
-                );
-
-            if ($door) {
-                $card = $door->getCard();
-
-                $this->addUserToUserGroup(
-                    $em,
-                    $users,
-                    $card,
-                    $lease->getStartDate(),
-                    $lease->getEndDate(),
-                    $lease->getSerialNumber(),
-                    UserGroupHasUser::TYPE_LEASE
-                );
-            }
-        }
+        $this->handleLeaseRentTypesPut($leaseRentTypeIds, $lease);
+        $this->handleLeaseBillPut($bills, $lease);
 
         $em->flush();
 
-        if ($payload['status'] == Lease::LEASE_STATUS_CONFIRMING) {
-            $this->setAppointmentStatusToAccepted($lease);
+        if ($oldStatus == Lease::LEASE_STATUS_DRAFTING &&
+            $lease->getStatus() == Lease::LEASE_STATUS_PERFORMING
+        ) {
+            if ($userId) {
+                $this->addDoorAccess($lease, $userId);
+
+                $urlParam = 'ptype=leasesDetail&leasesId='.$lease->getId();
+                $contentArray = $this->generateLeaseContentArray($urlParam);
+                // send Jpush notification
+                if ($userId) {
+                    $this->generateJpushNotification(
+                        [
+                            $userId,
+                        ],
+                        LeaseConstants::LEASE_PERFORMING_MESSAGE,
+                        null,
+                        $contentArray
+                    );
+                }
+            }
+        }
+
+        if ($oldStatus == Lease::LEASE_STATUS_PERFORMING &&
+            $lease->getStatus() == Lease::LEASE_STATUS_PERFORMING
+        ) {
+            if ($oldLesseeCustomer != $lease->getLesseeCustomer() ||
+                $oldStartDate != $lease->getStartDate() ||
+                $oldEndDate != $lease->getEndDate()
+            ) {
+                if ($userId) {
+                    $this->editDoorAccess($lease, $userId);
+                }
+            }
         }
 
         // generate log
@@ -1355,6 +935,209 @@ class AdminLeaseController extends SalesRestController
         return new View();
     }
 
+    /**
+     * @param Lease $lease
+     * @param $userId
+     */
+    private function addDoorAccess(
+        $lease,
+        $userId
+    ) {
+        $em = $this->getDoctrine()->getManager();
+
+        $lease->setAccessNo($this->generateAccessNumber());
+
+        $base = $lease->getBuilding()->getServer();
+        $roomDoors = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomDoors')
+                ->findBy(['room' => $lease->getRoom()]);
+
+        if (!is_null($base) && !empty($base) && !empty($roomDoors)) {
+            $this->storeDoorAccess(
+                    $em,
+                    $lease->getAccessNo(),
+                    $userId,
+                    $lease->getBuildingId(),
+                    $lease->getRoomId(),
+                    $lease->getStartDate(),
+                    $lease->getEndDate()
+                );
+
+            $em->flush();
+
+            $userArray = $this->getUserArrayIfAuthed(
+                    $base,
+                    $userId,
+                    []
+                );
+
+                // set room access
+                if (!empty($userArray)) {
+                    $this->callSetRoomOrderCommand(
+                        $base,
+                        $userArray,
+                        $roomDoors,
+                        $lease->getAccessNo(),
+                        $lease->getStartDate(),
+                        $lease->getEndDate()
+                    );
+                }
+        }
+
+        $this->setDoorAccessForMembershipCard(
+                $lease->getBuildingId(),
+                [$userId],
+                $lease->getStartDate(),
+                $lease->getEndDate(),
+                $lease->getSerialNumber(),
+                UserGroupHasUser::TYPE_LEASE
+            );
+    }
+
+    /**
+     * @param Lease $lease
+     * @param $userId
+     */
+    private function editDoorAccess(
+        $lease,
+        $userId
+    ) {
+        $em = $this->getDoctrine()->getManager();
+
+        $base = $lease->getBuilding()->getServer();
+        $roomDoors = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomDoors')
+            ->findBy(['room' => $lease->getRoom()]);
+        if (!is_null($base) && !empty($base) && !empty($roomDoors)) {
+            $this->setAccessActionToDelete($lease->getAccessNo());
+
+            $em->flush();
+
+            $this->callRepealRoomOrderCommand(
+                $lease->getBuilding()->getServer(),
+                $lease->getAccessNo()
+            );
+
+            $lease->setAccessNo($this->generateAccessNumber());
+
+            $users = $lease->getInvitedPeopleIds();
+            array_push($users, $userId);
+            $this->addPeople(
+                $users,
+                $lease,
+                $lease->getBuilding()->getServer()
+            );
+        }
+
+        // Remove old supervisor to User Group
+        $door = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserGroupDoors')
+            ->getGroupsByBuilding(
+                $lease->getBuildingId(),
+                true
+            );
+
+        if ($door) {
+            $card = $door->getCard();
+
+            $this->addUserToUserGroup(
+                $em,
+                [$userId],
+                $card,
+                $lease->getStartDate(),
+                new \DateTime('now'),
+                $lease->getSerialNumber(),
+                UserGroupHasUser::TYPE_LEASE
+            );
+
+            // Add new supervisor to User Group
+            $this->setDoorAccessForMembershipCard(
+                $lease->getBuildingId(),
+                [$userId],
+                $lease->getStartDate(),
+                $lease->getEndDate(),
+                $lease->getSerialNumber(),
+                UserGroupHasUser::TYPE_LEASE
+            );
+        }
+    }
+
+    /**
+     * @param Lease $lease
+     *
+     * @return array
+     */
+    private function checkLeaseData(
+        $lease
+    ) {
+        $em = $this->getDoctrine()->getManager();
+
+        if (
+            $lease->getStatus() != Lease::LEASE_STATUS_CONFIRMING &&
+            $lease->getStatus() != Lease::LEASE_STATUS_DRAFTING
+        ) {
+            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE);
+        }
+
+        $customerId = $lease->getLesseeCustomer();
+        if (is_null($customerId)) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        } else {
+            $customer = $em->getRepository('SandboxApiBundle:User\UserCustomer')->find($customerId);
+            $this->throwNotFoundIfNull($customer, self::NOT_FOUND_MESSAGE);
+        }
+
+        if ($lease->getLesseeType() == Lease::LEASE_LESSEE_TYPE_ENTERPRISE) {
+            $enterpriseId = $lease->getLesseeEnterprise();
+            if (is_null($enterpriseId)) {
+                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            } else {
+                // todo: check salse enterprise
+            }
+        }
+        $buildingId = $lease->getBuildingId();
+        if ($buildingId) {
+            $building = $em->getRepository('SandboxApiBundle:Room\RoomBuilding')->find($buildingId);
+            $this->throwNotFoundIfNull($building, self::NOT_FOUND_MESSAGE);
+        }
+
+        $productId = $lease->getProductId();
+        if ($productId) {
+            $product = $em->getRepository('SandboxApiBundle:Product\Product')->find($productId);
+            $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
+        }
+
+        $leaseClueId = $lease->getLeaseClueId();
+        if ($leaseClueId) {
+            $leaseClue = $em->getRepository('SandboxApiBundle:Lease\LeaseClue')->find($leaseClueId);
+            $this->throwNotFoundIfNull($leaseClue, self::NOT_FOUND_MESSAGE);
+        }
+
+        $leaseOfferId = $lease->getLeaseOfferId();
+        if ($leaseOfferId) {
+            $leaseOffer = $em->getRepository('SandboxApiBundle:Lease\LeaseOffer')->find($leaseOfferId);
+            $this->throwNotFoundIfNull($leaseOffer, self::NOT_FOUND_MESSAGE);
+        }
+
+        $startDate = $lease->getStartDate();
+        if ($startDate) {
+            $lease->setStartDate(new \DateTime($startDate));
+        }
+
+        $endDate = $lease->getEndDate();
+        if ($endDate) {
+            $endDate = new \DateTime($endDate);
+            $endDate->setTime(23, 59, 59);
+            $lease->setEndDate($endDate);
+        }
+
+        return $lease;
+    }
+
+    /**
+     * @param $leaseRentTypeIds
+     * @param Lease $lease
+     */
     private function handleLeaseRentTypesPut(
         $leaseRentTypeIds,
         $lease
@@ -1366,72 +1149,51 @@ class AdminLeaseController extends SalesRestController
 
         foreach ($leaseRentTypeIds as $leaseRentTypeId) {
             $leaseRentType = $this->getLeaseRentTypesRepo()->find($leaseRentTypeId);
-            if (is_null($leaseRentType)) {
-                throw new NotFoundHttpException(CustomErrorMessagesConstants::ERROR_LEASE_RENT_TYPE_NOT_FOUND_MESSAGE);
+            if ($leaseRentType) {
+                $lease->addLeaseRentTypes($leaseRentType);
             }
-            $lease->addLeaseRentTypes($leaseRentType);
         }
     }
 
     private function handleLeaseBillPut(
-        $payload,
-        $lease,
-        $em
+        $bills,
+        $lease
     ) {
-        $payloadBills = $payload['bills'];
-
-        if (!empty($payloadBills['add'])) {
-            $this->addBills($payload, $em, $lease);
+        if (!empty($bills['add'])) {
+            $this->addBills($bills['add'], $lease);
         }
 
-        if (!empty($payloadBills['edit'])) {
-            $this->editBills($payload);
+        if (!empty($bills['edit'])) {
+            $this->editBills($bills['edit'], $lease);
         }
 
-        $currentBillsAmount =
-            count($this->getLeaseBillRepo()
-                ->findBy(array(
-                    'lease' => $lease,
-                )
-            ));
-        $removeAmount = 0;
-
-        if (!empty($payloadBills['remove'])) {
-            $removeAmount = $this->removeBills($payloadBills['remove'], $lease, $em);
-        }
-
-        if ($payload['status'] != Lease::LEASE_STATUS_DRAFTING) {
-            if ($currentBillsAmount == $removeAmount) {
-                if (count($payloadBills['add']) > 0) {
-                    return;
-                }
-
-//                throw new BadRequestHttpException(
-//                    CustomErrorMessagesConstants::ERROR_LEASE_KEEP_AT_LEAST_ONE_BILL_MESSAGE
-//                );
-            }
+        if (!empty($bills['remove'])) {
+            $this->removeBills($bills['remove'], $lease);
         }
     }
 
+    /**
+     * @param $addBills
+     * @param Lease $lease
+     */
     private function addBills(
-        $payload,
-        $em,
+        $addBills,
         $lease
     ) {
-        $addBills = $payload['bills']['add'];
+        $em = $this->getDoctrine()->getManager();
         foreach ($addBills as $addBill) {
-            if ($payload['status'] !== Lease::LEASE_STATUS_DRAFTING) {
+            if ($lease->getStatus() !== Lease::LEASE_STATUS_DRAFTING) {
                 $this->checkLeaseBillAttributesIsValid($addBill);
             }
 
             $bill = new LeaseBill();
 
-            if (!empty($addBill['start_date']) || !is_null($addBill['start_date'])) {
+            if ($addBill['start_date']) {
                 $startDate = new \DateTime($addBill['start_date']);
                 $bill->setStartDate($startDate);
             }
 
-            if (!empty($addBill['end_date']) || !is_null($addBill['end_date'])) {
+            if ($addBill['end_date']) {
                 $endDate = new \DateTime($addBill['end_date']);
                 $bill->setEndDate($endDate);
             }
@@ -1448,52 +1210,58 @@ class AdminLeaseController extends SalesRestController
         }
     }
 
+    /**
+     * @param  $editBills
+     * @param Lease $lease
+     */
     private function editBills(
-        $payload
+        $editBills,
+        $lease
     ) {
-        $editBills = $payload['bills']['edit'];
         foreach ($editBills as $editBill) {
             if (empty($editBill['id'])) {
                 throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILLS_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE);
             }
 
-            if ($payload['status'] !== Lease::LEASE_STATUS_DRAFTING) {
+            if ($lease->getStatus() !== Lease::LEASE_STATUS_DRAFTING) {
                 $this->checkLeaseBillAttributesIsValid($editBill);
             }
 
-            $bill = $this->getLeaseBillRepo()->find($editBill['id']);
+            $bill = $this->getDoctrine()->getRepository('SandboxApiBundle:Lease\LeaseBill')->find($editBill['id']);
             $this->throwNotFoundIfNull($bill, CustomErrorMessagesConstants::ERROR_BILL_NOT_FOUND_MESSAGE);
 
             // only pending bills could be edited
-            if ($bill->getStatus() !== LeaseBill::STATUS_PENDING) {
-                throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILL_STATUS_NOT_CORRECT_MESSAGE);
+            if ($bill->getStatus() == LeaseBill::STATUS_PENDING) {
+                if ($editBill['start_date']) {
+                    $startDate = new \DateTime($editBill['start_date']);
+                    $bill->setStartDate($startDate);
+                }
+
+                if ($editBill['end_date']) {
+                    $endDate = new \DateTime($editBill['end_date']);
+                    $bill->setEndDate($endDate);
+                }
+
+                $bill->setName($editBill['name']);
+                $bill->setAmount($editBill['amount']);
+                $bill->setDescription($editBill['description']);
+                $bill->setType(LeaseBill::TYPE_LEASE);
+                $bill->setStatus(LeaseBill::STATUS_PENDING);
             }
-
-            $startDate = new \DateTime($editBill['start_date']);
-            $endDate = new \DateTime($editBill['end_date']);
-
-            $bill->setName($editBill['name']);
-            $bill->setAmount($editBill['amount']);
-            $bill->setDescription($editBill['description']);
-            $bill->setStartDate($startDate);
-            $bill->setEndDate($endDate);
-            $bill->setType(LeaseBill::TYPE_LEASE);
-            $bill->setStatus(LeaseBill::STATUS_PENDING);
         }
     }
 
     /**
      * @param $removedBills
      * @param $lease
-     * @param $em
      *
      * @return int
      */
     private function removeBills(
         $removedBills,
-        $lease,
-        $em
+        $lease
     ) {
+        $em = $this->getDoctrine()->getManager();
         $removeAmount = 0;
 
         $bills = $this->getDoctrine()
@@ -1602,49 +1370,5 @@ class AdminLeaseController extends SalesRestController
         }
 
         return;
-    }
-
-    private function setAppointmentStatusToAccepted(
-        $lease
-    ) {
-        $em = $this->getDoctrine()->getManager();
-
-        // set appointment status to accepted
-        $appointment = $lease->getProductAppointment();
-        if (!is_null($appointment)) {
-            if ($appointment->getStatus() == ProductAppointment::STATUS_PENDING) {
-                $appointment->setStatus(ProductAppointment::STATUS_ACCEPTED);
-
-                $em->flush();
-                $this->generateAdminLogs(array(
-                    'logModule' => Log::MODULE_PRODUCT_APPOINTMENT,
-                    'logAction' => Log::ACTION_AGREE,
-                    'logObjectKey' => Log::OBJECT_PRODUCT_APPOINTMENT,
-                    'logObjectId' => $appointment->getId(),
-                ));
-
-                $urlParam = 'ptype=rentDetail&rentId='.$appointment->getId();
-                $contentArray = $this->generateLeaseContentArray($urlParam, 'longrent');
-                // send Jpush notification
-                $this->generateJpushNotification(
-                    [
-                        $appointment->getUserId(),
-                    ],
-                    LeaseConstants::APPLICATION_APPROVED_MESSAGE,
-                    null,
-                    $contentArray
-                );
-            }
-        }
-
-        $product = $lease->getProduct();
-        if (!is_null($product)) {
-            $this->generateAdminLogs(array(
-                'logModule' => Log::MODULE_PRODUCT,
-                'logAction' => Log::ACTION_EDIT,
-                'logObjectKey' => Log::OBJECT_PRODUCT,
-                'logObjectId' => $product->getId(),
-            ));
-        }
     }
 }
