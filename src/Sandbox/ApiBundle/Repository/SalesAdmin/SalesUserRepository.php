@@ -40,4 +40,13 @@ class SalesUserRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    public function getDistinctUsers() {
+        $query = $this->createQueryBuilder('su')
+            ->select('
+                DISTINCT su.userId, su.companyId
+            ');
+
+        return $query->getQuery()->getResult();
+    }
 }
