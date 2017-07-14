@@ -288,9 +288,15 @@ class AdminCustomerController extends SalesRestController
         ParamFetcherInterface $paramFetcher,
         $id
     ) {
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
         $customer = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserCustomer')
-            ->find($id);
+            ->findOneBy(array(
+                'id' => $id,
+                'companyId' => $salesCompanyId,
+            ));
         $this->throwNotFoundIfNull($customer, self::NOT_FOUND_MESSAGE);
 
         $this->generateCustomer($customer);
