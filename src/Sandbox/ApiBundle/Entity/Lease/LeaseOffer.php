@@ -44,12 +44,16 @@ class LeaseOffer
      */
     private $buildingId;
 
+    private $building;
+
     /**
      * @var Sandbox\ApiBundle\Entity\Product\Product
      *
      * @ORM\Column(name="product_id",type="integer", nullable=true)
      */
     private $productId;
+
+    private $product;
 
     /**
      * @var string 出租方名称
@@ -100,12 +104,16 @@ class LeaseOffer
      */
     private $lesseeEnterprise;
 
+    private $enterprise;
+
     /**
      * @var int 承租方联系人
      *
      * @ORM\Column(name="lessee_customer", type="integer", length=20)
      */
     private $lesseeCustomer;
+
+    private $customer;
 
     /**
      * @var \DateTime
@@ -631,5 +639,69 @@ class LeaseOffer
     public function setCompanyId($companyId)
     {
         $this->companyId = $companyId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBuilding()
+    {
+        return $this->building;
+    }
+
+    /**
+     * @param mixed $building
+     */
+    public function setBuilding($building)
+    {
+        $this->building = $building;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getProduct()
+    {
+        return $this->product;
+    }
+
+    /**
+     * @param mixed $product
+     */
+    public function setProduct($product)
+    {
+        $this->product = $product;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getEnterprise()
+    {
+        return $this->enterprise;
+    }
+
+    /**
+     * @param mixed $enterprise
+     */
+    public function setEnterprise($enterprise)
+    {
+        $this->enterprise = $enterprise;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCustomer()
+    {
+        return $this->customer;
+    }
+
+    /**
+     * @param mixed $customer
+     */
+    public function setCustomer($customer)
+    {
+        $this->customer = $customer;
     }
 }

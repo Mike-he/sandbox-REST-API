@@ -17,6 +17,7 @@ class AdminRemark
     const OBJECT_PRODUCT_ORDER = 'product_order';
     const OBJECT_TOP_UP_ORDER = 'top_up_order';
     const OBJECT_LEASE_CLUE = 'lease_clue';
+    const OBJECT_LEASE_OFFER = 'lease_offer';
 
     /**
      * @var int

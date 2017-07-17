@@ -3,7 +3,7 @@
 namespace Sandbox\SalesApiBundle\Controller\Lease;
 
 use FOS\RestBundle\View\View;
-use Knp\Component\Pager\Paginator;
+use Sandbox\ApiBundle\Entity\Admin\AdminRemark;
 use Sandbox\ApiBundle\Entity\Lease\LeaseOffer;
 use Sandbox\ApiBundle\Form\Lease\LeaseOfferType;
 use Sandbox\ApiBundle\Traits\GenerateSerialNumberTrait;
@@ -46,6 +46,65 @@ class AdminLeaseOfferController extends SalesRestController
      *    description="page number"
      * )
      *
+     * * @Annotations\QueryParam(
+     *    name="building",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by building id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="keyword",
+     *    default=null,
+     *    nullable=true,
+     *    description="applicant, room, number"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="keyword_search",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="create_start",
+     *    default=null,
+     *    nullable=true,
+     *    description="create start date"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="create_end",
+     *    default=null,
+     *    nullable=true,
+     *    description="create end date"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="rent_filter",
+     *    default=null,
+     *    nullable=true,
+     *    description="rent time filter keywords"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="start_date",
+     *    default=null,
+     *    nullable=true,
+     *    description="appointment start date"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="end_date",
+     *    default=null,
+     *    nullable=true,
+     *    description="appointment end date"
+     * )
+     *
      * @Route("/lease/offers")
      * @Method({"GET"})
      *
@@ -57,21 +116,73 @@ class AdminLeaseOfferController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
+        $offset = ($pageIndex - 1) * $pageLimit;
+        $limit = $pageLimit;
 
-        $clues = $this->getDoctrine()
+        $buildingId = $paramFetcher->get('building');
+
+        // search keyword and query
+        $keyword = $paramFetcher->get('keyword');
+        $keywordSearch = $paramFetcher->get('keyword_search');
+
+        $createStart = $paramFetcher->get('create_start');
+        $createEnd = $paramFetcher->get('create_end');
+
+        // rent date filter
+        $rentFilter = $paramFetcher->get('rent_filter');
+        $startDate = $paramFetcher->get('start_date');
+        $endDate = $paramFetcher->get('end_date');
+
+        $offers = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseOffer')
-            ->findAll();
+            ->findOffers(
+                $salesCompanyId,
+                $buildingId,
+                $keyword,
+                $keywordSearch,
+                $createStart,
+                $createEnd,
+                $rentFilter,
+                $startDate,
+                $endDate,
+                $limit,
+                $offset
+            );
 
-        $paginator = new Paginator();
-        $pagination = $paginator->paginate(
-            $clues,
-            $pageIndex,
-            $pageLimit
-        );
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseClue')
+            ->countClues(
+                $salesCompanyId,
+                $buildingId,
+                $keyword,
+                $keywordSearch,
+                $createStart,
+                $createEnd,
+                $rentFilter,
+                $startDate,
+                $endDate
+            );
 
-        return new View($pagination);
+        foreach ($offers as $offer) {
+            $this->handleOfferData($offer);
+        }
+
+        $view = new View();
+
+        $view->setData(
+            array(
+                'current_page_number' => (int) $pageIndex,
+                'num_items_per_page' => (int) $pageLimit,
+                'items' => $offers,
+                'total_count' => (int) $count,
+            ));
+
+        return $view;
     }
 
     /**
@@ -91,11 +202,13 @@ class AdminLeaseOfferController extends SalesRestController
         Request $request,
         $id
     ) {
-        $clue = $this->getDoctrine()->getRepository('SandboxApiBundle:Lease\LeaseOffer')->find($id);
-        $this->throwNotFoundIfNull($clue, self::NOT_FOUND_MESSAGE);
+        $offer = $this->getDoctrine()->getRepository('SandboxApiBundle:Lease\LeaseOffer')->find($id);
+        $this->throwNotFoundIfNull($offer, self::NOT_FOUND_MESSAGE);
+
+        $offer = $this->handleOfferData($offer);
 
         $view = new View();
-        $view->setData($clue);
+        $view->setData($offer);
 
         return $view;
     }
@@ -146,7 +259,9 @@ class AdminLeaseOfferController extends SalesRestController
         Request $request,
         $id
     ) {
-        $offer = $this->getDoctrine()->getRepository('SandboxApiBundle:Lease\LeaseOffer')->find($id);
+        $offer = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseClue')
+            ->findOneBy(array('id' => $id, 'status' => LeaseOffer::LEASE_OFFER_STATUS_OFFER));
         $this->throwNotFoundIfNull($offer, self::NOT_FOUND_MESSAGE);
 
         $form = $this->createForm(
@@ -170,6 +285,41 @@ class AdminLeaseOfferController extends SalesRestController
     }
 
     /**
+     * Patch Lease Offer Status.
+     *
+     * @param $request
+     * @param $id
+     *
+     * @Route("/lease/offers/{id}")
+     * @Method({"PATCH"})
+     *
+     * @throws \Exception
+     *
+     * @return View
+     */
+    public function patchStatusAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+
+        $em = $this->getDoctrine()->getManager();
+
+        $payload = json_decode($request->getContent(), true);
+
+        $offer = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseClue')
+            ->findOneBy(array('id' => $id, 'status' => LeaseOffer::LEASE_OFFER_STATUS_OFFER));
+        $this->throwNotFoundIfNull($offer, self::NOT_FOUND_MESSAGE);
+
+        $offer->setStatus($payload['status']);
+
+        $em->flush();
+
+        return new View();
+    }
+
+    /**
      * @param LeaseOffer $offer
      * @param $leaseRentTypeIds
      * @param $method
@@ -182,6 +332,10 @@ class AdminLeaseOfferController extends SalesRestController
         $method
     ) {
         $em = $this->getDoctrine()->getManager();
+
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+        $platform = $adminPlatform['platform'];
 
         $customerId = $offer->getLesseeCustomer();
         if (is_null($customerId)) {
@@ -233,10 +387,11 @@ class AdminLeaseOfferController extends SalesRestController
         if ($method == 'POST') {
             $serialNumber = $this->generateSerialNumber(LeaseOffer::LEASE_OFFER_LETTER_HEAD);
             $offer->setSerialNumber($serialNumber);
-
-            $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
-            $salesCompanyId = $adminPlatform['sales_company_id'];
             $offer->setCompanyId($salesCompanyId);
+
+            $message = '创建报价';
+        } else {
+            $message = '更新报价';
         }
 
         $leaseRentTypes = $offer->getLeaseRentTypes();
@@ -254,6 +409,15 @@ class AdminLeaseOfferController extends SalesRestController
         $em->persist($offer);
         $em->flush();
 
+        $this->get('sandbox_api.admin_remark')->autoRemark(
+            $this->getAdminId(),
+            $platform,
+            $salesCompanyId,
+            $message,
+            AdminRemark::OBJECT_LEASE_OFFER,
+            $offer->getId()
+        );
+
         if ($method == 'POST') {
             $response = array(
                 'id' => $offer->getId(),
@@ -261,5 +425,51 @@ class AdminLeaseOfferController extends SalesRestController
 
             return new View($response, 201);
         }
+    }
+
+    /**
+     * @param LeaseOffer $offer
+     *
+     * @return mixed
+     */
+    private function handleOfferData(
+        $offer
+    ) {
+        if ($offer->getProductId()) {
+            $product = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\Product')
+                ->find($offer->getProductId());
+
+            $productData = array(
+                'id' => $offer->getProductId(),
+                'room' => array(
+                    'id' => $product->getRoom()->getId(),
+                    'name' => $product->getRoom()->getName(),
+                    'type_tag' => $product->getRoom()->getTypeTag(),
+                ),
+            );
+            $offer->setProduct($productData);
+        }
+
+        if ($offer->getBuildingId()) {
+            $building = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                ->find($offer->getBuildingId());
+
+            $buildingData = array(
+                'id' => $offer->getBuildingId(),
+                'name' => $building->getName(),
+                'address' => $building->getAddress(),
+            );
+            $offer->setBuilding($buildingData);
+        }
+
+        $customer = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->find($offer->getLesseeCustomer());
+
+        $offer->setCustomer($customer);
+
+        return $offer;
     }
 }
