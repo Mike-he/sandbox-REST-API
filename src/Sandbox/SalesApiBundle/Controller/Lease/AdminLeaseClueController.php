@@ -55,6 +55,55 @@ class AdminLeaseClueController extends SalesRestController
      *    description="Filter by building id"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="keyword",
+     *    default=null,
+     *    nullable=true,
+     *    description="applicant, room, number"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="keyword_search",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="create_start",
+     *    default=null,
+     *    nullable=true,
+     *    description="create start date"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="create_end",
+     *    default=null,
+     *    nullable=true,
+     *    description="create end date"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="rent_filter",
+     *    default=null,
+     *    nullable=true,
+     *    description="rent time filter keywords"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="start_date",
+     *    default=null,
+     *    nullable=true,
+     *    description="appointment start date"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="end_date",
+     *    default=null,
+     *    nullable=true,
+     *    description="appointment end date"
+     * )
+     *
      * @Route("/lease/clues")
      * @Method({"GET"})
      *
@@ -76,11 +125,30 @@ class AdminLeaseClueController extends SalesRestController
 
         $buildingId = $paramFetcher->get('building');
 
+        // search keyword and query
+        $keyword = $paramFetcher->get('keyword');
+        $keywordSearch = $paramFetcher->get('keyword_search');
+
+        $createStart = $paramFetcher->get('create_start');
+        $createEnd = $paramFetcher->get('create_end');
+
+        // rent date filter
+        $rentFilter = $paramFetcher->get('rent_filter');
+        $startDate = $paramFetcher->get('start_date');
+        $endDate = $paramFetcher->get('end_date');
+
         $clues = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseClue')
             ->findClues(
                 $salesCompanyId,
                 $buildingId,
+                $keyword,
+                $keywordSearch,
+                $createStart,
+                $createEnd,
+                $rentFilter,
+                $startDate,
+                $endDate,
                 $limit,
                 $offset
             );
@@ -89,7 +157,14 @@ class AdminLeaseClueController extends SalesRestController
             ->getRepository('SandboxApiBundle:Lease\LeaseClue')
             ->countClues(
                 $salesCompanyId,
-                $buildingId
+                $buildingId,
+                $keyword,
+                $keywordSearch,
+                $createStart,
+                $createEnd,
+                $rentFilter,
+                $startDate,
+                $endDate
             );
 
         foreach ($clues as $clue) {

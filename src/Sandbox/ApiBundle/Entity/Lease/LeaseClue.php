@@ -18,6 +18,11 @@ class LeaseClue
     const LEASE_CLUE_STATUS_CONTRACT = 'contract';
     const LEASE_CLUE_STATUS_CLOSED = 'closed';
 
+    const KEYWORD_NUMBER = 'number';
+    const KEYWORD_CUSTOMER_PHONE = 'customer_phone';
+    const KEYWORD_CUSTOMER_NAME = 'customer_name';
+    const KEYWORD_ROOM_NAME = 'room_name';
+
     /**
      * @var int
      *
