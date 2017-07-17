@@ -3,7 +3,6 @@
 namespace Sandbox\SalesApiBundle\Controller\Lease;
 
 use FOS\RestBundle\View\View;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Lease\LeaseClue;
 use Sandbox\ApiBundle\Form\Lease\LeaseCluePostType;
 use Sandbox\ApiBundle\Traits\GenerateSerialNumberTrait;
@@ -67,6 +66,9 @@ class AdminLeaseClueController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
         $offset = ($pageIndex - 1) * $pageLimit;
@@ -74,22 +76,11 @@ class AdminLeaseClueController extends SalesRestController
 
         $buildingId = $paramFetcher->get('building');
 
-        if (!is_null($buildingId)) {
-            $myBuildingIds = array((int) $buildingId);
-        } else {
-            //get my buildings list
-            $myBuildingIds = $this->getMySalesBuildingIds(
-                $this->getAdminId(),
-                array(
-                    AdminPermission::KEY_SALES_PLATFORM_BUILDING,
-                )
-            );
-        }
-
         $clues = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseClue')
             ->findClues(
-                $myBuildingIds,
+                $salesCompanyId,
+                $buildingId,
                 $limit,
                 $offset
             );
@@ -97,7 +88,8 @@ class AdminLeaseClueController extends SalesRestController
         $count = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseClue')
             ->countClues(
-                $myBuildingIds
+                $salesCompanyId,
+                $buildingId
             );
 
         foreach ($clues as $clue) {
@@ -271,6 +263,10 @@ class AdminLeaseClueController extends SalesRestController
         if ($method == 'POST') {
             $serialNumber = $this->generateSerialNumber(LeaseClue::LEASE_CLUE_LETTER_HEAD);
             $clue->setSerialNumber($serialNumber);
+
+            $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+            $salesCompanyId = $adminPlatform['sales_company_id'];
+            $clue->setCompanyId($salesCompanyId);
         }
 
         $em->persist($clue);

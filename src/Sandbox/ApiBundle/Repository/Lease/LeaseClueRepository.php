@@ -7,13 +7,19 @@ use Doctrine\ORM\EntityRepository;
 class LeaseClueRepository extends EntityRepository
 {
     public function findClues(
-        $myBuildingIds,
+        $salesCompanyId,
+        $buildingId,
         $limit,
         $offset
     ) {
         $query = $this->createQueryBuilder('lc')
-            ->where('lc.buildingId in (:buildings)')
-            ->setParameter('buildings', $myBuildingIds);
+            ->where('lc.companyId = :companyId')
+            ->setParameter('companyId', $salesCompanyId);
+
+        if ($buildingId) {
+            $query->where('lc.buildingId = :building')
+                ->setParameter('building', $buildingId);
+        }
 
         $query->orderBy('lc.id', 'DESC')
             ->setMaxResults($limit)
@@ -25,12 +31,18 @@ class LeaseClueRepository extends EntityRepository
     }
 
     public function countClues(
-        $myBuildingIds
+        $salesCompanyId,
+        $buildingId
     ) {
         $query = $this->createQueryBuilder('lc')
             ->select('count(lc.id)')
-            ->where('lc.buildingId in (:buildings)')
-            ->setParameter('buildings', $myBuildingIds);
+            ->where('lc.companyId = :companyId')
+            ->setParameter('companyId', $salesCompanyId);
+
+        if ($buildingId) {
+            $query->where('lc.buildingId = :building')
+                ->setParameter('building', $buildingId);
+        }
 
         $result = $query->getQuery()->getSingleScalarResult();
 

@@ -233,6 +233,10 @@ class AdminLeaseOfferController extends SalesRestController
         if ($method == 'POST') {
             $serialNumber = $this->generateSerialNumber(LeaseOffer::LEASE_OFFER_LETTER_HEAD);
             $offer->setSerialNumber($serialNumber);
+
+            $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+            $salesCompanyId = $adminPlatform['sales_company_id'];
+            $offer->setCompanyId($salesCompanyId);
         }
 
         $leaseRentTypes = $offer->getLeaseRentTypes();

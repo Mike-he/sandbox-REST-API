@@ -205,6 +205,13 @@ class LeaseOffer
      */
     private $modificationDate;
 
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="company_id", type="integer")
+     */
+    private $companyId;
+
     public function __construct()
     {
         $this->leaseRentTypes = new ArrayCollection();
@@ -608,5 +615,21 @@ class LeaseOffer
     public function setModificationDate($modificationDate)
     {
         $this->modificationDate = $modificationDate;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCompanyId()
+    {
+        return $this->companyId;
+    }
+
+    /**
+     * @param int $companyId
+     */
+    public function setCompanyId($companyId)
+    {
+        $this->companyId = $companyId;
     }
 }

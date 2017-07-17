@@ -157,6 +157,13 @@ class LeaseClue
     private $customer;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="company_id", type="integer")
+     */
+    private $companyId;
+
+    /**
      * @return int
      */
     public function getId()
@@ -500,4 +507,19 @@ class LeaseClue
         $this->productAppointment = $productAppointment;
     }
 
+    /**
+     * @return int
+     */
+    public function getCompanyId()
+    {
+        return $this->companyId;
+    }
+
+    /**
+     * @param int $companyId
+     */
+    public function setCompanyId($companyId)
+    {
+        $this->companyId = $companyId;
+    }
 }

@@ -447,6 +447,13 @@ class Lease
      */
     private $planDay;
 
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="company_id", type="integer")
+     */
+    private $companyId;
+
     public function __construct()
     {
         $this->leaserentTypes = new ArrayCollection();
