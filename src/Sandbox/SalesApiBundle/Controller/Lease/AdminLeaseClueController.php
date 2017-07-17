@@ -3,6 +3,7 @@
 namespace Sandbox\SalesApiBundle\Controller\Lease;
 
 use FOS\RestBundle\View\View;
+use Sandbox\ApiBundle\Entity\Admin\AdminRemark;
 use Sandbox\ApiBundle\Entity\Lease\LeaseClue;
 use Sandbox\ApiBundle\Form\Lease\LeaseCluePostType;
 use Sandbox\ApiBundle\Traits\GenerateSerialNumberTrait;
@@ -278,6 +279,42 @@ class AdminLeaseClueController extends SalesRestController
     }
 
     /**
+     * Patch Lease Status.
+     *
+     * @param $request
+     * @param $id
+     *
+     * @Route("/lease/clues/{id}")
+     * @Method({"PATCH"})
+     *
+     * @throws \Exception
+     *
+     * @return View
+     */
+    public function patchStatusAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+
+        $em = $this->getDoctrine()->getManager();
+
+        $payload = json_decode($request->getContent(), true);
+
+        $clue = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseClue')
+            ->findOneBy(array('id' => $id, 'status' => LeaseClue::LEASE_CLUE_STATUS_CLUE));
+        $this->throwNotFoundIfNull($clue, self::NOT_FOUND_MESSAGE);
+
+        $newStatus = $payload['status'];
+        $clue->setStatus($newStatus);
+
+        $em->flush();
+
+        return new View();
+    }
+
+    /**
      * @param LeaseClue $clue
      * @param $method
      *
@@ -288,6 +325,9 @@ class AdminLeaseClueController extends SalesRestController
         $method
     ) {
         $em = $this->getDoctrine()->getManager();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+        $platform = $adminPlatform['platform'];
 
         $statusArray = array(
                 LeaseClue::LEASE_CLUE_STATUS_CLUE,
@@ -338,14 +378,24 @@ class AdminLeaseClueController extends SalesRestController
         if ($method == 'POST') {
             $serialNumber = $this->generateSerialNumber(LeaseClue::LEASE_CLUE_LETTER_HEAD);
             $clue->setSerialNumber($serialNumber);
-
-            $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
-            $salesCompanyId = $adminPlatform['sales_company_id'];
             $clue->setCompanyId($salesCompanyId);
+
+            $message = '创建线索';
+        } else {
+            $message = '更新线索';
         }
 
         $em->persist($clue);
         $em->flush();
+
+        $this->get('sandbox_api.admin_remark')->autoRemark(
+            $this->getAdminId(),
+            $platform,
+            $salesCompanyId,
+            $message,
+            AdminRemark::OBJECT_LEASE_CLUE,
+            $clue->getId()
+        );
 
         if ($method == 'POST') {
             $response = array(
