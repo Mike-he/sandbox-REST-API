@@ -41,12 +41,16 @@ class LeaseClue
      */
     private $buildingId;
 
+    private $building;
+
     /**
      * @var Sandbox\ApiBundle\Entity\Product\Product
      *
      * @ORM\Column(name="product_id",type="integer", nullable=true)
      */
     private $productId;
+
+    private $product;
 
     /**
      * @var string
@@ -132,6 +136,8 @@ class LeaseClue
      */
     private $productAppointmentId;
 
+    private $productAppointment;
+
     /**
      * @var \DateTime
      *
@@ -147,6 +153,8 @@ class LeaseClue
      * @ORM\Column(name="modification_date", type="datetime")
      */
     private $modificationDate;
+
+    private $customer;
 
     /**
      * @return int
@@ -427,4 +435,69 @@ class LeaseClue
     {
         $this->modificationDate = $modificationDate;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getProduct()
+    {
+        return $this->product;
+    }
+
+    /**
+     * @param mixed $product
+     */
+    public function setProduct($product)
+    {
+        $this->product = $product;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCustomer()
+    {
+        return $this->customer;
+    }
+
+    /**
+     * @param mixed $customer
+     */
+    public function setCustomer($customer)
+    {
+        $this->customer = $customer;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBuilding()
+    {
+        return $this->building;
+    }
+
+    /**
+     * @param mixed $building
+     */
+    public function setBuilding($building)
+    {
+        $this->building = $building;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getProductAppointment()
+    {
+        return $this->productAppointment;
+    }
+
+    /**
+     * @param mixed $productAppointment
+     */
+    public function setProductAppointment($productAppointment)
+    {
+        $this->productAppointment = $productAppointment;
+    }
+
 }

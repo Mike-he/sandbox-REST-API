@@ -3,7 +3,7 @@
 namespace Sandbox\SalesApiBundle\Controller\Lease;
 
 use FOS\RestBundle\View\View;
-use Knp\Component\Pager\Paginator;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Lease\LeaseClue;
 use Sandbox\ApiBundle\Form\Lease\LeaseCluePostType;
 use Sandbox\ApiBundle\Traits\GenerateSerialNumberTrait;
@@ -46,6 +46,16 @@ class AdminLeaseClueController extends SalesRestController
      *    description="page number"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by building id"
+     * )
+     *
      * @Route("/lease/clues")
      * @Method({"GET"})
      *
@@ -59,19 +69,52 @@ class AdminLeaseClueController extends SalesRestController
     ) {
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
+        $offset = ($pageIndex - 1) * $pageLimit;
+        $limit = $pageLimit;
+
+        $buildingId = $paramFetcher->get('building');
+
+        if (!is_null($buildingId)) {
+            $myBuildingIds = array((int) $buildingId);
+        } else {
+            //get my buildings list
+            $myBuildingIds = $this->getMySalesBuildingIds(
+                $this->getAdminId(),
+                array(
+                    AdminPermission::KEY_SALES_PLATFORM_BUILDING,
+                )
+            );
+        }
 
         $clues = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseClue')
-            ->findAll();
+            ->findClues(
+                $myBuildingIds,
+                $limit,
+                $offset
+            );
 
-        $paginator = new Paginator();
-        $pagination = $paginator->paginate(
-            $clues,
-            $pageIndex,
-            $pageLimit
-        );
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseClue')
+            ->countClues(
+                $myBuildingIds
+            );
 
-        return new View($pagination);
+        foreach ($clues as $clue) {
+            $this->handleClueData($clue);
+        }
+
+        $view = new View();
+
+        $view->setData(
+            array(
+                'current_page_number' => (int) $pageIndex,
+                'num_items_per_page' => (int) $pageLimit,
+                'items' => $clues,
+                'total_count' => (int) $count,
+            ));
+
+        return $view;
     }
 
     /**
@@ -93,6 +136,8 @@ class AdminLeaseClueController extends SalesRestController
     ) {
         $clue = $this->getDoctrine()->getRepository('SandboxApiBundle:Lease\LeaseClue')->find($id);
         $this->throwNotFoundIfNull($clue, self::NOT_FOUND_MESSAGE);
+
+        $clue = $this->handleClueData($clue);
 
         $view = new View();
         $view->setData($clue);
@@ -143,7 +188,9 @@ class AdminLeaseClueController extends SalesRestController
         Request $request,
         $id
     ) {
-        $clue = $this->getDoctrine()->getRepository('SandboxApiBundle:Lease\LeaseClue')->find($id);
+        $clue = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseClue')
+            ->findOneBy(array('id' => $id, 'status' => LeaseClue::LEASE_CLUE_STATUS_CLUE));
         $this->throwNotFoundIfNull($clue, self::NOT_FOUND_MESSAGE);
 
         $form = $this->createForm(
@@ -174,6 +221,16 @@ class AdminLeaseClueController extends SalesRestController
         $method
     ) {
         $em = $this->getDoctrine()->getManager();
+
+        $statusArray = array(
+                LeaseClue::LEASE_CLUE_STATUS_CLUE,
+                LeaseClue::LEASE_CLUE_STATUS_OFFER,
+                LeaseClue::LEASE_CLUE_STATUS_CONTRACT,
+            );
+        $status = $clue->getStatus();
+        if (is_null($status) || !in_array($status, $statusArray)) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
 
         $customerId = $clue->getLesseeCustomer();
         if (is_null($customerId)) {
@@ -226,5 +283,63 @@ class AdminLeaseClueController extends SalesRestController
 
             return new View($response, 201);
         }
+    }
+
+    /**
+     * @param LeaseClue $clue
+     *
+     * @return mixed
+     */
+    private function handleClueData(
+        $clue
+    ) {
+        if ($clue->getProductId()) {
+            $product = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\Product')
+                ->find($clue->getProductId());
+
+            $productData = array(
+                'id' => $clue->getProductId(),
+                'room' => array(
+                    'id' => $product->getRoom()->getId(),
+                    'name' => $product->getRoom()->getName(),
+                    'type_tag' => $product->getRoom()->getTypeTag(),
+                ),
+            );
+            $clue->setProduct($productData);
+        }
+
+        if ($clue->getBuildingId()) {
+            $building = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                ->find($clue->getBuildingId());
+
+            $buildingData = array(
+                'id' => $clue->getBuildingId(),
+                'name' => $building->getName(),
+                'address' => $building->getAddress(),
+            );
+            $clue->setBuilding($buildingData);
+        }
+
+        $customer = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->find($clue->getLesseeCustomer());
+
+        $clue->setCustomer($customer);
+
+        if ($clue->getProductAppointmentId()) {
+            $productAppointment = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\ProductAppointment')
+                ->find($clue->getProductAppointmentId());
+
+            $productAppointmentData = array(
+                'id' => $clue->getProductAppointmentId(),
+                'user_id' => $productAppointment->getUserId(),
+            );
+            $clue->setProductAppointment($productAppointmentData);
+        }
+
+        return $clue;
     }
 }
