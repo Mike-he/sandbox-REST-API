@@ -151,6 +151,26 @@ class AdminGenericListController extends SalesRestController
                 )
             );
 
-        return new View($lists);
+        $result = array();
+        if ($lists) {
+            foreach ($lists as $list) {
+                $result[] = $list->getList();
+            }
+        } else {
+            $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+            $platform = $adminPlatform['platform'];
+
+            $result = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:GenericList\GenericList')
+                ->findBy(
+                    array(
+                        'object' => $object,
+                        'platform' => $platform,
+                        'default' => true,
+                    )
+                );
+        }
+
+        return new View($result);
     }
 }
