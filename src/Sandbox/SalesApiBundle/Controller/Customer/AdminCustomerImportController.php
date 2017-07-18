@@ -3,12 +3,14 @@
 namespace Sandbox\SalesApiBundle\Controller\Customer;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
+use Sandbox\ApiBundle\Entity\User\UserCustomer;
 use Sandbox\ApiBundle\Entity\User\UserCustomerImport;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class AdminCustomerImportController extends SalesRestController
 {
@@ -143,5 +145,210 @@ class AdminCustomerImportController extends SalesRestController
         return new View(array(
             'import_serial_number' => $serialNumber,
         ));
+    }
+
+    /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/customers/import_preview/{serialNumber}")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getCustomerImportPreviewAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $serialNumber
+    ) {
+        $customerImports = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomerImport')
+            ->findBy(array(
+                'serialNumber' => $serialNumber,
+            ));
+
+        return new View($customerImports);
+    }
+
+    /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/customers/import_confirm")
+     * @Method({"POST"})
+     *
+     * @return View
+     */
+    public function postCustomerImportConfirmAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $data = json_decode($request->getContent(), true);
+
+        if (!isset($data['action']) || !isset($data['serial_number'])) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $action = $data['action'];
+        $serialNumber = $data['serial_number'];
+
+        switch ($action) {
+            case UserCustomerImport::ACTION_BYPASS:
+                $this->bypassCustomerImports($serialNumber);
+                break;
+            case UserCustomerImport::ACTION_COVER:
+                $this->coverCustomerImports($serialNumber);
+                break;
+        }
+
+        // remove data
+        $em = $this->getDoctrine()->getManager();
+
+        $customerImports = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomerImport')
+            ->findBy(array(
+                'serialNumber' => $serialNumber,
+            ));
+
+        foreach ($customerImports as $import) {
+            $em->remove($import);
+        }
+
+        $em->flush();
+
+        return new View();
+    }
+
+    /**
+     * @param $serialNumber
+     */
+    private function bypassCustomerImports(
+        $serialNumber
+    ) {
+        $customerImports = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomerImport')
+            ->findBy(array(
+                'serialNumber' => $serialNumber,
+                'status' => UserCustomerImport::STATUS_NORMAL,
+            ));
+
+        if (empty($customerImports)) {
+            return ;
+        }
+
+        $em = $this->getDoctrine()->getManager();
+
+        foreach ($customerImports as $import) {
+            $phoneCode = $import->getPhoneCode();
+            $phone = $import->getPhone();
+
+            $customer = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserCustomer')
+                ->findOneBy(array(
+                    'phoneCode' => $phoneCode,
+                    'phone' => $phone,
+                ));
+
+            if ($customer) {
+                continue;
+            }
+
+            $customer = new UserCustomer();
+            $customer->setPhoneCode($phoneCode);
+            $customer->setPhone($phone);
+            $customer->setName($import->getName());
+            $customer->setCompanyId($import->getCompanyId());
+            $customer->setSex($import->getSex());
+            $customer->setEmail($import->getEmail());
+            $customer->setNationality($import->getNationality());
+            $customer->setIdType($import->getIdType());
+            $customer->setIdNumber($import->getIdNumber());
+            $customer->setLanguage($import->getLanguage());
+            $customer->setBirthday($import->getBirthday());
+            $customer->setCompanyName($import->getCompanyName());
+            $customer->setPosition($import->getPosition());
+            $customer->setComment($import->getComment());
+
+            $user = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\User')
+                ->findOneBy(array(
+                    'phoneCode' => $phoneCode,
+                    'phone' => $phone,
+                ));
+
+            if ($user) {
+                $customer->setUserId($user->getId());
+            }
+
+            $em->persist($customer);
+        }
+
+        $em->flush();
+    }
+
+    /**
+     * @param $serialNumber
+     */
+    private function coverCustomerImports(
+        $serialNumber
+    ) {
+        $this->bypassCustomerImports($serialNumber);
+
+        $customerImports = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomerImport')
+            ->findBy(array(
+                'serialNumber' => $serialNumber,
+                'status' => UserCustomerImport::STATUS_REPEAT,
+            ));
+
+        if (empty($customerImports)) {
+            return ;
+        }
+
+        $em = $this->getDoctrine()->getManager();
+
+        foreach ($customerImports as $import) {
+            $phoneCode = $import->getPhoneCode();
+            $phone = $import->getPhone();
+
+            $customer = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserCustomer')
+                ->findOneBy(array(
+                    'phoneCode' => $phoneCode,
+                    'phone' => $phone,
+                ));
+
+            if ($customer) {
+                continue;
+            }
+
+            $customer->setPhoneCode($phoneCode);
+            $customer->setPhone($phone);
+            $customer->setName($import->getName());
+            $customer->setCompanyId($import->getCompanyId());
+            $customer->setSex($import->getSex());
+            $customer->setEmail($import->getEmail());
+            $customer->setNationality($import->getNationality());
+            $customer->setIdType($import->getIdType());
+            $customer->setIdNumber($import->getIdNumber());
+            $customer->setLanguage($import->getLanguage());
+            $customer->setBirthday($import->getBirthday());
+            $customer->setCompanyName($import->getCompanyName());
+            $customer->setPosition($import->getPosition());
+            $customer->setComment($import->getComment());
+
+            $user = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\User')
+                ->findOneBy(array(
+                    'phoneCode' => $phoneCode,
+                    'phone' => $phone,
+                ));
+
+            if ($user) {
+                $customer->setUserId($user->getId());
+            }
+        }
+
+        $em->flush();
     }
 }

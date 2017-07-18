@@ -17,6 +17,9 @@ class UserCustomerImport
     const STATUS_REPEAT = 'repeat';
     const STATUS_ERROR = 'error';
 
+    const ACTION_BYPASS = 'bypass';
+    const ACTION_COVER = 'cover';
+
     /**
      * @var integer
      *
