@@ -13,10 +13,6 @@ use Gedmo\Mapping\Annotation as Gedmo;
  */
 class GenericUserList
 {
-    const OBJECT_LEASE_BILL = 'lease_bill';
-    const OBJECT_LEASE_CLUE = 'lease_clue';
-    const OBJECT_LEASE_OFFER = 'lease_offer';
-
     /**
      * @var int
      *
@@ -36,44 +32,18 @@ class GenericUserList
     /**
      * @var string
      *
-     * @ORM\Column(name="platform", type="string", length=16)
-     */
-    private $platform;
-
-    /**
-     * @var string
-     *
      * @ORM\Column(name="object", type="string", length=16)
      */
     private $object;
 
     /**
-     * @var string
+     * @var GenericList
      *
-     * @ORM\Column(name="column", type="string", length=32)
-     */
-    private $column;
-
-    /**
-     * @var
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\GenericList\GenericList")
+     * @ORM\JoinColumn(name="list_id", referencedColumnName="id", onDelete="CASCADE")
      *
-     * @ORM\Column(name="required", type="boolean")
      */
-    private $required = false;
-
-    /**
-     * @var
-     *
-     * @ORM\Column(name="sort", type="boolean")
-     */
-    private $sort = false;
-
-    /**
-     * @var
-     *
-     * @ORM\Column(name="direction", type="string", length=16, nullable=true)
-     */
-    private $direction;
+    private $list;
 
     /**
      * @var \DateTime
@@ -110,54 +80,20 @@ class GenericUserList
     }
 
     /**
-     * @return string
+     * @return GenericList
      */
-    public function getPlatform()
+    public function getList()
     {
-        return $this->platform;
+        return $this->list;
     }
 
     /**
-     * @param string $platform
+     * @param GenericList $list
      */
-    public function setPlatform($platform)
+    public function setList($list)
     {
-        $this->platform = $platform;
+        $this->list = $list;
     }
-
-    /**
-     * @return string
-     */
-    public function getObject()
-    {
-        return $this->object;
-    }
-
-    /**
-     * @param string $object
-     */
-    public function setObject($object)
-    {
-        $this->object = $object;
-    }
-
-    /**
-     * @return string
-     */
-    public function getColumn()
-    {
-        return $this->column;
-    }
-
-    /**
-     * @param string $column
-     */
-    public function setColumn($column)
-    {
-        $this->column = $column;
-    }
-
-
 
     /**
      * @return \DateTime
@@ -176,50 +112,18 @@ class GenericUserList
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getRequired()
+    public function getObject()
     {
-        return $this->required;
+        return $this->object;
     }
 
     /**
-     * @param mixed $required
+     * @param string $object
      */
-    public function setRequired($required)
+    public function setObject($object)
     {
-        $this->required = $required;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getSort()
-    {
-        return $this->sort;
-    }
-
-    /**
-     * @param mixed $sort
-     */
-    public function setSort($sort)
-    {
-        $this->sort = $sort;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getDirection()
-    {
-        return $this->direction;
-    }
-
-    /**
-     * @param mixed $direction
-     */
-    public function setDirection($direction)
-    {
-        $this->direction = $direction;
+        $this->object = $object;
     }
 }
