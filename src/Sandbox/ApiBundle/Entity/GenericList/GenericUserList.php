@@ -50,7 +50,7 @@ class GenericUserList
     /**
      * @var string
      *
-     * @ORM\Column(name="column", type="string", length=16)
+     * @ORM\Column(name="column", type="string", length=32)
      */
     private $column;
 

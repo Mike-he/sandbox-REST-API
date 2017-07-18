@@ -47,14 +47,14 @@ class GenericList
     /**
      * @var string
      *
-     * @ORM\Column(name="`column`", type="string", length=16)
+     * @ORM\Column(name="`column`", type="string", length=32)
      */
     private $column;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="name", type="string", length=16)
+     * @ORM\Column(name="name", type="string", length=32)
      */
     private $name;
 
