@@ -190,3 +190,8 @@ sandbox_sales_admin_lease_api:
     type: rest
     prefix: /admin
 
+# Admin Customer Import
+sandbox_sales_admin_customer_import_api:
+    resource: "@SandboxSalesApiBundle/Controller/Customer/AdminCustomerImportController.php"
+    type:     annotation
+    prefix:   /admin
