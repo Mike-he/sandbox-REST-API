@@ -195,3 +195,11 @@ sandbox_sales_admin_customer_import_api:
     resource: "@SandboxSalesApiBundle/Controller/Customer/AdminCustomerImportController.php"
     type:     annotation
     prefix:   /admin
+
+# admin user customer
+sandbox_sales_admin_api_generic_list:
+    resource: "@SandboxSalesApiBundle/Controller/GenericList/AdminGenericListController.php"
+    type:     annotation
+    prefix:   /admin
+
+
