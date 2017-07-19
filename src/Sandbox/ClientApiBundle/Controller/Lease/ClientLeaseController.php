@@ -88,65 +88,6 @@ class ClientLeaseController extends SandboxRestController
     }
 
     /**
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
-     *
-     * @Annotations\QueryParam(
-     *     name="ids",
-     *     array=true
-     * )
-     *
-     * @Route("/leases/time_remaining")
-     * @Method({"GET"})
-     *
-     * @return View
-     */
-    public function getLeaseTimeRemainingAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher
-    ) {
-        $ids = $paramFetcher->get('ids');
-
-        $expireInParameter = $this->getParameterRepo()
-            ->findOneBy(array(
-                'key' => Parameter::KEY_LEASE_CONFIRM_EXPIRE_IN,
-            ));
-
-        $response = array();
-        foreach ($ids as $id) {
-            $lease = $this->getLeaseRepo()
-                ->findOneBy(array(
-                    'id' => $id,
-                    'status' => Lease::LEASE_STATUS_CONFIRMING,
-                ));
-
-            if (is_null($lease)) {
-                continue;
-            }
-
-            $modificationDate = $lease->getModificationDate()->setTime(23, 59, 59);
-            $leaseExpireInDate = $modificationDate->add(new \DateInterval('P'.$expireInParameter->getValue()));
-
-            $now = new \DateTime('now');
-            $diffDate = $now->diff($leaseExpireInDate);
-
-            array_push($response, array(
-                'lease_id' => $id,
-                'remaining_days' => $diffDate->d,
-                'remaining_hours' => $diffDate->h,
-                'remaining_minutes' => $diffDate->i,
-                'remaining_seconds' => $diffDate->s,
-            ));
-        }
-
-        if (empty($response)) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
-
-        return new View($response);
-    }
-
-    /**
      * Get Lease Detail.
      *
      * @param $id
