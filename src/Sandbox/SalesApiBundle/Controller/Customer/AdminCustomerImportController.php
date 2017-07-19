@@ -110,7 +110,7 @@ class AdminCustomerImportController extends SalesRestController
             }
         }
 
-        $em->flush();exit;
+        $em->flush();
 
         // check import repeat
         $customerImports = $this->getDoctrine()
