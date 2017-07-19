@@ -393,6 +393,87 @@ class Version920170717165529 extends AbstractMigration implements ContainerAware
             ),
         );
 
+        $customerColumns = array(
+            array(
+                'column' => 'avatar',
+                'name' => '用户头像',
+                'default' => true,
+                'required' => false,
+            ),
+            array(
+                'column' => 'name',
+                'name' => '用户名',
+                'default' => true,
+                'required' => true,
+            ),
+            array(
+                'column' => 'phone',
+                'name' => '用户手机',
+                'default' => true,
+                'required' => true,
+            ),
+            array(
+                'column' => 'sex',
+                'name' => '用户性别',
+                'default' => true,
+                'required' => false,
+            ),
+            array(
+                'column' => 'email',
+                'name' => '邮箱',
+                'default' => true,
+                'required' => false,
+            ),
+            array(
+                'column' => 'nationality',
+                'name' => '国籍',
+                'default' => false,
+                'required' => false,
+            ),
+            array(
+                'column' => 'id_type',
+                'name' => '证件',
+                'default' => false,
+                'required' => false,
+            ),
+            array(
+                'column' => 'language',
+                'name' => '语言',
+                'default' => false,
+                'required' => false,
+            ),
+            array(
+                'column' => 'birthday',
+                'name' => '生日',
+                'default' => false,
+                'required' => false,
+            ),
+            array(
+                'column' => 'company_name',
+                'name' => '公司',
+                'default' => false,
+                'required' => false,
+            ),
+            array(
+                'column' => 'position',
+                'name' => '职位',
+                'default' => false,
+                'required' => false,
+            ),
+            array(
+                'column' => 'comment',
+                'name' => '备注',
+                'default' => false,
+                'required' => false,
+            ),
+            array(
+                'column' => 'groups',
+                'name' => '用户组',
+                'default' => true,
+                'required' => false,
+            ),
+        );
+
         foreach ($leaseClueColumns as $leaseClueColumn) {
             $list = new GenericList();
             $list->setColumn($leaseClueColumn['column']);
@@ -436,6 +517,18 @@ class Version920170717165529 extends AbstractMigration implements ContainerAware
             $list->setDefault($billColumn['default']);
             $list->setRequired($billColumn['required']);
             $list->setObject(GenericList::OBJECT_LEASE_BILL);
+            $list->setPlatform(GenericList::OBJECT_PLATFORM_SALES);
+
+            $em->persist($list);
+        }
+
+        foreach ($customerColumns as $customerColumn) {
+            $list = new GenericList();
+            $list->setColumn($customerColumn['column']);
+            $list->setName($customerColumn['name']);
+            $list->setDefault($customerColumn['default']);
+            $list->setRequired($customerColumn['required']);
+            $list->setObject(GenericList::OBJECT_CUSTOMER);
             $list->setPlatform(GenericList::OBJECT_PLATFORM_SALES);
 
             $em->persist($list);
