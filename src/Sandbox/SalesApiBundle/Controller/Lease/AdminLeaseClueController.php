@@ -5,6 +5,8 @@ namespace Sandbox\SalesApiBundle\Controller\Lease;
 use FOS\RestBundle\View\View;
 use Sandbox\ApiBundle\Entity\Admin\AdminRemark;
 use Sandbox\ApiBundle\Entity\Lease\LeaseClue;
+use Sandbox\ApiBundle\Entity\Room\Room;
+use Sandbox\ApiBundle\Entity\Room\RoomTypeTags;
 use Sandbox\ApiBundle\Form\Lease\LeaseCluePostType;
 use Sandbox\ApiBundle\Traits\GenerateSerialNumberTrait;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
@@ -311,6 +313,22 @@ class AdminLeaseClueController extends SalesRestController
 
         $em->flush();
 
+        if ($newStatus == LeaseClue::LEASE_CLUE_STATUS_CLOSED) {
+            $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+            $salesCompanyId = $adminPlatform['sales_company_id'];
+            $platform = $adminPlatform['platform'];
+            $message = '关闭线索';
+
+            $this->get('sandbox_api.admin_remark')->autoRemark(
+                $this->getAdminId(),
+                $platform,
+                $salesCompanyId,
+                $message,
+                AdminRemark::OBJECT_LEASE_CLUE,
+                $clue->getId()
+            );
+        }
+
         return new View();
     }
 
@@ -419,12 +437,17 @@ class AdminLeaseClueController extends SalesRestController
                 ->getRepository('SandboxApiBundle:Product\Product')
                 ->find($clue->getProductId());
 
+            /** @var Room $room */
+            $room = $product->getRoom();
+
+            $typeTagDescription = $this->get('translator')->trans(RoomTypeTags::TRANS_PREFIX.$room->getTypeTag());
             $productData = array(
                 'id' => $clue->getProductId(),
                 'room' => array(
-                    'id' => $product->getRoom()->getId(),
-                    'name' => $product->getRoom()->getName(),
-                    'type_tag' => $product->getRoom()->getTypeTag(),
+                    'id' => $room->getId(),
+                    'name' => $room->getName(),
+                    'type_tag' => $room->getTypeTag(),
+                    'type_tag_description' => $typeTagDescription,
                 ),
             );
             $clue->setProduct($productData);

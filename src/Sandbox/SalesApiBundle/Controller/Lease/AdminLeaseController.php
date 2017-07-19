@@ -10,6 +10,7 @@ use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
 use Sandbox\ApiBundle\Constants\LeaseConstants;
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Admin\AdminRemark;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
@@ -762,6 +763,10 @@ class AdminLeaseController extends SalesRestController
         $bills,
         $leaseRentTypeIds
     ) {
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+        $platform = $adminPlatform['platform'];
+
         $em = $this->getDoctrine()->getManager();
 
         $lease = $this->checkLeaseData($lease);
@@ -788,11 +793,46 @@ class AdminLeaseController extends SalesRestController
         $em->persist($lease);
         $em->flush();
 
-        $userId = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserCustomer')
-            ->getUserIdByCustomerId($lease->getLesseeCustomer());
+        $message = '创建合同';
+        $this->get('sandbox_api.admin_remark')->autoRemark(
+            $this->getAdminId(),
+            $platform,
+            $salesCompanyId,
+            $message,
+            AdminRemark::OBJECT_LEASE,
+            $lease->getId()
+        );
+
+        if ($lease->getLeaseClueId()) {
+            $clueMessage = '转为合同: '.$lease->getSerialNumber();
+
+            $this->get('sandbox_api.admin_remark')->autoRemark(
+                $this->getAdminId(),
+                $platform,
+                $salesCompanyId,
+                $clueMessage,
+                AdminRemark::OBJECT_LEASE_CLUE,
+                $lease->getLeaseClueId()
+            );
+        }
+
+        if ($lease->getLeaseOfferId()) {
+            $offerMessage = '转为合同: '.$lease->getSerialNumber();
+
+            $this->get('sandbox_api.admin_remark')->autoRemark(
+                $this->getAdminId(),
+                $platform,
+                $salesCompanyId,
+                $offerMessage,
+                AdminRemark::OBJECT_LEASE_OFFER,
+                $lease->getLeaseOfferId()
+            );
+        }
 
         if ($lease->getStatus() == Lease::LEASE_STATUS_PERFORMING) {
+            $userId = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserCustomer')
+                ->getUserIdByCustomerId($lease->getLesseeCustomer());
             if ($userId) {
                 $this->addDoorAccess($lease, $userId);
 
@@ -861,6 +901,10 @@ class AdminLeaseController extends SalesRestController
         $oldStartDate,
         $oldEndDate
     ) {
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+        $platform = $adminPlatform['platform'];
+
         $em = $this->getDoctrine()->getManager();
 
         $userId = $this->getDoctrine()
@@ -888,6 +932,16 @@ class AdminLeaseController extends SalesRestController
         $this->handleLeaseBillPut($bills, $lease);
 
         $em->flush();
+
+        $message = '更新合同';
+        $this->get('sandbox_api.admin_remark')->autoRemark(
+            $this->getAdminId(),
+            $platform,
+            $salesCompanyId,
+            $message,
+            AdminRemark::OBJECT_LEASE,
+            $lease->getId()
+        );
 
         if ($oldStatus == Lease::LEASE_STATUS_DRAFTING &&
             $lease->getStatus() == Lease::LEASE_STATUS_PERFORMING

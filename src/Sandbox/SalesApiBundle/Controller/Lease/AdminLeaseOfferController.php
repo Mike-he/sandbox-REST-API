@@ -5,6 +5,8 @@ namespace Sandbox\SalesApiBundle\Controller\Lease;
 use FOS\RestBundle\View\View;
 use Sandbox\ApiBundle\Entity\Admin\AdminRemark;
 use Sandbox\ApiBundle\Entity\Lease\LeaseOffer;
+use Sandbox\ApiBundle\Entity\Room\Room;
+use Sandbox\ApiBundle\Entity\Room\RoomTypeTags;
 use Sandbox\ApiBundle\Form\Lease\LeaseOfferType;
 use Sandbox\ApiBundle\Traits\GenerateSerialNumberTrait;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
@@ -312,9 +314,26 @@ class AdminLeaseOfferController extends SalesRestController
             ->findOneBy(array('id' => $id, 'status' => LeaseOffer::LEASE_OFFER_STATUS_OFFER));
         $this->throwNotFoundIfNull($offer, self::NOT_FOUND_MESSAGE);
 
-        $offer->setStatus($payload['status']);
+        $newStatus = $payload['status'];
+        $offer->setStatus($newStatus);
 
         $em->flush();
+
+        if ($newStatus == LeaseOffer::LEASE_OFFER_STATUS_CLOSED) {
+            $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+            $salesCompanyId = $adminPlatform['sales_company_id'];
+            $platform = $adminPlatform['platform'];
+            $message = '关闭报价';
+
+            $this->get('sandbox_api.admin_remark')->autoRemark(
+                $this->getAdminId(),
+                $platform,
+                $salesCompanyId,
+                $message,
+                AdminRemark::OBJECT_LEASE_OFFER,
+                $offer->getId()
+            );
+        }
 
         return new View();
     }
@@ -419,6 +438,19 @@ class AdminLeaseOfferController extends SalesRestController
         );
 
         if ($method == 'POST') {
+            if ($leaseClueId) {
+                $clueMessage = '转为报价: '.$offer->getSerialNumber();
+
+                $this->get('sandbox_api.admin_remark')->autoRemark(
+                    $this->getAdminId(),
+                    $platform,
+                    $salesCompanyId,
+                    $clueMessage,
+                    AdminRemark::OBJECT_LEASE_CLUE,
+                    $leaseClueId
+                );
+            }
+
             $response = array(
                 'id' => $offer->getId(),
             );
@@ -440,12 +472,18 @@ class AdminLeaseOfferController extends SalesRestController
                 ->getRepository('SandboxApiBundle:Product\Product')
                 ->find($offer->getProductId());
 
+            /** @var Room $room */
+            $room = $product->getRoom();
+
+            $typeTagDescription = $this->get('translator')->trans(RoomTypeTags::TRANS_PREFIX.$room->getTypeTag());
+
             $productData = array(
                 'id' => $offer->getProductId(),
                 'room' => array(
-                    'id' => $product->getRoom()->getId(),
-                    'name' => $product->getRoom()->getName(),
-                    'type_tag' => $product->getRoom()->getTypeTag(),
+                    'id' => $room->getId(),
+                    'name' => $room->getName(),
+                    'type_tag' => $room->getTypeTag(),
+                    'type_tag_description' => $typeTagDescription,
                 ),
             );
             $offer->setProduct($productData);
