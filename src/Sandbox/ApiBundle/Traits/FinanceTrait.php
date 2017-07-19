@@ -22,7 +22,7 @@ use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 trait FinanceTrait
 {
     /**
-     * @param $bill
+     * @param LeaseBill $bill
      * @param $type
      */
     private function generateLongRentServiceFee(
@@ -34,7 +34,7 @@ trait FinanceTrait
         $date = round(microtime(true) * 1000).rand(1000, 9999);
 
         $serialNumber = FinanceLongRentServiceBill::SERVICE_FEE_LETTER_HEAD.$date;
-        $companyId = $bill->getLease()->getProduct()->getRoom()->getBuilding()->getCompany()->getId();
+        $companyId = $bill->getLease()->getCompanyId();
 
         $fee = $this->getCompanyServiceFee($companyId);
 

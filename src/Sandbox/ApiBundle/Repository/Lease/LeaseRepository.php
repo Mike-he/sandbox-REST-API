@@ -416,21 +416,21 @@ class LeaseRepository extends EntityRepository
     }
 
     /**
-     * @param $userId
+     * @param $customerIds
      * @param $statusArray
      *
      * @return array
      */
     public function getLeaseNumbersForClientLease(
-        $userId,
+        $customerIds,
         $statusArray
     ) {
         $query = $this->createQueryBuilder('l')
             ->select('l.serialNumber')
             ->where('l.status IN (:status)')
-            ->andWhere('(l.drawee = :userId OR l.supervisor = :userId)')
+            ->andWhere('l.lesseeCustomer IN (:customerIds)')
             ->setParameter('status', $statusArray)
-            ->setParameter('userId', $userId);
+            ->setParameter('customerIds', $customerIds);
 
         $query->orderBy('l.modificationDate', 'DESC');
 

@@ -121,7 +121,7 @@ class LeaseBillRepository extends EntityRepository
     }
 
     /**
-     * @param $user
+     * @param $customerIds
      * @param $lease
      * @param $type
      * @param $status
@@ -131,7 +131,7 @@ class LeaseBillRepository extends EntityRepository
      * @return array
      */
     public function findMyBills(
-        $user,
+        $customerIds,
         $lease,
         $type,
         $status,
@@ -141,11 +141,10 @@ class LeaseBillRepository extends EntityRepository
         $query = $this->createQueryBuilder('lb')
             ->leftJoin('lb.lease', 'l')
             ->where('
-                        (l.supervisor = :user OR
-                        l.drawee = :user OR 
-                        lb.drawee = :user)
+                        (l.lesseeCustomer IN (:customerIds) OR 
+                        lb.customerId IN (:customerIds))
                     ')
-            ->setParameter('user', $user);
+            ->setParameter('customerIds', $customerIds);
 
         if ($type == 'all') {
             $query->andWhere('lb.status != :status')
@@ -295,10 +294,7 @@ class LeaseBillRepository extends EntityRepository
             ->where('1 = 1');
 
         if (!is_null($company)) {
-            $query->leftJoin('l.product', 'p')
-                ->leftJoin('p.room', 'r')
-                ->leftJoin('r.building', 'b')
-                ->andWhere('b.company = :company')
+            $query->andWhere('l.companyId = :company')
                 ->setParameter('company', $company);
         }
 

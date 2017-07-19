@@ -13,7 +13,6 @@ use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
-use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Sandbox\ApiBundle\Entity\Product\ProductAppointment;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
@@ -25,7 +24,6 @@ use Sandbox\ApiBundle\Traits\LeaseTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use FOS\RestBundle\Controller\Annotations;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -71,11 +69,19 @@ class ClientLeaseController extends SandboxRestController
     ) {
         $userId = $this->getUserId();
 
+        $customerIds = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->getCustomerIdsByUserId($userId);
+
+        if (empty($customerIds)) {
+            return new View();
+        }
+
         $offset = $paramFetcher->get('offset');
         $limit = $paramFetcher->get('limit');
         $status = $paramFetcher->get('status');
 
-        $longTermNumbersArray = $this->generateLongTermNumbersArray($userId, $status, $offset, $limit);
+        $longTermNumbersArray = $this->generateLongTermNumbersArray($customerIds, $status, $offset, $limit);
 
         $response = array();
         foreach ($longTermNumbersArray as $number) {
@@ -100,7 +106,8 @@ class ClientLeaseController extends SandboxRestController
     public function getLeaseAction(
         $id
     ) {
-        $lease = $this->getLeaseRepo()
+        $lease = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\Lease')
             ->find($id);
 
         $this->throwNotFoundIfNull($lease, self::NOT_FOUND_MESSAGE);
@@ -155,22 +162,23 @@ class ClientLeaseController extends SandboxRestController
         Request $request,
         $id
     ) {
-        $lease = $this->getLeaseRepo()->find($id);
+        $lease = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\Lease')
+            ->find($id);
         $this->throwNotFoundIfNull($lease);
 
         // check user permission
-        $this->throwAccessDeniedIfNotSameUser($lease->getSupervisorId());
+        $leaseUserId = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->getUserIdByCustomerId($lease->getLesseeCustomer());
+        $this->throwAccessDeniedIfNotSameUser($leaseUserId);
 
         $status = $lease->getStatus();
         $endDate = $lease->getEndDate();
         $now = new \DateTime();
 
         // limit inviting people conditions
-        if ((
-                $status !== Lease::LEASE_STATUS_CONFIRMED &&
-                $status !== Lease::LEASE_STATUS_PERFORMING &&
-                $status !== Lease::LEASE_STATUS_RECONFIRMING
-            ) ||
+        if ($status !== Lease::LEASE_STATUS_PERFORMING ||
             $now >= $endDate
         ) {
             throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE);
@@ -249,7 +257,7 @@ class ClientLeaseController extends SandboxRestController
 
     /**
      * @param $users
-     * @param $lease
+     * @param Lease $lease
      * @param $base
      *
      * @return array|mixed
@@ -273,6 +281,9 @@ class ClientLeaseController extends SandboxRestController
             // find user
             $user = $this->getUserRepo()->find($userId);
             $this->throwNotFoundIfNull($user, User::ERROR_NOT_FOUND);
+
+            // check and add user in sales customer
+            $this->get('sandbox_api.sales_customer')->createCustomer($userId, $lease->getCompanyId());
 
             // find user in invitedPeople
             if (!$invitedPeople->contains($user)) {
@@ -420,18 +431,6 @@ class ClientLeaseController extends SandboxRestController
     }
 
     /**
-     * @param Lease $lease
-     */
-    public function checkUserLeasePermission($lease)
-    {
-        $userId = $this->getUserId();
-        if ($userId != $lease->getSupervisorId()
-        && $userId != $lease->getDraweeId()) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-        }
-    }
-
-    /**
      * @param $userId
      * @param $status
      * @param $offset
@@ -492,23 +491,6 @@ class ClientLeaseController extends SandboxRestController
         }
 
         return $numbers;
-    }
-
-    /**
-     * @param $number
-     *
-     * @return null|object|ProductAppointment
-     */
-    private function getAppointmentResponseArray(
-        $number
-    ) {
-        $appointment = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Product\ProductAppointment')
-            ->findOneBy(array(
-                'appointmentNumber' => $number,
-            ));
-
-        return $appointment;
     }
 
     /**

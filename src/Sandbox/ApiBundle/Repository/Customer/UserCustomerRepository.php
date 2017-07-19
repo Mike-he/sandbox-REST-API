@@ -65,6 +65,8 @@ class UserCustomerRepository extends EntityRepository
 
     /**
      * @param $id
+     *
+     * @return null
      */
     public function getUserIdByCustomerId(
         $id
@@ -82,5 +84,28 @@ class UserCustomerRepository extends EntityRepository
         }
 
         return $userId;
+    }
+
+    /**
+     * @param $userId
+     *
+     * @return array
+     */
+    public function getCustomerIdsByUserId(
+        $userId
+    ) {
+        $query = $this->createQueryBuilder('c')
+            ->select('c.id')
+            ->where('c.userId = :userId')
+            ->setParameter('userId', $userId);
+
+        $customers = $query->getQuery()->getResult();
+
+        $result = array();
+        foreach ($customers as $customer) {
+            $result[] = $customer['id'];
+        }
+
+        return $result;
     }
 }

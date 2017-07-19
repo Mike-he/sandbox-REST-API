@@ -230,27 +230,14 @@ class ClientPaymentController extends PaymentController
                 $bill = $this->setLeaseBillStatus(
                     $orderNumber,
                     $channel,
-                    $userId
+                    $userId,
+                    $price
                 );
 
                 $this->generateLongRentServiceFee(
                     $bill,
                     FinanceLongRentServiceBill::TYPE_BILL_SERVICE_FEE
                 );
-
-                // add invoice amount
-                if (!$bill->isSalesInvoice()) {
-                    $this->postConsumeBalance(
-                        $bill->getLease()->getDraweeId(),
-                        $price,
-                        $orderNumber
-                    );
-
-                    $bill->setInvoiced(true);
-
-                    $em = $this->getDoctrine()->getManager();
-                    $em->flush();
-                }
 
                 $orderMap = LeaseBill::BILL_MAP;
                 break;
