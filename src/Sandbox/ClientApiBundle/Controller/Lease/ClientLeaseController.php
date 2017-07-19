@@ -79,35 +79,10 @@ class ClientLeaseController extends SandboxRestController
 
         $response = array();
         foreach ($longTermNumbersArray as $number) {
-            $firstLetter = substr($number, 0, 1);
-
-            switch ($firstLetter) {
-                case ProductAppointment::APPOINTMENT_NUMBER_LETTER:
-                    $responseArray = $this->getAppointmentResponseArray($number);
-                    $product = $responseArray->getProduct();
-                    $productRentSet = $this->getDoctrine()
-                        ->getRepository('SandboxApiBundle:Product\ProductRentSet')
-                        ->findOneBy(array(
-                            'product' => $product,
-                            'status' => true,
-                        ));
-                    $product->setRentSet($productRentSet);
-                    break;
-                case Lease::LEASE_LETTER_HEAD:
-                    $responseArray = $this->getLeaseResponseArray($number);
-                    break;
-                default:
-                    $responseArray = array();
-                    break;
-            }
-
-            if (!empty($responseArray)) {
-                array_push($response, $responseArray);
-            }
+            $response[] = $this->getLeaseResponseArray($number);
         }
 
         $view = new View($response);
-        $view->setSerializationContext(SerializationContext::create()->setGroups(['client_appointment_list']));
 
         return $view;
     }
@@ -517,6 +492,9 @@ class ClientLeaseController extends SandboxRestController
 
     /**
      * @param $userId
+     * @param $status
+     * @param $offset
+     * @param $limit
      *
      * @return array
      */
@@ -526,22 +504,12 @@ class ClientLeaseController extends SandboxRestController
         $offset,
         $limit
     ) {
-        $pendingProductAppointmentNumbers = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Product\ProductAppointment')
-            ->getAppointmentNumbersForClientLease(
-                $userId,
-                array(ProductAppointment::STATUS_PENDING)
-            );
-
         $validLeaseNumbers = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\Lease')
             ->getLeaseNumbersForClientLease(
                 $userId,
                 array(
-                    Lease::LEASE_STATUS_CONFIRMED,
-                    Lease::LEASE_STATUS_CONFIRMING,
                     Lease::LEASE_STATUS_PERFORMING,
-                    Lease::LEASE_STATUS_RECONFIRMING,
                     Lease::LEASE_STATUS_MATURED,
                 )
             );
@@ -552,24 +520,12 @@ class ClientLeaseController extends SandboxRestController
                 $userId,
                 array(
                     Lease::LEASE_STATUS_END,
-                    Lease::LEASE_STATUS_EXPIRED,
                     Lease::LEASE_STATUS_TERMINATED,
                     Lease::LEASE_STATUS_CLOSED,
                 )
             );
 
-        $invalidProductAppointmentNumbers = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Product\ProductAppointment')
-            ->getAppointmentNumbersForClientLease(
-                $userId,
-                array(
-                    ProductAppointment::STATUS_REJECTED,
-                    ProductAppointment::STATUS_WITHDRAWN,
-                )
-            );
-
         $longTermArray = array();
-        $longTermArray = array_merge($longTermArray, $pendingProductAppointmentNumbers);
         $longTermArray = array_merge($longTermArray, $validLeaseNumbers);
 
         if ($status == ProductAppointment::STATUS_PENDING) {
@@ -585,7 +541,6 @@ class ClientLeaseController extends SandboxRestController
         }
 
         $longTermArray = array_merge($longTermArray, $invalidLeaseNumbers);
-        $longTermArray = array_merge($longTermArray, $invalidProductAppointmentNumbers);
 
         // for pagination
         $numbers = array();
@@ -631,10 +586,7 @@ class ClientLeaseController extends SandboxRestController
 
         $bills = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
-            ->findBy(array(
-                'lease' => $lease,
-                'status' => LeaseBill::STATUS_UNPAID,
-            ));
+            ->getClientLeaseBills($lease, LeaseBill::STATUS_UNPAID);
 
         $response = array(
             'id' => $lease->getId(),
@@ -647,6 +599,7 @@ class ClientLeaseController extends SandboxRestController
             'creation_date' => $lease->getCreationDate(),
             'confirming_date' => $lease->getConfirmingDate(),
             'monthly_rent' => $lease->getMonthlyRent(),
+            'bills' => $bills,
         );
 
         return $response;

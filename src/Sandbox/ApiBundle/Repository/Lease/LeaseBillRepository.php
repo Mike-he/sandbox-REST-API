@@ -562,4 +562,33 @@ class LeaseBillRepository extends EntityRepository
 
         return $result;
     }
+
+    /**
+     * @param $lease
+     * @param $status
+     *
+     * @return array
+     */
+    public function getClientLeaseBills(
+        $lease,
+        $status
+    ) {
+        $query = $this->createQueryBuilder('lb')
+            ->select('
+                    lb.id, 
+                    lb.name,
+                    lb.startDate as start_date,
+                    lb.endDate as end_date,
+                    lb.revisedAmount as revised_amount,
+                    lb.sendDate as send_date
+                ')
+            ->where('lb.lease = :lease')
+            ->andWhere('lb.status = :status')
+            ->setParameter('lease', $lease)
+            ->setParameter('status', $status);
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
 }

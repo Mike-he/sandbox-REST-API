@@ -98,6 +98,18 @@ class Version920170713072413 extends AbstractMigration implements ContainerAware
             $lease->setCompanyId($salesCompanyId);
             $lease->setLesseeType(Lease::LEASE_LESSEE_TYPE_PERSONAL);
 
+            $status = $lease->getStatus();
+            if ($status == Lease::LEASE_STATUS_CONFIRMING ||
+                $status == Lease::LEASE_STATUS_CONFIRMED ||
+                $status == Lease::LEASE_STATUS_RECONFIRMING
+            ) {
+                $lease->setStatus(Lease::LEASE_STATUS_PERFORMING);
+            }
+
+            if ($status == Lease::LEASE_STATUS_EXPIRED) {
+                $lease->setStatus(Lease::LEASE_STATUS_CLOSED);
+            }
+
             $userId = $lease->getSupervisorId();
             if ($userId) {
                 $myCustomer = $em->getRepository('SandboxApiBundle:User\UserCustomer')
