@@ -7,7 +7,6 @@ use Doctrine\DBAL\Schema\Schema;
 use Sandbox\ApiBundle\Entity\GenericList\GenericList;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
-use Symfony\Component\Validator\Constraints\True;
 
 /**
  * Auto-generated Migration: Please modify to your needs!
