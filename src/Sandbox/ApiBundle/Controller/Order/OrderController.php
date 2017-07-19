@@ -1082,25 +1082,11 @@ class OrderController extends PaymentController
     ) {
         // check sales user record
         $companyId = $product->getRoom()->getBuilding()->getCompanyId();
-        $buildingId = $product->getRoom()->getBuildingId();
 
-        $salesUser = $this->getRepo('SalesAdmin\SalesUser')->findOneBy(array(
-            'userId' => $salesUserId,
-            'buildingId' => $buildingId,
-        ));
-
-        if (is_null($salesUser)) {
-            $salesUser = new SalesUser();
-
-            $salesUser->setUserId($salesUserId);
-            $salesUser->setCompanyId($companyId);
-            $salesUser->setBuildingId($buildingId);
-        }
-
-        $salesUser->setIsOrdered(true);
-        $salesUser->setModificationDate(new \DateTime('now'));
-
-        $em->persist($salesUser);
+        $this->get('sandbox_api.sales_customer')->createCustomer(
+            $salesUserId,
+            $companyId
+        );
     }
 
     /**

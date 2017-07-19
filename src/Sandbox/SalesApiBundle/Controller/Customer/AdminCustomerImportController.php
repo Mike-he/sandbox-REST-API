@@ -93,7 +93,7 @@ class AdminCustomerImportController extends SalesRestController
             $customerImport->setComment($comment);
             $em->persist($customerImport);
 
-            if (!$name || !$phoneCode || !$phone) {
+            if (is_null($name) || empty($name) || is_null($phoneCode) || empty($phoneCode) || is_null($phone) || empty($phone)) {
                 $customerImport->setStatus(UserCustomerImport::STATUS_ERROR);
 
                 continue;
@@ -110,7 +110,7 @@ class AdminCustomerImportController extends SalesRestController
             }
         }
 
-        $em->flush();
+        $em->flush();exit;
 
         // check import repeat
         $customerImports = $this->getDoctrine()
