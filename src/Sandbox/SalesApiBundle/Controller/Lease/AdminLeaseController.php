@@ -778,6 +778,7 @@ class AdminLeaseController extends SalesRestController
         }
 
         $lease->setSerialNumber($this->generateLeaseSerialNumber());
+        $lease->setCompanyId($salesCompanyId);
 
         if ($lease->getStatus() == Lease::LEASE_STATUS_PERFORMING) {
             $lease->setConfirmingDate(new \DateTime('now'));

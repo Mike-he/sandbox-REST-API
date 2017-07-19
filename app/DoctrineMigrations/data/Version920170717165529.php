@@ -88,8 +88,14 @@ class Version920170717165529 extends AbstractMigration implements ContainerAware
                     'required' => false,
                 ),
                 array(
-                    'column' => 'monthly_rent',
+                    'column' => 'cycle',
                     'name' => '租赁周期',
+                    'default' => true,
+                    'required' => false,
+                ),
+                array(
+                    'column' => 'monthly_rent',
+                    'name' => '租金预算',
                     'default' => true,
                     'required' => false,
                 ),

@@ -4,6 +4,8 @@ namespace Application\Migrations;
 
 use Doctrine\DBAL\Migrations\AbstractMigration;
 use Doctrine\DBAL\Schema\Schema;
+use Sandbox\ApiBundle\Entity\Lease\Lease;
+use Sandbox\ApiBundle\Entity\Room\Room;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Sandbox\ApiBundle\Entity\User\UserCustomer;
@@ -85,22 +87,28 @@ class Version920170713072413 extends AbstractMigration implements ContainerAware
         $leases = $em->getRepository('SandboxApiBundle:Lease\Lease')
             ->findAll();
         foreach ($leases as $lease) {
+            /**
+             * @var Lease $lease
+             * @var Room $room
+             */
+            $room = $lease->getProduct()->getRoom();
+            $salesCompanyId = $room->getBuilding()->getCompanyId();
+
+            $lease->setBuildingId($room->getBuildingId());
+            $lease->setCompanyId($salesCompanyId);
+            $lease->setLesseeType(Lease::LEASE_LESSEE_TYPE_PERSONAL);
+
             $userId = $lease->getSupervisorId();
+            if ($userId) {
+                $myCustomer = $em->getRepository('SandboxApiBundle:User\UserCustomer')
+                    ->findOneBy(array(
+                        'userId' => $userId,
+                        'companyId' => $salesCompanyId,
+                    ));
 
-            if (is_null($userId)) {
-                continue;
-            }
-
-            $salesCompanyId = $lease->getProduct()->getRoom()->getBuilding()->getCompanyId();
-
-            $myCustomer = $em->getRepository('SandboxApiBundle:User\UserCustomer')
-                ->findOneBy(array(
-                    'userId' => $userId,
-                    'companyId' => $salesCompanyId,
-                ));
-
-            if ($myCustomer) {
-                $lease->setLesseeCustomer($myCustomer->getId());
+                if ($myCustomer) {
+                    $lease->setLesseeCustomer($myCustomer->getId());
+                }
             }
         }
 

@@ -1388,4 +1388,20 @@ class Lease
     {
         $this->LeaseOfferId = $LeaseOfferId;
     }
+
+    /**
+     * @return int
+     */
+    public function getCompanyId()
+    {
+        return $this->companyId;
+    }
+
+    /**
+     * @param int $companyId
+     */
+    public function setCompanyId($companyId)
+    {
+        $this->companyId = $companyId;
+    }
 }
