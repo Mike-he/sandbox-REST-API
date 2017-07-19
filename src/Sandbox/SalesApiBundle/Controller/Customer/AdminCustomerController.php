@@ -124,6 +124,7 @@ class AdminCustomerController extends SalesRestController
                 self::ERROR_CUSTOMER_EXIST_MESSAGE
             );
         }
+        $em = $this->getDoctrine()->getManager();
 
         $user = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\User')
@@ -132,15 +133,21 @@ class AdminCustomerController extends SalesRestController
                 'phone' => $phone,
             ));
 
-        if ($user) {
-            $customer->setUserId($user->getId());
-        } else {
-            $customer->setUserId(null);
+        $userId = $user ? $user->getId() : null;
+
+        // update user groups
+        $userGroupUsers = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
+            ->findBy(array(
+                'customerId' => $customer->getId(),
+            ));
+        foreach ($userGroupUsers as $user) {
+            $user->setUserId($userId);
         }
 
-        $em = $this->getDoctrine()->getManager();
         $customer->setPhoneCode($phoneCode);
         $customer->setPhone($phone);
+        $customer->setUserId($userId);
         $em->flush();
 
         return new View(array(

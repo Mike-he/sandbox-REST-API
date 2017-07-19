@@ -196,10 +196,14 @@ sandbox_sales_admin_customer_import_api:
     type:     annotation
     prefix:   /admin
 
-# admin user customer
+# Admin generic list
 sandbox_sales_admin_api_generic_list:
     resource: "@SandboxSalesApiBundle/Controller/GenericList/AdminGenericListController.php"
     type:     annotation
     prefix:   /admin
 
-
+# Admin Enterprise Customer
+sandbox_sales_admin_api_enterprise_customer:
+    resource: "@SandboxSalesApiBundle/Controller/Customer/AdminEnterpriseCustomerController.php"
+    type:     annotation
+    prefix:   /admin
