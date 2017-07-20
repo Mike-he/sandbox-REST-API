@@ -479,6 +479,99 @@ class Version920170717165529 extends AbstractMigration implements ContainerAware
             ),
         );
 
+        $enterpriseColumns = array(
+            array(
+                'column' => 'name',
+                'name' => '企业全名',
+                'default' => true,
+                'required' => true,
+            ),
+            array(
+                'column' => 'register_address',
+                'name' => '企业注册地址',
+                'default' => true,
+                'required' => false,
+            ),
+            array(
+                'column' => 'business_license_number',
+                'name' => '企业营业执照号',
+                'default' => false,
+                'required' => false,
+            ),
+            array(
+                'column' => 'organization_certificate_code',
+                'name' => '组织机构代码证号',
+                'default' => false,
+                'required' => false,
+            ),
+            array(
+                'column' => 'tax_registration_number',
+                'name' => '税务登记号',
+                'default' => false,
+                'required' => false,
+            ),
+            array(
+                'column' => 'taxpayer_identification_number',
+                'name' => '纳税人识别号',
+                'default' => false,
+                'required' => false,
+            ),
+            array(
+                'column' => 'bank_name',
+                'name' => '开户银行名称',
+                'default' => false,
+                'required' => false,
+            ),
+            array(
+                'column' => 'bank_account_number',
+                'name' => '银行账户',
+                'default' => false,
+                'required' => false,
+            ),
+            array(
+                'column' => 'website',
+                'name' => '网站',
+                'default' => false,
+                'required' => false,
+            ),
+            array(
+                'column' => 'website',
+                'name' => '网站',
+                'default' => false,
+                'required' => false,
+            ),
+            array(
+                'column' => 'phone',
+                'name' => '电话',
+                'default' => false,
+                'required' => false,
+            ),
+            array(
+                'column' => 'industry',
+                'name' => '所属行业',
+                'default' => false,
+                'required' => false,
+            ),
+            array(
+                'column' => 'mailing_address',
+                'name' => '邮寄地址',
+                'default' => false,
+                'required' => false,
+            ),
+            array(
+                'column' => 'contacts',
+                'name' => '联系人',
+                'default' => true,
+                'required' => true,
+            ),
+            array(
+                'column' => 'comment',
+                'name' => '查看备注',
+                'default' => false,
+                'required' => false,
+            ),
+        );
+
         foreach ($leaseClueColumns as $leaseClueColumn) {
             $list = new GenericList();
             $list->setColumn($leaseClueColumn['column']);
@@ -534,6 +627,18 @@ class Version920170717165529 extends AbstractMigration implements ContainerAware
             $list->setDefault($customerColumn['default']);
             $list->setRequired($customerColumn['required']);
             $list->setObject(GenericList::OBJECT_CUSTOMER);
+            $list->setPlatform(GenericList::OBJECT_PLATFORM_SALES);
+
+            $em->persist($list);
+        }
+
+        foreach ($enterpriseColumns as $enterpriseColumn) {
+            $list = new GenericList();
+            $list->setColumn($enterpriseColumn['column']);
+            $list->setName($enterpriseColumn['name']);
+            $list->setDefault($enterpriseColumn['default']);
+            $list->setRequired($enterpriseColumn['required']);
+            $list->setObject(GenericList::OBJECT_ENTERPRISE);
             $list->setPlatform(GenericList::OBJECT_PLATFORM_SALES);
 
             $em->persist($list);

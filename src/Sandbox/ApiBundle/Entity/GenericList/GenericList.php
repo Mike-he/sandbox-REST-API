@@ -21,6 +21,7 @@ class GenericList
     const OBJECT_LEASE_CLUE = 'lease_clue';
     const OBJECT_LEASE_OFFER = 'lease_offer';
     const OBJECT_CUSTOMER = 'customer';
+    const OBJECT_ENTERPRISE = 'enterprise';
 
     /**
      * @var int
