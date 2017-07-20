@@ -24,6 +24,7 @@ class LeaseBill
     const ORDER_METHOD_BACKEND = 'backend';
     const ORDER_METHOD_AUTO = 'auto';
 
+    const CHANNEL_SANDBOX = 'sandbox';
     const CHANNEL_ACCOUNT = 'account';
     const CHANNEL_ALIPAY = 'alipay';
     const CHANNEL_UNIONPAY = 'upacp';

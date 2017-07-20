@@ -564,14 +564,13 @@ class LeaseBillRepository extends EntityRepository
 
     /**
      * @param $company
-     * @param $channel
+     * @param $channels
      * @param $keyword
      * @param $keywordSearch
      * @param $sendStart
      * @param $sendEnd
      * @param $payStartDate
      * @param $payEndDate
-     * @param $leaseId
      * @param $leaseStatus
      * @param $limit
      * @param $offset
@@ -580,37 +579,30 @@ class LeaseBillRepository extends EntityRepository
      */
     public function findBillsForSales(
         $company,
-        $channel,
+        $channels,
         $keyword,
         $keywordSearch,
         $sendStart,
         $sendEnd,
         $payStartDate,
         $payEndDate,
-        $leaseId,
         $leaseStatus,
         $limit,
         $offset
     ) {
         $query = $this->createQueryBuilder('lb')
             ->leftJoin('lb.lease', 'l')
-            ->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.id = lb.customerId')
             ->where('l.status in (:leaseStatus)')
             ->setParameter('leaseStatus', $leaseStatus);
-
-        if ($leaseId) {
-            $query->andWhere('lb.leaseId = :leaseId')
-                ->setParameter('leaseId', $leaseId);
-        }
 
         if (!is_null($company)) {
             $query->andWhere('l.companyId = :company')
                 ->setParameter('company', $company);
         }
 
-        if (!is_null($channel)) {
-            $query->andWhere('lb.payChannel = :channel')
-                ->setParameter('channel', $channel);
+        if (!empty($channels)) {
+            $query->andWhere('lb.payChannel in (:channels)')
+                ->setParameter('channels', $channels);
         }
 
         if (!is_null($keyword) && !is_null($keywordSearch)) {
@@ -621,13 +613,18 @@ class LeaseBillRepository extends EntityRepository
                 case 'bill':
                     $query->andWhere('lb.serialNumber LIKE :search');
                     break;
-                case 'user':
-                    $query->andWhere('u.name LIKE :search');
+                case 'room':
+                    $query->leftJoin('l.product', 'p')
+                        ->leftJoin('p.room', 'r')
+                        ->andWhere('r.name LIKE :search');
                     break;
-                case 'account':
-                    $query->andWhere('
-                            (u.phone LIKE :search OR u.email LIKE :search)
-                        ');
+                case 'phone':
+                    $query->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.id = lb.customerId')
+                        ->andWhere('uc.phone LIKE :search');
+                    break;
+                case 'name':
+                    $query->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.id = lb.customerId')
+                        ->andWhere('uc.name LIKE :search');
                     break;
                 default:
                     $query->andWhere('l.serialNumber LIKE :search');
@@ -673,50 +670,42 @@ class LeaseBillRepository extends EntityRepository
 
     /**
      * @param $company
-     * @param $channel
+     * @param $channels
      * @param $keyword
      * @param $keywordSearch
      * @param $sendStart
      * @param $sendEnd
      * @param $payStartDate
      * @param $payEndDate
-     * @param $leaseId
      * @param $leaseStatus
      *
      * @return mixed
      */
     public function countBillsForSales(
         $company,
-        $channel,
+        $channels,
         $keyword,
         $keywordSearch,
         $sendStart,
         $sendEnd,
         $payStartDate,
         $payEndDate,
-        $leaseId,
         $leaseStatus
     ) {
         $query = $this->createQueryBuilder('lb')
             ->select('count(lb.id)')
             ->leftJoin('lb.lease', 'l')
-            ->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.id = lb.customerId')
             ->where('l.status in (:leaseStatus)')
             ->setParameter('leaseStatus', $leaseStatus);
-
-        if ($leaseId) {
-            $query->andWhere('lb.leaseId = :leaseId')
-                ->setParameter('leaseId', $leaseId);
-        }
 
         if (!is_null($company)) {
             $query->andWhere('l.companyId = :company')
                 ->setParameter('company', $company);
         }
 
-        if (!is_null($channel)) {
-            $query->andWhere('lb.payChannel = :channel')
-                ->setParameter('channel', $channel);
+        if (!empty($channels)) {
+            $query->andWhere('lb.payChannel in (:channels)')
+                ->setParameter('channels', $channels);
         }
 
         if (!is_null($keyword) && !is_null($keywordSearch)) {
@@ -727,13 +716,18 @@ class LeaseBillRepository extends EntityRepository
                 case 'bill':
                     $query->andWhere('lb.serialNumber LIKE :search');
                     break;
-                case 'user':
-                    $query->andWhere('u.name LIKE :search');
+                case 'room':
+                    $query->leftJoin('l.product', 'p')
+                        ->leftJoin('p.room', 'r')
+                        ->andWhere('r.name LIKE :search');
                     break;
-                case 'account':
-                    $query->andWhere('
-                            (u.phone LIKE :search OR u.email LIKE :search)
-                        ');
+                case 'phone':
+                    $query->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.id = lb.customerId')
+                        ->andWhere('uc.phone LIKE :search');
+                    break;
+                case 'name':
+                    $query->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.id = lb.customerId')
+                        ->andWhere('uc.name LIKE :search');
                     break;
                 default:
                     $query->andWhere('l.serialNumber LIKE :search');

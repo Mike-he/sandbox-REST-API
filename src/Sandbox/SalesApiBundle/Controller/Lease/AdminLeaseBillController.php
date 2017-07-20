@@ -62,13 +62,6 @@ class AdminLeaseBillController extends SalesRestController
      *    description="page number"
      * )
      *
-     *  @Annotations\QueryParam(
-     *    name="lease",
-     *    default=null,
-     *    nullable=true,
-     *    description="lease id"
-     * )
-     *
      * @Annotations\QueryParam(
      *    name="channel",
      *    default=null,
@@ -152,7 +145,6 @@ class AdminLeaseBillController extends SalesRestController
         $offset = ($pageIndex - 1) * $pageLimit;
         $limit = $pageLimit;
 
-        $leaseId = $paramFetcher->get('lease');
         $channel = $paramFetcher->get('channel');
         $keyword = $paramFetcher->get('keyword');
         $keywordSearch = $paramFetcher->get('keyword_search');
@@ -161,9 +153,15 @@ class AdminLeaseBillController extends SalesRestController
         $payStartDate = $paramFetcher->get('pay_start_date');
         $payEndDate = $paramFetcher->get('pay_end_date');
 
-        if ($leaseId) {
-            $lease = $this->getDoctrine()->getRepository('SandboxApiBundle:Lease\Lease')->find($leaseId);
-            $this->throwNotFoundIfNull($lease, CustomErrorMessagesConstants::ERROR_LEASE_NOT_FOUND_MESSAGE);
+        if ($channel == LeaseBill::CHANNEL_SANDBOX) {
+            $channels = array(
+                LeaseBill::CHANNEL_ALIPAY,
+                LeaseBill::CHANNEL_WECHAT,
+                LeaseBill::CHANNEL_OFFLINE,
+                LeaseBill::CHANNEL_UNIONPAY,
+            );
+        } else {
+            $channels = $channel ? [$channel] : [];
         }
 
         $leaseStatus = array(
@@ -178,14 +176,13 @@ class AdminLeaseBillController extends SalesRestController
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
             ->findBillsForSales(
                 $company,
-                $channel,
+                $channels,
                 $keyword,
                 $keywordSearch,
                 $sendStart,
                 $sendEnd,
                 $payStartDate,
                 $payEndDate,
-                $leaseId,
                 $leaseStatus,
                 $limit,
                 $offset
@@ -195,14 +192,13 @@ class AdminLeaseBillController extends SalesRestController
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
             ->countBillsForSales(
                 $company,
-                $channel,
+                $channels,
                 $keyword,
                 $keywordSearch,
                 $sendStart,
                 $sendEnd,
                 $payStartDate,
                 $payEndDate,
-                $leaseId,
                 $leaseStatus
             );
 
