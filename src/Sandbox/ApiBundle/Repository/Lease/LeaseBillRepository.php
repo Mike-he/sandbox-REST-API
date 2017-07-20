@@ -569,8 +569,8 @@ class LeaseBillRepository extends EntityRepository
      * @param $keywordSearch
      * @param $sendStart
      * @param $sendEnd
-     * @param $amountStart
-     * @param $amountEnd
+     * @param $payStartDate
+     * @param $payEndDate
      * @param $leaseId
      * @param $leaseStatus
      * @param $limit
@@ -585,8 +585,8 @@ class LeaseBillRepository extends EntityRepository
         $keywordSearch,
         $sendStart,
         $sendEnd,
-        $amountStart,
-        $amountEnd,
+        $payStartDate,
+        $payEndDate,
         $leaseId,
         $leaseStatus,
         $limit,
@@ -650,14 +650,14 @@ class LeaseBillRepository extends EntityRepository
                 ->setParameter('sendEnd', $sendEnd);
         }
 
-        if (!is_null($amountStart)) {
-            $query->andWhere('lb.revisedAmount >= :amountStart')
-                ->setParameter('amountStart', $amountStart);
+        if (!is_null($payStartDate)) {
+            $query->andWhere('lb.paymentDate >= :payStartDate')
+                ->setParameter('payStartDate', $payStartDate);
         }
 
-        if (!is_null($amountEnd)) {
-            $query->andWhere('lb.revisedAmount <= :amountEnd')
-                ->setParameter('amountEnd', $amountEnd);
+        if (!is_null($payEndDate)) {
+            $query->andWhere('lb.paymentDate <= :payEndDate')
+                ->setParameter('payEndDate', $payEndDate);
         }
 
         $query->orderBy('lc.id', 'DESC')
@@ -671,6 +671,20 @@ class LeaseBillRepository extends EntityRepository
         return $result;
     }
 
+    /**
+     * @param $company
+     * @param $channel
+     * @param $keyword
+     * @param $keywordSearch
+     * @param $sendStart
+     * @param $sendEnd
+     * @param $payStartDate
+     * @param $payEndDate
+     * @param $leaseId
+     * @param $leaseStatus
+     *
+     * @return mixed
+     */
     public function countBillsForSales(
         $company,
         $channel,
@@ -678,8 +692,8 @@ class LeaseBillRepository extends EntityRepository
         $keywordSearch,
         $sendStart,
         $sendEnd,
-        $amountStart,
-        $amountEnd,
+        $payStartDate,
+        $payEndDate,
         $leaseId,
         $leaseStatus
     ) {
@@ -742,14 +756,14 @@ class LeaseBillRepository extends EntityRepository
                 ->setParameter('sendEnd', $sendEnd);
         }
 
-        if (!is_null($amountStart)) {
-            $query->andWhere('lb.revisedAmount >= :amountStart')
-                ->setParameter('amountStart', $amountStart);
+        if (!is_null($payStartDate)) {
+            $query->andWhere('lb.paymentDate >= :payStartDate')
+                ->setParameter('payStartDate', $payStartDate);
         }
 
-        if (!is_null($amountEnd)) {
-            $query->andWhere('lb.revisedAmount <= :amountEnd')
-                ->setParameter('amountEnd', $amountEnd);
+        if (!is_null($payEndDate)) {
+            $query->andWhere('lb.paymentDate <= :payEndDate')
+                ->setParameter('payEndDate', $payEndDate);
         }
 
         $result = $query->getQuery()->getSingleScalarResult();

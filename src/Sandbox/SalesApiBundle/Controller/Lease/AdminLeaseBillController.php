@@ -111,17 +111,23 @@ class AdminLeaseBillController extends SalesRestController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="amount_start",
+     *    name="pay_start_date",
+     *    array=false,
      *    default=null,
      *    nullable=true,
-     *    description="amount start query"
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="start date. Must be YYYY-mm-dd"
      * )
      *
-     * @Annotations\QueryParam(
-     *    name="amount_end",
+     *  @Annotations\QueryParam(
+     *    name="pay_end_date",
+     *    array=false,
      *    default=null,
      *    nullable=true,
-     *    description="amount end query"
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="end date. Must be YYYY-mm-dd"
      * )
      *
      * @Route("/lease/bills")
@@ -152,8 +158,8 @@ class AdminLeaseBillController extends SalesRestController
         $keywordSearch = $paramFetcher->get('keyword_search');
         $sendStart = $paramFetcher->get('send_start');
         $sendEnd = $paramFetcher->get('send_end');
-        $amountStart = $paramFetcher->get('amount_start');
-        $amountEnd = $paramFetcher->get('amount_end');
+        $payStartDate = $paramFetcher->get('pay_start_date');
+        $payEndDate = $paramFetcher->get('pay_end_date');
 
         if ($leaseId) {
             $lease = $this->getDoctrine()->getRepository('SandboxApiBundle:Lease\Lease')->find($leaseId);
@@ -177,8 +183,8 @@ class AdminLeaseBillController extends SalesRestController
                 $keywordSearch,
                 $sendStart,
                 $sendEnd,
-                $amountStart,
-                $amountEnd,
+                $payStartDate,
+                $payEndDate,
                 $leaseId,
                 $leaseStatus,
                 $limit,
@@ -194,8 +200,8 @@ class AdminLeaseBillController extends SalesRestController
                 $keywordSearch,
                 $sendStart,
                 $sendEnd,
-                $amountStart,
-                $amountEnd,
+                $payStartDate,
+                $payEndDate,
                 $leaseId,
                 $leaseStatus
             );
