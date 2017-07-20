@@ -14,6 +14,7 @@ use Sandbox\ApiBundle\Entity\Admin\AdminRemark;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
+use Sandbox\ApiBundle\Entity\User\EnterpriseCustomerContacts;
 use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
 use Sandbox\ApiBundle\Form\Lease\LeasePatchType;
 use Sandbox\ApiBundle\Form\Lease\LeaseType;
