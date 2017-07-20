@@ -37,6 +37,190 @@ class AdminLeaseBillController extends SalesRestController
     use FinanceTrait;
 
     /**
+     * Get Lease Bills.
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many products to return"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="lease",
+     *    default=null,
+     *    nullable=true,
+     *    description="lease id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="channel",
+     *    default=null,
+     *    nullable=true,
+     *    description="pay channel"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="keyword",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="keyword_search",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="send_start",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="send start date. Must be YYYY-mm-dd"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="send_end",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="send end date. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="amount_start",
+     *    default=null,
+     *    nullable=true,
+     *    description="amount start query"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="amount_end",
+     *    default=null,
+     *    nullable=true,
+     *    description="amount end query"
+     * )
+     *
+     * @Route("/lease/bills")
+     * @Method({"GET"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getAllBillsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        // check user permission
+        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_VIEW);
+
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $company = $adminPlatform['sales_company_id'];
+
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+        $offset = ($pageIndex - 1) * $pageLimit;
+        $limit = $pageLimit;
+
+        $leaseId = $paramFetcher->get('lease');
+        $channel = $paramFetcher->get('channel');
+        $keyword = $paramFetcher->get('keyword');
+        $keywordSearch = $paramFetcher->get('keyword_search');
+        $sendStart = $paramFetcher->get('send_start');
+        $sendEnd = $paramFetcher->get('send_end');
+        $amountStart = $paramFetcher->get('amount_start');
+        $amountEnd = $paramFetcher->get('amount_end');
+
+        if ($leaseId) {
+            $lease = $this->getDoctrine()->getRepository('SandboxApiBundle:Lease\Lease')->find($leaseId);
+            $this->throwNotFoundIfNull($lease, CustomErrorMessagesConstants::ERROR_LEASE_NOT_FOUND_MESSAGE);
+        }
+
+        $leaseStatus = array(
+            Lease::LEASE_STATUS_PERFORMING,
+            Lease::LEASE_STATUS_TERMINATED,
+            Lease::LEASE_STATUS_MATURED,
+            Lease::LEASE_STATUS_END,
+            Lease::LEASE_STATUS_CLOSED,
+        );
+
+        $bills = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->findBillsForSales(
+                $company,
+                $channel,
+                $keyword,
+                $keywordSearch,
+                $sendStart,
+                $sendEnd,
+                $amountStart,
+                $amountEnd,
+                $leaseId,
+                $leaseStatus,
+                $limit,
+                $offset
+            );
+
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->countBillsForSales(
+                $company,
+                $channel,
+                $keyword,
+                $keywordSearch,
+                $sendStart,
+                $sendEnd,
+                $amountStart,
+                $amountEnd,
+                $leaseId,
+                $leaseStatus
+            );
+
+        $bills = $this->get('serializer')->serialize(
+            $bills,
+            'json',
+            SerializationContext::create()->setGroups(['lease_bill'])
+        );
+        $bills = json_decode($bills, true);
+
+        $view = new View();
+
+        $view->setData(
+            array(
+                'current_page_number' => (int) $pageIndex,
+                'num_items_per_page' => (int) $pageLimit,
+                'items' => $bills,
+                'total_count' => (int) $count,
+            ));
+
+        return $view;
+    }
+
+    /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
