@@ -28,7 +28,6 @@ class LeaseCluePostType extends AbstractType
             ->add('monthly_rent')
             ->add('number')
             ->add('status')
-            ->add('product_appointment_id')
         ;
     }
 

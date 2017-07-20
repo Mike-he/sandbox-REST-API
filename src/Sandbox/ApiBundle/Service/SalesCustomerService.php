@@ -27,7 +27,7 @@ class SalesCustomerService
             ));
 
         if ($customer) {
-            return;
+            return $customer->getId();
         }
 
         $user = $em->getRepository('SandboxApiBundle:User\User')
@@ -53,5 +53,7 @@ class SalesCustomerService
         $em->persist($customer);
 
         $em->flush();
+
+        return $customer->getId();
     }
 }

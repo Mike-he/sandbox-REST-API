@@ -377,12 +377,6 @@ class AdminLeaseClueController extends SalesRestController
             $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
         }
 
-        $productAppointmentId = $clue->getProductAppointmentId();
-        if ($productAppointmentId) {
-            $productAppointment = $em->getRepository('SandboxApiBundle:Product\ProductAppointment')->find($productAppointmentId);
-            $this->throwNotFoundIfNull($productAppointment, self::NOT_FOUND_MESSAGE);
-        }
-
         $startDate = $clue->getStartDate();
         if ($startDate) {
             $clue->setStartDate(new \DateTime($startDate));
