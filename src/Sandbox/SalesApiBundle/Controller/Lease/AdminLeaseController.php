@@ -1147,7 +1147,9 @@ class AdminLeaseController extends SalesRestController
             if (is_null($enterpriseId)) {
                 throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
             } else {
-                // todo: check salse enterprise
+                // check salse enterprise
+                $enterprise = $em->getRepository('SandboxApiBundle:User\EnterpriseCustomer')->find($enterpriseId);
+                $this->throwNotFoundIfNull($enterprise, self::NOT_FOUND_MESSAGE);
             }
         }
         $buildingId = $lease->getBuildingId();

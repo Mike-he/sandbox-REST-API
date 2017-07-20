@@ -310,7 +310,7 @@ class AdminLeaseOfferController extends SalesRestController
         $payload = json_decode($request->getContent(), true);
 
         $offer = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Lease\LeaseClue')
+            ->getRepository('SandboxApiBundle:Lease\LeaseOffer')
             ->findOneBy(array('id' => $id, 'status' => LeaseOffer::LEASE_OFFER_STATUS_OFFER));
         $this->throwNotFoundIfNull($offer, self::NOT_FOUND_MESSAGE);
 
@@ -369,7 +369,9 @@ class AdminLeaseOfferController extends SalesRestController
             if (is_null($enterpriseId)) {
                 throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
             } else {
-                // todo: check salse enterprise
+                // check salse enterprise
+                $enterprise = $em->getRepository('SandboxApiBundle:User\EnterpriseCustomer')->find($enterpriseId);
+                $this->throwNotFoundIfNull($enterprise, self::NOT_FOUND_MESSAGE);
             }
         }
 
