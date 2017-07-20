@@ -1150,6 +1150,16 @@ class AdminLeaseController extends SalesRestController
                 // check salse enterprise
                 $enterprise = $em->getRepository('SandboxApiBundle:User\EnterpriseCustomer')->find($enterpriseId);
                 $this->throwNotFoundIfNull($enterprise, self::NOT_FOUND_MESSAGE);
+
+                $enterpriseContacts = $em->getRepository('SandboxApiBundle:User\EnterpriseCustomerContacts')
+                    ->findOneBy(array('enterpriseCustomerId' => $enterpriseId, 'customerId' => $customerId));
+                if (!$enterpriseContacts) {
+                    $enterpriseContacts = new EnterpriseCustomerContacts();
+                    $enterpriseContacts->setCustomerId($customerId);
+                    $enterpriseContacts->setEnterpriseCustomerId($enterpriseId);
+
+                    $em->persist($enterpriseContacts);
+                }
             }
         }
         $buildingId = $lease->getBuildingId();

@@ -7,6 +7,7 @@ use Sandbox\ApiBundle\Entity\Admin\AdminRemark;
 use Sandbox\ApiBundle\Entity\Lease\LeaseOffer;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\Room\RoomTypeTags;
+use Sandbox\ApiBundle\Entity\User\EnterpriseCustomerContacts;
 use Sandbox\ApiBundle\Form\Lease\LeaseOfferType;
 use Sandbox\ApiBundle\Traits\GenerateSerialNumberTrait;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
@@ -372,6 +373,16 @@ class AdminLeaseOfferController extends SalesRestController
                 // check salse enterprise
                 $enterprise = $em->getRepository('SandboxApiBundle:User\EnterpriseCustomer')->find($enterpriseId);
                 $this->throwNotFoundIfNull($enterprise, self::NOT_FOUND_MESSAGE);
+
+                $enterpriseContacts = $em->getRepository('SandboxApiBundle:User\EnterpriseCustomerContacts')
+                    ->findOneBy(array('enterpriseCustomerId' => $enterpriseId, 'customerId' => $customerId));
+                if (!$enterpriseContacts) {
+                    $enterpriseContacts = new EnterpriseCustomerContacts();
+                    $enterpriseContacts->setCustomerId($customerId);
+                    $enterpriseContacts->setEnterpriseCustomerId($enterpriseId);
+
+                    $em->persist($enterpriseContacts);
+                }
             }
         }
 
