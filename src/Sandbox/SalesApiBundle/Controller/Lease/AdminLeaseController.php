@@ -805,7 +805,8 @@ class AdminLeaseController extends SalesRestController
             $lease->getId()
         );
 
-        if ($lease->getLeaseClueId()) {
+        $leaseClueId = $lease->getLeaseClueId();
+        if ($leaseClueId) {
             $clueMessage = '转为合同: '.$lease->getSerialNumber();
 
             $this->get('sandbox_api.admin_remark')->autoRemark(
@@ -814,11 +815,19 @@ class AdminLeaseController extends SalesRestController
                 $salesCompanyId,
                 $clueMessage,
                 AdminRemark::OBJECT_LEASE_CLUE,
-                $lease->getLeaseClueId()
+                $leaseClueId
+            );
+
+            $this->get('sandbox_api.admin_remark')->inheritRemark(
+                AdminRemark::OBJECT_LEASE_CLUE,
+                $leaseClueId,
+                AdminRemark::OBJECT_LEASE,
+                $lease->getId()
             );
         }
 
-        if ($lease->getLeaseOfferId()) {
+        $leaseOfferId = $lease->getLeaseOfferId();
+        if ($leaseOfferId) {
             $offerMessage = '转为合同: '.$lease->getSerialNumber();
 
             $this->get('sandbox_api.admin_remark')->autoRemark(
@@ -827,7 +836,14 @@ class AdminLeaseController extends SalesRestController
                 $salesCompanyId,
                 $offerMessage,
                 AdminRemark::OBJECT_LEASE_OFFER,
-                $lease->getLeaseOfferId()
+                $leaseOfferId
+            );
+
+            $this->get('sandbox_api.admin_remark')->inheritRemark(
+                AdminRemark::OBJECT_LEASE_OFFER,
+                $leaseOfferId,
+                AdminRemark::OBJECT_LEASE,
+                $lease->getId()
             );
         }
 

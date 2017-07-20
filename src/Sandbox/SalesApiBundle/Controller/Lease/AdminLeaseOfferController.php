@@ -462,6 +462,13 @@ class AdminLeaseOfferController extends SalesRestController
                     AdminRemark::OBJECT_LEASE_CLUE,
                     $leaseClueId
                 );
+
+                $this->get('sandbox_api.admin_remark')->inheritRemark(
+                    AdminRemark::OBJECT_LEASE_CLUE,
+                    $leaseClueId,
+                    AdminRemark::OBJECT_LEASE_OFFER,
+                    $offer->getId()
+                );
             }
 
             $response = array(

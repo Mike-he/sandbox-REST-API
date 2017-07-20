@@ -45,4 +45,42 @@ class AdminRemarkService
         $em->persist($remark);
         $em->flush();
     }
+
+    /**
+     * @param $inheritObject
+     * @param $inheritObjectId
+     * @param $object
+     * @param $objectId
+     */
+    public function inheritRemark(
+        $inheritObject,
+        $inheritObjectId,
+        $object,
+        $objectId
+    ) {
+        $em = $this->doctrine->getManager();
+
+        $remarks = $this->doctrine
+            ->getRepository('SandboxApiBundle:Admin\AdminRemark')
+            ->findBy(array(
+                'object' => $inheritObject,
+                'objectId' => $inheritObjectId,
+            ));
+
+        foreach ($remarks as $remark) {
+            $newRemark = new AdminRemark();
+            $newRemark->setUserId($remark->getUserId());
+            $newRemark->setUsername($remark->getUsername());
+            $newRemark->setPlatform($remark->getPlatform());
+            $newRemark->setCompanyId($remark->getCompanyId());
+            $newRemark->setRemarks($remark->getRemarks());
+            $newRemark->setCreationDate($remark->getCreationDate());
+            $newRemark->setObject($object);
+            $newRemark->setObjectId($objectId);
+
+            $em->persist($newRemark);
+        }
+
+        $em->flush();
+    }
 }

@@ -27,14 +27,14 @@ class SalesCustomerService
             ));
 
         if ($customer) {
-            return ;
+            return;
         }
 
         $user = $em->getRepository('SandboxApiBundle:User\User')
             ->find($userId);
 
-        if(!$user) {
-            return ;
+        if (!$user) {
+            return;
         }
 
         $phoneCode = $user->getPhoneCode();
