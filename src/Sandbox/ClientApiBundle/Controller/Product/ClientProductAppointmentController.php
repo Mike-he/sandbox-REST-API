@@ -4,6 +4,7 @@ namespace Sandbox\ClientApiBundle\Controller\Product;
 
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Controller\Product\ProductController;
+use Sandbox\ApiBundle\Entity\Admin\AdminRemark;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Lease\LeaseClue;
 use Sandbox\ApiBundle\Entity\Product\Product;
@@ -329,6 +330,16 @@ class ClientProductAppointmentController extends ProductController
         $leaseClue->setStatus(LeaseClue::LEASE_CLUE_STATUS_CLUE);
         $em->persist($leaseClue);
         $em->flush();
+
+        $message = '创建申请，自动创建线索';
+        $this->get('sandbox_api.admin_remark')->autoRemark(
+            $this->getUserId(),
+            'sales',
+            $building->getCompanyId(),
+            $message,
+            AdminRemark::OBJECT_LEASE_CLUE,
+            $leaseClue->getId()
+        );
 
 
         $this->sendNotification($product);
