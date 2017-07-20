@@ -18,7 +18,7 @@ class EnterpriseCustomerType extends AbstractType
             ->add('taxRegistration_number')
             ->add('taxpayer_identification_number')
             ->add('bank_name')
-            ->add('bankAccount_number')
+            ->add('bank_account_number')
             ->add('website')
             ->add('phone')
             ->add('industry')
