@@ -24,6 +24,7 @@ class UserCustomerType extends AbstractType
             ->add('company_name')
             ->add('position')
             ->add('comment')
+            ->add('avatar')
         ;
     }
 
