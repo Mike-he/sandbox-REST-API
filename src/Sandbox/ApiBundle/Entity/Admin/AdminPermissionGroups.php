@@ -24,6 +24,8 @@ class AdminPermissionGroups
     const GROUP_KEY_USER = 'user';
     const GROUP_KEY_ADMIN = 'admin';
     const GROUP_KEY_MESSAGE = 'message';
+    const GROUP_KEY_LEASE = 'lease';
+    const GROUP_KEY_CUSTOMER = 'customer';
 
     const GROUP_PLATFORM_OFFICIAL = 'official';
     const GROUP_PLATFORM_SALES = 'sales';

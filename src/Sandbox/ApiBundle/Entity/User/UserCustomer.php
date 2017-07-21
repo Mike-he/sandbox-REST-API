@@ -160,6 +160,11 @@ class UserCustomer
     private $groups;
 
     /**
+     * @var string
+     */
+    private $cardNo;
+
+    /**
      * Get id.
      *
      * @return int
@@ -591,5 +596,21 @@ class UserCustomer
     public function setGroups($groups)
     {
         $this->groups = $groups;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCardNo()
+    {
+        return $this->cardNo;
+    }
+
+    /**
+     * @param string $cardNo
+     */
+    public function setCardNo($cardNo)
+    {
+        $this->cardNo = $cardNo;
     }
 }
