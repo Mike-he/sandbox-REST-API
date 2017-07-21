@@ -27,6 +27,7 @@ use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
+use Sandbox\ApiBundle\Traits\LeaseTrait;
 use Sandbox\ApiBundle\Traits\YunPianSms;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Sandbox\ApiBundle\Traits\StringUtil;
@@ -54,6 +55,7 @@ class PaymentController extends DoorController
     use DoorAccessTrait;
     use ProductOrderNotification;
     use YunPianSms;
+    use LeaseTrait;
 
     const TOPUP_ORDER_LETTER_HEAD = 'T';
     const STATUS_PAID = 'paid';
@@ -1748,10 +1750,13 @@ class PaymentController extends DoorController
 
         // add invoice amount
         if (!$bill->isSalesInvoice()) {
+            $invoiced = $this->checkBillShouldInvoiced($bill->getLease());
+
             $this->postConsumeBalance(
                 $customer->getUserId(),
                 $price,
-                $orderNumber
+                $orderNumber,
+                $invoiced
             );
 
             $bill->setInvoiced(true);

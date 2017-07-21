@@ -12,6 +12,7 @@ use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Sandbox\ApiBundle\Traits\FinanceTrait;
+use Sandbox\ApiBundle\Traits\LeaseTrait;
 use Sandbox\ApiBundle\Traits\SendNotification;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use JMS\Serializer\SerializationContext;
@@ -35,6 +36,7 @@ class AdminLeaseBillController extends SalesRestController
     use GenerateSerialNumberTrait;
     use SendNotification;
     use FinanceTrait;
+    use LeaseTrait;
 
     /**
      * Get Lease Bills.
@@ -835,10 +837,13 @@ class AdminLeaseBillController extends SalesRestController
 
         // add invoice balance
         if (!$bill->isSalesInvoice()) {
+            $invoiced = $this->checkBillShouldInvoiced($bill->getLease());
+
             $this->postConsumeBalance(
                 $bill->getDrawee(),
                 $bill->getRevisedAmount(),
-                $bill->getSerialNumber()
+                $bill->getSerialNumber(),
+                $invoiced
             );
         }
 

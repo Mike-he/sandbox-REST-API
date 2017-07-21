@@ -28,11 +28,13 @@ trait ConsumeTrait
     protected function postConsumeBalance(
         $userId,
         $amount,
-        $tradeId
+        $tradeId,
+        $invoiced = true
     ) {
         $json = $this->createJsonForConsume(
             $tradeId,
-            $amount
+            $amount,
+            $invoiced
         );
         $auth = $this->authAuthMd5($json);
 
@@ -67,11 +69,13 @@ trait ConsumeTrait
      */
     protected function createJsonForConsume(
         $orderNumber,
-        $amount
+        $amount,
+        $invoiced
     ) {
         $content = [
             'amount' => $amount,
             'trade_id' => $orderNumber,
+            'invoiced' => $invoiced,
         ];
 
         return json_encode($content);
