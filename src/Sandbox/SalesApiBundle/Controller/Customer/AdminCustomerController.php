@@ -308,6 +308,15 @@ class AdminCustomerController extends SalesRestController
 
         $this->generateCustomer($customer);
 
+        $userId = $customer->getUserId();
+        if ($userId) {
+            $user = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\User')
+                ->find($userId);
+
+            $customer->setCardNo($user->getCardNo());
+        }
+
         return new View($customer);
     }
 
