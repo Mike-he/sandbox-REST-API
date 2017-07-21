@@ -167,7 +167,7 @@ class Lease
      *
      * @ORM\Column(name="monthly_rent", type="decimal", precision=10, scale=2, nullable=true)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "lease_list"})
      */
     private $monthlyRent;
 
