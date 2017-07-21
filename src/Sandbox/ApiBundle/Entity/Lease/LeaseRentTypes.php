@@ -11,7 +11,6 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class LeaseRentTypes
 {
-
     const RENT_TYPE_RENT = 'rent';
     const RENT_TYPE_TAX = 'tax';
 

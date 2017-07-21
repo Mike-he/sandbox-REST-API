@@ -185,7 +185,7 @@ class Lease
      *
      * @ORM\Column(name="deposit", type="decimal", precision=10, scale=2, nullable=true)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "lease_list"})
      */
     private $deposit;
 
@@ -973,28 +973,6 @@ class Lease
     }
 
     /**
-     * @Serializer\VirtualProperty
-     * @Serializer\SerializedName("drawee")
-     * @Serializer\Groups({"main", "lease_list", "lease_bill"})
-     */
-    public function getDraweeId()
-    {
-        return is_null($this->drawee) ?
-            null : $this->drawee->getId();
-    }
-
-    /**
-     * @Serializer\VirtualProperty
-     * @Serializer\SerializedName("supervisor")
-     * @Serializer\Groups({"main", "lease_list", "room_usage"})
-     */
-    public function getSupervisorId()
-    {
-        return is_null($this->supervisor) ?
-            null : $this->supervisor->getId();
-    }
-
-    /**
      * @return int
      */
     public function getUnpaidLeaseBillsAmount()
@@ -1019,13 +997,12 @@ class Lease
     {
         return [
             'id' => $this->product->getId(),
-            'unit_price' => $this->product->getUnitPrice(),
-            'base_price' => $this->product->getBasePrice(),
             'room' => [
                 'id' => $this->product->getRoom()->getId(),
                 'number' => $this->product->getRoom()->getNumber(),
                 'name' => $this->product->getRoom()->getName(),
                 'type' => $this->product->getRoom()->getType(),
+                'type_tag' => $this->product->getRoom()->getTypeTag(),
                 'area' => $this->product->getRoom()->getArea(),
                 'allowed_people' => $this->product->getRoom()->getAllowedPeople(),
                 'building' => [
