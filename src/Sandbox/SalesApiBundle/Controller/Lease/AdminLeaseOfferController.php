@@ -159,7 +159,7 @@ class AdminLeaseOfferController extends SalesRestController
 
         $count = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseOffer')
-            ->countClues(
+            ->countOffers(
                 $salesCompanyId,
                 $buildingId,
                 $keyword,
