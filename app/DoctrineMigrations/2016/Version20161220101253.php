@@ -237,7 +237,7 @@ class Version20161220101253 extends AbstractMigration implements ContainerAwareI
 
         $permission27 = $em->getRepository('SandboxApiBundle:Admin\AdminPermission')
             ->findOneBy(array(
-                'key' => AdminPermission::KEY_SALES_BUILDING_LONG_TERM_LEASE,
+                'key' => AdminPermission::KEY_SALES_PLATFORM_LONG_TERM_LEASE,
             ));
         $permission27->setName('长租合同权限');
 
@@ -273,7 +273,7 @@ class Version20161220101253 extends AbstractMigration implements ContainerAwareI
 
         $permission34 = $em->getRepository('SandboxApiBundle:Admin\AdminPermission')
             ->findOneBy(array(
-                'key' => AdminPermission::KEY_SALES_BUILDING_USER,
+                'key' => AdminPermission::KEY_SALES_PLATFORM_CUSTOMER,
             ));
         $permission34->setName('用户权限');
 

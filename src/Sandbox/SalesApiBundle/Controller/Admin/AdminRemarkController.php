@@ -164,7 +164,7 @@ class AdminRemarkController extends SandboxRestController
                 $keyArray = [
                     ['key' => AdminPermission::KEY_SALES_BUILDING_ORDER],
                     ['key' => AdminPermission::KEY_SALES_PLATFORM_INVOICE],
-                    ['key' => AdminPermission::KEY_SALES_BUILDING_USER],
+                    ['key' => AdminPermission::KEY_SALES_PLATFORM_CUSTOMER],
                     ['key' => AdminPermission::KEY_SALES_BUILDING_ORDER_PREORDER],
                     ['key' => AdminPermission::KEY_SALES_BUILDING_ORDER_RESERVE],
                     ['key' => AdminPermission::KEY_SALES_BUILDING_SPACE],

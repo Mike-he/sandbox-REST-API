@@ -1223,7 +1223,7 @@ class AdminSalesCompanyController extends SandboxRestController
                 'op_level' => 2,
             ],
             [
-                'key' => AdminPermission::KEY_SALES_BUILDING_USER,
+                'key' => AdminPermission::KEY_SALES_PLATFORM_CUSTOMER,
                 'op_level' => 2,
             ],
             [
@@ -1371,7 +1371,7 @@ class AdminSalesCompanyController extends SandboxRestController
                 'op_level' => 2,
             ],
             [
-                'key' => AdminPermission::KEY_SALES_BUILDING_USER,
+                'key' => AdminPermission::KEY_SALES_PLATFORM_CUSTOMER,
                 'op_level' => 2,
             ],
             [
@@ -1486,7 +1486,7 @@ class AdminSalesCompanyController extends SandboxRestController
                 'op_level' => 2,
             ],
             [
-                'key' => AdminPermission::KEY_SALES_BUILDING_USER,
+                'key' => AdminPermission::KEY_SALES_PLATFORM_CUSTOMER,
                 'op_level' => 2,
             ],
             [
@@ -1594,7 +1594,7 @@ class AdminSalesCompanyController extends SandboxRestController
                 'op_level' => 2,
             ],
             [
-                'key' => AdminPermission::KEY_SALES_BUILDING_USER,
+                'key' => AdminPermission::KEY_SALES_PLATFORM_CUSTOMER,
                 'op_level' => 1,
             ],
             [

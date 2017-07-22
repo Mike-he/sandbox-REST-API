@@ -902,7 +902,7 @@ class AdminOrderController extends OrderController
                     'key' => AdminPermission::KEY_SALES_BUILDING_ORDER,
                 ),
                 array(
-                    'key' => AdminPermission::KEY_SALES_BUILDING_USER,
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_CUSTOMER,
                 ),
             ),
             AdminPermission::OP_LEVEL_VIEW
@@ -1506,7 +1506,7 @@ class AdminOrderController extends OrderController
                     'building_id' => $buildingId,
                 ),
                 array(
-                    'key' => AdminPermission::KEY_SALES_BUILDING_USER,
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_CUSTOMER,
                     'building_id' => $buildingId,
                 ),
                 array(

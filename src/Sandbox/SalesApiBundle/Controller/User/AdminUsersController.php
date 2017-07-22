@@ -175,7 +175,7 @@ class AdminUsersController extends DoorController
                     'key' => AdminPermission::KEY_SALES_BUILDING_SPACE,
                 ),
                 array(
-                    'key' => AdminPermission::KEY_SALES_BUILDING_USER,
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_CUSTOMER,
                 ),
                 array(
                     'key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT,
@@ -385,7 +385,7 @@ class AdminUsersController extends DoorController
                     'key' => AdminPermission::KEY_SALES_BUILDING_SPACE,
                 ),
                 array(
-                    'key' => AdminPermission::KEY_SALES_BUILDING_USER,
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_CUSTOMER,
                 ),
                 array(
                     'key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT,
@@ -540,7 +540,7 @@ class AdminUsersController extends DoorController
                     'key' => AdminPermission::KEY_SALES_BUILDING_SPACE,
                 ),
                 array(
-                    'key' => AdminPermission::KEY_SALES_BUILDING_USER,
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_CUSTOMER,
                 ),
                 array(
                     'key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT,
@@ -654,7 +654,7 @@ class AdminUsersController extends DoorController
                 $this->getAdminId(),
                 array(
                     array(
-                        'key' => AdminPermission::KEY_SALES_BUILDING_USER,
+                        'key' => AdminPermission::KEY_SALES_PLATFORM_CUSTOMER,
                     ),
                 ),
                 AdminPermission::OP_LEVEL_EDIT
@@ -721,7 +721,7 @@ class AdminUsersController extends DoorController
             $this->getAdminId(),
             array(
                 array(
-                    'key' => AdminPermission::KEY_SALES_BUILDING_USER,
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_CUSTOMER,
                 ),
             ),
             AdminPermission::OP_LEVEL_EDIT
@@ -933,7 +933,7 @@ class AdminUsersController extends DoorController
         $buildingIds = $this->getMySalesBuildingIds(
             $adminId,
             array(
-                AdminPermission::KEY_SALES_BUILDING_USER,
+                AdminPermission::KEY_SALES_PLATFORM_CUSTOMER,
             ),
             AdminPermission::OP_LEVEL_VIEW
         );
