@@ -602,7 +602,7 @@ class LeaseBillRepository extends EntityRepository
         }
 
         if ($status) {
-            $query->andWhere('l.status = :status')
+            $query->andWhere('lb.status = :status')
                 ->setParameter('status', $status);
         }
 
@@ -711,7 +711,7 @@ class LeaseBillRepository extends EntityRepository
         }
 
         if ($status) {
-            $query->andWhere('l.status = :status')
+            $query->andWhere('lb.status = :status')
                 ->setParameter('status', $status);
         }
 
