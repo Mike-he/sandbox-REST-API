@@ -110,9 +110,9 @@ class Version920170713072413 extends AbstractMigration implements ContainerAware
             if ($status == Lease::LEASE_STATUS_EXPIRED) {
                 $lease->setStatus(Lease::LEASE_STATUS_CLOSED);
             }
-
-            $userId = $lease->getSupervisor()->getId();
-            if ($userId) {
+            
+            if ($lease->getSupervisor()) {
+                $userId = $lease->getSupervisor()->getId();
                 $myCustomer = $em->getRepository('SandboxApiBundle:User\UserCustomer')
                     ->findOneBy(array(
                         'userId' => $userId,
