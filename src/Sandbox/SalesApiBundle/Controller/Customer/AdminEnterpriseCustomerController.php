@@ -86,6 +86,8 @@ class AdminEnterpriseCustomerController extends SalesRestController
 
         $this->handleContacts($enterpriseCustomer);
 
+        $em->flush();
+
         return new View();
     }
 
