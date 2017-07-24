@@ -207,7 +207,7 @@ security:
 
     access_control:
         - { path: ^/admin/leases/export_to_pdf, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET]}
-        - { path: ^/sales/admin/leases/export_to_pdf, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET]}
+        - { path: ^/sales/admin/pdf, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET]}
         - { path: ^/client/evaluations/check_my$, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
         - { path: ^/client/evaluations$, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
         - { path: ^/phonecode, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }

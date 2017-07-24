@@ -1,5 +1,5 @@
 {% extends 'base.html.twig' %}
-    {% block title %}Sandbox Leases{% endblock %}
+    {% block title %}Sandbox Lease Clues{% endblock %}
     {% block stylesheets %}
         <style>
             *{
@@ -398,7 +398,7 @@
     <div class="contract-b-con">
         <div class="long-wrapper">
             <div class="contract-tit">
-                <span>长租合同内容</span>
+                <span>租赁线索内容</span>
             </div>
             <div class="contract-block">
                 <div class="block-top">
@@ -432,49 +432,18 @@
             <div class="contract-block">
                 <div class="block-top">
                     <div class="f-left top-left">
-                        出租方信息
-                    </div>
-                </div>
-                <div class="block-bot">
-                    <div class="block-line">
-                        <div class="f-left line-left">出租方名称 :</div>
-                        <div class="f-left line-right">{{ lease.lessorName }}</div>
-                    </div>
-                    <div class="block-line">
-                        <div class="f-left line-left">出租方地址 :</div>
-                        <div class="f-left line-right">{{ lease.lessorAddress }}</div>
-                    </div>
-                    <div class="block-line">
-                        <div class="f-left line-left">出租方联系人 :</div>
-                        <div class="f-left line-right">{{ lease.lessorContact }}</div>
-                    </div>
-                    <div class="block-line">
-                        <div class="f-left line-left">出租方电话 :</div>
-                        <div class="f-left line-right">{{ lease.lessorPhone }}</div>
-                    </div>
-                    <div class="block-line">
-                        <div class="f-left line-left">出租方邮箱 :</div>
-                        <div class="f-left line-right">{{ lease.lessorEmail }}</div>
-                    </div>
-                </div>
-            </div>
-            <div class="contract-block">
-                <div class="block-top">
-                    <div class="f-left top-left">
                         承租方信息
                     </div>
                 </div>
                 <div class="block-bot">
                     <div class="block-line">
-                        <div class="f-left line-left">承租方类型 :</div>
-                        <div class="f-left line-right">{{ lease.lesseeType == 'personal' ? '个人承租' : '企业承租'  }}</div>
+                        <div class="f-left line-left">承租方名称 :</div>
+                        <div class="f-left line-right">{{ clue.lesseeName }}</div>
                     </div>
-                    {% if lease.lesseeType ==  'enterprise' %}
-                        <div class="block-line">
-                            <div class="f-left line-left">承租企业:</div>
-                            <div class="f-left line-right">{{ enterprise.name }}</div>
-                        </div>
-                    {% endif %}
+                    <div class="block-line">
+                        <div class="f-left line-left">承租方地址 :</div>
+                        <div class="f-left line-right">{{ clue.lesseeAddress }}</div>
+                    </div>
                     <div class="block-line">
                         <div class="f-left line-left">承租联系人:</div>
                         <div class="f-left line-right">
@@ -487,6 +456,14 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    <div class="block-line">
+                        <div class="f-left line-left">承租方电话 :</div>
+                        <div class="f-left line-right">{{ clue.lesseePhone }}</div>
+                    </div>
+                    <div class="block-line">
+                        <div class="f-left line-left">承租方邮箱 :</div>
+                        <div class="f-left line-right">{{ clue.lesseeEmail }}</div>
                     </div>
                 </div>
             </div>
@@ -502,98 +479,21 @@
                 </div>
                 <div class="block-bot">
                     <div class="block-line">
-                        <div class="f-left line-left">租赁起始日期 :</div>
-                        <div class="f-left line-right">{{ lease.startDate|date('Y-m-d') }}</div>
+                        <div class="f-left line-left">起租日 :</div>
+                        <div class="f-left line-right">{{ clue.startDate|date('Y-m-d') }} 至 {{ clue.endDate|date('Y-m-d') }}</div>
                     </div>
                     <div class="block-line">
-                        <div class="f-left line-left">租赁结束日期 :</div>
-                        <div class="f-left line-right">{{ lease.endDate|date('Y-m-d') }}</div>
+                        <div class="f-left line-left">租赁周期 :</div>
+                        <div class="f-left line-right">{{ clue.cycle }} 个月</div>
                     </div>
                     <div class="block-line">
                         <div class="f-left line-left">月租金 :</div>
-                        <div class="f-left line-right">{{ lease.monthlyRent|number_format(2, '.', ',') }} 元</div>
+                        <div class="f-left line-right">{{ clue.monthlyRent|number_format(2, '.', ',') }} 元/月</div>
                     </div>
                     <div class="block-line">
-                        <div class="f-left line-left">合同总租金 :</div>
-                        <div class="f-left line-right">{{ lease.totalRent|number_format(2, '.', ',') }} 元</div>
+                        <div class="f-left line-left">租赁人数 :</div>
+                        <div class="f-left line-right">{{ clue.number }} 人</div>
                     </div>
-                    <div class="block-line">
-                        <div class="f-left line-left">租赁押金 :</div>
-                        <div class="f-left line-right">{{ lease.deposit|number_format(2, '.', ',') }} 元</div>
-                    </div>
-                    <div class="block-line">
-                        <div class="f-left line-left">租金包含 :</div>
-                        <div class="f-left line-right">
-                            {% for t in lease.leaseRentTypes %}
-                                {{ t.type == 'rent' ? t.name ~ ';' }}
-                            {% endfor %}
-                        </div>
-                    </div>
-                    <div class="block-line">
-                        <div class="f-left line-left">税金包含 :</div>
-                        <div class="f-left line-right">
-                            {% for t in lease.leaseRentTypes %}
-                                {{ t.type == 'tax' ? t.name ~ ';' }}
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="contract-block">
-                <div class="block-top">
-                    <div class="f-left top-left">
-                        房屋使用用途
-                    </div>
-                    <div class="f-left line-right">
-                        {{ lease.purpose }}
-                    </div>
-                </div>
-            </div>
-            <div class="contract-block">
-                <div class="block-top">
-                    <div class="f-left top-left">
-                        其他费用说明
-                    </div>
-                    <div class="f-left line-right">
-                        {{ lease.otherExpenses }}
-                    </div>
-                </div>
-            </div>
-            <div class="contract-block">
-                <div class="block-top">
-                    <div class="f-left top-left">
-                        补充条款
-                    </div>
-                    <div class="f-left line-right">
-                        {{ lease.supplementaryTerms }}
-                    </div>
-                </div>
-            </div>
-            <div class="contract-block">
-                <div class="block-top">
-                    <div class="f-left top-left">
-                        合同账单
-                    </div>
-                </div>
-                <div class="bill-list">
-                    <div class="bill-line title">
-                        <div class="bill-item per22">账单名称</div>
-                        <div class="bill-item per12">账单起始日</div>
-                        <div class="bill-item per12">账单结束日</div>
-                        <div class="bill-item per12">租金</div>
-                        <div class="bill-item per33">账单描述</div>
-                    </div>
-                    {% for b in bills %}
-                    <div class="bill-line">
-                        <div class="bill-item per22">
-                            <span>{{ b.name }}</span>
-                        </div>
-                        <div class="bill-item per12">{{ b.startDate|date('Y-m-d') }}</div>
-                        <div class="bill-item per12">{{ b.endDate|date('Y-m-d') }}</div>
-                        <div class="bill-item per12">{{ b.amount }} 元</div>
-                        <div class="bill-item per33">{{ b.description }}</div>
-                    </div>
-                    {% endfor %}
                 </div>
             </div>
         </div>

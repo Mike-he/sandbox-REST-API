@@ -207,3 +207,9 @@ sandbox_sales_admin_api_enterprise_customer:
     resource: "@SandboxSalesApiBundle/Controller/Customer/AdminEnterpriseCustomerController.php"
     type:     annotation
     prefix:   /admin
+
+# Admin pdf /sales/admin/pdf
+sandbox_admin_api_lease_pdf:
+    resource: "@SandboxSalesApiBundle/Controller/Pdf/AdminPdfController.php"
+    type:     annotation
+    prefix:   /admin

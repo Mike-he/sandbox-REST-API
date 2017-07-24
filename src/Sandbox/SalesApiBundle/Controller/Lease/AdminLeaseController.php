@@ -27,7 +27,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use FOS\RestBundle\Controller\Annotations;
@@ -71,94 +70,6 @@ class AdminLeaseController extends SalesRestController
         $view->setData($lease);
 
         return $view;
-    }
-
-    /**
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
-     * @param int                   $id
-     *
-     * @Annotations\QueryParam(
-     *    name="company",
-     *    array=false,
-     *    default=null,
-     *    nullable=false,
-     *    strict=true,
-     *    description="company id"
-     * )
-     *
-     * @Route("/leases/export_to_pdf/{id}")
-     * @Method({"GET"})
-     *
-     * @return Response
-     */
-    public function exportLeaseToPdfAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher,
-        $id
-    ) {
-        //authenticate with web browser cookie
-        $admin = $this->authenticateAdminCookie();
-        $adminId = $admin->getId();
-        $companyId = $paramFetcher->get('company');
-
-        // check user permission
-        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
-            $adminId,
-            array(
-                array(
-                    'key' => AdminPermission::KEY_SALES_BUILDING_LONG_TERM_LEASE,
-                ),
-            ),
-            AdminPermission::OP_LEVEL_VIEW,
-            AdminPermission::PERMISSION_PLATFORM_SALES,
-            $companyId
-        );
-
-        $lease = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Lease\Lease')->find($id);
-
-        $this->throwNotFoundIfNull($lease, CustomErrorMessagesConstants::ERROR_LEASE_NOT_FOUND_MESSAGE);
-
-        $bills = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
-            ->findBy(array(
-            'lease' => $lease,
-            'type' => LeaseBill::TYPE_LEASE,
-        ));
-
-        $drawee = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserView')
-            ->find($lease->getDrawee()->getId());
-
-        $supervisor = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserView')
-            ->find($lease->getSupervisor()->getId());
-
-        $excludeLeaseRentTypes = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Lease\LeaseRentTypes')
-            ->getExcludeLeaseRentTypes($lease);
-
-        $html = $this->renderView(':Leases:leases_print.html.twig', array(
-            'lease' => $lease,
-            'drawee' => $drawee,
-            'supervisor' => $supervisor,
-            'draweeAvatarUrl' => $this->generateAvatarUrl($drawee->getId()),
-            'supervisorAvatarUrl' => $this->generateAvatarUrl($supervisor->getId()),
-            'excludeTypes' => $excludeLeaseRentTypes,
-            'bills' => $bills,
-        ));
-
-        $fileName = $lease->getSerialNumber().'.pdf';
-
-        return new Response(
-            $this->get('knp_snappy.pdf')->getOutputFromHtml($html),
-            200,
-            array(
-                'Content-Type' => 'application/pdf',
-                'Content-Disposition' => "attachment; filename='$fileName'",
-            )
-        );
     }
 
     /**
