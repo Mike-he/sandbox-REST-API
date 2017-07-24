@@ -102,7 +102,7 @@ class AdminPdfController extends SalesRestController
             'bills' => $bills,
         ));
 
-        $fileName = $lease->getSerialNumber().'.pdf';
+        $fileName = '合同'.$lease->getSerialNumber().'.pdf';
 
         return new Response(
             $this->get('knp_snappy.pdf')->getOutputFromHtml($html),
@@ -186,7 +186,7 @@ class AdminPdfController extends SalesRestController
             'customer' => $customer,
         ));
 
-        $fileName = $clue->getSerialNumber().'.pdf';
+        $fileName = '线索'.$clue->getSerialNumber().'.pdf';
 
         return new Response(
             $this->get('knp_snappy.pdf')->getOutputFromHtml($html),
@@ -278,7 +278,111 @@ class AdminPdfController extends SalesRestController
             'enterprise' => $enterprise,
         ));
 
-        $fileName = $offer->getSerialNumber().'.pdf';
+        $fileName = '报价'.$offer->getSerialNumber().'.pdf';
+
+        return new Response(
+            $this->get('knp_snappy.pdf')->getOutputFromHtml($html),
+            200,
+            array(
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => "attachment; filename='$fileName'",
+            )
+        );
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     * @param int                   $id
+     *
+     * @Annotations\QueryParam(
+     *    name="company",
+     *    array=false,
+     *    default=null,
+     *    nullable=false,
+     *    strict=true,
+     *    description="company id"
+     * )
+     *
+     * @Route("/pdf/lease/bills/{id}")
+     * @Method({"GET"})
+     *
+     * @return Response
+     */
+    public function exportLeaseBillToPdfAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        //authenticate with web browser cookie
+        $admin = $this->authenticateAdminCookie();
+        $adminId = $admin->getId();
+        $companyId = $paramFetcher->get('company');
+
+        // check user permission
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
+            $adminId,
+            array(
+                array(
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_LEASE_BILL,
+                ),
+            ),
+            AdminPermission::OP_LEVEL_VIEW,
+            AdminPermission::PERMISSION_PLATFORM_SALES,
+            $companyId
+        );
+
+        $bill = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')->find($id);
+
+        $this->throwNotFoundIfNull($bill, self::NOT_FOUND_MESSAGE);
+
+        $lease = $bill->getLease();
+
+        $customer = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->find($lease->getLesseeCustomer());
+
+        $user = null;
+        if ($customer->getUserId()) {
+            $user = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\User')
+                ->find($customer->getUserId());
+        }
+
+        $building = null;
+        if ($lease->getBuildingId()) {
+            $building = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                ->find($lease->getBuildingId());
+        }
+
+        $product = null;
+        if ($lease->getProductId()) {
+            $product = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\Product')
+                ->find($lease->getProductId());
+        }
+
+        $payChannels = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Payment\Payment')
+            ->findAll();
+
+        $channels = array();
+        foreach ($payChannels as $payChannel) {
+            $channels[$payChannel->getChannel()] = $payChannel->getName();
+        }
+
+        $html = $this->renderView(':Leases:lease_bill_print.html.twig', array(
+            'bill' => $bill,
+            'building' => $building,
+            'product' => $product,
+            'customer' => $customer,
+            'user' => $user,
+            'channels' => $channels,
+        ));
+
+        $fileName = $bill->getName().$bill->getSerialNumber().'.pdf';
 
         return new Response(
             $this->get('knp_snappy.pdf')->getOutputFromHtml($html),

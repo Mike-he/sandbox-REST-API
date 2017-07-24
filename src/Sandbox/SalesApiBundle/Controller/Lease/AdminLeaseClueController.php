@@ -129,6 +129,9 @@ class AdminLeaseClueController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // check user permission
+        $this->checkAdminLeaseCluePermission(AdminPermission::OP_LEVEL_VIEW);
+
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
@@ -218,6 +221,9 @@ class AdminLeaseClueController extends SalesRestController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkAdminLeaseCluePermission(AdminPermission::OP_LEVEL_VIEW);
+
         $clue = $this->getDoctrine()->getRepository('SandboxApiBundle:Lease\LeaseClue')->find($id);
         $this->throwNotFoundIfNull($clue, self::NOT_FOUND_MESSAGE);
 
@@ -243,6 +249,7 @@ class AdminLeaseClueController extends SalesRestController
         Request $request
     ) {
         // check user permission
+        $this->checkAdminLeaseCluePermission(AdminPermission::OP_LEVEL_EDIT);
 
         $clue = new LeaseClue();
         $form = $this->createForm(new LeaseCluePostType(), $clue);
@@ -272,6 +279,9 @@ class AdminLeaseClueController extends SalesRestController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkAdminLeaseCluePermission(AdminPermission::OP_LEVEL_EDIT);
+
         $clue = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseClue')
             ->findOneBy(array('id' => $id, 'status' => LeaseClue::LEASE_CLUE_STATUS_CLUE));
@@ -312,6 +322,7 @@ class AdminLeaseClueController extends SalesRestController
         $id
     ) {
         // check user permission
+        $this->checkAdminLeaseCluePermission(AdminPermission::OP_LEVEL_EDIT);
 
         $em = $this->getDoctrine()->getManager();
 
@@ -493,5 +504,20 @@ class AdminLeaseClueController extends SalesRestController
         }
 
         return $clue;
+    }
+
+    /**
+     * @param $opLevel
+     */
+    private function checkAdminLeaseCluePermission(
+        $opLevel
+    ) {
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
+            $this->getAdminId(),
+            [
+                ['key' => AdminPermission::KEY_SALES_PLATFORM_LEASE_CLUE],
+            ],
+            $opLevel
+        );
     }
 }
