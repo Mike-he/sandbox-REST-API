@@ -22,7 +22,7 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 class AdminLeaseClueController extends SalesRestController
 {
     use GenerateSerialNumberTrait;
-    
+
     /**
      * Get Lease Clues.
      *
@@ -112,7 +112,7 @@ class AdminLeaseClueController extends SalesRestController
      * @Annotations\QueryParam(
      *    name="status",
      *    array=false,
-     *    default="all",
+     *    default="",
      *    nullable=true,
      *    strict=true,
      *    description="status of lease"
