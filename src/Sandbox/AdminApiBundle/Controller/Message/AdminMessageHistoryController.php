@@ -16,7 +16,7 @@ class AdminMessageHistoryController extends AdminMessagePushController
     use OpenfireApi;
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/messages/service_authorization")
@@ -49,7 +49,7 @@ class AdminMessageHistoryController extends AdminMessagePushController
         $userToken->setModificationDate(new \DateTime('now'));
         $em->flush();
 
-        $authorization = 'Basic ' . base64_encode($userToken->getToken() . ':' . $userToken->getClientId());
+        $authorization = 'Basic '.base64_encode($userToken->getToken().':'.$userToken->getClientId());
 
         return new View(array(
             'Authorization' => $authorization,

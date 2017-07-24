@@ -12,5 +12,11 @@ services:
         class: Sandbox\ApiBundle\Service\GroupUsersService
         arguments: ['@service_container']
     sandbox_api.bean:
-            class: Sandbox\ApiBundle\Service\BeanService
-            arguments: ['@service_container']
+        class: Sandbox\ApiBundle\Service\BeanService
+        arguments: ['@service_container']
+    sandbox_api.admin_remark:
+        class: Sandbox\ApiBundle\Service\AdminRemarkService
+        arguments: ['@service_container']
+    sandbox_api.sales_customer:
+        class: Sandbox\ApiBundle\Service\SalesCustomerService
+        arguments: ['@service_container']

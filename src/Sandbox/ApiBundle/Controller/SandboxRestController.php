@@ -652,17 +652,20 @@ class SandboxRestController extends FOSRestController
      * @param int    $userId
      * @param string $amount
      * @param string $tradeId
+     * @param boolean $invoiced
      *
      * @return string|null
      */
     protected function postConsumeBalance(
         $userId,
         $amount,
-        $tradeId
+        $tradeId,
+        $invoiced = true
     ) {
         $json = $this->createJsonForConsume(
             $tradeId,
-            $amount
+            $amount,
+            $invoiced
         );
         $auth = $this->authAuthMd5($json);
 
@@ -695,9 +698,8 @@ class SandboxRestController extends FOSRestController
 
     /**
      * @param $userId
-     * @param $data
-     *
-     * @return string|null
+     * @param $productId
+     * @param $tradeId
      */
     protected function postAccountUpgrade(
         $userId,
@@ -735,9 +737,9 @@ class SandboxRestController extends FOSRestController
     }
 
     /**
-     * @param Request $request
+     * @param $json
      *
-     * @return mixed
+     * @return string
      */
     protected function authAuthMd5(
         $json
@@ -753,7 +755,13 @@ class SandboxRestController extends FOSRestController
     }
 
     /**
-     * @return mixed
+     * @param $orderNumber
+     * @param $amount
+     * @param $payType
+     * @param $paidAmount
+     * @param null $type
+     *
+     * @return string
      */
     protected function createJsonForCharge(
         $orderNumber,
@@ -776,15 +784,21 @@ class SandboxRestController extends FOSRestController
     }
 
     /**
-     * @return mixed
+     * @param $orderNumber
+     * @param $amount
+     * @param $invoiced
+     *
+     * @return string
      */
     protected function createJsonForConsume(
         $orderNumber,
-        $amount
+        $amount,
+        $invoiced
     ) {
         $content = [
             'amount' => $amount,
             'trade_id' => $orderNumber,
+            'invoiced' => $invoiced
         ];
 
         return json_encode($content);
@@ -874,9 +888,15 @@ class SandboxRestController extends FOSRestController
     }
 
     /**
-     * @param $auth
+     * @param $ruleId
+     * @param $productId
+     * @param $period
+     * @param $startDate
+     * @param $endDate
+     * @param $isRenew
+     * @param null $auth
      *
-     * @return string|null
+     * @return mixed|void
      */
     protected function getDiscountPriceForOrder(
         $ruleId,

@@ -223,7 +223,7 @@ class AdminUserGroupController extends SalesRestController
     public function addGroupUsers(
         Request $request
     ) {
-        $userId = $request->get('user_id');
+        $customerIds = $request->get('customer_ids');
         $adds = $request->get('add');
         $removes = $request->get('remove');
 
@@ -234,39 +234,52 @@ class AdminUserGroupController extends SalesRestController
                 ->getRepository('SandboxApiBundle:User\UserGroup')
                 ->find($add);
             if ($group->getType() == UserGroup::TYPE_CREATED) {
-                $groupUser = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
-                    ->findOneBy(
-                        array(
-                            'userId' => $userId,
-                            'groupId' => $add,
-                            'type' => UserGroupHasUser::TYPE_ADD,
-                        )
-                    );
-                if (!$groupUser) {
-                    $this->get('sandbox_api.group_user')->storeGroupUser(
-                        $em,
-                        $add,
-                        $userId,
-                        UserGroupHasUser::TYPE_ADD
-                    );
+                foreach ($customerIds as $customerId) {
+                    $customer = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:User\UserCustomer')
+                        ->find($customerId);
+                    $userId = $customer ? $customer->getUserId() : null;
+
+                    $groupUser = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
+                        ->findOneBy(
+                            array(
+                                'customerId' => $customerId,
+                                'groupId' => $add,
+                                'type' => UserGroupHasUser::TYPE_ADD,
+                            )
+                        );
+                    if (!$groupUser) {
+                        $this->get('sandbox_api.group_user')->storeGroupUser(
+                            $em,
+                            $add,
+                            $userId,
+                            UserGroupHasUser::TYPE_ADD,
+                            null,
+                            null,
+                            null,
+                            $customerId
+                        );
+                    }
                 }
             }
         }
 
         foreach ($removes as $remove) {
-            $groupUser = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
-                ->findOneBy(
-                    array(
-                        'userId' => $userId,
-                        'groupId' => $remove,
-                        'type' => UserGroupHasUser::TYPE_ADD,
-                    )
-                );
+            foreach ($customerIds as $customerId) {
+                $groupUser = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
+                    ->findOneBy(
+                        array(
+                            'customerId' => $customerId,
+                            'groupId' => $remove,
+                            'type' => UserGroupHasUser::TYPE_ADD,
+                        )
+                    );
 
-            if ($groupUser) {
-                $em->remove($groupUser);
+                if ($groupUser) {
+                    $em->remove($groupUser);
+                }
             }
         }
 

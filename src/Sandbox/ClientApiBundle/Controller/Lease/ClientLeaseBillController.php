@@ -160,10 +160,18 @@ class ClientLeaseBillController extends PaymentController
             }
         }
 
+        $customerIds = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->getCustomerIdsByUserId($userId);
+
+        if (empty($customerIds)) {
+            return new View();
+        }
+
         $bills = $this->getDoctrine()
             ->getRepository("SandboxApiBundle:Lease\LeaseBill")
             ->findMyBills(
-                $userId,
+                $customerIds,
                 $leaseId,
                 $type,
                 $status,
@@ -413,7 +421,10 @@ class ClientLeaseBillController extends PaymentController
         }
 
         // check if request user is the same as drawee
-        $this->throwAccessDeniedIfNotSameUser($bill->getLease()->getDrawee()->getId());
+        $leaseUserId = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->getUserIdByCustomerId($bill->getLease()->getLesseeCustomer());
+        $this->throwAccessDeniedIfNotSameUser($leaseUserId);
 
         $billJson = $this->container->get('serializer')->serialize($bill, 'json');
         $patch = new Patch($billJson, $request->getContent());
@@ -426,9 +437,19 @@ class ClientLeaseBillController extends PaymentController
             throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILL_STATUS_NOT_CORRECT_MESSAGE);
         }
 
+        $customer = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->findOneBy(array(
+                'userId' => $this->getUserId(),
+                'companyId' => $bill->getLease()->getCompanyId(),
+            ));
+
+        $this->throwNotFoundIfNull($customer, self::NOT_FOUND_MESSAGE);
+
         $bill->setPayChannel(LeaseBill::CHANNEL_SALES_OFFLINE);
         $bill->setDrawee($this->getUserId());
         $bill->setPaymentDate(new \DateTime());
+        $bill->setCustomerId($customer->getId());
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($bill);
@@ -570,7 +591,7 @@ class ClientLeaseBillController extends PaymentController
     }
 
     /**
-     * @param $bill
+     * @param LeaseBill $bill
      * @param $channel
      *
      * @return View
@@ -579,8 +600,18 @@ class ClientLeaseBillController extends PaymentController
         $bill,
         $channel
     ) {
+        $customer = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->findOneBy(array(
+                'userId' => $this->getUserId(),
+                'companyId' => $bill->getLease()->getCompanyId(),
+            ));
+
+        $this->throwNotFoundIfNull($customer, self::NOT_FOUND_MESSAGE);
+
         $bill->setPayChannel($channel);
         $bill->setDrawee($this->getUserId());
+        $bill->setCustomerId($customer->getId());
 
         $transfer = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBillOfflineTransfer')

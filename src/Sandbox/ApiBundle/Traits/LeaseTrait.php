@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\Traits;
 use Sandbox\ApiBundle\Constants\LeaseConstants;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
+use Sandbox\ApiBundle\Entity\Lease\LeaseRentTypes;
 use Sandbox\ApiBundle\Entity\Log\Log;
 
 /**
@@ -212,5 +213,26 @@ trait LeaseTrait
                 ' '.$billsAmount.' '
             );
         }
+    }
+
+
+    /**
+     * @param Lease $lease
+     *
+     * @return bool
+     */
+    private function checkBillShouldInvoiced(
+        $lease
+    ) {
+        $result = false;
+
+        $rentTypes = $lease->getLeaseRentTypes();
+        foreach($rentTypes as $rentType) {
+            if($rentType->getType() == LeaseRentTypes::RENT_TYPE_TAX){
+                $result = true;
+            }
+        }
+
+        return $result;
     }
 }

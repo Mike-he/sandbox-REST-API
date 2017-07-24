@@ -700,4 +700,36 @@ class RoomBuildingRepository extends EntityRepository
 
         return $leasingSetQuery->getQuery()->getOneOrNullResult();
     }
+
+    /**
+     * Get list of room buildings.
+     *
+     * @param string $query
+     * @param array  $myBuildingIds
+     *
+     * @return array
+     */
+    public function getMySalesBuildings(
+        $query,
+        $myBuildingIds
+    ) {
+        $buildingsQuery = $this->createQueryBuilder('rb')
+            ->where('rb.name LIKE :query')
+            ->setParameter('query', '%'.$query.'%');
+
+        // filter by building id
+        if (!is_null($myBuildingIds)) {
+            $buildingsQuery->andWhere('rb.id IN (:ids)');
+            $buildingsQuery->setParameter('ids', $myBuildingIds);
+        }
+
+        // filter by building delete
+        $buildingsQuery->andWhere('rb.isDeleted = FALSE')
+            ->andWhere('rb.visible = TRUE');
+
+        // order by creation date
+        $buildingsQuery->orderBy('rb.creationDate', 'DESC');
+
+        return $buildingsQuery->getQuery()->getResult();
+    }
 }

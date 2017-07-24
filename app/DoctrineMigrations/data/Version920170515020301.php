@@ -26,7 +26,7 @@ class Version920170515020301 extends AbstractMigration implements ContainerAware
         $em = $this->container->get('doctrine.orm.entity_manager');
 
         $products = $em->getRepository('SandboxApiBundle:Product\Product')
-            ->findBy(array('isDeleted'=> 0));
+            ->findBy(array('isDeleted' => 0));
 
         foreach ($products as $product) {
             if (!$product->getEarliestRentDate()) {
@@ -51,6 +51,5 @@ class Version920170515020301 extends AbstractMigration implements ContainerAware
     public function down(Schema $schema)
     {
         // this down() migration is auto-generated, please modify it to your needs
-
     }
 }

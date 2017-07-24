@@ -551,16 +551,6 @@ class AdminFinanceOfflineController extends SandboxRestController
                 }
 
                 break;
-//            case OfflineTransfer::STATUS_RETURNED:
-//                if ($oldStatus != OfflineTransfer::STATUS_PENDING) {
-//                    return $this->customErrorView(
-//                        400,
-//                        CustomErrorMessagesConstants::ERROR_TRANSFER_STATUS_CODE,
-//                        CustomErrorMessagesConstants::ERROR_TRANSFER_STATUS_MESSAGE
-//                    );
-//                }
-
-//                break;
         }
 
         $em->flush();

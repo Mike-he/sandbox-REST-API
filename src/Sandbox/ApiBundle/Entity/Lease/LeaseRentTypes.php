@@ -11,6 +11,9 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class LeaseRentTypes
 {
+    const RENT_TYPE_RENT = 'rent';
+    const RENT_TYPE_TAX = 'tax';
+
     /**
      * @var int
      *
@@ -43,6 +46,14 @@ class LeaseRentTypes
      * @ORM\Column(name="status", type="boolean")
      */
     private $status = true;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="type", type="string", length=20)
+     * @Serializer\Groups({"main", "lease_rent_types_list", "admin_room", "admin_appointment", "client"})
+     */
+    private $type;
 
     /**
      * @return int
@@ -106,5 +117,21 @@ class LeaseRentTypes
     public function setStatus($status)
     {
         $this->status = $status;
+    }
+
+    /**
+     * @return string
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * @param string $type
+     */
+    public function setType($type)
+    {
+        $this->type = $type;
     }
 }

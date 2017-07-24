@@ -12,6 +12,7 @@ use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Sandbox\ApiBundle\Traits\FinanceTrait;
+use Sandbox\ApiBundle\Traits\LeaseTrait;
 use Sandbox\ApiBundle\Traits\SendNotification;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use JMS\Serializer\SerializationContext;
@@ -35,6 +36,205 @@ class AdminLeaseBillController extends SalesRestController
     use GenerateSerialNumberTrait;
     use SendNotification;
     use FinanceTrait;
+    use LeaseTrait;
+
+    /**
+     * Get Lease Bills.
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many products to return"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="channel",
+     *    default=null,
+     *    nullable=true,
+     *    description="pay channel"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="keyword",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="keyword_search",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="send_start",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="send start date. Must be YYYY-mm-dd"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="send_end",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="send end date. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pay_start_date",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="start date. Must be YYYY-mm-dd"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="pay_end_date",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="end date. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="status",
+     *    array=false,
+     *    default="",
+     *    nullable=true,
+     *    strict=true,
+     *    description="status of lease"
+     * )
+     *
+     * @Route("/lease/bills")
+     * @Method({"GET"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getAllBillsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        // check user permission
+        $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_VIEW);
+
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $company = $adminPlatform['sales_company_id'];
+
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+        $offset = ($pageIndex - 1) * $pageLimit;
+        $limit = $pageLimit;
+
+        $channel = $paramFetcher->get('channel');
+        $keyword = $paramFetcher->get('keyword');
+        $keywordSearch = $paramFetcher->get('keyword_search');
+        $sendStart = $paramFetcher->get('send_start');
+        $sendEnd = $paramFetcher->get('send_end');
+        $payStartDate = $paramFetcher->get('pay_start_date');
+        $payEndDate = $paramFetcher->get('pay_end_date');
+        $status = $paramFetcher->get('status');
+
+        if ($channel == LeaseBill::CHANNEL_SANDBOX) {
+            $channels = array(
+                LeaseBill::CHANNEL_ALIPAY,
+                LeaseBill::CHANNEL_WECHAT,
+                LeaseBill::CHANNEL_OFFLINE,
+                LeaseBill::CHANNEL_UNIONPAY,
+            );
+        } else {
+            $channels = $channel ? [$channel] : [];
+        }
+
+        $leaseStatus = array(
+            Lease::LEASE_STATUS_PERFORMING,
+            Lease::LEASE_STATUS_TERMINATED,
+            Lease::LEASE_STATUS_MATURED,
+            Lease::LEASE_STATUS_END,
+            Lease::LEASE_STATUS_CLOSED,
+        );
+
+        $bills = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->findBillsForSales(
+                $company,
+                $status,
+                $channels,
+                $keyword,
+                $keywordSearch,
+                $sendStart,
+                $sendEnd,
+                $payStartDate,
+                $payEndDate,
+                $leaseStatus,
+                $limit,
+                $offset
+            );
+
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->countBillsForSales(
+                $company,
+                $status,
+                $channels,
+                $keyword,
+                $keywordSearch,
+                $sendStart,
+                $sendEnd,
+                $payStartDate,
+                $payEndDate,
+                $leaseStatus
+            );
+
+        $bills = $this->get('serializer')->serialize(
+            $bills,
+            'json',
+            SerializationContext::create()->setGroups(['lease_bill'])
+        );
+        $bills = json_decode($bills, true);
+
+        $view = new View();
+
+        $view->setData(
+            array(
+                'current_page_number' => (int) $pageIndex,
+                'num_items_per_page' => (int) $pageLimit,
+                'items' => $bills,
+                'total_count' => (int) $count,
+            ));
+
+        return $view;
+    }
 
     /**
      * @param Request               $request
@@ -479,30 +679,10 @@ class AdminLeaseBillController extends SalesRestController
         $bill->setSender($this->getUserId());
 
         if ($oldStatus == LeaseBill::STATUS_PENDING) {
-            $billsAmount = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Lease\LeaseBill')
-                ->countBills(
-                    $bill->getLease(),
-                    null,
-                    LeaseBill::STATUS_UNPAID
-                );
-
-            $leaseId = $bill->getLease()->getId();
-            $urlParam = 'ptype=billsList&status=unpaid&leasesId='.$leaseId;
-            $contentArray = $this->generateLeaseContentArray($urlParam);
-            // send Jpush notification
-            $this->generateJpushNotification(
-                [
-                    $bill->getLease()->getDraweeId(),
-                ],
-                LeaseConstants::LEASE_BILL_UNPAID_MESSAGE_PART1,
-                LeaseConstants::LEASE_BILL_UNPAID_MESSAGE_PART2,
-                $contentArray,
-                ' '.$billsAmount.' '
-            );
-
             // set sales invoice
             $this->setLeaseBillInvoice($bill);
+
+            $this->pushBillMessage($bill);
         }
 
         $em = $this->getDoctrine()->getManager();
@@ -669,10 +849,13 @@ class AdminLeaseBillController extends SalesRestController
 
         // add invoice balance
         if (!$bill->isSalesInvoice()) {
+            $invoiced = $this->checkBillShouldInvoiced($bill->getLease());
+
             $this->postConsumeBalance(
                 $bill->getDrawee(),
                 $bill->getRevisedAmount(),
-                $bill->getSerialNumber()
+                $bill->getSerialNumber(),
+                $invoiced
             );
         }
 
@@ -761,6 +944,8 @@ class AdminLeaseBillController extends SalesRestController
             $em->persist($bill);
             $em->flush();
 
+            $this->pushBillMessage($bill);
+
             // generate log
             $this->generateAdminLogs(array(
                 'logModule' => Log::MODULE_LEASE,
@@ -769,27 +954,44 @@ class AdminLeaseBillController extends SalesRestController
                 'logObjectId' => $bill->getId(),
             ));
         }
+    }
 
-        $billsAmount = $em->getRepository('SandboxApiBundle:Lease\LeaseBill')
+    /**
+     * @param LeaseBill $bill
+     */
+    private function pushBillMessage(
+        $bill
+    ) {
+        /** @var Lease $lease */
+        $lease = $bill->getLease();
+        $leaseId = $lease->getId();
+
+        $billsAmount = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
             ->countBills(
-                $bill->getLease(),
+                $leaseId,
                 null,
                 LeaseBill::STATUS_UNPAID
             );
 
-        $leaseId = $bill->getLease()->getId();
-        $urlParam = 'ptype=billsList&status=unpaid&leasesId='.$leaseId;
-        $contentArray = $this->generateLeaseContentArray($urlParam);
-        // send Jpush notification
-        $this->generateJpushNotification(
-            [
-                $bill->getLease()->getDraweeId(),
-            ],
-            LeaseConstants::LEASE_BILL_UNPAID_MESSAGE_PART1,
-            LeaseConstants::LEASE_BILL_UNPAID_MESSAGE_PART2,
-            $contentArray,
-            ' '.$billsAmount.' '
-        );
+        $userId = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->getUserIdByCustomerId($lease->getLesseeCustomer());
+
+        if ($userId) {
+            $urlParam = 'ptype=billsList&status=unpaid&leasesId='.$leaseId;
+            $contentArray = $this->generateLeaseContentArray($urlParam);
+            // send Jpush notification
+            $this->generateJpushNotification(
+                [
+                    $userId,
+                ],
+                LeaseConstants::LEASE_BILL_UNPAID_MESSAGE_PART1,
+                LeaseConstants::LEASE_BILL_UNPAID_MESSAGE_PART2,
+                $contentArray,
+                ' '.$billsAmount.' '
+            );
+        }
     }
 
     /**
@@ -827,6 +1029,9 @@ class AdminLeaseBillController extends SalesRestController
             'id' => $bill->getId(),
         );
 
+        // push message
+        $this->pushBillMessage($bill);
+
         // generate log
         $this->generateAdminLogs(array(
             'logModule' => Log::MODULE_LEASE,
@@ -834,27 +1039,6 @@ class AdminLeaseBillController extends SalesRestController
             'logObjectKey' => Log::OBJECT_LEASE_BILL,
             'logObjectId' => $bill->getId(),
         ));
-
-        $billsAmount = $em->getRepository('SandboxApiBundle:Lease\LeaseBill')
-            ->countBills(
-                $bill->getLease(),
-                null,
-                LeaseBill::STATUS_UNPAID
-            );
-
-        $leaseId = $bill->getLease()->getId();
-        $urlParam = 'ptype=billsList&status=unpaid&leasesId='.$leaseId;
-        $contentArray = $this->generateLeaseContentArray($urlParam);
-        // send Jpush notification
-        $this->generateJpushNotification(
-            [
-                $bill->getLease()->getDraweeId(),
-            ],
-            LeaseConstants::LEASE_BILL_UNPAID_MESSAGE_PART1,
-            LeaseConstants::LEASE_BILL_UNPAID_MESSAGE_PART2,
-            $contentArray,
-            ' '.$billsAmount.' '
-        );
 
         return new View($response, 201);
     }
@@ -866,7 +1050,7 @@ class AdminLeaseBillController extends SalesRestController
         $bill
     ) {
         $lease = $bill->getLease();
-        $salesCompany = $lease->getProduct()->getRoom()->getBuilding()->getCompany();
+        $salesCompany = $lease->getCompanyId();
         $serviceInfo = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
             ->findOneBy(array(

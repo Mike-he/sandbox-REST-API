@@ -64,17 +64,18 @@ class AdminRemarkController extends SandboxRestController
         $platform = $adminPlatform['platform'];
         $companyId = $adminPlatform['sales_company_id'];
 
+
         $object = $paramFetcher->get('object');
         $objectId = $paramFetcher->get('object_id');
 
         // get keyArray
-        $keyArray = $this->getPermissionKeyArray($object);
-
-        // check permission
-        $this->checkAdminRemarkPermission(
-            $keyArray,
-            AdminPermission::OP_LEVEL_VIEW
-        );
+//        $keyArray = $this->getPermissionKeyArray($object);
+//
+//        // check permission
+//        $this->checkAdminRemarkPermission(
+//            $keyArray,
+//            AdminPermission::OP_LEVEL_VIEW
+//        );
 
         $remarks = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminRemark')
@@ -127,13 +128,13 @@ class AdminRemarkController extends SandboxRestController
         }
 
         // get keyArray
-        $keyArray = $this->getPermissionKeyArray($remark->getObject());
-
-        // check permission
-        $this->checkAdminRemarkPermission(
-            $keyArray,
-            AdminPermission::OP_LEVEL_EDIT
-        );
+//        $keyArray = $this->getPermissionKeyArray($remark->getObject());
+//
+//        // check permission
+//        $this->checkAdminRemarkPermission(
+//            $keyArray,
+//            AdminPermission::OP_LEVEL_EDIT
+//        );
 
         $remark->setUserId($adminId);
         $remark->setPlatform($platform);
@@ -163,7 +164,7 @@ class AdminRemarkController extends SandboxRestController
                 $keyArray = [
                     ['key' => AdminPermission::KEY_SALES_BUILDING_ORDER],
                     ['key' => AdminPermission::KEY_SALES_PLATFORM_INVOICE],
-                    ['key' => AdminPermission::KEY_SALES_BUILDING_USER],
+                    ['key' => AdminPermission::KEY_SALES_PLATFORM_CUSTOMER],
                     ['key' => AdminPermission::KEY_SALES_BUILDING_ORDER_PREORDER],
                     ['key' => AdminPermission::KEY_SALES_BUILDING_ORDER_RESERVE],
                     ['key' => AdminPermission::KEY_SALES_BUILDING_SPACE],

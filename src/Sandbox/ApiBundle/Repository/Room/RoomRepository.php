@@ -807,4 +807,45 @@ class RoomRepository extends EntityRepository
 
         return $query->getQuery()->getSingleScalarResult();
     }
+
+    public function findSpaces(
+        $buildingId,
+        $search,
+        $mybuildings
+    ) {
+        $query = $this->createQueryBuilder('r')
+            ->select('
+                    b.id as building_id,
+                    b.name as building_name,
+                    b.address as building_address,
+                    r.id as room_id,
+                    r.name as room_name,
+                    r.area as area,
+                    r.allowedPeople as allowed_people,
+                    p.id as product_id
+            ')
+            ->leftJoin('r.building', 'b')
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'r.id = p.roomId')
+            ->leftJoin('SandboxApiBundle:Product\ProductRentSet', 's', 'WITH', 'p.id = s.product')
+            ->where('r.isDeleted = FALSE')
+            ->andWhere('p.visible = TRUE')
+            ->andWhere('s.id is not null')
+            ->andWhere('r.building in (:buildingIds)')
+            ->setParameter('buildingIds', $mybuildings)
+            ->orderBy('r.id', 'DESC');
+
+        if (!is_null($buildingId)) {
+            $query->andWhere('r.building = :buildingId')
+                ->setParameter('buildingId', $buildingId);
+        }
+
+        if (!is_null($search)) {
+            $query->andWhere('r.name LIKE :search')
+                ->setParameter('search', '%'.$search.'%');
+        }
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
 }

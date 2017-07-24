@@ -25,6 +25,7 @@ class GroupUsersService
      * @param $start
      * @param $end
      * @param $orderNumber
+     * @param $customerId
      */
     public function storeGroupUser(
         $em,
@@ -33,18 +34,45 @@ class GroupUsersService
         $type,
         $start = null,
         $end = null,
-        $orderNumber = null
+        $orderNumber = null,
+        $customerId = null
     ) {
-        $groupUsers = $this->container->get('doctrine')
-            ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
-            ->findBy(
-                array(
-                    'groupId' => $group,
+        if (!$customerId) {
+            $groupUsers = $this->container->get('doctrine')
+                ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
+                ->findBy(
+                    array(
+                        'groupId' => $group,
+                        'userId' => $user,
+                        'type' => $type,
+                        'orderNumber' => $orderNumber,
+                    )
+                );
+
+            $group = $this->container->get('doctrine')
+                ->getRepository('SandboxApiBundle:User\UserGroup')
+                ->find($group);
+
+            $customer = $this->container->get('doctrine')
+                ->getRepository('SandboxApiBundle:User\UserCustomer')
+                ->findOneBy(array(
+                    'companyId' => $group->getCompanyId(),
                     'userId' => $user,
-                    'type' => $type,
-                    'orderNumber' => $orderNumber,
-                )
-            );
+                ));
+
+            $customerId = $customer ? $customer->getUserId() : null;
+        } else {
+            $groupUsers = $this->container->get('doctrine')
+                ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
+                ->findBy(
+                    array(
+                        'groupId' => $group,
+                        'customerId' => $customerId,
+                        'type' => $type,
+                        'orderNumber' => $orderNumber,
+                    )
+                );
+        }
 
         if (empty($groupUsers) || is_null($groupUsers)) {
             $groupUser = new UserGroupHasUser();
@@ -53,6 +81,7 @@ class GroupUsersService
             $groupUser->setType($type);
             $groupUser->setStartDate($start);
             $groupUser->setOrderNumber($orderNumber);
+            $groupUser->setCustomerId($customerId);
             $groupUser->setEndDate($end);
             $em->persist($groupUser);
         } else {

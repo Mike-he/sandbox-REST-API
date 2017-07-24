@@ -8,6 +8,7 @@ use Sandbox\ApiBundle\Constants\BundleConstants;
 use Sandbox\ApiBundle\Constants\DoorAccessConstants;
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Sandbox\ApiBundle\Controller\Door\DoorController;
+use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\MembershipCard\MembershipCard;
 use Sandbox\ApiBundle\Entity\MembershipCard\MembershipOrder;
@@ -26,6 +27,7 @@ use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
+use Sandbox\ApiBundle\Traits\LeaseTrait;
 use Sandbox\ApiBundle\Traits\YunPianSms;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Sandbox\ApiBundle\Traits\StringUtil;
@@ -53,6 +55,7 @@ class PaymentController extends DoorController
     use DoorAccessTrait;
     use ProductOrderNotification;
     use YunPianSms;
+    use LeaseTrait;
 
     const TOPUP_ORDER_LETTER_HEAD = 'T';
     const STATUS_PAID = 'paid';
@@ -1709,13 +1712,15 @@ class PaymentController extends DoorController
      * @param $orderNumber
      * @param $channel
      * @param $userId
+     * @param $price
      *
      * @return null|object|LeaseBill
      */
     public function setLeaseBillStatus(
         $orderNumber,
         $channel,
-        $userId
+        $userId,
+        $price
     ) {
         $bill = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
@@ -1729,15 +1734,37 @@ class PaymentController extends DoorController
 
         $drawee = $bill->getLease()->getDrawee()->getId();
 
+        /** @var Lease $lease */
+        $lease = $bill->getLease();
+
+        $customer = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->find($lease->getLesseeCustomer());
+
         $bill->setPaymentUserId($userId);
         $bill->setStatus(LeaseBill::STATUS_PAID);
         $bill->setPaymentDate(new \DateTime());
         $bill->setPayChannel($channel);
         $bill->setDrawee($drawee);
+        $bill->setCustomerId($customer->getId());
+
+        // add invoice amount
+        if (!$bill->isSalesInvoice()) {
+            $invoiced = $this->checkBillShouldInvoiced($bill->getLease());
+
+            $this->postConsumeBalance(
+                $customer->getUserId(),
+                $price,
+                $orderNumber,
+                $invoiced
+            );
+
+            $bill->setInvoiced(true);
+        }
 
         //update user bean
         $this->get('sandbox_api.bean')->postBeanChange(
-            $drawee,
+            $customer->getId(),
             $bill->getRevisedAmount(),
             $orderNumber,
             Parameter::KEY_BEAN_PAY_BILL
@@ -1746,7 +1773,7 @@ class PaymentController extends DoorController
         //update invitee bean
         $user = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\User')
-            ->find($drawee);
+            ->find($customer->getId());
 
         if ($user->getInviterId()) {
             $this->get('sandbox_api.bean')->postBeanChange(
