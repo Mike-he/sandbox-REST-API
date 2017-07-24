@@ -3,6 +3,7 @@
 namespace Sandbox\SalesApiBundle\Controller\Lease;
 
 use FOS\RestBundle\View\View;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminRemark;
 use Sandbox\ApiBundle\Entity\Lease\LeaseClue;
 use Sandbox\ApiBundle\Entity\Room\Room;
@@ -13,6 +14,7 @@ use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\Request\ParamFetcherInterface;
@@ -20,7 +22,7 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 class AdminLeaseClueController extends SalesRestController
 {
     use GenerateSerialNumberTrait;
-
+    
     /**
      * Get Lease Clues.
      *
@@ -107,6 +109,15 @@ class AdminLeaseClueController extends SalesRestController
      *    description="appointment end date"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="status",
+     *    array=false,
+     *    default="all",
+     *    nullable=true,
+     *    strict=true,
+     *    description="status of lease"
+     * )
+     *
      * @Route("/lease/clues")
      * @Method({"GET"})
      *
@@ -127,6 +138,7 @@ class AdminLeaseClueController extends SalesRestController
         $limit = $pageLimit;
 
         $buildingId = $paramFetcher->get('building');
+        $status = $paramFetcher->get('status');
 
         // search keyword and query
         $keyword = $paramFetcher->get('keyword');
@@ -145,6 +157,7 @@ class AdminLeaseClueController extends SalesRestController
             ->findClues(
                 $salesCompanyId,
                 $buildingId,
+                $status,
                 $keyword,
                 $keywordSearch,
                 $createStart,
@@ -161,6 +174,7 @@ class AdminLeaseClueController extends SalesRestController
             ->countClues(
                 $salesCompanyId,
                 $buildingId,
+                $status,
                 $keyword,
                 $keywordSearch,
                 $createStart,

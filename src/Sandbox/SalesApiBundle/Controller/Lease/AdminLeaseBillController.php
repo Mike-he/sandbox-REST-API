@@ -125,6 +125,15 @@ class AdminLeaseBillController extends SalesRestController
      *    description="end date. Must be YYYY-mm-dd"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="status",
+     *    array=false,
+     *    default="all",
+     *    nullable=true,
+     *    strict=true,
+     *    description="status of lease"
+     * )
+     *
      * @Route("/lease/bills")
      * @Method({"GET"})
      *
@@ -154,6 +163,7 @@ class AdminLeaseBillController extends SalesRestController
         $sendEnd = $paramFetcher->get('send_end');
         $payStartDate = $paramFetcher->get('pay_start_date');
         $payEndDate = $paramFetcher->get('pay_end_date');
+        $status = $paramFetcher->get('status');
 
         if ($channel == LeaseBill::CHANNEL_SANDBOX) {
             $channels = array(
@@ -178,6 +188,7 @@ class AdminLeaseBillController extends SalesRestController
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
             ->findBillsForSales(
                 $company,
+                $status,
                 $channels,
                 $keyword,
                 $keywordSearch,
@@ -194,6 +205,7 @@ class AdminLeaseBillController extends SalesRestController
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
             ->countBillsForSales(
                 $company,
+                $status,
                 $channels,
                 $keyword,
                 $keywordSearch,

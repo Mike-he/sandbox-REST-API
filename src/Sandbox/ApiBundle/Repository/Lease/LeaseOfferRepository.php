@@ -7,9 +7,26 @@ use Sandbox\ApiBundle\Entity\Lease\LeaseClue;
 
 class LeaseOfferRepository extends EntityRepository
 {
+    /**
+     * @param $salesCompanyId
+     * @param $buildingId
+     * @param $status
+     * @param $keyword
+     * @param $keywordSearch
+     * @param $createStart
+     * @param $createEnd
+     * @param $rentFilter
+     * @param $startDate
+     * @param $endDate
+     * @param $limit
+     * @param $offset
+     *
+     * @return array|\Doctrine\ORM\QueryBuilder
+     */
     public function findOffers(
         $salesCompanyId,
         $buildingId,
+        $status,
         $keyword,
         $keywordSearch,
         $createStart,
@@ -27,6 +44,11 @@ class LeaseOfferRepository extends EntityRepository
         if ($buildingId) {
             $query->where('lo.buildingId = :building')
                 ->setParameter('building', $buildingId);
+        }
+
+        if ($status) {
+            $query->andWhere('lo.status = :status')
+                ->setParameter('status', $status);
         }
 
         if ($keyword && $keywordSearch) {
@@ -112,9 +134,24 @@ class LeaseOfferRepository extends EntityRepository
         return $result;
     }
 
+    /**
+     * @param $salesCompanyId
+     * @param $buildingId
+     * @param $status
+     * @param $keyword
+     * @param $keywordSearch
+     * @param $createStart
+     * @param $rentFilter
+     * @param $startDate
+     * @param $endDate
+     * @param $createEnd
+     *
+     * @return \Doctrine\ORM\QueryBuilder|mixed
+     */
     public function countOffers(
         $salesCompanyId,
         $buildingId,
+        $status,
         $keyword,
         $keywordSearch,
         $createStart,
@@ -131,6 +168,11 @@ class LeaseOfferRepository extends EntityRepository
         if ($buildingId) {
             $query->where('lo.buildingId = :building')
                 ->setParameter('building', $buildingId);
+        }
+
+        if ($status) {
+            $query->andWhere('lo.status = :status')
+                ->setParameter('status', $status);
         }
 
         if ($keyword && $keywordSearch) {

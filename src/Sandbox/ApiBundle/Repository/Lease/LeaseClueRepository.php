@@ -7,9 +7,26 @@ use Sandbox\ApiBundle\Entity\Lease\LeaseClue;
 
 class LeaseClueRepository extends EntityRepository
 {
+    /**
+     * @param $salesCompanyId
+     * @param $buildingId
+     * @param $status
+     * @param $keyword
+     * @param $keywordSearch
+     * @param $createStart
+     * @param $createEnd
+     * @param $rentFilter
+     * @param $startDate
+     * @param $endDate
+     * @param $limit
+     * @param $offset
+     *
+     * @return array|\Doctrine\ORM\QueryBuilder
+     */
     public function findClues(
         $salesCompanyId,
         $buildingId,
+        $status,
         $keyword,
         $keywordSearch,
         $createStart,
@@ -27,6 +44,11 @@ class LeaseClueRepository extends EntityRepository
         if ($buildingId) {
             $query->where('lc.buildingId = :building')
                 ->setParameter('building', $buildingId);
+        }
+
+        if ($status) {
+            $query->andWhere('lc.status = :status')
+                ->setParameter('status', $status);
         }
 
         if ($keyword && $keywordSearch) {
@@ -112,9 +134,24 @@ class LeaseClueRepository extends EntityRepository
         return $result;
     }
 
+    /**
+     * @param $salesCompanyId
+     * @param $buildingId
+     * @param $status
+     * @param $keyword
+     * @param $keywordSearch
+     * @param $createStart
+     * @param $rentFilter
+     * @param $startDate
+     * @param $endDate
+     * @param $createEnd
+     *
+     * @return \Doctrine\ORM\QueryBuilder|mixed
+     */
     public function countClues(
         $salesCompanyId,
         $buildingId,
+        $status,
         $keyword,
         $keywordSearch,
         $createStart,
@@ -131,6 +168,11 @@ class LeaseClueRepository extends EntityRepository
         if ($buildingId) {
             $query->where('lc.buildingId = :building')
                 ->setParameter('building', $buildingId);
+        }
+
+        if ($status) {
+            $query->andWhere('lc.status = :status')
+                ->setParameter('status', $status);
         }
 
         if ($keyword && $keywordSearch) {

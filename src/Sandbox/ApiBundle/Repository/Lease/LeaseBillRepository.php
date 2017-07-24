@@ -579,6 +579,7 @@ class LeaseBillRepository extends EntityRepository
      */
     public function findBillsForSales(
         $company,
+        $status,
         $channels,
         $keyword,
         $keywordSearch,
@@ -598,6 +599,11 @@ class LeaseBillRepository extends EntityRepository
         if (!is_null($company)) {
             $query->andWhere('l.companyId = :company')
                 ->setParameter('company', $company);
+        }
+
+        if ($status) {
+            $query->andWhere('l.status = :status')
+                ->setParameter('status', $status);
         }
 
         if (!empty($channels)) {
@@ -683,6 +689,7 @@ class LeaseBillRepository extends EntityRepository
      */
     public function countBillsForSales(
         $company,
+        $status,
         $channels,
         $keyword,
         $keywordSearch,
@@ -702,6 +709,12 @@ class LeaseBillRepository extends EntityRepository
             $query->andWhere('l.companyId = :company')
                 ->setParameter('company', $company);
         }
+
+        if ($status) {
+            $query->andWhere('l.status = :status')
+                ->setParameter('status', $status);
+        }
+
 
         if (!empty($channels)) {
             $query->andWhere('lb.payChannel in (:channels)')

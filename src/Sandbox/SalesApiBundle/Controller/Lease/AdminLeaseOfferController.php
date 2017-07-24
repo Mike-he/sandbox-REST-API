@@ -108,6 +108,15 @@ class AdminLeaseOfferController extends SalesRestController
      *    description="appointment end date"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="status",
+     *    array=false,
+     *    default="all",
+     *    nullable=true,
+     *    strict=true,
+     *    description="status of lease"
+     * )
+     *
      * @Route("/lease/offers")
      * @Method({"GET"})
      *
@@ -128,6 +137,7 @@ class AdminLeaseOfferController extends SalesRestController
         $limit = $pageLimit;
 
         $buildingId = $paramFetcher->get('building');
+        $status = $paramFetcher->get('status');
 
         // search keyword and query
         $keyword = $paramFetcher->get('keyword');
@@ -146,6 +156,7 @@ class AdminLeaseOfferController extends SalesRestController
             ->findOffers(
                 $salesCompanyId,
                 $buildingId,
+                $status,
                 $keyword,
                 $keywordSearch,
                 $createStart,
@@ -162,6 +173,7 @@ class AdminLeaseOfferController extends SalesRestController
             ->countOffers(
                 $salesCompanyId,
                 $buildingId,
+                $status,
                 $keyword,
                 $keywordSearch,
                 $createStart,
