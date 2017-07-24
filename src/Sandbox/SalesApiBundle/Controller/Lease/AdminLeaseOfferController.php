@@ -158,8 +158,8 @@ class AdminLeaseOfferController extends SalesRestController
             );
 
         $count = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Lease\LeaseClue')
-            ->countClues(
+            ->getRepository('SandboxApiBundle:Lease\LeaseOffer')
+            ->countOffers(
                 $salesCompanyId,
                 $buildingId,
                 $keyword,
@@ -263,7 +263,7 @@ class AdminLeaseOfferController extends SalesRestController
         $id
     ) {
         $offer = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Lease\LeaseClue')
+            ->getRepository('SandboxApiBundle:Lease\LeaseOffer')
             ->findOneBy(array('id' => $id, 'status' => LeaseOffer::LEASE_OFFER_STATUS_OFFER));
         $this->throwNotFoundIfNull($offer, self::NOT_FOUND_MESSAGE);
 
