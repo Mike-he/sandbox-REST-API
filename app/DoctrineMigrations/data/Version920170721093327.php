@@ -41,7 +41,7 @@ class Version920170721093327 extends AbstractMigration implements ContainerAware
 
         $leasePermission = $em->getRepository('SandboxApiBundle:Admin\AdminPermission')
             ->findOneBy(array(
-                'key' => AdminPermission::KEY_SALES_PLATFORM_LONG_TERM_LEASE,
+                'key' => AdminPermission::KEY_SALES_BUILDING_LONG_TERM_LEASE,
             ));
         $leaseApplyPermission = $em->getRepository('SandboxApiBundle:Admin\AdminPermission')
             ->findOneBy(array(
