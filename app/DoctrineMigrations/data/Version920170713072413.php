@@ -5,6 +5,7 @@ namespace Application\Migrations;
 use Doctrine\DBAL\Migrations\AbstractMigration;
 use Doctrine\DBAL\Schema\Schema;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
+use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
@@ -110,7 +111,7 @@ class Version920170713072413 extends AbstractMigration implements ContainerAware
                 $lease->setStatus(Lease::LEASE_STATUS_CLOSED);
             }
 
-            $userId = $lease->getSupervisorId();
+            $userId = $lease->getSupervisor()->getId();
             if ($userId) {
                 $myCustomer = $em->getRepository('SandboxApiBundle:User\UserCustomer')
                     ->findOneBy(array(
@@ -127,6 +128,7 @@ class Version920170713072413 extends AbstractMigration implements ContainerAware
         $bills = $em->getRepository('SandboxApiBundle:Lease\LeaseBill')
             ->findAll();
         foreach ($bills as $bill) {
+            /** @var LeaseBill $bill */
             $userId = $bill->getDrawee();
 
             if (!$userId) {
