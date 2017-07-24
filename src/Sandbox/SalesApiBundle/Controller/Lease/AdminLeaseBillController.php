@@ -1214,6 +1214,7 @@ class AdminLeaseBillController extends SalesRestController
             $this->getAdminId(),
             [
                 ['key' => AdminPermission::KEY_SALES_BUILDING_LONG_TERM_LEASE],
+                ['key' => AdminPermission::KEY_SALES_PLATFORM_LEASE_BILL],
                 ['key' => AdminPermission::KEY_SALES_PLATFORM_AUDIT],
             ],
             $opLevel

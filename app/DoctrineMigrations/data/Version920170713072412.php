@@ -110,8 +110,8 @@ class Version920170713072412 extends AbstractMigration implements ContainerAware
                 $lease->setStatus(Lease::LEASE_STATUS_CLOSED);
             }
 
-            $userId = $lease->getSupervisorId();
-            if ($userId) {
+            if ($lease->getSupervisor()) {
+                $userId = $lease->getSupervisor()->getId();
                 $myCustomer = $em->getRepository('SandboxApiBundle:User\UserCustomer')
                     ->findOneBy(array(
                         'userId' => $userId,
@@ -124,14 +124,14 @@ class Version920170713072412 extends AbstractMigration implements ContainerAware
                         ->findOneBy(array('userId' => $userId));
                     $userName = $userProfile ? $userProfile->getName() : null;
 
-                    $customer = new UserCustomer();
-                    $customer->setUserId($userId);
-                    $customer->setCompanyId($salesCompanyId);
-                    $customer->setName($userName);
-                    $customer->setPhoneCode($user->getPhoneCode());
-                    $customer->setPhone($user->getPhone());
-                    $customer->setEmail($user->getEmail());
-                    $em->persist($customer);
+                    $myCustomer = new UserCustomer();
+                    $myCustomer->setUserId($userId);
+                    $myCustomer->setCompanyId($salesCompanyId);
+                    $myCustomer->setName($userName);
+                    $myCustomer->setPhoneCode($user->getPhoneCode());
+                    $myCustomer->setPhone($user->getPhone());
+                    $myCustomer->setEmail($user->getEmail());
+                    $em->persist($myCustomer);
                     $em->flush();
                 }
 
@@ -162,14 +162,14 @@ class Version920170713072412 extends AbstractMigration implements ContainerAware
                     ->findOneBy(array('userId' => $userId));
                 $userName = $userProfile ? $userProfile->getName() : null;
 
-                $customer = new UserCustomer();
-                $customer->setUserId($userId);
-                $customer->setCompanyId($salesCompanyId);
-                $customer->setName($userName);
-                $customer->setPhoneCode($user->getPhoneCode());
-                $customer->setPhone($user->getPhone());
-                $customer->setEmail($user->getEmail());
-                $em->persist($customer);
+                $myCustomer = new UserCustomer();
+                $myCustomer->setUserId($userId);
+                $myCustomer->setCompanyId($salesCompanyId);
+                $myCustomer->setName($userName);
+                $myCustomer->setPhoneCode($user->getPhoneCode());
+                $myCustomer->setPhone($user->getPhone());
+                $myCustomer->setEmail($user->getEmail());
+                $em->persist($myCustomer);
                 $em->flush();
             }
 

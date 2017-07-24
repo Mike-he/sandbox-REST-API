@@ -3,6 +3,7 @@
 namespace Sandbox\SalesApiBundle\Controller\Lease;
 
 use FOS\RestBundle\View\View;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminRemark;
 use Sandbox\ApiBundle\Entity\Lease\LeaseOffer;
 use Sandbox\ApiBundle\Entity\Room\Room;
@@ -128,6 +129,9 @@ class AdminLeaseOfferController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // check user permission
+        $this->checkAdminLeaseOfferPermission(AdminPermission::OP_LEVEL_VIEW);
+
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
@@ -217,6 +221,9 @@ class AdminLeaseOfferController extends SalesRestController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkAdminLeaseOfferPermission(AdminPermission::OP_LEVEL_VIEW);
+
         $offer = $this->getDoctrine()->getRepository('SandboxApiBundle:Lease\LeaseOffer')->find($id);
         $this->throwNotFoundIfNull($offer, self::NOT_FOUND_MESSAGE);
 
@@ -242,6 +249,7 @@ class AdminLeaseOfferController extends SalesRestController
         Request $request
     ) {
         // check user permission
+        $this->checkAdminLeaseOfferPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $offer = new LeaseOffer();
         $form = $this->createForm(new LeaseOfferType(), $offer);
@@ -274,6 +282,9 @@ class AdminLeaseOfferController extends SalesRestController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkAdminLeaseOfferPermission(AdminPermission::OP_LEVEL_EDIT);
+
         $offer = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseOffer')
             ->findOneBy(array('id' => $id, 'status' => LeaseOffer::LEASE_OFFER_STATUS_OFFER));
@@ -317,6 +328,7 @@ class AdminLeaseOfferController extends SalesRestController
         $id
     ) {
         // check user permission
+        $this->checkAdminLeaseOfferPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $em = $this->getDoctrine()->getManager();
 
@@ -541,5 +553,20 @@ class AdminLeaseOfferController extends SalesRestController
         $offer->setCustomer($customer);
 
         return $offer;
+    }
+
+    /**
+     * @param $opLevel
+     */
+    private function checkAdminLeaseOfferPermission(
+        $opLevel
+    ) {
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
+            $this->getAdminId(),
+            [
+                ['key' => AdminPermission::KEY_SALES_PLATFORM_LEASE_OFFER],
+            ],
+            $opLevel
+        );
     }
 }
