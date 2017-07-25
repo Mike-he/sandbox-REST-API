@@ -25,6 +25,49 @@ class AdminCustomerController extends SalesRestController
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
+     * @Annotations\QueryParam(
+     *    name="id",
+     *    array=true,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by id"
+     * )
+     *
+     * @Route("/open/customers")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getOpenUsersAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $ids = empty($paramFetcher->get('id')) ? null : $paramFetcher->get('id');
+
+        $customers = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->searchCustomers(
+                $ids
+            );
+
+        $imageUrl = $this->getParameter('image_url');
+        // hide phone code
+        foreach ($customers as &$customer) {
+            $customer['phone'] = $customer['phone'] ? substr_replace($customer['phone'], '****', 3, 4) : $customer['phone'];
+
+            if (!$customer['avatar'] && $customer['user_id']) {
+                $customer['avatar'] = $imageUrl.'/person/'.$customer['user_id'].'/avatar_small.jpg';
+            }
+        }
+
+        return new View($customers);
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
      * @Route("/customers")
      * @Method({"POST"})
      *
@@ -43,6 +86,9 @@ class AdminCustomerController extends SalesRestController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
         $phoneCode = $customer->getPhoneCode();
         $phone = $customer->getPhone();
 
@@ -51,6 +97,7 @@ class AdminCustomerController extends SalesRestController
             ->findOneBy(array(
                 'phoneCode' => $phoneCode,
                 'phone' => $phone,
+                'companyId' => $salesCompanyId,
             ));
 
         if ($customerOrigin) {
@@ -72,8 +119,6 @@ class AdminCustomerController extends SalesRestController
             $customer->setUserId($user->getId());
         }
 
-        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
-        $salesCompanyId = $adminPlatform['sales_company_id'];
         $customer->setCompanyId($salesCompanyId);
 
         $em = $this->getDoctrine()->getManager();
@@ -111,11 +156,15 @@ class AdminCustomerController extends SalesRestController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
         $customerOrigin = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserCustomer')
             ->findOneBy(array(
                 'phoneCode' => $phoneCode,
                 'phone' => $phone,
+                'companyId' => $salesCompanyId,
             ));
         if ($customerOrigin) {
             return $this->customErrorView(

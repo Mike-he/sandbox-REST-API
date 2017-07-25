@@ -19,7 +19,7 @@ use FOS\RestBundle\Controller\Annotations;
 class AdminEnterpriseCustomerController extends SalesRestController
 {
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/enterprise_customers")
@@ -92,7 +92,7 @@ class AdminEnterpriseCustomerController extends SalesRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -147,7 +147,7 @@ class AdminEnterpriseCustomerController extends SalesRestController
         $contacts = $enterpriseCustomer->getContacts();
 
         if (is_null($contacts) || empty($contacts)) {
-            return ;
+            return;
         }
 
         $em = $this->getDoctrine()->getManager();
@@ -165,7 +165,7 @@ class AdminEnterpriseCustomerController extends SalesRestController
 
         // add new data
         foreach ($contacts as $contact) {
-            $contactObject  = new EnterpriseCustomerContacts();
+            $contactObject = new EnterpriseCustomerContacts();
 
             $form = $this->createForm(new EnterpriseCustomerContactType(), $contactObject);
             $form->submit($contact);
@@ -180,6 +180,6 @@ class AdminEnterpriseCustomerController extends SalesRestController
 
         $em->flush();
 
-        return ;
+        return;
     }
 }
