@@ -128,6 +128,16 @@ class AdminEnterpriseCustomerController extends SalesRestController
                 'companyId' => $salesCompanyId,
             ));
 
+        foreach ($enterpriseCustomers as $enterpriseCustomer) {
+            $contacts = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\EnterpriseCustomerContacts')
+                ->findBy(array(
+                    'enterpriseCustomerId' => $enterpriseCustomer->getId(),
+            ));
+
+            $enterpriseCustomer->setContacts($contacts);
+        }
+
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
             $enterpriseCustomers,
