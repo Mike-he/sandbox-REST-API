@@ -221,8 +221,6 @@ class AdminDashBoardController extends SalesRestController
         $orderList = $this->handleOrders($orders);
 
         $status = array(
-            Lease::LEASE_STATUS_CONFIRMED,
-            Lease::LEASE_STATUS_RECONFIRMING,
             Lease::LEASE_STATUS_PERFORMING,
             Lease::LEASE_STATUS_END,
             Lease::LEASE_STATUS_MATURED,
@@ -439,7 +437,7 @@ class AdminDashBoardController extends SalesRestController
     }
 
     /**
-     * @param $leases
+     * @param Lease $leases
      *
      * @return array
      */
@@ -452,7 +450,7 @@ class AdminDashBoardController extends SalesRestController
                 'lease_id' => $lease->getId(),
                 'start_date' => $lease->getStartDate(),
                 'end_date' => $lease->getEndDate(),
-                'user' => $lease->getSupervisorId(),
+                'customer_id' => $lease->getLesseeCustomer(),
                 'invited_people' => $lease->degenerateInvitedPeople(),
                 'status' => $lease->getStatus(),
             );
