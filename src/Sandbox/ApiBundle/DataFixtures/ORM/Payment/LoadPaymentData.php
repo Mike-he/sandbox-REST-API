@@ -54,6 +54,11 @@ class LoadPaymentData extends AbstractFixture implements OrderedFixtureInterface
         $p8->setNameEn('International Quick Pay');
         $p8->setStatus(false);
 
+        $p9 = new Payment();
+        $p9->setChannel('sales_offline');
+        $p9->setName('销售方收款');
+        $p9->setNameEn('Sales Offline');
+
         $pm1 = new PaymentMap();
         $pm1->setPayment($p1);
         $pm1->setType('space');
@@ -154,6 +159,8 @@ class LoadPaymentData extends AbstractFixture implements OrderedFixtureInterface
         $manager->persist($p6);
         $manager->persist($p7);
         $manager->persist($p8);
+        $manager->persist($p9);
+
         $manager->persist($pm1);
         $manager->persist($pm2);
         $manager->persist($pm3);
