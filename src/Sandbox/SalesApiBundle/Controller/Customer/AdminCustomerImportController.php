@@ -21,7 +21,7 @@ class AdminCustomerImportController extends SalesRestController
     const ERROR_DATA_REPEAT_MESSAGE = 'Exist data repeat error.';
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/customers/import")
@@ -60,20 +60,20 @@ class AdminCustomerImportController extends SalesRestController
         $serialNumber = round(microtime(true) * 1000);
 
         for ($j = 2; $j <= $highestRow; ++$j) {
-            $name = trim($sheet->getCell("A" . $j)->getValue());
-            $phoneCode = trim($sheet->getCell("B" . $j)->getValue());
-            $phone = trim($sheet->getCell("C" . $j)->getValue());
-            $email = trim($sheet->getCell("D" . $j)->getValue());
-            $sex = trim($sheet->getCell("E" . $j)->getValue());
-            $nationality = trim($sheet->getCell("F" . $j)->getValue());
-            $idType = trim($sheet->getCell("G" . $j)->getValue());
-            $idNumber = trim($sheet->getCell("H" . $j)->getValue());
-            $language = trim($sheet->getCell("I" . $j)->getValue());
-            $birthday = trim($sheet->getCell("J" . $j)->getValue());
-            $birthday = gmdate("Y-m-d", \PHPExcel_Shared_Date::ExcelToPHP($birthday));
-            $companyName = trim($sheet->getCell("K" . $j)->getValue());
-            $position = trim($sheet->getCell("L" . $j)->getValue());
-            $comment = trim($sheet->getCell("M" . $j)->getValue());
+            $name = trim($sheet->getCell('A'.$j)->getValue());
+            $phoneCode = trim($sheet->getCell('B'.$j)->getValue());
+            $phone = trim($sheet->getCell('C'.$j)->getValue());
+            $email = trim($sheet->getCell('D'.$j)->getValue());
+            $sex = trim($sheet->getCell('E'.$j)->getValue());
+            $nationality = trim($sheet->getCell('F'.$j)->getValue());
+            $idType = trim($sheet->getCell('G'.$j)->getValue());
+            $idNumber = trim($sheet->getCell('H'.$j)->getValue());
+            $language = trim($sheet->getCell('I'.$j)->getValue());
+            $birthday = trim($sheet->getCell('J'.$j)->getValue());
+            $birthday = gmdate('Y-m-d', \PHPExcel_Shared_Date::ExcelToPHP($birthday));
+            $companyName = trim($sheet->getCell('K'.$j)->getValue());
+            $position = trim($sheet->getCell('L'.$j)->getValue());
+            $comment = trim($sheet->getCell('M'.$j)->getValue());
 
             $customerImport = new UserCustomerImport();
             $customerImport->setSerialNumber($serialNumber);
@@ -148,7 +148,7 @@ class AdminCustomerImportController extends SalesRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/customers/import_preview/{serialNumber}")
@@ -171,7 +171,7 @@ class AdminCustomerImportController extends SalesRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/customers/import_confirm")
@@ -233,7 +233,7 @@ class AdminCustomerImportController extends SalesRestController
             ));
 
         if (empty($customerImports)) {
-            return ;
+            return;
         }
 
         $em = $this->getDoctrine()->getManager();
@@ -302,7 +302,7 @@ class AdminCustomerImportController extends SalesRestController
             ));
 
         if (empty($customerImports)) {
-            return ;
+            return;
         }
 
         $em = $this->getDoctrine()->getManager();

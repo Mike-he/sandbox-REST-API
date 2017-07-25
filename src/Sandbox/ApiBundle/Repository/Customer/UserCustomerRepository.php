@@ -65,8 +65,6 @@ class UserCustomerRepository extends EntityRepository
 
     /**
      * @param $id
-     *
-     * @return null
      */
     public function getUserIdByCustomerId(
         $id
@@ -105,6 +103,30 @@ class UserCustomerRepository extends EntityRepository
         foreach ($customers as $customer) {
             $result[] = $customer['id'];
         }
+
+        return $result;
+    }
+
+    /**
+     * @param $ids
+     *
+     * @return array
+     */
+    public function searchCustomers(
+        $ids
+    ) {
+        $query = $this->createQueryBuilder('c')
+            ->select('
+                    c.userId as user_id,
+                    c.phone,
+                    c.avatar,
+                    c.name,
+                    c.email
+                ')
+            ->where('c.id = :ids')
+            ->setParameter('ids', $ids);
+
+        $result = $query->getQuery()->getResult();
 
         return $result;
     }

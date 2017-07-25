@@ -25,6 +25,44 @@ class AdminCustomerController extends SalesRestController
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
+     * @Annotations\QueryParam(
+     *    name="id",
+     *    array=true,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by id"
+     * )
+     *
+     * @Route("/open/customers")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getOpenUsersAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $ids = empty($paramFetcher->get('id')) ? null : $paramFetcher->get('id');
+
+        $customers = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->searchCustomers(
+                $ids
+            );
+
+        // hide phone code
+        foreach ($customers as &$customer) {
+            $customer['phone'] = $customer['phone'] ? substr_replace($customer['phone'], '****', 3, 4) : $customer['phone'];
+        }
+
+        return new View($customers);
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
      * @Route("/customers")
      * @Method({"POST"})
      *
