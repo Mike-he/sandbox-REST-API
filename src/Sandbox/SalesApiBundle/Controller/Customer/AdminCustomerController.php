@@ -43,6 +43,9 @@ class AdminCustomerController extends SalesRestController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
         $phoneCode = $customer->getPhoneCode();
         $phone = $customer->getPhone();
 
@@ -51,6 +54,7 @@ class AdminCustomerController extends SalesRestController
             ->findOneBy(array(
                 'phoneCode' => $phoneCode,
                 'phone' => $phone,
+                'companyId' => $salesCompanyId,
             ));
 
         if ($customerOrigin) {
@@ -72,8 +76,6 @@ class AdminCustomerController extends SalesRestController
             $customer->setUserId($user->getId());
         }
 
-        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
-        $salesCompanyId = $adminPlatform['sales_company_id'];
         $customer->setCompanyId($salesCompanyId);
 
         $em = $this->getDoctrine()->getManager();
@@ -111,11 +113,15 @@ class AdminCustomerController extends SalesRestController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
         $customerOrigin = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserCustomer')
             ->findOneBy(array(
                 'phoneCode' => $phoneCode,
                 'phone' => $phone,
+                'companyId' => $salesCompanyId,
             ));
         if ($customerOrigin) {
             return $this->customErrorView(

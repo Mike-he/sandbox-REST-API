@@ -636,6 +636,56 @@ class AdminOrderController extends OrderController
     }
 
     /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     * @param int                   $id
+     *
+     * @Route("/orders/{id}/other_rejected")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getOtherRejectedOrdersAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        $order = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->find($id);
+
+        $productId = $order->getProductId();
+        $startDate = $order->getStartDate();
+        $endDate = $order->getEndDate();
+
+        $orders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getOfficeRejected(
+                $productId,
+                $startDate,
+                $endDate,
+                null,
+                $order->getId()
+            );
+
+        $response = [];
+        foreach ($orders as $order) {
+            /** @var ProductOrder $order */
+            $orderArray = [
+                'id' => $order->getId(),
+                'user_name' => $order->getUser()->getUserProfile()->getName(),
+                'order_number' => $order->getOrderNumber(),
+                'start_date' => $order->getStartDate(),
+                'end_date' => $order->getEndDate(),
+            ];
+
+            array_push($response, $orderArray);
+        }
+
+        return new View($response);
+    }
+
+    /**
      * @Route("/orders/{id}/sync")
      * @Method({"POST"})
      *
