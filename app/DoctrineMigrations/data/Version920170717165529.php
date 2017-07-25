@@ -535,12 +535,6 @@ class Version920170717165529 extends AbstractMigration implements ContainerAware
                 'required' => false,
             ),
             array(
-                'column' => 'website',
-                'name' => '网站',
-                'default' => false,
-                'required' => false,
-            ),
-            array(
                 'column' => 'phone',
                 'name' => '电话',
                 'default' => false,

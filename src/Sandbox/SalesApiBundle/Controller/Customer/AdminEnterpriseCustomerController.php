@@ -39,7 +39,6 @@ class AdminEnterpriseCustomerController extends SalesRestController
         if (!$form->isValid()) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
-
         $em = $this->getDoctrine()->getManager();
 
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
@@ -107,6 +106,14 @@ class AdminEnterpriseCustomerController extends SalesRestController
      *     nullable=true
      * )
      *
+     * @Annotations\QueryParam(
+     *     name="query",
+     *     default=null,
+     *     nullable=true,
+     *     array=false,
+     *     strict=true
+     * )
+     *
      * @Route("/enterprise_customers")
      * @Method({"GET"})
      *
@@ -118,15 +125,17 @@ class AdminEnterpriseCustomerController extends SalesRestController
     ) {
         $pageIndex = $paramFetcher->get('pageIndex');
         $pageLimit = $paramFetcher->get('pageLimit');
+        $search = $paramFetcher->get('query');
 
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
         $enterpriseCustomers = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\EnterpriseCustomer')
-            ->findBy(array(
-                'companyId' => $salesCompanyId,
-            ));
+            ->searchSalesEnterpriseCustomers(
+                $salesCompanyId,
+                $search
+            );
 
         foreach ($enterpriseCustomers as $enterpriseCustomer) {
             $contacts = $this->getDoctrine()
@@ -138,14 +147,52 @@ class AdminEnterpriseCustomerController extends SalesRestController
             $enterpriseCustomer->setContacts($contacts);
         }
 
-        $paginator = new Paginator();
-        $pagination = $paginator->paginate(
-            $enterpriseCustomers,
-            $pageIndex,
-            $pageLimit
-        );
+        if (is_null($pageIndex) || is_null($pageLimit)) {
+            $paginator = new Paginator();
+            $enterpriseCustomers = $paginator->paginate(
+                $enterpriseCustomers,
+                $pageIndex,
+                $pageLimit
+            );
+        }
 
-        return new View($pagination);
+        return new View($enterpriseCustomers);
+    }
+
+    /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     * @param $id
+     *
+     * @Route("/enterprise_customers/{id}")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getEnterpriseCustomerAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
+        $enterpriseCustomer = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\EnterpriseCustomer')
+            ->findOneBy(array(
+                'id' => $id,
+                'companyId' => $salesCompanyId,
+            ));
+
+        $contacts = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\EnterpriseCustomerContacts')
+            ->findBy(array(
+                'enterpriseCustomerId' => $enterpriseCustomer->getId(),
+            ));
+
+        $enterpriseCustomer->setContacts($contacts);
+
+        return new View($enterpriseCustomer);
     }
 
     /**

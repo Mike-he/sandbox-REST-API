@@ -13,7 +13,7 @@ use Sandbox\ApiBundle\Entity\Admin\AdminPermissionGroups;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-class Version920170721093327 extends AbstractMigration implements ContainerAwareInterface
+class Version820170721093327 extends AbstractMigration implements ContainerAwareInterface
 {
     use ContainerAwareTrait;
 

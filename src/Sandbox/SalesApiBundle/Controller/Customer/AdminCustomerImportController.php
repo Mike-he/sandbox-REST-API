@@ -101,6 +101,7 @@ class AdminCustomerImportController extends SalesRestController
                 ->findOneBy(array(
                     'phoneCode' => $phoneCode,
                     'phone' => $phone,
+                    'companyId' => $salesCompanyId,
                 ));
             if ($customer) {
                 $customerImport->setStatus(UserCustomerImport::STATUS_REPEAT);
