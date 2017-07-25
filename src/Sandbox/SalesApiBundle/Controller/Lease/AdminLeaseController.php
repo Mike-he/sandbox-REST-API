@@ -81,7 +81,7 @@ class AdminLeaseController extends SalesRestController
      * @Annotations\QueryParam(
      *    name="status",
      *    array=false,
-     *    default="all",
+     *    default="",
      *    nullable=true,
      *    strict=true,
      *    description="status of lease"

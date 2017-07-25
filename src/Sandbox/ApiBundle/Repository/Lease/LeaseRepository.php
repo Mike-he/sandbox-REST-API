@@ -205,10 +205,7 @@ class LeaseRepository extends EntityRepository
                 ->setParameter('roomId', $roomId);
         }
 
-        if ($status == 'all') {
-            $query->andWhere('l.status != :status')
-                ->setParameter('status', Lease::LEASE_STATUS_DRAFTING);
-        } else {
+        if (!is_null($status)) {
             $query->andWhere('l.status = :status')
                 ->setParameter('status', $status);
         }
