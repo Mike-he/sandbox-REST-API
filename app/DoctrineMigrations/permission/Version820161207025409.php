@@ -13,7 +13,7 @@ use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-class Version20161207025409 extends AbstractMigration implements ContainerAwareInterface
+class Version820161207025409 extends AbstractMigration implements ContainerAwareInterface
 {
     use ContainerAwareTrait;
 
@@ -404,7 +404,7 @@ class Version20161207025409 extends AbstractMigration implements ContainerAwareI
 
         // sales
         $permissionLease = new AdminPermission();
-        $permissionLease->setKey(AdminPermission::KEY_SALES_PLATFORM_LONG_TERM_LEASE);
+        $permissionLease->setKey(AdminPermission::KEY_SALES_BUILDING_LONG_TERM_LEASE);
         $permissionLease->setName('合同管理');
         $permissionLease->setLevel('specify');
         $permissionLease->setPlatform('sales');
@@ -505,7 +505,7 @@ class Version20161207025409 extends AbstractMigration implements ContainerAwareI
         $permissionUser = $em
             ->getRepository('SandboxApiBundle:Admin\AdminPermission')
             ->findOneBy(array(
-                'key' => AdminPermission::KEY_SALES_PLATFORM_CUSTOMER,
+                'key' => 'sales.building.user',
             ));
 
         $permissionInvoice = $em
