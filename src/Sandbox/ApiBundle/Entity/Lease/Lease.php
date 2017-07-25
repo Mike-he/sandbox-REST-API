@@ -41,7 +41,7 @@ class Lease
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      *
-     * @Serializer\Groups({"main", "lease_bill", "lease_list"})
+     * @Serializer\Groups({"main", "lease_bill", "lease_list", "log"})
      */
     private $id;
 
@@ -50,7 +50,7 @@ class Lease
      *
      * @ORM\Column(name="serial_number", type="string", length=50, nullable=true)
      *
-     * @Serializer\Groups({"main", "client","lease_bill", "lease_list"})
+     * @Serializer\Groups({"main", "client","lease_bill", "lease_list", "log"})
      */
     private $serialNumber;
 
@@ -58,6 +58,8 @@ class Lease
      * @var Sandbox\ApiBundle\Entity\Room\RoomBuilding
      *
      * @ORM\Column(name="building_id",type="integer", nullable=true)
+     *
+     * @Serializer\Groups({"log"})
      */
     private $buildingId;
 
@@ -65,6 +67,8 @@ class Lease
      * @var Sandbox\ApiBundle\Entity\Product\Product
      *
      * @ORM\Column(name="product_id",type="integer", nullable=true)
+     *
+     * @Serializer\Groups({"log"})
      */
     private $productId;
 
@@ -83,7 +87,7 @@ class Lease
      *
      * @ORM\Column(name="lessor_name", type="string", length=40, nullable=true)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main","log"})
      */
     private $lessorName;
 
@@ -92,7 +96,7 @@ class Lease
      *
      * @ORM\Column(name="lessor_address", type="string", length=255, nullable=true)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main","log"})
      */
     private $lessorAddress;
 
@@ -101,7 +105,7 @@ class Lease
      *
      * @ORM\Column(name="lessor_contact", type="string", length=20, nullable=true)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main","log"})
      */
     private $lessorContact;
 
@@ -110,7 +114,7 @@ class Lease
      *
      * @ORM\Column(name="lessor_phone", type="string", length=128, nullable=true)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main","log"})
      */
     private $lessorPhone;
 
@@ -119,7 +123,7 @@ class Lease
      *
      * @ORM\Column(name="lessor_email", type="string", length=128, nullable=true)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main","log"})
      */
     private $lessorEmail;
 
@@ -127,6 +131,8 @@ class Lease
      * @var string 承租方类型
      *
      * @ORM\Column(name="lessee_type", type="string", length=40)
+     *
+     * @Serializer\Groups({"log"})
      */
     private $lesseeType;
 
@@ -134,6 +140,8 @@ class Lease
      * @var int 承租企业
      *
      * @ORM\Column(name="lessee_enterprise", type="integer", length=20, nullable=true)
+     *
+     * @Serializer\Groups({"log"})
      */
     private $lesseeEnterprise;
 
@@ -141,6 +149,8 @@ class Lease
      * @var int 承租方联系人
      *
      * @ORM\Column(name="lessee_customer", type="integer", length=20)
+     *
+     * @Serializer\Groups({"log"})
      */
     private $lesseeCustomer;
 
@@ -149,7 +159,7 @@ class Lease
      *
      * @ORM\Column(name="start_date", type="datetime", nullable=true)
      *
-     * @Serializer\Groups({"main", "lease_list", "room_usage"})
+     * @Serializer\Groups({"main", "lease_list", "room_usage","log"})
      */
     private $startDate;
 
@@ -158,7 +168,7 @@ class Lease
      *
      * @ORM\Column(name="end_date", type="datetime", nullable=true)
      *
-     * @Serializer\Groups({"main", "lease_list", "room_usage"})
+     * @Serializer\Groups({"main", "lease_list", "room_usage","log"})
      */
     private $endDate;
 
@@ -167,7 +177,7 @@ class Lease
      *
      * @ORM\Column(name="monthly_rent", type="decimal", precision=10, scale=2, nullable=true)
      *
-     * @Serializer\Groups({"main", "lease_list"})
+     * @Serializer\Groups({"main", "lease_list","log"})
      */
     private $monthlyRent;
 
@@ -176,7 +186,7 @@ class Lease
      *
      * @ORM\Column(name="total_rent", type="decimal", precision=10, scale=2, nullable=true)
      *
-     * @Serializer\Groups({"main", "lease_list"})
+     * @Serializer\Groups({"main", "lease_list","log"})
      */
     private $totalRent;
 
@@ -185,7 +195,7 @@ class Lease
      *
      * @ORM\Column(name="deposit", type="decimal", precision=10, scale=2, nullable=true)
      *
-     * @Serializer\Groups({"main", "lease_list"})
+     * @Serializer\Groups({"main", "lease_list","log"})
      */
     private $deposit;
 
@@ -205,7 +215,7 @@ class Lease
      *
      * @ORM\Column(name="purpose", type="text", nullable=true)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main","log"})
      */
     private $purpose;
 
@@ -214,7 +224,7 @@ class Lease
      *
      * @ORM\Column(name="other_expenses", type="text", nullable=true)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main","log"})
      */
     private $otherExpenses;
 
@@ -223,7 +233,7 @@ class Lease
      *
      * @ORM\Column(name="supplementary_terms", type="text", nullable=true)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main","log"})
      */
     private $supplementaryTerms;
 
@@ -232,7 +242,7 @@ class Lease
      *
      * @ORM\Column(name="status", type="string", length=15, nullable=true)
      *
-     * @Serializer\Groups({"main", "lease_list"})
+     * @Serializer\Groups({"main", "lease_list","log"})
      */
     private $status;
 
@@ -266,7 +276,7 @@ class Lease
      *      inverseJoinColumns={@ORM\JoinColumn(name="lease_rent_types_id", referencedColumnName="id")}
      * )
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main","log"})
      */
     private $leaseRentTypes;
 
@@ -274,6 +284,8 @@ class Lease
      * @var Sandbox\ApiBundle\Entity\Lease\LeaseClue
      *
      * @ORM\Column(name="lease_clue_id", type="integer", nullable=true)
+     *
+     * @Serializer\Groups({"log"})
      */
     private $LeaseClueId;
 
@@ -281,6 +293,8 @@ class Lease
      * @var Sandbox\ApiBundle\Entity\Lease\LeaseOffer
      *
      * @ORM\Column(name="lease_offer_id", type="integer", nullable=true)
+     *
+     * @Serializer\Groups({"log"})
      */
     private $LeaseOfferId;
 
@@ -434,7 +448,7 @@ class Lease
      *
      * @ORM\Column(name="is_auto", type="boolean")
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "log"})
      */
     private $isAuto = false;
 
@@ -443,7 +457,7 @@ class Lease
      *
      * @ORM\Column(name="plan_day", type="integer", nullable=true)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "log"})
      */
     private $planDay;
 
@@ -451,6 +465,8 @@ class Lease
      * @var int
      *
      * @ORM\Column(name="company_id", type="integer")
+     *
+     * @Serializer\Groups({"log"})
      */
     private $companyId;
 
