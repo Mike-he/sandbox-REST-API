@@ -289,6 +289,18 @@ class AdminDashBoardController extends SalesRestController
             );
         }
 
+        if ($roomType == Room::TYPE_OFFICE) {
+            $productRentSet = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\ProductRentSet')
+                ->findOneBy(array('product' => $product['id'], 'status' => true));
+            if ($productRentSet) {
+                $product['rent_set'] = array(
+                    'base_price' => $productRentSet->getBasePrice(),
+                    'unit_price' => $productRentSet->getUnitPrice(),
+                );
+            }
+        }
+
         $result = array(
             'product' => $product,
             'orders' => $orderList,
