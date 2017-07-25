@@ -91,11 +91,8 @@ class AdminCustomerImportController extends SalesRestController
             $customerImport->setCompanyName($companyName);
             $customerImport->setPosition($position);
             $customerImport->setComment($comment);
-            $em->persist($customerImport);
 
             if (is_null($name) || empty($name) || is_null($phoneCode) || empty($phoneCode) || is_null($phone) || empty($phone)) {
-                $customerImport->setStatus(UserCustomerImport::STATUS_ERROR);
-
                 continue;
             }
 
@@ -108,6 +105,8 @@ class AdminCustomerImportController extends SalesRestController
             if ($customer) {
                 $customerImport->setStatus(UserCustomerImport::STATUS_REPEAT);
             }
+
+            $em->persist($customerImport);
         }
 
         $em->flush();
