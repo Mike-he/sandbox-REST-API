@@ -34,6 +34,15 @@ class AdminCustomerController extends SalesRestController
      *    description="Filter by id"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="user_id",
+     *    array=true,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by user id"
+     * )
+     *
      * @Route("/open/customers")
      * @Method({"GET"})
      *
@@ -43,23 +52,19 @@ class AdminCustomerController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $ids = empty($paramFetcher->get('id')) ? null : $paramFetcher->get('id');
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
+        $ids = $paramFetcher->get('id');
+        $userIds = $paramFetcher->get('user_id');
 
         $customers = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserCustomer')
             ->searchCustomers(
-                $ids
+                $salesCompanyId,
+                $ids,
+                $userIds
             );
-
-        $imageUrl = $this->getParameter('image_url');
-        // hide phone code
-        foreach ($customers as &$customer) {
-            $customer['phone'] = $customer['phone'] ? substr_replace($customer['phone'], '****', 3, 4) : $customer['phone'];
-
-            if (!$customer['avatar'] && $customer['user_id']) {
-                $customer['avatar'] = $imageUrl.'/person/'.$customer['user_id'].'/avatar_small.jpg';
-            }
-        }
 
         return new View($customers);
     }

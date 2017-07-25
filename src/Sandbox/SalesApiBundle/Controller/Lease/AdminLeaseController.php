@@ -1089,6 +1089,8 @@ class AdminLeaseController extends SalesRestController
         if ($productId) {
             $product = $em->getRepository('SandboxApiBundle:Product\Product')->find($productId);
             $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
+
+            $lease->setProduct($product);
         }
 
         $leaseClueId = $lease->getLeaseClueId();
