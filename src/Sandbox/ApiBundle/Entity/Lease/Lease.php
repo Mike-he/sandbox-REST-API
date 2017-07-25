@@ -1011,30 +1011,35 @@ class Lease
      */
     public function degenerateProduct()
     {
-        return [
-            'id' => $this->product->getId(),
-            'room' => [
-                'id' => $this->product->getRoom()->getId(),
-                'number' => $this->product->getRoom()->getNumber(),
-                'name' => $this->product->getRoom()->getName(),
-                'type' => $this->product->getRoom()->getType(),
-                'type_tag' => $this->product->getRoom()->getTypeTag(),
-                'area' => $this->product->getRoom()->getArea(),
-                'allowed_people' => $this->product->getRoom()->getAllowedPeople(),
-                'building' => [
-                    'id' => $this->product->getRoom()->getBuilding()->getId(),
-                    'name' => $this->product->getRoom()->getBuilding()->getName(),
-                    'address' => $this->product->getRoom()->getBuilding()->getAddress(),
-                    'company' => [
-                        'id' => $this->product->getRoom()->getBuilding()->getCompanyId(),
-                        'name' => $this->product->getRoom()->getBuilding()->getCompany()->getName(),
+        if ($this->product) {
+            return [
+                'id' => $this->product->getId(),
+                'room' => [
+                    'id' => $this->product->getRoom()->getId(),
+                    'number' => $this->product->getRoom()->getNumber(),
+                    'name' => $this->product->getRoom()->getName(),
+                    'type' => $this->product->getRoom()->getType(),
+                    'type_tag' => $this->product->getRoom()->getTypeTag(),
+                    'area' => $this->product->getRoom()->getArea(),
+                    'allowed_people' => $this->product->getRoom()->getAllowedPeople(),
+                    'building' => [
+                        'id' => $this->product->getRoom()->getBuilding()->getId(),
+                        'name' => $this->product->getRoom()->getBuilding()->getName(),
+                        'address' => $this->product->getRoom()->getBuilding()->getAddress(),
+                        'company' => [
+                            'id' => $this->product->getRoom()->getBuilding()->getCompanyId(),
+                            'name' => $this->product->getRoom()->getBuilding()->getCompany()->getName(),
+                        ],
                     ],
+                    'city' => $this->product->getRoom()->getBuilding()->getCity()->getName(),
+                    'attachment' => $this->product->getRoom()->degenerateAttachment(),
                 ],
-                'city' => $this->product->getRoom()->getBuilding()->getCity()->getName(),
-                'attachment' => $this->product->getRoom()->degenerateAttachment(),
-            ],
-            'lease_rent_types' => $this->product->getLeaseRentTypes(),
-        ];
+                'lease_rent_types' => $this->product->getLeaseRentTypes(),
+            ];
+        } else {
+            return null;
+        }
+
     }
 
     /**
