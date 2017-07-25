@@ -160,6 +160,42 @@ class AdminEnterpriseCustomerController extends SalesRestController
     }
 
     /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     * @param $id
+     *
+     * @Route("/enterprise_customers/{id}")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getEnterpriseCustomerAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
+        $enterpriseCustomer = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\EnterpriseCustomer')
+            ->findOneBy(array(
+                'id' => $id,
+                'companyId' => $salesCompanyId,
+            ));
+
+        $contacts = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\EnterpriseCustomerContacts')
+            ->findBy(array(
+                'enterpriseCustomerId' => $enterpriseCustomer->getId(),
+            ));
+
+        $enterpriseCustomer->setContacts($contacts);
+
+        return new View($enterpriseCustomer);
+    }
+
+    /**
      * @param EnterpriseCustomer $enterpriseCustomer
      */
     private function handleContacts(
