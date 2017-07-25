@@ -108,23 +108,31 @@ class UserCustomerRepository extends EntityRepository
     }
 
     /**
+     * @param $salesCompanyId
      * @param $ids
+     * @param $userIds
      *
      * @return array
      */
     public function searchCustomers(
-        $ids
+        $salesCompanyId,
+        $ids,
+        $userIds
     ) {
         $query = $this->createQueryBuilder('c')
             ->select('
+                    c.id,
                     c.userId as user_id,
                     c.phone,
                     c.avatar,
                     c.name,
                     c.email
                 ')
-            ->where('c.id in (:ids)')
-            ->setParameter('ids', $ids);
+            ->where('c.companyId = :company')
+            ->andWhere('c.id in (:ids) or c.userId in (:userIds)')
+            ->setParameter('company', $salesCompanyId)
+            ->setParameter('ids', $ids)
+            ->setParameter('userIds', $userIds);
 
         $result = $query->getQuery()->getResult();
 

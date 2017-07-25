@@ -195,8 +195,7 @@ class LeaseRepository extends EntityRepository
         }
 
         if (!is_null($companyId) && !empty($companyId)) {
-            $query->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'rb', 'WITH', 'r.buildingId = rb.id')
-                ->andWhere('rb.companyId = :companyId')
+            $query->andWhere('l.companyId = :companyId')
                 ->setParameter('companyId', $companyId);
         }
 
@@ -205,10 +204,7 @@ class LeaseRepository extends EntityRepository
                 ->setParameter('roomId', $roomId);
         }
 
-        if ($status == 'all') {
-            $query->andWhere('l.status != :status')
-                ->setParameter('status', Lease::LEASE_STATUS_DRAFTING);
-        } else {
+        if ($status) {
             $query->andWhere('l.status = :status')
                 ->setParameter('status', $status);
         }
@@ -305,10 +301,10 @@ class LeaseRepository extends EntityRepository
                 ->setParameter('endDate', $endDate);
         }
 
-        if (!is_null($userId)) {
-            $query->andWhere('(l.supervisor = :userId OR l.drawee = :userId)')
-                ->setParameter('userId', $userId);
-        }
+//        if (!is_null($userId)) {
+//            $query->andWhere('(l.supervisor = :userId OR l.drawee = :userId)')
+//                ->setParameter('userId', $userId);
+//        }
 
         return $query;
     }
