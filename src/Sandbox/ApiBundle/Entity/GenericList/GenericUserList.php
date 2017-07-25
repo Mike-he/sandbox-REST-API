@@ -41,7 +41,6 @@ class GenericUserList
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\GenericList\GenericList")
      * @ORM\JoinColumn(name="list_id", referencedColumnName="id", onDelete="CASCADE")
-     *
      */
     private $list;
 

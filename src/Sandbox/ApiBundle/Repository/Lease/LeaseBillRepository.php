@@ -715,7 +715,6 @@ class LeaseBillRepository extends EntityRepository
                 ->setParameter('status', $status);
         }
 
-
         if (!empty($channels)) {
             $query->andWhere('lb.payChannel in (:channels)')
                 ->setParameter('channels', $channels);

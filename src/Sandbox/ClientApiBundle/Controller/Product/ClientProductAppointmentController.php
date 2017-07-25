@@ -341,7 +341,6 @@ class ClientProductAppointmentController extends ProductController
             $leaseClue->getId()
         );
 
-
         $this->sendNotification($product);
 
         return new View(

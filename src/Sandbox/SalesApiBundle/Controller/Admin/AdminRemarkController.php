@@ -64,13 +64,12 @@ class AdminRemarkController extends SandboxRestController
         $platform = $adminPlatform['platform'];
         $companyId = $adminPlatform['sales_company_id'];
 
-
         $object = $paramFetcher->get('object');
         $objectId = $paramFetcher->get('object_id');
 
         // get keyArray
 //        $keyArray = $this->getPermissionKeyArray($object);
-//
+
 //        // check permission
 //        $this->checkAdminRemarkPermission(
 //            $keyArray,
@@ -129,7 +128,7 @@ class AdminRemarkController extends SandboxRestController
 
         // get keyArray
 //        $keyArray = $this->getPermissionKeyArray($remark->getObject());
-//
+
 //        // check permission
 //        $this->checkAdminRemarkPermission(
 //            $keyArray,
