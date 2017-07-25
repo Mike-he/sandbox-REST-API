@@ -123,7 +123,7 @@ class UserCustomerRepository extends EntityRepository
                     c.name,
                     c.email
                 ')
-            ->where('c.id = :ids')
+            ->where('c.id in (:ids)')
             ->setParameter('ids', $ids);
 
         $result = $query->getQuery()->getResult();

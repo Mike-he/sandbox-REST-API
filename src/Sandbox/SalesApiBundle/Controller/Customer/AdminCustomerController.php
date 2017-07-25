@@ -51,9 +51,14 @@ class AdminCustomerController extends SalesRestController
                 $ids
             );
 
+        $imageUrl = $this->getParameter('image_url');
         // hide phone code
         foreach ($customers as &$customer) {
             $customer['phone'] = $customer['phone'] ? substr_replace($customer['phone'], '****', 3, 4) : $customer['phone'];
+
+            if (!$customer['avatar'] && $customer['user_id']) {
+                $customer['avatar'] = $imageUrl.'/person/'.$customer['user_id'].'/avatar_small.jpg';
+            }
         }
 
         return new View($customers);
