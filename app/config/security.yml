@@ -184,11 +184,6 @@ security:
             security: false
             methods: [GET]
 
-        sales_admin_lease_bill_export:
-            pattern: ^/sales/admin/leases/bills/export$
-            security: false
-            methods: [GET]
-
         client_user_check:
             pattern: ^/client/auth/user_check$
             security: false
