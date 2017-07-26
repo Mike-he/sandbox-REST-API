@@ -564,6 +564,7 @@ class LeaseBillRepository extends EntityRepository
 
     /**
      * @param $company
+     * @param $status
      * @param $channels
      * @param $keyword
      * @param $keywordSearch
@@ -588,8 +589,8 @@ class LeaseBillRepository extends EntityRepository
         $payStartDate,
         $payEndDate,
         $leaseStatus,
-        $limit,
-        $offset
+        $limit = null,
+        $offset = null
     ) {
         $query = $this->createQueryBuilder('lb')
             ->leftJoin('lb.lease', 'l')
@@ -663,11 +664,12 @@ class LeaseBillRepository extends EntityRepository
                 ->setParameter('payEndDate', $payEndDate);
         }
 
-        $query->orderBy('lc.id', 'DESC')
-            ->setMaxResults($limit)
-            ->setFirstResult($offset);
-
         $query->orderBy('lb.sendDate', 'DESC');
+
+        if ($limit && $offset) {
+            $query->setMaxResults($limit)
+                ->setFirstResult($offset);
+        }
 
         $result = $query->getQuery()->getResult();
 

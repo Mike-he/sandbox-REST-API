@@ -50,7 +50,7 @@ class AdminLeaseOfferController extends SalesRestController
      *    description="page number"
      * )
      *
-     * * @Annotations\QueryParam(
+     *  @Annotations\QueryParam(
      *    name="building",
      *    array=false,
      *    default=null,

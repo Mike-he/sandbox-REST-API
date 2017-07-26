@@ -34,8 +34,8 @@ class LeaseOfferRepository extends EntityRepository
         $rentFilter,
         $startDate,
         $endDate,
-        $limit,
-        $offset
+        $limit = null,
+        $offset = null
     ) {
         $query = $this->createQueryBuilder('lo')
             ->where('lo.companyId = :companyId')
@@ -125,9 +125,12 @@ class LeaseOfferRepository extends EntityRepository
                 ->setParameter('endDate', $endDate);
         }
 
-        $query->orderBy('lo.id', 'DESC')
-            ->setMaxResults($limit)
-            ->setFirstResult($offset);
+        $query->orderBy('lo.id', 'DESC');
+
+        if ($limit && $offset) {
+            $query->setMaxResults($limit)
+                ->setFirstResult($offset);
+        }
 
         $result = $query->getQuery()->getResult();
 

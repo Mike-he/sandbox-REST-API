@@ -21,3 +21,9 @@ sandbox_admin_api_lease_offer:
     resource: "@SandboxSalesApiBundle/Controller/Lease/AdminLeaseOfferController.php"
     type:     annotation
     prefix:   /
+
+# Admin Lease Export /sales/admin/lease/export
+sandbox_admin_api_lease_export:
+    resource: "@SandboxSalesApiBundle/Controller/Lease/AdminLeaseExportController.php"
+    type:     annotation
+    prefix:   /
