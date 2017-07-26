@@ -344,7 +344,7 @@ class Version920170717165529 extends AbstractMigration implements ContainerAware
             ),
             array(
                 'column' => 'invoice',
-                'name' => '发票',
+                'name' => '是否包含发票',
                 'default' => false,
                 'required' => false,
             ),

@@ -77,6 +77,7 @@ class LeaseRepository extends EntityRepository
      * @param $createEnd
      * @param $rentFilter
      * @param $startDate
+     * @param $companyId
      * @param $endDate
      * @param $roomId
      * @param $limit
@@ -98,16 +99,14 @@ class LeaseRepository extends EntityRepository
         $endDate,
         $companyId,
         $roomId,
-        $limit,
-        $offset,
+        $limit = null,
+        $offset = null,
         $userId = null
     ) {
         $query = $this->createQueryBuilder('l')
             ->leftJoin('l.product', 'p')
             ->leftJoin('p.room', 'r')
-            ->orderBy('l.id', 'DESC')
-            ->setMaxResults($limit)
-            ->setFirstResult($offset);
+            ->orderBy('l.id', 'DESC');
 
         $query = $this->generateQueryForLeases(
             $query,
@@ -125,6 +124,11 @@ class LeaseRepository extends EntityRepository
             $roomId,
             $userId
         );
+
+        if ($limit && $offset) {
+            $query->setMaxResults($limit)
+                ->setFirstResult($offset);
+        }
 
         return $query->getQuery()->getResult();
     }
