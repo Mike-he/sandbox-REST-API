@@ -7,7 +7,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
- * EnterpriseCustomer
+ * EnterpriseCustomer.
  *
  * @ORM\Table(name="enterprise_customer")
  * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Customer\UserEnterpriseCustomerRepository")
@@ -15,7 +15,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 class EnterpriseCustomer
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -24,7 +24,7 @@ class EnterpriseCustomer
     private $id;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="company_id", type="integer", nullable=false)
      */
@@ -143,11 +143,10 @@ class EnterpriseCustomer
      */
     private $contacts;
 
-
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -171,9 +170,10 @@ class EnterpriseCustomer
     }
 
     /**
-     * Set name
+     * Set name.
      *
      * @param string $name
+     *
      * @return EnterpriseCustomer
      */
     public function setName($name)
@@ -184,9 +184,9 @@ class EnterpriseCustomer
     }
 
     /**
-     * Get name
+     * Get name.
      *
-     * @return string 
+     * @return string
      */
     public function getName()
     {
@@ -194,9 +194,10 @@ class EnterpriseCustomer
     }
 
     /**
-     * Set registerAddress
+     * Set registerAddress.
      *
      * @param string $registerAddress
+     *
      * @return EnterpriseCustomer
      */
     public function setRegisterAddress($registerAddress)
@@ -207,9 +208,9 @@ class EnterpriseCustomer
     }
 
     /**
-     * Get registerAddress
+     * Get registerAddress.
      *
-     * @return string 
+     * @return string
      */
     public function getRegisterAddress()
     {
@@ -217,9 +218,10 @@ class EnterpriseCustomer
     }
 
     /**
-     * Set businessLicenseNumber
+     * Set businessLicenseNumber.
      *
      * @param string $businessLicenseNumber
+     *
      * @return EnterpriseCustomer
      */
     public function setBusinessLicenseNumber($businessLicenseNumber)
@@ -230,9 +232,9 @@ class EnterpriseCustomer
     }
 
     /**
-     * Get businessLicenseNumber
+     * Get businessLicenseNumber.
      *
-     * @return string 
+     * @return string
      */
     public function getBusinessLicenseNumber()
     {
@@ -240,9 +242,10 @@ class EnterpriseCustomer
     }
 
     /**
-     * Set organizationCertificateCode
+     * Set organizationCertificateCode.
      *
      * @param string $organizationCertificateCode
+     *
      * @return EnterpriseCustomer
      */
     public function setOrganizationCertificateCode($organizationCertificateCode)
@@ -253,9 +256,9 @@ class EnterpriseCustomer
     }
 
     /**
-     * Get organizationCertificateCode
+     * Get organizationCertificateCode.
      *
-     * @return string 
+     * @return string
      */
     public function getOrganizationCertificateCode()
     {
@@ -263,9 +266,10 @@ class EnterpriseCustomer
     }
 
     /**
-     * Set taxRegistrationNumber
+     * Set taxRegistrationNumber.
      *
      * @param string $taxRegistrationNumber
+     *
      * @return EnterpriseCustomer
      */
     public function setTaxRegistrationNumber($taxRegistrationNumber)
@@ -276,9 +280,9 @@ class EnterpriseCustomer
     }
 
     /**
-     * Get taxRegistrationNumber
+     * Get taxRegistrationNumber.
      *
-     * @return string 
+     * @return string
      */
     public function getTaxRegistrationNumber()
     {
@@ -286,9 +290,10 @@ class EnterpriseCustomer
     }
 
     /**
-     * Set taxpayerIdentificationNumber
+     * Set taxpayerIdentificationNumber.
      *
      * @param string $taxpayerIdentificationNumber
+     *
      * @return EnterpriseCustomer
      */
     public function setTaxpayerIdentificationNumber($taxpayerIdentificationNumber)
@@ -299,9 +304,9 @@ class EnterpriseCustomer
     }
 
     /**
-     * Get taxpayerIdentificationNumber
+     * Get taxpayerIdentificationNumber.
      *
-     * @return string 
+     * @return string
      */
     public function getTaxpayerIdentificationNumber()
     {
@@ -309,9 +314,10 @@ class EnterpriseCustomer
     }
 
     /**
-     * Set bankName
+     * Set bankName.
      *
      * @param string $bankName
+     *
      * @return EnterpriseCustomer
      */
     public function setBankName($bankName)
@@ -322,9 +328,9 @@ class EnterpriseCustomer
     }
 
     /**
-     * Get bankName
+     * Get bankName.
      *
-     * @return string 
+     * @return string
      */
     public function getBankName()
     {
@@ -332,9 +338,10 @@ class EnterpriseCustomer
     }
 
     /**
-     * Set bankAccountNumber
+     * Set bankAccountNumber.
      *
      * @param string $bankAccountNumber
+     *
      * @return EnterpriseCustomer
      */
     public function setBankAccountNumber($bankAccountNumber)
@@ -345,9 +352,9 @@ class EnterpriseCustomer
     }
 
     /**
-     * Get bankAccountNumber
+     * Get bankAccountNumber.
      *
-     * @return string 
+     * @return string
      */
     public function getBankAccountNumber()
     {
@@ -355,9 +362,10 @@ class EnterpriseCustomer
     }
 
     /**
-     * Set website
+     * Set website.
      *
      * @param string $website
+     *
      * @return EnterpriseCustomer
      */
     public function setWebsite($website)
@@ -368,9 +376,9 @@ class EnterpriseCustomer
     }
 
     /**
-     * Get website
+     * Get website.
      *
-     * @return string 
+     * @return string
      */
     public function getWebsite()
     {
@@ -378,9 +386,10 @@ class EnterpriseCustomer
     }
 
     /**
-     * Set phone
+     * Set phone.
      *
      * @param string $phone
+     *
      * @return EnterpriseCustomer
      */
     public function setPhone($phone)
@@ -391,9 +400,9 @@ class EnterpriseCustomer
     }
 
     /**
-     * Get phone
+     * Get phone.
      *
-     * @return string 
+     * @return string
      */
     public function getPhone()
     {
@@ -401,9 +410,10 @@ class EnterpriseCustomer
     }
 
     /**
-     * Set industry
+     * Set industry.
      *
      * @param string $industry
+     *
      * @return EnterpriseCustomer
      */
     public function setIndustry($industry)
@@ -414,9 +424,9 @@ class EnterpriseCustomer
     }
 
     /**
-     * Get industry
+     * Get industry.
      *
-     * @return string 
+     * @return string
      */
     public function getIndustry()
     {
@@ -424,9 +434,10 @@ class EnterpriseCustomer
     }
 
     /**
-     * Set mailingAddress
+     * Set mailingAddress.
      *
      * @param string $mailingAddress
+     *
      * @return EnterpriseCustomer
      */
     public function setMailingAddress($mailingAddress)
@@ -437,9 +448,9 @@ class EnterpriseCustomer
     }
 
     /**
-     * Get mailingAddress
+     * Get mailingAddress.
      *
-     * @return string 
+     * @return string
      */
     public function getMailingAddress()
     {
@@ -447,9 +458,10 @@ class EnterpriseCustomer
     }
 
     /**
-     * Set comment
+     * Set comment.
      *
      * @param string $comment
+     *
      * @return EnterpriseCustomer
      */
     public function setComment($comment)
@@ -460,9 +472,9 @@ class EnterpriseCustomer
     }
 
     /**
-     * Get comment
+     * Get comment.
      *
-     * @return string 
+     * @return string
      */
     public function getComment()
     {
@@ -470,9 +482,10 @@ class EnterpriseCustomer
     }
 
     /**
-     * Set creationDate
+     * Set creationDate.
      *
      * @param \DateTime $creationDate
+     *
      * @return EnterpriseCustomer
      */
     public function setCreationDate($creationDate)
@@ -483,9 +496,9 @@ class EnterpriseCustomer
     }
 
     /**
-     * Get creationDate
+     * Get creationDate.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getCreationDate()
     {
@@ -493,9 +506,10 @@ class EnterpriseCustomer
     }
 
     /**
-     * Set modificationDate
+     * Set modificationDate.
      *
      * @param \DateTime $modificationDate
+     *
      * @return EnterpriseCustomer
      */
     public function setModificationDate($modificationDate)
@@ -506,9 +520,9 @@ class EnterpriseCustomer
     }
 
     /**
-     * Get modificationDate
+     * Get modificationDate.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getModificationDate()
     {

@@ -652,7 +652,7 @@ class SandboxRestController extends FOSRestController
      * @param int    $userId
      * @param string $amount
      * @param string $tradeId
-     * @param boolean $invoiced
+     * @param bool   $invoiced
      *
      * @return string|null
      */
@@ -798,7 +798,7 @@ class SandboxRestController extends FOSRestController
         $content = [
             'amount' => $amount,
             'trade_id' => $orderNumber,
-            'invoiced' => $invoiced
+            'invoiced' => $invoiced,
         ];
 
         return json_encode($content);

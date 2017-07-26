@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
- * UserCustomerImport
+ * UserCustomerImport.
  *
  * @ORM\Table(name="user_customer_import")
  * @ORM\Entity
@@ -21,7 +21,7 @@ class UserCustomerImport
     const ACTION_COVER = 'cover';
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -37,7 +37,7 @@ class UserCustomerImport
     private $serialNumber;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="company_id", type="integer")
      */
@@ -149,11 +149,10 @@ class UserCustomerImport
      */
     private $creationDate;
 
-
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -177,9 +176,10 @@ class UserCustomerImport
     }
 
     /**
-     * Set companyId
+     * Set companyId.
      *
-     * @param integer $companyId
+     * @param int $companyId
+     *
      * @return UserCustomerImport
      */
     public function setCompanyId($companyId)
@@ -190,9 +190,9 @@ class UserCustomerImport
     }
 
     /**
-     * Get companyId
+     * Get companyId.
      *
-     * @return integer 
+     * @return int
      */
     public function getCompanyId()
     {
@@ -200,9 +200,10 @@ class UserCustomerImport
     }
 
     /**
-     * Set name
+     * Set name.
      *
      * @param string $name
+     *
      * @return UserCustomerImport
      */
     public function setName($name)
@@ -213,9 +214,9 @@ class UserCustomerImport
     }
 
     /**
-     * Get name
+     * Get name.
      *
-     * @return string 
+     * @return string
      */
     public function getName()
     {
@@ -223,9 +224,10 @@ class UserCustomerImport
     }
 
     /**
-     * Set phoneCode
+     * Set phoneCode.
      *
      * @param string $phoneCode
+     *
      * @return UserCustomerImport
      */
     public function setPhoneCode($phoneCode)
@@ -236,9 +238,9 @@ class UserCustomerImport
     }
 
     /**
-     * Get phoneCode
+     * Get phoneCode.
      *
-     * @return string 
+     * @return string
      */
     public function getPhoneCode()
     {
@@ -246,9 +248,10 @@ class UserCustomerImport
     }
 
     /**
-     * Set phone
+     * Set phone.
      *
      * @param string $phone
+     *
      * @return UserCustomerImport
      */
     public function setPhone($phone)
@@ -259,9 +262,9 @@ class UserCustomerImport
     }
 
     /**
-     * Get phone
+     * Get phone.
      *
-     * @return string 
+     * @return string
      */
     public function getPhone()
     {
@@ -269,9 +272,10 @@ class UserCustomerImport
     }
 
     /**
-     * Set email
+     * Set email.
      *
      * @param string $email
+     *
      * @return UserCustomerImport
      */
     public function setEmail($email)
@@ -282,9 +286,9 @@ class UserCustomerImport
     }
 
     /**
-     * Get email
+     * Get email.
      *
-     * @return string 
+     * @return string
      */
     public function getEmail()
     {
@@ -292,9 +296,10 @@ class UserCustomerImport
     }
 
     /**
-     * Set sex
+     * Set sex.
      *
      * @param string $sex
+     *
      * @return UserCustomerImport
      */
     public function setSex($sex)
@@ -305,9 +310,9 @@ class UserCustomerImport
     }
 
     /**
-     * Get sex
+     * Get sex.
      *
-     * @return string 
+     * @return string
      */
     public function getSex()
     {
@@ -315,9 +320,10 @@ class UserCustomerImport
     }
 
     /**
-     * Set idType
+     * Set idType.
      *
      * @param string $idType
+     *
      * @return UserCustomerImport
      */
     public function setIdType($idType)
@@ -328,9 +334,9 @@ class UserCustomerImport
     }
 
     /**
-     * Get idType
+     * Get idType.
      *
-     * @return string 
+     * @return string
      */
     public function getIdType()
     {
@@ -338,9 +344,10 @@ class UserCustomerImport
     }
 
     /**
-     * Set idNumber
+     * Set idNumber.
      *
      * @param string $idNumber
+     *
      * @return UserCustomerImport
      */
     public function setIdNumber($idNumber)
@@ -351,9 +358,9 @@ class UserCustomerImport
     }
 
     /**
-     * Get idNumber
+     * Get idNumber.
      *
-     * @return string 
+     * @return string
      */
     public function getIdNumber()
     {
@@ -361,9 +368,10 @@ class UserCustomerImport
     }
 
     /**
-     * Set nationality
+     * Set nationality.
      *
      * @param string $nationality
+     *
      * @return UserCustomerImport
      */
     public function setNationality($nationality)
@@ -374,9 +382,9 @@ class UserCustomerImport
     }
 
     /**
-     * Get nationality
+     * Get nationality.
      *
-     * @return string 
+     * @return string
      */
     public function getNationality()
     {
@@ -384,9 +392,10 @@ class UserCustomerImport
     }
 
     /**
-     * Set language
+     * Set language.
      *
      * @param string $language
+     *
      * @return UserCustomerImport
      */
     public function setLanguage($language)
@@ -397,9 +406,9 @@ class UserCustomerImport
     }
 
     /**
-     * Get language
+     * Get language.
      *
-     * @return string 
+     * @return string
      */
     public function getLanguage()
     {
@@ -407,9 +416,10 @@ class UserCustomerImport
     }
 
     /**
-     * Set birthday
+     * Set birthday.
      *
      * @param string $birthday
+     *
      * @return UserCustomerImport
      */
     public function setBirthday($birthday)
@@ -420,9 +430,9 @@ class UserCustomerImport
     }
 
     /**
-     * Get birthday
+     * Get birthday.
      *
-     * @return string 
+     * @return string
      */
     public function getBirthday()
     {
@@ -430,9 +440,10 @@ class UserCustomerImport
     }
 
     /**
-     * Set companyName
+     * Set companyName.
      *
      * @param string $companyName
+     *
      * @return UserCustomerImport
      */
     public function setCompanyName($companyName)
@@ -443,9 +454,9 @@ class UserCustomerImport
     }
 
     /**
-     * Get companyName
+     * Get companyName.
      *
-     * @return string 
+     * @return string
      */
     public function getCompanyName()
     {
@@ -453,9 +464,10 @@ class UserCustomerImport
     }
 
     /**
-     * Set position
+     * Set position.
      *
      * @param string $position
+     *
      * @return UserCustomerImport
      */
     public function setPosition($position)
@@ -466,9 +478,9 @@ class UserCustomerImport
     }
 
     /**
-     * Get position
+     * Get position.
      *
-     * @return string 
+     * @return string
      */
     public function getPosition()
     {
@@ -476,9 +488,10 @@ class UserCustomerImport
     }
 
     /**
-     * Set comment
+     * Set comment.
      *
      * @param string $comment
+     *
      * @return UserCustomerImport
      */
     public function setComment($comment)
@@ -489,9 +502,9 @@ class UserCustomerImport
     }
 
     /**
-     * Get comment
+     * Get comment.
      *
-     * @return string 
+     * @return string
      */
     public function getComment()
     {
@@ -515,9 +528,10 @@ class UserCustomerImport
     }
 
     /**
-     * Set creationDate
+     * Set creationDate.
      *
      * @param \DateTime $creationDate
+     *
      * @return UserCustomerImport
      */
     public function setCreationDate($creationDate)
@@ -528,9 +542,9 @@ class UserCustomerImport
     }
 
     /**
-     * Get creationDate
+     * Get creationDate.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getCreationDate()
     {

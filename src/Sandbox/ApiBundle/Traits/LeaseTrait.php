@@ -215,7 +215,6 @@ trait LeaseTrait
         }
     }
 
-
     /**
      * @param Lease $lease
      *
@@ -227,8 +226,8 @@ trait LeaseTrait
         $result = false;
 
         $rentTypes = $lease->getLeaseRentTypes();
-        foreach($rentTypes as $rentType) {
-            if($rentType->getType() == LeaseRentTypes::RENT_TYPE_TAX){
+        foreach ($rentTypes as $rentType) {
+            if ($rentType->getType() == LeaseRentTypes::RENT_TYPE_TAX) {
                 $result = true;
             }
         }

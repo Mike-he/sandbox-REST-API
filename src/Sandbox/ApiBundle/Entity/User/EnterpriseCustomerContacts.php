@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
- * EnterpriseCustomerContacts
+ * EnterpriseCustomerContacts.
  *
  * @ORM\Table(name="enterprise_customer_contacts")
  * @ORM\Entity
@@ -14,7 +14,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 class EnterpriseCustomerContacts
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -23,14 +23,14 @@ class EnterpriseCustomerContacts
     private $id;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="enterprise_customer_id", type="integer")
      */
     private $enterpriseCustomerId;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="customer_id", type="integer")
      */
@@ -51,11 +51,10 @@ class EnterpriseCustomerContacts
      */
     private $creationDate;
 
-
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -63,9 +62,10 @@ class EnterpriseCustomerContacts
     }
 
     /**
-     * Set enterpriseCustomerId
+     * Set enterpriseCustomerId.
      *
-     * @param integer $enterpriseCustomerId
+     * @param int $enterpriseCustomerId
+     *
      * @return EnterpriseCustomerContacts
      */
     public function setEnterpriseCustomerId($enterpriseCustomerId)
@@ -76,9 +76,9 @@ class EnterpriseCustomerContacts
     }
 
     /**
-     * Get enterpriseCustomerId
+     * Get enterpriseCustomerId.
      *
-     * @return integer 
+     * @return int
      */
     public function getEnterpriseCustomerId()
     {
@@ -86,9 +86,10 @@ class EnterpriseCustomerContacts
     }
 
     /**
-     * Set customerId
+     * Set customerId.
      *
-     * @param integer $customerId
+     * @param int $customerId
+     *
      * @return EnterpriseCustomerContacts
      */
     public function setCustomerId($customerId)
@@ -99,9 +100,9 @@ class EnterpriseCustomerContacts
     }
 
     /**
-     * Get customerId
+     * Get customerId.
      *
-     * @return integer 
+     * @return int
      */
     public function getCustomerId()
     {
@@ -109,9 +110,10 @@ class EnterpriseCustomerContacts
     }
 
     /**
-     * Set contactPosition
+     * Set contactPosition.
      *
      * @param string $contactPosition
+     *
      * @return EnterpriseCustomerContacts
      */
     public function setContactPosition($contactPosition)
@@ -122,9 +124,9 @@ class EnterpriseCustomerContacts
     }
 
     /**
-     * Get contactPosition
+     * Get contactPosition.
      *
-     * @return string 
+     * @return string
      */
     public function getContactPosition()
     {
@@ -132,9 +134,10 @@ class EnterpriseCustomerContacts
     }
 
     /**
-     * Set creationDate
+     * Set creationDate.
      *
      * @param \DateTime $creationDate
+     *
      * @return EnterpriseCustomerContacts
      */
     public function setCreationDate($creationDate)
@@ -145,9 +148,9 @@ class EnterpriseCustomerContacts
     }
 
     /**
-     * Get creationDate
+     * Get creationDate.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getCreationDate()
     {

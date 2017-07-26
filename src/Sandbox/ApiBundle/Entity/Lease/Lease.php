@@ -1039,7 +1039,6 @@ class Lease
         } else {
             return null;
         }
-
     }
 
     /**
