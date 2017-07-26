@@ -326,7 +326,7 @@ class ClientProductAppointmentController extends ProductController
         $leaseClue->setStartDate($appointment->getStartRentDate());
         $leaseClue->setEndDate($appointment->getEndRentDate());
         $leaseClue->setCycle($appointment->getRentTimeLength());
-        $leaseClue->setProductAppointment($appointment->getId());
+        $leaseClue->setProductAppointmentId($appointment->getId());
         $leaseClue->setStatus(LeaseClue::LEASE_CLUE_STATUS_CLUE);
         $em->persist($leaseClue);
         $em->flush();
