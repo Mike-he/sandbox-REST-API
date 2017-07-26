@@ -275,10 +275,6 @@ class AdminUsersController extends DoorController
 
         // hide phone code
         foreach ($users as $user) {
-            if (!is_null($user->getPhone())) {
-                $hidePhone = substr_replace($user->getPhone(), '****', 3, 4);
-                $user->setPhone($hidePhone);
-            }
             $groups = $this->getGroupsByUser(
                 $user->getId(),
                 $salesCompanyId
@@ -493,19 +489,7 @@ class AdminUsersController extends DoorController
                 $search
             );
 
-        $response = array();
-
-        // hide phone code
-        foreach ($users as $user) {
-            if (!is_null($user->getPhone())) {
-                $hidePhone = substr_replace($user->getPhone(), '****', 3, 4);
-                $user->setPhone($hidePhone);
-            }
-
-            array_push($response, $user);
-        }
-
-        return new View($response);
+        return new View($users);
     }
 
     /**
