@@ -20,6 +20,9 @@ class AdminCustomerImportController extends SalesRestController
     const ERROR_DATA_REPEAT_CODE = 400002;
     const ERROR_DATA_REPEAT_MESSAGE = 'Exist data repeat error.';
 
+    const ERROR_TEMPLATE_WRONG_CODE = 400003;
+    const ERROR_TEMPLATE_WRONG_MESSAGE = 'Template is wrong';
+
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
@@ -58,6 +61,43 @@ class AdminCustomerImportController extends SalesRestController
         $em = $this->getDoctrine()->getManager();
 
         $serialNumber = round(microtime(true) * 1000);
+
+        // check template
+        $nameTitle = trim($sheet->getCell('A1')->getValue());
+        $phoneCodeTitle = trim($sheet->getCell('B1')->getValue());
+        $phoneTitle = trim($sheet->getCell('C1')->getValue());
+        $emailTitle = trim($sheet->getCell('D1')->getValue());
+        $sexTitle = trim($sheet->getCell('E1')->getValue());
+        $nationalityTitle = trim($sheet->getCell('F1')->getValue());
+        $idTypeTitle = trim($sheet->getCell('G1')->getValue());
+        $idNumberTitle = trim($sheet->getCell('H1')->getValue());
+        $languageTitle = trim($sheet->getCell('I1')->getValue());
+        $birthdayTitle = trim($sheet->getCell('J1')->getValue());
+        $companyNameTitle = trim($sheet->getCell('K1')->getValue());
+        $positionTitle = trim($sheet->getCell('L1')->getValue());
+        $commentTitle = trim($sheet->getCell('M1')->getValue());
+
+        if (
+            $nameTitle != '姓名(必填）'
+            || $phoneCodeTitle != '国家代码'
+            || $phoneTitle != '手机（必填）'
+            || $emailTitle != '邮箱'
+            || $sexTitle != '性别'
+            || $nationalityTitle != '国籍'
+            || $idTypeTitle != '证件类型'
+            || $idNumberTitle != '证件号'
+            || $languageTitle != '语言'
+            || $birthdayTitle != '生日'
+            || $companyNameTitle != '公司'
+            || $positionTitle != '职位'
+            || $commentTitle != '备注'
+        ) {
+            return $this->customErrorView(
+                400,
+                self::ERROR_TEMPLATE_WRONG_CODE,
+                self::ERROR_TEMPLATE_WRONG_MESSAGE
+            );
+        }
 
         for ($j = 2; $j <= $highestRow; ++$j) {
             $name = trim($sheet->getCell('A'.$j)->getValue());
