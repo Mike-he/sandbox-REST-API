@@ -33,11 +33,11 @@ class UserCustomerRepository extends EntityRepository
             ->setParameter('companyId', $salesCompanyId);
 
         if ($search) {
-            $query->andWhere('
+            $query->andWhere('(
                 c.name LIKE :search OR
                 c.phone LIKE :search OR
                 c.email LIKE :search
-            ')
+            )')
                 ->setParameter('search', $search.'%');
         }
 
