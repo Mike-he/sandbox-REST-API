@@ -17,6 +17,7 @@ use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\User\EnterpriseCustomerContacts;
 use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
 use Sandbox\ApiBundle\Form\Lease\LeasePatchType;
+use Sandbox\ApiBundle\Form\Lease\LeaseRequiredType;
 use Sandbox\ApiBundle\Form\Lease\LeaseType;
 use Sandbox\ApiBundle\Traits\GenerateSerialNumberTrait;
 use Sandbox\ApiBundle\Traits\HasAccessToEntityRepositoryTrait;
@@ -359,11 +360,25 @@ class AdminLeaseController extends SalesRestController
         $oldStartDate = $lease->getStartDate();
         $oldEndDate = $lease->getEndDate();
 
-        $form = $this->createForm(
-            new LeaseType(),
-            $lease,
-            array('method' => 'PUT')
-        );
+        $payload = json_decode($request->getContent(), true);
+        if (!isset($payload['status'])) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        if ($payload['status'] == Lease::LEASE_STATUS_DRAFTING) {
+            $form = $this->createForm(
+                new LeaseType(),
+                $lease,
+                array('method' => 'PUT')
+            );
+        } else {
+            $form = $this->createForm(
+                new LeaseRequiredType(),
+                $lease,
+                array('method' => 'PUT')
+            );
+        }
+
         $form->handleRequest($request);
 
         if (!$form->isValid()) {

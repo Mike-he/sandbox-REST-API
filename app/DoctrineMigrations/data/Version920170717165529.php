@@ -316,7 +316,7 @@ class Version920170717165529 extends AbstractMigration implements ContainerAware
                 'column' => 'lease_serial_number',
                 'name' => '合同号',
                 'default' => true,
-                'required' => true,
+                'required' => false,
             ),
             array(
                 'column' => 'drawer',
