@@ -377,12 +377,19 @@ class AdminCustomerController extends SalesRestController
                 'customerId' => $customer->getId(),
             ));
 
-        $customerGroupArray = [];
+        $groups = [];
         foreach ($groupBinds as $bind) {
+            array_push($groups, $bind->getGroupId());
+
+            $groups = array_unique($groups);
+        }
+
+        $customerGroupArray = [];
+        foreach ($groups as $groupId) {
             /** @var UserGroupHasUser $bind */
             $group = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:User\UserGroup')
-                ->find($bind->getGroupId());
+                ->find($groupId);
 
             array_push($customerGroupArray, [
                 'id' => $group->getId(),
