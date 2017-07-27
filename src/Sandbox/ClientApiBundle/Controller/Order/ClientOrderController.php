@@ -633,8 +633,10 @@ class ClientOrderController extends OrderController
             $current[$key] = $row['start_date'];
         }
 
-        array_multisort($current, SORT_ASC, $finalArray);
-        $finalArray = array_slice($finalArray, $offset, $limit);
+        if ($finalArray) {
+            array_multisort($current, SORT_ASC, $finalArray);
+            $finalArray = array_slice($finalArray, $offset, $limit);
+        }
 
         return new View($finalArray);
     }
