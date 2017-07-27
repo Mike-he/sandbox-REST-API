@@ -15,7 +15,7 @@ class EnterpriseCustomerType extends AbstractType
             ->add('register_address', null, array('required' => false))
             ->add('business_license_number', null, array('required' => false))
             ->add('organization_certificate_code', null, array('required' => false))
-            ->add('taxRegistration_number', null, array('required' => false))
+            ->add('tax_registration_number', null, array('required' => false))
             ->add('taxpayer_identification_number', null, array('required' => false))
             ->add('bank_name', null, array('required' => false))
             ->add('bank_account_number', null, array('required' => false))
