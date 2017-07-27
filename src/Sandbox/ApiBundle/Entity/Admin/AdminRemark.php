@@ -87,6 +87,13 @@ class AdminRemark
     private $objectId;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="is_auto", type="boolean")
+     */
+    private $isAuto = false;
+
+    /**
      * Get id.
      *
      * @return int
@@ -286,5 +293,21 @@ class AdminRemark
     public function getObjectId()
     {
         return $this->objectId;
+    }
+
+    /**
+     * @return int
+     */
+    public function getisAuto()
+    {
+        return $this->isAuto;
+    }
+
+    /**
+     * @param int $isAuto
+     */
+    public function setIsAuto($isAuto)
+    {
+        $this->isAuto = $isAuto;
     }
 }

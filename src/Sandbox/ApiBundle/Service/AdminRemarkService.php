@@ -41,6 +41,7 @@ class AdminRemarkService
         $remark->setRemarks($message);
         $remark->setObject($object);
         $remark->setObjectId($objectId);
+        $remark->setIsAuto(true);
 
         $em->persist($remark);
         $em->flush();
@@ -77,6 +78,7 @@ class AdminRemarkService
             $newRemark->setCreationDate($remark->getCreationDate());
             $newRemark->setObject($object);
             $newRemark->setObjectId($objectId);
+            $remark->setIsAuto(true);
 
             $em->persist($newRemark);
         }
