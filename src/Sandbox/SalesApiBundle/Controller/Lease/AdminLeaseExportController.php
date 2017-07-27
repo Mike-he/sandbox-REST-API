@@ -845,7 +845,7 @@ class AdminLeaseExportController extends SalesRestController
         $language
     ) {
         $status = array(
-            LeaseOffer::LEASE_OFFER_STATUS_OFFER => '新报价',
+            LeaseOffer::LEASE_OFFER_STATUS_OFFER => '报价中',
             LeaseOffer::LEASE_OFFER_STATUS_CONTRACT => '转为合同',
             LeaseOffer::LEASE_OFFER_STATUS_CLOSED => '已关闭',
         );
