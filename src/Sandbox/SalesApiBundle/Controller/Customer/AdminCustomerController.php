@@ -3,6 +3,7 @@
 namespace Sandbox\SalesApiBundle\Controller\Customer;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
+use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Entity\User\UserCustomer;
 use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
@@ -314,25 +315,14 @@ class AdminCustomerController extends SalesRestController
             $this->generateCustomer($customer);
         }
 
-        if ($pageIndex && $pageLimit) {
-            $count = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:User\UserCustomer')
-                ->getSalesAdminCustomers(
-                    $salesCompanyId,
-                    $query,
-                    $groupId,
-                    null,
-                    null,
-                    true
-                );
+        $paginator = new Paginator();
+        $pagination = $paginator->paginate(
+            $customers,
+            $pageIndex,
+            $pageLimit
+        );
 
-            $customers = [
-                'items' => $customers,
-                'total_count' => $count,
-            ];
-        }
-
-        return new View($customers);
+        return new View($pagination);
     }
 
     /**

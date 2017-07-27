@@ -20,14 +20,9 @@ class UserCustomerRepository extends EntityRepository
         $search,
         $groupId,
         $pageLimit,
-        $pageIndex,
-        $getCount = null
+        $pageIndex
     ) {
         $query = $this->createQueryBuilder('c');
-
-        if ($getCount) {
-            $query->select('COUNT(c)');
-        }
 
         $query->where('c.companyId = :companyId')
             ->setParameter('companyId', $salesCompanyId);
@@ -55,10 +50,6 @@ class UserCustomerRepository extends EntityRepository
         }
 
         $query->orderBy('c.id', 'DESC');
-
-        if ($getCount) {
-            return (int) $query->getQuery()->getSingleScalarResult();
-        }
 
         return $query->getQuery()->getResult();
     }
