@@ -666,7 +666,7 @@ class LeaseBillRepository extends EntityRepository
 
         $query->orderBy('lb.sendDate', 'DESC');
 
-        if ($limit && $offset) {
+        if (!is_null($limit) && !is_null($offset)) {
             $query->setMaxResults($limit)
                 ->setFirstResult($offset);
         }

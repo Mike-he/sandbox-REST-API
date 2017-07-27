@@ -127,7 +127,7 @@ class LeaseClueRepository extends EntityRepository
 
         $query->orderBy('lc.id', 'DESC');
 
-        if ($limit && $offset) {
+        if (!is_null($limit) && !is_null($offset)) {
             $query->setMaxResults($limit)
                 ->setFirstResult($offset);
         }

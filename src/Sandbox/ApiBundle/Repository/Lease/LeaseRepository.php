@@ -125,7 +125,7 @@ class LeaseRepository extends EntityRepository
             $userId
         );
 
-        if ($limit && $offset) {
+        if (!is_null($limit) && !is_null($offset)) {
             $query->setMaxResults($limit)
                 ->setFirstResult($offset);
         }
