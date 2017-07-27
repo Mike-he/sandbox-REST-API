@@ -384,9 +384,13 @@ class ClientEvaluationController extends EvaluationController
                 $productOrder->setHasEvaluated(true);
 
                 //update user bean
+                $amount = $productOrder->getDiscountPrice();
+                if ($productOrder->getEndDate() < new \DateTime('2017-05-11')) {
+                    $amount = 0;
+                }
                 $this->get('sandbox_api.bean')->postBeanChange(
                     $this->getUserId(),
-                    $productOrder->getDiscountPrice(),
+                    $amount,
                     $productOrder->getOrderNumber(),
                     Parameter::KEY_BEAN_ORDER_EVALUATION
                 );
