@@ -18,9 +18,7 @@ class UserCustomerRepository extends EntityRepository
     public function getSalesAdminCustomers(
         $salesCompanyId,
         $search,
-        $groupId,
-        $pageLimit,
-        $pageIndex
+        $groupId
     ) {
         $query = $this->createQueryBuilder('c');
 
@@ -40,13 +38,6 @@ class UserCustomerRepository extends EntityRepository
             $query->leftJoin('SandboxApiBundle:User\UserGroupHasUser', 'gu', 'WITH', 'gu.customerId = c.id')
                 ->andWhere('gu.groupId = :groupId')
                 ->setParameter('groupId', $groupId);
-        }
-
-        if ($pageIndex && $pageLimit) {
-            $offset = ($pageIndex - 1) * $pageLimit;
-
-            $query->setMaxResults($pageLimit)
-                ->setFirstResult($offset);
         }
 
         $query->orderBy('c.id', 'DESC');
