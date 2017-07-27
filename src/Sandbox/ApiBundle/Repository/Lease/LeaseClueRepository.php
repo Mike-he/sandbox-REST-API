@@ -80,7 +80,7 @@ class LeaseClueRepository extends EntityRepository
             $createStart = new \DateTime($createStart);
             $createStart->setTime(0, 0, 0);
 
-            $query->andWhere('l.confirmingDate >= :createStart')
+            $query->andWhere('lc.creationDate >= :createStart')
                 ->setParameter('createStart', $createStart);
         }
 
@@ -88,7 +88,7 @@ class LeaseClueRepository extends EntityRepository
             $createEnd = new \DateTime($createEnd);
             $createEnd->setTime(23, 59, 59);
 
-            $query->andWhere('l.confirmingDate <= :createEnd')
+            $query->andWhere('lc.creationDate <= :createEnd')
                 ->setParameter('createEnd', $createEnd);
         }
 
@@ -101,21 +101,21 @@ class LeaseClueRepository extends EntityRepository
 
             switch ($rentFilter) {
                 case 'rent_start':
-                    $query->andWhere('l.startDate >= :startDate')
-                        ->andWhere('l.startDate <= :endDate');
+                    $query->andWhere('lc.startDate >= :startDate')
+                        ->andWhere('lc.startDate <= :endDate');
                     break;
                 case 'rent_range':
                     $query->andWhere(
                         '(
-                            (l.startDate <= :startDate AND l.endDate > :startDate) OR
-                            (l.startDate < :endDate AND l.endDate >= :endDate) OR
-                            (l.startDate >= :startDate AND l.endDate <= :endDate)
+                            (lc.startDate <= :startDate AND lc.endDate > :startDate) OR
+                            (lc.startDate < :endDate AND lc.endDate >= :endDate) OR
+                            (lc.startDate >= :startDate AND lc.endDate <= :endDate)
                         )'
                     );
                     break;
                 case 'rent_end':
-                    $query->andWhere('l.endDate >= :startDate')
-                        ->andWhere('l.endDate <= :endDate');
+                    $query->andWhere('lc.endDate >= :startDate')
+                        ->andWhere('lc.endDate <= :endDate');
                     break;
                 default:
                     return $query;
@@ -207,7 +207,7 @@ class LeaseClueRepository extends EntityRepository
             $createStart = new \DateTime($createStart);
             $createStart->setTime(0, 0, 0);
 
-            $query->andWhere('l.confirmingDate >= :createStart')
+            $query->andWhere('lc.creationDate >= :createStart')
                 ->setParameter('createStart', $createStart);
         }
 
@@ -215,7 +215,7 @@ class LeaseClueRepository extends EntityRepository
             $createEnd = new \DateTime($createEnd);
             $createEnd->setTime(23, 59, 59);
 
-            $query->andWhere('l.confirmingDate <= :createEnd')
+            $query->andWhere('lc.creationDate <= :createEnd')
                 ->setParameter('createEnd', $createEnd);
         }
 
@@ -228,21 +228,21 @@ class LeaseClueRepository extends EntityRepository
 
             switch ($rentFilter) {
                 case 'rent_start':
-                    $query->andWhere('l.startDate >= :startDate')
-                        ->andWhere('l.startDate <= :endDate');
+                    $query->andWhere('lc.startDate >= :startDate')
+                        ->andWhere('lc.startDate <= :endDate');
                     break;
                 case 'rent_range':
                     $query->andWhere(
                         '(
-                            (l.startDate <= :startDate AND l.endDate > :startDate) OR
-                            (l.startDate < :endDate AND l.endDate >= :endDate) OR
-                            (l.startDate >= :startDate AND l.endDate <= :endDate)
+                            (lc.startDate <= :startDate AND lc.endDate > :startDate) OR
+                            (lc.startDate < :endDate AND lc.endDate >= :endDate) OR
+                            (lc.startDate >= :startDate AND lc.endDate <= :endDate)
                         )'
                     );
                     break;
                 case 'rent_end':
-                    $query->andWhere('l.endDate >= :startDate')
-                        ->andWhere('l.endDate <= :endDate');
+                    $query->andWhere('lc.endDate >= :startDate')
+                        ->andWhere('lc.endDate <= :endDate');
                     break;
                 default:
                     return $query;
