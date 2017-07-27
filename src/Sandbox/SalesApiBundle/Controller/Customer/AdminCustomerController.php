@@ -306,23 +306,23 @@ class AdminCustomerController extends SalesRestController
             ->getSalesAdminCustomers(
                 $salesCompanyId,
                 $query,
-                $groupId,
-                $pageLimit,
-                $pageIndex
+                $groupId
             );
 
         foreach ($customers as $customer) {
             $this->generateCustomer($customer);
         }
 
-        $paginator = new Paginator();
-        $pagination = $paginator->paginate(
-            $customers,
-            $pageIndex,
-            $pageLimit
-        );
+        if (!is_null($pageIndex) && !is_null($pageLimit)) {
+            $paginator = new Paginator();
+            $customers = $paginator->paginate(
+                $customers,
+                $pageIndex,
+                $pageLimit
+            );
+        }
 
-        return new View($pagination);
+        return new View($customers);
     }
 
     /**
