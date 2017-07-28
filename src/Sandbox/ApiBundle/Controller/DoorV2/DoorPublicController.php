@@ -44,7 +44,16 @@ class DoorPublicController extends SandboxRestController
 
         $em = $this->getDoctrine()->getManager();
 
-        $param = new Parameter();
+        $param = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Parameter\Parameter')
+            ->findOneBy(array(
+                'key' => 'sn',
+            ));
+
+        if (!$param) {
+            $param = new Parameter();
+        }
+
         $param->setKey('sn');
         $param->setValue($str);
         $em->persist($param);
