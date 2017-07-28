@@ -57,8 +57,8 @@ class DoorPublicController extends SandboxRestController
         }
 
         $param->setKey('sn');
-        $param->setValue($str);
-        $em->persist($a);
+        $param->setValue($a);
+        $em->persist($param);
         $em->flush();
 
         return new Response();
