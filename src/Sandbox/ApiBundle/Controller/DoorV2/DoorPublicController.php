@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Controller\DoorV2;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
@@ -41,10 +42,10 @@ class DoorPublicController extends SandboxRestController
         $str .= 'door: '.$door.PHP_EOL;
         $str .= 'sn: '.$sn.PHP_EOL;
 
-        $dir = __DIR__.'/';
-        @chmod($dir, 0777);
-        $re = file_put_contents($dir.'sn.txt', $str);
+        $param = new Parameter();
+        $param->setKey('sn');
+        $param->setValue($str);
 
-        return new Response($re);
+        return new Response();
     }
 }
