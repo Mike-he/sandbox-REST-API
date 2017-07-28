@@ -19,7 +19,7 @@ class DoorPublicController extends SandboxRestController
      * @Route("/door/webhooks_sn")
      * @Method({"POST"})
      *
-     * @return Response
+     * @return mixed
      */
     public function webhooksSNAction(
         Request $request,
@@ -61,6 +61,6 @@ class DoorPublicController extends SandboxRestController
         $em->persist($param);
         $em->flush();
 
-        return new Response();
+        return '';
     }
 }
