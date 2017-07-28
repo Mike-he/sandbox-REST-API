@@ -258,7 +258,7 @@ fos_rest:
         include_format:       false
     view:
         mime_types:
-            json: ['application/json; charset=utf-8', 'application/json', 'application/json;version=1.0', 'application/json;version=1.1', 'application/xml']
+            json: ['application/json; charset=utf-8', 'application/json', 'application/json;version=1.0', 'application/json;version=1.1', 'application/xml', 'application/x-www-form-urlencoded']
         view_response_listener: 'force'
         formats:
             xml:  true
