@@ -19,14 +19,12 @@ class DoorPublicController extends SandboxRestController
      * @Route("/door/webhooks_sn")
      * @Method({"POST"})
      *
-     * @return Response
+     * @return mixed
      */
     public function webhooksSNAction(
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $a = '213';
-
         $partnerId = $request->get('partnerID');
         $timeStamp = $request->get('timestamp');
         $nonstr = $request->get('nonstr');
@@ -57,10 +55,10 @@ class DoorPublicController extends SandboxRestController
         }
 
         $param->setKey('sn');
-        $param->setValue($a);
+        $param->setValue($str);
         $em->persist($param);
         $em->flush();
 
-        return new Response();
+        return new Response(json_encode(array('success' => true,)));
     }
 }

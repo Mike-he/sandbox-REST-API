@@ -232,12 +232,21 @@ class AdminCustomerImportController extends SalesRestController
         $action = $data['action'];
         $serialNumber = $data['serial_number'];
 
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
         switch ($action) {
             case UserCustomerImport::ACTION_BYPASS:
-                $this->bypassCustomerImports($serialNumber);
+                $this->bypassCustomerImports(
+                    $serialNumber,
+                    $salesCompanyId
+                );
                 break;
             case UserCustomerImport::ACTION_COVER:
-                $this->coverCustomerImports($serialNumber);
+                $this->coverCustomerImports(
+                    $serialNumber,
+                    $salesCompanyId
+                );
                 break;
         }
 
@@ -261,9 +270,11 @@ class AdminCustomerImportController extends SalesRestController
 
     /**
      * @param $serialNumber
+     * @param $salesCompanyId
      */
     private function bypassCustomerImports(
-        $serialNumber
+        $serialNumber,
+        $salesCompanyId
     ) {
         $customerImports = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserCustomerImport')
@@ -287,6 +298,7 @@ class AdminCustomerImportController extends SalesRestController
                 ->findOneBy(array(
                     'phoneCode' => $phoneCode,
                     'phone' => $phone,
+                    'companyId' => $salesCompanyId,
                 ));
 
             if ($customer) {
@@ -328,11 +340,13 @@ class AdminCustomerImportController extends SalesRestController
 
     /**
      * @param $serialNumber
+     * @param $salesCompanyId
      */
     private function coverCustomerImports(
-        $serialNumber
+        $serialNumber,
+        $salesCompanyId
     ) {
-        $this->bypassCustomerImports($serialNumber);
+        $this->bypassCustomerImports($serialNumber, $salesCompanyId);
 
         $customerImports = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserCustomerImport')
@@ -356,6 +370,7 @@ class AdminCustomerImportController extends SalesRestController
                 ->findOneBy(array(
                     'phoneCode' => $phoneCode,
                     'phone' => $phone,
+                    'companyId' => $salesCompanyId,
                 ));
 
             if ($customer) {

@@ -258,7 +258,7 @@ fos_rest:
         include_format:       false
     view:
         mime_types:
-            json: ['application/json; charset=utf-8', 'application/json', 'application/json;version=1.0', 'application/json;version=1.1', 'application/xml']
+            json: ['application/json; charset=utf-8', 'application/json', 'application/json;version=1.0', 'application/json;version=1.1', 'application/xml', 'application/x-www-form-urlencoded']
         view_response_listener: 'force'
         formats:
             xml:  true
@@ -269,6 +269,7 @@ fos_rest:
         rules:
             - { path: ^/, priorities: [ json, html, xml ], fallback_format: ~, prefer_extension: false }
             - { path: '^/duiba', priorities: [ 'text/html', '*/*'], fallback_format: json, prefer_extension: false }
+            - { path: '^/door', priorities: [ 'text/html', '*/*'], fallback_format: json, prefer_extension: false }
         media_type:
             version_regex: '/(v|version)=(?P<version>[0-9\.]+)/'
     exception:
