@@ -373,7 +373,7 @@ class AdminCustomerImportController extends SalesRestController
                     'companyId' => $salesCompanyId,
                 ));
 
-            if ($customer) {
+            if (!$customer) {
                 continue;
             }
 
