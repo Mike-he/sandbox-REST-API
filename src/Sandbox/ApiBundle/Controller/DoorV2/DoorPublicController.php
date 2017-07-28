@@ -41,7 +41,9 @@ class DoorPublicController extends SandboxRestController
         $str .= 'door: '.$door.PHP_EOL;
         $str .= 'sn: '.$sn.PHP_EOL;
 
-        $re = file_put_contents(__DIR__.'/sn.txt', $str);
+        $dir = __DIR__.'/';
+        @chmod($dir, 0777);
+        $re = file_put_contents($dir.'sn.txt', $str);
 
         return new Response($re);
     }
