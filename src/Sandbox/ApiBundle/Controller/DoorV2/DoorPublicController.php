@@ -25,6 +25,8 @@ class DoorPublicController extends SandboxRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $a = '213';
+
         $partnerId = $request->get('partnerID');
         $timeStamp = $request->get('timestamp');
         $nonstr = $request->get('nonstr');
@@ -56,7 +58,7 @@ class DoorPublicController extends SandboxRestController
 
         $param->setKey('sn');
         $param->setValue($str);
-        $em->persist($param);
+        $em->persist($a);
         $em->flush();
 
         return new Response();
