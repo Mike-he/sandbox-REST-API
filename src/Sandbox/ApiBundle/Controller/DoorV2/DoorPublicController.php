@@ -42,9 +42,13 @@ class DoorPublicController extends SandboxRestController
         $str .= 'door: '.$door.PHP_EOL;
         $str .= 'sn: '.$sn.PHP_EOL;
 
+        $em = $this->getDoctrine()->getManager();
+
         $param = new Parameter();
         $param->setKey('sn');
         $param->setValue($str);
+        $em->persist($param);
+        $em->flush();
 
         return new Response();
     }
