@@ -12,6 +12,7 @@ use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminRemark;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
+use Sandbox\ApiBundle\Entity\Lease\LeaseOffer;
 use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\User\EnterpriseCustomerContacts;
@@ -743,6 +744,9 @@ class AdminLeaseController extends SalesRestController
 
         $leaseOfferId = $lease->getLeaseOfferId();
         if ($leaseOfferId) {
+            $leaseOffer = $em->getRepository('SandboxApiBundle:Lease\LeaseOffer')->find($leaseOfferId);
+            $leaseOffer->setStatus(LeaseOffer::LEASE_OFFER_STATUS_CONTRACT);
+
             $offerMessage = '转为合同: '.$lease->getSerialNumber();
 
             $this->get('sandbox_api.admin_remark')->autoRemark(

@@ -5,6 +5,7 @@ namespace Sandbox\SalesApiBundle\Controller\Lease;
 use FOS\RestBundle\View\View;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminRemark;
+use Sandbox\ApiBundle\Entity\Lease\LeaseClue;
 use Sandbox\ApiBundle\Entity\Lease\LeaseOffer;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\Room\RoomTypeTags;
@@ -476,6 +477,10 @@ class AdminLeaseOfferController extends SalesRestController
 
         if ($method == 'POST') {
             if ($leaseClueId) {
+                $leaseClue = $em->getRepository('SandboxApiBundle:Lease\LeaseClue')->find($leaseClueId);
+                $leaseClue->setStatus(LeaseClue::LEASE_CLUE_STATUS_OFFER);
+                $em->flush();
+
                 $clueMessage = '转为报价: '.$offer->getSerialNumber();
 
                 $this->get('sandbox_api.admin_remark')->autoRemark(
