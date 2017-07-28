@@ -153,3 +153,9 @@ sandbox_api_property_types:
     resource: "@SandboxApiBundle/Controller/Property/PropertyTypeController.php"
     type:     annotation
     prefix:   /property
+
+# Door Public
+sandbox_api_door_public:
+    resource: "@SandboxApiBundle/Controller/DoorV2/DoorPublicController.php"
+    type:     annotation
+    prefix:   /
