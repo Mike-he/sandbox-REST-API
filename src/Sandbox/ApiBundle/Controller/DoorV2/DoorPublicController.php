@@ -61,6 +61,6 @@ class DoorPublicController extends SandboxRestController
         $em->persist($param);
         $em->flush();
 
-        return '';
+        return new Response(json_encode(array('success' => true,)));
     }
 }
