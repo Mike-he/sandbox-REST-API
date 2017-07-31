@@ -842,7 +842,8 @@ class AdminLeaseExportController extends SalesRestController
         // create the response
         $response = $this->get('phpexcel')->createStreamedResponse($writer);
 
-        $filename = urlencode($fileName.'.xls');
+        $filename = $fileName.'.xls';
+//        $filename = urlencode($fileName.'.xls');
 
         $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
         $response->headers->set('Pragma', 'public');
