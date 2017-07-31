@@ -3,7 +3,6 @@
 namespace Sandbox\ApiBundle\Form\Lease;
 
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\MoneyType;
@@ -97,18 +96,16 @@ class LeaseRequiredType extends AbstractType
                 )
             )
             ->add('start_date',
-                DateType::class,
+                TextType::class,
                 array(
-                    'widget' => 'single_text',
                     'constraints' => array(
                         new NotBlank(),
                     ),
                 )
             )
             ->add('end_date',
-                DateType::class,
+                TextType::class,
                 array(
-                    'widget' => 'single_text',
                     'constraints' => array(
                         new NotBlank(),
                     ),

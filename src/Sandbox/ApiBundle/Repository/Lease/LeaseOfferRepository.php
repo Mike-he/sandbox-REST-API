@@ -42,7 +42,7 @@ class LeaseOfferRepository extends EntityRepository
             ->setParameter('companyId', $salesCompanyId);
 
         if ($buildingId) {
-            $query->where('lo.buildingId = :building')
+            $query->andWhere('lo.buildingId = :building')
                 ->setParameter('building', $buildingId);
         }
 
@@ -169,7 +169,7 @@ class LeaseOfferRepository extends EntityRepository
             ->setParameter('companyId', $salesCompanyId);
 
         if ($buildingId) {
-            $query->where('lo.buildingId = :building')
+            $query->andWhere('lo.buildingId = :building')
                 ->setParameter('building', $buildingId);
         }
 

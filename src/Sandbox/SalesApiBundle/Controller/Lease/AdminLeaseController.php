@@ -1120,7 +1120,7 @@ class AdminLeaseController extends SalesRestController
         $em = $this->getDoctrine()->getManager();
 
         if (
-            $lease->getStatus() != Lease::LEASE_STATUS_CONFIRMING &&
+            $lease->getStatus() != Lease::LEASE_STATUS_PERFORMING &&
             $lease->getStatus() != Lease::LEASE_STATUS_DRAFTING
         ) {
             throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE);
