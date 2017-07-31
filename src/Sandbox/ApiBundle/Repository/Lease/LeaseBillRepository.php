@@ -102,18 +102,28 @@ class LeaseBillRepository extends EntityRepository
     /**
      * @param $lease
      * @param $status
+     * @param $type
      *
      * @return array
      */
     public function findBills(
         $lease,
-        $status
+        $status,
+        $type = null
     ) {
         $query = $this->createQueryBuilder('lb')
-            ->where('lb.status in (:status)')
-            ->andWhere('lb.lease = :lease')
-            ->setParameter('status', $status)
+            ->where('lb.lease = :lease')
             ->setParameter('lease', $lease);
+
+        if ($status) {
+            $query->andWhere('lb.status in (:status)')
+                ->setParameter('status', $status);
+        }
+
+        if ($type) {
+            $query->andWhere('lb.type = :type')
+                ->setParameter('type', $type);
+        }
 
         $result = $query->getQuery()->getResult();
 
