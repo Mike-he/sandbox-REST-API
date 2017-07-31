@@ -62,6 +62,7 @@ class ClientMembershipOrderController extends PaymentController
 
         $endDate = clone $startDate;
         $endDate = $endDate->modify("+$validPeriod $unit");
+        $endDate->modify('-1 second');
 
         $openId = null;
         if ($channel == ProductOrder::CHANNEL_ACCOUNT) {
