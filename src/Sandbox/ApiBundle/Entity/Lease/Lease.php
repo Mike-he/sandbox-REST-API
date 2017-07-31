@@ -276,7 +276,7 @@ class Lease
      *      inverseJoinColumns={@ORM\JoinColumn(name="lease_rent_types_id", referencedColumnName="id")}
      * )
      *
-     * @Serializer\Groups({"main","log"})
+     * @Serializer\Groups({"main","log", "lease_list", "lease_bill"})
      */
     private $leaseRentTypes;
 
