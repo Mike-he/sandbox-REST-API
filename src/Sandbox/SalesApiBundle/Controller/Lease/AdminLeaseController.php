@@ -11,6 +11,7 @@ use Sandbox\ApiBundle\Constants\LeaseConstants;
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminRemark;
+use Sandbox\ApiBundle\Entity\Admin\AdminStatusLog;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseClue;
 use Sandbox\ApiBundle\Entity\Lease\LeaseOffer;
@@ -465,6 +466,8 @@ class AdminLeaseController extends SalesRestController
                 }
 
                 $action = Log::ACTION_PERFORMING;
+
+                $logMessage = '生效合同';
                 break;
             case Lease::LEASE_STATUS_CLOSED:
                 if ($status != Lease::LEASE_STATUS_DRAFTING) {
@@ -484,6 +487,8 @@ class AdminLeaseController extends SalesRestController
                 }
 
                 $action = Log::ACTION_CLOSE;
+
+                $logMessage = '关闭合同';
                 break;
             case Lease::LEASE_STATUS_END:
                 if (
@@ -500,14 +505,12 @@ class AdminLeaseController extends SalesRestController
                         'status' => LeaseBill::STATUS_UNPAID,
                     ));
 
-                if ($userId) {
                     if ($now < $lease->getEndDate()) {
                         foreach ($unpaidBills as $unpaidBill) {
                             $unpaidBill->setStatus(LeaseBill::STATUS_CANCELLED);
                         }
 
                         $this->setAccessActionToDelete($lease->getAccessNo());
-
                         $em->flush();
 
                         // remove door access
@@ -516,42 +519,45 @@ class AdminLeaseController extends SalesRestController
                             $lease->getAccessNo()
                         );
 
-                        // send notification to removed users
-                        $removeUsers = $lease->getInvitedPeopleIds();
-                        array_push($removeUsers, $userId);
-                        if (!empty($removeUsers)) {
-                            $this->sendXmppLeaseNotification(
-                                $lease,
+                        if ($userId) {
+                            // send notification to removed users
+                            $removeUsers = $lease->getInvitedPeopleIds();
+                            array_push($removeUsers, $userId);
+                            if (!empty($removeUsers)) {
+                                $this->sendXmppLeaseNotification(
+                                    $lease,
+                                    $removeUsers,
+                                    ProductOrder::ACTION_INVITE_REMOVE,
+                                    $lease->getSupervisorId(),
+                                    [],
+                                    ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART1,
+                                    ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART2
+                                );
+                            }
+
+                            // send Jpush notification
+                            $this->generateJpushNotification(
+                                [
+                                    $userId,
+                                ],
+                                LeaseConstants::LEASE_TERMINATED_MESSAGE,
+                                null,
+                                $contentArray
+                            );
+
+                            // set user group end date to now
+                            $this->removeUserFromUserGroup(
+                                $lease->getBuildingId(),
                                 $removeUsers,
-                                ProductOrder::ACTION_INVITE_REMOVE,
-                                $lease->getSupervisorId(),
-                                [],
-                                ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART1,
-                                ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART2
+                                $lease->getStartDate(),
+                                $lease->getSerialNumber(),
+                                UserGroupHasUser::TYPE_LEASE
                             );
                         }
 
                         $newStatus = Lease::LEASE_STATUS_TERMINATED;
                         $action = Log::ACTION_TERMINATE;
-
-                        // send Jpush notification
-                        $this->generateJpushNotification(
-                            [
-                                $userId,
-                            ],
-                            LeaseConstants::LEASE_TERMINATED_MESSAGE,
-                            null,
-                            $contentArray
-                        );
-
-                        // set user group end date to now
-                        $this->removeUserFromUserGroup(
-                            $lease->getBuildingId(),
-                            $removeUsers,
-                            $lease->getStartDate(),
-                            $lease->getSerialNumber(),
-                            UserGroupHasUser::TYPE_LEASE
-                        );
+                        $logMessage = '终止合同';
                     } else {
                         // send Jpush notification
                         $this->generateJpushNotification(
@@ -564,9 +570,8 @@ class AdminLeaseController extends SalesRestController
                         );
 
                         $action = Log::ACTION_END;
+                        $logMessage = '结束合同';
                     }
-                }
-
                 break;
             default:
                 throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE);
@@ -575,6 +580,14 @@ class AdminLeaseController extends SalesRestController
         $lease->setStatus($newStatus);
 
         $em->flush();
+
+        $this->get('sandbox_api.admin_status_log')->autoLog(
+            $this->getAdminId(),
+            $newStatus,
+            $logMessage,
+            AdminStatusLog::OBJECT_LEASE,
+            $lease->getId()
+        );
 
         // generate log
         $this->generateAdminLogs(array(
@@ -722,6 +735,7 @@ class AdminLeaseController extends SalesRestController
             $lease->getId()
         );
 
+        $logMessage = '创建合同：'.$lease->getSerialNumber();
         $leaseClueId = $lease->getLeaseClueId();
         if ($leaseClueId) {
             $leaseClue = $em->getRepository('SandboxApiBundle:Lease\LeaseClue')->find($leaseClueId);
@@ -744,6 +758,8 @@ class AdminLeaseController extends SalesRestController
                 AdminRemark::OBJECT_LEASE,
                 $lease->getId()
             );
+
+            $logMessage = '从线索：'.$leaseClue->getSerialNumber().' 转为合同';
         }
 
         $leaseOfferId = $lease->getLeaseOfferId();
@@ -768,7 +784,17 @@ class AdminLeaseController extends SalesRestController
                 AdminRemark::OBJECT_LEASE,
                 $lease->getId()
             );
+
+            $logMessage = '从报价：'.$leaseOffer->getSerialNumber().' 转为合同';
         }
+
+        $this->get('sandbox_api.admin_status_log')->autoLog(
+            $this->getAdminId(),
+            Lease::LEASE_STATUS_DRAFTING,
+            $logMessage,
+            AdminStatusLog::OBJECT_LEASE,
+            $lease->getId()
+        );
 
         if ($lease->getStatus() == Lease::LEASE_STATUS_PERFORMING) {
             $userId = $this->getDoctrine()

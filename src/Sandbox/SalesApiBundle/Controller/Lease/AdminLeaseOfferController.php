@@ -5,6 +5,7 @@ namespace Sandbox\SalesApiBundle\Controller\Lease;
 use FOS\RestBundle\View\View;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminRemark;
+use Sandbox\ApiBundle\Entity\Admin\AdminStatusLog;
 use Sandbox\ApiBundle\Entity\Lease\LeaseClue;
 use Sandbox\ApiBundle\Entity\Lease\LeaseOffer;
 use Sandbox\ApiBundle\Entity\Room\Room;
@@ -359,6 +360,15 @@ class AdminLeaseOfferController extends SalesRestController
                 AdminRemark::OBJECT_LEASE_OFFER,
                 $offer->getId()
             );
+
+            $logMessage = '关闭报价';
+            $this->get('sandbox_api.admin_status_log')->autoLog(
+                $this->getAdminId(),
+                $newStatus,
+                $logMessage,
+                AdminStatusLog::OBJECT_LEASE_OFFER,
+                $offer->getId()
+            );
         }
 
         return new View();
@@ -498,7 +508,28 @@ class AdminLeaseOfferController extends SalesRestController
                     AdminRemark::OBJECT_LEASE_OFFER,
                     $offer->getId()
                 );
+
+                $leaseLogMessage = '转为报价：'.$offer->getSerialNumber();
+                $this->get('sandbox_api.admin_status_log')->autoLog(
+                    $this->getAdminId(),
+                    LeaseClue::LEASE_CLUE_STATUS_OFFER,
+                    $leaseLogMessage,
+                    AdminStatusLog::OBJECT_LEASE_CLUE,
+                    $leaseClueId
+                );
+
+                $logMessage = '从线索：'.$leaseClue->getSerialNumber().' 转为报价';
+            } else {
+                $logMessage = '创建报价';
             }
+
+            $this->get('sandbox_api.admin_status_log')->autoLog(
+                $this->getAdminId(),
+                $offer->getStatus(),
+                $logMessage,
+                AdminStatusLog::OBJECT_LEASE_OFFER,
+                $offer->getId()
+            );
 
             $response = array(
                 'id' => $offer->getId(),

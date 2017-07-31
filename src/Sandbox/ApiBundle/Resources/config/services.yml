@@ -20,3 +20,6 @@ services:
     sandbox_api.sales_customer:
         class: Sandbox\ApiBundle\Service\SalesCustomerService
         arguments: ['@service_container']
+    sandbox_api.admin_status_log:
+        class: Sandbox\ApiBundle\Service\AdminStatusLogService
+        arguments: ['@service_container']

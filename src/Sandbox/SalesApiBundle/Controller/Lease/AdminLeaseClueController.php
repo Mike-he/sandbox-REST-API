@@ -5,6 +5,7 @@ namespace Sandbox\SalesApiBundle\Controller\Lease;
 use FOS\RestBundle\View\View;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminRemark;
+use Sandbox\ApiBundle\Entity\Admin\AdminStatusLog;
 use Sandbox\ApiBundle\Entity\Lease\LeaseClue;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\Room\RoomTypeTags;
@@ -351,6 +352,15 @@ class AdminLeaseClueController extends SalesRestController
                 AdminRemark::OBJECT_LEASE_CLUE,
                 $clue->getId()
             );
+
+            $logMessage = '关闭线索';
+            $this->get('sandbox_api.admin_status_log')->autoLog(
+                $this->getAdminId(),
+                $newStatus,
+                $logMessage,
+                AdminStatusLog::OBJECT_LEASE_CLUE,
+                $clue->getId()
+            );
         }
 
         return new View();
@@ -371,13 +381,8 @@ class AdminLeaseClueController extends SalesRestController
         $salesCompanyId = $adminPlatform['sales_company_id'];
         $platform = $adminPlatform['platform'];
 
-        $statusArray = array(
-                LeaseClue::LEASE_CLUE_STATUS_CLUE,
-                LeaseClue::LEASE_CLUE_STATUS_OFFER,
-                LeaseClue::LEASE_CLUE_STATUS_CONTRACT,
-            );
         $status = $clue->getStatus();
-        if (is_null($status) || !in_array($status, $statusArray)) {
+        if ($status != LeaseClue::LEASE_CLUE_STATUS_CLUE) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
@@ -434,6 +439,15 @@ class AdminLeaseClueController extends SalesRestController
         );
 
         if ($method == 'POST') {
+            $logMessage = '创建线索';
+            $this->get('sandbox_api.admin_status_log')->autoLog(
+                $this->getAdminId(),
+                $status,
+                $logMessage,
+                AdminStatusLog::OBJECT_LEASE_CLUE,
+                $clue->getId()
+            );
+
             $response = array(
                 'id' => $clue->getId(),
             );
