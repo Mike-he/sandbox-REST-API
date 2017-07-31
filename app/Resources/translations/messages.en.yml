@@ -267,7 +267,7 @@ client:
     balance: Balance
     my_order: My Order
     my_lease: Contract
-    my_long_term_appointment: Application
+    my_long_term_appointment: My Application
     my_shop_order: Shop Order
     my_activity_order: Event Order
     my_room: My Rooms
