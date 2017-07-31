@@ -16,7 +16,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Symfony\Component\HttpKernel\Exception\PreconditionFailedHttpException;
 use FOS\RestBundle\Controller\Annotations;
@@ -145,9 +144,32 @@ class AdminLeaseExportController extends SalesRestController
                 $startDate,
                 $endDate
             );
+
+        $createDate = array();
+        foreach ($clues as $clue) {
+            $createDate[] = $clue->getCreationDate()->format('Ymd');
+        }
+
+        $min = '';
+        $max = '';
+        if ($createDate) {
+            $minPos = array_search(min($createDate), $createDate);
+            $min = $createDate[$minPos];
+
+            $maxPos = array_search(max($createDate), $createDate);
+            $max = $createDate[$maxPos];
+        }
+
         $lists = $this->getGenericLists(GenericList::OBJECT_LEASE_CLUE, $data['user_id']);
 
-        return $this->exportExcel($clues, $lists, $language, self::KEY_CLUE);
+        return $this->exportExcel(
+            $clues,
+            $lists,
+            $language,
+            self::KEY_CLUE,
+            $min,
+            $max
+        );
     }
 
     /**
@@ -268,9 +290,31 @@ class AdminLeaseExportController extends SalesRestController
                 $endDate
             );
 
+        $createDate = array();
+        foreach ($offers as $offer) {
+            $createDate[] = $offer->getCreationDate()->format('Ymd');
+        }
+
+        $min = '';
+        $max = '';
+        if ($createDate) {
+            $minPos = array_search(min($createDate), $createDate);
+            $min = $createDate[$minPos];
+
+            $maxPos = array_search(max($createDate), $createDate);
+            $max = $createDate[$maxPos];
+        }
+
         $lists = $this->getGenericLists(GenericList::OBJECT_LEASE_OFFER, $data['user_id']);
 
-        return $this->exportExcel($offers, $lists, $language, self::KEY_OFFER);
+        return $this->exportExcel(
+            $offers,
+            $lists,
+            $language,
+            self::KEY_OFFER,
+            $min,
+            $max
+        );
     }
 
     /**
@@ -443,9 +487,31 @@ class AdminLeaseExportController extends SalesRestController
                 $roomId
             );
 
+        $createDate = array();
+        foreach ($leases as $lease) {
+            $createDate[] = $lease->getCreationDate()->format('Ymd');
+        }
+
+        $min = '';
+        $max = '';
+        if ($createDate) {
+            $minPos = array_search(min($createDate), $createDate);
+            $min = $createDate[$minPos];
+
+            $maxPos = array_search(max($createDate), $createDate);
+            $max = $createDate[$maxPos];
+        }
+
         $lists = $this->getGenericLists(GenericList::OBJECT_LEASE, $data['user_id']);
 
-        return $this->exportExcel($leases, $lists, $language, self::KEY_LEASE);
+        return $this->exportExcel(
+            $leases,
+            $lists,
+            $language,
+            self::KEY_LEASE,
+            $min,
+            $max
+        );
     }
 
     /**
@@ -586,9 +652,33 @@ class AdminLeaseExportController extends SalesRestController
                 $leaseStatus
             );
 
+        $sendDate = array();
+        foreach ($bills as $bill) {
+            if ($bill->getSendDate()) {
+                $sendDate[] = $bill->getSendDate()->format('Ymd');
+            }
+        }
+
+        $min = '';
+        $max = '';
+        if ($sendDate) {
+            $minPos = array_search(min($sendDate), $sendDate);
+            $min = $sendDate[$minPos];
+
+            $maxPos = array_search(max($sendDate), $sendDate);
+            $max = $sendDate[$maxPos];
+        }
+
         $lists = $this->getGenericLists(GenericList::OBJECT_LEASE_BILL, $data['user_id']);
 
-        return $this->exportExcel($bills, $lists, $language, self::KEY_BILL);
+        return $this->exportExcel(
+            $bills,
+            $lists,
+            $language,
+            self::KEY_BILL,
+            $min,
+            $max
+        );
     }
 
     /**
@@ -690,6 +780,8 @@ class AdminLeaseExportController extends SalesRestController
      * @param $lists
      * @param $language
      * @param $key
+     * @param $min
+     * @param $max
      *
      * @return \Symfony\Component\HttpFoundation\StreamedResponse
      */
@@ -697,7 +789,9 @@ class AdminLeaseExportController extends SalesRestController
         $data,
         $lists,
         $language,
-        $key
+        $key,
+        $min,
+        $max
     ) {
         $phpExcelObject = new \PHPExcel();
         $phpExcelObject->getProperties()->setTitle('Sandbox Excel');
@@ -710,19 +804,19 @@ class AdminLeaseExportController extends SalesRestController
         switch ($key) {
             case self::KEY_CLUE:
                 $excelBody = $this->getExcelClueData($data, $lists, $language);
-                $fileName = 'clue';
+                $fileName = '线索'.$min.' - '.$max;
                 break;
             case self::KEY_OFFER:
                 $excelBody = $this->getExcelOfferData($data, $lists, $language);
-                $fileName = 'offer';
+                $fileName = '报价'.$min.' - '.$max;
                 break;
             case self::KEY_LEASE:
                 $excelBody = $this->getExcelLeaseData($data, $lists, $language);
-                $fileName = 'lease';
+                $fileName = '合同'.$min.' - '.$max;
                 break;
             case self::KEY_BILL:
                 $excelBody = $this->getExcelBillData($data, $lists, $language);
-                $fileName = 'bill';
+                $fileName = '账单'.$min.' - '.$max;
                 break;
             default:
                 $excelBody = array();
@@ -749,18 +843,12 @@ class AdminLeaseExportController extends SalesRestController
         // create the response
         $response = $this->get('phpexcel')->createStreamedResponse($writer);
 
-        $date = new \DateTime('now');
-        $stringDate = $date->format('Y-m-d H:i:s');
+        $filename = $fileName.'.xls';
 
-        // adding headers
-        $dispositionHeader = $response->headers->makeDisposition(
-            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-            $fileName.$stringDate.'.xls'
-        );
         $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
         $response->headers->set('Pragma', 'public');
         $response->headers->set('Cache-Control', 'maxage=1');
-        $response->headers->set('Content-Disposition', $dispositionHeader);
+        $response->headers->set('Content-Disposition', 'attachment;filename='.$filename);
 
         return $response;
     }
