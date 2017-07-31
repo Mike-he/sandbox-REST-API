@@ -148,7 +148,7 @@ class AdminLeaseExportController extends SalesRestController
 
         $createDate = array();
         foreach ($clues as $clue) {
-            $createDate[] = $clue->getCreationDate()->format('Y-m-d');
+            $createDate[] = $clue->getCreationDate()->format('Ymd');
         }
 
         $min = '';
@@ -293,7 +293,7 @@ class AdminLeaseExportController extends SalesRestController
 
         $createDate = array();
         foreach ($offers as $offer) {
-            $createDate[] = $offer->getCreationDate()->format('Y-m-d');
+            $createDate[] = $offer->getCreationDate()->format('Ymd');
         }
 
         $min = '';
@@ -490,7 +490,7 @@ class AdminLeaseExportController extends SalesRestController
 
         $createDate = array();
         foreach ($leases as $lease) {
-            $createDate[] = $lease->getCreationDate()->format('Y-m-d');
+            $createDate[] = $lease->getCreationDate()->format('Ymd');
         }
 
         $min = '';
@@ -655,7 +655,7 @@ class AdminLeaseExportController extends SalesRestController
 
         $sendDate = array();
         foreach ($bills as $bill) {
-            $sendDate[] = $bill->getSendDate() ? $bill->getSendDate()->format('Y-m-d') : null;
+            $sendDate[] = $bill->getSendDate() ? $bill->getSendDate()->format('Ymd') : null;
         }
 
         $min = '';
@@ -842,7 +842,7 @@ class AdminLeaseExportController extends SalesRestController
         // create the response
         $response = $this->get('phpexcel')->createStreamedResponse($writer);
 
-        $fileName = utf8_decode($fileName);
+        $fileName = ord($fileName);
         // adding headers
         $dispositionHeader = $response->headers->makeDisposition(
             ResponseHeaderBag::DISPOSITION_ATTACHMENT,
