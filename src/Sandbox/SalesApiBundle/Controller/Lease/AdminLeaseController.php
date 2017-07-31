@@ -796,6 +796,21 @@ class AdminLeaseController extends SalesRestController
             $lease->getId()
         );
 
+
+        if (!empty($bills['add'])) {
+            $logMessage = '从合同：'.$lease->getSerialNumber().' 创建账单';
+            foreach ($bills['add'] as $bill) {
+                $this->get('sandbox_api.admin_status_log')->autoLog(
+                    $this->getAdminId(),
+                    LeaseBill::STATUS_PENDING,
+                    $logMessage,
+                    AdminStatusLog::OBJECT_LEASE_BILL,
+                    $bill
+                );
+            }
+        }
+
+
         if ($lease->getStatus() == Lease::LEASE_STATUS_PERFORMING) {
             $userId = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:User\UserCustomer')
@@ -942,6 +957,20 @@ class AdminLeaseController extends SalesRestController
                 if ($userId) {
                     $this->editDoorAccess($lease, $userId);
                 }
+            }
+        }
+
+
+        if (!empty($bills['add'])) {
+            $logMessage = '从合同：'.$lease->getSerialNumber().' 创建账单';
+            foreach ($bills['add'] as $bill) {
+                $this->get('sandbox_api.admin_status_log')->autoLog(
+                    $this->getAdminId(),
+                    LeaseBill::STATUS_PENDING,
+                    $logMessage,
+                    AdminStatusLog::OBJECT_LEASE_BILL,
+                    $bill
+                );
             }
         }
 
