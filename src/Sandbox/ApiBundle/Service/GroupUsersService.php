@@ -19,7 +19,7 @@ class GroupUsersService
 
     /**
      * @param $em
-     * @param $group
+     * @param $groupId
      * @param $user
      * @param $type
      * @param $start
@@ -29,7 +29,7 @@ class GroupUsersService
      */
     public function storeGroupUser(
         $em,
-        $group,
+        $groupId,
         $user,
         $type,
         $start = null,
@@ -42,7 +42,7 @@ class GroupUsersService
                 ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
                 ->findBy(
                     array(
-                        'groupId' => $group,
+                        'groupId' => $groupId,
                         'userId' => $user,
                         'type' => $type,
                         'orderNumber' => $orderNumber,
@@ -51,7 +51,7 @@ class GroupUsersService
 
             $group = $this->container->get('doctrine')
                 ->getRepository('SandboxApiBundle:User\UserGroup')
-                ->find($group);
+                ->find($groupId);
 
             $customer = $this->container->get('doctrine')
                 ->getRepository('SandboxApiBundle:User\UserCustomer')
@@ -66,7 +66,7 @@ class GroupUsersService
                 ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
                 ->findBy(
                     array(
-                        'groupId' => $group,
+                        'groupId' => $groupId,
                         'customerId' => $customerId,
                         'type' => $type,
                         'orderNumber' => $orderNumber,
@@ -76,7 +76,7 @@ class GroupUsersService
 
         if (empty($groupUsers) || is_null($groupUsers)) {
             $groupUser = new UserGroupHasUser();
-            $groupUser->setGroupId($group);
+            $groupUser->setGroupId($groupId);
             $groupUser->setUserId($user);
             $groupUser->setType($type);
             $groupUser->setStartDate($start);

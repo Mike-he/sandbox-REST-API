@@ -453,6 +453,13 @@ class AdminLeaseBillController extends SalesRestController
      *    description="page number"
      * )
      *
+     *  @Annotations\QueryParam(
+     *    name="type",
+     *    default=null,
+     *    nullable=true,
+     *    description="bill type"
+     * )
+     *
      * @Route("/leases/{id}/bills")
      * @Method({"GET"})
      *
@@ -474,18 +481,15 @@ class AdminLeaseBillController extends SalesRestController
         $lease = $this->getDoctrine()->getRepository('SandboxApiBundle:Lease\Lease')->find($id);
         $this->throwNotFoundIfNull($lease, CustomErrorMessagesConstants::ERROR_LEASE_NOT_FOUND_MESSAGE);
 
-        $status = array(
-            LeaseBill::STATUS_UNPAID,
-            LeaseBill::STATUS_PAID,
-            LeaseBill::STATUS_CANCELLED,
-            LeaseBill::STATUS_VERIFY,
-        );
+        $type = $paramFetcher->get('type');
+        $status = [];
 
         $bills = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
             ->findBills(
                 $lease,
-                $status
+                $status,
+                $type
             );
 
         $bills = $this->get('serializer')->serialize(
