@@ -266,7 +266,7 @@ client:
     balance: 账户余额
     my_order: 我的订单
     my_lease: 合同及账单
-    my_long_term_appointment: 长租申请
+    my_long_term_appointment: 我的申请
     my_shop_order: 店铺订单
     my_activity_order: 活动订单
     my_room: 我的房间
