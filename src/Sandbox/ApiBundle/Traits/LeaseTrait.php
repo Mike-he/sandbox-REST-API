@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Traits;
 
 use Sandbox\ApiBundle\Constants\LeaseConstants;
+use Sandbox\ApiBundle\Entity\Admin\AdminStatusLog;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseRentTypes;
@@ -189,6 +190,7 @@ trait LeaseTrait
         $bills = $em->getRepository('SandboxApiBundle:Lease\LeaseBill')
             ->getNeedAutoPushBills($lease, $date);
 
+        $logMessage = '自动推送账单';
         foreach ($bills as $bill) {
             $bill->setStatus(LeaseBill::STATUS_UNPAID);
             $bill->setRevisedAmount($bill->getAmount());
@@ -197,6 +199,16 @@ trait LeaseTrait
 
             $em->persist($bill);
             $em->flush();
+
+            $this->getContainer()
+                ->get('sandbox_api.admin_status_log')
+                ->autoLog(
+                    1,
+                    LeaseBill::STATUS_UNPAID,
+                    $logMessage,
+                    AdminStatusLog::OBJECT_LEASE_BILL,
+                    $bill->getId()
+                );
 
             $billsAmount = 1;
             $leaseId = $lease->getId();

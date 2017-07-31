@@ -8,6 +8,7 @@ use Sandbox\ApiBundle\Constants\LeaseConstants;
 use Sandbox\ApiBundle\Controller\Lease\LeaseController;
 use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Admin\AdminStatusLog;
 use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentServiceBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBillOfflineTransfer;
@@ -356,6 +357,15 @@ class AdminLeaseBillController extends LeaseController
             $bill->setInvoiced(true);
             $em->flush();
         }
+
+        $logMessage = '确认收款';
+        $this->get('sandbox_api.admin_status_log')->autoLog(
+            $this->getAdminId(),
+            LeaseBill::STATUS_PAID,
+            $logMessage,
+            AdminStatusLog::OBJECT_LEASE_BILL,
+            $bill->getId()
+        );
 
         return new View();
     }

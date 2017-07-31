@@ -7,6 +7,7 @@ use Rs\Json\Patch;
 use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
+use Sandbox\ApiBundle\Entity\Admin\AdminStatusLog;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBillOfflineTransfer;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBillTransferAttachment;
@@ -455,6 +456,15 @@ class ClientLeaseBillController extends PaymentController
         $em->persist($bill);
         $em->flush();
 
+        $logMessage = '使用 销售方收款方式 支付账单';
+        $this->get('sandbox_api.admin_status_log')->autoLog(
+            $this->getUserId(),
+            LeaseBill::STATUS_VERIFY,
+            $logMessage,
+            AdminStatusLog::OBJECT_LEASE_BILL,
+            $bill->getId()
+        );
+
         return new View();
     }
 
@@ -623,6 +633,16 @@ class ClientLeaseBillController extends PaymentController
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();
+
+
+        $logMessage = '使用 线下汇款 支付账单';
+        $this->get('sandbox_api.admin_status_log')->autoLog(
+            $this->getUserId(),
+            LeaseBill::STATUS_VERIFY,
+            $logMessage,
+            AdminStatusLog::OBJECT_LEASE_BILL,
+            $bill->getId()
+        );
 
         return new View();
     }

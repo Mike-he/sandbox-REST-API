@@ -8,6 +8,7 @@ use Sandbox\ApiBundle\Constants\BundleConstants;
 use Sandbox\ApiBundle\Constants\DoorAccessConstants;
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Sandbox\ApiBundle\Controller\Door\DoorController;
+use Sandbox\ApiBundle\Entity\Admin\AdminStatusLog;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\MembershipCard\MembershipCard;
@@ -1732,7 +1733,7 @@ class PaymentController extends DoorController
             );
         $this->throwNotFoundIfNull($bill, self::NOT_FOUND_MESSAGE);
 
-        $drawee = $bill->getLease()->getDrawee()->getId();
+//        $drawee = $bill->getLease()->getDrawee()->getId();
 
         /** @var Lease $lease */
         $lease = $bill->getLease();
@@ -1745,7 +1746,7 @@ class PaymentController extends DoorController
         $bill->setStatus(LeaseBill::STATUS_PAID);
         $bill->setPaymentDate(new \DateTime());
         $bill->setPayChannel($channel);
-        $bill->setDrawee($drawee);
+        $bill->setDrawee($customer->getUserId());
         $bill->setCustomerId($customer->getId());
 
         // add invoice amount
@@ -1786,6 +1787,18 @@ class PaymentController extends DoorController
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();
+
+        $payment = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Payment\Payment')
+            ->findOneBy(array('channel'=> $channel));
+        $logMessage = '使用 '.$payment->getName().' 支付账单';
+        $this->get('sandbox_api.admin_status_log')->autoLog(
+            $userId,
+            LeaseBill::STATUS_PAID,
+            $logMessage,
+            AdminStatusLog::OBJECT_LEASE_BILL,
+            $bill->getId()
+        );
 
         return $bill;
     }

@@ -6,6 +6,7 @@ use Knp\Component\Pager\Paginator;
 use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
 use Sandbox\ApiBundle\Constants\LeaseConstants;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Admin\AdminStatusLog;
 use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentServiceBill;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Log\Log;
@@ -631,6 +632,15 @@ class AdminLeaseBillController extends SalesRestController
         $em->persist($bill);
         $em->flush();
 
+        $logMessage = '推送账单';
+        $this->get('sandbox_api.admin_status_log')->autoLog(
+            $this->getAdminId(),
+            LeaseBill::STATUS_UNPAID,
+            $logMessage,
+            AdminStatusLog::OBJECT_LEASE_BILL,
+            $id
+        );
+
         // generate log
         $this->generateAdminLogs(array(
             'logModule' => Log::MODULE_LEASE,
@@ -800,6 +810,15 @@ class AdminLeaseBillController extends SalesRestController
                 $invoiced
             );
         }
+
+        $logMessage = '确认收款';
+        $this->get('sandbox_api.admin_status_log')->autoLog(
+            $this->getAdminId(),
+            LeaseBill::STATUS_PAID,
+            $logMessage,
+            AdminStatusLog::OBJECT_LEASE_BILL,
+            $id
+        );
 
         // generate log
         $this->generateAdminLogs(array(
