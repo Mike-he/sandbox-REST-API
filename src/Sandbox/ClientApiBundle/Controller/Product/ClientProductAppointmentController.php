@@ -89,6 +89,17 @@ class ClientProductAppointmentController extends ProductController
                 $offset
             );
 
+        foreach ($appointments as $appointment) {
+            $product = $appointment->getProduct();
+            $productRentSet = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\ProductRentSet')
+                ->findOneBy(array(
+                    'product' => $product,
+                    'status' => true,
+                ));
+            $product->setRentSet($productRentSet);
+        }
+
         $view = new View($appointments);
         $view->setSerializationContext(SerializationContext::create()->setGroups(['client_appointment_list']));
 
