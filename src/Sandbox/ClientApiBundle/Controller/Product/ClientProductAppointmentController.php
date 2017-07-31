@@ -5,6 +5,7 @@ namespace Sandbox\ClientApiBundle\Controller\Product;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Controller\Product\ProductController;
 use Sandbox\ApiBundle\Entity\Admin\AdminRemark;
+use Sandbox\ApiBundle\Entity\Admin\AdminStatusLog;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Lease\LeaseClue;
 use Sandbox\ApiBundle\Entity\Product\Product;
@@ -338,6 +339,15 @@ class ClientProductAppointmentController extends ProductController
             $building->getCompanyId(),
             $message,
             AdminRemark::OBJECT_LEASE_CLUE,
+            $leaseClue->getId()
+        );
+
+        $logMessage = '申请线索';
+        $this->get('sandbox_api.admin_status_log')->autoLog(
+            $this->getUserId(),
+            LeaseClue::LEASE_CLUE_STATUS_CLUE,
+            $logMessage,
+            AdminStatusLog::OBJECT_LEASE_CLUE,
             $leaseClue->getId()
         );
 

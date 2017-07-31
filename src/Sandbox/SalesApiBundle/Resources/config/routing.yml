@@ -213,3 +213,9 @@ sandbox_admin_api_lease_pdf:
     resource: "@SandboxSalesApiBundle/Controller/Pdf/AdminPdfController.php"
     type:     annotation
     prefix:   /admin
+
+# Admin pdf /sales/admin/status/log
+sandbox_admin_api_admin_status_log:
+    resource: "@SandboxSalesApiBundle/Controller/Admin/AdminStatusLogController.php"
+    type:     annotation
+    prefix:   /admin
