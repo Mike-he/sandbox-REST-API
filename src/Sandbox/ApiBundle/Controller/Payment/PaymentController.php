@@ -1315,7 +1315,8 @@ class PaymentController extends DoorController
 
         $startDate = $this->getLastMembershipOrderEndDate($userId, $card);
         $endDate = clone $startDate;
-        $endDate = $endDate->modify("+$validPeriod $unit");
+        $endDate->modify("+$validPeriod $unit");
+        $endDate->modify('-1 second');
 
         $order = new MembershipOrder();
         $order->setUser($userId);
@@ -1407,15 +1408,7 @@ class PaymentController extends DoorController
 
         $endDate = $lastMembershipOrder ? $lastMembershipOrder->getEndDate() : $now;
 
-//        if (is_null($lastMembershipOrder)) {
-//            return $now;
-//        }
-
-//        $endDate = $lastMembershipOrder->getEndDate();
-
-//        if ($now > $endDate) {
-//            return $now;
-//        }
+        $endDate->setTime('00', '00', '00');
 
         return $endDate;
     }
