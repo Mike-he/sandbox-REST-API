@@ -796,7 +796,6 @@ class AdminLeaseController extends SalesRestController
             $lease->getId()
         );
 
-
         if (!empty($bills['add'])) {
             $logMessage = '从合同：'.$lease->getSerialNumber().' 创建账单';
             foreach ($bills['add'] as $bill) {
@@ -809,7 +808,6 @@ class AdminLeaseController extends SalesRestController
                 );
             }
         }
-
 
         if ($lease->getStatus() == Lease::LEASE_STATUS_PERFORMING) {
             $userId = $this->getDoctrine()
@@ -959,7 +957,6 @@ class AdminLeaseController extends SalesRestController
                 }
             }
         }
-
 
         if (!empty($bills['add'])) {
             $logMessage = '从合同：'.$lease->getSerialNumber().' 创建账单';
