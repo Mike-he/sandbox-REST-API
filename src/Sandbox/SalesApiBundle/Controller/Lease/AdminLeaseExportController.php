@@ -16,7 +16,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Symfony\Component\HttpKernel\Exception\PreconditionFailedHttpException;
 use FOS\RestBundle\Controller\Annotations;
@@ -655,7 +654,9 @@ class AdminLeaseExportController extends SalesRestController
 
         $sendDate = array();
         foreach ($bills as $bill) {
-            $sendDate[] = $bill->getSendDate() ? $bill->getSendDate()->format('Ymd') : null;
+            if ($bill->getSendDate()) {
+                $sendDate[] = $bill->getSendDate()->format('Ymd');
+            }
         }
 
         $min = '';
@@ -843,7 +844,6 @@ class AdminLeaseExportController extends SalesRestController
         $response = $this->get('phpexcel')->createStreamedResponse($writer);
 
         $filename = $fileName.'.xls';
-//        $filename = urlencode($fileName.'.xls');
 
         $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
         $response->headers->set('Pragma', 'public');
