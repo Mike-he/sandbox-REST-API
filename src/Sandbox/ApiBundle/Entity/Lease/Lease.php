@@ -132,7 +132,7 @@ class Lease
      *
      * @ORM\Column(name="lessee_type", type="string", length=40)
      *
-     * @Serializer\Groups({"main", "log"})
+     * @Serializer\Groups({"main", "log", "lease_list"})
      */
     private $lesseeType;
 
@@ -141,7 +141,7 @@ class Lease
      *
      * @ORM\Column(name="lessee_enterprise", type="integer", length=20, nullable=true)
      *
-     * @Serializer\Groups({"main", "log"})
+     * @Serializer\Groups({"main", "log", "lease_list"})
      */
     private $lesseeEnterprise;
 
@@ -150,7 +150,7 @@ class Lease
      *
      * @ORM\Column(name="lessee_customer", type="integer", length=20)
      *
-     * @Serializer\Groups({"main", "log"})
+     * @Serializer\Groups({"main", "log", "lease_list"})
      */
     private $lesseeCustomer;
 
