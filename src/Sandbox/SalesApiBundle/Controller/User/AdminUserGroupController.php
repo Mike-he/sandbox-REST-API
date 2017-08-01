@@ -61,9 +61,11 @@ class AdminUserGroupController extends SalesRestController
             );
 
         $type = array(
-                UserGroupHasUser::TYPE_CARD,
-                UserGroupHasUser::TYPE_ADD,
-            );
+            UserGroupHasUser::TYPE_CARD,
+            UserGroupHasUser::TYPE_ADD,
+            UserGroupHasUser::TYPE_ORDER,
+            UserGroupHasUser::TYPE_LEASE,
+        );
         foreach ($userGroups as $userGroup) {
             if ($userGroup->getType() == UserGroup::TYPE_CARD) {
                 $buildingIds = $this->getDoctrine()
