@@ -9,13 +9,16 @@ RUN apt-get upgrade -y
 # Install tools
 RUN apt-get install -y vim cron wget git nginx php5-fpm php5-mysql php5-curl php5-common php5-redis php5-gd libxrender1 fonts-wqy-zenhei \
   && rm -fr /var/lib/apt/lists/*
-  
-# Remove default nginx conf
-RUN rm -rf /etc/nginx/sites-available/default
 
 # Copy composer on system and install it globally
 COPY data/composer.phar /usr/local/bin/composer
 RUN chmod +x /usr/local/bin/composer
+  
+# Remove default nginx conf
+RUN rm -rf /etc/nginx/sites-available/default
+
+# Copy Nginx conf
+COPY data/sandbox.conf /etc/nginx/conf.d/sandbox.conf
 
 # Copy php-fpm conf
 COPY data/www.conf /etc/php5/fpm/pool.d/www.conf
@@ -31,9 +34,6 @@ RUN chmod +x /usr/bin/wkhtmltopdf /usr/bin/wkhtmltoimage
 COPY data/entrypoint.sh /root/entrypoint.sh
 RUN chown root:root /root/entrypoint.sh
 RUN chmod +x /root/entrypoint.sh
-
-# Create symfony cache and logs dir
-RUN mkdir /var/www/cache /var/www/logs
 
 # Copy code
 RUN mkdir /var/www/sandbox-REST-API
