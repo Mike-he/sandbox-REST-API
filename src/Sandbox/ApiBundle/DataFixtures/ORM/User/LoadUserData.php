@@ -21,7 +21,7 @@ class LoadUserData extends AbstractFixture implements OrderedFixtureInterface
         $user1->setXmppUsername('1000001');
         $user1->setPassword('202CB962AC59075B964B07152D234B70');
         $user1->setEmail('mike.he@sandbox3.cn');
-        $user1->setPhone('18621316860');
+        $user1->setPhone('18621316861');
         $user1->setPhoneCode('+86');
         $user1->setBanned(0);
         $user1->setCreationDate($now);
