@@ -545,7 +545,17 @@ class ClientLeaseBillController extends PaymentController
                 SalesCompanyServiceInfos::TRADE_TYPE_LONGTERM
             );
 
-        $drawee = $bill->getDrawee() ? $bill->getDrawee() : $bill->getLease()->getDrawee()->getId();
+        if ($bill->getDrawee()) {
+            $drawee = $bill->getDrawee();
+        }else {
+            $leaseCustomer = $bill->getLease()->getLesseeCustomer();
+            $customer = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserCustomer')
+                ->find($leaseCustomer);
+
+            $drawee = $customer->getUserId();
+        }
+
 
         $attachment = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\RoomAttachmentBinding')
