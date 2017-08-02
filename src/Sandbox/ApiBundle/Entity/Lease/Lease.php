@@ -150,7 +150,7 @@ class Lease
      *
      * @ORM\Column(name="lessee_customer", type="integer", length=20)
      *
-     * @Serializer\Groups({"main", "log", "lease_list"})
+     * @Serializer\Groups({"main", "log", "lease_list", "lease_bill"})
      */
     private $lesseeCustomer;
 
