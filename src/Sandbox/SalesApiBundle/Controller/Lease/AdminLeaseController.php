@@ -798,13 +798,34 @@ class AdminLeaseController extends SalesRestController
 
         if (!empty($bills['add'])) {
             $logMessage = '从合同：'.$lease->getSerialNumber().' 创建账单';
-            foreach ($bills['add'] as $bill) {
+            $leaseBills = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+                ->findBy(array(
+                    'status' => LeaseBill::STATUS_PENDING,
+                    'lease' => $lease,
+                ));
+
+            $billIds = [];
+            foreach ($leaseBills as $leaseBill) {
+                $billIds[] = $leaseBill->getId();
+            }
+
+            if (!empty($bills['edit'])) {
+                $editIds = [];
+                foreach ($bills['edit'] as $edit) {
+                    $editIds[] = $edit['id'];
+                }
+
+                $billIds = array_diff($billIds, $editIds);
+            }
+
+            foreach ($billIds as $billId) {
                 $this->get('sandbox_api.admin_status_log')->autoLog(
                     $this->getAdminId(),
                     LeaseBill::STATUS_PENDING,
                     $logMessage,
                     AdminStatusLog::OBJECT_LEASE_BILL,
-                    $bill
+                    $billId
                 );
             }
         }
@@ -960,13 +981,34 @@ class AdminLeaseController extends SalesRestController
 
         if (!empty($bills['add'])) {
             $logMessage = '从合同：'.$lease->getSerialNumber().' 创建账单';
-            foreach ($bills['add'] as $bill) {
+            $leaseBills = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+                ->findBy(array(
+                    'status' => LeaseBill::STATUS_PENDING,
+                    'lease' => $lease,
+                ));
+
+            $billIds = [];
+            foreach ($leaseBills as $leaseBill) {
+                $billIds[] = $leaseBill->getId();
+            }
+
+            if (!empty($bills['edit'])) {
+                $editIds = [];
+                foreach ($bills['edit'] as $edit) {
+                    $editIds[] = $edit['id'];
+                }
+
+                $billIds = array_diff($billIds, $editIds);
+            }
+
+            foreach ($billIds as $billId) {
                 $this->get('sandbox_api.admin_status_log')->autoLog(
                     $this->getAdminId(),
                     LeaseBill::STATUS_PENDING,
                     $logMessage,
                     AdminStatusLog::OBJECT_LEASE_BILL,
-                    $bill
+                    $billId
                 );
             }
         }

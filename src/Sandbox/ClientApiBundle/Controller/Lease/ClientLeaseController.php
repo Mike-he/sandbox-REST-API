@@ -112,6 +112,12 @@ class ClientLeaseController extends SandboxRestController
 
         $this->throwNotFoundIfNull($lease, self::NOT_FOUND_MESSAGE);
 
+        $lesseeCustomer = $lease->getLesseeCustomer();
+        $customer = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->find($lesseeCustomer);
+        $lease->setLesseeCustomer($customer->getUserId());
+
         $bills = $this->getLeaseBillRepo()
             ->findBy(array(
                 'lease' => $lease,
