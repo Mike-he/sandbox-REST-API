@@ -2,6 +2,8 @@
 
 cd /var/www/sandbox-REST-API
 
+git pull
+
 cp app/config/parameters_dev.yml.dist app/config/parameters.yml
 
 # Update vendor of sandbox_app
