@@ -2,6 +2,8 @@
 
 cd /var/www/sandbox-REST-API
 
+cp app/config/parameters_dev.yml.dist app/config/parameters.yml
+
 # Update vendor of sandbox_app
 #composer dump-autoload --optimize
 
@@ -16,8 +18,10 @@ setfacl -R -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX app/cache app/logs
 
 chmod o+rwx app/cache -R
 chmod o+rwx app/logs -R
-chmod o+rwx /data/openfire -R
 
+mkdir /data
+mkdir /data/openfire
+chmod o+rwx /data/openfire -R
 cp -r /var/www/sandbox-REST-API/web/image/ /data/openfire/
 
 # Startup

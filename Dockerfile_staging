@@ -39,8 +39,6 @@ RUN chmod +x /root/entrypoint.sh
 RUN mkdir /var/www/sandbox-REST-API
 COPY / /var/www/sandbox-REST-API/
 
-RUN rm -rf /var/www/sandbox-REST-API/data
-
 WORKDIR /var/www
 VOLUME /var/www
 EXPOSE 9000 80
