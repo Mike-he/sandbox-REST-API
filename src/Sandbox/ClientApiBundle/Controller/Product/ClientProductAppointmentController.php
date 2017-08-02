@@ -320,8 +320,8 @@ class ClientProductAppointmentController extends ProductController
 
         $productRentSet = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Product\ProductRentSet')
-            ->findOneBy(array('product'=> $product));
-        
+            ->findOneBy(array('product' => $product));
+
         $customerId = $this->get('sandbox_api.sales_customer')->createCustomer(
             $this->getUserId(),
             $building->getCompanyId()

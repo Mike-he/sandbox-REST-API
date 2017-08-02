@@ -18,7 +18,11 @@ setfacl -R -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX app/cache app/logs
 
 chmod o+rwx app/cache -R
 chmod o+rwx app/logs -R
+
+mkdir /data
+mkdir /data/openfire
 chmod o+rwx /data/openfire -R
+cp -r /var/www/sandbox-REST-API/web/image/ /data/openfire/
 
 # Startup
 /etc/init.d/cron start
