@@ -1220,28 +1220,42 @@ class AdminLeaseController extends SalesRestController
         $bills,
         $lease
     ) {
+        $amount = 0;
         if (!empty($bills['add'])) {
-            $this->addBills($bills['add'], $lease);
+            $addAmount = $this->addBills($bills['add'], $lease);
+
+            $amount = $amount + $addAmount;
         }
 
         if (!empty($bills['edit'])) {
-            $this->editBills($bills['edit'], $lease);
+            $editAmount = $this->editBills($bills['edit'], $lease);
+
+            $amount = $amount + $editAmount;
         }
 
         if (!empty($bills['remove'])) {
-            $this->removeBills($bills['remove'], $lease);
+            $removeAmount = $this->removeBills($bills['remove'], $lease);
+
+            $amount = $amount - $removeAmount;
+        }
+
+        if ($lease->getStatus() !== Lease::LEASE_STATUS_DRAFTING && $amount <= 0) {
+            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_KEEP_AT_LEAST_ONE_BILL_MESSAGE);
         }
     }
 
     /**
      * @param $addBills
      * @param Lease $lease
+     *
+     * @return int
      */
     private function addBills(
         $addBills,
         $lease
     ) {
         $em = $this->getDoctrine()->getManager();
+        $addAmount = 0;
         foreach ($addBills as $addBill) {
             if ($lease->getStatus() !== Lease::LEASE_STATUS_DRAFTING) {
                 $this->checkLeaseBillAttributesIsValid($addBill);
@@ -1268,17 +1282,24 @@ class AdminLeaseController extends SalesRestController
             $bill->setLease($lease);
 
             $em->persist($bill);
+
+            $addAmount += 1;
         }
+
+        return $addAmount;
     }
 
     /**
      * @param  $editBills
      * @param Lease $lease
+     *
+     * @return int
      */
     private function editBills(
         $editBills,
         $lease
     ) {
+        $editAmount = 0;
         foreach ($editBills as $editBill) {
             if (empty($editBill['id'])) {
                 throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILLS_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE);
@@ -1309,7 +1330,11 @@ class AdminLeaseController extends SalesRestController
                 $bill->setType(LeaseBill::TYPE_LEASE);
                 $bill->setStatus(LeaseBill::STATUS_PENDING);
             }
+
+            $editAmount += 1;
         }
+
+        return $editAmount;
     }
 
     /**
