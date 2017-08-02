@@ -20,6 +20,8 @@ chmod o+rwx app/cache -R
 chmod o+rwx app/logs -R
 chmod o+rwx /data/openfire -R
 
+cp -r /var/www/sandbox-REST-API/web/image/ /data/openfire/
+
 # Startup
 /etc/init.d/cron start
 /etc/init.d/php5-fpm start
