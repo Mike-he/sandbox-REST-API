@@ -545,7 +545,16 @@ class ClientLeaseBillController extends PaymentController
                 SalesCompanyServiceInfos::TRADE_TYPE_LONGTERM
             );
 
-        $drawee = $bill->getDrawee() ? $bill->getDrawee() : $bill->getLease()->getDrawee()->getId();
+        if ($bill->getDrawee()) {
+            $drawee = $bill->getDrawee();
+        } else {
+            $leaseCustomer = $bill->getLease()->getLesseeCustomer();
+            $customer = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserCustomer')
+                ->find($leaseCustomer);
+
+            $drawee = $customer->getUserId();
+        }
 
         $attachment = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\RoomAttachmentBinding')
@@ -633,7 +642,6 @@ class ClientLeaseBillController extends PaymentController
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();
-
 
         $logMessage = '使用 线下汇款 支付账单';
         $this->get('sandbox_api.admin_status_log')->autoLog(
