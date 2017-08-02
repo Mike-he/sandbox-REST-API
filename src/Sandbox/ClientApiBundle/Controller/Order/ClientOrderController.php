@@ -2051,6 +2051,24 @@ class ClientOrderController extends OrderController
         if (is_null($base) || empty($base)) {
             return;
         }
+
+        $userArray = $this->getUserArrayIfAuthed(
+            $base,
+            $newUser,
+            $userArray
+        );
+
+        // set room access
+        if (!empty($userArray)) {
+            $this->setDoorAccessForMembershipCard(
+                $buildingId,
+                [$newUser],
+                $order->getStartDate(),
+                $order->getEndDate(),
+                $order->getOrderNumber()
+            );
+        }
+
         $roomId = $order->getProduct()->getRoom()->getId();
         $roomDoors = $this->getRepo('Room\RoomDoors')->findBy(['room' => $roomId]);
         if (empty($roomDoors)) {
@@ -2072,13 +2090,6 @@ class ClientOrderController extends OrderController
         );
         $em->flush();
 
-        $userArray = $this->getUserArrayIfAuthed(
-            $base,
-            $newUser,
-            $userArray
-        );
-
-        // set room access
         if (!empty($userArray)) {
             $this->callSetRoomOrderCommand(
                 $base,
@@ -2087,14 +2098,6 @@ class ClientOrderController extends OrderController
                 $order->getId(),
                 $order->getStartDate(),
                 $order->getEndDate()
-            );
-
-            $this->setDoorAccessForMembershipCard(
-                $buildingId,
-                [$newUser],
-                $order->getStartDate(),
-                $order->getEndDate(),
-                $order->getOrderNumber()
             );
         }
 
@@ -2106,7 +2109,7 @@ class ClientOrderController extends OrderController
     }
 
     /**
-     * @param $order
+     * @param ProductOrder $order
      * @param $currentUser
      * @param $orderUser
      */
@@ -2142,6 +2145,16 @@ class ClientOrderController extends OrderController
         if (is_null($base) || empty($base)) {
             return;
         }
+
+        // delete membership access
+        $userGroupUser = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
+            ->findOneBy(array(
+                'userId' => $currentUser,
+                'orderNumber' => $order->getOrderNumber(),
+            ));
+        $em->remove($userGroupUser);
+        $em->flush();
 
         $roomId = $order->getProduct()->getRoom()->getId();
         $roomDoors = $this->getRepo('Room\RoomDoors')->findBy(['room' => $roomId]);
