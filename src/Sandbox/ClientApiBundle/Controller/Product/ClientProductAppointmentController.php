@@ -318,6 +318,10 @@ class ClientProductAppointmentController extends ProductController
         /** @var Product $product */
         $building = $product->getRoom()->getBuilding();
 
+        $productRentSet = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\ProductRentSet')
+            ->findOneBy(array('product'=> $product));
+        
         $customerId = $this->get('sandbox_api.sales_customer')->createCustomer(
             $this->getUserId(),
             $building->getCompanyId()
@@ -339,6 +343,7 @@ class ClientProductAppointmentController extends ProductController
         $leaseClue->setEndDate($appointment->getEndRentDate());
         $leaseClue->setCycle($appointment->getRentTimeLength());
         $leaseClue->setProductAppointmentId($appointment->getId());
+        $leaseClue->setMonthlyRent($productRentSet->getBasePrice());
         $leaseClue->setStatus(LeaseClue::LEASE_CLUE_STATUS_CLUE);
         $em->persist($leaseClue);
         $em->flush();
