@@ -18,6 +18,8 @@ class ProductOrderExport
     const REFUND_AMOUNT = 'refund_amount';
     const ACTUAL_AMOUNT = 'actual_amount';
     const LEASING_TIME = 'leasing_time';
+    const START_TIME = 'start_time';
+    const END_TIME = 'end_time';
     const ORDER_TIME = 'order_time';
     const PAYMENT_TIME = 'payment_time';
     const ORDER_STATUS = 'status';
@@ -64,6 +66,8 @@ class ProductOrderExport
     const TRANS_PRODUCT_ORDER_HEADER_REFUND_AMOUNT = 'product_order.export_header.refund_amount';
     const TRANS_PRODUCT_ORDER_HEADER_ACTUAL_AMOUNT = 'product_order.export_header.actual_amount';
     const TRANS_PRODUCT_ORDER_HEADER_LEASING_TIME = 'product_order.export_header.leasing_time';
+    const TRANS_PRODUCT_ORDER_HEADER_START_TIME = 'product_order.export_header.start_time';
+    const TRANS_PRODUCT_ORDER_HEADER_END_TIME = 'product_order.export_header.end_time';
     const TRANS_PRODUCT_ORDER_HEADER_ORDER_TIME = 'product_order.export_header.order_time';
     const TRANS_PRODUCT_ORDER_HEADER_PAYMENT_TIME = 'product_order.export_header.payment_time';
     const TRANS_PRODUCT_ORDER_HEADER_ORDER_STATUS = 'product_order.export_header.status';

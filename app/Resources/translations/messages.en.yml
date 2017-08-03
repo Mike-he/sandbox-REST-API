@@ -108,6 +108,8 @@ product_order:
     refund_amount: Refund Amount
     actual_amount: Actual Amount
     leasing_time: Leasing Time
+    start_time: Start Time
+    end_time: End Time
     order_time: Order Creation
     payment_time: Payment Date
     status: Status
