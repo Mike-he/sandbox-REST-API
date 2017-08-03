@@ -39,9 +39,14 @@ RUN chmod +x /root/entrypoint.sh
 RUN mkdir /var/www/sandbox-REST-API
 COPY / /var/www/sandbox-REST-API/
 
+RUN mkdir /data && mkdir /data/openfire
+
+ENV TZ=Asia/Shanghai
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 WORKDIR /var/www
 VOLUME /var/www
-EXPOSE 9000 80
+EXPOSE 80
 
 # Run startup script
 ENTRYPOINT ["/root/entrypoint.sh"]
