@@ -14,15 +14,15 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 52 6    1 * *   root    test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.monthly )
 #
 
-*/5 * * * * php /var/www/sandbox-REST-API/app/console check:status
-20,50 * * * * php /var/www/sandbox-REST-API/app/console meeting:notification
-0 16 * * * php /var/www/sandbox-REST-API/app/console order:notification
-0 * * * * php /var/www/sandbox-REST-API/app/console access:check
-*/5 * * * * php /var/www/sandbox-REST-API/app/console check:shop
-30 1 * * * php /var/www/sandbox-REST-API/app/console sandbox:api-bundle:calculate:star
-30 1 * * * php /var/www/sandbox-REST-API/app/console sandbox:api-bundle:check_lease_bills
-30 1 * * * php /var/www/sandbox-REST-API/app/console sandbox:api-bundle:check_lease_maturity
-10 0 1 * * php /var/www/sandbox-REST-API/app/console create:short_rent_invoice
-15 0 1 * * php /var/www/sandbox-REST-API/app/console sandbox:api-bundle:set_finance_dashboard
-*/5 * * * * php /var/www/sandbox-REST-API/app/console sandbox:api-bundle:add_group_user_to_door
-30 0 * * * php /var/www/sandbox-REST-API/app/console sandbox:api-bundle:remove_group_user_to_doors
+*/5 * * * * root php /var/www/sandbox-REST-API/app/console check:status
+20,50 * * * * root php /var/www/sandbox-REST-API/app/console meeting:notification
+0 16 * * * root php /var/www/sandbox-REST-API/app/console order:notification
+0 * * * * root php /var/www/sandbox-REST-API/app/console access:check
+*/5 * * * * root php /var/www/sandbox-REST-API/app/console check:shop
+30 1 * * * root php /var/www/sandbox-REST-API/app/console sandbox:api-bundle:calculate:star
+30 1 * * * root php /var/www/sandbox-REST-API/app/console sandbox:api-bundle:check_lease_bills
+30 1 * * * root php /var/www/sandbox-REST-API/app/console sandbox:api-bundle:check_lease_maturity
+10 0 1 * * root php /var/www/sandbox-REST-API/app/console create:short_rent_invoice
+15 0 1 * * root php /var/www/sandbox-REST-API/app/console sandbox:api-bundle:set_finance_dashboard
+*/5 * * * * root php /var/www/sandbox-REST-API/app/console sandbox:api-bundle:add_group_user_to_door
+30 0 * * * root php /var/www/sandbox-REST-API/app/console sandbox:api-bundle:remove_group_user_to_doors
