@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ -z "$TZ" ]; then
+   TZ=Asia/Shanghai
+fi
+ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && echo "${TZ}" > /etc/timezone
+
 cd /var/www/sandbox-REST-API
 
 git pull
