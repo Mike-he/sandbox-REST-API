@@ -18,9 +18,6 @@ RUN mkdir /var/www/sandbox-REST-API && mkdir /data && mkdir /data/openfire
 
 COPY / /var/www/sandbox-REST-API/
 
-ENV TZ=Asia/Shanghai
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-
 WORKDIR /var/www
 VOLUME /var/www
 EXPOSE 80
