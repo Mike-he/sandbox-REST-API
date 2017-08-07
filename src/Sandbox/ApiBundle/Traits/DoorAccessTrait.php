@@ -251,7 +251,7 @@ trait DoorAccessTrait
 
             if ($periodArray['result'] != DoorAccessConstants::RESULT_OK) {
                 error_log('Door Access Error');
-            } elseif($base != 'http://140.207.168.90:6301/ADSWebService.asmx') {
+            } else {
                 $em = $this->getContainer()->get('doctrine')->getManager();
 
                 $departmentUser = $this->getContainer()
