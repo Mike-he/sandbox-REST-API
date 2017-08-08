@@ -412,7 +412,6 @@ class AdminLeaseBillController extends LeaseController
             foreach ($payments as $payment) {
                 $payChannel[$payment->getChannel()] = $payment->getName();
             }
-            $payChannel[LeaseBill::CHANNEL_SALES_OFFLINE] = '线下支付';
 
             $drawee = null;
             $account = null;
@@ -431,7 +430,7 @@ class AdminLeaseBillController extends LeaseController
                 'end_date' => $bill->getEndDate()->format('Y-m-d'),
                 'send_date' => $bill->getSendDate() ? $bill->getSendDate()->format('Y-m-d H:i:s') : '',
                 'payment_date' => $bill->getPaymentDate() ? $bill->getPaymentDate()->format('Y-m-d H:i:s') : '',
-                'amount' => '￥'.$bill->getAmount(),
+                'amount' => $bill->getAmount(),
                 'revised_amount' => $bill->getRevisedAmount() ? '￥'.$bill->getRevisedAmount() : '',
                 'status' => $status[$bill->getStatus()],
                 'collection_method' => $collectionMethod,

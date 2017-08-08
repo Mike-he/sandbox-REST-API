@@ -170,7 +170,13 @@ class Version920170717165529 extends AbstractMigration implements ContainerAware
                 ),
                 array(
                     'column' => 'start_date',
-                    'name' => '租用时间段',
+                    'name' => '租用开始时间',
+                    'default' => true,
+                    'required' => false,
+                ),
+                array(
+                    'column' => 'end_date',
+                    'name' => '租用结束时间',
                     'default' => true,
                     'required' => false,
                 ),
@@ -251,7 +257,13 @@ class Version920170717165529 extends AbstractMigration implements ContainerAware
             ),
             array(
                 'column' => 'start_date',
-                'name' => '租用时间段',
+                'name' => '租用开始时间',
+                'default' => true,
+                'required' => false,
+            ),
+            array(
+                'column' => 'end_date',
+                'name' => '租用结束时间',
                 'default' => true,
                 'required' => false,
             ),
@@ -350,7 +362,13 @@ class Version920170717165529 extends AbstractMigration implements ContainerAware
             ),
             array(
                 'column' => 'start_date',
-                'name' => '账单时间段',
+                'name' => '账单开始时间',
+                'default' => false,
+                'required' => false,
+            ),
+            array(
+                'column' => 'end_date',
+                'name' => '账单结束时间',
                 'default' => false,
                 'required' => false,
             ),

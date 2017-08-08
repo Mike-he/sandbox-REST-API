@@ -211,9 +211,9 @@ trait FinanceOfficialExportTraits
 
             $income = $actualAmount - $actualAmount * $event->getServiceFee() / 100;
 
-            $leasingTime = $event->getEvent()->getEventStartDate()->format('Y-m-d H:i:s')
-                .' - '
-                .$event->getEvent()->getEventEndDate()->format('Y-m-d H:i:s');
+            $startTime = $event->getEvent()->getEventStartDate()->format('Y-m-d H:i:s');
+
+            $endTime = $event->getEvent()->getEventEndDate()->format('Y-m-d H:i:s');
 
             $creationDate = $event->getCreationDate()->format('Y-m-d H:i:s');
 
@@ -253,7 +253,8 @@ trait FinanceOfficialExportTraits
                 null,
                 $income,
                 $commission,
-                $leasingTime,
+                $startTime,
+                $endTime,
                 $creationDate,
                 $payDate,
                 $status,
@@ -352,9 +353,9 @@ trait FinanceOfficialExportTraits
 
             $income = $actualAmount - $actualAmount * $order->getServiceFee() / 100;
 
-            $leasingTime = $order->getStartDate()->format('Y-m-d H:i:s')
-                .' - '
-                .$order->getEndDate()->format('Y-m-d H:i:s');
+            $startTime = $order->getStartDate()->format('Y-m-d H:i:s');
+
+            $endTime = $order->getEndDate()->format('Y-m-d H:i:s');
 
             $creationDate = $order->getCreationDate()->format('Y-m-d H:i:s');
 
@@ -422,7 +423,8 @@ trait FinanceOfficialExportTraits
                 $refundAmount,
                 $income,
                 $commission,
-                $leasingTime,
+                $startTime,
+                $endTime,
                 $creationDate,
                 $payDate,
                 $status,
@@ -530,9 +532,9 @@ trait FinanceOfficialExportTraits
                 $commission = $serviceBill->getAmount();
             }
 
-            $leasingTime = $longBill->getStartDate()->format('Y-m-d H:i:s')
-                .' - '
-                .$longBill->getEndDate()->format('Y-m-d H:i:s');
+            $startTime = $longBill->getStartDate()->format('Y-m-d H:i:s');
+
+            $endTime = $longBill->getEndDate()->format('Y-m-d H:i:s');
 
             $creationDate = $longBill->getCreationDate()->format('Y-m-d H:i:s');
 
@@ -580,7 +582,8 @@ trait FinanceOfficialExportTraits
                 null,
                 $income,
                 $commission,
-                $leasingTime,
+                $startTime,
+                $endTime,
                 $creationDate,
                 $payDate,
                 $status,
@@ -939,7 +942,8 @@ trait FinanceOfficialExportTraits
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_REFUND_AMOUNT, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ACTUAL_AMOUNT, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_COMMISSION, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_LEASING_TIME, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_START_TIME, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_END_TIME, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_TIME, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_PAYMENT_TIME, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_STATUS, array(), null, $language),
@@ -965,7 +969,8 @@ trait FinanceOfficialExportTraits
      * @param $refundAmount
      * @param $income
      * @param $commission
-     * @param $leasingTime
+     * @param $startTime
+     * @param $endTime
      * @param $creationDate
      * @param $payDate
      * @param $status
@@ -991,7 +996,8 @@ trait FinanceOfficialExportTraits
         $refundAmount,
         $income,
         $commission,
-        $leasingTime,
+        $startTime,
+        $endTime,
         $creationDate,
         $payDate,
         $status,
@@ -1016,7 +1022,8 @@ trait FinanceOfficialExportTraits
             ProductOrderExport::REFUND_AMOUNT => $refundAmount,
             ProductOrderExport::ACTUAL_AMOUNT => $income,
             ProductOrderExport::COMMISSION => $commission,
-            ProductOrderExport::LEASING_TIME => $leasingTime,
+            ProductOrderExport::START_TIME => $startTime,
+            ProductOrderExport::END_TIME => $endTime,
             ProductOrderExport::CREATION_DATE => $creationDate,
             ProductOrderExport::PAYMENT_TIME => $payDate,
             ProductOrderExport::ORDER_STATUS => $status,

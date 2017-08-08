@@ -189,7 +189,8 @@ trait FinanceSalesExportTraits
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_DISCOUNT_PRICE, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ACTUAL_AMOUNT, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_COMMISSION, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_LEASING_TIME, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_START_TIME, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_END_TIME, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_TIME, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_PAYMENT_TIME, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_STATUS, array(), null, $language),
@@ -399,9 +400,9 @@ trait FinanceSalesExportTraits
 
             $income = $actualAmount - $actualAmount * $order->getServiceFee() / 100;
 
-            $leasingTime = $order->getStartDate()->format('Y-m-d H:i:s')
-                .' - '
-                .$order->getEndDate()->format('Y-m-d H:i:s');
+            $startTime = $order->getStartDate()->format('Y-m-d H:i:s');
+
+            $endTime = $order->getEndDate()->format('Y-m-d H:i:s');
 
             $creationDate = $order->getCreationDate()->format('Y-m-d H:i:s');
 
@@ -435,7 +436,8 @@ trait FinanceSalesExportTraits
                 $actualAmount,
                 $income,
                 $commission,
-                $leasingTime,
+                $startTime,
+                $endTime,
                 $creationDate,
                 $payDate,
                 $status,
@@ -532,9 +534,9 @@ trait FinanceSalesExportTraits
 
             $income = $actualAmount - $actualAmount * $order->getServiceFee() / 100;
 
-            $leasingTime = $order->getStartDate()->format('Y-m-d H:i:s')
-                .' - '
-                .$order->getEndDate()->format('Y-m-d H:i:s');
+            $startTime = $order->getStartDate()->format('Y-m-d H:i:s');
+
+            $endTime = $order->getEndDate()->format('Y-m-d H:i:s');
 
             $creationDate = $order->getCreationDate()->format('Y-m-d H:i:s');
 
@@ -583,7 +585,8 @@ trait FinanceSalesExportTraits
                 $actualAmount,
                 $income,
                 $commission,
-                $leasingTime,
+                $startTime,
+                $endTime,
                 $creationDate,
                 $payDate,
                 $status,
@@ -691,9 +694,8 @@ trait FinanceSalesExportTraits
                 $commission = $serviceBill->getAmount();
             }
 
-            $leasingTime = $longBill->getStartDate()->format('Y-m-d H:i:s')
-                .' - '
-                .$longBill->getEndDate()->format('Y-m-d H:i:s');
+            $startTime = $longBill->getStartDate()->format('Y-m-d H:i:s');
+            $endTime = $longBill->getEndDate()->format('Y-m-d H:i:s');
 
             $creationDate = $longBill->getCreationDate()->format('Y-m-d H:i:s');
 
@@ -735,7 +737,8 @@ trait FinanceSalesExportTraits
                 $actualAmount,
                 $income,
                 $commission,
-                $leasingTime,
+                $startTime,
+                $endTime,
                 $creationDate,
                 $payDate,
                 $status,
@@ -763,7 +766,8 @@ trait FinanceSalesExportTraits
      * @param $actualAmount
      * @param $income
      * @param $commission
-     * @param $leasingTime
+     * @param $startTime
+     * @param $endTime
      * @param $creationDate
      * @param $payDate
      * @param $status
@@ -786,7 +790,8 @@ trait FinanceSalesExportTraits
         $actualAmount,
         $income,
         $commission,
-        $leasingTime,
+        $startTime,
+        $endTime,
         $creationDate,
         $payDate,
         $status,
@@ -808,7 +813,8 @@ trait FinanceSalesExportTraits
             ProductOrderExport::DISCOUNT_PRICE => $actualAmount,
             ProductOrderExport::ACTUAL_AMOUNT => $income,
             ProductOrderExport::COMMISSION => $commission,
-            ProductOrderExport::LEASING_TIME => $leasingTime,
+            ProductOrderExport::START_TIME => $startTime,
+            ProductOrderExport::END_TIME => $endTime,
             ProductOrderExport::CREATION_DATE => $creationDate,
             ProductOrderExport::PAYMENT_TIME => $payDate,
             ProductOrderExport::ORDER_STATUS => $status,

@@ -1783,7 +1783,7 @@ class PaymentController extends DoorController
 
         $payment = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Payment\Payment')
-            ->findOneBy(array('channel'=> $channel));
+            ->findOneBy(array('channel' => $channel));
         $logMessage = '使用 '.$payment->getName().' 支付账单';
         $this->get('sandbox_api.admin_status_log')->autoLog(
             $userId,

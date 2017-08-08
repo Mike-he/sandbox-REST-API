@@ -237,13 +237,13 @@ class ShopController extends ShopRestController
         $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow(1, $phpExcelObject->getActiveSheet()->getHighestRow(), $orderCount.'笔');
 
         $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow(0, $phpExcelObject->getActiveSheet()->getHighestRow() + 1, '总金销售额');
-        $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow(1, $phpExcelObject->getActiveSheet()->getHighestRow(), number_format($total, 2).'元');
+        $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow(1, $phpExcelObject->getActiveSheet()->getHighestRow(), number_format($total, 2));
 
         $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow(0, $phpExcelObject->getActiveSheet()->getHighestRow() + 1, '退款订单数量');
         $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow(1, $phpExcelObject->getActiveSheet()->getHighestRow(), $refundOrderCount.'笔');
 
         $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow(0, $phpExcelObject->getActiveSheet()->getHighestRow() + 1, '退款总金额');
-        $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow(1, $phpExcelObject->getActiveSheet()->getHighestRow(), $totalRefund.'元');
+        $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow(1, $phpExcelObject->getActiveSheet()->getHighestRow(), $totalRefund);
 
         $phpExcelObject->getActiveSheet()->insertNewRowBefore($phpExcelObject->getActiveSheet()->getHighestRow() + 1, 1);
         $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow(0, $phpExcelObject->getActiveSheet()->getHighestRow() + 1, '销售商品数表');
