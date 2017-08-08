@@ -597,6 +597,16 @@ class AdminLeaseExportController extends SalesRestController
      *    description="status of lease"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by building id"
+     * )
+     *
      * @Route("/lease/export/bills")
      * @Method({"GET"})
      *
@@ -617,6 +627,7 @@ class AdminLeaseExportController extends SalesRestController
         $payStartDate = $paramFetcher->get('pay_start_date');
         $payEndDate = $paramFetcher->get('pay_end_date');
         $status = $paramFetcher->get('status');
+        $building = $paramFetcher->get('building');
 
         if ($channel == LeaseBill::CHANNEL_SANDBOX) {
             $channels = array(
@@ -641,6 +652,7 @@ class AdminLeaseExportController extends SalesRestController
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
             ->findBillsForSales(
                 $data['company_id'],
+                $building,
                 $status,
                 $channels,
                 $keyword,
