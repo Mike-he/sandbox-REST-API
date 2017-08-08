@@ -89,8 +89,8 @@ class Version920170713072413 extends AbstractMigration implements ContainerAware
             ->findAll();
         foreach ($leases as $lease) {
             /**
-             * @var Lease $lease
-             * @var Room $room
+             * @var Lease
+             * @var Room  $room
              */
             $room = $lease->getProduct()->getRoom();
             $salesCompanyId = $room->getBuilding()->getCompanyId();
@@ -110,7 +110,7 @@ class Version920170713072413 extends AbstractMigration implements ContainerAware
             if ($status == Lease::LEASE_STATUS_EXPIRED) {
                 $lease->setStatus(Lease::LEASE_STATUS_CLOSED);
             }
-            
+
             if ($lease->getSupervisor()) {
                 $userId = $lease->getSupervisor()->getId();
                 $myCustomer = $em->getRepository('SandboxApiBundle:User\UserCustomer')

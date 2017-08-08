@@ -843,7 +843,8 @@ class ClientOrderController extends OrderController
                 $endDate,
                 $user,
                 $type,
-                $timeUnit
+                $timeUnit,
+                $basePrice
             );
 
             if (!empty($error)) {
