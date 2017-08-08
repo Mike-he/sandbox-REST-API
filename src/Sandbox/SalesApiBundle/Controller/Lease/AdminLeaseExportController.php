@@ -597,6 +597,16 @@ class AdminLeaseExportController extends SalesRestController
      *    description="status of lease"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by building id"
+     * )
+     *
      * @Route("/lease/export/bills")
      * @Method({"GET"})
      *
@@ -617,6 +627,7 @@ class AdminLeaseExportController extends SalesRestController
         $payStartDate = $paramFetcher->get('pay_start_date');
         $payEndDate = $paramFetcher->get('pay_end_date');
         $status = $paramFetcher->get('status');
+        $building = $paramFetcher->get('building');
 
         if ($channel == LeaseBill::CHANNEL_SANDBOX) {
             $channels = array(
@@ -641,6 +652,7 @@ class AdminLeaseExportController extends SalesRestController
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
             ->findBillsForSales(
                 $data['company_id'],
+                $building,
                 $status,
                 $channels,
                 $keyword,
@@ -976,7 +988,8 @@ class AdminLeaseExportController extends SalesRestController
                 'lessee_type' => $offer->getLesseeType() == LeaseOffer::LEASE_OFFER_LESSEE_TYPE_PERSONAL ? '个人承租' : '企业承租',
                 'lessee_enterprise' => $enterpriseName,
                 'lessee_customer' => $customer->getName(),
-                'start_date' => $startDate.' - '.$endDate,
+                'start_date' => $startDate,
+                'end_date' => $endDate,
                 'monthly_rent' => $offer->getMonthlyRent() ? $offer->getMonthlyRent().'元/月起' : '',
                 'deposit' => $offer->getDeposit() ? $offer->getDeposit().'元' : '',
                 'lease_rent_types' => $taxTypes,
@@ -1069,7 +1082,8 @@ class AdminLeaseExportController extends SalesRestController
                 'lessee_type' => $lease->getLesseeType() == Lease::LEASE_LESSEE_TYPE_PERSONAL ? '个人承租' : '企业承租',
                 'lessee_enterprise' => $enterpriseName,
                 'lessee_customer' => $customer ? $customer->getName() : '',
-                'start_date' => $startDate.' - '.$endDate,
+                'start_date' => $startDate,
+                'end_date' => $endDate,
                 'monthly_rent' => $lease->getMonthlyRent() ? $lease->getMonthlyRent().'元/月起' : '',
                 'deposit' => $lease->getDeposit() ? $lease->getDeposit().'元' : '',
                 'lease_rent_types' => $taxTypes,
@@ -1152,13 +1166,14 @@ class AdminLeaseExportController extends SalesRestController
                 'description' => $bill->getDescription(),
                 'amount' => $bill->getAmount(),
                 'invoice' => $invoice ? '包含发票' : '不包含发票',
-                'start_date' => $startDate.' - '.$endDate,
+                'start_date' => $startDate,
+                'end_date' => $endDate,
                 'drawee' => $drawee,
                 'order_method' => $bill->getOrderMethod() == LeaseBill::ORDER_METHOD_BACKEND ? '后台推送' : '自动推送',
                 'pay_channel' => $bill->getPayChannel() ? $payChannel[$bill->getPayChannel()] : '',
                 'send_date' => $bill->getSendDate() ? $bill->getSendDate()->format('Y-m-d H:i:s') : '',
                 'status' => $status[$bill->getStatus()],
-                'revised_amount' => $bill->getRevisedAmount() ? $bill->getRevisedAmount().'元' : '',
+                'revised_amount' => $bill->getRevisedAmount() ? $bill->getRevisedAmount() : '',
                 'remark' => $bill->getRemark(),
             );
 

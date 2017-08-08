@@ -397,7 +397,7 @@ class AdminTopUpOrderController extends PaymentController
                 'order_number' => $order->getOrderNumber(),
                 'source' => $order->isRefundToAccount() ? '退款到余额' : '充值',
                 'pay_channel' => $payChannel[$order->getPayChannel()],
-                'price' => '￥'.$order->getPrice(),
+                'price' => $order->getPrice(),
                 'refund_order_number' => $order->getRefundNumber(),
                 'username' => $this->filterEmoji($user->getName()),
                 'account' => $user->getPhone() ? $user->getPhone() : $user->getEmail(),

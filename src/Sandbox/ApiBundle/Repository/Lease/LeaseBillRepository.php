@@ -574,6 +574,7 @@ class LeaseBillRepository extends EntityRepository
 
     /**
      * @param $company
+     * @param $building
      * @param $status
      * @param $channels
      * @param $keyword
@@ -590,6 +591,7 @@ class LeaseBillRepository extends EntityRepository
      */
     public function findBillsForSales(
         $company,
+        $building,
         $status,
         $channels,
         $keyword,
@@ -610,6 +612,11 @@ class LeaseBillRepository extends EntityRepository
         if (!is_null($company)) {
             $query->andWhere('l.companyId = :company')
                 ->setParameter('company', $company);
+        }
+
+        if ($building) {
+            $query->andWhere('l.buildingId = :building')
+                ->setParameter('building', $building);
         }
 
         if ($status) {
@@ -688,6 +695,7 @@ class LeaseBillRepository extends EntityRepository
 
     /**
      * @param $company
+     * @param $building
      * @param $channels
      * @param $keyword
      * @param $keywordSearch
@@ -701,6 +709,7 @@ class LeaseBillRepository extends EntityRepository
      */
     public function countBillsForSales(
         $company,
+        $building,
         $status,
         $channels,
         $keyword,
@@ -720,6 +729,11 @@ class LeaseBillRepository extends EntityRepository
         if (!is_null($company)) {
             $query->andWhere('l.companyId = :company')
                 ->setParameter('company', $company);
+        }
+
+        if ($building) {
+            $query->andWhere('l.buildingId = :building')
+                ->setParameter('building', $building);
         }
 
         if ($status) {

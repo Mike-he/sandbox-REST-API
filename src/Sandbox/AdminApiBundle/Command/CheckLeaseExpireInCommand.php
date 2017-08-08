@@ -22,33 +22,33 @@ class CheckLeaseExpireInCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-//        $em = $this->getContainer()->get('doctrine')->getManager();
-//
+        //        $em = $this->getContainer()->get('doctrine')->getManager();
+
 //        $leases = $em->getRepository('SandboxApiBundle:Lease\Lease')
 //            ->findBy(
 //                array(
 //                    'status' => Lease::LEASE_STATUS_CONFIRMING,
 //                )
 //            );
-//
+
 //        $expireInParameter = $em->getRepository('SandboxApiBundle:Parameter\Parameter')
 //            ->findOneBy(array(
 //                'key' => Parameter::KEY_LEASE_CONFIRM_EXPIRE_IN,
 //            ));
-//
+
 //        foreach ($leases as $lease) {
 //            $modificationDate = $lease->getModificationDate();
 //            $leaseExpireInDate = $modificationDate->add(new \DateInterval('P'.$expireInParameter->getValue()));
-//
+
 //            $now = new \DateTime('now');
-//
+
 //            if ($now > $leaseExpireInDate) {
 //                $lease->setStatus(Lease::LEASE_STATUS_EXPIRED);
-//
+
 //                $leaseId = $lease->getId();
 //                $urlParam = 'ptype=leasesDetail&leasesId='.$leaseId;
 //                $contentArray = $this->generateLeaseContentArray($urlParam);
-//
+
 //                // send Jpush notification
 //                $this->generateJpushNotification(
 //                    [

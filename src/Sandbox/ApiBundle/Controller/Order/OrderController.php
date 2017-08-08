@@ -122,10 +122,6 @@ class OrderController extends PaymentController
                 $language
             );
 
-            // set leasing name
-//            $leasingTime = $order->getStartDate()->format('Y-m-d H:i:s')
-//                .' - '
-//                .$order->getEndDate()->format('Y-m-d H:i:s');
             $startTime = $order->getStartDate()->format('Y-m-d H:i:s');
             $endTime = $order->getEndDate()->format('Y-m-d H:i:s');
 

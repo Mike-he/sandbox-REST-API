@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 class DoorPublicController extends SandboxRestController
 {
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/door/webhooks_sn")
@@ -59,6 +59,6 @@ class DoorPublicController extends SandboxRestController
         $em->persist($param);
         $em->flush();
 
-        return new Response(json_encode(array('success' => true,)));
+        return new Response(json_encode(array('success' => true)));
     }
 }
