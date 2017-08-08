@@ -817,17 +817,21 @@ class AdminLeaseBillController extends SalesRestController
         );
 
         // add invoice balance
+        $invoiced = $this->checkBillShouldInvoiced($bill->getLease());
         if (!$bill->isSalesInvoice()) {
-            $invoiced = $this->checkBillShouldInvoiced($bill->getLease());
-
             $this->postConsumeBalance(
                 $bill->getDrawee(),
                 $bill->getRevisedAmount(),
                 $bill->getSerialNumber(),
                 $invoiced
             );
+        }else {
+            if ($invoiced) {
+                $bill->setInvoiced(true);
+                $em->flush();
+            }
         }
-
+        
         $logMessage = '确认收款';
         $this->get('sandbox_api.admin_status_log')->autoLog(
             $this->getAdminId(),
@@ -1027,25 +1031,21 @@ class AdminLeaseBillController extends SalesRestController
     private function setLeaseBillInvoice(
         $bill
     ) {
-        $invoiced = $this->checkBillShouldInvoiced($bill->getLease());
-        if ($invoiced) {
-            $lease = $bill->getLease();
-            $salesCompany = $lease->getCompanyId();
-            $serviceInfo = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
-                ->findOneBy(array(
-                    'company' => $salesCompany,
-                    'tradeTypes' => SalesCompanyServiceInfos::TRADE_TYPE_LONGTERM,
-                    'status' => true,
-                ));
+        $lease = $bill->getLease();
+        $salesCompany = $lease->getCompanyId();
+        $serviceInfo = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
+            ->findOneBy(array(
+                'company' => $salesCompany,
+                'tradeTypes' => SalesCompanyServiceInfos::TRADE_TYPE_LONGTERM,
+                'status' => true,
+            ));
 
-            if (!is_null($serviceInfo) &&
-                $serviceInfo->getDrawer() == SalesCompanyServiceInfos::DRAWER_SALES
-            ) {
-                $bill->setSalesInvoice(true);
-            }
+        if (!is_null($serviceInfo) &&
+            $serviceInfo->getDrawer() == SalesCompanyServiceInfos::DRAWER_SALES
+        ) {
+            $bill->setSalesInvoice(true);
         }
-
         return;
     }
 
