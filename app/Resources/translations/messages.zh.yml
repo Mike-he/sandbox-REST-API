@@ -279,6 +279,7 @@ client:
     payment_password: 支付密码
     email: 绑定邮箱
     phone: 绑定手机
+    bind_wx: 绑定微信
     about_us: 关于创合秒租
     setting: 设置
     my_center: 个人中心
