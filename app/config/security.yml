@@ -108,10 +108,6 @@ security:
             pattern: ^/client/auth/token$
             security: false
 
-        client_thirdparty_oauth_login:
-            pattern: ^/client/thirdparty/oauth/login$
-            security: false
-
         client_customerservice_status:
             pattern: ^/client/customerservice/status$
             security: false
