@@ -105,11 +105,6 @@ trait WeChatApi
         $response = $this->callAPI($ch, 'GET');
         $result = json_decode($response, true);
 
-        if (is_null($result)
-            || array_key_exists('errcode', $result)) {
-            throw new UnauthorizedHttpException('WeChat login unauthorized!');
-        }
-
         return $result;
     }
 }
