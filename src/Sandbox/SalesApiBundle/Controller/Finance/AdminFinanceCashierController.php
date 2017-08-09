@@ -7,9 +7,7 @@ use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseRentTypes;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
-use Sandbox\ApiBundle\Entity\Room\RoomTypeTags;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -55,9 +53,8 @@ class AdminFinanceCashierController extends SalesRestController
 
         $cashierOrders = array();
         foreach ($orders as $order) {
-            $cashierOrders[] = $this->generateCashierOrder($order,$company);
+            $cashierOrders[] = $this->generateCashierOrder($order, $company);
         }
-
 
         $bills = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
@@ -67,10 +64,10 @@ class AdminFinanceCashierController extends SalesRestController
 
         $cashierBills = array();
         foreach ($bills as $bill) {
-            $cashierBills[] = $this->generateCashierBill($bill,$company);
+            $cashierBills[] = $this->generateCashierBill($bill, $company);
         }
 
-        $result = array_merge($cashierOrders,$cashierBills);
+        $result = array_merge($cashierOrders, $cashierBills);
 
         return new View($result);
     }
@@ -94,7 +91,7 @@ class AdminFinanceCashierController extends SalesRestController
         } else {
             $userProfile = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:User\UserProfile')
-                ->findOneBy(array('userId'=>$order->getUserId()));
+                ->findOneBy(array('userId' => $order->getUserId()));
 
             $drawee = $userProfile->getName();
         }
@@ -102,10 +99,10 @@ class AdminFinanceCashierController extends SalesRestController
         $roomData = $this->getRoomData($order->getProductId());
 
         $unitDescription = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_UNIT.$order->getUnitPrice());
-        $basePrice =  $order->getUnitPrice() ? $order->getBasePrice().'元/'.$unitDescription : '';
+        $basePrice = $order->getUnitPrice() ? $order->getBasePrice().'元/'.$unitDescription : '';
 
         $data = array(
-            'id'=> $order->getId(),
+            'id' => $order->getId(),
             'order_type' => 'order',
             'serial_number' => $order->getOrderNumber(),
             'lease_serial_number' => '',
@@ -131,7 +128,7 @@ class AdminFinanceCashierController extends SalesRestController
     }
 
     /**
-     * @param LeaseBill $bill
+     * @param LeaseBill    $bill
      * @param SalesCompany $company
      *
      * @return array
@@ -160,7 +157,7 @@ class AdminFinanceCashierController extends SalesRestController
         $roomData = $this->getRoomData($bill->getLease()->getProductId());
 
         $data = array(
-            'id'=> $bill->getId(),
+            'id' => $bill->getId(),
             'order_type' => 'bill',
             'serial_number' => $bill->getSerialNumber(),
             'lease_serial_number' => $bill->getLease()->getSerialNumber(),
