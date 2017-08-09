@@ -51,3 +51,9 @@ sandbox_sales_admin_finance_invoice:
     resource: "@SandboxSalesApiBundle/Controller/Finance/AdminFinanceInvoiceController.php"
     type:     annotation
     prefix:   /
+
+# Admin Finance Cashier /sales/admin/finance/cashier
+sandbox_sales_admin_finance_cashier:
+    resource: "@SandboxSalesApiBundle/Controller/Finance/AdminFinanceCashierController.php"
+    type:     annotation
+    prefix:   /

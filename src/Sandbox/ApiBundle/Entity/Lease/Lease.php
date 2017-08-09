@@ -470,6 +470,11 @@ class Lease
      */
     private $companyId;
 
+    /**
+     * @Serializer\Groups({"main", "log", "lease_list"})
+     */
+    private $lesseeEnterpriseName;
+
     public function __construct()
     {
         $this->leaserentTypes = new ArrayCollection();
@@ -1400,5 +1405,21 @@ class Lease
     public function setCompanyId($companyId)
     {
         $this->companyId = $companyId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLesseeEnterpriseName()
+    {
+        return $this->lesseeEnterpriseName;
+    }
+
+    /**
+     * @param mixed $lesseeEnterpriseName
+     */
+    public function setLesseeEnterpriseName($lesseeEnterpriseName)
+    {
+        $this->lesseeEnterpriseName = $lesseeEnterpriseName;
     }
 }

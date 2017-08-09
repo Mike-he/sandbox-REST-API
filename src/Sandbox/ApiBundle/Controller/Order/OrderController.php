@@ -636,12 +636,13 @@ class OrderController extends PaymentController
     }
 
     /**
-     * @param $order
+     * @param ProductOrder $order
      * @param $product
      * @param $startDate
      * @param $endDate
      * @param $user
      * @param $orderCheck
+     * @param $timeUnit
      */
     protected function setOrderFields(
         $order,
@@ -649,7 +650,9 @@ class OrderController extends PaymentController
         $startDate,
         $endDate,
         $user,
-        $orderCheck
+        $orderCheck,
+        $timeUnit,
+        $basePrice
     ) {
         $orderNumber = $this->getOrderNumberForProductOrder(
             ProductOrder::LETTER_HEAD,
@@ -662,6 +665,8 @@ class OrderController extends PaymentController
         $order->setEndDate($endDate);
         $order->setUser($user);
         $order->setLocation('location');
+        $order->setUnitPrice($timeUnit);
+        $order->setBasePrice($basePrice);
     }
 
     /**
@@ -998,7 +1003,8 @@ class OrderController extends PaymentController
         $endDate,
         $user,
         $type,
-        $timeUnit = null
+        $timeUnit,
+        $basePrice
     ) {
         // check booking dates
         $error = $this->checkIfRoomOpen(
@@ -1034,7 +1040,9 @@ class OrderController extends PaymentController
             $startDate,
             $endDate,
             $user,
-            $orderCheck
+            $orderCheck,
+            $timeUnit,
+            $basePrice
         );
 
         $em->remove($orderCheck);

@@ -15,6 +15,7 @@ use JMS\Serializer\Annotation as Serializer;
 class FinanceLongRentServiceBill
 {
     const TYPE_BILL_SERVICE_FEE = 'service_fee';
+    const TYPE_BILL_POUNDAGE = 'poundage';
 
     const SERVICE_FEE_LETTER_HEAD = 'SR';
 

@@ -637,11 +637,9 @@ class AdminLeaseBillController extends SalesRestController
         $bill->setReviser($this->getUserId());
         $bill->setSendDate(new \DateTime());
         $bill->setSender($this->getUserId());
+        $bill->setSalesInvoice(true);
 
         if ($oldStatus == LeaseBill::STATUS_PENDING) {
-            // set sales invoice
-            $this->setLeaseBillInvoice($bill);
-
             $this->pushBillMessage($bill);
         }
 
@@ -818,20 +816,11 @@ class AdminLeaseBillController extends SalesRestController
 
         // add invoice balance
         $invoiced = $this->checkBillShouldInvoiced($bill->getLease());
-        if (!$bill->isSalesInvoice()) {
-            $this->postConsumeBalance(
-                $bill->getDrawee(),
-                $bill->getRevisedAmount(),
-                $bill->getSerialNumber(),
-                $invoiced
-            );
-        }else {
-            if ($invoiced) {
-                $bill->setInvoiced(true);
-                $em->flush();
-            }
+        if (!$invoiced) {
+            $bill->setInvoiced(true);
+            $em->flush();
         }
-        
+
         $logMessage = '确认收款';
         $this->get('sandbox_api.admin_status_log')->autoLog(
             $this->getAdminId(),
@@ -919,9 +908,7 @@ class AdminLeaseBillController extends SalesRestController
             $bill->setSendDate(new \DateTime());
             $bill->setSender($this->getUserId());
             $bill->setReviser($this->getUserId());
-
-            // set sales invoice
-            $this->setLeaseBillInvoice($bill);
+            $bill->setSalesInvoice(true);
 
             $em->persist($bill);
             $em->flush();
@@ -999,9 +986,7 @@ class AdminLeaseBillController extends SalesRestController
         $bill->setSender($this->getUserId());
         $bill->setRevisedAmount($bill->getAmount());
         $bill->setLease($lease);
-
-        // set sales invoice
-        $this->setLeaseBillInvoice($bill);
+        $bill->setSalesInvoice(true);
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($bill);
@@ -1023,30 +1008,6 @@ class AdminLeaseBillController extends SalesRestController
         ));
 
         return new View($response, 201);
-    }
-
-    /**
-     * @param LeaseBill $bill
-     */
-    private function setLeaseBillInvoice(
-        $bill
-    ) {
-        $lease = $bill->getLease();
-        $salesCompany = $lease->getCompanyId();
-        $serviceInfo = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
-            ->findOneBy(array(
-                'company' => $salesCompany,
-                'tradeTypes' => SalesCompanyServiceInfos::TRADE_TYPE_LONGTERM,
-                'status' => true,
-            ));
-
-        if (!is_null($serviceInfo) &&
-            $serviceInfo->getDrawer() == SalesCompanyServiceInfos::DRAWER_SALES
-        ) {
-            $bill->setSalesInvoice(true);
-        }
-        return;
     }
 
     /**

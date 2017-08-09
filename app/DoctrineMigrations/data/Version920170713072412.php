@@ -88,8 +88,8 @@ class Version920170713072412 extends AbstractMigration implements ContainerAware
             ->findAll();
         foreach ($leases as $lease) {
             /**
-             * @var Lease $lease
-             * @var Room $room
+             * @var Lease
+             * @var Room  $room
              */
             $room = $lease->getProduct()->getRoom();
             $salesCompanyId = $room->getBuilding()->getCompanyId();

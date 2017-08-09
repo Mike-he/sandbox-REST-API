@@ -144,6 +144,15 @@ class ClientLeaseController extends SandboxRestController
 
         $this->setLeaseLogs($lease);
 
+        if ($lease->getLesseeEnterprise()) {
+            $enterprise = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\EnterpriseCustomer')
+                ->find($lease->getLesseeEnterprise());
+
+            $enterpriseName = $enterprise ? $enterprise->getName() : '';
+            $lease->setLesseeEnterpriseName($enterpriseName);
+        }
+
         $view = new View();
         $view->setSerializationContext(
             SerializationContext::create()->setGroups(['main'])

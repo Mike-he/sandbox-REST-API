@@ -469,7 +469,7 @@ class ClientLeaseBillController extends PaymentController
     }
 
     /**
-     * @param $bills
+     * @param LeaseBill $bills
      *
      * @return array
      */
@@ -478,6 +478,7 @@ class ClientLeaseBillController extends PaymentController
     ) {
         $result = array();
         foreach ($bills as $bill) {
+            /** @var LeaseBill $bill */
             $room = $bill->getLease()->getProduct()->getRoom();
             $building = $room->getBuilding();
             $company = $building->getCompany();
@@ -519,6 +520,7 @@ class ClientLeaseBillController extends PaymentController
                 'preview' => $attachment ? $attachment[0]['preview'] : '',
                 'transfer' => $transfer,
                 'collection_method' => $collectionMethod,
+                'pay_channel' => $bill->getPayChannel(),
             );
         }
 

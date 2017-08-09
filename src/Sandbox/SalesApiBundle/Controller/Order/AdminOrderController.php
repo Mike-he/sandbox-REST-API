@@ -1678,7 +1678,8 @@ class AdminOrderController extends OrderController
                 $endDate,
                 $user,
                 $type,
-                $timeUnit
+                $timeUnit,
+                0
             );
 
             if (!empty($error)) {
@@ -2070,7 +2071,8 @@ class AdminOrderController extends OrderController
                 $endDate,
                 $user,
                 $type,
-                $timeUnit
+                $timeUnit,
+                $basePrice
             );
 
             if (!empty($error)) {

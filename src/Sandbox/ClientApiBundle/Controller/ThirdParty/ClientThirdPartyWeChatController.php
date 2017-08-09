@@ -53,7 +53,7 @@ class ClientThirdPartyWeChatController extends ClientThirdPartyController
         // get WeChat bind to me
         $weChat = $this->getRepo('ThirdParty\WeChat')->findOneByUser($user);
         if (is_null($weChat)) {
-            $this->throwNotFoundIfNull($weChat, self::NOT_FOUND_MESSAGE);
+            return new View();
         }
 
         $result = $this->getWeChatSnsUserInfo($weChat);
