@@ -282,6 +282,7 @@ client:
     payment_password: Payment Password
     email: Email
     phone: Phone
+    bind_wx: Bind WeChat
     about_us: About Us
     setting: Settings
     my_center: Personal Center

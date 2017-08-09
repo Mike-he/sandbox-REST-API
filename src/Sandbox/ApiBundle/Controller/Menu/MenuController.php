@@ -53,6 +53,7 @@ class MenuController extends SandboxRestController
     const CLIENT_MENU_PAYMENT_PASSWORD = 'client.menu.payment_password';
     const CLIENT_MENU_EMAIL = 'client.menu.email';
     const CLIENT_MENU_PHONE = 'client.menu.phone';
+    const CLIENT_MENU_BIND_WX = 'client.menu.bind_wx';
     const CLIENT_MENU_ABOUT_US = 'client.menu.about_us';
     const CLIENT_MENU_SETTING = 'client.menu.setting';
     const CLIENT_MENU_MY_CENTER = 'client.menu.my_center';
@@ -172,6 +173,7 @@ class MenuController extends SandboxRestController
             self::CLIENT_MENU_PAYMENT_PASSWORD,
             self::CLIENT_MENU_EMAIL,
             self::CLIENT_MENU_PHONE,
+            self::CLIENT_MENU_BIND_WX,
             self::CLIENT_MENU_ABOUT_US,
             self::CLIENT_MENU_SETTING,
             self::CLIENT_MENU_MY_CENTER,
