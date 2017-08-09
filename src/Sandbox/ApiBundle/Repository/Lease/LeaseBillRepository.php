@@ -802,4 +802,19 @@ class LeaseBillRepository extends EntityRepository
 
         return $result;
     }
+
+    public function getUnpaidBills(
+        $companyId
+    ) {
+        $query = $this->createQueryBuilder('lb')
+            ->leftJoin('lb.lease', 'l')
+            ->where('lb.status = :status')
+            ->andWhere('l.companyId = :companyId')
+            ->setParameter('status', LeaseBill::STATUS_UNPAID)
+            ->setParameter('companyId', $companyId);
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
 }

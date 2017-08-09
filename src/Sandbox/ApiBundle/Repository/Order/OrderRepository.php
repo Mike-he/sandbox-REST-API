@@ -753,12 +753,19 @@ class OrderRepository extends EntityRepository
     /**
      * get unpaid preorder product orders.
      */
-    public function getUnpaidPreOrders()
-    {
+    public function getUnpaidPreOrders(
+      $companyId
+    ) {
         $query = $this->createQueryBuilder('o')
-            ->where('o.status = \'unpaid\'')
+            ->leftJoin('o.product', 'p')
+            ->leftJoin('p.room', 'r')
+            ->leftJoin('r.building', 'b')
+            ->where('o.status = :status')
             ->andWhere('o.type = :preorder')
+            ->andWhere('b.companyId = :company')
+            ->setParameter('status', ProductOrder::STATUS_UNPAID)
             ->setParameter('preorder', ProductOrder::PREORDER_TYPE)
+            ->setParameter('company', $companyId)
             ->getQuery();
 
         return $query->getResult();
