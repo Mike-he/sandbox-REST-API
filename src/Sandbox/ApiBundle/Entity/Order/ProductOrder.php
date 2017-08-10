@@ -33,6 +33,7 @@ class ProductOrder
     const CHANNEL_UNION_CREDIT = 'cnp_u';
     const CHANNEL_WECHAT_PUB = 'wx_pub';
     const CHANNEL_OFFLINE = 'offline';
+    const CHANNEL_SALES_OFFLINE = 'sales_offline';
 
     const PRODUCT_MAP = 'product';
 
