@@ -859,6 +859,8 @@ class ClientOrderController extends OrderController
                 $order->setRejected(true);
             }
 
+            $order->setType(ProductOrder::OWN_TYPE);
+
             // set order drawer
             $this->setOrderDrawer(
                 $product,

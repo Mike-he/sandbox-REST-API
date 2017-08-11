@@ -28,7 +28,9 @@ class PreOrderType extends AbstractType
                 array(
                     'mapped' => false,
                 )
-            );
+            )
+            ->add('customer_id')
+        ;
     }
 
     /**

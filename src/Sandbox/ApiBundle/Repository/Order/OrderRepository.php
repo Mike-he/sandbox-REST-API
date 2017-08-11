@@ -966,6 +966,7 @@ class OrderRepository extends EntityRepository
      * @param $endDate
      * @param $userId
      * @param $orderId
+     * @param $customerId
      *
      * @return array
      */
@@ -974,7 +975,8 @@ class OrderRepository extends EntityRepository
         $startDate,
         $endDate,
         $userId = null,
-        $orderId = null
+        $orderId = null,
+        $customerId = null
     ) {
         $query = $this->createQueryBuilder('o')
             ->where('o.productId = :productId')
@@ -998,6 +1000,11 @@ class OrderRepository extends EntityRepository
         if (!is_null($orderId)) {
             $query = $query->andWhere('o.id != :orderId')
                 ->setParameter('orderId', $orderId);
+        }
+
+        if (!is_null($customerId)) {
+            $query = $query->andWhere('o.customerId = :customerId')
+                ->setParameter('customerId', $customerId);
         }
 
         return $query->getQuery()->getResult();

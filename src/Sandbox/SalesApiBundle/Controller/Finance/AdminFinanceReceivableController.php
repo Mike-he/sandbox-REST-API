@@ -67,7 +67,6 @@ class AdminFinanceReceivableController extends SalesRestController
                     $order->setStatus(ProductOrder::STATUS_PAID);
                     $order->setPaymentDate($now);
                     $order->setModificationDate($now);
-                    $order->setSalesInvoice(true);
                     $order->setPayChannel(ProductOrder::CHANNEL_SALES_OFFLINE);
 
                     $amount = $order->getDiscountPrice();
