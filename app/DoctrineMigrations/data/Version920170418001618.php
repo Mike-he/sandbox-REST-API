@@ -34,14 +34,12 @@ class Version920170418001618 extends AbstractMigration implements ContainerAware
             Parameter::KEY_BEAN_USER_LOGIN => '+10',
             Parameter::KEY_BEAN_USER_SHARE => '+10',
             Parameter::KEY_BEAN_ORDER_EVALUATION => '*1',
-//            Parameter::KEY_BEAN_BUILDING_EVALUATION => '+50',
             Parameter::KEY_BEAN_SUCCESS_INVITATION => '+100',
             Parameter::KEY_BEAN_INVITEE_PRODUCT_ORDER => '*0.1',
             Parameter::KEY_BEAN_INVITEE_PAY_BILL => '*0.1',
             Parameter::KEY_BEAN_PRODUCT_ORDER => '*3',
             Parameter::KEY_BEAN_PAY_BILL => '*1',
             Parameter::KEY_BEAN_SHOP_ORDER => '*1',
-//            Parameter::KEY_BEAN_EVENT_ORDER => '*3',
             Parameter::KEY_BEAN_MEMBERSHIP_ORDER => '*3',
         );
 

@@ -457,7 +457,7 @@ class AdminFinanceSummaryController extends PaymentController
             $serviceBill = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Finance\FinanceLongRentServiceBill')
                 ->findOneBy([
-                    'bill' => $longBill,
+                    'orderNumber' => $longBill->getSerialNumber(),
                 ]);
             if (!is_null($serviceBill)) {
                 $serviceAmount += $serviceBill->getAmount();

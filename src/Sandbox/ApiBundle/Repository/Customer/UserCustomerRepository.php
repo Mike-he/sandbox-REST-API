@@ -93,13 +93,15 @@ class UserCustomerRepository extends EntityRepository
      * @param $salesCompanyId
      * @param $ids
      * @param $userIds
+     * @param $search
      *
      * @return array
      */
     public function searchCustomers(
         $salesCompanyId,
         $ids,
-        $userIds
+        $userIds,
+        $search
     ) {
         $query = $this->createQueryBuilder('c')
             ->select('
@@ -111,10 +113,23 @@ class UserCustomerRepository extends EntityRepository
                     c.email
                 ')
             ->where('c.companyId = :company')
-            ->andWhere('c.id in (:ids) or c.userId in (:userIds)')
-            ->setParameter('company', $salesCompanyId)
-            ->setParameter('ids', $ids)
-            ->setParameter('userIds', $userIds);
+            ->setParameter('company', $salesCompanyId);
+
+        if ($ids) {
+            $query->andWhere('c.id in (:ids)')
+                ->setParameter('ids', $ids);
+        }
+
+        if ($userIds) {
+            $query->andWhere('c.userId in (:userIds)')
+                ->setParameter('userIds', $userIds);
+
+        }
+
+        if ($search) {
+            $query->andWhere('c.phone LIKE :search')
+                ->setParameter('search', '%'.$search.'%');
+        }
 
         $result = $query->getQuery()->getResult();
 

@@ -60,10 +60,17 @@ class FinanceLongRentServiceBill
     /**
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Lease\LeaseBill")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="bill_id", referencedColumnName="id", onDelete="CASCADE")
+     *   @ORM\JoinColumn(name="bill_id", referencedColumnName="id", onDelete="SET NULL")
      * })
      */
     private $bill;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="order_number", type="string", length=64)
+     */
+    private $orderNumber;
 
     /**
      * @var int
@@ -236,6 +243,22 @@ class FinanceLongRentServiceBill
     public function setModificationDate($modificationDate)
     {
         $this->modificationDate = $modificationDate;
+    }
+
+    /**
+     * @return string
+     */
+    public function getOrderNumber()
+    {
+        return $this->orderNumber;
+    }
+
+    /**
+     * @param string $orderNumber
+     */
+    public function setOrderNumber($orderNumber)
+    {
+        $this->orderNumber = $orderNumber;
     }
 
     /**

@@ -25,17 +25,16 @@ class SalesCompanyProfileAccount
     /**
      * @var int
      *
+     * @ORM\Column(name="profile_id", type="integer", nullable=true)
+     */
+    private $profileId;
+
+    /**
+     * @var int
+     *
      * @ORM\Column(name="sales_company_id", type="integer")
      */
     private $salesCompanyId;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany")
-     * @ORM\JoinColumns({
-     *      @ORM\JoinColumn(name="sales_company_id", referencedColumnName="id", onDelete="CASCADE")
-     * })
-     */
-    private $salesCompany;
 
     /**
      * @var string
@@ -47,21 +46,21 @@ class SalesCompanyProfileAccount
     /**
      * @var string
      *
-     * @ORM\Column(name="business_scope", type="string", length=1024)
+     * @ORM\Column(name="business_scope", type="string", length=1024, nullable=true)
      */
     private $businessScope;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="bank_account_name", type="string", length=255)
+     * @ORM\Column(name="bank_account_name", type="string", length=255, nullable=true)
      */
     private $bankAccountName;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="bank_account_number", type="string", length=255)
+     * @ORM\Column(name="bank_account_number", type="string", length=255, nullable=true)
      */
     private $bankAccountNumber;
 
@@ -92,6 +91,22 @@ class SalesCompanyProfileAccount
     }
 
     /**
+     * @return int
+     */
+    public function getProfileId()
+    {
+        return $this->profileId;
+    }
+
+    /**
+     * @param int $profileId
+     */
+    public function setProfileId($profileId)
+    {
+        $this->profileId = $profileId;
+    }
+
+    /**
      * Set salesCompanyId.
      *
      * @param int $salesCompanyId
@@ -113,22 +128,6 @@ class SalesCompanyProfileAccount
     public function getSalesCompanyId()
     {
         return $this->salesCompanyId;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getSalesCompany()
-    {
-        return $this->salesCompany;
-    }
-
-    /**
-     * @param mixed $salesCompany
-     */
-    public function setSalesCompany($salesCompany)
-    {
-        $this->salesCompany = $salesCompany;
     }
 
     /**

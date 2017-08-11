@@ -7,12 +7,12 @@ use Rs\Json\Patch;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyProfileAccount;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyProfileExpress;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyProfileInvoice;
+use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyProfiles;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesFinanceProfileAccountPatchType;
-use Sandbox\ApiBundle\Form\SalesAdmin\SalesFinanceProfileAccountPostType;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesFinanceProfileExpressPatchType;
-use Sandbox\ApiBundle\Form\SalesAdmin\SalesFinanceProfileExpressPostType;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesFinanceProfileInvoicePatchType;
-use Sandbox\ApiBundle\Form\SalesAdmin\SalesFinanceProfileInvoicePostType;
+use Sandbox\ApiBundle\Form\SalesAdmin\SalesFinanceProfilesPatchType;
+use Sandbox\ApiBundle\Form\SalesAdmin\SalesFinanceProfilesPostType;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -26,61 +26,21 @@ class AdminFinanceProfilesController extends SalesRestController
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
-     * @Route("/finance/profiles/account")
-     * @Method({"GET"})
+     * @Route("/finance/profiles")
+     * @Method("POST")
      *
      * @return View
      */
-    public function getFinanceAccountAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher
-    ) {
-        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
-        $salesCompanyId = $adminPlatform['sales_company_id'];
-        $salesCompany = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
-            ->find($salesCompanyId);
-
-        $account = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfileAccount')
-            ->findOneBy(array(
-                'salesCompany' => $salesCompany,
-            ));
-
-        if (is_null($account)) {
-            return new View();
-        }
-
-        return new View(array(
-            'id' => $account->getId(),
-            'sales_company_name' => $account->getSalesCompanyName(),
-            'business_scope' => $account->getBusinessScope(),
-            'bank_account_name' => $account->getBankAccountName(),
-            'bank_account_number' => $account->getBankAccountNumber(),
-            'creation_date' => $account->getCreationDate(),
-            'modification_date' => $account->getModificationDate(),
-        ));
-    }
-
-    /**
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
-     *
-     * @Route("/finance/profiles/account")
-     * @Method({"POST"})
-     *
-     * @return View
-     */
-    public function postFinanceAccountAction(
+    public function postFinanceProfilesAccount(
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
-        $account = new SalesCompanyProfileAccount();
+        $profile = new SalesCompanyProfiles();
 
-        $form = $this->createForm(new SalesFinanceProfileAccountPostType(), $account);
+        $form = $this->createForm(new SalesFinanceProfilesPostType(), $profile);
         $form->handleRequest($request);
 
         if (!$form->isValid()) {
@@ -88,17 +48,14 @@ class AdminFinanceProfilesController extends SalesRestController
         }
 
         // set sales company
-        $salesCompany = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
-            ->find($salesCompanyId);
-        $account->setSalesCompany($salesCompany);
+        $profile->setSalesCompanyId($salesCompanyId);
 
         $em = $this->getDoctrine()->getManager();
         $em->beginTransaction();
 
         // catch exception
         try {
-            $em->persist($account);
+            $em->persist($profile);
             $em->flush();
 
             $em->commit();
@@ -108,12 +65,246 @@ class AdminFinanceProfilesController extends SalesRestController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
-        $view = new View(array(
-            'id' => $account->getId(),
-        ));
-        $view->setStatusCode(201);
+        /** @var SalesCompanyProfileAccount $account */
+        $account = $profile->getAccount();
+        $account->setProfileId($profile->getId());
+        $account->setSalesCompanyId($salesCompanyId);
+        $em->persist($account);
 
-        return $view;
+        /** @var SalesCompanyProfileExpress $express */
+        $express = $profile->getExpress();
+        $express->setProfileId($profile->getId());
+        $express->setSalesCompanyId($salesCompanyId);
+        $em->persist($express);
+
+        /** @var SalesCompanyProfileInvoice $invoice */
+        $invoice = $profile->getInvoice();
+        $invoice->setProfileId($profile->getId());
+        $invoice->setSalesCompanyId($salesCompanyId);
+        $em->persist($invoice);
+
+        $em->flush();
+
+        return new View(array(
+            'id' => $profile->getId(),
+        ),
+            201
+        );
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/finance/profiles")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getFinanceProfilesAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
+        $profiles = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfiles')
+            ->findBy(array(
+                'salesCompanyId' => $salesCompanyId,
+            ));
+
+        foreach ($profiles as $profile) {
+            $account = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfileAccount')
+                ->findOneBy(array(
+                    'profileId' => $profile->getId(),
+                ));
+            $profile->setAccount($account);
+
+            $express = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfileExpress')
+                ->findOneBy(array(
+                    'profileId' => $profile->getId(),
+                ));
+            $profile->setExpress($express);
+
+            $invoice = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfileInvoice')
+                ->findOneBy(array(
+                    'profileId' => $profile->getId(),
+                ));
+            $profile->setInvoice($invoice);
+        }
+
+        return new View($profiles);
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/finance/profiles/{id}")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getFinanceProfileAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
+        $profile = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfiles')
+            ->findOneBy(array(
+                'id' => $id,
+                'salesCompanyId' => $salesCompanyId,
+            ));
+        if (is_null($profile)) {
+            return new View();
+        }
+
+        $account = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfileAccount')
+            ->findOneBy(array(
+                'profileId' => $profile->getId(),
+            ));
+        $profile->setAccount($account);
+
+        $express = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfileExpress')
+            ->findOneBy(array(
+                'profileId' => $profile->getId(),
+            ));
+        $profile->setExpress($express);
+
+        $invoice = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfileInvoice')
+            ->findOneBy(array(
+                'profileId' => $profile->getId(),
+            ));
+        $profile->setInvoice($invoice);
+
+        return new View($profile);
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     * @param int                   $id
+     *
+     * @Route("/finance/profiles/{id}")
+     * @Method({"PATCH"})
+     *
+     * @return View
+     */
+    public function patchFinanceProfileAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
+        $profile = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfiles')
+            ->findOneBy(array(
+                'id' => $id,
+                'salesCompanyId' => $salesCompanyId,
+            ));
+        $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
+
+        $profileJson = $this->container->get('serializer')->serialize($profile, 'json');
+        $patch = new Patch($profileJson, $request->getContent());
+        $profileJson = $patch->apply();
+
+        $form = $this->createForm(new SalesFinanceProfilesPatchType(), $profile);
+        $form->submit(json_decode($profileJson, true));
+
+        $em = $this->getDoctrine()->getManager();
+        $em->beginTransaction();
+
+        // catch exception
+        try {
+            $em->flush();
+
+            $em->commit();
+        } catch (\Exception $e) {
+            $em->rollback();
+
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        return new View();
+    }
+
+    /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     * @param $id
+     *
+     * @Route("/finance/profiles/{id}")
+     * @Method({"DELETE"})
+     *
+     * @return View
+     */
+    public function deleteFinanceProfileAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
+        $profile = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfiles')
+            ->findOneBy(array(
+                'id' => $id,
+                'salesCompanyId' => $salesCompanyId,
+            ));
+        $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->beginTransaction();
+
+        $em->remove($profile);
+
+        $account = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfileAccount')
+            ->findOneBy(array(
+                'profileId' => $profile->getId(),
+            ));
+        $em->remove($account);
+
+        $express = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfileExpress')
+            ->findOneBy(array(
+                'profileId' => $profile->getId(),
+            ));
+        $em->remove($express);
+
+        $invoice = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfileInvoice')
+            ->findOneBy(array(
+                'profileId' => $profile->getId(),
+            ));
+        $em->remove($invoice);
+
+        // catch exception
+        try {
+            $em->flush();
+
+            $em->commit();
+        } catch (\Exception $e) {
+            $em->rollback();
+
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        return new View();
     }
 
     /**
@@ -169,100 +360,6 @@ class AdminFinanceProfilesController extends SalesRestController
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
-     *
-     * @Route("/finance/profiles/express")
-     * @Method({"GET"})
-     *
-     * @return View
-     */
-    public function getFinanceExpressAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher
-    ) {
-        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
-        $salesCompanyId = $adminPlatform['sales_company_id'];
-        $salesCompany = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
-            ->find($salesCompanyId);
-
-        $express = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfileExpress')
-            ->findOneBy(array(
-                'salesCompany' => $salesCompany,
-            ));
-
-        if (is_null($express)) {
-            return new View();
-        }
-
-        return new View(array(
-            'id' => $express->getId(),
-            'recipient' => $express->getRecipient(),
-            'phone' => $express->getPhone(),
-            'address' => $express->getAddress(),
-            'zip_code' => $express->getZipCode(),
-            'creation_date' => $express->getCreationDate(),
-            'modification_date' => $express->getModificationDate(),
-        ));
-    }
-
-    /**
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
-     *
-     * @Route("/finance/profiles/express")
-     * @Method({"POST"})
-     *
-     * @return View
-     */
-    public function postFinanceExpressAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher
-    ) {
-        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
-        $salesCompanyId = $adminPlatform['sales_company_id'];
-
-        $express = new SalesCompanyProfileExpress();
-
-        $form = $this->createForm(new SalesFinanceProfileExpressPostType(), $express);
-        $form->handleRequest($request);
-
-        if (!$form->isValid()) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
-
-        // set sales company
-        $salesCompany = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
-            ->find($salesCompanyId);
-        $express->setSalesCompany($salesCompany);
-
-        $em = $this->getDoctrine()->getManager();
-        $em->beginTransaction();
-
-        // catch exception
-        try {
-            $em->persist($express);
-            $em->flush();
-
-            $em->commit();
-        } catch (\Exception $e) {
-            $em->rollback();
-
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
-
-        $view = new View(array(
-            'id' => $express->getId(),
-        ));
-        $view->setStatusCode(201);
-
-        return $view;
-    }
-
-    /**
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
      * @param int                   $id
      *
      * @Route("/finance/profiles/express/{id}")
@@ -308,103 +405,6 @@ class AdminFinanceProfilesController extends SalesRestController
         }
 
         return new View();
-    }
-
-    /**
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
-     *
-     * @Route("/finance/profiles/invoice")
-     * @Method({"GET"})
-     *
-     * @return View
-     */
-    public function getFinanceInvoiceAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher
-    ) {
-        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
-        $salesCompanyId = $adminPlatform['sales_company_id'];
-        $salesCompany = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
-            ->find($salesCompanyId);
-
-        $invoice = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfileInvoice')
-            ->findOneBy(array(
-                'salesCompany' => $salesCompany,
-            ));
-
-        if (is_null($invoice)) {
-            return new View();
-        }
-
-        return new View(array(
-            'id' => $invoice->getId(),
-            'title' => $invoice->getTitle(),
-            'category' => $invoice->getCategory(),
-            'taxpayer_id' => $invoice->getTaxpayerId(),
-            'address' => $invoice->getAddress(),
-            'phone' => $invoice->getPhone(),
-            'bank_account_name' => $invoice->getBankAccountName(),
-            'bank_account_number' => $invoice->getBankAccountNumber(),
-            'creation_date' => $invoice->getCreationDate(),
-            'modification_date' => $invoice->getModificationDate(),
-        ));
-    }
-
-    /**
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
-     *
-     * @Route("/finance/profiles/invoice")
-     * @Method({"POST"})
-     *
-     * @return View
-     */
-    public function postFinanceInvoiceAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher
-    ) {
-        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
-        $salesCompanyId = $adminPlatform['sales_company_id'];
-
-        $invoice = new SalesCompanyProfileInvoice();
-
-        $form = $this->createForm(new SalesFinanceProfileInvoicePostType(), $invoice);
-        $form->handleRequest($request);
-
-        if (!$form->isValid()) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
-
-        // set sales company
-        $salesCompany = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
-            ->find($salesCompanyId);
-        $invoice->setSalesCompany($salesCompany);
-
-        $em = $this->getDoctrine()->getManager();
-        $em->beginTransaction();
-
-        // catch exception
-        try {
-            $em->persist($invoice);
-            $em->flush();
-
-            $em->commit();
-        } catch (\Exception $e) {
-            $em->rollback();
-
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
-
-        $view = new View(array(
-            'id' => $invoice->getId(),
-        ));
-        $view->setStatusCode(201);
-
-        return $view;
     }
 
     /**

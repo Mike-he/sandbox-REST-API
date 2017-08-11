@@ -9,6 +9,7 @@ use Sandbox\ApiBundle\Constants\DoorAccessConstants;
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Entity\Admin\AdminStatusLog;
+use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentServiceBill;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\MembershipCard\MembershipCard;
@@ -28,6 +29,7 @@ use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
+use Sandbox\ApiBundle\Traits\FinanceTrait;
 use Sandbox\ApiBundle\Traits\LeaseTrait;
 use Sandbox\ApiBundle\Traits\YunPianSms;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -57,6 +59,7 @@ class PaymentController extends DoorController
     use ProductOrderNotification;
     use YunPianSms;
     use LeaseTrait;
+    use FinanceTrait;
 
     const TOPUP_ORDER_LETTER_HEAD = 'T';
     const STATUS_PAID = 'paid';
@@ -1726,6 +1729,8 @@ class PaymentController extends DoorController
             );
         $this->throwNotFoundIfNull($bill, self::NOT_FOUND_MESSAGE);
 
+        $invoiced = $this->checkBillShouldInvoiced($bill->getLease());
+
 //        $drawee = $bill->getLease()->getDrawee()->getId();
 
         /** @var Lease $lease */
@@ -1742,24 +1747,22 @@ class PaymentController extends DoorController
         $bill->setDrawee($customer->getUserId());
         $bill->setCustomerId($customer->getId());
 
-        // add invoice amount
-        if (!$bill->isSalesInvoice()) {
-            $invoiced = $this->checkBillShouldInvoiced($bill->getLease());
-
-            $this->postConsumeBalance(
-                $customer->getUserId(),
-                $price,
-                $orderNumber,
-                $invoiced
-            );
-
+        if (!$invoiced) {
             $bill->setInvoiced(true);
         }
+
+        $this->generateLongRentServiceFee(
+            $orderNumber,
+            $bill->getLease()->getCompanyId(),
+            $price,
+            $channel,
+            FinanceLongRentServiceBill::TYPE_BILL_POUNDAGE
+        );
 
         //update user bean
         $this->get('sandbox_api.bean')->postBeanChange(
             $customer->getId(),
-            $bill->getRevisedAmount(),
+            $price,
             $orderNumber,
             Parameter::KEY_BEAN_PAY_BILL
         );
@@ -1772,7 +1775,7 @@ class PaymentController extends DoorController
         if ($user->getInviterId()) {
             $this->get('sandbox_api.bean')->postBeanChange(
                 $user->getInviterId(),
-                $bill->getRevisedAmount(),
+                $price,
                 $orderNumber,
                 Parameter::KEY_BEAN_INVITEE_PAY_BILL
             );

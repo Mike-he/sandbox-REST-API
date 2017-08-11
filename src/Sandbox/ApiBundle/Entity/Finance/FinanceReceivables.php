@@ -58,6 +58,13 @@ class FinanceReceivables
     private $remark;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="receiver", type="integer")
+     */
+    private $receiver;
+
+    /**
      * @var \DateTime
      *
      * @Gedmo\Timestampable(on="create")
@@ -169,5 +176,21 @@ class FinanceReceivables
     public function setCreationDate($creationDate)
     {
         $this->creationDate = $creationDate;
+    }
+
+    /**
+     * @return int
+     */
+    public function getReceiver()
+    {
+        return $this->receiver;
+    }
+
+    /**
+     * @param int $receiver
+     */
+    public function setReceiver($receiver)
+    {
+        $this->receiver = $receiver;
     }
 }

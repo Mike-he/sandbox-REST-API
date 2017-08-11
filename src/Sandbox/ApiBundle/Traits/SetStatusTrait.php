@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Traits;
 
 use Sandbox\ApiBundle\Entity\Event\EventOrder;
+use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentServiceBill;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 
@@ -29,12 +30,28 @@ trait SetStatusTrait
         $order->setStatus(ProductOrder::STATUS_COMPLETED);
         $order->setModificationDate(new \DateTime('now'));
 
+        $type = $order->getType();
+
+        if ($type == ProductOrder::PREORDER_TYPE) {
+            $parameter = Parameter::KEY_BEAN_PRODUCT_ORDER_PREORDER;
+
+            $this->generateLongRentServiceFee(
+                $order->getOrderNumber(),
+                $order->getProduct()->getRoom()->getBuilding()->getCompanyId(),
+                $order->getDiscountPrice(),
+                $order->getPayChannel(),
+                FinanceLongRentServiceBill::TYPE_BILL_POUNDAGE
+            );
+        } else {
+            $parameter = Parameter::KEY_BEAN_PRODUCT_ORDER;
+        }
+
         //update user bean
         $this->getContainer()->get('sandbox_api.bean')->postBeanChange(
             $order->getUserId(),
             $order->getDiscountPrice(),
             $order->getOrderNumber(),
-            Parameter::KEY_BEAN_PRODUCT_ORDER
+            $parameter
         );
 
         //update invitee bean

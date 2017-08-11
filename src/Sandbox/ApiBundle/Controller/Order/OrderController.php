@@ -332,8 +332,11 @@ class OrderController extends PaymentController
      * @param $startDate
      * @param $endDate
      * @param $userId
+     * @param $seatId
+     * @param $customerId
      *
-     * @return View|ProductOrderCheck
+     * @return null|ProductOrderCheck
+     * @throws \Exception
      */
     protected function orderDuplicationCheck(
         $em,
@@ -343,7 +346,8 @@ class OrderController extends PaymentController
         $startDate,
         $endDate,
         $userId,
-        $seatId
+        $seatId,
+        $customerId
     ) {
         $orderCheck = null;
         try {
@@ -425,7 +429,9 @@ class OrderController extends PaymentController
                             $productId,
                             $startDate,
                             $endDate,
-                            $userId
+                            $userId,
+                            null,
+                            $customerId
                         );
 
                     if (!empty($orders)) {
@@ -981,7 +987,7 @@ class OrderController extends PaymentController
 
     /**
      * @param $em
-     * @param $order
+     * @param ProductOrder $order
      * @param $product
      * @param $productId
      * @param $now
@@ -990,6 +996,7 @@ class OrderController extends PaymentController
      * @param $user
      * @param $type
      * @param $timeUnit
+     * @param $basePrice
      *
      * @return array
      */
@@ -1022,6 +1029,8 @@ class OrderController extends PaymentController
 
         // check for duplicate orders
         $allowedPeople = $product->getRoom()->getAllowedPeople();
+
+        $userId = $user ? $user->getId() : null;
         $orderCheck = $this->orderDuplicationCheck(
             $em,
             $type,
@@ -1029,8 +1038,9 @@ class OrderController extends PaymentController
             $productId,
             $startDate,
             $endDate,
-            $user->getId(),
-            $order->getSeatId()
+            $userId,
+            $order->getSeatId(),
+            $order->getCustomerId()
         );
 
         // set product order
@@ -1080,7 +1090,7 @@ class OrderController extends PaymentController
     /**
      * @param $em
      * @param $salesUserId
-     * @param $product
+     * @param Product $product
      */
     protected function setSalesUser(
         $em,
@@ -1090,10 +1100,12 @@ class OrderController extends PaymentController
         // check sales user record
         $companyId = $product->getRoom()->getBuilding()->getCompanyId();
 
-        $this->get('sandbox_api.sales_customer')->createCustomer(
+        $customerId = $this->get('sandbox_api.sales_customer')->createCustomer(
             $salesUserId,
             $companyId
         );
+
+        return $customerId;
     }
 
     /**

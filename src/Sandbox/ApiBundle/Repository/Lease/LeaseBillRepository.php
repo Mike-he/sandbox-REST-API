@@ -54,10 +54,7 @@ class LeaseBillRepository extends EntityRepository
 
         if (!is_null($salesCompanyId)) {
             $query->leftJoin('lb.lease', 'l')
-                ->leftJoin('l.product', 'p')
-                ->leftJoin('p.room', 'r')
-                ->leftJoin('r.building', 'b')
-                ->andWhere('b.company = :company')
+                ->andWhere('l.companyId = :company')
                 ->setParameter('company', $salesCompanyId);
         }
 
