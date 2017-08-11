@@ -15,7 +15,9 @@ class SalesCompanyWithdrawalPostType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('amount');
+            ->add('amount')
+            ->add('finance_profile_id')
+        ;
     }
 
     /**

@@ -384,8 +384,8 @@ class AdminFinanceLongRentBillController extends SalesRestController
     }
 
     /**
-     * @param $bill
-     * @param $salesCompanyId
+     * @param FinanceLongRentBill $bill
+     * @param int                 $salesCompanyId
      *
      * @return View
      */
@@ -395,11 +395,19 @@ class AdminFinanceLongRentBillController extends SalesRestController
     ) {
         $em = $this->getDoctrine()->getManager();
 
+        $financeProfileId = $bill->getFinanceProfileId();
+        $financeProfile = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfiles')
+            ->find($financeProfileId);
+        if (is_null($financeProfile)) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
         $companyInvoice = $em->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfileInvoice')
-            ->findOneBy(array('salesCompany' => $salesCompanyId));
+            ->findOneBy(array('profileId' => $financeProfileId));
 
         $companyExpress = $em->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfileExpress')
-            ->findOneBy(array('salesCompany' => $salesCompanyId));
+            ->findOneBy(array('profileId' => $financeProfileId));
 
         if (!$companyInvoice) {
             return $this->customErrorView(

@@ -435,10 +435,18 @@ class AdminFinanceWithdrawalController extends PaymentController
         $withdrawal,
         $adminId
     ) {
+        $financeProfileId = $withdrawal->getFinanceProfileId();
+        $financeProfile = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfiles')
+            ->find($financeProfileId);
+        if (is_null($financeProfile)) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
         // get bank info
         $account = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfileAccount')
-            ->findOneBy(['salesCompany' => $company]);
+            ->findOneBy(['profileId' => $financeProfileId]);
         if (is_null($account)) {
             return $this->setErrorArray(
                 self::COMPANY_PROFILE_ACCOUNT_INCOMPLETE_CODE,
