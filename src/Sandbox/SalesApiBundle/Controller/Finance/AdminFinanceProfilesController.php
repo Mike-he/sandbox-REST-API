@@ -11,6 +11,7 @@ use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyProfiles;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesFinanceProfileAccountPatchType;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesFinanceProfileExpressPatchType;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesFinanceProfileInvoicePatchType;
+use Sandbox\ApiBundle\Form\SalesAdmin\SalesFinanceProfilesPatchType;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesFinanceProfilesPostType;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Symfony\Component\HttpFoundation\Request;
@@ -100,7 +101,7 @@ class AdminFinanceProfilesController extends SalesRestController
      *
      * @return View
      */
-    public function getFinanceExpressAction(
+    public function getFinanceProfilesAction(
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
@@ -137,6 +138,173 @@ class AdminFinanceProfilesController extends SalesRestController
         }
 
         return new View($profiles);
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/finance/profiles/{id}")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getFinanceProfileAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
+        $profile = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfiles')
+            ->findOneBy(array(
+                'id' => $id,
+                'salesCompanyId' => $salesCompanyId,
+            ));
+        if (is_null($profile)) {
+            return new View();
+        }
+
+        $account = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfileAccount')
+            ->findOneBy(array(
+                'profileId' => $profile->getId(),
+            ));
+        $profile->setAccount($account);
+
+        $express = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfileExpress')
+            ->findOneBy(array(
+                'profileId' => $profile->getId(),
+            ));
+        $profile->setExpress($express);
+
+        $invoice = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfileInvoice')
+            ->findOneBy(array(
+                'profileId' => $profile->getId(),
+            ));
+        $profile->setInvoice($invoice);
+
+        return new View($profile);
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     * @param int                   $id
+     *
+     * @Route("/finance/profiles/{id}")
+     * @Method({"PATCH"})
+     *
+     * @return View
+     */
+    public function patchFinanceProfileAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
+        $profile = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfiles')
+            ->findOneBy(array(
+                'id' => $id,
+                'salesCompanyId' => $salesCompanyId,
+            ));
+        $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
+
+        $profileJson = $this->container->get('serializer')->serialize($profile, 'json');
+        $patch = new Patch($profileJson, $request->getContent());
+        $profileJson = $patch->apply();
+
+        $form = $this->createForm(new SalesFinanceProfilesPatchType(), $profile);
+        $form->submit(json_decode($profileJson, true));
+
+        $em = $this->getDoctrine()->getManager();
+        $em->beginTransaction();
+
+        // catch exception
+        try {
+            $em->flush();
+
+            $em->commit();
+        } catch (\Exception $e) {
+            $em->rollback();
+
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        return new View();
+    }
+
+    /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     * @param $id
+     *
+     * @Route("/finance/profiles/{id}")
+     * @Method({"DELETE"})
+     *
+     * @return View
+     */
+    public function deleteFinanceProfileAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
+        $profile = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfiles')
+            ->findOneBy(array(
+                'id' => $id,
+                'salesCompanyId' => $salesCompanyId,
+            ));
+        $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->beginTransaction();
+
+        $em->remove($profile);
+
+        $account = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfileAccount')
+            ->findOneBy(array(
+                'profileId' => $profile->getId(),
+            ));
+        $em->remove($account);
+
+        $express = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfileExpress')
+            ->findOneBy(array(
+                'profileId' => $profile->getId(),
+            ));
+        $em->remove($express);
+
+        $invoice = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfileInvoice')
+            ->findOneBy(array(
+                'profileId' => $profile->getId(),
+            ));
+        $em->remove($invoice);
+
+        // catch exception
+        try {
+            $em->flush();
+
+            $em->commit();
+        } catch (\Exception $e) {
+            $em->rollback();
+
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        return new View();
     }
 
     /**
