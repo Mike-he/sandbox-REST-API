@@ -277,21 +277,27 @@ class AdminFinanceProfilesController extends SalesRestController
             ->findOneBy(array(
                 'profileId' => $profile->getId(),
             ));
-        $em->remove($account);
+        if ($account) {
+            $em->remove($account);
+        }
 
         $express = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfileExpress')
             ->findOneBy(array(
                 'profileId' => $profile->getId(),
             ));
-        $em->remove($express);
+        if ($express) {
+            $em->remove($express);
+        }
 
         $invoice = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfileInvoice')
             ->findOneBy(array(
                 'profileId' => $profile->getId(),
             ));
-        $em->remove($invoice);
+        if ($invoice) {
+            $em->remove($invoice);
+        }
 
         // catch exception
         try {
