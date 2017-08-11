@@ -23,6 +23,7 @@ class GenericList
     const OBJECT_CUSTOMER = 'customer';
     const OBJECT_ENTERPRISE = 'enterprise';
     const OBJECT_CASHIER = 'cashier';
+    const OBJECT_RESERVATION = 'reservation';
 
     /**
      * @var int
