@@ -19,6 +19,7 @@ class ReservationType extends AbstractType
             ->add('phone')
             ->add('view_time')
             ->add('comment')
+            ->add('product_id')
         ;
     }
 

@@ -17,12 +17,12 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 class ClientReservationController extends SandboxRestController
 {
     /**
-     * @Route("/reservation/{productId}")
+     * @Route("/reservation")
      * @param Request $request
      * @return View
      * @Method({"POST"})
      */
-    public function postReservationAction(Request $request,$productId)
+    public function postReservationAction(Request $request)
     {
 
         $userId = $this->getUserId();
@@ -35,7 +35,7 @@ class ClientReservationController extends SandboxRestController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
-        $product = $this->getDoctrine()->getRepository('SandboxApiBundle:Product\Product')->findOneById($productId);
+        $product = $this->getDoctrine()->getRepository('SandboxApiBundle:Product\Product')->findOneById($reservation->getProductId());
         $roomId = $product->getRoomId();
         $room = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\Room')->findOneById($roomId);
         $type = $room->getType();
@@ -50,14 +50,13 @@ class ClientReservationController extends SandboxRestController
         }
 
         $reservations = $this->getDoctrine()->getRepository('SandboxApiBundle:Reservation\Reservation')
-            ->findByUserAndProduct($userId,$productId);
+            ->findByUserAndProduct($userId,$reservation->getProductId());
 
         if($reservations){
             throw new BadRequestHttpException(self::CONFLICT_MESSAGE);
         }
 
         $reservation->setUserId($userId);
-        $reservation->setProductId($productId);
 
         $str = mt_rand(1000,9999);
         $serialNumber = 'R'.$str.time();
