@@ -410,3 +410,9 @@ sandbox_client_communities_api:
     resource: "@SandboxClientApiBundle/Controller/Community/ClientCommunityController.php"
     type:     annotation
     prefix:   /
+
+#Reservation
+sandbox_client_api_reservation:
+    resource: "@SandboxClientApiBundle/Controller/Reservation/ClientReservationController.php"
+    type:     annotation
+    prefix:   /

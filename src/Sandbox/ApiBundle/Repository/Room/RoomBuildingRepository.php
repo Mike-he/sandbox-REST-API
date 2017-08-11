@@ -732,4 +732,17 @@ class RoomBuildingRepository extends EntityRepository
 
         return $buildingsQuery->getQuery()->getResult();
     }
+
+    /**
+     * @param $buildingName
+     * @return array
+     */
+    public function findOneByName($buildingName)
+    {
+        $query = $this->createQueryBuilder('rb')
+            ->select('rb.id')
+            ->where('rb.name = :name')
+            ->setParameter('name',$buildingName);
+        return $query->getQuery()->getResult();
+    }
 }

@@ -219,3 +219,9 @@ sandbox_admin_api_admin_status_log:
     resource: "@SandboxSalesApiBundle/Controller/Admin/AdminStatusLogController.php"
     type:     annotation
     prefix:   /admin
+
+# Admin Reservation  /sales/admin/reservation
+sandbox_admin_api_reservation:
+    resource: "@SandboxSalesApiBundle/Controller/Reservation/AdminReservationController.php"
+    type:     annotation
+    prefix:   /admin

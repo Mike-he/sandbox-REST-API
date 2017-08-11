@@ -30,4 +30,16 @@ class UserProfileRepository extends EntityRepository
 
         $query->execute();
     }
+
+    /**
+     * @param $name
+     * @return array
+     */
+    public function findByName($name){
+        $query = $this->createQueryBuilder('u')
+            ->where('u.name = :name')
+            ->setParameter('name',$name);
+
+        return $query->getQuery()->getResult();
+    }
 }
