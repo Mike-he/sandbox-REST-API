@@ -4,6 +4,7 @@ namespace Sandbox\AdminApiBundle\Command;
 
 use Sandbox\ApiBundle\Entity\Finance\FinanceShortRentInvoice;
 use Sandbox\ApiBundle\Entity\Finance\FinanceSummary;
+use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -116,6 +117,7 @@ class CreateShortRentInvoiceCommand extends ContainerAwareCommand
             ->findBillsByDates($firstDate, $lastDate);
 
         foreach ($longBills as $longBill) {
+            /** @var LeaseBill $longBill */
             $incomeAmount = $longBill->getRevisedAmount();
             $serviceAmount = 0;
 
@@ -123,13 +125,13 @@ class CreateShortRentInvoiceCommand extends ContainerAwareCommand
                 ->get('doctrine')
                 ->getRepository('SandboxApiBundle:Finance\FinanceLongRentServiceBill')
                 ->findOneBy([
-                    'bill' => $longBill,
+                    'orderNumber' => $longBill->getSerialNumber(),
                 ]);
             if (!is_null($serviceBill)) {
                 $serviceAmount = $serviceBill->getAmount();
             }
 
-            $companyId = $longBill->getLease()->getBuilding()->getCompanyId();
+            $companyId = $longBill->getLease()->getCompanyId();
 
             if (!array_key_exists($companyId, $companyArray)) {
                 $companyArray[$companyId] = [

@@ -242,21 +242,6 @@ class ClientLeaseBillController extends PaymentController
             );
         $this->throwNotFoundIfNull($bill, CustomErrorMessagesConstants::ERROR_BILL_NOT_FOUND_MESSAGE);
 
-        //check collection method
-        $room = $bill->getLease()->getProduct()->getRoom();
-        $company = $room->getBuilding()->getCompany();
-
-        $collectionMethod = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
-            ->getCollectionMethod(
-                $company,
-                SalesCompanyServiceInfos::TRADE_TYPE_LONGTERM
-            );
-
-        if ($collectionMethod == SalesCompanyServiceInfos::COLLECTION_METHOD_SALES) {
-            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILL_COLLECTION_METHOD_MESSAGE);
-        }
-
         $requestContent = json_decode($request->getContent(), true);
         $channel = $requestContent['channel'];
 

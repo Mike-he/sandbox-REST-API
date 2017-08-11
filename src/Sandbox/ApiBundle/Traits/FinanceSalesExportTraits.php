@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\Traits;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Constants\EventOrderExport;
 use Sandbox\ApiBundle\Constants\LeaseConstants;
+use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
@@ -628,6 +629,7 @@ trait FinanceSalesExportTraits
         );
 
         foreach ($longBills as $longBill) {
+            /** @var LeaseBill $longBill */
             $lease = $longBill->getLease();
             $product = $lease->getProduct();
             $room = $product->getRoom();
@@ -649,18 +651,7 @@ trait FinanceSalesExportTraits
                 $language
             );
 
-            $companyServiceInfo = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
-                ->findOneBy([
-                    'company' => $company,
-                    'tradeTypes' => $roomType,
-                ]);
-            if (!is_null($companyServiceInfo)) {
-                $method = $companyServiceInfo->getCollectionMethod();
-                if ($method == SalesCompanyServiceInfos::COLLECTION_METHOD_SALES) {
-                    $collection = $companyName;
-                }
-            }
+            $collection = $companyName;
 
             $profile = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:User\UserProfile')
@@ -688,7 +679,7 @@ trait FinanceSalesExportTraits
                 ->get('doctrine')
                 ->getRepository('SandboxApiBundle:Finance\FinanceLongRentServiceBill')
                 ->findOneBy([
-                    'bill' => $longBill,
+                    'orderNumber' => $longBill->getSerialNumber(),
                 ]);
             if (!is_null($serviceBill)) {
                 $commission = $serviceBill->getAmount();

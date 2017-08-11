@@ -4,9 +4,9 @@ namespace Sandbox\ApiBundle\Traits;
 
 use Sandbox\ApiBundle\Entity\Finance\FinanceDashboard;
 use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentServiceBill;
-use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Constants\FinanceDashboardConstants;
+use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 
 /**
@@ -22,11 +22,15 @@ use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 trait FinanceTrait
 {
     /**
-     * @param LeaseBill $bill
+     * @param $orderNumber
+     * @param $companyId
      * @param $type
      */
     private function generateLongRentServiceFee(
-        $bill,
+        $orderNumber,
+        $companyId,
+        $price,
+        $channel,
         $type
     ) {
         $em = $this->getContainer()->get('doctrine')->getManager();
@@ -34,19 +38,21 @@ trait FinanceTrait
         $date = round(microtime(true) * 1000).rand(1000, 9999);
 
         $serialNumber = FinanceLongRentServiceBill::SERVICE_FEE_LETTER_HEAD.$date;
-        $companyId = $bill->getLease()->getCompanyId();
 
-        $fee = $this->getCompanyServiceFee($companyId);
+        $parameter = $em->getRepository('SandboxApiBundle:Parameter\Parameter')
+            ->findOneBy(array('key' => $channel));
+
+        $fee = $parameter ? $parameter->getValue() : 0;
 
         $serviceBill = $em->getRepository('SandboxApiBundle:Finance\FinanceLongRentServiceBill')
             ->findOneBy(
                 array(
-                    'bill' => $bill,
+                    'orderNumber' => $orderNumber,
                     'type' => $type,
                 )
             );
 
-        $amount = ($bill->getRevisedAmount() * $fee) / 100;
+        $amount = ($price * $fee) / 100;
         if (!$serviceBill) {
             $serviceBill = new FinanceLongRentServiceBill();
             $serviceBill->setSerialNumber($serialNumber);
@@ -54,31 +60,23 @@ trait FinanceTrait
             $serviceBill->setAmount($amount);
             $serviceBill->setType($type);
             $serviceBill->setCompanyId($companyId);
-            $serviceBill->setBill($bill);
+            $serviceBill->setOrderNumber($orderNumber);
 
             $em->persist($serviceBill);
-        }
 
-        $channel = $bill->getPayChannel();
-        $wallet = $em->getRepository('SandboxApiBundle:Finance\FinanceSalesWallet')
-            ->findOneBy(['companyId' => $companyId]);
+            $wallet = $em->getRepository('SandboxApiBundle:Finance\FinanceSalesWallet')
+                ->findOneBy(['companyId' => $companyId]);
 
-        if (!is_null($wallet)) {
-            $totalAmount = $wallet->getTotalAmount();
-            $billAmount = $wallet->getBillAmount();
-            $withdrawAmount = $wallet->getWithdrawableAmount();
+            if (!is_null($wallet)) {
+                $totalAmount = $wallet->getTotalAmount();
+                $billAmount = $wallet->getBillAmount();
+                $withdrawAmount = $wallet->getWithdrawableAmount();
 
-            $wallet->setBillAmount($billAmount + $amount);
-
-            if ($channel == LeaseBill::CHANNEL_SALES_OFFLINE) {
-                $wallet->setWithdrawableAmount($withdrawAmount - $amount);
-            } else {
-                $wallet->setTotalAmount($totalAmount + $bill->getRevisedAmount());
-                $wallet->setWithdrawableAmount($withdrawAmount + $bill->getRevisedAmount() - $amount);
+                $wallet->setBillAmount($billAmount + $amount);
+                $wallet->setTotalAmount($totalAmount + $price);
+                $wallet->setWithdrawableAmount($withdrawAmount + $price - $amount);
             }
         }
-
-        $em->flush();
     }
 
     /**

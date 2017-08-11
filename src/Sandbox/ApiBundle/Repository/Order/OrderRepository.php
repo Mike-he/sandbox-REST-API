@@ -3310,6 +3310,8 @@ class OrderRepository extends EntityRepository
             ->where('o.status = :completed')
             ->andWhere('o.startDate >= :start')
             ->andWhere('o.startDate <= :end')
+            ->andWhere('o.type = :type')
+            ->setParameter('type', ProductOrder::OWN_TYPE)
             ->setParameter('completed', ProductOrder::STATUS_COMPLETED)
             ->setParameter('start', $startDate)
             ->setParameter('end', $endDate);
