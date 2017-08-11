@@ -40,23 +40,6 @@ parameters:
     expired_verification_time: +10 minutes
     time_for_half_hour_early: -30 minutes
     time_for_preorder_cancel: + 1 day
-
-    xmpp_domain: devxmpp.sandbox3.cn
-    openfire_innet_url: http://devxmpp.sandbox3.cn
-    openfire_plugin_bstuser: /plugins/bstuser
-    openfire_plugin_bstuser_users: /users
-    openfire_plugin_bstuser_property_name_ezuser: ezuser
-    openfire_plugin_bstuser_property_secret_ezuser: DB93819516EA9C8E73C0374595ED0F19
-    openfire_plugin_sandbox: /plugins/sandbox
-    openfire_plugin_sandbox_notification: /notification
-    openfire_plugin_sandbox_notification_broadcast: /broadcast
-    openfire_plugin_bstgroupchat: /plugins/bstgroupchat
-    openfire_plugin_bstgroupchat_room: /rooms
-    openfire_plugin_bstgroupchat_room_member: /members
-    openfire_plugin_bstios: /plugins/bstios
-    openfire_plugin_bstios_chatconfig: /chatconfig
-    openfire_plugin_bstios_apns: /apns
-    openfire_plugin_file_server: /plugins/fileServer/fileservice
     
     sms_api_url: http://yunpian.com/v1/sms/send.json
     sms_api_key: 21c29536f85636a862306aa6f8ffdf74
@@ -130,16 +113,9 @@ parameters:
     coffee_url: http://devcoffee.sandbox3.cn
     invoice_url: http://devinvoice.sandbox3.cn
 
-    openfire_db_name: openfire
-    openfire_db_user: sandbox
-    openfire_db_password: sandbox
-
     duiba_app_key: 2rc4ZQm9csJapqvKnx92AKsNdLRr
     duiba_app_secret: AfdCJZ6T4vHboHkuVSkwWUwMRra
     duiba_app_env: dev
 
-    openfire_url: http://devxmpp.sandbox3.cn/plugins/restapi/v1
-    openfire_secret: TKv28StIabbAw49o
-    openfire_servicename: conference
-    openfire_servername: devxmpp.sandbox3.cn
-    openfire_service: 'jean553\OpenfireBundle\Services\OpenfireService'
+    jpush_key: 373800afb8f8ecb5f9e3138a
+    jpush_secret: 94737e735173f56f476b47ee
