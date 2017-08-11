@@ -1619,7 +1619,7 @@ class ClientOrderController extends OrderController
 
     /**
      * @param Request $request
-     * @param $order
+     * @param ProductOrder $order
      *
      * @return View
      */
@@ -1637,7 +1637,16 @@ class ClientOrderController extends OrderController
         }
 
         $now = new \DateTime();
-        $userId = $order->getUserId();
+
+        if ($order->getCustomerId()) {
+            $customer = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserCustomer')
+                ->find($order->getCustomerId());
+
+            $userId = $customer->getUserId();
+        } else {
+            $userId = $order->getUserId();
+        }
         $this->throwNotFoundIfNull($userId, self::NOT_FOUND_MESSAGE);
         array_push($users, $userId);
 
