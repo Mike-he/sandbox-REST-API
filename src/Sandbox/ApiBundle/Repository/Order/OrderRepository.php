@@ -17,6 +17,7 @@ class OrderRepository extends EntityRepository
 
     /**
      * @param $userId
+     * @param $customerIds
      * @param $limit
      * @param $offset
      *
@@ -24,12 +25,14 @@ class OrderRepository extends EntityRepository
      */
     public function getUserAllOrders(
         $userId,
+        $customerIds,
         $limit,
         $offset
     ) {
         $query = $this->createQueryBuilder('o')
-            ->where('o.userId = :userId')
+            ->where('o.userId = :userId OR o.customerId in (:customerIds)')
             ->setParameter('userId', $userId)
+            ->setParameter('customerIds', $customerIds)
             ->orderBy('o.modificationDate', 'DESC')
             ->setMaxResults($limit)
             ->setFirstResult($offset)
@@ -40,6 +43,7 @@ class OrderRepository extends EntityRepository
 
     /**
      * @param $userId
+     * @param $customerIds
      * @param $limit
      * @param $offset
      *
@@ -47,6 +51,7 @@ class OrderRepository extends EntityRepository
      */
     public function getUserIncompleteOrders(
         $userId,
+        $customerIds,
         $limit,
         $offset
     ) {
@@ -57,8 +62,9 @@ class OrderRepository extends EntityRepository
                     o.status = \'unpaid\' OR
                     (o.status = \'completed\' and o.endDate >= :now)
                 ')
-            ->andWhere('o.userId = :userId')
+            ->andWhere('o.userId = :userId OR o.customerId in (:customerIds)')
             ->setParameter('userId', $userId)
+            ->setParameter('customerIds', $customerIds)
             ->setParameter('now', $now)
             ->orderBy('o.modificationDate', 'DESC')
             ->setMaxResults($limit)
@@ -70,6 +76,7 @@ class OrderRepository extends EntityRepository
 
     /**
      * @param $userId
+     * @param $customerIds
      * @param $limit
      * @param $offset
      *
@@ -77,13 +84,15 @@ class OrderRepository extends EntityRepository
      */
     public function getUserPendingOrders(
         $userId,
+        $customerIds,
         $limit,
         $offset
     ) {
         $query = $this->createQueryBuilder('o')
             ->where('o.status = \'paid\' OR o.status = \'unpaid\'')
-            ->andWhere('o.userId = :userId')
+            ->andWhere('o.userId = :userId OR o.customerId in (:customerIds)')
             ->setParameter('userId', $userId)
+            ->setParameter('customerIds', $customerIds)
             ->orderBy('o.modificationDate', 'DESC')
             ->setMaxResults($limit)
             ->setFirstResult($offset)
@@ -94,6 +103,7 @@ class OrderRepository extends EntityRepository
 
     /**
      * @param $userId
+     * @param $customerIds
      * @param $limit
      * @param $offset
      *
@@ -101,6 +111,7 @@ class OrderRepository extends EntityRepository
      */
     public function getUserCompletedOrders(
         $userId,
+        $customerIds,
         $limit,
         $offset
     ) {
@@ -115,8 +126,9 @@ class OrderRepository extends EntityRepository
                     o.refunded = :refunded
                 )    
             ')
-            ->andWhere('o.userId = :userId')
+            ->andWhere('o.userId = :userId OR o.customerId in (:customerIds)')
             ->setParameter('userId', $userId)
+            ->setParameter('customerIds', $customerIds)
             ->setParameter('needToRefund', false)
             ->setParameter('refunded', false)
             ->setParameter('offline', ProductOrder::CHANNEL_OFFLINE)
@@ -130,6 +142,7 @@ class OrderRepository extends EntityRepository
 
     /**
      * @param $userId
+     * @param $cusomerIds
      * @param $limit
      * @param $offset
      *
@@ -137,6 +150,7 @@ class OrderRepository extends EntityRepository
      */
     public function getUserRefundOrders(
         $userId,
+        $cusomerIds,
         $limit,
         $offset
     ) {
@@ -145,8 +159,9 @@ class OrderRepository extends EntityRepository
                 (o.needToRefund = :needToRefund OR
                 o.refunded = :refunded)
             ')
-            ->andWhere('o.userId = :userId')
+            ->andWhere('o.userId = :userId OR o.customerId in (:customerIds)')
             ->setParameter('userId', $userId)
+            ->setParameter('customerIds', $customerIds)
             ->setParameter('needToRefund', true)
             ->setParameter('refunded', true)
             ->orderBy('o.modificationDate', 'DESC')
@@ -3310,8 +3325,6 @@ class OrderRepository extends EntityRepository
             ->where('o.status = :completed')
             ->andWhere('o.startDate >= :start')
             ->andWhere('o.startDate <= :end')
-            ->andWhere('o.type = :type')
-            ->setParameter('type', ProductOrder::OWN_TYPE)
             ->setParameter('completed', ProductOrder::STATUS_COMPLETED)
             ->setParameter('start', $startDate)
             ->setParameter('end', $endDate);
@@ -3322,6 +3335,31 @@ class OrderRepository extends EntityRepository
         }
 
         return  $query->getQuery()->getResult();
+    }
+
+    public function sumCompletedPreorder(
+        $startDate,
+        $endDate,
+        $companyId
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
+            ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'r.buildingId = b.id')
+            ->select('sum(o.discountPrice)')
+            ->where('o.status = :completed')
+            ->andWhere('o.startDate >= :start')
+            ->andWhere('o.startDate <= :end')
+            ->andWhere('b.company = :companyId')
+            ->andWhere('o.type = :type')
+            ->setParameter('completed', ProductOrder::STATUS_COMPLETED)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate)
+            ->setParameter('companyId', $companyId)
+            ->setParameter('type', ProductOrder::PREORDER_TYPE)
+        ;
+
+        return  $query->getQuery()->getSingleScalarResult();
     }
 
     /**

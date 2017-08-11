@@ -55,6 +55,8 @@ class CreateShortRentInvoiceCommand extends ContainerAwareCommand
             $lastDate,
             $companyArray
         );
+
+        $output->writeln('Success!');
     }
 
     /**
@@ -259,8 +261,15 @@ class CreateShortRentInvoiceCommand extends ContainerAwareCommand
             $summary->setMembershipOrderCount((int) $value['membership_order_count']);
             $summary->setSummaryDate($lastDate);
 
+            $preorderAmount = $this->getContainer()
+                ->get('doctrine')
+                ->getRepository('SandboxApiBundle:Order\ProductOrder')
+                ->sumCompletedPreorder($firstDate, $lastDate, $key);
+
+            $monthAmount = $value['short_rent_balance'] + $value['event_order_balance'] + $value['membership_order_balance'] - $preorderAmount;
+
             $invoice = new FinanceShortRentInvoice();
-            $invoice->setAmount($value['short_rent_balance'] + $value['event_order_balance'] + $value['membership_order_balance']);
+            $invoice->setAmount($monthAmount);
             $invoice->setCompanyId((int) $key);
             $invoice->setCreationDate($lastDate);
 
@@ -276,8 +285,8 @@ class CreateShortRentInvoiceCommand extends ContainerAwareCommand
                 $shortRentAmount = $wallet->getShortRentInvoiceAmount();
                 $totalAmount = $wallet->getTotalAmount();
 
-                $wallet->setShortRentInvoiceAmount($shortRentAmount + $value['short_rent_balance'] + $value['event_order_balance'] + $value['membership_order_balance']);
-                $wallet->setTotalAmount($totalAmount + $value['short_rent_balance'] + $value['event_order_balance'] + $value['membership_order_balance']);
+                $wallet->setShortRentInvoiceAmount($shortRentAmount + $monthAmount);
+                $wallet->setTotalAmount($totalAmount + $monthAmount);
             }
         }
 

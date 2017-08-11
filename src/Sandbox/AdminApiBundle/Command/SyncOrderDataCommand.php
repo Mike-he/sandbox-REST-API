@@ -38,24 +38,20 @@ class SyncOrderDataCommand extends ContainerAwareCommand
                     if ($info['base_price']) {
                         $order->setBasePrice($info['base_price']);
                     } else {
-                        $seat = $info["room"]["seat"];
-                        $order->setBasePrice($seat["base_price"]);
+                        $seat = $info['room']['seat'];
+                        $order->setBasePrice($seat['base_price']);
                     }
-
-
                 } else {
-                    if(isset($info['order'])) {
+                    if (isset($info['order'])) {
                         $order->setUnitPrice($info['order']['unit_price']);
                         $leasingSets = $info['room']['leasing_set'];
 
                         var_dump($leasingSets);
                         foreach ($leasingSets as $leasingSet) {
-                            if($leasingSet['unit_price'] == $info['order']['unit_price'])
-                            {
-                                $order->setBasePrice($leasingSet["base_price"]);
+                            if ($leasingSet['unit_price'] == $info['order']['unit_price']) {
+                                $order->setBasePrice($leasingSet['base_price']);
                             }
                         }
-
                     }
                 }
             }

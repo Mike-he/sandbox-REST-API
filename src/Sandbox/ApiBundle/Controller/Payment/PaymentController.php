@@ -1150,6 +1150,20 @@ class PaymentController extends DoorController
         // send order email
         $this->sendOrderEmail($order);
 
+        if ($order->getCustomerId()) {
+            $customer = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserCustomer')
+                ->find($order->getCustomerId());
+
+            $userId = $customer ? $customer->getUserId() : null;
+        } else {
+            $userId = $order->getUserId();
+        }
+
+        if (is_null($userId)) {
+            return;
+        }
+
         $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
         $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
         if (is_null($building)) {
@@ -1165,7 +1179,7 @@ class PaymentController extends DoorController
         $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
         $this->setDoorAccessForMembershipCard(
             $buildingId,
-            array($order->getUserId()),
+            array($userId),
             $order->getStartDate(),
             $order->getEndDate(),
             $order->getOrderNumber(),
@@ -1178,7 +1192,6 @@ class PaymentController extends DoorController
             return;
         }
 
-        $userId = $order->getUserId();
         $this->storeDoorAccess(
             $em,
             $order->getId(),
@@ -1657,8 +1670,24 @@ class PaymentController extends DoorController
             $roomType = $this->get('translator')->trans('room.type.'.$order->getProduct()->getRoom()->getType());
             $unitPrice = $this->get('translator')->trans('room.unit.'.$productInfo['order']['unit_price']);
 
-            $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($order->getUserId());
-            $user = $userProfile->getUser();
+            $customer = null;
+            $user = null;
+            $userProfile = null;
+            if ($order->getCustomerId()) {
+                $customer = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:User\UserCustomer')
+                    ->find($order->getCustomerId());
+            } else {
+                $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($order->getUserId());
+                $user = $userProfile->getUser();
+            }
+
+            $user = array(
+                'id' => '',
+                'name' => $customer ? $customer->getName() : $user->getName(),
+                'phone' => $customer ? $customer->getPhone() : $user->getPhone(),
+                'email' => $customer ? $customer->getEmail() : $user->getEmail(),
+            );
 
             // send email
             if (!is_null($building->getEmail())) {
@@ -1673,7 +1702,6 @@ class PaymentController extends DoorController
                             'product_info' => $productInfo,
                             'status' => $status,
                             'user' => $user,
-                            'user_profile' => $userProfile,
                             'pay_channel' => $payChannel,
                             'room_type' => $roomType,
                             'unit_price' => $unitPrice,
@@ -1684,9 +1712,9 @@ class PaymentController extends DoorController
 
             // send sms
             if (!is_null($building->getOrderRemindPhones())) {
+                $phoneInfo = $user['phone'] ? $user['phone'] : $user['email'];
+                $username = $user['name'].'('.$phoneInfo.')';
                 $orderRoom = $order->getProduct()->getRoom();
-                $phoneInfo = $user->getPhone() ? $user->getPhone() : $user->getEmail();
-                $username = $userProfile->getName().'('.$phoneInfo.')';
                 $time_action = $order->getCreationDate()->format('Y/m/d H:i');
                 $orderNumber = $order->getOrderNumber();
                 $product = $orderRoom->getCity()->getName().','.$orderRoom->getBuilding()->getName().','.$orderRoom->getNumber().','.$this->formatString($orderRoom->getName());

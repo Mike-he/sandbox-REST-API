@@ -185,11 +185,16 @@ class ClientOrderController extends OrderController
         $language = $request->getPreferredLanguage();
         $orders = [];
 
+        $customerIds = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->getCustomerIdsByUserId($userId);
+
         $orderRepo = $this->getDoctrine()->getRepository('SandboxApiBundle:Order\ProductOrder');
         switch ($status) {
             case ProductOrder::COMBINE_STATUS_PENDING:
                 $orders = $orderRepo->getUserPendingOrders(
                     $userId,
+                    $customerIds,
                     $limit,
                     $offset
                 );
@@ -198,6 +203,7 @@ class ClientOrderController extends OrderController
             case ProductOrder::STATUS_COMPLETED:
                 $orders = $orderRepo->getUserCompletedOrders(
                     $userId,
+                    $customerIds,
                     $limit,
                     $offset
                 );
@@ -206,6 +212,7 @@ class ClientOrderController extends OrderController
             case ProductOrder::COMBINE_STATUS_REFUND:
                 $orders = $orderRepo->getUserRefundOrders(
                     $userId,
+                    $customerIds,
                     $limit,
                     $offset
                 );
@@ -214,6 +221,7 @@ class ClientOrderController extends OrderController
             case ProductOrder::COMBINE_STATUS_INCOMPLETE:
                 $orders = $orderRepo->getUserIncompleteOrders(
                     $userId,
+                    $customerIds,
                     $limit,
                     $offset
                 );
@@ -222,6 +230,7 @@ class ClientOrderController extends OrderController
             case ProductOrder::COMBINE_STATUS_ALL:
                 $orders = $orderRepo->getUserAllOrders(
                     $userId,
+                    $customerIds,
                     $limit,
                     $offset
                 );

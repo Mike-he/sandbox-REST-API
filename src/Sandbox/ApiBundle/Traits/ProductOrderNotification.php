@@ -115,7 +115,23 @@ trait ProductOrderNotification
             } else {
                 $dataArray = [];
                 foreach ($orders as $order) {
-                    $userArray = [$order->getUserId()];
+                    if ($order->getUser()) {
+                        $userArray = [$order->getUserId()];
+                    } elseif ($order->getCustomerId()) {
+                        $customer = $this->getContainer()
+                            ->get('doctrine')
+                            ->getRepository('SandboxApiBundle:User\UserCustomer')
+                            ->find($order->getCustomerId());
+
+                        $userId = $customer ? $customer->getUserId() : null;
+
+                        if ($userId) {
+                            $userArray = [$userId];
+                        } else {
+                            continue;
+                        }
+                    }
+
                     $result = $this->compareVersionForJpush($userArray);
                     $jpushReceivers = $result['jpush_users'];
 
