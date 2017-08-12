@@ -40,7 +40,7 @@ trait FinanceTrait
         $serialNumber = FinanceLongRentServiceBill::SERVICE_FEE_LETTER_HEAD.$date;
 
         $parameter = $em->getRepository('SandboxApiBundle:Parameter\Parameter')
-            ->findOneBy(array('key' => $channel));
+            ->findOneBy(array('key' => Parameter::KEY_POUNDAGE.$channel));
 
         $fee = $parameter ? $parameter->getValue() : 0;
 

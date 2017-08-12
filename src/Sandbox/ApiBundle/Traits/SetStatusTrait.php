@@ -20,6 +20,7 @@ use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 trait SetStatusTrait
 {
     use ConsumeTrait;
+    use FinanceTrait;
 
     /**
      * @param ProductOrder $order
@@ -46,26 +47,38 @@ trait SetStatusTrait
             $parameter = Parameter::KEY_BEAN_PRODUCT_ORDER;
         }
 
-        //update user bean
-        $this->getContainer()->get('sandbox_api.bean')->postBeanChange(
-            $order->getUserId(),
-            $order->getDiscountPrice(),
-            $order->getOrderNumber(),
-            $parameter
-        );
+        if ($order->getCustomerId()) {
+            $customer = $this->getContainer()->get('doctrine')
+                ->getRepository('SandboxApiBundle:User\UserCustomer')
+                ->find($order->getCustomerId());
 
-        //update invitee bean
-        $user = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:User\User')
-            ->find($order->getUserId());
+            $userId = $customer ? $customer->getUserId() : null;
+        } else {
+            $userId = $order->getUserId();
+        }
 
-        if ($user->getInviterId()) {
+        if ($userId) {
+            //update user bean
             $this->getContainer()->get('sandbox_api.bean')->postBeanChange(
-                $user->getInviterId(),
+                $userId,
                 $order->getDiscountPrice(),
                 $order->getOrderNumber(),
-                Parameter::KEY_BEAN_INVITEE_PRODUCT_ORDER
+                $parameter
             );
+
+            //update invitee bean
+            $user = $this->getContainer()->get('doctrine')
+                ->getRepository('SandboxApiBundle:User\User')
+                ->find($userId);
+
+            if ($user->getInviterId()) {
+                $this->getContainer()->get('sandbox_api.bean')->postBeanChange(
+                    $user->getInviterId(),
+                    $order->getDiscountPrice(),
+                    $order->getOrderNumber(),
+                    Parameter::KEY_BEAN_INVITEE_PRODUCT_ORDER
+                );
+            }
         }
     }
 

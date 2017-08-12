@@ -32,6 +32,7 @@ class Parameter
     const KEY_BEAN_PRODUCT_ORDER_PREORDER = 'bean_product_order_preorder';
 
     // Poundage
+    const KEY_POUNDAGE = 'poundage_';
     const KEY_POUNDAGE_ACCOUNT = 'poundage_account';
     const KEY_POUNDAGE_WX = 'poundage_wx';
     const KEY_POUNDAGE_ALIPAY = 'poundage_alipay';
