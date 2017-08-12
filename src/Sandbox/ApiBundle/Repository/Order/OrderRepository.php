@@ -767,9 +767,25 @@ class OrderRepository extends EntityRepository
 
     /**
      * get unpaid preorder product orders.
+     *
+     * @param $companyId
+     * @param $buildingId
+     * @param $type
+     * @param $startDate
+     * @param $endDate
+     * @param $keyword
+     * @param $keywordSearch
+     *
+     * @return array
      */
     public function getUnpaidPreOrders(
-      $companyId
+      $companyId,
+      $buildingId,
+      $type,
+      $startDate,
+      $endDate,
+      $keyword,
+      $keywordSearch
     ) {
         $query = $this->createQueryBuilder('o')
             ->leftJoin('o.product', 'p')
@@ -780,10 +796,56 @@ class OrderRepository extends EntityRepository
             ->andWhere('b.companyId = :company')
             ->setParameter('status', ProductOrder::STATUS_UNPAID)
             ->setParameter('preorder', ProductOrder::PREORDER_TYPE)
-            ->setParameter('company', $companyId)
-            ->getQuery();
+            ->setParameter('company', $companyId);
 
-        return $query->getResult();
+        if ($buildingId) {
+            $query->andWhere('b.id = :building')
+                ->setParameter('building', $buildingId);
+        }
+
+        if ($type) {
+            $query->andWhere('r.type = :type')
+                ->setParameter('type', $type);
+        }
+
+        if ($startDate) {
+            $startDate = new \DateTime($startDate);
+
+            $query->andWhere('o.creationDate >= :startDate')
+                ->setParameter('startDate', $startDate);
+        }
+
+        if ($endDate) {
+            $endDate = new \DateTime($endDate);
+            $endDate->setTime(23, 59, 59);
+
+            $query->andWhere('o.creationDate <= :endDate')
+                ->setParameter('endDate', $endDate);
+        }
+
+        if ($keyword && $keywordSearch) {
+            switch ($keyword) {
+                case 'phone':
+                    $query->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'o.customerId = uc.id')
+                        ->andWhere('uc.phone LIKE :search');
+                    break;
+                case 'customer':
+                    $query->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'o.customerId = uc.id')
+                        ->andWhere('uc.name LIKE :search');
+                    break;
+                case 'order':
+                    $query->andWhere('o.orderNumber LIKE :search');
+                    break;
+                default:
+                    return array();
+            }
+
+            $query->setParameter('search', '%'.$keywordSearch.'%');
+        }
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
     }
 
     public function getRenewOrder(
