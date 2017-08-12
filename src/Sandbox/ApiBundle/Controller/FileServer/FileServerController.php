@@ -61,17 +61,19 @@ class FileServerController extends SandboxRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $alltargets = array('bulletin', 'chatgroup', 'company',  'id_photo', 'menu',  'person',  'user_card');
-        $target = $paramFetcher->get('target');
+//        $alltargets = array('bulletin', 'chatgroup', 'company',  'id_photo', 'menu',  'person',  'user_card');
+//        $target = $paramFetcher->get('target');
+//
+//        $domain = null;
+//        if (!is_null($target)) {
+//            if (in_array($target, $alltargets)) {
+//                $domain = $this->container->getParameter('file_server_url');
+//            } else {
+//                $domain = $this->container->getParameter('rest_file_server_url');
+//            }
+//        }
 
-        $domain = null;
-        if (!is_null($target)) {
-            if (in_array($target, $alltargets)) {
-                $domain = $this->container->getParameter('file_server_url');
-            } else {
-                $domain = $this->container->getParameter('rest_file_server_url');
-            }
-        }
+        $domain = $this->container->getParameter('rest_file_server_url');
 
         return new View(array(
             'file_server_domain' => $domain,

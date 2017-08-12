@@ -517,7 +517,11 @@ class ClientUserPasswordController extends UserPasswordController
         $auth = null
     ) {
         // update xmpp user password
-        $result = $this->updateXmppUser($user->getXmppUsername(), $password);
+        $result = $this->get('sandbox_api.jpush_im')
+            ->updatePassword(
+                $user->getXmppUsername(),
+                $password
+            );
         if (!$result) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }

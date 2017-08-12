@@ -1340,30 +1340,10 @@ class SandboxRestController extends FOSRestController
         $username = strval(2000000 + $registrationId);
         $password = $user->getPassword();
 
-        $service = $this->get('openfire.service');
+        $service = $this->get('sandbox_api.jpush_im');
         $service->createUser($username, $password);
 
         return $username;
-    }
-
-    /**
-     * @param string $username
-     * @param string $password
-     * @param string $name
-     * @param string $fullJID
-     *
-     * @return bool
-     */
-    protected function updateXmppUser(
-        $username,
-        $password = null,
-        $name = null,
-        $fullJID = null
-    ) {
-        $service = $this->get('openfire.service');
-        $service->editUser($username, $password, $name);
-
-        return true;
     }
 
     /**

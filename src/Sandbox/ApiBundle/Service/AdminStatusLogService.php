@@ -44,7 +44,13 @@ class AdminStatusLogService
         $em->flush();
     }
 
-
+    /**
+     * @param $adminId
+     * @param $status
+     * @param $message
+     * @param $object
+     * @param $objectId
+     */
     public function addLog(
         $adminId,
         $status,

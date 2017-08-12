@@ -855,7 +855,11 @@ class AdminUsersController extends DoorController
             try {
                 $profile = $this->getRepo('User\UserProfile')->findOneByUser($user);
 
-                $this->updateXmppUser($user->getXmppUsername(), null, $profile->getName());
+                $this->get('sandbox_api.jpush_im')
+                    ->updateNickname(
+                        $user->getXmppUsername(),
+                        $profile->getName()
+                    );
             } catch (\Exception $e) {
                 error_log('Sync user went wrong. User ID: '.$user->getId());
                 continue;

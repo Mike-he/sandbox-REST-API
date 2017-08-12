@@ -23,3 +23,6 @@ services:
     sandbox_api.admin_status_log:
         class: Sandbox\ApiBundle\Service\AdminStatusLogService
         arguments: ['@service_container']
+    sandbox_api.jpush_im:
+        class: Sandbox\ApiBundle\Service\JpushImService
+        arguments: ['@service_container']
