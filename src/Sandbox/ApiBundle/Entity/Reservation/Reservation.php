@@ -16,7 +16,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 class Reservation
 {
     const UNGRABED = 'ungrabed';
-    const GRABED = 'grabed';
+    const GRABED = 'grabbed';
     /**
      *
      * @ORM\Column(name="id", type="integer")
@@ -102,7 +102,7 @@ class Reservation
      * @var \DateTime
      *
      * @Gedmo\Timestampable(on="update")
-     * @ORM\Column(name="modification_date", type="datetime", nullable=false)
+     * @ORM\Column(name="modification_date", type="datetime", nullable=true)
      */
     private $modificationDate;
 
