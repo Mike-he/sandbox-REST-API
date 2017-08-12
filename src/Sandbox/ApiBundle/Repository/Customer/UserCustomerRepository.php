@@ -135,4 +135,41 @@ class UserCustomerRepository extends EntityRepository
 
         return $result;
     }
+
+    /**
+     * @param $userId
+     *
+     * @return array
+     */
+    public function getCustomerByUserId(
+        $userId
+    ) {
+        $query = $this->createQueryBuilder('c')
+            ->select('
+            c.id,
+            c.companyId,
+            c.userId,
+            c.phoneCode,
+            c.phone,
+            c.name,
+            c.avatar,
+            c.sex,
+            c.email,
+            c.nationality,
+            c.idType,
+            c.idNumber,
+            c.language,
+            c.birthday,
+            c.companyName,
+            c.position,
+            c.comment,
+            c.creationDate,
+            c.modificationDate
+            ')
+            ->where('c.userId = :userId')
+            ->setParameter('userId', $userId);
+
+        return $query->getQuery()->getSingleResult();
+
+    }
 }

@@ -40,6 +40,6 @@ class UserProfileRepository extends EntityRepository
             ->where('up.userId = :userId')
             ->setParameter('userId',$userId);
 
-        return $query->getQuery()->getResult();
+        return $query->getQuery()->getSingleResult();
     }
 }

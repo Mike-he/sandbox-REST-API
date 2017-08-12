@@ -254,13 +254,12 @@ class AdminReservationController extends SalesRestController
     }
 
     /**
-     * @param $reservations
+     * @param $reservation
      * @return mixed
      */
     private function getProductInfo($reservation)
     {
         $data = [];
-
         /** @var Reservation $reservation */
         $data['id'] = $reservation->getId();
         $data['userId'] = $reservation->getUserId();
@@ -273,6 +272,11 @@ class AdminReservationController extends SalesRestController
         $data['viewTime'] = $reservation->getViewTime();
         $data['creationDate'] = $reservation->getCreationDate();
         $data['modificationDate'] = $reservation->getModificationDate();
+        $data['status'] = $reservation->getStatus();
+
+        $customer = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserCustomer')
+                 ->getCustomerByUserId($reservation->getUserId());
+        $data['customer'] = $customer;
 
         $productId = $reservation->getProductId();
         $product = $this->getDoctrine()
@@ -280,12 +284,24 @@ class AdminReservationController extends SalesRestController
             ->findProductByProductId($productId);
         $data['product'] = $product;
 
+        $user = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserProfile')
+            ->findByUserId($reservation->getUserId());
+        $data['userName'] = $user->getName();
+
+        if($reservation->getAdminId()){
+            $admin = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserProfile')
+                ->findByUserId($reservation->getAdminId());
+            $data['adminName'] = $admin->getName();
+        }
 
         $rent = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Product\ProductRentSet')
             ->findOneBy(array('product' => $productId));
 
         $data['product']['rent_price'] = $rent->getbasePrice();
+        $data['product']['unit_price'] = $rent->getUnitPrice();
 
         return $data;
     }
