@@ -69,6 +69,8 @@ class FinanceLongRentServiceBill
      * @var string
      *
      * @ORM\Column(name="order_number", type="string", length=64)
+     *
+     * @Serializer\Groups({"main"})
      */
     private $orderNumber;
 
@@ -108,6 +110,13 @@ class FinanceLongRentServiceBill
      * @Serializer\Groups({"main"})
      */
     private $modificationDate;
+
+    /**
+     * @var string
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $leaseSerialNumber;
 
     /**
      * @return int
@@ -262,19 +271,18 @@ class FinanceLongRentServiceBill
     }
 
     /**
-     * @Serializer\VirtualProperty
-     * @Serializer\SerializedName("bill")
-     * @Serializer\Groups({"main"})
+     * @return string
      */
-    public function degenerateBill()
+    public function getLeaseSerialNumber()
     {
-        return [
-            'id' => $this->bill->getId(),
-            'serial_number' => $this->bill->getSerialNumber(),
-            'lease' => [
-                'id' => $this->bill->getLease()->getId(),
-                'serial_number' => $this->bill->getLease()->getSerialNumber(),
-            ],
-        ];
+        return $this->leaseSerialNumber;
+    }
+
+    /**
+     * @param string $leaseSerialNumber
+     */
+    public function setLeaseSerialNumber($leaseSerialNumber)
+    {
+        $this->leaseSerialNumber = $leaseSerialNumber;
     }
 }
