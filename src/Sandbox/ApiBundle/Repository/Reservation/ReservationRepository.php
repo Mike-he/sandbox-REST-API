@@ -46,7 +46,9 @@ class ReservationRepository extends EntityRepository
         $modificationDate
     ) {
         $query = $this->createQueryBuilder('re')
+            ->select('re')
             ->leftJoin('SandboxApiBundle:User\UserProfile','up','WITH','up.userId = re.userId')
+           // ->leftJoin('SandboxApiBundle:Product\ProductRentSet','prt','WITH','prt.productId = re.productId')
             ->where('re.id != :id')
             ->setParameter('id','null')
            ;
@@ -82,7 +84,7 @@ class ReservationRepository extends EntityRepository
                 ->setParameter('viewTime', $viewTime);
         }
 
-        if(!is_null($productIds)){
+        if(!empty($productIds)){
             $query->andWhere('re.productId in (:productIds)')
                 ->setParameter('productIds', $productIds);
         }

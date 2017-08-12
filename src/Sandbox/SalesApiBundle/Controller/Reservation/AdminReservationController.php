@@ -151,18 +151,21 @@ class AdminReservationController extends SalesRestController
         $status = $paramFetcher->get('status');
 
         $buildingName = $paramFetcher->get('building');
-        $buildings = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Room\RoomBuilding')
-            ->findOneByName($buildingName);
-        $buildingId = $buildings[0]['id'];
+        $productIds = array();
+        if($buildingName){
+            $buildings = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                ->findOneByName($buildingName);
 
-        $products = $this->getDoctrine()
-           ->getRepository('SandboxApiBundle:Product\Product')
-           ->findProductIdsByCompanyAndBuilding($salesCompanyId,$buildingId);
-       $productIds = array();
-       foreach($products as $product){
-           $productIds[] = $product['id'];
-       }
+            $buildingId = $buildings[0]['id'];
+            $products = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\Product')
+                ->findProductIdsByCompanyAndBuilding($salesCompanyId,$buildingId);
+            foreach($products as $product){
+                $productIds[] = $product['id'];
+            }
+        }
+
        $reservations = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Reservation\Reservation')
                     ->findBySearch(
@@ -177,8 +180,8 @@ class AdminReservationController extends SalesRestController
                         $creationDate,
                         $modificationDate
                     );
-        $reservations = $this->getProductInfo($reservations);
 
+        $reservations = $this->getProductInfo($reservations);
         if (is_null($pageIndex) || is_null($pageLimit)) {
             $paginator = new Paginator();
             $reservations = $paginator->paginate(
@@ -214,13 +217,7 @@ class AdminReservationController extends SalesRestController
             ->getRepository('SandboxApiBundle:Reservation\Reservation')
             ->findUngrabedReservation($productIds);
 
-        foreach($reservations as $reservation){
-            $productId = $reservation->getProductId();
-            $product = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Product\Product')
-                ->findProductByProductId($productId);
-            $reservation->productInfo = $product;
-        }
+        $reservations = $this->getProductInfo($reservations);
 
         $number = count($reservations);
         $reservations = $this->getProductInfo($reservations);

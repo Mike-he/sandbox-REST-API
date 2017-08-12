@@ -35,7 +35,8 @@ class ClientReservationController extends SandboxRestController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
-        $product = $this->getDoctrine()->getRepository('SandboxApiBundle:Product\Product')->findOneById($reservation->getProductId());
+        $productId = $reservation->getProductId();
+        $product = $this->getDoctrine()->getRepository('SandboxApiBundle:Product\Product')->findOneById($productId);
         $roomId = $product->getRoomId();
         $room = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\Room')->findOneById($roomId);
         $type = $room->getType();
@@ -45,12 +46,11 @@ class ClientReservationController extends SandboxRestController
                 400010,
                 'ERROR_CODE',
                 'INVALID_ROOM_TYPE'
-
             );
         }
 
         $reservations = $this->getDoctrine()->getRepository('SandboxApiBundle:Reservation\Reservation')
-            ->findByUserAndProduct($userId,$reservation->getProductId());
+            ->findByUserAndProduct($userId,$productId);
 
         if($reservations){
             throw new BadRequestHttpException(self::CONFLICT_MESSAGE);
@@ -66,9 +66,14 @@ class ClientReservationController extends SandboxRestController
         $em->persist($reservation);
         $em->flush();
 
+        $product = $this->getDoctrine()->getRepository('SandboxApiBundle:Product\Product')->findOneById($productId);
+        $companyId = $companyId = $product->getRoom()->getBuilding()->getCompanyId();
+
+        $customer_id = $this->container->get('sandbox_api.sales_customer')->createCustomer($userId,$companyId);
+
         $view = new View();
         $view->setData(
-            ['id' => $reservation->getId()]
+            ['id' => $reservation->getId(),'customer_id'=>$customer_id]
         );
 
         return $view;
