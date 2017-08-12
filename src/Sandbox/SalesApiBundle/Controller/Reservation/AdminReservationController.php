@@ -21,10 +21,12 @@ class AdminReservationController extends SalesRestController
      * @return mixed
      * @Method({"PUT"})
      */
-    public function grabReservationAction(Request $request,$reservationId)
+    public function grabReservationAction(Request $request, $reservationId)
     {
         $adminId = $this->getAdminId();
-        $reservation = $this->getDoctrine()->getRepository('SandboxApiBundle:Reservation\Reservation')->findOneById($reservationId);
+        $reservation = $this->getDoctrine()->getRepository('SandboxApiBundle:Reservation\Reservation')->findOneById(
+            $reservationId
+        );
 
         $this->throwNotFoundIfNull($reservation, self::NOT_FOUND_MESSAGE);
 
@@ -38,9 +40,11 @@ class AdminReservationController extends SalesRestController
         $seriaLNumber = $reservation->getSerialNumber();
 
         $view = new View();
-        $view->setData(array(
-            'serial_number'=>$seriaLNumber
-        ));
+        $view->setData(
+            array(
+                'serial_number' => $seriaLNumber
+            )
+        );
 
         return $view;
 
@@ -50,7 +54,7 @@ class AdminReservationController extends SalesRestController
      *
      * Reservation.
      *
-     * @param Request               $request      the request object
+     * @param Request $request the request object
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -134,7 +138,7 @@ class AdminReservationController extends SalesRestController
     public function getReservationAction(
         Request $request,
         ParamFetcherInterface $paramFetcher
-    ){
+    ) {
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
         $pageIndex = $paramFetcher->get('pageIndex');
@@ -150,9 +154,12 @@ class AdminReservationController extends SalesRestController
         $modificationDate = $paramFetcher->get('modification_date');
         $status = $paramFetcher->get('status');
 
+        $limit = $pageLimit;
+        $offset = ($pageIndex - 1) * $pageLimit;
+
         $buildingName = $paramFetcher->get('building');
         $productIds = array();
-        if($buildingName){
+        if ($buildingName) {
             $buildings = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Room\RoomBuilding')
                 ->findOneByName($buildingName);
@@ -160,37 +167,47 @@ class AdminReservationController extends SalesRestController
             $buildingId = $buildings[0]['id'];
             $products = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Product\Product')
-                ->findProductIdsByCompanyAndBuilding($salesCompanyId,$buildingId);
-            foreach($products as $product){
+                ->findProductIdsByCompanyAndBuilding($salesCompanyId, $buildingId);
+            foreach ($products as $product) {
                 $productIds[] = $product['id'];
             }
         }
 
-       $reservations = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:Reservation\Reservation')
-                    ->findBySearch(
-                        $user,
-                        $admin,
-                        $phone,
-                        $contectName,
-                        $serialNumber,
-                        $productIds,
-                        $viewTime,
-                        $status,
-                        $creationDate,
-                        $modificationDate
-                    );
-
-        $reservations = $this->getProductInfo($reservations);
-        if (is_null($pageIndex) || is_null($pageLimit)) {
-            $paginator = new Paginator();
-            $reservations = $paginator->paginate(
-                $reservations,
-                $pageIndex,
-                $pageLimit
+        $reservations = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Reservation\Reservation')
+            ->findBySearch(
+                $user,
+                $admin,
+                $phone,
+                $contectName,
+                $serialNumber,
+                $productIds,
+                $viewTime,
+                $status,
+                $creationDate,
+                $modificationDate,
+                $limit,
+                $offset
             );
+
+        $count = count($reservations);
+
+        $result = [];
+        foreach ($reservations as $k=>$reservation) {
+            $result[$k] = $this->getProductInfo($reservation);
         }
-        return new View($reservations);
+
+        $view = new View();
+        $view->setData(
+            array(
+                'current_page_number' => $pageIndex,
+                'num_items_per_page' => (int)$pageLimit,
+                'items' => $result,
+                'total_count' => (int)$count,
+            )
+        );
+
+        return $view;
     }
 
     /**
@@ -209,7 +226,7 @@ class AdminReservationController extends SalesRestController
             ->getRepository('SandboxApiBundle:Product\Product')
             ->findProductIdsByCompanyAndBuilding($salesCompanyId);
         $productIds = array();
-        foreach($products as $product){
+        foreach ($products as $product) {
             $productIds[] = $product['id'];
         }
 
@@ -217,17 +234,20 @@ class AdminReservationController extends SalesRestController
             ->getRepository('SandboxApiBundle:Reservation\Reservation')
             ->findUngrabedReservation($productIds);
 
-        $reservations = $this->getProductInfo($reservations);
+        $result = [];
+        foreach ($reservations as $k=>$reservation) {
+            $result[$k] = $this->getProductInfo($reservation);
+        }
 
-        $number = count($reservations);
-        $reservations = $this->getProductInfo($reservations);
+        $count = count($reservations);
 
-        $number = count($reservations);
         $view = new View();
-        $view->setData(array(
-            'num'=>$number,
-            'list'=>$reservations
-        ));
+        $view->setData(
+            array(
+                'items' => $result,
+                'total_count' => (int)$count,
+            )
+        );
 
         return $view;
 
@@ -237,17 +257,36 @@ class AdminReservationController extends SalesRestController
      * @param $reservations
      * @return mixed
      */
-    private function getProductInfo($reservations)
+    private function getProductInfo($reservation)
     {
+        $data = [];
 
-        foreach($reservations as $reservation){
-            /** @var Reservation $reservation */
-            $productId = $reservation->getProductId();
-            $product = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Product\Product')
-                ->findProductByProductId($productId);
-            $reservation->setPrductInfo($product);
-        }
-        return $reservations;
+        /** @var Reservation $reservation */
+        $data['id'] = $reservation->getId();
+        $data['userId'] = $reservation->getUserId();
+        $data['adminId'] = $reservation->getAdminId();
+        $data['productId'] = $reservation->getProductId();
+        $data['serialNumber'] = $reservation->getSerialNumber();
+        $data['contectName'] = $reservation->getContectName();
+        $data['phone'] = $reservation->getPhone();
+        $data['comment'] = $reservation->getComment();
+        $data['viewTime'] = $reservation->getViewTime();
+        $data['creationDate'] = $reservation->getCreationDate();
+        $data['modificationDate'] = $reservation->getModificationDate();
+
+        $productId = $reservation->getProductId();
+        $product = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\Product')
+            ->findProductByProductId($productId);
+        $data['product'] = $product;
+
+
+        $rent = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\ProductRentSet')
+            ->findOneBy(array('product' => $productId));
+
+        $data['product']['rent_price'] = $rent->getbasePrice();
+
+        return $data;
     }
 }
