@@ -119,3 +119,4 @@ parameters:
 
     jpush_key: 373800afb8f8ecb5f9e3138a
     jpush_secret: 94737e735173f56f476b47ee
+    jpush_im_rest_url: https://api.im.jpush.cn
