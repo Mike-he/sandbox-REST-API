@@ -398,7 +398,7 @@ class AdminFinanceWithdrawalController extends PaymentController
 
         $account = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfileAccount')
-            ->findOneBy(array('salesCompany' => $salesCompanyId));
+            ->findOneBy(array('salesCompanyId' => $salesCompanyId));
 
         if (!$account) {
             $check = false;
@@ -406,7 +406,7 @@ class AdminFinanceWithdrawalController extends PaymentController
 
         $express = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfileExpress')
-            ->findOneBy(array('salesCompany' => $salesCompanyId));
+            ->findOneBy(array('salesCompanyId' => $salesCompanyId));
 
         if (!$express) {
             $check = false;
@@ -414,7 +414,7 @@ class AdminFinanceWithdrawalController extends PaymentController
 
         $invoice = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfileInvoice')
-            ->findOneBy(array('salesCompany' => $salesCompanyId));
+            ->findOneBy(array('salesCompanyId' => $salesCompanyId));
 
         if (!$invoice) {
             $check = false;
