@@ -2162,6 +2162,7 @@ class ProductRepository extends EntityRepository
                     r.allowedPeople as allowed_people,
                     r.area,
                     r.typeTag as type_tag,
+                    r.description as description,
                     b.name as building_name,
                     ra.preview as preview, 
                     rm.startHour as start_hour,
@@ -2174,7 +2175,7 @@ class ProductRepository extends EntityRepository
             ->where('p.id = :id')
             ->setParameter('id', $productId);
 
-        $result = $query->getQuery()->getResult();
+        $result = $query->getQuery()->getSingleResult();
 
         return $result;
     }

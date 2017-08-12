@@ -67,7 +67,7 @@ class ClientReservationController extends SandboxRestController
         $em->flush();
 
         $product = $this->getDoctrine()->getRepository('SandboxApiBundle:Product\Product')->findOneById($productId);
-        $companyId = $companyId = $product->getRoom()->getBuilding()->getCompanyId();
+        $companyId = $product->getRoom()->getBuilding()->getCompanyId();
 
         $customer_id = $this->container->get('sandbox_api.sales_customer')->createCustomer($userId,$companyId);
 

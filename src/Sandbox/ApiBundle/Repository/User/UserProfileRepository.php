@@ -32,13 +32,13 @@ class UserProfileRepository extends EntityRepository
     }
 
     /**
-     * @param $name
+     * @param $userId
      * @return array
      */
-    public function findByName($name){
-        $query = $this->createQueryBuilder('u')
-            ->where('u.name = :name')
-            ->setParameter('name',$name);
+    public function findByUserId($userId){
+        $query = $this->createQueryBuilder('up')
+            ->where('up.userId = :userId')
+            ->setParameter('userId',$userId);
 
         return $query->getQuery()->getResult();
     }

@@ -104,7 +104,7 @@ class Reservation
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(name="modification_date", type="datetime", nullable=true)
      */
-    private $modificationDate;
+    private $modificationDate = null;
 
     /**
      * @var array
