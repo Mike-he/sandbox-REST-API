@@ -25,8 +25,8 @@ class UserEnterpriseCustomerRepository extends EntityRepository
         $contectPhone
     ) {
         $query = $this->createQueryBuilder('ec')
-                 ->leftJoin('SandboxApiBundle:User\EnterpriseCustomerContacts','ecc','WITH','ec.id = ecc.enterpriseCustomerId')
-                 ->leftJoin('SandboxApiBundle:User\UserCustomer','uc','WITH','ecc.customerId = uc.id');
+                 ->leftJoin('SandboxApiBundle:User\EnterpriseCustomerContacts', 'ecc', 'WITH', 'ec.id = ecc.enterpriseCustomerId')
+                 ->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'ecc.customerId = uc.id');
 
         $query->where('ec.companyId = :companyId')
             ->setParameter('companyId', $salesCompanyId);
@@ -36,24 +36,24 @@ class UserEnterpriseCustomerRepository extends EntityRepository
                 ->setParameter('search', $search.'%');
         }
 
-        if(!is_null($address)) {
+        if (!is_null($address)) {
             $query->andWhere('ec.registerAddress LIKE :address')
                 ->setParameter('address', $address.'%');
         }
 
-        if(!is_null($phone)) {
+        if (!is_null($phone)) {
             $query->andWhere('ec.phone LIKE :phone')
                 ->setParameter('phone', $phone.'%');
         }
 
-        if(!is_null($contectName)) {
+        if (!is_null($contectName)) {
             $query->andWhere('uc.name LIKE :name')
                 ->setParameter('name', $contectName.'%');
         }
 
-        if(!is_null($contectPhone)) {
+        if (!is_null($contectPhone)) {
             $query->andWhere('uc.phone LIKE :phone')
-                ->setParameter('phone',$contectPhone.'%');
+                ->setParameter('phone', $contectPhone.'%');
         }
 
         return $query->getQuery()->getResult();

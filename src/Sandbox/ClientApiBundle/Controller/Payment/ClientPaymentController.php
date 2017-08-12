@@ -10,7 +10,6 @@ use Sandbox\ApiBundle\Entity\MembershipCard\MembershipOrder;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Order\TopUpOrder;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
-use Sandbox\ApiBundle\Traits\FinanceTrait;
 use Sandbox\ApiBundle\Traits\SendNotification;
 use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
 use Symfony\Component\HttpFoundation\Request;

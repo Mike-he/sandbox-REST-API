@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
- * SalesCompanyProfile
+ * SalesCompanyProfile.
  *
  * @ORM\Table(name="sales_company_profiles")
  * @ORM\Entity
@@ -14,7 +14,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 class SalesCompanyProfiles
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -23,7 +23,7 @@ class SalesCompanyProfiles
     private $id;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="sales_company_id", type="integer")
      */
@@ -67,11 +67,10 @@ class SalesCompanyProfiles
      */
     private $invoice;
 
-
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -79,9 +78,10 @@ class SalesCompanyProfiles
     }
 
     /**
-     * Set cover
+     * Set cover.
      *
      * @param string $cover
+     *
      * @return SalesCompanyProfile
      */
     public function setCover($cover)
@@ -92,9 +92,9 @@ class SalesCompanyProfiles
     }
 
     /**
-     * Get cover
+     * Get cover.
      *
-     * @return string 
+     * @return string
      */
     public function getCover()
     {
@@ -102,9 +102,10 @@ class SalesCompanyProfiles
     }
 
     /**
-     * Set creationDate
+     * Set creationDate.
      *
      * @param \DateTime $creationDate
+     *
      * @return SalesCompanyProfile
      */
     public function setCreationDate($creationDate)
@@ -115,9 +116,9 @@ class SalesCompanyProfiles
     }
 
     /**
-     * Get creationDate
+     * Get creationDate.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getCreationDate()
     {
@@ -125,9 +126,10 @@ class SalesCompanyProfiles
     }
 
     /**
-     * Set modificationDate
+     * Set modificationDate.
      *
      * @param \DateTime $modificationDate
+     *
      * @return SalesCompanyProfile
      */
     public function setModificationDate($modificationDate)
@@ -138,9 +140,9 @@ class SalesCompanyProfiles
     }
 
     /**
-     * Get modificationDate
+     * Get modificationDate.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getModificationDate()
     {
@@ -148,9 +150,10 @@ class SalesCompanyProfiles
     }
 
     /**
-     * Set salesCompanyId
+     * Set salesCompanyId.
      *
-     * @param integer $salesCompanyId
+     * @param int $salesCompanyId
+     *
      * @return SalesCompanyProfile
      */
     public function setSalesCompanyId($salesCompanyId)
@@ -161,9 +164,9 @@ class SalesCompanyProfiles
     }
 
     /**
-     * Get salesCompanyId
+     * Get salesCompanyId.
      *
-     * @return integer 
+     * @return int
      */
     public function getSalesCompanyId()
     {

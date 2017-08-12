@@ -39,7 +39,6 @@ class Parameter
     const KEY_POUNDAGE_WX_PUB = 'poundage_wx_pub';
     const KEY_POUNDAGE_OFFLINE = 'poundage_offline';
 
-
     /**
      * @var int
      *

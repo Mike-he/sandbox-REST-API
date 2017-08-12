@@ -106,13 +106,14 @@ class ClientThirdPartyOAuthController extends ClientThirdPartyController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      */
     public function createMyWeChatBindAction(
         Request $request,
         ParamFetcherInterface $paramFetcher
-    ) {}
+    ) {
+    }
 
     /**
      * @param ThirdPartyOAuthWeChatData $weChatData

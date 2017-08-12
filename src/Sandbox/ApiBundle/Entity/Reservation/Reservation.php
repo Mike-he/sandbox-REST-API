@@ -3,12 +3,10 @@
 namespace Sandbox\ApiBundle\Entity\Reservation;
 
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\Mapping\OneToOne;
-use Doctrine\ORM\Mapping\ManyToOne;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
- * Reservation
+ * Reservation.
  *
  * @ORM\Table(name="reservation")
  * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Reservation\ReservationRepository")
@@ -18,7 +16,6 @@ class Reservation
     const UNGRABED = 'ungrabed';
     const GRABED = 'grabbed';
     /**
-     *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
@@ -32,23 +29,22 @@ class Reservation
      */
     private $serialNumber;
 
-
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="user_id", type="integer")
      */
     private $userId;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="product_id", type="integer")
      */
     private $productId;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="admin_id", type="integer", nullable=true)
      */
@@ -82,7 +78,6 @@ class Reservation
      */
     private $status = self::UNGRABED;
 
-
     /**
      * @var string
      *
@@ -112,9 +107,9 @@ class Reservation
     private $prductInfo;
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -137,12 +132,11 @@ class Reservation
         $this->serialNumber = $serialNumber;
     }
 
-
-
     /**
-     * Set userId
+     * Set userId.
      *
-     * @param integer $userId
+     * @param int $userId
+     *
      * @return Reservation
      */
     public function setUserId($userId)
@@ -153,9 +147,9 @@ class Reservation
     }
 
     /**
-     * Get userId
+     * Get userId.
      *
-     * @return integer 
+     * @return int
      */
     public function getUserId()
     {
@@ -163,9 +157,10 @@ class Reservation
     }
 
     /**
-     * Set productId
+     * Set productId.
      *
-     * @param integer $productId
+     * @param int $productId
+     *
      * @return Reservation
      */
     public function setProductId($productId)
@@ -176,9 +171,9 @@ class Reservation
     }
 
     /**
-     * Get productId
+     * Get productId.
      *
-     * @return integer 
+     * @return int
      */
     public function getProductId()
     {
@@ -186,9 +181,10 @@ class Reservation
     }
 
     /**
-     * Set adminId
+     * Set adminId.
      *
-     * @param integer $adminId
+     * @param int $adminId
+     *
      * @return Reservation
      */
     public function setAdminId($adminId)
@@ -199,9 +195,9 @@ class Reservation
     }
 
     /**
-     * Get adminId
+     * Get adminId.
      *
-     * @return integer 
+     * @return int
      */
     public function getAdminId()
     {
@@ -209,9 +205,10 @@ class Reservation
     }
 
     /**
-     * Set viewTime
+     * Set viewTime.
      *
      * @param \DateTime $viewTime
+     *
      * @return Reservation
      */
     public function setViewTime($viewTime)
@@ -222,9 +219,9 @@ class Reservation
     }
 
     /**
-     * Get viewTime
+     * Get viewTime.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getViewTime()
     {
@@ -232,9 +229,10 @@ class Reservation
     }
 
     /**
-     * Set contectName
+     * Set contectName.
      *
      * @param string $contectName
+     *
      * @return Reservation
      */
     public function setContectName($contectName)
@@ -245,9 +243,9 @@ class Reservation
     }
 
     /**
-     * Get contectName
+     * Get contectName.
      *
-     * @return string 
+     * @return string
      */
     public function getContectName()
     {
@@ -255,9 +253,10 @@ class Reservation
     }
 
     /**
-     * Set phone
+     * Set phone.
      *
      * @param string $phone
+     *
      * @return Reservation
      */
     public function setPhone($phone)
@@ -268,9 +267,9 @@ class Reservation
     }
 
     /**
-     * Get phone
+     * Get phone.
      *
-     * @return string 
+     * @return string
      */
     public function getPhone()
     {
@@ -278,9 +277,10 @@ class Reservation
     }
 
     /**
-     * Set status
+     * Set status.
      *
      * @param string $status
+     *
      * @return Reservation
      */
     public function setStatus($status)
@@ -291,9 +291,9 @@ class Reservation
     }
 
     /**
-     * Get status
+     * Get status.
      *
-     * @return string 
+     * @return string
      */
     public function getStatus()
     {
@@ -301,9 +301,10 @@ class Reservation
     }
 
     /**
-     * Set comment
+     * Set comment.
      *
      * @param string $comment
+     *
      * @return Reservation
      */
     public function setComment($comment)
@@ -314,9 +315,9 @@ class Reservation
     }
 
     /**
-     * Get comment
+     * Get comment.
      *
-     * @return string 
+     * @return string
      */
     public function getComment()
     {
@@ -324,9 +325,10 @@ class Reservation
     }
 
     /**
-     * Set creationDate
+     * Set creationDate.
      *
      * @param \DateTime $creationDate
+     *
      * @return Reservation
      */
     public function setCreationDate($creationDate)
@@ -337,9 +339,9 @@ class Reservation
     }
 
     /**
-     * Get creationDate
+     * Get creationDate.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getCreationDate()
     {
@@ -347,9 +349,10 @@ class Reservation
     }
 
     /**
-     * Set modificationDate
+     * Set modificationDate.
      *
      * @param \DateTime $modificationDate
+     *
      * @return Reservation
      */
     public function setModificationDate($modificationDate)
@@ -360,9 +363,9 @@ class Reservation
     }
 
     /**
-     * Get modificationDate
+     * Get modificationDate.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getModificationDate()
     {
@@ -384,5 +387,4 @@ class Reservation
     {
         $this->prductInfo = $prductInfo;
     }
-
 }

@@ -4,20 +4,20 @@ namespace Sandbox\SalesApiBundle\Controller\Reservation;
 
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sandbox\ApiBundle\Entity\Reservation\Reservation;
-use Sandbox\ApiBundle\Repository\Reservation\ReservationRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\View\View;
-use Knp\Component\Pager\Paginator;
 
 class AdminReservationController extends SalesRestController
 {
     /**
      * @Route("/reservation/{reservationId}")
+     *
      * @param Request $request
+     *
      * @return mixed
      * @Method({"PUT"})
      */
@@ -42,19 +42,17 @@ class AdminReservationController extends SalesRestController
         $view = new View();
         $view->setData(
             array(
-                'serial_number' => $seriaLNumber
+                'serial_number' => $seriaLNumber,
             )
         );
 
         return $view;
-
     }
 
     /**
-     *
      * Reservation.
      *
-     * @param Request $request the request object
+     * @param Request               $request      the request object
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -133,6 +131,7 @@ class AdminReservationController extends SalesRestController
      *
      * @Route("/reservation/list")
      * @Method({"GET"})
+     *
      * @return mixed
      */
     public function getReservationAction(
@@ -193,7 +192,7 @@ class AdminReservationController extends SalesRestController
         $count = count($reservations);
 
         $result = [];
-        foreach ($reservations as $k=>$reservation) {
+        foreach ($reservations as $k => $reservation) {
             $result[$k] = $this->getProductInfo($reservation);
         }
 
@@ -201,9 +200,9 @@ class AdminReservationController extends SalesRestController
         $view->setData(
             array(
                 'current_page_number' => $pageIndex,
-                'num_items_per_page' => (int)$pageLimit,
+                'num_items_per_page' => (int) $pageLimit,
                 'items' => $result,
-                'total_count' => (int)$count,
+                'total_count' => (int) $count,
             )
         );
 
@@ -211,10 +210,11 @@ class AdminReservationController extends SalesRestController
     }
 
     /**
-     *
      * @Route("/reservation/ungrabed/list")
      * @Method({"GET"})
+     *
      * @param Request $request
+     *
      * @return View
      */
     public function getUngrabedReservationAction(Request $request)
@@ -235,7 +235,7 @@ class AdminReservationController extends SalesRestController
             ->findUngrabedReservation($productIds);
 
         $result = [];
-        foreach ($reservations as $k=>$reservation) {
+        foreach ($reservations as $k => $reservation) {
             $result[$k] = $this->getProductInfo($reservation);
         }
 
@@ -245,23 +245,23 @@ class AdminReservationController extends SalesRestController
         $view->setData(
             array(
                 'items' => $result,
-                'total_count' => (int)$count,
+                'total_count' => (int) $count,
             )
         );
 
         return $view;
-
     }
 
     /**
      * @param $reservations
+     *
      * @return mixed
      */
     private function getProductInfo($reservation)
     {
         $data = [];
 
-        /** @var Reservation $reservation */
+        /* @var Reservation $reservation */
         $data['id'] = $reservation->getId();
         $data['userId'] = $reservation->getUserId();
         $data['adminId'] = $reservation->getAdminId();
@@ -279,7 +279,6 @@ class AdminReservationController extends SalesRestController
             ->getRepository('SandboxApiBundle:Product\Product')
             ->findProductByProductId($productId);
         $data['product'] = $product;
-
 
         $rent = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Product\ProductRentSet')
