@@ -21,7 +21,7 @@ class SyncXmppUserCommand extends ContainerAwareCommand
         $arguments = $input->getArguments();
         $userId = $arguments['userId'];
 
-        $service = $this->getContainer()->get('sandbox_api.jpush_im');
+        $service = $this->getContainer()->get('sandbox_api.jmessage');
         $em = $this->getContainer()->get('doctrine')->getManager();
 
         if ($userId == 'all') {
@@ -41,12 +41,12 @@ class SyncXmppUserCommand extends ContainerAwareCommand
             $xmppUserName = $user->getXmppUsername();
             $password = $user->getPassword();
 
-            $userProfile = $em->getRepository('SandboxApiBundle:User\UserProfile')->findOneBy(array('userId' => $userId));
-
-            $name = $userProfile ? $userProfile->getName() : '';
+//            $userProfile = $em->getRepository('SandboxApiBundle:User\UserProfile')->findOneBy(array('userId' => $userId));
+//
+//            $name = $userProfile ? $userProfile->getName() : '';
 
             // Sync User
-            $service->createUser($xmppUserName, $password, $name);
+            $service->createUser($xmppUserName, $password);
         }
 
         $output->writeln('Sync Success!');

@@ -85,6 +85,10 @@ class ComposerStaticInit42c73cf4dec95db6e30a2f354aa5457f
             'Knp\\Bundle\\SnappyBundle\\' => 24,
             'Knp\\Bundle\\PaginatorBundle\\' => 27,
         ),
+        'J' => 
+        array (
+            'JMessage\\' => 9,
+        ),
         'H' => 
         array (
             'Hautelook\\TemplatedUriRouter\\' => 29,
@@ -256,6 +260,10 @@ class ComposerStaticInit42c73cf4dec95db6e30a2f354aa5457f
         'Knp\\Bundle\\PaginatorBundle\\' => 
         array (
             0 => __DIR__ . '/..' . '/knplabs/knp-paginator-bundle',
+        ),
+        'JMessage\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/jiguang/jmessage/src/JMessage',
         ),
         'Hautelook\\TemplatedUriRouter\\' => 
         array (

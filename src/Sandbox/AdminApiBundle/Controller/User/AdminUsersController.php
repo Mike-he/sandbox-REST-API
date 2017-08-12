@@ -889,7 +889,7 @@ class AdminUsersController extends DoorController
             try {
                 $profile = $this->getRepo('User\UserProfile')->findOneByUser($user);
 
-                $this->get('sandbox_api.jpush_im')
+                $this->get('sandbox_api.jmessage')
                     ->updateNickname(
                         $user->getXmppUsername(),
                         $profile->getName()

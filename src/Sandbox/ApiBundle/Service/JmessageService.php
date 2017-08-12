@@ -1,0 +1,67 @@
+<?php
+
+namespace Sandbox\ApiBundle\Service;
+
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use JMessage\JMessage;
+use JMessage\IM\User;
+
+/**
+ * Class JmessageService.
+ */
+class JmessageService
+{
+    /**
+     * @var mixed
+     */
+    private $appKey;
+
+    /**
+     * @var mixed
+     */
+    private $masterSecret;
+
+    /**
+     * @var JMessage
+     */
+    private $client;
+
+    /**
+     * @var User
+     */
+    private $user;
+
+    public function __construct(ContainerInterface $container)
+    {
+        $this->container = $container;
+        $this->appKey = $this->container->getParameter('jpush_key');
+        $this->masterSecret = $this->container->getParameter('jpush_secret');
+        $this->client = new JMessage($this->appKey, $this->masterSecret);
+        $this->user = new User($this->client);
+    }
+
+    public function createUser(
+        $username,
+        $password
+    ) {
+        $this->user->register($username, $password);
+    }
+
+    public function updatePassword(
+        $username,
+        $password
+    ) {
+        $this->user->updatePassword($username, $password);
+    }
+
+    public function updateNickname(
+        $username,
+        $nickname
+    ) {
+        $options = [
+            'nickname' => $nickname,
+        ];
+
+        $this->user->update($username, $options);
+    }
+}

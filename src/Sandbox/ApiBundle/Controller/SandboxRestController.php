@@ -1340,7 +1340,7 @@ class SandboxRestController extends FOSRestController
         $username = strval(2000000 + $registrationId);
         $password = $user->getPassword();
 
-        $service = $this->get('sandbox_api.jpush_im');
+        $service = $this->get('sandbox_api.jmessage');
         $service->createUser($username, $password);
 
         return $username;
