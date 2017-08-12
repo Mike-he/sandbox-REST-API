@@ -2,6 +2,7 @@
 
 namespace Sandbox\SalesApiBundle\Controller\Reservation;
 
+use Sandbox\ApiBundle\Entity\Room\RoomTypeTags;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sandbox\ApiBundle\Entity\Reservation\Reservation;
 use Sandbox\ApiBundle\Repository\Reservation\ReservationRepository;
@@ -283,7 +284,11 @@ class AdminReservationController extends SalesRestController
         $product = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Product\Product')
             ->findProductByProductId($productId);
+
+        $typeTagDescription = $this->get('translator')->trans(RoomTypeTags::TRANS_PREFIX.$product['type_tag']);
         $data['product'] = $product;
+        $data['product']['type_tag_description'] = $typeTagDescription;
+
 
         $user = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserProfile')

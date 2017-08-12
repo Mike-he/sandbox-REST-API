@@ -2166,7 +2166,8 @@ class ProductRepository extends EntityRepository
                     r.typeTag as type_tag,
                     r.description as description,
                     b.name as building_name,
-                    ra.preview as preview, 
+                    rc.name as city_name,
+                    ra.content as content, 
                     rm.startHour as start_hour,
                     rm.endHour as end_hour
                 ')
@@ -2174,6 +2175,7 @@ class ProductRepository extends EntityRepository
             ->leftJoin('r.building', 'b')
             ->leftJoin('SandboxApiBundle:Room\RoomAttachment', 'ra', 'WITH', 'r.id = ra.id')
             ->leftJoin('SandboxApiBundle:Room\RoomMeeting', 'rm', 'WITH', 'r.id = rm.room')
+            ->leftJoin('SandboxApiBundle:Room\RoomCity','rc','WITH','rc.id = b.cityId')
             ->where('p.id = :id')
             ->setParameter('id', $productId);
 
