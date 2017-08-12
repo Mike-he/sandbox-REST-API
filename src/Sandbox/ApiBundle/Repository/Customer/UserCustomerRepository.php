@@ -123,7 +123,6 @@ class UserCustomerRepository extends EntityRepository
         if ($userIds) {
             $query->andWhere('c.userId in (:userIds)')
                 ->setParameter('userIds', $userIds);
-
         }
 
         if ($search) {

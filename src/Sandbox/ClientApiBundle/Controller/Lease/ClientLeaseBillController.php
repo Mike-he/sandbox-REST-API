@@ -390,57 +390,57 @@ class ClientLeaseBillController extends PaymentController
 //                )
 //            );
 //        $this->throwNotFoundIfNull($bill, CustomErrorMessagesConstants::ERROR_BILL_NOT_FOUND_MESSAGE);
-//
+
 //        //check collection method
 //        $room = $bill->getLease()->getProduct()->getRoom();
 //        $company = $room->getBuilding()->getCompany();
-//
+
 //        $collectionMethod = $this->getDoctrine()
 //            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
 //            ->getCollectionMethod(
 //                $company,
 //                SalesCompanyServiceInfos::TRADE_TYPE_LONGTERM
 //            );
-//
+
 //        if ($collectionMethod != SalesCompanyServiceInfos::COLLECTION_METHOD_SALES) {
 //            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILL_COLLECTION_METHOD_MESSAGE);
 //        }
-//
+
 //        // check if request user is the same as drawee
 //        $leaseUserId = $this->getDoctrine()
 //            ->getRepository('SandboxApiBundle:User\UserCustomer')
 //            ->getUserIdByCustomerId($bill->getLease()->getLesseeCustomer());
 //        $this->throwAccessDeniedIfNotSameUser($leaseUserId);
-//
+
 //        $billJson = $this->container->get('serializer')->serialize($bill, 'json');
 //        $patch = new Patch($billJson, $request->getContent());
 //        $billJson = $patch->apply();
 //        $form = $this->createForm(new LeaseBillPatchType(), $bill);
 //        $form->submit(json_decode($billJson, true));
-//
+
 //        $newStatus = $bill->getStatus();
 //        if ($newStatus != LeaseBill::STATUS_VERIFY) {
 //            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILL_STATUS_NOT_CORRECT_MESSAGE);
 //        }
-//
+
 //        $customer = $this->getDoctrine()
 //            ->getRepository('SandboxApiBundle:User\UserCustomer')
 //            ->findOneBy(array(
 //                'userId' => $this->getUserId(),
 //                'companyId' => $bill->getLease()->getCompanyId(),
 //            ));
-//
+
 //        $this->throwNotFoundIfNull($customer, self::NOT_FOUND_MESSAGE);
-//
+
 //        $bill->setPayChannel(LeaseBill::CHANNEL_SALES_OFFLINE);
 //        $bill->setDrawee($this->getUserId());
 //        $bill->setPaymentDate(new \DateTime());
 //        $bill->setCustomerId($customer->getId());
-//
+
 //        $em = $this->getDoctrine()->getManager();
 //        $em->persist($bill);
 //        $em->flush();
-//
+
 //        $logMessage = '使用 销售方收款方式 支付账单';
 //        $this->get('sandbox_api.admin_status_log')->autoLog(
 //            $this->getUserId(),
@@ -449,7 +449,7 @@ class ClientLeaseBillController extends PaymentController
 //            AdminStatusLog::OBJECT_LEASE_BILL,
 //            $bill->getId()
 //        );
-//
+
 //        return new View();
 //    }
 

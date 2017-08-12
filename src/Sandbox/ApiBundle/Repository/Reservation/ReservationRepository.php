@@ -9,6 +9,7 @@ class ReservationRepository extends EntityRepository
 {
     /**
      * @param $userId
+     *
      * @return array
      */
     public function getReservationByUserId($userId)
@@ -33,6 +34,7 @@ class ReservationRepository extends EntityRepository
      * @param $modificationDate
      * @param$limit,
      * @param$offset
+     *
      * @return array
      */
     public function findBySearch(
@@ -50,64 +52,64 @@ class ReservationRepository extends EntityRepository
         $offset = null
     ) {
         $query = $this->createQueryBuilder('re')
-            ->leftJoin('SandboxApiBundle:User\UserProfile','up','WITH','up.userId = re.userId')
+            ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'up.userId = re.userId')
            // ->leftJoin('SandboxApiBundle:Product\ProductRentSet','prt','WITH','prt.productId = re.productId')
             ->where('re.id != :id')
-            ->setParameter('id','null')
+            ->setParameter('id', 'null')
            ;
 
-        if(!is_null($admin)){
+        if (!is_null($admin)) {
             $query->andWhere('up.name LIKE :name')
-                ->setParameter('name',$admin.'%');
+                ->setParameter('name', $admin.'%');
         }
 
-        if(!is_null($user)){
+        if (!is_null($user)) {
             $query->andWhere('up.name LIKE :name')
-                ->setParameter('name',$user.'%');
+                ->setParameter('name', $user.'%');
         }
 
-        if(!is_null($contectName)){
+        if (!is_null($contectName)) {
             $query->andWhere('re.contectName LIKE :contectName')
-                ->setParameter('contectName',$contectName.'%')
+                ->setParameter('contectName', $contectName.'%')
             ;
         }
 
-        if(!is_null($phone)){
+        if (!is_null($phone)) {
             $query->andWhere('re.phone LIKE :phone')
-                ->setParameter('phone',$phone.'%');
+                ->setParameter('phone', $phone.'%');
         }
 
-        if(!is_null($serialNumber)){
+        if (!is_null($serialNumber)) {
             $query->andWhere('re.serialNumber LIKE :serialNumber')
-                ->setParameter('serialNumber',$serialNumber.'%');
+                ->setParameter('serialNumber', $serialNumber.'%');
         }
 
-        if(!is_null($viewTime)) {
+        if (!is_null($viewTime)) {
             $query->andWhere('re.viewTime = :viewTime')
                 ->setParameter('viewTime', $viewTime);
         }
 
-        if(!empty($productIds)){
+        if (!empty($productIds)) {
             $query->andWhere('re.productId in (:productIds)')
                 ->setParameter('productIds', $productIds);
         }
 
-        if(!empty($creationDate)){
+        if (!empty($creationDate)) {
             $query->andWhere('creationDate = :creationDate')
                 ->setParameter('creationDate', $creationDate);
         }
 
-        if(!empty($modificationDate)) {
+        if (!empty($modificationDate)) {
             $query->andWhere('modificationDate = :modificationDate')
                 ->setParameter('modificationDate', $modificationDate);
         }
 
-        if(!is_null($status)){
+        if (!is_null($status)) {
             $query->andWhere('status = :status')
-                ->setParameter('status',$status);
+                ->setParameter('status', $status);
         }
 
-        $query->orderBy('re.creationDate','DESC');
+        $query->orderBy('re.creationDate', 'DESC');
         $query->setMaxResults($limit)
             ->setFirstResult($offset);
 
@@ -125,6 +127,7 @@ class ReservationRepository extends EntityRepository
      * @param $status
      * @param $creationDate
      * @param $modificationDate
+     *
      * @return array
      */
     public function getCountBySearch(
@@ -141,67 +144,68 @@ class ReservationRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('re')
             ->select(count('re'))
-            ->leftJoin('SandboxApiBundle:User\UserProfile','up','WITH','up.userId = re.userId')
+            ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'up.userId = re.userId')
             // ->leftJoin('SandboxApiBundle:Product\ProductRentSet','prt','WITH','prt.productId = re.productId')
             ->where('re.id != :id')
-            ->setParameter('id','null')
+            ->setParameter('id', 'null')
         ;
 
-        if(!is_null($admin)){
+        if (!is_null($admin)) {
             $query->andWhere('up.name LIKE :name')
-                ->setParameter('name',$admin.'%');
+                ->setParameter('name', $admin.'%');
         }
 
-        if(!is_null($user)){
+        if (!is_null($user)) {
             $query->andWhere('up.name LIKE :name')
-                ->setParameter('name',$user.'%');
+                ->setParameter('name', $user.'%');
         }
 
-        if(!is_null($contectName)){
+        if (!is_null($contectName)) {
             $query->andWhere('re.contectName LIKE :contectName')
-                ->setParameter('contectName',$contectName.'%')
+                ->setParameter('contectName', $contectName.'%')
             ;
         }
 
-        if(!is_null($phone)){
+        if (!is_null($phone)) {
             $query->andWhere('re.phone LIKE :phone')
-                ->setParameter('phone',$phone.'%');
+                ->setParameter('phone', $phone.'%');
         }
 
-        if(!is_null($serialNumber)){
+        if (!is_null($serialNumber)) {
             $query->andWhere('re.serialNumber LIKE :serialNumber')
-                ->setParameter('serialNumber',$serialNumber.'%');
+                ->setParameter('serialNumber', $serialNumber.'%');
         }
 
-        if(!is_null($viewTime)) {
+        if (!is_null($viewTime)) {
             $query->andWhere('re.viewTime = :viewTime')
                 ->setParameter('viewTime', $viewTime);
         }
 
-        if(!empty($productIds)){
+        if (!empty($productIds)) {
             $query->andWhere('re.productId in (:productIds)')
                 ->setParameter('productIds', $productIds);
         }
 
-        if(!empty($creationDate)){
+        if (!empty($creationDate)) {
             $query->andWhere('creationDate = :creationDate')
                 ->setParameter('creationDate', $creationDate);
         }
 
-        if(!empty($modificationDate)) {
+        if (!empty($modificationDate)) {
             $query->andWhere('modificationDate = :modificationDate')
                 ->setParameter('modificationDate', $modificationDate);
         }
 
-        if(!is_null($status)){
+        if (!is_null($status)) {
             $query->andWhere('status = :status')
-                ->setParameter('status',$status);
+                ->setParameter('status', $status);
         }
 
         return $query->getQuery()->getResult();
     }
     /**
      * @param $productIds
+     *
      * @return array
      */
     public function findUngrabedReservation($productIds)
@@ -210,7 +214,7 @@ class ReservationRepository extends EntityRepository
             ->where('re.status = :status')
             ->andWhere('re.productId in (:productIds)')
             ->setParameter('status', Reservation::UNGRABED)
-            ->setParameter('productIds',$productIds)
+            ->setParameter('productIds', $productIds)
             ->orderBy('re.creationDate', 'DESC');
 
         return $query->getQuery()->getResult();
@@ -219,19 +223,17 @@ class ReservationRepository extends EntityRepository
     /**
      * @param $userId
      * @param $productId
+     *
      * @return array
      */
-    public function findByUserAndProduct($userId,$productId)
+    public function findByUserAndProduct($userId, $productId)
     {
         $query = $this->createQueryBuilder('re')
             ->where('re.userId = :userId')
             ->andWhere('re.productId = :productId')
             ->setParameter('userId', $userId)
-            ->setParameter('productId',$productId);
+            ->setParameter('productId', $productId);
 
         return $query->getQuery()->getResult();
     }
-
-
-
 }

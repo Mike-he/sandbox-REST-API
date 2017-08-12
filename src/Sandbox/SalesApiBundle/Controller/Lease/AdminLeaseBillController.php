@@ -11,7 +11,6 @@ use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentServiceBill;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Parameter\Parameter;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Sandbox\ApiBundle\Traits\FinanceTrait;
 use Sandbox\ApiBundle\Traits\LeaseTrait;
 use Sandbox\ApiBundle\Traits\SendNotification;
@@ -758,7 +757,7 @@ class AdminLeaseBillController extends SalesRestController
 //            ],
 //            AdminPermission::OP_LEVEL_EDIT
 //        );
-//
+
 //        $bill = $this->getDoctrine()->getRepository("SandboxApiBundle:Lease\LeaseBill")
 //            ->findOneBy(
 //                array(
@@ -768,36 +767,36 @@ class AdminLeaseBillController extends SalesRestController
 //                )
 //            );
 //        $this->throwNotFoundIfNull($bill, CustomErrorMessagesConstants::ERROR_BILL_NOT_FOUND_MESSAGE);
-//
+
 //        $billJson = $this->container->get('serializer')->serialize($bill, 'json');
 //        $patch = new Patch($billJson, $request->getContent());
 //        $billJson = $patch->apply();
 //        $form = $this->createForm(new LeaseBillPatchType(), $bill);
 //        $form->submit(json_decode($billJson, true));
-//
+
 //        if ($bill->getStatus() != LeaseBill::STATUS_PAID) {
 //            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILL_STATUS_NOT_CORRECT_MESSAGE);
 //        }
-//
+
 //        if (is_null($bill->getRemark())) {
 //            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
 //        }
-//
+
 //        $em = $this->getDoctrine()->getManager();
 //        $em->persist($bill);
-//
+
 //        $this->get('sandbox_api.bean')->postBeanChange(
 //            $bill->getDrawee(),
 //            $bill->getRevisedAmount(),
 //            $bill->getSerialNumber(),
 //            Parameter::KEY_BEAN_PAY_BILL
 //        );
-//
+
 //        //update invitee bean
 //        $user = $this->getDoctrine()
 //            ->getRepository('SandboxApiBundle:User\User')
 //            ->find($bill->getDrawee());
-//
+
 //        if ($user->getInviterId()) {
 //            $this->get('sandbox_api.bean')->postBeanChange(
 //                $user->getInviterId(),
@@ -806,21 +805,21 @@ class AdminLeaseBillController extends SalesRestController
 //                Parameter::KEY_BEAN_INVITEE_PAY_BILL
 //            );
 //        }
-//
+
 //        $em->flush();
-//
+
 //        $this->generateLongRentServiceFee(
 //            $bill,
 //            FinanceLongRentServiceBill::TYPE_BILL_SERVICE_FEE
 //        );
-//
+
 //        // add invoice balance
 //        $invoiced = $this->checkBillShouldInvoiced($bill->getLease());
 //        if (!$invoiced) {
 //            $bill->setInvoiced(true);
 //            $em->flush();
 //        }
-//
+
 //        $logMessage = '确认收款';
 //        $this->get('sandbox_api.admin_status_log')->autoLog(
 //            $this->getAdminId(),
@@ -829,7 +828,7 @@ class AdminLeaseBillController extends SalesRestController
 //            AdminStatusLog::OBJECT_LEASE_BILL,
 //            $id
 //        );
-//
+
 //        // generate log
 //        $this->generateAdminLogs(array(
 //            'logModule' => Log::MODULE_LEASE,
@@ -837,7 +836,7 @@ class AdminLeaseBillController extends SalesRestController
 //            'logObjectKey' => Log::OBJECT_LEASE_BILL,
 //            'logObjectId' => $bill->getId(),
 //        ));
-//
+
 //        return new View();
 //    }
 

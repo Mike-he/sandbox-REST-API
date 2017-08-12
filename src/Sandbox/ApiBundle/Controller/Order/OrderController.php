@@ -336,6 +336,7 @@ class OrderController extends PaymentController
      * @param $customerId
      *
      * @return null|ProductOrderCheck
+     *
      * @throws \Exception
      */
     protected function orderDuplicationCheck(

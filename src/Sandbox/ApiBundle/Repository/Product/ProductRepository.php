@@ -2105,11 +2105,12 @@ class ProductRepository extends EntityRepository
     /**
      * @param $company
      * @param $building
+     *
      * @return array
      */
     public function findProductIdsByCompanyAndBuilding(
         $company,
-        $building=null
+        $building = null
     ) {
         $query = $this->createQueryBuilder('p')
             ->select('
@@ -2147,6 +2148,7 @@ class ProductRepository extends EntityRepository
 
     /**
      * @param $productId
+     *
      * @return array
      */
     public function findProductByProductId(
@@ -2170,7 +2172,7 @@ class ProductRepository extends EntityRepository
                 ')
             ->leftJoin('p.room', 'r')
             ->leftJoin('r.building', 'b')
-            ->leftJoin('SandboxApiBundle:Room\RoomAttachment','ra','WITH','r.id = ra.id')
+            ->leftJoin('SandboxApiBundle:Room\RoomAttachment', 'ra', 'WITH', 'r.id = ra.id')
             ->leftJoin('SandboxApiBundle:Room\RoomMeeting', 'rm', 'WITH', 'r.id = rm.room')
             ->where('p.id = :id')
             ->setParameter('id', $productId);
@@ -2179,5 +2181,4 @@ class ProductRepository extends EntityRepository
 
         return $result;
     }
-
 }

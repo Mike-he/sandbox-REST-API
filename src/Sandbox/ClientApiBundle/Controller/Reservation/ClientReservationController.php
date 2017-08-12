@@ -4,8 +4,6 @@ namespace Sandbox\ClientApiBundle\Controller\Reservation;
 
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Symfony\Component\HttpFoundation\Request;
-use FOS\RestBundle\Request\ParamFetcherInterface;
-use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\View\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -18,13 +16,14 @@ class ClientReservationController extends SandboxRestController
 {
     /**
      * @Route("/reservation")
+     *
      * @param Request $request
+     *
      * @return View
      * @Method({"POST"})
      */
     public function postReservationAction(Request $request)
     {
-
         $userId = $this->getUserId();
         $reservation = new Reservation();
 
@@ -41,7 +40,7 @@ class ClientReservationController extends SandboxRestController
         $room = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\Room')->findOneById($roomId);
         $type = $room->getType();
 
-        if($type != 'office'){
+        if ($type != 'office') {
             return $this->customErrorView(
                 400010,
                 'ERROR_CODE',
@@ -50,15 +49,15 @@ class ClientReservationController extends SandboxRestController
         }
 
         $reservations = $this->getDoctrine()->getRepository('SandboxApiBundle:Reservation\Reservation')
-            ->findByUserAndProduct($userId,$productId);
+            ->findByUserAndProduct($userId, $productId);
 
-        if($reservations){
+        if ($reservations) {
             throw new BadRequestHttpException(self::CONFLICT_MESSAGE);
         }
 
         $reservation->setUserId($userId);
 
-        $str = mt_rand(1000,9999);
+        $str = mt_rand(1000, 9999);
         $serialNumber = 'R'.$str.time();
         $reservation->setSerialNumber($serialNumber);
 
@@ -69,13 +68,13 @@ class ClientReservationController extends SandboxRestController
         $product = $this->getDoctrine()->getRepository('SandboxApiBundle:Product\Product')->findOneById($productId);
         $companyId = $product->getRoom()->getBuilding()->getCompanyId();
 
-        $customer_id = $this->container->get('sandbox_api.sales_customer')->createCustomer($userId,$companyId);
+        $customer_id = $this->container->get('sandbox_api.sales_customer')->createCustomer($userId, $companyId);
 
         $view = new View();
         $view->setData(
-            ['id' => $reservation->getId(),'customer_id'=>$customer_id]
+            ['id' => $reservation->getId(), 'customer_id' => $customer_id]
         );
 
         return $view;
-     }
+    }
 }

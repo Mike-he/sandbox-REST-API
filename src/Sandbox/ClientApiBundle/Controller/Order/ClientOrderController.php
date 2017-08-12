@@ -1618,7 +1618,7 @@ class ClientOrderController extends OrderController
     }
 
     /**
-     * @param Request $request
+     * @param Request      $request
      * @param ProductOrder $order
      *
      * @return View
