@@ -274,10 +274,6 @@ class AdminReservationController extends SalesRestController
         $data['modificationDate'] = $reservation->getModificationDate();
         $data['status'] = $reservation->getStatus();
 
-        $customer = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserCustomer')
-                 ->getCustomerByUserId($reservation->getUserId());
-        $data['customer'] = $customer;
-
         $productId = $reservation->getProductId();
         $product = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Product\Product')
