@@ -48,13 +48,6 @@ class ClientReservationController extends SandboxRestController
             );
         }
 
-        $reservations = $this->getDoctrine()->getRepository('SandboxApiBundle:Reservation\Reservation')
-            ->findByUserAndProduct($userId, $productId);
-
-        if ($reservations) {
-            throw new BadRequestHttpException(self::CONFLICT_MESSAGE);
-        }
-
         $reservation->setUserId($userId);
 
         $str = mt_rand(1000, 9999);
