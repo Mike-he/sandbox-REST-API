@@ -328,13 +328,6 @@ class ComposerStaticInit42c73cf4dec95db6e30a2f354aa5457f
     );
 
     public static $prefixesPsr0 = array (
-        'j' => 
-        array (
-            'jean553\\OpenfireBundle' => 
-            array (
-                0 => __DIR__ . '/..' . '/jean553/symfony-openfire-bundle',
-            ),
-        ),
         'T' => 
         array (
             'Twig_Extensions_' => 

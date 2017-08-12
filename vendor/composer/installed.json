@@ -6492,59 +6492,5 @@
             "rest",
             "web service"
         ]
-    },
-    {
-        "name": "jean553/symfony-openfire-bundle",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
-        "target-dir": "jean553/OpenfireBundle",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/jean553/symfony-openfire-bundle.git",
-            "reference": "c18c9d456af8efd6294080e106a57fc7674f4217"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://files.phpcomposer.com/files/jean553/symfony-openfire-bundle/c18c9d456af8efd6294080e106a57fc7674f4217.zip",
-            "reference": "c18c9d456af8efd6294080e106a57fc7674f4217",
-            "shasum": ""
-        },
-        "require": {
-            "guzzlehttp/guzzle": "~5.0",
-            "php": ">=5.3.2"
-        },
-        "require-dev": {
-            "phpunit/phpunit": "~4.4",
-            "symfony/config": "~2.5",
-            "symfony/dependency-injection": "~2.5",
-            "symfony/http-kernel": "~2.5",
-            "symfony/validator": "~2.5",
-            "symfony/yaml": "~2.5"
-        },
-        "time": "2016-03-29T03:48:29+00:00",
-        "type": "symfony-bundle",
-        "installation-source": "source",
-        "autoload": {
-            "psr-0": {
-                "jean553\\OpenfireBundle": ""
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "MIT"
-        ],
-        "authors": [
-            {
-                "name": "Jean LELIEVRE",
-                "email": "Jean.LELIEVRE@supinfo.com",
-                "role": "Developer"
-            }
-        ],
-        "description": "Openfire server management for Symfony 2 applications",
-        "homepage": "https://github.com/jean553/symfony-openfire-bundle",
-        "keywords": [
-            "openfire",
-            "symfony"
-        ]
     }
 ]
