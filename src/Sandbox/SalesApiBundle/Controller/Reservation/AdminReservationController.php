@@ -275,6 +275,11 @@ class AdminReservationController extends SalesRestController
         $data['status'] = $reservation->getStatus();
 
         $productId = $reservation->getProductId();
+        $product = $this->getDoctrine()->getRepository('SandboxApiBundle:Product\Product')->findOneById($productId);
+        $companyId = $product->getRoom()->getBuilding()->getCompanyId();
+        $data['companyId'] = $companyId;
+
+        $productId = $reservation->getProductId();
         $product = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Product\Product')
             ->findProductByProductId($productId);
