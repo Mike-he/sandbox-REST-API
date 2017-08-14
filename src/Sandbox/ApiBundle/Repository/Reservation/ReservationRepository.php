@@ -22,32 +22,31 @@ class ReservationRepository extends EntityRepository
     }
 
     /**
-     * @param $user
-     * @param $admin
+     * @param $keyword
+     * @param $keywordSearch
      * @param $productIds
-     * @param $contectName
-     * @param $phone
-     * @param $serialNumber
-     * @param $viewTime
      * @param $status
-     * @param $creationDate
-     * @param $modificationDate
-     * @param$limit,
-     * @param$offset
-     *
+     * @param $viewStart
+     * @param $viewEnd
+     * @param $createStart
+     * @param $createEnd
+     * @param $grabStart
+     * @param $grabEnd
+     * @param null $limit
+     * @param null $offset
      * @return array
      */
     public function findBySearch(
-        $user,
-        $admin,
-        $phone,
-        $contectName,
-        $serialNumber,
+        $keyword,
+        $keywordSearch,
         $productIds,
-        $viewTime,
         $status,
-        $creationDate,
-        $modificationDate,
+        $viewStart,
+        $viewEnd,
+        $createStart,
+        $createEnd,
+        $grabStart,
+        $grabEnd,
         $limit = null,
         $offset = null
     ) {
@@ -58,50 +57,70 @@ class ReservationRepository extends EntityRepository
             ->setParameter('id', 'null')
            ;
 
-        if (!is_null($admin)) {
-            $query->andWhere('up.name LIKE :name')
-                ->setParameter('name', $admin.'%');
+        if (!is_null($keyword) && !is_null($keywordSearch)) {
+            switch ($keyword) {
+                case 'userName':
+                    $query->andWhere('up.name LIKE :search');
+                    break;
+                case 'userPhone':
+                    $query->andWhere('up.phone LIKE :search');
+                    break;
+                case 'contectName':
+                    $query->andWhere('re.contectName LIKE :search');
+                    break;
+                case 'contectPhone':
+                    $query->andWhere('re.contectPhone LIKE :search');
+                    break;
+                case 'adminName':
+                    $query->andWhere('up.name LIKE :search');
+                    break;
+                case 'adminPhone':
+                    $query->andWhere('up.phone LIKE :search');
+                    break;
+                default:
+                    break;
+            }
+            $query->setParameter('search', '%'.$keywordSearch.'%');
         }
 
-        if (!is_null($user)) {
-            $query->andWhere('up.name LIKE :name')
-                ->setParameter('name', $user.'%');
+        if(!is_null($viewStart) && !is_null($viewEnd)){
+            $viewStart = new \DateTime($viewStart);
+            $viewStart->setTime(00, 00, 00);
+            $query->andWhere('re.viewTime >= :viewStart')
+                ->setParameter('viewStart', $viewStart);
+            $viewEnd = new \DateTime($viewEnd);
+            $viewEnd->setTime(23, 59, 59);
+            $query->andWhere('re.viewnTime <= :viewEnd')
+                ->setParameter('viewEnd', $viewEnd);
         }
 
-        if (!is_null($contectName)) {
-            $query->andWhere('re.contectName LIKE :contectName')
-                ->setParameter('contectName', $contectName.'%')
-            ;
+        if(!is_null($createStart) && !is_null($createEnd)){
+            $createStart = new \DateTime($createStart);
+            $createStart->setTime(00, 00, 00);
+            $query->andWhere('re.creationDate >= :createStart')
+                ->setParameter('createStart', $createStart);
+            $createEnd = new \DateTime($createEnd);
+            $createEnd->setTime(23, 59, 59);
+            $query->andWhere('re.creationDate <= :createEnd')
+                ->setParameter('createEnd', $createEnd);
         }
 
-        if (!is_null($phone)) {
-            $query->andWhere('re.phone LIKE :phone')
-                ->setParameter('phone', $phone.'%');
+        if(!is_null($grabStart) && !is_null($grabEnd)){
+            $grabStart = new \DateTime($grabStart);
+            $grabStart->setTime(00, 00, 00);
+            $query->andWhere('re.grabDate >= :grabStart')
+                ->setParameter('grabStart', $grabStart);
+            $grabEnd = new \DateTime($grabEnd);
+            $grabEnd->setTime(23, 59, 59);
+            $query->andWhere('re.grabDate <= :grabEnd')
+                ->setParameter('grabEnd', $grabEnd);
         }
 
-        if (!is_null($serialNumber)) {
-            $query->andWhere('re.serialNumber LIKE :serialNumber')
-                ->setParameter('serialNumber', $serialNumber.'%');
-        }
 
-        if (!is_null($viewTime)) {
-            $query->andWhere('re.viewTime = :viewTime')
-                ->setParameter('viewTime', $viewTime);
-        }
 
         if (!empty($productIds)) {
             $query->andWhere('re.productId in (:productIds)')
                 ->setParameter('productIds', $productIds);
-        }
-
-        if (!empty($creationDate)) {
-            $query->andWhere('creationDate = :creationDate')
-                ->setParameter('creationDate', $creationDate);
-        }
-
-        if (!empty($modificationDate)) {
-            $query->andWhere('modificationDate = :modificationDate')
-                ->setParameter('modificationDate', $modificationDate);
         }
 
         if (!is_null($status)) {

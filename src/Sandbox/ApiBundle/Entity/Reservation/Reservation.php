@@ -102,9 +102,12 @@ class Reservation
     private $modificationDate = null;
 
     /**
-     * @var array
+     * @var \DateTime
+     *
+     * @ORM\Column(name="grab_date", type="datetime", nullable=true)
+     *
      */
-    private $prductInfo;
+    private $grabDate;
 
     /**
      * Get id.
@@ -372,19 +375,29 @@ class Reservation
         return $this->modificationDate;
     }
 
+
     /**
-     * @return mixed
+     * Set grabDate.
+     *
+     * @param \DateTime $grabDate
+     *
+     * @return Reservation
      */
-    public function getPrductInfo()
+    public function setGrabDate($grabDate)
     {
-        return $this->prductInfo;
+        $this->grabDate = $grabDate;
+
+        return $this;
     }
 
     /**
-     * @param mixed $prductInfo
+     * Get grabDate.
+     *
+     * @return \DateTime
      */
-    public function setPrductInfo($prductInfo)
+    public function getGrabDate()
     {
-        $this->prductInfo = $prductInfo;
+        return $this->grabDate;
     }
+
 }
