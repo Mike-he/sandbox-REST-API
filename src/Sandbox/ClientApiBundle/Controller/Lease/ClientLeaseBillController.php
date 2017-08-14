@@ -591,6 +591,7 @@ class ClientLeaseBillController extends PaymentController
                         'name' => $company->getName(),
                     ),
             'payment_user_id' => $bill->getPaymentUserId(),
+            'invoiced' => $bill->isInvoiced(),
         );
 
         return $result;
