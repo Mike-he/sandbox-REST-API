@@ -116,17 +116,13 @@ class ReservationRepository extends EntityRepository
                 ->setParameter('grabEnd', $grabEnd);
         }
 
-
-
-        if (!empty($productIds)) {
-            $query->andWhere('re.productId in (:productIds)')
-                ->setParameter('productIds', $productIds);
-        }
-
         if (!is_null($status)) {
             $query->andWhere('status = :status')
                 ->setParameter('status', $status);
         }
+
+        $query->andWhere('re.productId in (:productIds)')
+            ->setParameter('productIds', $productIds);
 
         $query->orderBy('re.creationDate', 'DESC');
         $query->setMaxResults($limit)

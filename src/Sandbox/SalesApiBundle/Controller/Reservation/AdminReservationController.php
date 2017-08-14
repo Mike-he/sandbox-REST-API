@@ -163,7 +163,7 @@ class AdminReservationController extends SalesRestController
         $grabStart = $paramFetcher->get('grab_start');
         $grabEnd = $paramFetcher->get('grab_end');
         $status = $paramFetcher->get('status');
-
+        $buildingName = $paramFetcher->get('building');
         $limit = $pageLimit;
         $offset = ($pageIndex - 1) * $pageLimit;
 
@@ -199,7 +199,7 @@ class AdminReservationController extends SalesRestController
                 $limit,
                 $offset
             );
-
+        
         $count = count($reservations);
 
         $result = [];
