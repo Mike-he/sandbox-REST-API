@@ -130,14 +130,17 @@ class ClientChatGroupController extends ChatGroupController
         // save to db
         $em->flush();
 
-        // create chat group in Openfire
-        $this->createXmppChatGroup($chatGroup);
+        $gid = $this->createXmppChatGroup($chatGroup);
+        $chatGroup->setGid($gid);
+
+        $em->flush();
 
         // response
         $view = new View();
         $view->setData(array(
             'id' => $chatGroup->getId(),
             'name' => $chatGroupName,
+            'gid' => $gid,
         ));
 
         return $view;

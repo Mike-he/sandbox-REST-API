@@ -154,9 +154,10 @@ class ClientCustomerServiceController extends ChatGroupController
         $em->flush();
 
         // create chat group in Openfire
-        $this->createXmppChatGroup(
-            $chatGroup
-        );
+        $gid = $this->createXmppChatGroup($chatGroup);
+        $chatGroup->setGid($gid);
+
+        $em->flush();
 
         // response
         $view = new View();
@@ -164,6 +165,7 @@ class ClientCustomerServiceController extends ChatGroupController
         $view->setData(array(
             'id' => $chatGroup->getId(),
             'name' => $chatGroupName,
+            'gid' => $gid,
         ));
 
         return $view;
