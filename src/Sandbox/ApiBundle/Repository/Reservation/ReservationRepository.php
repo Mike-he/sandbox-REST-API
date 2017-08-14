@@ -22,6 +22,7 @@ class ReservationRepository extends EntityRepository
     }
 
     /**
+     * @param $salesCompanyId
      * @param $keyword
      * @param $keywordSearch
      * @param $productIds
@@ -38,6 +39,7 @@ class ReservationRepository extends EntityRepository
      * @return array
      */
     public function findBySearch(
+        $salesCompanyId,
         $keyword,
         $keywordSearch,
         $productIds,
@@ -55,8 +57,8 @@ class ReservationRepository extends EntityRepository
         $query = $this->createQueryBuilder('re')
             ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'up.userId = re.userId')
            // ->leftJoin('SandboxApiBundle:Product\ProductRentSet','prt','WITH','prt.productId = re.productId')
-            ->where('re.id != :id')
-            ->setParameter('id', 'null')
+            ->where('re.companyId = :companyId')
+            ->setParameter('companyId', $salesCompanyId)
            ;
 
         if (!is_null($keyword) && !is_null($keywordSearch)) {
@@ -222,19 +224,19 @@ class ReservationRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
     /**
-     * @param $productIds
-     *
+     * @param  $salesCompanyId
      * @return array
      */
-    public function findUngrabedReservation($productIds)
+    public function findCompanyUngrabedReservation($salesCompanyId)
     {
         $query = $this->createQueryBuilder('re')
             ->where('re.status = :status')
-            ->andWhere('re.productId in (:productIds)')
+            ->andWhere('re.companyId = :companyId')
             ->setParameter('status', Reservation::UNGRABED)
-            ->setParameter('productIds', $productIds)
-            ->orderBy('re.creationDate', 'DESC');
+            ->setParameter('companyId', $salesCompanyId)
+            ->orderBy('re.creationDate', 'ASC');
 
         return $query->getQuery()->getResult();
     }

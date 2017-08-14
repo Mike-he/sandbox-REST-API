@@ -46,6 +46,13 @@ class Reservation
     /**
      * @var int
      *
+     * @ORM\Column(name="company_id", type="integer")
+     */
+    private $companyId;
+
+    /**
+     * @var int
+     *
      * @ORM\Column(name="admin_id", type="integer", nullable=true)
      */
     private $adminId;
@@ -181,6 +188,30 @@ class Reservation
     public function getProductId()
     {
         return $this->productId;
+    }
+
+    /**
+     * Set companyId.
+     *
+     * @param int $companyId
+     *
+     * @return Reservation
+     */
+    public function setCompanyId($companyId)
+    {
+        $this->companyId = $companyId;
+
+        return $this;
+    }
+
+    /**
+     * Get companyId.
+     *
+     * @return int
+     */
+    public function getCompanyId()
+    {
+        return $this->companyId;
     }
 
     /**

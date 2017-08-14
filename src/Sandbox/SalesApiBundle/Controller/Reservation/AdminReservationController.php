@@ -168,12 +168,11 @@ class AdminReservationController extends SalesRestController
         $offset = ($pageIndex - 1) * $pageLimit;
 
         $buildingName = $paramFetcher->get('building');
-        $productIds = null;
+        $productIds = array();
         if ($buildingName) {
-            $productIds = array();
             $buildings = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Room\RoomBuilding')
-                ->findOneByName($buildingName);
+                ->getCompanyBuildingsByName($salesCompanyId,$buildingName);
 
             $buildingId = $buildings[0]['id'];
             $products = $this->getDoctrine()
@@ -187,6 +186,7 @@ class AdminReservationController extends SalesRestController
         $reservations = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Reservation\Reservation')
             ->findBySearch(
+                $salesCompanyId,
                 $keyword,
                 $keywordSearch,
                 $productIds,
@@ -234,17 +234,9 @@ class AdminReservationController extends SalesRestController
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
-        $products = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Product\Product')
-            ->findProductIdsByCompanyAndBuilding($salesCompanyId);
-        $productIds = array();
-        foreach ($products as $product) {
-            $productIds[] = $product['id'];
-        }
-
         $reservations = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Reservation\Reservation')
-            ->findUngrabedReservation($productIds);
+            ->findCompanyUngrabedReservation($salesCompanyId);
 
         $result = [];
         foreach ($reservations as $k=>$reservation) {
@@ -286,12 +278,8 @@ class AdminReservationController extends SalesRestController
         $data['modificationDate'] = $reservation->getModificationDate();
         $data['status'] = $reservation->getStatus();
         $data['grabDate'] = $reservation->getGrabDate();
+        $data['companyId'] = $reservation->getCompanyId();
 
-        $productId = $reservation->getProductId();
-        $product = $this->getDoctrine()->getRepository('SandboxApiBundle:Product\Product')->findOneById($productId);
-
-        $companyId = $product->getRoom()->getBuilding()->getCompanyId();
-        $data['companyId'] = $companyId;
         $productId = $reservation->getProductId();
         $product = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Product\Product')

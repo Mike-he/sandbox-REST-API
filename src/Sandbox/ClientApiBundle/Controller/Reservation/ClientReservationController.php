@@ -36,6 +36,7 @@ class ClientReservationController extends SandboxRestController
 
         $productId = $reservation->getProductId();
         $product = $this->getDoctrine()->getRepository('SandboxApiBundle:Product\Product')->findOneById($productId);
+        $companyId = $product->getRoom()->getBuilding()->getCompanyId();
         $roomId = $product->getRoomId();
         $room = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\Room')->findOneById($roomId);
         $type = $room->getType();
@@ -53,6 +54,7 @@ class ClientReservationController extends SandboxRestController
         $str = mt_rand(1000, 9999);
         $serialNumber = 'R'.$str.time();
         $reservation->setSerialNumber($serialNumber);
+        $reservation->setCompanyId($companyId);
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($reservation);
