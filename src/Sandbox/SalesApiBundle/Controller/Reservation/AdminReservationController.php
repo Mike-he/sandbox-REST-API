@@ -20,7 +20,7 @@ class AdminReservationController extends SalesRestController
      * @Route("/reservation/{reservationId}")
      * @param Request $request
      * @return mixed
-     * @Method({"PUT"})
+     * @Method({"PATCH"})
      */
     public function grabReservationAction(Request $request, $reservationId)
     {
@@ -71,51 +71,63 @@ class AdminReservationController extends SalesRestController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="view_time",
+     *    name="keyword",
      *    default=null,
      *    nullable=true,
-     *    strict=true
+     *    description="userName,userPhone,contectName,contectPhone,adminName,adminPhone"
      * )
      *
      * @Annotations\QueryParam(
-     *    name="creation_date",
+     *    name="keyword_search",
      *    default=null,
      *    nullable=true,
-     *    array=true,
+     *    description="search query"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="create_start",
+     *    default=null,
+     *    nullable=true,
+     *    description="create start date"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="create_end",
+     *    default=null,
+     *    nullable=true,
+     *    description="create end date"
+     * )
+     *
+     * * @Annotations\QueryParam(
+     *    name="view_start",
+     *    default=null,
+     *    nullable=true,
+     *    description="create start date"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="view_end",
+     *    default=null,
+     *    nullable=true,
+     *    description="create end date"
+     * )
+     *
+     * * @Annotations\QueryParam(
+     *    name="grab_start",
+     *    default=null,
+     *    nullable=true,
+     *    description="create start date"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="grab_end",
+     *    default=null,
+     *    nullable=true,
+     *    description="create end date"
      * )
      *
      * @Annotations\QueryParam(
      *    name="status",
-     *    default=null,
-     *    nullable=true
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="admin",
-     *    default=null,
-     *    nullable=true
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="serialNumber",
-     *    default=null,
-     *    nullable=true
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="contect_name",
-     *    default=null,
-     *    nullable=true
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="phone",
-     *    default=null,
-     *    nullable=true
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="user",
      *    default=null,
      *    nullable=true
      * )
@@ -126,11 +138,6 @@ class AdminReservationController extends SalesRestController
      *    nullable=true
      * )
      *
-     * @Annotations\QueryParam(
-     *    name="modification_date",
-     *    default=null,
-     *    nullable=true
-     * )
      *
      * @Route("/reservation/list")
      * @Method({"GET"})
@@ -144,15 +151,14 @@ class AdminReservationController extends SalesRestController
         $salesCompanyId = $adminPlatform['sales_company_id'];
         $pageIndex = $paramFetcher->get('pageIndex');
         $pageLimit = $paramFetcher->get('pageLimit');
-
-        $user = $paramFetcher->get('user');
-        $admin = $paramFetcher->get('admin');
-        $serialNumber = $paramFetcher->get('serialNumber');
-        $contectName = $paramFetcher->get('contect_name');
-        $phone = $paramFetcher->get('phone');
-        $viewTime = $paramFetcher->get('view_time');
-        $creationDate = $paramFetcher->get('creation_date');
-        $modificationDate = $paramFetcher->get('modification_date');
+        $keyword = $paramFetcher->get('keyword');
+        $keywordSearch = $paramFetcher->get('keyword_search');
+        $viewStart = $paramFetcher->get('view_start');
+        $viewEnd = $paramFetcher->get('view_end');
+        $createStart = $paramFetcher->get('create_start');
+        $createEnd = $paramFetcher->get('create_end');
+        $grabStart = $paramFetcher->get('grab_start');
+        $grabEnd = $paramFetcher->get('grab_end');
         $status = $paramFetcher->get('status');
 
         $limit = $pageLimit;
@@ -177,16 +183,16 @@ class AdminReservationController extends SalesRestController
         $reservations = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Reservation\Reservation')
             ->findBySearch(
-                $user,
-                $admin,
-                $phone,
-                $contectName,
-                $serialNumber,
+                $keyword,
+                $keywordSearch,
                 $productIds,
-                $viewTime,
                 $status,
-                $creationDate,
-                $modificationDate,
+                $viewStart,
+                $viewEnd,
+                $createStart,
+                $createEnd,
+                $grabStart,
+                $grabEnd,
                 $limit,
                 $offset
             );
@@ -279,7 +285,6 @@ class AdminReservationController extends SalesRestController
         $product = $this->getDoctrine()->getRepository('SandboxApiBundle:Product\Product')->findOneById($productId);
         $companyId = $product->getRoom()->getBuilding()->getCompanyId();
         $data['companyId'] = $companyId;
-
         $productId = $reservation->getProductId();
         $product = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Product\Product')
