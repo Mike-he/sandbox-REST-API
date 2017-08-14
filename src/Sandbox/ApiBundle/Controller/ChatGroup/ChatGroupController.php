@@ -131,35 +131,36 @@ class ChatGroupController extends SandboxRestController
         try {
             $chatRoomId = $chatGroup->getId();
             $chatRoomName = $chatGroup->getName();
-            $service = $this->get('openfire.service');
-            $service->putChatRoomName(
-                $chatRoomId,
-                $chatRoomName
+            $chatRoomdesc = $chatRoomName.'('.$chatRoomId.')';
+            $gid = $chatGroup->getGid();
+
+            $service = $this->get('sandbox_api.jmessage');
+            $service->updateGroup(
+                $gid,
+                $chatRoomName,
+                $chatRoomdesc
             );
         } catch (\Exception $e) {
-            error_log('Update XMPP chat group went wrong!');
+            error_log('Update chat group went wrong!');
+        }
+    }
+
+    /**
+     * @param $gid
+     */
+    protected function deleteXmppChatGroup(
+        $gid
+    ) {
+        try {
+            $service = $this->get('sandbox_api.jmessage');
+            $service->deleteGroup($gid);
+        } catch (\Exception $e) {
+            error_log('Delete chat group went wrong!');
         }
     }
 
     /**
      * @param ChatGroup $chatGroup
-     *
-     * @return mixed|void
-     */
-    protected function deleteXmppChatGroup(
-        $chatGroup
-    ) {
-        try {
-            $chatRoomId = $chatGroup->getId();
-            $service = $this->get('openfire.service');
-            $service->deleteChatRoom($chatRoomId);
-        } catch (\Exception $e) {
-            error_log('Update XMPP chat group went wrong!');
-        }
-    }
-
-    /**
-     * @param $chatGroup
      * @param $members
      */
     protected function addXmppChatGroupMember(
@@ -167,22 +168,16 @@ class ChatGroupController extends SandboxRestController
         $members
     ) {
         try {
-            $chatRoomId = $chatGroup->getId();
-            $role = 'members';
-            $serviceName = $chatGroup->getTag() ? $chatGroup->getTag() : ChatGroup::XMPP_SERVICE;
-            $service = $this->get('openfire.service');
-
+            $gid = $chatGroup->getGid();
+            $memberIds = [];
             foreach ($members as $member) {
-                $memberId = $member->getXmppUsername();
-                $service->addUserInChatRoomWithSpecificService(
-                    $chatRoomId,
-                    $role,
-                    $memberId,
-                    $serviceName
-                );
+                $memberIds[] = $member->getXmppUsername();
             }
+
+            $service = $this->get('sandbox_api.jmessage');
+            $service->addGroupMembers($gid, $members);
         } catch (\Exception $e) {
-            error_log('Add XMPP chat group user went wrong!');
+            error_log('Add chat group members went wrong!');
         }
     }
 
@@ -191,100 +186,16 @@ class ChatGroupController extends SandboxRestController
         $members
     ) {
         try {
-            $chatRoomId = $chatGroup->getId();
-            $role = 'members';
-            $serviceName = $chatGroup->getTag() ? $chatGroup->getTag() : ChatGroup::XMPP_SERVICE;
-            $service = $this->get('openfire.service');
-
+            $gid = $chatGroup->getGid();
+            $memberIds = [];
             foreach ($members as $member) {
-                $memberId = $member->getXmppUsername();
-                $service->deleteUserInChatRoomWithSpecificService(
-                    $chatRoomId,
-                    $role,
-                    $memberId,
-                    $serviceName
-                );
-            }
-        } catch (\Exception $e) {
-            error_log('Delete XMPP chat group user went wrong!');
-        }
-    }
-
-    /**
-     * @param ChatGroup $chatGroup
-     * @param User      $user
-     * @param bool      $mute
-     *
-     * @return mixed|void
-     */
-    protected function handleXmppChatGroupMute(
-        $chatGroup,
-        $user,
-        $mute
-    ) {
-        try {
-            // get globals
-            $twig = $this->container->get('twig');
-            $globals = $twig->getGlobals();
-
-            $domain = $globals['xmpp_domain'];
-            $id = $chatGroup->getId();
-            $type = ChatGroup::XMPP_SERVICE;
-
-            if (!is_null($chatGroup->getTag())) {
-                $type = ChatGroup::XMPP_CUSTOMER_SERVICE;
+                $memberIds[] = $member->getXmppUsername();
             }
 
-            $targetJid = "$id".'@'.$type.'.'.$domain;
-            $userJid = $user->getXmppUsername().'@'.$domain;
-
-            // request json
-            $jsonDataArray = array(
-                'user_jid' => $userJid,
-                'target_jid' => $targetJid,
-                'mute' => $mute,
-            );
-            $jsonData = json_encode($jsonDataArray);
-
-            // call openfire chat config api
-            $this->callOpenfireChatConfigApi($jsonData);
+            $service = $this->get('sandbox_api.jmessage');
+            $service->deleteGroupMembers($gid, $members);
         } catch (\Exception $e) {
-            error_log('Update XMPP chat group went wrong!');
-        }
-    }
-
-    /**
-     * @param object $jsonData
-     *
-     * @return mixed|void
-     */
-    protected function callOpenfireChatConfigApi(
-        $jsonData
-    ) {
-        try {
-            // get globals
-            $twig = $this->container->get('twig');
-            $globals = $twig->getGlobals();
-
-            // openfire API URL
-            $apiURL = $globals['openfire_innet_url'].
-                $globals['openfire_plugin_bstios'].
-                $globals['openfire_plugin_bstios_chatconfig'];
-
-            // init curl
-            $ch = curl_init($apiURL);
-
-            // get then response when post OpenFire API
-            $response = $this->callAPI($ch, 'POST', null, $jsonData);
-
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            if ($httpCode != self::HTTP_STATUS_OK) {
-                return;
-            }
-
-            return $response;
-        } catch (\Exception $e) {
-            error_log('Call Openfire Chat Config API went wrong!');
+            error_log('Delete chat group members went wrong!');
         }
     }
 }

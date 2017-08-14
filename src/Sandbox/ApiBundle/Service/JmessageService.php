@@ -37,8 +37,6 @@ class JmessageService
      */
     private $group;
 
-
-
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
@@ -83,5 +81,33 @@ class JmessageService
         $response = $this->group->create($owner, $name, $desc, $members);
 
         return $response;
+    }
+
+    public function updateGroup(
+        $gid,
+        $name,
+        $desc
+    ) {
+        $this->group->update($gid, $name, $desc);
+    }
+
+    public function deleteGroup(
+        $gid
+    ) {
+        $this->group->delete($gid);
+    }
+
+    public function addGroupMembers(
+        $gid,
+        $usernames
+    ) {
+        $this->group->addMembers($gid,$usernames);
+    }
+
+    public function deleteGroupMembers(
+        $gid,
+        $usernames
+    ) {
+        $this->group->removeMembers($gid, $usernames);
     }
 }
