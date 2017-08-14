@@ -284,6 +284,7 @@ class AdminReservationController extends SalesRestController
 
         $productId = $reservation->getProductId();
         $product = $this->getDoctrine()->getRepository('SandboxApiBundle:Product\Product')->findOneById($productId);
+
         $companyId = $product->getRoom()->getBuilding()->getCompanyId();
         $data['companyId'] = $companyId;
         $productId = $reservation->getProductId();
@@ -291,8 +292,13 @@ class AdminReservationController extends SalesRestController
             ->getRepository('SandboxApiBundle:Product\Product')
             ->findProductByProductId($productId);
 
+        $attachment = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomAttachmentBinding')
+            ->findAttachmentsByRoom($product['room_id'], 1);
+
         $typeTagDescription = $this->get('translator')->trans(RoomTypeTags::TRANS_PREFIX.$product['type_tag']);
         $data['product'] = $product;
+        $data['product']['content'] = $attachment[0]['content'];
         $data['product']['type_tag_description'] = $typeTagDescription;
 
 

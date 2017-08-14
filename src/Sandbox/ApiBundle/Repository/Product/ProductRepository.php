@@ -2167,13 +2167,11 @@ class ProductRepository extends EntityRepository
                     r.description as description,
                     b.name as building_name,
                     rc.name as city_name,
-                    ra.content as content, 
                     rm.startHour as start_hour,
                     rm.endHour as end_hour
                 ')
             ->leftJoin('p.room', 'r')
             ->leftJoin('r.building', 'b')
-            ->leftJoin('SandboxApiBundle:Room\RoomAttachment', 'ra', 'WITH', 'r.id = ra.id')
             ->leftJoin('SandboxApiBundle:Room\RoomMeeting', 'rm', 'WITH', 'r.id = rm.room')
             ->leftJoin('SandboxApiBundle:Room\RoomCity','rc','WITH','rc.id = b.cityId')
             ->where('p.id = :id')
