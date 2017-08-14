@@ -199,7 +199,7 @@ class AdminReservationController extends SalesRestController
                 $limit,
                 $offset
             );
-        
+
         $count = count($reservations);
 
         $result = [];

@@ -90,7 +90,7 @@ class ReservationRepository extends EntityRepository
                 ->setParameter('viewStart', $viewStart);
             $viewEnd = new \DateTime($viewEnd);
             $viewEnd->setTime(23, 59, 59);
-            $query->andWhere('re.viewnTime <= :viewEnd')
+            $query->andWhere('re.viewTime <= :viewEnd')
                 ->setParameter('viewEnd', $viewEnd);
         }
 
@@ -117,7 +117,7 @@ class ReservationRepository extends EntityRepository
         }
 
         if (!is_null($status)) {
-            $query->andWhere('status = :status')
+            $query->andWhere('re.status = :status')
                 ->setParameter('status', $status);
         }
 
