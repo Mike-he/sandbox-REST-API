@@ -25,6 +25,7 @@ class ReservationRepository extends EntityRepository
      * @param $keyword
      * @param $keywordSearch
      * @param $productIds
+     * @param $buildingName
      * @param $status
      * @param $viewStart
      * @param $viewEnd
@@ -40,6 +41,7 @@ class ReservationRepository extends EntityRepository
         $keyword,
         $keywordSearch,
         $productIds,
+        $buildingName,
         $status,
         $viewStart,
         $viewEnd,
@@ -121,8 +123,10 @@ class ReservationRepository extends EntityRepository
                 ->setParameter('status', $status);
         }
 
-        $query->andWhere('re.productId in (:productIds)')
-            ->setParameter('productIds', $productIds);
+        if(!is_null($buildingName)){
+            $query->andWhere('re.productId in (:productIds)')
+                ->setParameter('productIds', $productIds);
+        }
 
         $query->orderBy('re.creationDate', 'DESC');
         $query->setMaxResults($limit)

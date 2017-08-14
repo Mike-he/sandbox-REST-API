@@ -168,8 +168,9 @@ class AdminReservationController extends SalesRestController
         $offset = ($pageIndex - 1) * $pageLimit;
 
         $buildingName = $paramFetcher->get('building');
-        $productIds = array();
+        $productIds = null;
         if ($buildingName) {
+            $productIds = array();
             $buildings = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Room\RoomBuilding')
                 ->findOneByName($buildingName);
@@ -189,6 +190,7 @@ class AdminReservationController extends SalesRestController
                 $keyword,
                 $keywordSearch,
                 $productIds,
+                $buildingName,
                 $status,
                 $viewStart,
                 $viewEnd,
