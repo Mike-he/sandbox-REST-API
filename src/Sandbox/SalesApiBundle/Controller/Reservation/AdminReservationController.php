@@ -280,6 +280,7 @@ class AdminReservationController extends SalesRestController
         $data['creationDate'] = $reservation->getCreationDate();
         $data['modificationDate'] = $reservation->getModificationDate();
         $data['status'] = $reservation->getStatus();
+        $data['grabDate'] = $reservation->getGrabDate();
 
         $productId = $reservation->getProductId();
         $product = $this->getDoctrine()->getRepository('SandboxApiBundle:Product\Product')->findOneById($productId);

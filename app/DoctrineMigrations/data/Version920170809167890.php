@@ -111,7 +111,7 @@ class Version920170809167890 extends AbstractMigration implements ContainerAware
                     'required' => false,
                 ),
                 array(
-                    'column' => 'modification_date',
+                    'column' => 'grab_date',
                     'name' => '抢单时间',
                     'default' => true,
                     'required' => false,
