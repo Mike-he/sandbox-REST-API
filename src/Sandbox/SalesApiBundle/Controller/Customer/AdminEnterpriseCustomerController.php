@@ -107,6 +107,20 @@ class AdminEnterpriseCustomerController extends SalesRestController
      * )
      *
      * @Annotations\QueryParam(
+     *    name="keyword",
+     *    default=null,
+     *    nullable=true,
+     *    description="name,registerAddress,phone,contactName,contactPhone"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="keyword_search",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
+     * @Annotations\QueryParam(
      *     name="query",
      *     default=null,
      *     nullable=true,
@@ -114,37 +128,6 @@ class AdminEnterpriseCustomerController extends SalesRestController
      *     strict=true
      * )
      *
-     * @Annotations\QueryParam(
-     *     name="address",
-     *     default=null,
-     *     nullable=true,
-     *     array=false,
-     *     strict=true
-     * )
-     *
-     * @Annotations\QueryParam(
-     *     name="phone",
-     *     default=null,
-     *     nullable=true,
-     *     array=false,
-     *     strict=true
-     * )
-     *
-     *  @Annotations\QueryParam(
-     *     name="contect_phone",
-     *     default=null,
-     *     nullable=true,
-     *     array=false,
-     *     strict=true
-     * )
-     *
-     *  @Annotations\QueryParam(
-     *     name="contect_name",
-     *     default=null,
-     *     nullable=true,
-     *     array=false,
-     *     strict=true
-     * )
      *
      * @Route("/enterprise_customers")
      * @Method({"GET"})
@@ -157,11 +140,8 @@ class AdminEnterpriseCustomerController extends SalesRestController
     ) {
         $pageIndex = $paramFetcher->get('pageIndex');
         $pageLimit = $paramFetcher->get('pageLimit');
-        $search = $paramFetcher->get('query');
-        $address = $paramFetcher->get('address');
-        $phone = $paramFetcher->get('phone');
-        $contectName = $paramFetcher->get('contect_name');
-        $contectPhone = $paramFetcher->get('contect_phone');
+        $keyword = $paramFetcher->get('keyword');
+        $keywordSearch = $paramFetcher->get('keyword_search');
 
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
@@ -170,11 +150,8 @@ class AdminEnterpriseCustomerController extends SalesRestController
             ->getRepository('SandboxApiBundle:User\EnterpriseCustomer')
             ->searchSalesEnterpriseCustomers(
                 $salesCompanyId,
-                $search,
-                $address,
-                $phone,
-                $contectName,
-                $contectPhone
+                $keyword,
+                $keywordSearch
             );
 
         foreach ($enterpriseCustomers as $enterpriseCustomer) {
