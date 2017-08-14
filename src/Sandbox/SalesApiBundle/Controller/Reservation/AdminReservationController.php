@@ -34,6 +34,9 @@ class AdminReservationController extends SalesRestController
         $reservation->setAdminId($adminId);
         $reservation->setStatus(Reservation::GRABED);
 
+        $now = new \DateTime();
+        $reservation->setGrabDate($now);
+
         $em = $this->getDoctrine()->getManager();
         $em->persist($reservation);
         $em->flush();
