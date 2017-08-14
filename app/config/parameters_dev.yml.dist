@@ -103,7 +103,6 @@ parameters:
     rest_api_local_url: localhost.api.rest
 
     image_url: http://devimage.sandbox3.cn
-    file_server_url: http://devxmpp.sandbox3.cn/plugins/fileServer/fileservice
     rest_file_server_url: http://devrest.sandbox3.cn/plugins/fileServer/fileservice
     mobile_url: http://devm.sandbox3.cn
     room_mobile_url: http://devmobile.sandbox3.cn

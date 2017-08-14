@@ -34,23 +34,6 @@ parameters:
     time_for_half_hour_early: -30 minutes
     time_for_preorder_cancel: + 1 day
 
-    xmpp_domain: testxmpp.sandbox3.cn
-    openfire_innet_url: http://127.0.0.1:9090
-    openfire_plugin_bstuser: /plugins/bstuser
-    openfire_plugin_bstuser_users: /users
-    openfire_plugin_bstuser_property_name_ezuser: ezuser
-    openfire_plugin_bstuser_property_secret_ezuser: DB93819516EA9C8E73C0374595ED0F19
-    openfire_plugin_sandbox: /plugins/sandbox
-    openfire_plugin_sandbox_notification: /notification
-    openfire_plugin_sandbox_notification_broadcast: /broadcast
-    openfire_plugin_bstgroupchat: /plugins/bstgroupchat
-    openfire_plugin_bstgroupchat_room: /rooms
-    openfire_plugin_bstgroupchat_room_member: /members
-    openfire_plugin_bstios: /plugins/bstios
-    openfire_plugin_bstios_chatconfig: /chatconfig
-    openfire_plugin_bstios_apns: /apns
-    openfire_plugin_file_server: /plugins/fileServer/fileservice
-
     sms_api_url: http://yunpian.com/v1/sms/send.json
     sms_api_key: 21c29536f85636a862306aa6f8ffdf74
     email_from_address: notification@sandbox3.cn
@@ -117,7 +100,6 @@ parameters:
     rest_api_local_url: restserver
 
     image_url: https://testimage.sandbox3.cn
-    file_server_url: https://testxmpp.sandbox3.cn/plugins/fileServer/fileservice
     rest_file_server_url: https://testrest.sandbox3.cn/plugins/fileServer/fileservice
     mobile_url: https://testm.sandbox3.cn
     room_mobile_url: https://testmobile.sandbox3.cn
@@ -126,16 +108,6 @@ parameters:
     coffee_url: https://testcoffee.sandbox3.cn
     invoice_url: https://testinvoice.sandbox3.cn
 
-    openfire_db_name: staging_xmpp_db
-    openfire_db_user: staging_xmpp
-    openfire_db_password: Sandhill2290
-
     duiba_app_key: XUPB5iAdCbHnc6C8fcmpB8fcxLu
     duiba_app_secret: 3ynCsWqXzcErULFvSEojLH94pnxb
     duiba_app_env: sta
-
-    openfire_url: https://testxmpp.sandbox3.cn/plugins/restapi/v1
-    openfire_secret: WKs1fEY3ppR45O7q
-    openfire_servicename: conference
-    openfire_servername: testxmpp.sandbox3.cn
-    openfire_service: 'jean553\OpenfireBundle\Services\OpenfireService'

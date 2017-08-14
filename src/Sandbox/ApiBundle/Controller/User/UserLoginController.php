@@ -4,7 +4,6 @@ namespace Sandbox\ApiBundle\Controller\User;
 
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ClientApiBundle\Data\User\UserLoginData;
-use Sandbox\ClientApiBundle\Data\User\UserLoginDeviceData;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\User\UserClient;
 use Sandbox\ApiBundle\Entity\User\UserToken;
@@ -88,9 +87,6 @@ class UserLoginController extends SandboxRestController
 
             // save or refresh user token
             $userToken = $this->saveUserToken($em, $user, $userClient);
-
-            // handle device
-            $this->handleDevice($user, $deviceData);
 
             $data['user'] = $user;
             $data['token'] = $userToken;
@@ -190,54 +186,6 @@ class UserLoginController extends SandboxRestController
         $userToken->setModificationDate(new \DateTime('now'));
 
         return $userToken;
-    }
-
-    /**
-     * @param User                $user
-     * @param UserLoginDeviceData $deviceData
-     */
-    protected function handleDevice(
-        $user,
-        $deviceData
-    ) {
-        try {
-            if (is_null($deviceData)) {
-                return;
-            }
-
-            $token = $deviceData->getToken();
-            $platform = $deviceData->getPlatform();
-
-            if ($platform === self::PLATFORM_IPHONE) {
-                $jid = $this->constructXmppJid($user->getXmppUsername());
-                $this->disableXmppOtherApns($jid, $token);
-            }
-        } catch (\Exception $e) {
-            error_log('Login handle device went wrong!');
-        }
-    }
-
-    /**
-     * @param string $jid
-     * @param string $currentToken
-     */
-    protected function disableXmppOtherApns(
-        $jid,
-        $currentToken
-    ) {
-        try {
-            // request json
-            $jsonDataArray = array(
-                'jid' => $jid,
-                'current_token' => $currentToken,
-            );
-            $jsonData = json_encode($jsonDataArray);
-
-            // call openfire APNS api
-            $this->callOpenfireApnsApi('DELETE', $jsonData);
-        } catch (\Exception $e) {
-            error_log('Disable XMPP other APNS went wrong!');
-        }
     }
 
     /**
