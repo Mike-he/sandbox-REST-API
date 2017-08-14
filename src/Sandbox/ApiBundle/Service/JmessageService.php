@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\Service;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use JMessage\JMessage;
 use JMessage\IM\User;
+use JMessage\IM\Group;
 
 /**
  * Class JmessageService.
@@ -31,6 +32,13 @@ class JmessageService
      */
     private $user;
 
+    /**
+     * @var Group
+     */
+    private $group;
+
+
+
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
@@ -38,6 +46,7 @@ class JmessageService
         $this->masterSecret = $this->container->getParameter('jpush_secret');
         $this->client = new JMessage($this->appKey, $this->masterSecret);
         $this->user = new User($this->client);
+        $this->group = new Group($this->client);
     }
 
     public function createUser(
@@ -63,5 +72,16 @@ class JmessageService
         ];
 
         $this->user->update($username, $options);
+    }
+
+    public function createGroup(
+        $owner,
+        $name,
+        $desc,
+        $members
+    ) {
+        $response = $this->group->create($owner, $name, $desc, $members);
+
+        return $response;
     }
 }

@@ -155,8 +155,7 @@ class ClientCustomerServiceController extends ChatGroupController
 
         // create chat group in Openfire
         $this->createXmppChatGroup(
-            $chatGroup,
-            $tag
+            $chatGroup
         );
 
         // response

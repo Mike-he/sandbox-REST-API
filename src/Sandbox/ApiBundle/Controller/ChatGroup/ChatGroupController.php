@@ -84,37 +84,39 @@ class ChatGroupController extends SandboxRestController
     }
 
     /**
-     * @param $chatGroup
-     * @param $serviceType
+     * @param ChatGroup $chatGroup
      *
      * @return mixed|void
      */
     protected function createXmppChatGroup(
-        $chatGroup,
-        $serviceType = ChatGroup::XMPP_SERVICE
+        $chatGroup
     ) {
         try {
             $chatRoomId = $chatGroup->getId();
             $chatRoomName = $chatGroup->getName();
+            $chatRoomdesc = $chatRoomName.'('.$chatRoomId.')';
             $ownerName = $chatGroup->getCreator()->getXmppUsername();
             $members = $this->getRepo('ChatGroup\ChatGroupMember')->findByChatGroup($chatGroup);
 
             $membersIds = array();
             foreach ($members as $member) {
                 $memberId = $member->getUser()->getXmppUsername();
-                array_push($membersIds, $memberId);
+                if ($memberId != $ownerName) {
+                    array_push($membersIds, $memberId);
+                }
             }
 
-            $service = $this->get('openfire.service');
-            $service->createChatRoomWithSpecificMembersAndService(
-                $chatRoomId,
-                $chatRoomName,
+            $service = $this->get('sandbox_api.jmessage');
+            $result = $service->createGroup(
                 $ownerName,
-                $membersIds,
-                $serviceType
+                $chatRoomName,
+                $chatRoomdesc,
+                $membersIds
             );
+
+            return $result['body']['gid'];
         } catch (\Exception $e) {
-            error_log('Create XMPP chat group went wrong!');
+            error_log('Create chat group went wrong!');
         }
     }
 
