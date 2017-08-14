@@ -29,10 +29,7 @@ class FileServerController extends SandboxRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $twig = $this->container->get('twig');
-        $globals = $twig->getGlobals();
-
-        $domain = $globals['file_server_url'];
+        $domain = $this->container->getParameter('rest_file_server_url');
 
         return new View(array(
             'file_server_domain' => $domain,

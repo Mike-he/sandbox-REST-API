@@ -102,7 +102,6 @@ twig:
         wechat_refund_fee_multiplier: "%wechat_refund_fee_multiplier%"
         foreign_credit_refund_fee_multiplier: "%foreign_credit_refund_fee_multiplier%"
         rest_api_local_url: "%rest_api_local_url%"
-        file_server_url: "%file_server_url%"
         top_level_domain: "%top_level_domain%"
         jpush_apns_option: "%jpush_apns_option%"
 
