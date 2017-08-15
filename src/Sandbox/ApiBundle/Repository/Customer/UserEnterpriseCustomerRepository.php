@@ -32,9 +32,6 @@ class UserEnterpriseCustomerRepository extends EntityRepository
                 case 'registerAddress':
                     $query->andWhere('ec.registerAddress LIKE :search');
                     break;
-                case 'phone':
-                    $query->andWhere('ec.phone LIKE :search');
-                    break;
                 case 'contactName':
                     $query->andWhere('uc.name LIKE :search');
                     break;

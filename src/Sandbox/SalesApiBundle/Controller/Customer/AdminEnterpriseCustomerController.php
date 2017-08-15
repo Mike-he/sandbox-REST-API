@@ -110,7 +110,7 @@ class AdminEnterpriseCustomerController extends SalesRestController
      *    name="keyword",
      *    default=null,
      *    nullable=true,
-     *    description="name,registerAddress,phone,contactName,contactPhone"
+     *    description="name,registerAddress,contactName,contactPhone"
      * )
      *
      * @Annotations\QueryParam(
