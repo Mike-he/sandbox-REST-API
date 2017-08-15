@@ -133,6 +133,11 @@ class SalesCompanyWithdrawals
     private $officialAdminId;
 
     /**
+     * @var int
+     */
+    private $financeProfileId;
+
+    /**
      * Get id.
      *
      * @return int
@@ -444,5 +449,21 @@ class SalesCompanyWithdrawals
     public function getOfficialAdminId()
     {
         return $this->officialAdminId;
+    }
+
+    /**
+     * @return int
+     */
+    public function getFinanceProfileId()
+    {
+        return $this->financeProfileId;
+    }
+
+    /**
+     * @param int $financeProfileId
+     */
+    public function setFinanceProfileId($financeProfileId)
+    {
+        $this->financeProfileId = $financeProfileId;
     }
 }

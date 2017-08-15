@@ -44,6 +44,15 @@ class AdminCustomerController extends SalesRestController
      *    description="Filter by user id"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="query",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     * )
+     *
+     *
      * @Route("/open/customers")
      * @Method({"GET"})
      *
@@ -58,13 +67,15 @@ class AdminCustomerController extends SalesRestController
 
         $ids = $paramFetcher->get('id');
         $userIds = $paramFetcher->get('user_id');
+        $query = $paramFetcher->get('query');
 
         $customers = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserCustomer')
             ->searchCustomers(
                 $salesCompanyId,
                 $ids,
-                $userIds
+                $userIds,
+                $query
             );
 
         return new View($customers);

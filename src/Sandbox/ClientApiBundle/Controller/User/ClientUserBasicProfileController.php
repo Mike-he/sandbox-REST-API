@@ -263,7 +263,11 @@ class ClientUserBasicProfileController extends UserProfileController
         $em = $this->getDoctrine()->getManager();
         $em->flush();
 
-        $this->updateXmppUser($user->getXmppUsername(), null, $profile->getName());
+        $this->get('sandbox_api.jmessage')
+            ->updateNickname(
+                $user->getXmppUsername(),
+                $profile->getName()
+            );
 
         return new View();
     }

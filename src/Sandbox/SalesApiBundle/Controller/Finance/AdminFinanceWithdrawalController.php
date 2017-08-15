@@ -398,7 +398,7 @@ class AdminFinanceWithdrawalController extends PaymentController
 
         $account = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfileAccount')
-            ->findOneBy(array('salesCompany' => $salesCompanyId));
+            ->findOneBy(array('salesCompanyId' => $salesCompanyId));
 
         if (!$account) {
             $check = false;
@@ -406,7 +406,7 @@ class AdminFinanceWithdrawalController extends PaymentController
 
         $express = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfileExpress')
-            ->findOneBy(array('salesCompany' => $salesCompanyId));
+            ->findOneBy(array('salesCompanyId' => $salesCompanyId));
 
         if (!$express) {
             $check = false;
@@ -414,7 +414,7 @@ class AdminFinanceWithdrawalController extends PaymentController
 
         $invoice = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfileInvoice')
-            ->findOneBy(array('salesCompany' => $salesCompanyId));
+            ->findOneBy(array('salesCompanyId' => $salesCompanyId));
 
         if (!$invoice) {
             $check = false;
@@ -435,10 +435,18 @@ class AdminFinanceWithdrawalController extends PaymentController
         $withdrawal,
         $adminId
     ) {
+        $financeProfileId = $withdrawal->getFinanceProfileId();
+        $financeProfile = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfiles')
+            ->find($financeProfileId);
+        if (is_null($financeProfile)) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
         // get bank info
         $account = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfileAccount')
-            ->findOneBy(['salesCompany' => $company]);
+            ->findOneBy(['profileId' => $financeProfileId]);
         if (is_null($account)) {
             return $this->setErrorArray(
                 self::COMPANY_PROFILE_ACCOUNT_INCOMPLETE_CODE,

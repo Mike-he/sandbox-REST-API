@@ -7,7 +7,6 @@ use Sandbox\ApiBundle\Controller\ChatGroup\ChatGroupController;
 use Sandbox\ApiBundle\Entity\ChatGroup\ChatGroup;
 use Sandbox\ApiBundle\Entity\ChatGroup\ChatGroupMember;
 use Sandbox\ApiBundle\Form\ChatGroup\ChatGroupType;
-use Sandbox\ApiBundle\Traits\OpenfireApi;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -27,8 +26,6 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  */
 class AdminChatGroupController extends ChatGroupController
 {
-    use OpenfireApi;
-
     /**
      * Retrieve all other service members by sales company.
      *
@@ -239,6 +236,8 @@ class AdminChatGroupController extends ChatGroupController
     public function createChatGroupAction(
         Request $request
     ) {
+        $em = $this->getDoctrine()->getManager();
+
         $userId = $this->getUserId();
         $user = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\User')
@@ -301,9 +300,18 @@ class AdminChatGroupController extends ChatGroupController
                 'tag' => $chatGroup->getTag(),
             ]);
         if (!is_null($existGroup)) {
+            $gid = $existGroup->getGid();
+            if (!$gid) {
+                $gid = $this->createXmppChatGroup($existGroup);
+
+                $existGroup->setGid($gid);
+                $em->flush();
+            }
+
             return new View([
                     'id' => $existGroup->getId(),
                     'name' => $existGroup->getName(),
+                    'gid' => $gid,
                 ]);
         }
 
@@ -312,7 +320,6 @@ class AdminChatGroupController extends ChatGroupController
         $chatGroup->setCreator($creator);
         $chatGroup->setName($building->getName());
 
-        $em = $this->getDoctrine()->getManager();
         $em->persist($chatGroup);
 
         // set members
@@ -353,11 +360,10 @@ class AdminChatGroupController extends ChatGroupController
 
         $em->flush();
 
-        // create chat group in Openfire
-        $this->createXmppChatGroup(
-            $chatGroup,
-            $chatGroup->getTag()
-        );
+        $gid = $this->createXmppChatGroup($chatGroup);
+
+        $chatGroup->setGid($gid);
+        $em->flush();
 
         // response
         $view = new View();
@@ -365,6 +371,7 @@ class AdminChatGroupController extends ChatGroupController
         $view->setData(array(
             'id' => $chatGroup->getId(),
             'name' => $chatGroup->getName(),
+            'gid' => $gid,
         ));
 
         return $view;

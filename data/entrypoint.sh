@@ -26,7 +26,12 @@ cp data/www.conf /etc/php5/fpm/pool.d/www.conf
 
 if [ ! -z "$ENV" ]; then
  cp app/config/parameters_${ENV}.yml.dist app/config/parameters.yml
- php app/console doc:mig:mig
+fi
+
+if [ ! -z "$DOC_MIG" ]; then
+  if [ "$DOC_MIG" == true ]; then
+     php app/console doc:mig:mig
+  fi
 fi
 
 # Update vendor of sandbox_app

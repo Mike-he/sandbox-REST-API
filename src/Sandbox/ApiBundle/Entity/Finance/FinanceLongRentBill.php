@@ -96,6 +96,11 @@ class FinanceLongRentBill
     private $billInvoice;
 
     /**
+     * @var int
+     */
+    private $financeProfileId;
+
+    /**
      * @return int
      */
     public function getId()
@@ -229,5 +234,21 @@ class FinanceLongRentBill
     public function setBillInvoice($billInvoice)
     {
         $this->billInvoice = $billInvoice;
+    }
+
+    /**
+     * @return int
+     */
+    public function getFinanceProfileId()
+    {
+        return $this->financeProfileId;
+    }
+
+    /**
+     * @param int $financeProfileId
+     */
+    public function setFinanceProfileId($financeProfileId)
+    {
+        $this->financeProfileId = $financeProfileId;
     }
 }

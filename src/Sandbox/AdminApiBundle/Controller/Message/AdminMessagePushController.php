@@ -9,7 +9,7 @@ use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Message\Message;
 use Sandbox\ApiBundle\Entity\Message\MessageMaterial;
 use Sandbox\ApiBundle\Form\Message\MessagePushType;
-use Sandbox\ApiBundle\Traits\MessagePushNotification;
+use Sandbox\ApiBundle\Traits\SendNotification;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -20,8 +20,7 @@ use FOS\RestBundle\Controller\Annotations;
 
 class AdminMessagePushController extends AdminRestController
 {
-    use MessagePushNotification;
-
+    use SendNotification;
     /**
      * Get Message List.
      *

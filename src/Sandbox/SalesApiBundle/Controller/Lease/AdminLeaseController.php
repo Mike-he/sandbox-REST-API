@@ -528,7 +528,7 @@ class AdminLeaseController extends SalesRestController
                                     $lease,
                                     $removeUsers,
                                     ProductOrder::ACTION_INVITE_REMOVE,
-                                    $lease->getSupervisorId(),
+                                    $userId,
                                     [],
                                     ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART1,
                                     ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART2

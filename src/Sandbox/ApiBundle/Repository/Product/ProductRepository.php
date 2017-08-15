@@ -2101,4 +2101,84 @@ class ProductRepository extends EntityRepository
 
         return $query;
     }
+
+    /**
+     * @param $company
+     * @param $building
+     *
+     * @return array
+     */
+    public function findProductIdsByCompanyAndBuilding(
+        $company,
+        $building = null
+    ) {
+        $query = $this->createQueryBuilder('p')
+            ->select('
+                    p.id,
+                    p.visible,
+                    r.id as room_id,
+                    r.name as room_name,
+                    r.type as room_type,
+                    r.allowedPeople as allowed_people,
+                    r.area,
+                    r.typeTag as type_tag,
+                    b.description as building_name,
+                    rm.startHour as start_hour,
+                    rm.endHour as end_hour
+                ')
+            ->leftJoin('p.room', 'r')
+            ->leftJoin('r.building', 'b')
+            ->leftJoin('SandboxApiBundle:Room\RoomMeeting', 'rm', 'WITH', 'r.id = rm.room')
+            ->where('p.isDeleted = FALSE')
+            ->andWhere('r.isDeleted = FALSE')
+            ->andWhere('b.company = :company')
+            ->andWhere('r.type = :type')
+            ->setParameter('company', $company)
+            ->setParameter('type', Room::TYPE_OFFICE);
+
+        if ($building) {
+            $query->andWhere('b.id = :building')
+                ->setParameter('building', $building);
+        }
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
+
+    /**
+     * @param $productId
+     *
+     * @return array
+     */
+    public function findProductByProductId(
+        $productId
+    ) {
+        $query = $this->createQueryBuilder('p')
+            ->select('
+                    p.id,
+                    p.visible,
+                    r.id as room_id,
+                    r.name as room_name,
+                    r.type as room_type,
+                    r.allowedPeople as allowed_people,
+                    r.area,
+                    r.typeTag as type_tag,
+                    r.description as description,
+                    b.name as building_name,
+                    rc.name as city_name,
+                    rm.startHour as start_hour,
+                    rm.endHour as end_hour
+                ')
+            ->leftJoin('p.room', 'r')
+            ->leftJoin('r.building', 'b')
+            ->leftJoin('SandboxApiBundle:Room\RoomMeeting', 'rm', 'WITH', 'r.id = rm.room')
+            ->leftJoin('SandboxApiBundle:Room\RoomCity','rc','WITH','rc.id = b.cityId')
+            ->where('p.id = :id')
+            ->setParameter('id', $productId);
+
+        $result = $query->getQuery()->getSingleResult();
+
+        return $result;
+    }
 }

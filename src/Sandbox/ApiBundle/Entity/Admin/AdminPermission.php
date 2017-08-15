@@ -99,6 +99,7 @@ class AdminPermission
     const KEY_SALES_BUILDING_SPACE = 'sales.building.space';
     const KEY_SALES_BUILDING_LONG_TERM_LEASE = 'sales.building.long_term_lease';
     const KEY_SALES_BUILDING_LONG_TERM_APPOINTMENT = 'sales.building.long_term_appointment';
+    const KEY_SALES_PLATFORM_CASHIER = 'sales.platform.cashier';
 
     const KEY_SHOP_PLATFORM_DASHBOARD = 'shop.platform.dashboard';
     const KEY_SHOP_PLATFORM_ADMIN = 'shop.platform.admin';

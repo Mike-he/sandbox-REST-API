@@ -5,13 +5,11 @@ namespace Sandbox\ClientApiBundle\Controller\Payment;
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Event\EventOrder;
-use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentServiceBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\MembershipCard\MembershipOrder;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Order\TopUpOrder;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
-use Sandbox\ApiBundle\Traits\FinanceTrait;
 use Sandbox\ApiBundle\Traits\SendNotification;
 use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
 use Symfony\Component\HttpFoundation\Request;
@@ -36,7 +34,6 @@ class ClientPaymentController extends PaymentController
     const PINGPLUSPLUS_SIGNATURE_HEADER = 'x_pingplusplus_signature';
     const PINGPLUSPLUS_RSA_PATH = '/rsa_public_key.pem';
 
-    use FinanceTrait;
     use SendNotification;
 
     /**
@@ -232,11 +229,6 @@ class ClientPaymentController extends PaymentController
                     $channel,
                     $userId,
                     $price
-                );
-
-                $this->generateLongRentServiceFee(
-                    $bill,
-                    FinanceLongRentServiceBill::TYPE_BILL_SERVICE_FEE
                 );
 
                 $orderMap = LeaseBill::BILL_MAP;

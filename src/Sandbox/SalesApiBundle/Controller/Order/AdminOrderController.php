@@ -1969,8 +1969,9 @@ class AdminOrderController extends OrderController
                 );
             }
 
-            $user = $this->getRepo('User\User')->find($order->getUserId());
-            $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
+//            $user = $this->getRepo('User\User')->find($order->getUserId());
+            $customer = $em->getRepository('SandboxApiBundle:User\UserCustomer')->find($order->getCustomerId());
+            $this->throwNotFoundIfNull($customer, self::NOT_FOUND_MESSAGE);
 
             $productId = $order->getProductId();
             $product = $this->getDoctrine()
@@ -2069,7 +2070,7 @@ class AdminOrderController extends OrderController
                 $now,
                 $startDate,
                 $endDate,
-                $user,
+                null,
                 $type,
                 $timeUnit,
                 $basePrice
@@ -2108,29 +2109,11 @@ class AdminOrderController extends OrderController
 
             $order->setAdminId($adminId);
             $order->setType(ProductOrder::PREORDER_TYPE);
+            $order->setSalesInvoice(true);
 
             if (0 == $order->getDiscountPrice()) {
                 $order->setStatus(ProductOrder::STATUS_PAID);
                 $order->setPaymentDate($now);
-            }
-
-            // set order drawer
-            $this->setOrderDrawer(
-                $product,
-                $order
-            );
-
-            // set service fee
-            $companyId = $product->getRoom()->getBuilding()->getCompanyId();
-            $serviceInfo = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
-                ->findOneBy([
-                    'company' => $companyId,
-                    'tradeTypes' => $type,
-                ]);
-
-            if (!is_null($serviceInfo)) {
-                $order->setServiceFee($serviceInfo->getServiceFee());
             }
 
             $em->persist($order);
@@ -2141,13 +2124,6 @@ class AdminOrderController extends OrderController
                 $order,
                 $product,
                 $timeUnit
-            );
-
-            // set sales user
-            $this->setSalesUser(
-                $em,
-                $user->getId(),
-                $product
             );
 
             $em->flush();

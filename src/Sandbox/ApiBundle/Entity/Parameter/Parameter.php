@@ -16,19 +16,29 @@ use Doctrine\ORM\Mapping as ORM;
 class Parameter
 {
     const KEY_LEASE_CONFIRM_EXPIRE_IN = 'lease_confirm_expire_in';
+
+    // BEAN
     const KEY_BEAN_USER_REGISTER = 'bean_user_register';
     const KEY_BEAN_USER_LOGIN = 'bean_user_login';
     const KEY_BEAN_USER_SHARE = 'bean_user_share';
     const KEY_BEAN_ORDER_EVALUATION = 'bean_order_evaluation';
-    const KEY_BEAN_BUILDING_EVALUATION = 'bean_building_evaluation';
     const KEY_BEAN_SUCCESS_INVITATION = 'bean_success_invitation';
     const KEY_BEAN_INVITEE_PRODUCT_ORDER = 'bean_invitee_product_order';
     const KEY_BEAN_INVITEE_PAY_BILL = 'bean_invitee_pay_bill';
     const KEY_BEAN_PRODUCT_ORDER = 'bean_product_order';
     const KEY_BEAN_PAY_BILL = 'bean_pay_bill';
     const KEY_BEAN_SHOP_ORDER = 'bean_shop_order';
-    const KEY_BEAN_EVENT_ORDER = 'bean_event_order';
     const KEY_BEAN_MEMBERSHIP_ORDER = 'bean_membership_order';
+    const KEY_BEAN_PRODUCT_ORDER_PREORDER = 'bean_product_order_preorder';
+
+    // Poundage
+    const KEY_POUNDAGE = 'poundage_';
+    const KEY_POUNDAGE_ACCOUNT = 'poundage_account';
+    const KEY_POUNDAGE_WX = 'poundage_wx';
+    const KEY_POUNDAGE_ALIPAY = 'poundage_alipay';
+    const KEY_POUNDAGE_UPACP = 'poundage_upacp';
+    const KEY_POUNDAGE_WX_PUB = 'poundage_wx_pub';
+    const KEY_POUNDAGE_OFFLINE = 'poundage_offline';
 
     /**
      * @var int

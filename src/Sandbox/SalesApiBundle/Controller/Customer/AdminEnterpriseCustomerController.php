@@ -107,12 +107,27 @@ class AdminEnterpriseCustomerController extends SalesRestController
      * )
      *
      * @Annotations\QueryParam(
+     *    name="keyword",
+     *    default=null,
+     *    nullable=true,
+     *    description="name,registerAddress,contactName,contactPhone"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="keyword_search",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
+     * @Annotations\QueryParam(
      *     name="query",
      *     default=null,
      *     nullable=true,
      *     array=false,
      *     strict=true
      * )
+     *
      *
      * @Route("/enterprise_customers")
      * @Method({"GET"})
@@ -125,16 +140,23 @@ class AdminEnterpriseCustomerController extends SalesRestController
     ) {
         $pageIndex = $paramFetcher->get('pageIndex');
         $pageLimit = $paramFetcher->get('pageLimit');
-        $search = $paramFetcher->get('query');
+        $keyword = $paramFetcher->get('keyword');
+        $keywordSearch = $paramFetcher->get('keyword_search');
 
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
+
+        $limit = $pageLimit;
+        $offset = ($pageIndex - 1) * $pageLimit;
 
         $enterpriseCustomers = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\EnterpriseCustomer')
             ->searchSalesEnterpriseCustomers(
                 $salesCompanyId,
-                $search
+                $keyword,
+                $keywordSearch,
+                $limit,
+                $offset
             );
 
         foreach ($enterpriseCustomers as $enterpriseCustomer) {
@@ -147,16 +169,18 @@ class AdminEnterpriseCustomerController extends SalesRestController
             $enterpriseCustomer->setContacts($contacts);
         }
 
-        if (is_null($pageIndex) || is_null($pageLimit)) {
-            $paginator = new Paginator();
-            $enterpriseCustomers = $paginator->paginate(
-                $enterpriseCustomers,
-                $pageIndex,
-                $pageLimit
-            );
-        }
+        $count = count($enterpriseCustomers);
+        $view = new View();
+        $view->setData(
+            array(
+                'current_page_number' => $pageIndex,
+                'num_items_per_page' => (int)$pageLimit,
+                'items' => $enterpriseCustomers,
+                'total_count' => (int)$count,
+            )
+        );
 
-        return new View($enterpriseCustomers);
+        return $view;
     }
 
     /**

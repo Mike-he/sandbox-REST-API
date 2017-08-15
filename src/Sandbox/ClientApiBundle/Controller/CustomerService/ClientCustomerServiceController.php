@@ -37,6 +37,7 @@ class ClientCustomerServiceController extends ChatGroupController
     public function postCustomerServiceAction(
         Request $request
     ) {
+        $em = $this->getDoctrine()->getManager();
 
         /**
          * 1. check user is not banned done
@@ -95,9 +96,18 @@ class ClientCustomerServiceController extends ChatGroupController
             ]);
 
         if (!is_null($existChatGroup)) {
+            $gid = $existChatGroup->getGid();
+            if (!$gid) {
+                $gid = $this->createXmppChatGroup($existChatGroup);
+
+                $existChatGroup->setGid($gid);
+                $em->flush();
+            }
+
             return new View([
                 'id' => $existChatGroup->getId(),
                 'name' => $existChatGroup->getName(),
+                'gid' => $gid,
             ]);
         }
 
@@ -128,7 +138,6 @@ class ClientCustomerServiceController extends ChatGroupController
         $company = $building->getCompany();
 
         // create new chat group
-        $em = $this->getDoctrine()->getManager();
         $chatGroupName = $building->getName();
 
         $chatGroup = new ChatGroup();
@@ -154,10 +163,10 @@ class ClientCustomerServiceController extends ChatGroupController
         $em->flush();
 
         // create chat group in Openfire
-        $this->createXmppChatGroup(
-            $chatGroup,
-            $tag
-        );
+        $gid = $this->createXmppChatGroup($chatGroup);
+        $chatGroup->setGid($gid);
+
+        $em->flush();
 
         // response
         $view = new View();
@@ -165,6 +174,7 @@ class ClientCustomerServiceController extends ChatGroupController
         $view->setData(array(
             'id' => $chatGroup->getId(),
             'name' => $chatGroupName,
+            'gid' => $gid,
         ));
 
         return $view;

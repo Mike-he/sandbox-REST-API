@@ -308,11 +308,43 @@ class ClientUserRegistrationController extends UserRegistrationController
             ));
         }
 
+        // sync crm customer users
+        $this->syncCustomerUserIds($user);
+
         // response
         $view = new View($responseArray);
         $view->setSerializationContext(SerializationContext::create()->setGroups(array('login')));
 
         return $view;
+    }
+
+    /**
+     * @param User $user
+     */
+    private function syncCustomerUserIds(
+        $user
+    ) {
+        $customers = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->findBy(array('phone' => $user->getPhone()));
+
+        $customerIds = [];
+        foreach ($customers as $customer) {
+            array_push($customerIds, $customer->getId());
+        }
+
+        $api = $this->container->getParameter('crm_api_url');
+        $api .= '/sales/admin/invoice_customer_sync';
+        $ch = curl_init($api);
+        $this->callAPI(
+            $ch,
+            'POST',
+            null,
+            json_encode(array(
+                'customer_ids' => $customerIds,
+                'user_id' => $user->getId(),
+            ))
+        );
     }
 
     /**

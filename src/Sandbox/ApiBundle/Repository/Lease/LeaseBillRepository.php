@@ -54,10 +54,7 @@ class LeaseBillRepository extends EntityRepository
 
         if (!is_null($salesCompanyId)) {
             $query->leftJoin('lb.lease', 'l')
-                ->leftJoin('l.product', 'p')
-                ->leftJoin('p.room', 'r')
-                ->leftJoin('r.building', 'b')
-                ->andWhere('b.company = :company')
+                ->andWhere('l.companyId = :company')
                 ->setParameter('company', $salesCompanyId);
         }
 
@@ -803,8 +800,25 @@ class LeaseBillRepository extends EntityRepository
         return $result;
     }
 
+    /**
+     * @param $companyId
+     * @param $building
+     * @param $type
+     * @param $startDate
+     * @param $endDate
+     * @param $keyword
+     * @param $keywordSearch
+     *
+     * @return array
+     */
     public function getUnpaidBills(
-        $companyId
+        $companyId,
+        $building,
+        $type,
+        $startDate,
+        $endDate,
+        $keyword,
+        $keywordSearch
     ) {
         $query = $this->createQueryBuilder('lb')
             ->leftJoin('lb.lease', 'l')
@@ -812,6 +826,56 @@ class LeaseBillRepository extends EntityRepository
             ->andWhere('l.companyId = :companyId')
             ->setParameter('status', LeaseBill::STATUS_UNPAID)
             ->setParameter('companyId', $companyId);
+
+        if ($building) {
+            $query->andWhere('l.buildingId = :buildingId')
+                ->setParameter('buildingId', $building);
+        }
+
+        if ($type) {
+            $query->leftJoin('l.product', 'p')
+                ->leftJoin('p.room', 'r')
+                ->andWhere('r.type = :type')
+                ->setParameter('type', $type);
+        }
+
+        if ($startDate) {
+            $startDate = new \DateTime($startDate);
+
+            $query->andWhere('lb.sendDate >= :startDate')
+                ->setParameter('startDate', $startDate);
+        }
+
+        if ($endDate) {
+            $endDate = new \DateTime($endDate);
+            $endDate->setTime(23, 59, 59);
+
+            $query->andWhere('lb.sendDate <= :endDate')
+                ->setParameter('endDate', $endDate);
+        }
+
+        if ($keyword && $keywordSearch) {
+            switch ($keyword) {
+                case 'lease':
+                    $query->andWhere('l.serialNumber LIKE :search');
+                    break;
+                case 'bill':
+                    $query->andWhere('lb.serialNumber LIKE :search');
+                    break;
+                case 'phone':
+                    $query->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'l.lesseeCustomer = uc.id')
+                        ->andWhere('uc.phone LIKE :search');
+                    break;
+                case 'customer':
+                    $query->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'l.lesseeCustomer = uc.id')
+                        ->andWhere('uc.name LIKE :search');
+                    break;
+                default:
+                    return array();
+            }
+
+            $query->setParameter('search', '%'.$keywordSearch.'%');
+        }
 
         $result = $query->getQuery()->getResult();
 

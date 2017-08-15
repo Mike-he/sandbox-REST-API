@@ -4,6 +4,7 @@ namespace Sandbox\SalesApiBundle\Controller\Finance;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseRentTypes;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
@@ -13,17 +14,83 @@ use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
+use FOS\RestBundle\Controller\Annotations;
 
 /**
  * Admin Finance Cashier Controller.
  */
 class AdminFinanceCashierController extends SalesRestController
 {
+    const ORDER_TYPE_ORDER = 'order';
+    const ORDER_TYPE_BILL = 'bill';
+
     /**
      * Get Finance Invoice Category.
      *
      * @param Request               $request      the request object
      * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by building id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="type",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by room type"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="order_type",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by order type"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="start_date",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="end date. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="end_date",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="start date. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="keyword",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="keyword_search",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
      *
      * @Route("/finance/cashier")
      * @Method({"GET"})
@@ -37,9 +104,24 @@ class AdminFinanceCashierController extends SalesRestController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
+            $this->getAdminId(),
+            [
+                ['key' => AdminPermission::KEY_SALES_PLATFORM_CASHIER],
+            ],
+            AdminPermission::OP_LEVEL_VIEW
+        );
 
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
+
+        $orderType = $paramFetcher->get('order_type');
+        $building = $paramFetcher->get('building');
+        $type = $paramFetcher->get('type');
+        $startDate = $paramFetcher->get('start_date');
+        $endDate = $paramFetcher->get('end_date');
+        $keyword = $paramFetcher->get('keyword');
+        $keywordSearch = $paramFetcher->get('keyword_search');
 
         $company = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
@@ -48,26 +130,56 @@ class AdminFinanceCashierController extends SalesRestController
         $orders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->getUnpaidPreOrders(
-                $salesCompanyId
+                $salesCompanyId,
+                $building,
+                $type,
+                $startDate,
+                $endDate,
+                $keyword,
+                $keywordSearch
             );
-
-        $cashierOrders = array();
-        foreach ($orders as $order) {
-            $cashierOrders[] = $this->generateCashierOrder($order, $company);
-        }
 
         $bills = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
             ->getUnpaidBills(
-                $salesCompanyId
+                $salesCompanyId,
+                $building,
+                $type,
+                $startDate,
+                $endDate,
+                $keyword,
+                $keywordSearch
             );
 
+        $cashierOrders = array();
         $cashierBills = array();
-        foreach ($bills as $bill) {
-            $cashierBills[] = $this->generateCashierBill($bill, $company);
-        }
 
-        $result = array_merge($cashierOrders, $cashierBills);
+        switch ($orderType) {
+            case self::ORDER_TYPE_ORDER:
+                foreach ($orders as $order) {
+                    $cashierOrders[] = $this->generateCashierOrder($order, $company);
+                }
+
+                $result = $cashierOrders;
+                break;
+            case self::ORDER_TYPE_BILL:
+                foreach ($bills as $bill) {
+                    $cashierBills[] = $this->generateCashierBill($bill, $company);
+                }
+
+                $result = $cashierBills;
+                break;
+            default:
+                foreach ($orders as $order) {
+                    $cashierOrders[] = $this->generateCashierOrder($order, $company);
+                }
+
+                foreach ($bills as $bill) {
+                    $cashierBills[] = $this->generateCashierBill($bill, $company);
+                }
+
+                $result = array_merge($cashierOrders, $cashierBills);
+        }
 
         return new View($result);
     }

@@ -27,26 +27,10 @@ twig:
     exception_controller: 'FOS\RestBundle\Controller\ExceptionController::showAction'
 
     globals:
-        openfire_innet_url: "%openfire_innet_url%"
-        openfire_plugin_bstuser: "%openfire_plugin_bstuser%"
-        openfire_plugin_bstuser_users: "%openfire_plugin_bstuser_users%"
-        openfire_plugin_bstuser_property_name_ezuser: "%openfire_plugin_bstuser_property_name_ezuser%"
-        openfire_plugin_bstuser_property_secret_ezuser: "%openfire_plugin_bstuser_property_secret_ezuser%"
-        openfire_plugin_sandbox: "%openfire_plugin_sandbox%"
-        openfire_plugin_sandbox_notification: "%openfire_plugin_sandbox_notification%"
-        openfire_plugin_sandbox_notification_broadcast: "%openfire_plugin_sandbox_notification_broadcast%"
-        openfire_plugin_bstgroupchat: "%openfire_plugin_bstgroupchat%"
-        openfire_plugin_bstgroupchat_room: "%openfire_plugin_bstgroupchat_room%"
-        openfire_plugin_bstgroupchat_room_member: "%openfire_plugin_bstgroupchat_room_member%"
-        openfire_plugin_bstios: "%openfire_plugin_bstios%"
-        openfire_plugin_bstios_chatconfig: "%openfire_plugin_bstios_chatconfig%"
-        openfire_plugin_bstios_apns: "%openfire_plugin_bstios_apns%"
-        openfire_plugin_file_server: "%openfire_plugin_file_server%"
         sms_api_url: "%sms_api_url%"
         sms_api_key: "%sms_api_key%"
         email_from_address: "%email_from_address%"
         email_from_name: "%email_from_name%"
-        xmpp_domain: "%xmpp_domain%"
         pingpp_key: "%pingpp_key%"
         pingpp_app_id: "%pingpp_app_id%"
         wechat_app_id: "%wechat_app_id%"
@@ -118,7 +102,6 @@ twig:
         wechat_refund_fee_multiplier: "%wechat_refund_fee_multiplier%"
         foreign_credit_refund_fee_multiplier: "%foreign_credit_refund_fee_multiplier%"
         rest_api_local_url: "%rest_api_local_url%"
-        file_server_url: "%file_server_url%"
         top_level_domain: "%top_level_domain%"
         jpush_apns_option: "%jpush_apns_option%"
 
@@ -396,10 +379,3 @@ knp_snappy:
 #        query_cache:
 #            client: doctrine
 #            entity_manager: default
-
-
-openfire:
-    url: '%openfire_url%'
-    secret: '%openfire_secret%'
-    servicename: '%openfire_servicename%'
-    servername: '%openfire_servername%'

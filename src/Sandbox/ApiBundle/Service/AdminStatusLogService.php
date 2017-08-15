@@ -43,4 +43,35 @@ class AdminStatusLogService
         $em->persist($adminStatusLog);
         $em->flush();
     }
+
+    /**
+     * @param $adminId
+     * @param $status
+     * @param $message
+     * @param $object
+     * @param $objectId
+     */
+    public function addLog(
+        $adminId,
+        $status,
+        $message,
+        $object,
+        $objectId
+    ) {
+        $em = $this->doctrine->getManager();
+
+        $profile = $this->doctrine
+            ->getRepository('SandboxApiBundle:User\UserProfile')
+            ->findOneBy(['userId' => $adminId]);
+
+        $adminStatusLog = new AdminStatusLog();
+        $adminStatusLog->setUserId($adminId);
+        $adminStatusLog->setUsername($profile ? $profile->getName() : '');
+        $adminStatusLog->setObject($object);
+        $adminStatusLog->setObjectId($objectId);
+        $adminStatusLog->setStatus($status);
+        $adminStatusLog->setRemarks($message);
+
+        $em->persist($adminStatusLog);
+    }
 }

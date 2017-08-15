@@ -4,7 +4,6 @@ namespace Sandbox\AdminApiBundle\Controller\Lease;
 
 use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
-use Sandbox\ApiBundle\Constants\LeaseConstants;
 use Sandbox\ApiBundle\Controller\Lease\LeaseController;
 use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
@@ -262,101 +261,74 @@ class AdminLeaseBillController extends LeaseController
         $status = $existTransfer->getTransferStatus();
         $now = new \DateTime();
 
-        switch ($status) {
-            case LeaseBillOfflineTransfer::STATUS_PAID:
-                if ($oldStatus != LeaseBillOfflineTransfer::STATUS_PENDING) {
-                    return $this->customErrorView(
-                        400,
-                        self::WRONG_BILL_STATUS_CODE,
-                        self::WRONG_BILL_STATUS_MESSAGE
-                    );
-                }
+        if ($status != LeaseBillOfflineTransfer::STATUS_PAID) {
+            return $this->customErrorView(
+                400,
+                self::WRONG_BILL_STATUS_CODE,
+                self::WRONG_BILL_STATUS_MESSAGE
+            );
+        }
 
-                $bill->setStatus(LeaseBill::STATUS_PAID);
-                $bill->setPaymentDate($now);
+        if ($oldStatus != LeaseBillOfflineTransfer::STATUS_PENDING) {
+            return $this->customErrorView(
+                400,
+                self::WRONG_BILL_STATUS_CODE,
+                self::WRONG_BILL_STATUS_MESSAGE
+            );
+        }
 
-                // closed old transfer
-                $oldTransfers = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:Lease\LeaseBillOfflineTransfer')
-                    ->findBy(array('bill' => $id, 'transferStatus' => LeaseBillOfflineTransfer::STATUS_PENDING));
+        // closed old transfer
+        $oldTransfers = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBillOfflineTransfer')
+            ->findBy(array('bill' => $id, 'transferStatus' => LeaseBillOfflineTransfer::STATUS_PENDING));
 
-                foreach ($oldTransfers as $oldTransfer) {
-                    if ($oldTransfer->getId() == $existTransfer->getId()) {
-                        continue;
-                    }
+        foreach ($oldTransfers as $oldTransfer) {
+            if ($oldTransfer->getId() == $existTransfer->getId()) {
+                continue;
+            }
 
-                    $oldTransfer->setTransferStatus(LeaseBillOfflineTransfer::STATUS_CLOSED);
-                }
+            $oldTransfer->setTransferStatus(LeaseBillOfflineTransfer::STATUS_CLOSED);
+        }
 
-                $this->get('sandbox_api.bean')->postBeanChange(
-                    $bill->getDrawee(),
-                    $bill->getRevisedAmount(),
-                    $bill->getSerialNumber(),
-                    Parameter::KEY_BEAN_PAY_BILL
-                );
+        $bill->setStatus(LeaseBill::STATUS_PAID);
+        $bill->setPaymentDate($now);
 
-                //update invitee bean
-                $user = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:User\User')
-                    ->find($bill->getDrawee());
+        $invoiced = $this->checkBillShouldInvoiced($bill->getLease());
+        if (!$invoiced) {
+            $bill->setInvoiced(true);
+        }
 
-                if ($user->getInviterId()) {
-                    $this->get('sandbox_api.bean')->postBeanChange(
-                        $user->getInviterId(),
-                        $bill->getRevisedAmount(),
-                        $bill->getSerialNumber(),
-                        Parameter::KEY_BEAN_INVITEE_PAY_BILL
-                    );
-                }
+        $this->generateLongRentServiceFee(
+            $bill->getSerialNumber(),
+            $bill->getLease()->getCompanyId(),
+            $bill->getRevisedAmount(),
+            LeaseBill::CHANNEL_OFFLINE,
+            FinanceLongRentServiceBill::TYPE_BILL_POUNDAGE
+        );
 
-                break;
-//            case LeaseBillOfflineTransfer::STATUS_RETURNED:
-//                if ($oldStatus != LeaseBillOfflineTransfer::STATUS_PENDING) {
-//                    return $this->customErrorView(
-//                        400,
-//                        self::WRONG_BILL_STATUS_CODE,
-//                        self::WRONG_BILL_STATUS_MESSAGE
-//                    );
-//                }
+        $this->get('sandbox_api.bean')->postBeanChange(
+            $bill->getDrawee(),
+            $bill->getRevisedAmount(),
+            $bill->getSerialNumber(),
+            Parameter::KEY_BEAN_PAY_BILL
+        );
 
-//                $leaseId = $bill->getLease()->getId();
-//                $urlParam = 'ptype=billsList&status=unpaid&leasesId='.$leaseId;
-//                $contentArray = $this->generateLeaseContentArray($urlParam);
-//                // send Jpush notification
-//                $this->generateJpushNotification(
-//                    [
-//                        $bill->getLease()->getDraweeId(),
-//                    ],
-//                    LeaseConstants::LEASE_BILL_TRANSFER_RETURNED_MESSAGE,
-//                    null,
-//                    $contentArray
-//                );
+        //update invitee bean
+        $user = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\User')
+            ->find($bill->getDrawee());
 
-//                break;
+        if ($user->getInviterId()) {
+            $this->get('sandbox_api.bean')->postBeanChange(
+                $user->getInviterId(),
+                $bill->getRevisedAmount(),
+                $bill->getSerialNumber(),
+                Parameter::KEY_BEAN_INVITEE_PAY_BILL
+            );
         }
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();
-
-        $this->generateLongRentServiceFee(
-            $bill,
-            FinanceLongRentServiceBill::TYPE_BILL_SERVICE_FEE
-        );
-
-        // add invoice amount
-        if (!$bill->isSalesInvoice()) {
-            $invoiced = $this->checkBillShouldInvoiced($bill->getLease());
-
-            $this->postConsumeBalance(
-                $bill->getLease()->getDraweeId(),
-                $bill->getRevisedAmount(),
-                $bill->getLease()->getSerialNumber(),
-                $invoiced
-            );
-
-            $bill->setInvoiced(true);
-            $em->flush();
-        }
 
         $logMessage = '确认收款';
         $this->get('sandbox_api.admin_status_log')->autoLog(
