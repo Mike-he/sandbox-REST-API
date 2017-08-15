@@ -3,7 +3,7 @@
 namespace Sandbox\ApiBundle\Controller\Payment;
 
 use FOS\RestBundle\View\View;
-use Proxies\__CG__\Sandbox\ApiBundle\Entity\Room\Room;
+use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Constants\BundleConstants;
 use Sandbox\ApiBundle\Constants\DoorAccessConstants;
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
@@ -1684,7 +1684,7 @@ class PaymentController extends DoorController
 
             $user = array(
                 'id' => '',
-                'name' => $customer ? $customer->getName() : $user->getName(),
+                'name' => $customer ? $customer->getName() : $userProfile->getName(),
                 'phone' => $customer ? $customer->getPhone() : $user->getPhone(),
                 'email' => $customer ? $customer->getEmail() : $user->getEmail(),
             );
