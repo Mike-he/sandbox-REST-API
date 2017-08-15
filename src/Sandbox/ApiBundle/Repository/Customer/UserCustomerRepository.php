@@ -115,12 +115,12 @@ class UserCustomerRepository extends EntityRepository
             ->where('c.companyId = :company')
             ->setParameter('company', $salesCompanyId);
 
-        if ($ids) {
-            $query->andWhere('c.id in (:ids)')
+        if ($ids && !empty($ids)) {
+            $query->andWhere('c.id IN (:ids)')
                 ->setParameter('ids', $ids);
         }
 
-        if ($userIds) {
+        if ($userIds && !empty($userIds)) {
             $query->andWhere('c.userId in (:userIds)')
                 ->setParameter('userIds', $userIds);
         }

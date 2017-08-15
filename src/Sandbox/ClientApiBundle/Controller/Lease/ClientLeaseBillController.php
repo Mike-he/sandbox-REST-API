@@ -41,12 +41,9 @@ class ClientLeaseBillController extends PaymentController
         Request $request,
         $id
     ) {
-        $userId = $this->getUserId();
-
         $bill = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
             ->findOneBy(array(
-                'drawee' => $userId,
                 'id' => $id,
             ));
         $this->throwNotFoundIfNull($bill, self::NOT_FOUND_MESSAGE);
