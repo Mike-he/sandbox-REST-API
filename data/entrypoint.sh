@@ -30,7 +30,7 @@ fi
 
 if [ ! -z "$DOC_MIG" ]; then
   if [ "$DOC_MIG" == true ]; then
-     php app/console doc:mig:mig
+     php app/console doc:mig:mig -q
   fi
 fi
 
