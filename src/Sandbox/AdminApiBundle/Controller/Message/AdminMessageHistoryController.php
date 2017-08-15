@@ -4,7 +4,6 @@ namespace Sandbox\AdminApiBundle\Controller\Message;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Sandbox\ApiBundle\Traits\OpenfireApi;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\Controller\Annotations;
@@ -13,7 +12,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 class AdminMessageHistoryController extends AdminMessagePushController
 {
-    use OpenfireApi;
 
     /**
      * @param Request               $request
