@@ -7,7 +7,6 @@ use Sandbox\ApiBundle\Controller\ChatGroup\ChatGroupController;
 use Sandbox\ApiBundle\Entity\ChatGroup\ChatGroup;
 use Sandbox\ApiBundle\Entity\ChatGroup\ChatGroupMember;
 use Sandbox\ApiBundle\Form\ChatGroup\ChatGroupType;
-use Sandbox\ApiBundle\Traits\OpenfireApi;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -27,8 +26,6 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  */
 class AdminChatGroupController extends ChatGroupController
 {
-    use OpenfireApi;
-
     /**
      * Retrieve all other service members by sales company.
      *

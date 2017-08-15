@@ -9,7 +9,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use FOS\RestBundle\View\View;
-use Sandbox\ApiBundle\Traits\OpenfireApi;
 
 /**
  * Logout controller.
@@ -23,8 +22,6 @@ use Sandbox\ApiBundle\Traits\OpenfireApi;
  */
 class ClientUserLogoutController extends UserLogoutController
 {
-    use OpenfireApi;
-
     /**
      * Logout.
      *
