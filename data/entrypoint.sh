@@ -60,4 +60,4 @@ fi
 /etc/init.d/nginx start 
 
 # Keep container alive
-tail -f /dev/null
+tail -f /etc/hosts
