@@ -201,22 +201,27 @@ class ClientLeaseController extends SandboxRestController
 
         $people = json_decode($request->getContent(), true);
 
-        $this->setDoorAccessForInvite(
-            $lease,
-            $people['add'],
-            $people['remove']
-        );
+        if ($leaseUserId) {
+            $this->setDoorAccessForInvite(
+                $lease,
+                $leaseUserId,
+                $people['add'],
+                $people['remove']
+            );
+        }
 
         return new View();
     }
 
     /**
      * @param Lease $lease
+     * @param int   $userId
      * @param array $users
      * @param array $removeUsers
      */
     private function setDoorAccessForInvite(
         $lease,
+        $userId,
         $users,
         $removeUsers
     ) {
@@ -249,7 +254,7 @@ class ClientLeaseController extends SandboxRestController
                 $lease,
                 $recvUsers,
                 ProductOrder::ACTION_INVITE_ADD,
-                $lease->getSupervisorId(),
+                $userId,
                 [],
                 ProductOrderMessage::APPOINT_MESSAGE_PART1,
                 ProductOrderMessage::APPOINT_MESSAGE_PART2
@@ -262,7 +267,7 @@ class ClientLeaseController extends SandboxRestController
                 $lease,
                 $removedUserArray,
                 ProductOrder::ACTION_INVITE_REMOVE,
-                $lease->getSupervisorId(),
+                $userId,
                 [],
                 ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART1,
                 ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART2

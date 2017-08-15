@@ -75,7 +75,7 @@ trait LeaseNotificationTrait
         try {
             $jsonData = null;
 
-            if (empty($orders) && !is_null($lease)) {
+            if (empty($leases) && !is_null($lease)) {
                 $city = $lease->getCityName();
                 $building = $lease->getBuildingName();
                 $room = $lease->getRoomName();
@@ -84,26 +84,10 @@ trait LeaseNotificationTrait
                 $bodyEn = $firstEn.$city.$building.$room.$secondEn;
 
                 $result = $this->compareVersionForJpush($receivers);
-                $receivers = $result['users'];
                 $jpushReceivers = $result['jpush_users'];
 
-                if (!empty($receivers)) {
-                    // generate notification data
-                    $data = $this->generateLeaseNotificationJsonData(
-                        $lease->getId(),
-                        $lease->getAccessNo(),
-                        $fromUserId,
-                        $receivers,
-                        $action,
-                        $bodyZh,
-                        $bodyEn
-                    );
-
-                    $jsonData = json_encode(array($data));
-                }
-
                 if (!empty($jpushReceivers)) {
-                    $this->setDataAndJPushNotification(
+                    $this->setLeaseJPushNotification(
                         $lease->getId(),
                         $lease->getAccessNo(),
                         $fromUserId,
@@ -114,14 +98,13 @@ trait LeaseNotificationTrait
                     );
                 }
             } else {
-                $dataArray = [];
                 foreach ($leases as $lease) {
                     $userArray = [$lease->getSupervisorId()];
                     $result = $this->compareVersionForJpush($userArray);
                     $jpushReceivers = $result['jpush_users'];
 
                     if (!empty($jpushReceivers)) {
-                        $this->setDataAndJPushNotification(
+                        $this->setLeaseJPushNotification(
                             $lease->getId(),
                             $lease->getAccessNo(),
                             $fromUserId,
@@ -130,104 +113,12 @@ trait LeaseNotificationTrait
                             $firstZh,
                             $firstEn
                         );
-                    } else {
-                        $data = $this->generateLeaseNotificationJsonData(
-                            $lease->getId(),
-                            $lease->getAccessNo(),
-                            $fromUserId,
-                            $userArray,
-                            $action,
-                            $firstZh,
-                            $firstEn
-                        );
-
-                        array_push($dataArray, $data);
-                        $jsonData = json_encode($dataArray);
                     }
                 }
-            }
-
-            // send xmpp notification
-            if (!is_null($jsonData)) {
-                $this->sendXmppNotification($jsonData, false);
             }
         } catch (Exception $e) {
             error_log('Send message notification went wrong!');
         }
-    }
-
-    /**
-     * @param int    $leaseId
-     * @param string $leaseNumber
-     * @param int    $fromUserId
-     * @param array  $receivers
-     * @param string $action
-     * @param string $bodyZh
-     * @param string $bodyEn
-     *
-     * @return mixed
-     */
-    private function generateLeaseNotificationJsonData(
-        $leaseId,
-        $leaseNumber,
-        $fromUserId,
-        $receivers,
-        $action,
-        $bodyZh,
-        $bodyEn
-    ) {
-        $globals = $this->getContainer()
-            ->get('twig')
-            ->getGlobals();
-
-        $domainURL = $globals['xmpp_domain'];
-
-        $fromUser = null;
-        if (!is_null($fromUserId)) {
-            $fromUser = $this->getContainer()
-                ->get('doctrine')
-                ->getRepository(BundleConstants::BUNDLE.':'.'User\User')
-                ->find($fromUserId);
-        }
-
-        // get receivers array
-        $receiversArray = [];
-        foreach ($receivers as $receiverId) {
-            $recevUser = $this->getContainer()
-                ->get('doctrine')
-                ->getRepository(BundleConstants::BUNDLE.':'.'User\User')
-                ->find($receiverId);
-
-            array_push($receiversArray, ['jid' => $recevUser->getXmppUsername().'@'.$domainURL]);
-        }
-
-        $apns = $this->setApnsJsonDataArray($bodyZh, $bodyEn);
-
-        // get content array
-        $contentArray = $this->getDefaultContentArray(
-            LeaseConstants::ACTION_TYPE,
-            $action,
-            $fromUser,
-            $apns
-        );
-
-        // get order array
-        $contentArray['order'] = $this->getLeaseArray($leaseId, $leaseNumber);
-
-        $jid = User::XMPP_SERVICE.'@'.$domainURL;
-        // get message from service account
-        $messageArray = [
-            'type' => 'chat',
-            'from' => $jid,
-            'body' => $bodyZh,
-        ];
-
-        return $this->getNotificationJsonData(
-            $receiversArray,
-            $contentArray,
-            $messageArray,
-            $apns
-        );
     }
 
     /**
@@ -257,7 +148,7 @@ trait LeaseNotificationTrait
      *
      * @return mixed
      */
-    private function setDataAndJPushNotification(
+    private function setLeaseJPushNotification(
         $orderId,
         $orderNumber,
         $fromUserId,
