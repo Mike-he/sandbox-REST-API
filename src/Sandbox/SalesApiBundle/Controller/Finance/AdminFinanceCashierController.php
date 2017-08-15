@@ -4,6 +4,7 @@ namespace Sandbox\SalesApiBundle\Controller\Finance;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseRentTypes;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
@@ -103,6 +104,13 @@ class AdminFinanceCashierController extends SalesRestController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
+            $this->getAdminId(),
+            [
+                ['key' => AdminPermission::KEY_SALES_PLATFORM_CASHIER],
+            ],
+            AdminPermission::OP_LEVEL_VIEW
+        );
 
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];

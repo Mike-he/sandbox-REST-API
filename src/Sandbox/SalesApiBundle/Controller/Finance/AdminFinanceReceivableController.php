@@ -39,6 +39,7 @@ class AdminFinanceReceivableController extends SalesRestController
             $this->getAdminId(),
             [
                 ['key' => AdminPermission::KEY_SALES_PLATFORM_AUDIT],
+                ['key' => AdminPermission::KEY_SALES_PLATFORM_CASHIER],
             ],
             AdminPermission::OP_LEVEL_EDIT
         );
