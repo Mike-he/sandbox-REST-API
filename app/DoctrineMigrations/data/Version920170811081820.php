@@ -46,11 +46,15 @@ class Version920170811081820 extends AbstractMigration implements ContainerAware
 
             $express = $em->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfileExpress')
                 ->findOneBy(array('salesCompanyId' => $salesCompanyId));
-            $express->setProfileId($profile->getId());
+            if ($express) {
+                $express->setProfileId($profile->getId());
+            }
 
             $invoice = $em->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfileInvoice')
                 ->findOneBy(array('salesCompanyId' => $salesCompanyId));
-            $invoice->setProfileId($profile->getId());
+            if ($invoice) {
+                $invoice->setProfileId($profile->getId());
+            }
         }
 
         $em->flush();
