@@ -92,6 +92,26 @@ class AdminFinanceCashierController extends SalesRestController
      *    description="search query"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many products to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number "
+     * )
+     *
      * @Route("/finance/cashier")
      * @Method({"GET"})
      *
@@ -122,6 +142,9 @@ class AdminFinanceCashierController extends SalesRestController
         $endDate = $paramFetcher->get('end_date');
         $keyword = $paramFetcher->get('keyword');
         $keywordSearch = $paramFetcher->get('keyword_search');
+
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
 
         $company = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
@@ -181,7 +204,32 @@ class AdminFinanceCashierController extends SalesRestController
                 $result = array_merge($cashierOrders, $cashierBills);
         }
 
-        return new View($result);
+
+        $count = count($result);
+
+        // for pagination
+        $offset = ($pageIndex - 1) * $pageLimit;
+        $limit = $pageLimit;
+
+        $data = array();
+        for ($i = $offset; $i < $offset + $limit; ++$i) {
+            if (isset($result[$i])) {
+                array_push($data, $result[$i]);
+            }
+        }
+
+        $view = new View();
+        $view->setData(
+            array(
+                'current_page_number' => $pageIndex,
+                'num_items_per_page' => (int) $pageLimit,
+                'items' => $data,
+                'total_count' => (int) $count,
+            )
+        );
+
+        return $view;
+
     }
 
     /**
