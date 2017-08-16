@@ -204,7 +204,6 @@ class AdminFinanceCashierController extends SalesRestController
                 $result = array_merge($cashierOrders, $cashierBills);
         }
 
-
         $count = count($result);
 
         // for pagination
@@ -229,7 +228,6 @@ class AdminFinanceCashierController extends SalesRestController
         );
 
         return $view;
-
     }
 
     /**
@@ -249,11 +247,13 @@ class AdminFinanceCashierController extends SalesRestController
                 ->getRepository('SandboxApiBundle:User\UserCustomer')
                 ->findOneBy(
                     array(
-                        'userId'=> $order->getUserId(),
-                        'companyId'=> $company->getId()
+                        'userId' => $order->getUserId(),
+                        'companyId' => $company->getId(),
                     )
                 );
-            $drawee = $customer ? $customer->getId() : '';
+
+            $drawee = $customer ? $customer->getId() :
+                $this->get('sandbox_api.sales_customer')->createCustomer($order->getUserId(), $company->getId());
         }
 
         $roomData = $this->getRoomData($order->getProductId());
