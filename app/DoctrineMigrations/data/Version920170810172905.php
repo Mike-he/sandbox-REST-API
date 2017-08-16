@@ -37,7 +37,7 @@ class Version920170810172905 extends AbstractMigration implements ContainerAware
                 $order->setType(ProductOrder::OWN_TYPE);
             }
 
-            if (is_null($order->getUnitPrice())) {
+            if (!$order->getUnitPrice()) {
                 $productInfo = $em->getRepository('SandboxApiBundle:Order\ProductOrderInfo')->findOneBy(array('order' => $order));
 
                 if ($productInfo) {
@@ -50,7 +50,6 @@ class Version920170810172905 extends AbstractMigration implements ContainerAware
                         if ($info['base_price']) {
                             $order->setBasePrice($info['base_price']);
                         } else {
-                            var_dump($info['room']['seat']);
                             $seat = $info['room']['seat'];
                             $order->setBasePrice($seat['base_price']);
                         }
@@ -64,6 +63,10 @@ class Version920170810172905 extends AbstractMigration implements ContainerAware
                                     $order->setBasePrice($leasingSet['base_price']);
                                 }
                             }
+                        } else {
+                            $leasingSets = $info['room']['leasing_set'];
+                            $order->setUnitPrice($leasingSets[0]['unit_price']);
+                            $order->setBasePrice($leasingSets[0]['base_price']);
                         }
                     }
                 }
