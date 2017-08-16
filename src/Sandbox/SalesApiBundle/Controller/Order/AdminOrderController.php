@@ -1969,7 +1969,7 @@ class AdminOrderController extends OrderController
                 );
             }
 
-//            $user = $this->getRepo('User\User')->find($order->getUserId());
+
             $customer = $em->getRepository('SandboxApiBundle:User\UserCustomer')->find($order->getCustomerId());
             $this->throwNotFoundIfNull($customer, self::NOT_FOUND_MESSAGE);
 
@@ -2110,6 +2110,7 @@ class AdminOrderController extends OrderController
             $order->setAdminId($adminId);
             $order->setType(ProductOrder::PREORDER_TYPE);
             $order->setSalesInvoice(true);
+            $order->setUserId($customer->getUserId());
 
             if (0 == $order->getDiscountPrice()) {
                 $order->setStatus(ProductOrder::STATUS_PAID);

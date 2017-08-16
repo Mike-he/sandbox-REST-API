@@ -16,7 +16,7 @@ RUN chown root:root /root/entrypoint.sh && chmod +x /root/entrypoint.sh
 # Copy code
 RUN mkdir /var/www/sandbox-REST-API && mkdir /data && mkdir /data/openfire
 
-COPY / /var/www/sandbox-REST-API/
+ADD . /var/www/sandbox-REST-API/
 
 WORKDIR /var/www
 VOLUME /var/www

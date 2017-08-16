@@ -319,7 +319,7 @@ class AdminFinanceCashierController extends SalesRestController
             'amount' => $bill->getAmount(),
             'revised_amount' => $bill->getRevisedAmount(),
             'status' => $bill->getStatus(),
-            'drawee' => $bill->getCustomerId(),
+            'drawee' => $bill->getLease()->getLesseeCustomer(),
             'send_date' => $bill->getSendDate(),
             'invoice' => $invoice,
             'drawer' => $company->getName().'开票',
