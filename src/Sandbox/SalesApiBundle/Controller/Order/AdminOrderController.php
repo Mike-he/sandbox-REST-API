@@ -2060,6 +2060,13 @@ class AdminOrderController extends OrderController
                 );
             }
 
+            $user = null;
+            if ($customer->getUserId()) {
+                $user = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:User\User')
+                    ->find($customer->getUserId());
+            }
+
             // check booking dates and order duplication
             $type = $product->getRoom()->getType();
             $error = $this->checkIfOrderAllowed(
@@ -2070,7 +2077,7 @@ class AdminOrderController extends OrderController
                 $now,
                 $startDate,
                 $endDate,
-                null,
+                $user,
                 $type,
                 $timeUnit,
                 $basePrice
@@ -2110,7 +2117,6 @@ class AdminOrderController extends OrderController
             $order->setAdminId($adminId);
             $order->setType(ProductOrder::PREORDER_TYPE);
             $order->setSalesInvoice(true);
-            $order->setUserId($customer->getUserId());
 
             if (0 == $order->getDiscountPrice()) {
                 $order->setStatus(ProductOrder::STATUS_PAID);
