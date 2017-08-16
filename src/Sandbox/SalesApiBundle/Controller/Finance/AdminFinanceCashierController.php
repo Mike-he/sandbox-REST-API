@@ -204,7 +204,6 @@ class AdminFinanceCashierController extends SalesRestController
                 $result = array_merge($cashierOrders, $cashierBills);
         }
 
-
         $count = count($result);
 
         // for pagination
@@ -229,7 +228,6 @@ class AdminFinanceCashierController extends SalesRestController
         );
 
         return $view;
-
     }
 
     /**
@@ -243,17 +241,19 @@ class AdminFinanceCashierController extends SalesRestController
         $company
     ) {
         if ($order->getCustomerId()) {
+            $drawee = $order->getCustomerId();
+        } else {
             $customer = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:User\UserCustomer')
-                ->find($order->getCustomerId());
+                ->findOneBy(
+                    array(
+                        'userId' => $order->getUserId(),
+                        'companyId' => $company->getId(),
+                    )
+                );
 
-            $drawee = $customer ? $customer->getName() : '';
-        } else {
-            $userProfile = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:User\UserProfile')
-                ->findOneBy(array('userId' => $order->getUserId()));
-
-            $drawee = $userProfile->getName();
+            $drawee = $customer ? $customer->getId() :
+                $this->get('sandbox_api.sales_customer')->createCustomer($order->getUserId(), $company->getId());
         }
 
         $roomData = $this->getRoomData($order->getProductId());
@@ -297,15 +297,6 @@ class AdminFinanceCashierController extends SalesRestController
         $bill,
         $company
     ) {
-        $drawee = null;
-        if ($bill->getCustomerId()) {
-            $customer = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:User\UserCustomer')
-                ->find($bill->getCustomerId());
-
-            $drawee = $customer ? $customer->getName() : '';
-        }
-
         $invoice = false;
         $leaseRentTypes = $bill->getLease()->getLeaseRentTypes();
         foreach ($leaseRentTypes as $leaseRentType) {
@@ -328,7 +319,7 @@ class AdminFinanceCashierController extends SalesRestController
             'amount' => $bill->getAmount(),
             'revised_amount' => $bill->getRevisedAmount(),
             'status' => $bill->getStatus(),
-            'drawee' => $drawee,
+            'drawee' => $bill->getCustomerId(),
             'send_date' => $bill->getSendDate(),
             'invoice' => $invoice,
             'drawer' => $company->getName().'开票',
