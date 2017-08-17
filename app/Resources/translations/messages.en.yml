@@ -311,6 +311,7 @@ client:
     same_password: Same password.
     phone_number_used: Phone number already used.
     email_already_used: Email address already used.
+    jemssage_sync_fail: Sync Jmessage failure.
   payment_check:
     invalid_verification: Invalid Verification
     password_first_error: Wrong password, you still have 2 times.

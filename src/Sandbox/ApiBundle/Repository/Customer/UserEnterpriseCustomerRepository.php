@@ -53,4 +53,19 @@ class UserEnterpriseCustomerRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param $ids
+     *
+     * @return array
+     */
+    public function getEnterpriseCustomerAction(
+        $ids
+    ) {
+        $query = $this->createQueryBuilder('ec')
+            ->where('ec.id IN (:ids)')
+            ->setParameter('ids', $ids);
+
+        return $query->getQuery()->getResult();
+    }
 }

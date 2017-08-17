@@ -91,6 +91,45 @@ class AdminEnterpriseCustomerController extends SalesRestController
     }
 
     /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *     name="id",
+     *     array=true,
+     *     nullable=false,
+     *     strict=true
+     * )
+     *
+     * @Route("/enterprise_customers_by_id")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getEnterpriseCustomerByIdAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $ids = $paramFetcher->get('id');
+
+        $enterpriseCustomers = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\EnterpriseCustomer')
+            ->getEnterpriseCustomerAction($ids);
+
+        foreach ($enterpriseCustomers as $enterpriseCustomer) {
+            $contacts = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\EnterpriseCustomerContacts')
+                ->findBy(array(
+                    'enterpriseCustomerId' => $enterpriseCustomer->getId(),
+                ));
+
+            $enterpriseCustomer->setContacts($contacts);
+        }
+
+        return new View($enterpriseCustomers);
+    }
+
+    /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *

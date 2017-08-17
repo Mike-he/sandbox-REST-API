@@ -360,23 +360,6 @@ class AdminBuildingController extends LocationController
         Request $request,
         $id
     ) {
-        // check user permission
-        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
-            $this->getAdminId(),
-            [
-                [
-                    'key' => AdminPermission::KEY_SALES_BUILDING_SPACE,
-                    'building_id' => $id,
-                ],
-                [
-                    'key' => AdminPermission::KEY_SALES_BUILDING_BUILDING,
-                    'building_id' => $id,
-                ],
-                ['key' => AdminPermission::KEY_SALES_PLATFORM_BUILDING],
-            ],
-            AdminPermission::OP_LEVEL_VIEW
-        );
-
         // get a building
         $building = $this->getRepo('Room\RoomBuilding')->findOneBy(array(
             'id' => $id,
@@ -384,6 +367,15 @@ class AdminBuildingController extends LocationController
         ));
         $this->throwNotFoundIfNull($building, self::NOT_FOUND_MESSAGE);
 
+        // check user permission
+        $companyId = $building->getCompanyId();
+        $this->get('sandbox_api.admin_permission_check_service')
+            ->checkHasPosition(
+                $this->getAdminId(),
+                AdminPermission::PERMISSION_PLATFORM_SALES,
+                $companyId
+            );
+        
         // set more information
         $this->setRoomBuildingMoreInformation($building, $request);
 

@@ -58,7 +58,9 @@ class JmessageService
         $username,
         $password
     ) {
-        $this->user->updatePassword($username, $password);
+        $result = $this->user->updatePassword($username, $password);
+
+        return $result;
     }
 
     public function updateNickname(
@@ -101,7 +103,7 @@ class JmessageService
         $gid,
         $usernames
     ) {
-        $this->group->addMembers($gid,$usernames);
+        $this->group->addMembers($gid, $usernames);
     }
 
     public function deleteGroupMembers(

@@ -73,6 +73,9 @@ class ClientUserPasswordController extends UserPasswordController
     const ERROR_SAME_PASSWORD_CODE = 400011;
     const ERROR_SAME_PASSWORD_MESSAGE = 'client.account.same_password';
 
+    const ERROR_JMESSAGE_SYNC_FAIL_CODE = 400012;
+    const ERROR_JMESSAGE_SYNC_FAIL_MESSAGE = 'client.account.jemssage_sync_fail';
+
     /**
      * Forget password submit email or phone.
      *
@@ -522,8 +525,13 @@ class ClientUserPasswordController extends UserPasswordController
                 $user->getXmppUsername(),
                 $password
             );
-        if (!$result) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+
+        if ($result["http_code"] != 204) {
+            return $this->customErrorView(
+                400,
+                self::ERROR_JMESSAGE_SYNC_FAIL_CODE,
+                self::ERROR_JMESSAGE_SYNC_FAIL_MESSAGE
+            );
         }
 
         $em = $this->getDoctrine()->getManager();
