@@ -103,7 +103,7 @@ class JmessageService
         $gid,
         $usernames
     ) {
-        $this->group->addMembers($gid,$usernames);
+        $this->group->addMembers($gid, $usernames);
     }
 
     public function deleteGroupMembers(

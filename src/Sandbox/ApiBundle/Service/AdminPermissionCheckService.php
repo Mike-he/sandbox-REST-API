@@ -367,4 +367,27 @@ class AdminPermissionCheckService
 
         return array_map('current', $excludePermissionIdsQuery->getQuery()->getResult());
     }
+
+    /**
+     * @param $adminId
+     */
+    public function checkHasPosition(
+        $adminId,
+        $platform,
+        $salesCompanyId
+    ) {
+        $bindings = $this->doctrine
+            ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+            ->getBindingsByUser(
+                $adminId,
+                $platform,
+                $salesCompanyId
+            );
+
+        if (count($bindings) >= 1) {
+            return;
+        }
+
+        throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+    }
 }
