@@ -58,7 +58,9 @@ class JmessageService
         $username,
         $password
     ) {
-        $this->user->updatePassword($username, $password);
+        $result = $this->user->updatePassword($username, $password);
+
+        return $result;
     }
 
     public function updateNickname(
