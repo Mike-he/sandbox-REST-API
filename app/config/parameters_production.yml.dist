@@ -104,3 +104,6 @@ parameters:
     duiba_app_key: YSK9PSuahvtV6C3AQtZ85CJ2isw
     duiba_app_secret: z3jDWM6BXhyEryGpZVpVdEczsUE
     duiba_app_env: pro
+
+    jpush_key: 2088252afa53cc169302f4d0
+    jpush_secret: 99e8dd3ed9fdcb16eb111ed9
