@@ -203,10 +203,10 @@ user:
     bean_product_order: Order Room
     bean_pay_bill: Pay Bills
     bean_shop_order: Buy Coffee
-    bean_event_order: 成功支付线上收费活动订单
     bean_membership_order: Buy Member Card
     bean_exchange: Exchange Goods in Store
     bean_exchange_fail: Fail to Exchange
+    bean_product_order_preorder: Order Room
 
 company:
   industry:
