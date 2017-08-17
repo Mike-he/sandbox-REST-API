@@ -64,16 +64,22 @@ class UserEnterpriseCustomerRepository extends EntityRepository
         $salesCompanyId,
         $keyword,
         $keywordSearch
-    ) {
+    )
+    {
         $query = $this->createQueryBuilder('ec')
             ->select('COUNT(ec)')
-            ->leftJoin('SandboxApiBundle:User\EnterpriseCustomerContacts', 'ecc', 'WITH', 'ec.id = ecc.enterpriseCustomerId')
+            ->leftJoin(
+                'SandboxApiBundle:User\EnterpriseCustomerContacts',
+                'ecc',
+                'WITH',
+                'ec.id = ecc.enterpriseCustomerId'
+            )
             ->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'ecc.customerId = uc.id');
 
         $query->where('ec.companyId = :companyId')
             ->setParameter('companyId', $salesCompanyId);
 
-        if(!is_null($keyword) && !is_null($keywordSearch)){
+        if (!is_null($keyword) && !is_null($keywordSearch)) {
             switch ($keyword) {
                 case 'name':
                     $query->andWhere('ec.name LIKE :search');
