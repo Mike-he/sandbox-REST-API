@@ -290,7 +290,7 @@ class LeaseBill
      *
      * @Serializer\Groups({"main","client","lease_bill"})
      */
-    private $salesInvoice = false;
+    private $salesInvoice = true;
 
     /**
      * @var bool
