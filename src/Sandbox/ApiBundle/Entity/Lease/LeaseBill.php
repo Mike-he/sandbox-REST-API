@@ -302,6 +302,13 @@ class LeaseBill
     private $invoiced = false;
 
     /**
+     * @var string
+     *
+     * @Serializer\Groups({"main","client","lease_bill"})
+     */
+    private $category;
+
+    /**
      * @return int
      */
     public function getId()
@@ -747,5 +754,21 @@ class LeaseBill
     public function setCustomerId($customerId)
     {
         $this->customerId = $customerId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCategory()
+    {
+        return $this->category;
+    }
+
+    /**
+     * @param string $category
+     */
+    public function setCategory($category)
+    {
+        $this->category = $category;
     }
 }

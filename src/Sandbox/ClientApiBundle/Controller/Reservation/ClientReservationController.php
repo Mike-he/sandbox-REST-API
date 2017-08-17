@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\Reservation\Reservation;
 use Sandbox\ApiBundle\Form\Reservation\ReservationType;
 use Sandbox\ApiBundle\Entity\Product\Product;
@@ -14,6 +15,18 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class ClientReservationController extends SandboxRestController
 {
+    const PRODUCT_NOT_FOUND_CODE = 400001;
+    const PRODUCT_NOT_FOUND_MESSAGE = 'Product Does Not Exist';
+    const ROOMTYPE_NOT_ALLOWED_CODE = 400002;
+    const ROOMTYPE_NOT_ALLOWED_MESSAGE = 'RoomType Is Not Allowed';
+    const PRODUCT_NOT_AVAILABLE_CODE = 400003;
+    const PRODUCT_NOT_AVAILABLE_MESSAGE ='Product Is Not Available';
+    const NOT_WITHIN_DATE_RANGE_CODE = 400004;
+    const NOT_WITHIN_DATE_RANGE_MESSAGE = 'Not Within 7 Days For Reservation';
+    CONST NOT_WITHIN_VIEW_TIME_CODE = 400005;
+    CONST NOT_WITHIN_VIEW_TIME_MESSAGE = 'ViewTime Shoule Be In 8:00~18:00';
+    const VIEW_RANGE_LIMIT = 7;
+
     /**
      * @Route("/reservation")
      *
@@ -34,18 +47,64 @@ class ClientReservationController extends SandboxRestController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
+        $now = new \DateTime();
+        $viewTime = $reservation->getViewTime();
         $productId = $reservation->getProductId();
-        $product = $this->getDoctrine()->getRepository('SandboxApiBundle:Product\Product')->findOneById($productId);
+        $product = $this->getDoctrine()->getRepository('SandboxApiBundle:Product\Product')->find($productId);
+        $viewTime = new \DateTime($viewTime);
+        $error = $this->checkIfProductAvailable(
+            $product,
+            $now,
+            $viewTime
+           );
+        if (!empty($error)) {
+            return $this->customErrorView(
+                400,
+                $error['code'],
+                $error['message']
+            );
+        }
+
         $companyId = $product->getRoom()->getBuilding()->getCompanyId();
         $roomId = $product->getRoomId();
-        $room = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\Room')->findOneById($roomId);
+        $room = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\Room')->find($roomId);
         $type = $room->getType();
-
-        if ($type != 'office') {
+        if ($type != Room::TYPE_OFFICE) {
             return $this->customErrorView(
-                400010,
-                'ERROR_CODE',
-                'INVALID_ROOM_TYPE'
+                400,
+                self::ROOMTYPE_NOT_ALLOWED_CODE,
+                self::ROOMTYPE_NOT_ALLOWED_MESSAGE
+            );
+        }
+
+        $diff = $viewTime->diff($now)->days;
+        if( $diff > self::VIEW_RANGE_LIMIT ){
+            return $this->customErrorView(
+                400,
+                self::NOT_WITHIN_DATE_RANGE_CODE,
+                self::NOT_WITHIN_DATE_RANGE_MESSAGE
+            );
+        }
+
+        $time = $viewTime->format('h:i');
+        if($time<"08:00" || $time>"18:00"){
+            return $this->customErrorView(
+                400,
+                self::NOT_WITHIN_VIEW_TIME_CODE,
+                self::NOT_WITHIN_VIEW_TIME_MESSAGE
+            );
+        }
+
+        $sameReservation = $this->getDoctrine()->getRepository('SandboxApiBundle:Reservation\Reservation')
+            ->getReservationFromSameUser(
+                $userId,
+                $productId,
+                $viewTime
+            );
+
+        if(!empty($sameReservation)){
+            return new View(
+                ['serial_number'=>$sameReservation[0]->getSerialNumber()]
             );
         }
 
@@ -63,13 +122,54 @@ class ClientReservationController extends SandboxRestController
         $product = $this->getDoctrine()->getRepository('SandboxApiBundle:Product\Product')->findOneById($productId);
         $companyId = $product->getRoom()->getBuilding()->getCompanyId();
 
-        $customer_id = $this->container->get('sandbox_api.sales_customer')->createCustomer($userId, $companyId);
+        $this->container->get('sandbox_api.sales_customer')->createCustomer($userId, $companyId);
 
         $view = new View();
         $view->setData(
-            ['id' => $reservation->getId(), 'customer_id' => $customer_id]
+            ['serial_number' => $reservation->getSerialNumber()]
         );
 
         return $view;
+    }
+
+
+    /**
+     * @param $product
+     * @param $now
+     * @param $viewTime
+     *
+     * @return array
+     */
+    private function checkIfProductAvailable(
+        $product,
+        $now,
+        $viewTime
+    ) {
+        $error = [];
+
+        if (is_null($product)) {
+            return $this->setErrorArray(
+                self::PRODUCT_NOT_FOUND_CODE,
+                self::PRODUCT_NOT_FOUND_MESSAGE
+            );
+        }
+
+        $productStart = $product->getStartDate();
+        $productEnd = $product->getEndDate();
+
+        if (
+            $now < $productStart ||
+            $now > $productEnd ||
+            $viewTime < $productStart ||
+            $viewTime > $productEnd ||
+            $product->getVisible() == false
+        ) {
+            return $this->setErrorArray(
+                self::PRODUCT_NOT_AVAILABLE_CODE,
+                self::PRODUCT_NOT_AVAILABLE_MESSAGE
+            );
+        }
+
+        return $error;
     }
 }

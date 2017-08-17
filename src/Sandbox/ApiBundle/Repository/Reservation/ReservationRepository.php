@@ -244,16 +244,18 @@ class ReservationRepository extends EntityRepository
     /**
      * @param $userId
      * @param $productId
-     *
+     * @param $viewTime
      * @return array
      */
-    public function findByUserAndProduct($userId, $productId)
+    public function getReservationFromSameUser($userId, $productId, $viewTime)
     {
         $query = $this->createQueryBuilder('re')
             ->where('re.userId = :userId')
             ->andWhere('re.productId = :productId')
+            ->andWhere('re.viewTime = :viewTime')
             ->setParameter('userId', $userId)
-            ->setParameter('productId', $productId);
+            ->setParameter('productId', $productId)
+            ->setParameter('viewTime',$viewTime);
 
         return $query->getQuery()->getResult();
     }

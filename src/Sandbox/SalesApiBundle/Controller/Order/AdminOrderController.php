@@ -1969,7 +1969,7 @@ class AdminOrderController extends OrderController
                 );
             }
 
-//            $user = $this->getRepo('User\User')->find($order->getUserId());
+
             $customer = $em->getRepository('SandboxApiBundle:User\UserCustomer')->find($order->getCustomerId());
             $this->throwNotFoundIfNull($customer, self::NOT_FOUND_MESSAGE);
 
@@ -2060,6 +2060,13 @@ class AdminOrderController extends OrderController
                 );
             }
 
+            $user = null;
+            if ($customer->getUserId()) {
+                $user = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:User\User')
+                    ->find($customer->getUserId());
+            }
+
             // check booking dates and order duplication
             $type = $product->getRoom()->getType();
             $error = $this->checkIfOrderAllowed(
@@ -2070,7 +2077,7 @@ class AdminOrderController extends OrderController
                 $now,
                 $startDate,
                 $endDate,
-                null,
+                $user,
                 $type,
                 $timeUnit,
                 $basePrice

@@ -544,11 +544,38 @@ class AdminLeaseBillController extends SalesRestController
         $bill = $this->getDoctrine()->getRepository("SandboxApiBundle:Lease\LeaseBill")->find($id);
         $this->throwNotFoundIfNull($bill, CustomErrorMessagesConstants::ERROR_BILL_NOT_FOUND_MESSAGE);
 
+        $bill->setCategory($this->getBillInvoiceCategory($bill));
+
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['lease_bill']));
         $view->setData($bill);
 
         return $view;
+    }
+
+    /**
+     * @param LeaseBill $bill
+     *
+     * @return mixed
+     */
+    private function getBillInvoiceCategory(
+        $bill
+    ) {
+        $roomType = $bill->getLease()->getProduct()->getRoom()->getType();
+        $salesCompany = $bill->getLease()->getProduct()->getRoom()->getBuilding()->getCompany();
+
+        $info = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
+            ->findOneBy(array(
+                'company' => $salesCompany,
+                'tradeTypes' => $roomType,
+            ));
+
+        if (is_null($info)) {
+            return '';
+        }
+
+        return $info->getInvoicingSubjects();
     }
 
     /**
