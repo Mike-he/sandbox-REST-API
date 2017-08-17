@@ -29,18 +29,18 @@ class Version920170817093957 extends AbstractMigration implements ContainerAware
 
         $em = $this->container->get('doctrine.orm.entity_manager');
 
-        $userGroupHasUsers = $this->getDoctrine()
+        $userGroupHasUsers = $em
             ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
             ->findAll();
 
         foreach ($userGroupHasUsers as $hasUser) {
             $groupId = $hasUser->getGroupId();
-            $group = $this->getDoctrine()
+            $group = $em
                 ->getRepository('SandboxApiBundle:User\UserGroup')
                 ->find($groupId);
             $companyId = $group->getCompanyId();
 
-            $customer = $this->getDoctrine()
+            $customer = $em
                 ->getRepository('SandboxApiBundle:User\UserCustomer')
                 ->findOneBy(array(
                     'companyId' => $companyId,
