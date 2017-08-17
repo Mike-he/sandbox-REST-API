@@ -25,9 +25,10 @@ class AdminReservationController extends SalesRestController
     public function grabReservationAction(Request $request, $reservationId)
     {
         $adminId = $this->getAdminId();
-        $reservation = $this->getDoctrine()->getRepository('SandboxApiBundle:Reservation\Reservation')->findOneById(
-            $reservationId
-        );
+        $reservation = $this->getDoctrine()->getRepository('SandboxApiBundle:Reservation\Reservation')->findOneBy(array(
+            'id'=> $reservationId,
+            'status'=>Reservation::UNGRABED
+        ));
 
         $this->throwNotFoundIfNull($reservation, self::NOT_FOUND_MESSAGE);
 
@@ -202,7 +203,22 @@ class AdminReservationController extends SalesRestController
                 $offset
             );
 
-        $count = count($reservations);
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Reservation\Reservation')
+            ->getCountBySearch(
+                $salesCompanyId,
+                $keyword,
+                $keywordSearch,
+                $productIds,
+                $buildingName,
+                $status,
+                $viewStart,
+                $viewEnd,
+                $createStart,
+                $createEnd,
+                $grabStart,
+                $grabEnd
+            );
 
         $result = [];
         foreach ($reservations as $k=>$reservation) {
@@ -310,9 +326,10 @@ class AdminReservationController extends SalesRestController
         $rent = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Product\ProductRentSet')
             ->findOneBy(array('product' => $productId));
-
-        $data['product']['rent_price'] = $rent->getbasePrice();
-        $data['product']['unit_price'] = $rent->getUnitPrice();
+       if(!is_null($rent)){
+           $data['product']['rent_price'] = $rent->getbasePrice();
+           $data['product']['unit_price'] = $rent->getUnitPrice();
+       }
 
         return $data;
     }
