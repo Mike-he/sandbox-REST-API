@@ -55,17 +55,50 @@ class UserEnterpriseCustomerRepository extends EntityRepository
     }
 
     /**
-     * @param $ids
-     *
-     * @return array
+     * @param $salesCompanyId
+     * @param $keyword
+     * @param $keywordSearch
+     * @return mixed
      */
-    public function getEnterpriseCustomerAction(
-        $ids
-    ) {
+    public function getCountSalesEnterpriseCustomers(
+        $salesCompanyId,
+        $keyword,
+        $keywordSearch
+    )
+    {
         $query = $this->createQueryBuilder('ec')
-            ->where('ec.id IN (:ids)')
-            ->setParameter('ids', $ids);
+            ->select('COUNT(ec)')
+            ->leftJoin(
+                'SandboxApiBundle:User\EnterpriseCustomerContacts',
+                'ecc',
+                'WITH',
+                'ec.id = ecc.enterpriseCustomerId'
+            )
+            ->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'ecc.customerId = uc.id');
 
-        return $query->getQuery()->getResult();
+        $query->where('ec.companyId = :companyId')
+            ->setParameter('companyId', $salesCompanyId);
+
+        if (!is_null($keyword) && !is_null($keywordSearch)) {
+            switch ($keyword) {
+                case 'name':
+                    $query->andWhere('ec.name LIKE :search');
+                    break;
+                case 'registerAddress':
+                    $query->andWhere('ec.registerAddress LIKE :search');
+                    break;
+                case 'contactName':
+                    $query->andWhere('uc.name LIKE :search');
+                    break;
+                case 'contactPhone':
+                    $query->andWhere('uc.phone LIKE :search');
+                    break;
+                default:
+                    break;
+            }
+            $query->setParameter('search', '%'.$keywordSearch.'%');
+        }
+
+        return $query->getQuery()->getSingleScalarResult();
     }
 }

@@ -202,10 +202,10 @@ user:
     bean_product_order: 成功预定秒租
     bean_pay_bill: 成功支付合同账单
     bean_shop_order: 成功完成店铺订单
-    bean_event_order: 成功支付线上收费活动订单
     bean_membership_order: 购买会员卡
     bean_exchange: 赤豆商城兑换商品
     bean_exchange_fail: 赤豆商城兑换商品失败退回
+    bean_product_order_preorder: 成功预定秒租
 
 company:
   industry:

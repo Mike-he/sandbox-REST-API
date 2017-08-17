@@ -208,7 +208,14 @@ class AdminEnterpriseCustomerController extends SalesRestController
             $enterpriseCustomer->setContacts($contacts);
         }
 
-        $count = count($enterpriseCustomers);
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\EnterpriseCustomer')
+            ->getCountSalesEnterpriseCustomers(
+                $salesCompanyId,
+                $keyword,
+                $keywordSearch
+            );
+
         $view = new View();
         $view->setData(
             array(
