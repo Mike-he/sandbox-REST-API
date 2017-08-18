@@ -130,10 +130,18 @@ class AdminLeaseExportController extends SalesRestController
         $startDate = $paramFetcher->get('start_date');
         $endDate = $paramFetcher->get('end_date');
 
+        //get my buildings list
+        $myBuildingIds = $this->getMySalesBuildingIds(
+            $data['user_id'],
+            array(
+                AdminPermission::KEY_SALES_PLATFORM_LEASE_CLUE,
+            )
+        );
+
         $clues = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseClue')
             ->findClues(
-                $data['company_id'],
+                $myBuildingIds,
                 $buildingId,
                 $status,
                 $keyword,
@@ -275,10 +283,18 @@ class AdminLeaseExportController extends SalesRestController
         $startDate = $paramFetcher->get('start_date');
         $endDate = $paramFetcher->get('end_date');
 
+        //get my buildings list
+        $myBuildingIds = $this->getMySalesBuildingIds(
+            $data['user_id'],
+            array(
+                AdminPermission::KEY_SALES_PLATFORM_LEASE_OFFER,
+            )
+        );
+
         $offers = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseOffer')
             ->findOffers(
-                $data['company_id'],
+                $myBuildingIds,
                 $buildingId,
                 $status,
                 $keyword,
@@ -468,7 +484,16 @@ class AdminLeaseExportController extends SalesRestController
         $startDate = $paramFetcher->get('start_date');
         $endDate = $paramFetcher->get('end_date');
         $buildingId = $paramFetcher->get('building');
-        $myBuildingIds = $buildingId ? array((int) $buildingId) : array();
+
+        //get my buildings list
+        $myBuildingIds = $this->getMySalesBuildingIds(
+            $data['user_id'],
+            array(
+                AdminPermission::KEY_SALES_BUILDING_LONG_TERM_LEASE,
+            )
+        );
+
+        $myBuildingIds = $buildingId ? array((int) $buildingId) : $myBuildingIds;
 
         $leases = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\Lease')
@@ -629,6 +654,13 @@ class AdminLeaseExportController extends SalesRestController
         $status = $paramFetcher->get('status');
         $building = $paramFetcher->get('building');
 
+        $myBuildingIds = $this->getMySalesBuildingIds(
+            $data['user_id'],
+            array(
+                AdminPermission::KEY_SALES_PLATFORM_LEASE_BILL,
+            )
+        );
+
         if ($channel == LeaseBill::CHANNEL_SANDBOX) {
             $channels = array(
                 LeaseBill::CHANNEL_ALIPAY,
@@ -651,7 +683,7 @@ class AdminLeaseExportController extends SalesRestController
         $bills = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
             ->findBillsForSales(
-                $data['company_id'],
+                $myBuildingIds,
                 $building,
                 $status,
                 $channels,

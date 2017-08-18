@@ -241,7 +241,16 @@ class AdminLeaseController extends SalesRestController
 
         $userId = $paramFetcher->get('user');
         $buildingId = $paramFetcher->get('building');
-        $myBuildingIds = $buildingId ? array((int) $buildingId) : array();
+
+        //get my buildings list
+        $myBuildingIds = $this->getMySalesBuildingIds(
+            $this->getAdminId(),
+            array(
+                AdminPermission::KEY_SALES_BUILDING_LONG_TERM_LEASE,
+            )
+        );
+
+        $myBuildingIds = $buildingId ? array((int) $buildingId) : $myBuildingIds;
 
         $leases = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\Lease')

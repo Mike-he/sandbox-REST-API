@@ -570,7 +570,7 @@ class LeaseBillRepository extends EntityRepository
     }
 
     /**
-     * @param $company
+     * @param $myBuildingIds
      * @param $building
      * @param $status
      * @param $channels
@@ -587,7 +587,7 @@ class LeaseBillRepository extends EntityRepository
      * @return array
      */
     public function findBillsForSales(
-        $company,
+        $myBuildingIds,
         $building,
         $status,
         $channels,
@@ -604,12 +604,9 @@ class LeaseBillRepository extends EntityRepository
         $query = $this->createQueryBuilder('lb')
             ->leftJoin('lb.lease', 'l')
             ->where('l.status in (:leaseStatus)')
-            ->setParameter('leaseStatus', $leaseStatus);
-
-        if (!is_null($company)) {
-            $query->andWhere('l.companyId = :company')
-                ->setParameter('company', $company);
-        }
+            ->andWhere('l.buildingId in (:buildingIds)')
+            ->setParameter('leaseStatus', $leaseStatus)
+            ->setParameter('buildingIds', $myBuildingIds);
 
         if ($building) {
             $query->andWhere('l.buildingId = :building')
@@ -691,8 +688,9 @@ class LeaseBillRepository extends EntityRepository
     }
 
     /**
-     * @param $company
+     * @param $myBuildingIds
      * @param $building
+     * @param $status
      * @param $channels
      * @param $keyword
      * @param $keywordSearch
@@ -705,7 +703,7 @@ class LeaseBillRepository extends EntityRepository
      * @return mixed
      */
     public function countBillsForSales(
-        $company,
+        $myBuildingIds,
         $building,
         $status,
         $channels,
@@ -721,12 +719,9 @@ class LeaseBillRepository extends EntityRepository
             ->select('count(lb.id)')
             ->leftJoin('lb.lease', 'l')
             ->where('l.status in (:leaseStatus)')
-            ->setParameter('leaseStatus', $leaseStatus);
-
-        if (!is_null($company)) {
-            $query->andWhere('l.companyId = :company')
-                ->setParameter('company', $company);
-        }
+            ->andWhere('l.buildingId in (:buildingIds)')
+            ->setParameter('leaseStatus', $leaseStatus)
+            ->setParameter('buildingIds', $myBuildingIds);
 
         if ($building) {
             $query->andWhere('l.buildingId = :building')

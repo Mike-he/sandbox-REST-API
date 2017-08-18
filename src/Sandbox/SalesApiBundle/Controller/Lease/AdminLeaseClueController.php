@@ -132,9 +132,6 @@ class AdminLeaseClueController extends SalesRestController
         // check user permission
         $this->checkAdminLeaseCluePermission(AdminPermission::OP_LEVEL_VIEW);
 
-        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
-        $salesCompanyId = $adminPlatform['sales_company_id'];
-
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
         $offset = ($pageIndex - 1) * $pageLimit;
@@ -155,10 +152,18 @@ class AdminLeaseClueController extends SalesRestController
         $startDate = $paramFetcher->get('start_date');
         $endDate = $paramFetcher->get('end_date');
 
+        //get my buildings list
+        $myBuildingIds = $this->getMySalesBuildingIds(
+            $this->getAdminId(),
+            array(
+                AdminPermission::KEY_SALES_PLATFORM_LEASE_CLUE,
+            )
+        );
+
         $clues = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseClue')
             ->findClues(
-                $salesCompanyId,
+                $myBuildingIds,
                 $buildingId,
                 $status,
                 $keyword,
@@ -175,7 +180,7 @@ class AdminLeaseClueController extends SalesRestController
         $count = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseClue')
             ->countClues(
-                $salesCompanyId,
+                $myBuildingIds,
                 $buildingId,
                 $status,
                 $keyword,
