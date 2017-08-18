@@ -947,6 +947,15 @@ class AdminLeaseController extends SalesRestController
         if ($oldStatus == Lease::LEASE_STATUS_DRAFTING &&
             $lease->getStatus() == Lease::LEASE_STATUS_PERFORMING
         ) {
+            $logMessage = '生效合同';
+            $this->get('sandbox_api.admin_status_log')->autoLog(
+                $this->getAdminId(),
+                Lease::LEASE_STATUS_PERFORMING,
+                $logMessage,
+                AdminStatusLog::OBJECT_LEASE,
+                $lease->getId()
+            );
+
             if ($userId) {
                 $this->addDoorAccess($lease, $userId);
 
