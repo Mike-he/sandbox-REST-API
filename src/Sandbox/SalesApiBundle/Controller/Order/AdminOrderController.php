@@ -638,25 +638,22 @@ class AdminOrderController extends OrderController
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
-     * @param int                   $id
      *
-     * @Route("/orders/{id}/other_rejected")
+     * @Route("/orders/other_rejected")
      * @Method({"GET"})
      *
      * @return View
      */
     public function getOtherRejectedOrdersAction(
         Request $request,
-        ParamFetcherInterface $paramFetcher,
-        $id
+        ParamFetcherInterface $paramFetcher
     ) {
-        $order = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->find($id);
+        $data = json_decode($request->getContent(), true);
 
-        $productId = $order->getProductId();
-        $startDate = $order->getStartDate();
-        $endDate = $order->getEndDate();
+        $orderId = $data['order_id'];
+        $productId = $data['product_id'];
+        $startDate = $data['start_date'];
+        $endDate = $data['end_date'];
 
         $orders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
@@ -665,7 +662,7 @@ class AdminOrderController extends OrderController
                 $startDate,
                 $endDate,
                 null,
-                $order->getId()
+                $orderId
             );
 
         $response = [];
