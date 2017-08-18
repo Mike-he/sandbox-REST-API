@@ -241,7 +241,16 @@ class AdminLeaseController extends SalesRestController
 
         $userId = $paramFetcher->get('user');
         $buildingId = $paramFetcher->get('building');
-        $myBuildingIds = $buildingId ? array((int) $buildingId) : array();
+
+        //get my buildings list
+        $myBuildingIds = $this->getMySalesBuildingIds(
+            $this->getAdminId(),
+            array(
+                AdminPermission::KEY_SALES_BUILDING_LONG_TERM_LEASE,
+            )
+        );
+
+        $myBuildingIds = $buildingId ? array((int) $buildingId) : $myBuildingIds;
 
         $leases = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\Lease')
@@ -947,6 +956,15 @@ class AdminLeaseController extends SalesRestController
         if ($oldStatus == Lease::LEASE_STATUS_DRAFTING &&
             $lease->getStatus() == Lease::LEASE_STATUS_PERFORMING
         ) {
+            $logMessage = '生效合同';
+            $this->get('sandbox_api.admin_status_log')->autoLog(
+                $this->getAdminId(),
+                Lease::LEASE_STATUS_PERFORMING,
+                $logMessage,
+                AdminStatusLog::OBJECT_LEASE,
+                $lease->getId()
+            );
+
             if ($userId) {
                 $this->addDoorAccess($lease, $userId);
 

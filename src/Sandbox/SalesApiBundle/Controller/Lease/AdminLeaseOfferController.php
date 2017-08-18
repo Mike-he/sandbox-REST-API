@@ -134,9 +134,6 @@ class AdminLeaseOfferController extends SalesRestController
         // check user permission
         $this->checkAdminLeaseOfferPermission(AdminPermission::OP_LEVEL_VIEW);
 
-        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
-        $salesCompanyId = $adminPlatform['sales_company_id'];
-
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
         $offset = ($pageIndex - 1) * $pageLimit;
@@ -157,10 +154,18 @@ class AdminLeaseOfferController extends SalesRestController
         $startDate = $paramFetcher->get('start_date');
         $endDate = $paramFetcher->get('end_date');
 
+        //get my buildings list
+        $myBuildingIds = $this->getMySalesBuildingIds(
+            $this->getAdminId(),
+            array(
+                AdminPermission::KEY_SALES_PLATFORM_LEASE_OFFER,
+            )
+        );
+
         $offers = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseOffer')
             ->findOffers(
-                $salesCompanyId,
+                $myBuildingIds,
                 $buildingId,
                 $status,
                 $keyword,
@@ -177,7 +182,7 @@ class AdminLeaseOfferController extends SalesRestController
         $count = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseOffer')
             ->countOffers(
-                $salesCompanyId,
+                $myBuildingIds,
                 $buildingId,
                 $status,
                 $keyword,

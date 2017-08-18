@@ -8,7 +8,7 @@ use Sandbox\ApiBundle\Entity\Lease\LeaseClue;
 class LeaseOfferRepository extends EntityRepository
 {
     /**
-     * @param $salesCompanyId
+     * @param $myBuildingIds
      * @param $buildingId
      * @param $status
      * @param $keyword
@@ -24,7 +24,7 @@ class LeaseOfferRepository extends EntityRepository
      * @return array|\Doctrine\ORM\QueryBuilder
      */
     public function findOffers(
-        $salesCompanyId,
+        $myBuildingIds,
         $buildingId,
         $status,
         $keyword,
@@ -38,8 +38,8 @@ class LeaseOfferRepository extends EntityRepository
         $offset = null
     ) {
         $query = $this->createQueryBuilder('lo')
-            ->where('lo.companyId = :companyId')
-            ->setParameter('companyId', $salesCompanyId);
+            ->where('lo.buildingId in (:buildingIds)')
+            ->setParameter('buildingIds', $myBuildingIds);
 
         if ($buildingId) {
             $query->andWhere('lo.buildingId = :building')
@@ -138,7 +138,7 @@ class LeaseOfferRepository extends EntityRepository
     }
 
     /**
-     * @param $salesCompanyId
+     * @param $myBuildingIds
      * @param $buildingId
      * @param $status
      * @param $keyword
@@ -152,7 +152,7 @@ class LeaseOfferRepository extends EntityRepository
      * @return \Doctrine\ORM\QueryBuilder|mixed
      */
     public function countOffers(
-        $salesCompanyId,
+        $myBuildingIds,
         $buildingId,
         $status,
         $keyword,
@@ -165,8 +165,8 @@ class LeaseOfferRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('lo')
             ->select('count(lo.id)')
-            ->where('lo.companyId = :companyId')
-            ->setParameter('companyId', $salesCompanyId);
+            ->where('lo.buildingId in (:buildingIds)')
+            ->setParameter('buildingIds', $myBuildingIds);
 
         if ($buildingId) {
             $query->andWhere('lo.buildingId = :building')

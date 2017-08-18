@@ -7,10 +7,8 @@ use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
 use Sandbox\ApiBundle\Constants\LeaseConstants;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminStatusLog;
-use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentServiceBill;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Log\Log;
-use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Sandbox\ApiBundle\Traits\FinanceTrait;
 use Sandbox\ApiBundle\Traits\LeaseTrait;
 use Sandbox\ApiBundle\Traits\SendNotification;
@@ -174,6 +172,13 @@ class AdminLeaseBillController extends SalesRestController
         $status = $paramFetcher->get('status');
         $building = $paramFetcher->get('building');
 
+        $myBuildingIds = $this->getMySalesBuildingIds(
+            $this->getAdminId(),
+            array(
+                AdminPermission::KEY_SALES_PLATFORM_LEASE_BILL,
+            )
+        );
+
         if ($channel == LeaseBill::CHANNEL_SANDBOX) {
             $channels = array(
                 LeaseBill::CHANNEL_ALIPAY,
@@ -196,7 +201,7 @@ class AdminLeaseBillController extends SalesRestController
         $bills = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
             ->findBillsForSales(
-                $company,
+                $myBuildingIds,
                 $building,
                 $status,
                 $channels,
@@ -214,7 +219,7 @@ class AdminLeaseBillController extends SalesRestController
         $count = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
             ->countBillsForSales(
-                $company,
+                $myBuildingIds,
                 $building,
                 $status,
                 $channels,
@@ -758,7 +763,6 @@ class AdminLeaseBillController extends SalesRestController
 
         $this->handleBatchPush($payload);
     }
-
 
     /**
      * Get Sale offline Bills lists.

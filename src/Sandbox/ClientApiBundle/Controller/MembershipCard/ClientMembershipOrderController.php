@@ -51,6 +51,7 @@ class ClientMembershipOrderController extends PaymentController
             ->find($specificationId);
         $this->throwNotFoundIfNull($specification, self::NOT_FOUND_MESSAGE);
 
+        /** @var MembershipCard $card */
         $card = $specification->getCard();
         $price = $specification->getPrice();
         $unit = $specification->getUnitPrice();
@@ -121,6 +122,12 @@ class ClientMembershipOrderController extends PaymentController
             );
 
             $em->flush();
+
+            $this->get('sandbox_api.sales_customer')
+                ->createCustomer(
+                    $userId,
+                    $card->getCompanyId()
+                );
 
             // add user to user_group
             $this->addUserToUserGroup(
