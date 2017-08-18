@@ -8,7 +8,7 @@ use Sandbox\ApiBundle\Entity\Lease\LeaseClue;
 class LeaseClueRepository extends EntityRepository
 {
     /**
-     * @param $salesCompanyId
+     * @param $myBuildingIds
      * @param $buildingId
      * @param $status
      * @param $keyword
@@ -24,7 +24,7 @@ class LeaseClueRepository extends EntityRepository
      * @return array|\Doctrine\ORM\QueryBuilder
      */
     public function findClues(
-        $salesCompanyId,
+        $myBuildingIds,
         $buildingId,
         $status,
         $keyword,
@@ -38,8 +38,8 @@ class LeaseClueRepository extends EntityRepository
         $offset = null
     ) {
         $query = $this->createQueryBuilder('lc')
-            ->where('lc.companyId = :companyId')
-            ->setParameter('companyId', $salesCompanyId);
+            ->where('lc.buildingId in (:buildingIds)')
+            ->setParameter('buildingIds', $myBuildingIds);
 
         if ($buildingId) {
             $query->andWhere('lc.buildingId = :building')
@@ -138,7 +138,7 @@ class LeaseClueRepository extends EntityRepository
     }
 
     /**
-     * @param $salesCompanyId
+     * @param $myBuildingIds
      * @param $buildingId
      * @param $status
      * @param $keyword
@@ -152,7 +152,7 @@ class LeaseClueRepository extends EntityRepository
      * @return \Doctrine\ORM\QueryBuilder|mixed
      */
     public function countClues(
-        $salesCompanyId,
+        $myBuildingIds,
         $buildingId,
         $status,
         $keyword,
@@ -165,8 +165,8 @@ class LeaseClueRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('lc')
             ->select('count(lc.id)')
-            ->where('lc.companyId = :companyId')
-            ->setParameter('companyId', $salesCompanyId);
+            ->where('lc.buildingId in (:buildingIds)')
+            ->setParameter('buildingIds', $myBuildingIds);
 
         if ($buildingId) {
             $query->andWhere('lc.buildingId = :building')

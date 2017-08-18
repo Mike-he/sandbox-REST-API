@@ -638,25 +638,44 @@ class AdminOrderController extends OrderController
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
-     * @param int                   $id
      *
-     * @Route("/orders/{id}/other_rejected")
+     * @Annotations\QueryParam(
+     *     name="order_id",
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="product_id",
+     *     nullable=false,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="start_date",
+     *     nullable=false,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="end_date",
+     *     nullable=false,
+     *     strict=true
+     * )
+     *
+     * @Route("/orders/other_rejected")
      * @Method({"GET"})
      *
      * @return View
      */
     public function getOtherRejectedOrdersAction(
         Request $request,
-        ParamFetcherInterface $paramFetcher,
-        $id
+        ParamFetcherInterface $paramFetcher
     ) {
-        $order = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->find($id);
-
-        $productId = $order->getProductId();
-        $startDate = $order->getStartDate();
-        $endDate = $order->getEndDate();
+        $orderId = $paramFetcher->get('order_id');
+        $productId = $paramFetcher->get('product_id');
+        $startDate = $paramFetcher->get('start_date');
+        $endDate = $paramFetcher->get('end_date');
 
         $orders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
@@ -665,7 +684,7 @@ class AdminOrderController extends OrderController
                 $startDate,
                 $endDate,
                 null,
-                $order->getId()
+                $orderId
             );
 
         $response = [];

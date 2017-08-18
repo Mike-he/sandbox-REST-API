@@ -129,11 +129,11 @@ class AdminLeaseExportController extends SalesRestController
         $rentFilter = $paramFetcher->get('rent_filter');
         $startDate = $paramFetcher->get('start_date');
         $endDate = $paramFetcher->get('end_date');
-
+        
         $clues = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseClue')
             ->findClues(
-                $data['company_id'],
+                $data['building_ids'],
                 $buildingId,
                 $status,
                 $keyword,
@@ -262,7 +262,7 @@ class AdminLeaseExportController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $data = $this->checkPermission(AdminPermission::KEY_SALES_PLATFORM_LEASE_CLUE);
+        $data = $this->checkPermission(AdminPermission::KEY_SALES_PLATFORM_LEASE_OFFER);
 
         $language = $paramFetcher->get('language');
         $buildingId = $paramFetcher->get('building');
@@ -278,7 +278,7 @@ class AdminLeaseExportController extends SalesRestController
         $offers = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseOffer')
             ->findOffers(
-                $data['company_id'],
+                $data['building_ids'],
                 $buildingId,
                 $status,
                 $keyword,
@@ -468,7 +468,8 @@ class AdminLeaseExportController extends SalesRestController
         $startDate = $paramFetcher->get('start_date');
         $endDate = $paramFetcher->get('end_date');
         $buildingId = $paramFetcher->get('building');
-        $myBuildingIds = $buildingId ? array((int) $buildingId) : array();
+
+        $myBuildingIds = $buildingId ? array((int) $buildingId) : $data['building_ids'];
 
         $leases = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\Lease')
@@ -651,7 +652,7 @@ class AdminLeaseExportController extends SalesRestController
         $bills = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
             ->findBillsForSales(
-                $data['company_id'],
+                $data['building_ids'],
                 $building,
                 $status,
                 $channels,
@@ -737,9 +738,20 @@ class AdminLeaseExportController extends SalesRestController
             $companyId
         );
 
+        $myBuildingIds = $this->getMySalesBuildingIds(
+            $adminId,
+            array(
+                $permission,
+            ),
+            AdminPermission::OP_LEVEL_VIEW,
+            AdminPermission::PERMISSION_PLATFORM_SALES,
+            $companyId
+        );
+
         $result = array(
             'company_id' => $companyId,
             'user_id' => $adminId,
+            'building_ids' => $myBuildingIds,
         );
 
         return $result;
