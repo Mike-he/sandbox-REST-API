@@ -639,6 +639,30 @@ class AdminOrderController extends OrderController
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
+     * @Annotations\QueryParam(
+     *     name="order_id",
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="product_id",
+     *     nullable=false,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="start_date",
+     *     nullable=false,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="end_date",
+     *     nullable=false,
+     *     strict=true
+     * )
+     *
      * @Route("/orders/other_rejected")
      * @Method({"GET"})
      *
@@ -648,12 +672,10 @@ class AdminOrderController extends OrderController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $data = json_decode($request->getContent(), true);
-
-        $orderId = $data['order_id'];
-        $productId = $data['product_id'];
-        $startDate = $data['start_date'];
-        $endDate = $data['end_date'];
+        $orderId = $paramFetcher->get('order_id');
+        $productId = $paramFetcher->get('product_id');
+        $startDate = $paramFetcher->get('start_date');
+        $endDate = $paramFetcher->get('end_date');
 
         $orders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
