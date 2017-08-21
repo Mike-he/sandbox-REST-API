@@ -83,10 +83,12 @@ class AdminFinanceReceivableController extends SalesRestController
                         continue;
                     }
 
+                    $customerId = $bill->getLease()->getLesseeCustomer();
+
                     $bill->setPayChannel(LeaseBill::CHANNEL_SALES_OFFLINE);
                     $bill->setPaymentDate($now);
                     $bill->setStatus(LeaseBill::STATUS_PAID);
-                    $bill->setCustomerId($bill->getLease()->getLesseeCustomer());
+                    $bill->setCustomerId($customerId);
 
                     $invoiced = $this->checkBillShouldInvoiced($bill->getLease());
                     if (!$invoiced) {
@@ -103,6 +105,36 @@ class AdminFinanceReceivableController extends SalesRestController
                     );
 
                     $amount = $bill->getRevisedAmount();
+
+
+                    $customer = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:User\UserCustomer')
+                        ->find($customerId);
+
+                    if ($customer->getUserId()) {
+                        //update user bean
+                        $this->get('sandbox_api.bean')->postBeanChange(
+                            $customer->getUserId(),
+                            $amount,
+                            $orderNumber,
+                            Parameter::KEY_BEAN_PAY_BILL
+                        );
+
+                        //update invitee bean
+                        $user = $this->getDoctrine()
+                            ->getRepository('SandboxApiBundle:User\User')
+                            ->find($customer->getUserId());
+
+                        if ($user->getInviterId()) {
+                            $this->get('sandbox_api.bean')->postBeanChange(
+                                $user->getInviterId(),
+                                $price,
+                                $orderNumber,
+                                Parameter::KEY_BEAN_INVITEE_PAY_BILL
+                            );
+                        }
+                    }
+
                     break;
                 default:
                     continue;
@@ -116,6 +148,7 @@ class AdminFinanceReceivableController extends SalesRestController
             $receivable->setRemark($payload['remark']);
             $receivable->setReceiver($this->getAdminId());
             $em->persist($receivable);
+
         }
         $em->flush();
 

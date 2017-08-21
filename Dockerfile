@@ -19,7 +19,6 @@ RUN mkdir /var/www/sandbox-REST-API && mkdir /data && mkdir /data/openfire
 ADD . /var/www/sandbox-REST-API/
 
 WORKDIR /var/www
-VOLUME /var/www
 EXPOSE 80
 
 # Run startup script
