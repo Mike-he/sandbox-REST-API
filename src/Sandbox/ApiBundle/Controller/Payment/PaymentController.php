@@ -1787,26 +1787,28 @@ class PaymentController extends DoorController
             FinanceLongRentServiceBill::TYPE_BILL_POUNDAGE
         );
 
-        //update user bean
-        $this->get('sandbox_api.bean')->postBeanChange(
-            $customer->getId(),
-            $price,
-            $orderNumber,
-            Parameter::KEY_BEAN_PAY_BILL
-        );
-
-        //update invitee bean
-        $user = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\User')
-            ->find($customer->getId());
-
-        if ($user->getInviterId()) {
+        if ($customer->getUserId()) {
+            //update user bean
             $this->get('sandbox_api.bean')->postBeanChange(
-                $user->getInviterId(),
+                $customer->getUserId(),
                 $price,
                 $orderNumber,
-                Parameter::KEY_BEAN_INVITEE_PAY_BILL
+                Parameter::KEY_BEAN_PAY_BILL
             );
+
+            //update invitee bean
+            $user = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\User')
+                ->find($customer->getUserId());
+
+            if ($user->getInviterId()) {
+                $this->get('sandbox_api.bean')->postBeanChange(
+                    $user->getInviterId(),
+                    $price,
+                    $orderNumber,
+                    Parameter::KEY_BEAN_INVITEE_PAY_BILL
+                );
+            }
         }
 
         $em = $this->getDoctrine()->getManager();
