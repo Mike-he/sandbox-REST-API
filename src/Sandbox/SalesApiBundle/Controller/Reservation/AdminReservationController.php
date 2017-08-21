@@ -164,18 +164,12 @@ class AdminReservationController extends SalesRestController
         $grabStart = $paramFetcher->get('grab_start');
         $grabEnd = $paramFetcher->get('grab_end');
         $status = $paramFetcher->get('status');
-        $buildingName = $paramFetcher->get('building');
+        $buildingId = $paramFetcher->get('building');
         $limit = $pageLimit;
         $offset = ($pageIndex - 1) * $pageLimit;
 
-        $buildingName = $paramFetcher->get('building');
         $productIds = array();
-        if ($buildingName) {
-            $buildings = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Room\RoomBuilding')
-                ->getCompanyBuildingsByName($salesCompanyId,$buildingName);
-
-            $buildingId = $buildings[0]['id'];
+        if ($buildingId) {
             $products = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Product\Product')
                 ->findProductIdsByCompanyAndBuilding($salesCompanyId, $buildingId);
@@ -191,7 +185,6 @@ class AdminReservationController extends SalesRestController
                 $keyword,
                 $keywordSearch,
                 $productIds,
-                $buildingName,
                 $status,
                 $viewStart,
                 $viewEnd,
@@ -210,7 +203,6 @@ class AdminReservationController extends SalesRestController
                 $keyword,
                 $keywordSearch,
                 $productIds,
-                $buildingName,
                 $status,
                 $viewStart,
                 $viewEnd,
