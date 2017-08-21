@@ -74,7 +74,7 @@ class Version820170721093327 extends AbstractMigration implements ContainerAware
         $em->persist($leaseGroup);
 
         $leaseCluePermission = new AdminPermission();
-        $leaseCluePermission->setKey(AdminPermission::KEY_SALES_PLATFORM_LEASE_CLUE);
+        $leaseCluePermission->setKey(AdminPermission::KEY_SALES_BUILDING_LEASE_CLUE);
         $leaseCluePermission->setName('线索权限');
         $leaseCluePermission->setPlatform('sales');
         $leaseCluePermission->setLevel('global');
@@ -83,7 +83,7 @@ class Version820170721093327 extends AbstractMigration implements ContainerAware
         $em->persist($leaseCluePermission);
 
         $leaseOfferPermission = new AdminPermission();
-        $leaseOfferPermission->setKey(AdminPermission::KEY_SALES_PLATFORM_LEASE_OFFER);
+        $leaseOfferPermission->setKey(AdminPermission::KEY_SALES_BUILDING_LEASE_OFFER);
         $leaseOfferPermission->setName('报价权限');
         $leaseOfferPermission->setPlatform('sales');
         $leaseOfferPermission->setLevel('global');
@@ -92,7 +92,7 @@ class Version820170721093327 extends AbstractMigration implements ContainerAware
         $em->persist($leaseOfferPermission);
 
         $leaseBillPermission = new AdminPermission();
-        $leaseBillPermission->setKey(AdminPermission::KEY_SALES_PLATFORM_LEASE_BILL);
+        $leaseBillPermission->setKey(AdminPermission::KEY_SALES_BUILDING_LEASE_BILL);
         $leaseBillPermission->setName('账单权限');
         $leaseBillPermission->setPlatform('sales');
         $leaseBillPermission->setLevel('global');

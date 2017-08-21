@@ -156,7 +156,7 @@ class AdminLeaseClueController extends SalesRestController
         $myBuildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
             array(
-                AdminPermission::KEY_SALES_PLATFORM_LEASE_CLUE,
+                AdminPermission::KEY_SALES_BUILDING_LEASE_CLUE,
             )
         );
 
@@ -533,7 +533,7 @@ class AdminLeaseClueController extends SalesRestController
         $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             [
-                ['key' => AdminPermission::KEY_SALES_PLATFORM_LEASE_CLUE],
+                ['key' => AdminPermission::KEY_SALES_BUILDING_LEASE_CLUE],
             ],
             $opLevel
         );

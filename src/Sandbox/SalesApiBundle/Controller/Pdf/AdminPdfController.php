@@ -148,7 +148,7 @@ class AdminPdfController extends SalesRestController
             $adminId,
             array(
                 array(
-                    'key' => AdminPermission::KEY_SALES_PLATFORM_LEASE_CLUE,
+                    'key' => AdminPermission::KEY_SALES_BUILDING_LEASE_CLUE,
                 ),
             ),
             AdminPermission::OP_LEVEL_VIEW,
@@ -232,7 +232,7 @@ class AdminPdfController extends SalesRestController
             $adminId,
             array(
                 array(
-                    'key' => AdminPermission::KEY_SALES_PLATFORM_LEASE_OFFER,
+                    'key' => AdminPermission::KEY_SALES_BUILDING_LEASE_OFFER,
                 ),
             ),
             AdminPermission::OP_LEVEL_VIEW,
@@ -324,7 +324,7 @@ class AdminPdfController extends SalesRestController
             $adminId,
             array(
                 array(
-                    'key' => AdminPermission::KEY_SALES_PLATFORM_LEASE_BILL,
+                    'key' => AdminPermission::KEY_SALES_BUILDING_LEASE_BILL,
                 ),
             ),
             AdminPermission::OP_LEVEL_VIEW,

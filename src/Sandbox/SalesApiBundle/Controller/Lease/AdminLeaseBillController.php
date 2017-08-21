@@ -175,7 +175,7 @@ class AdminLeaseBillController extends SalesRestController
         $myBuildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
             array(
-                AdminPermission::KEY_SALES_PLATFORM_LEASE_BILL,
+                AdminPermission::KEY_SALES_BUILDING_LEASE_BILL,
             )
         );
 
@@ -943,7 +943,7 @@ class AdminLeaseBillController extends SalesRestController
             $this->getAdminId(),
             [
                 ['key' => AdminPermission::KEY_SALES_BUILDING_LONG_TERM_LEASE],
-                ['key' => AdminPermission::KEY_SALES_PLATFORM_LEASE_BILL],
+                ['key' => AdminPermission::KEY_SALES_BUILDING_LEASE_BILL],
                 ['key' => AdminPermission::KEY_SALES_PLATFORM_AUDIT],
             ],
             $opLevel
