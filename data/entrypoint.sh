@@ -33,7 +33,7 @@ if [ ! -z "$DOC_MIG" ]; then
 fi
 
 # Update vendor of sandbox_app
-#composer dump-autoload --optimize
+composer dump-autoload --optimize
 
 # Clean all caches for sandbox_app
 php app/console cache:clear --env=prod
