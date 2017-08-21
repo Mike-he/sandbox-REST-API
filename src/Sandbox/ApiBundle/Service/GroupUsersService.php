@@ -60,7 +60,7 @@ class GroupUsersService
                     'userId' => $user,
                 ));
 
-            $customerId = $customer ? $customer->getUserId() : null;
+            $customerId = $customer ? $customer->getId() : null;
         } else {
             $groupUsers = $this->container->get('doctrine')
                 ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
