@@ -12,6 +12,7 @@ use Sandbox\ApiBundle\Entity\Reservation\Reservation;
 use Sandbox\ApiBundle\Form\Reservation\ReservationType;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Validator\Constraints\DateTime;
 
 class ClientReservationController extends SandboxRestController
 {
@@ -25,6 +26,8 @@ class ClientReservationController extends SandboxRestController
     const NOT_WITHIN_DATE_RANGE_MESSAGE = 'Not Within 7 Days For Reservation';
     CONST NOT_WITHIN_VIEW_TIME_CODE = 400005;
     CONST NOT_WITHIN_VIEW_TIME_MESSAGE = 'ViewTime Shoule Be In 8:00~18:00';
+    const WRONG_VIEWTIME_CODE = 400006;
+    const WRONG_VIEWTIME_MESSAGE = 'Not Allowed Before Now';
     const VIEW_RANGE_LIMIT = 7;
 
     /**
@@ -86,8 +89,23 @@ class ClientReservationController extends SandboxRestController
             );
         }
 
-        $time = $viewTime->format('h:i');
-        if($time<"08:00" || $time>"18:00"){
+        if( $now >= $viewTime ){
+            return $this->customErrorView(
+                400,
+                self::WRONG_VIEWTIME_CODE,
+                self::WRONG_VIEWTIME_MESSAGE
+            );
+        }
+        $startdate = clone $viewTime;
+        $startdate = $startdate->setTime('08','00','00');
+
+        $enddate = clone $viewTime;
+        $enddate = $enddate->setTime('18','00','00');
+
+        $begin = $startdate > $viewTime;
+        $end = $viewTime > $enddate;
+
+        if($begin || $end){
             return $this->customErrorView(
                 400,
                 self::NOT_WITHIN_VIEW_TIME_CODE,
