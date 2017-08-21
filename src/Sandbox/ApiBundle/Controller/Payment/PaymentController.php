@@ -1789,7 +1789,7 @@ class PaymentController extends DoorController
 
         //update user bean
         $this->get('sandbox_api.bean')->postBeanChange(
-            $customer->getId(),
+            $customer->getUserId(),
             $price,
             $orderNumber,
             Parameter::KEY_BEAN_PAY_BILL
