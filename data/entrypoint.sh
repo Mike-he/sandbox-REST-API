@@ -58,4 +58,4 @@ fi
 /etc/init.d/nginx start 
 
 # Keep container alive
-tail -f /var/www/sandbox-REST-API/app/logs/prod.log
+tail -f /dev/null
