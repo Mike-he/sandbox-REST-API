@@ -127,7 +127,7 @@ class AdminFinanceCashierController extends SalesRestController
         $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             [
-                ['key' => AdminPermission::KEY_SALES_PLATFORM_CASHIER],
+                ['key' => AdminPermission::KEY_SALES_BUILDING_CASHIER],
             ],
             AdminPermission::OP_LEVEL_VIEW
         );
