@@ -158,7 +158,7 @@ class AdminLeaseOfferController extends SalesRestController
         $myBuildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
             array(
-                AdminPermission::KEY_SALES_PLATFORM_LEASE_OFFER,
+                AdminPermission::KEY_SALES_BUILDING_LEASE_OFFER,
             )
         );
 
@@ -605,7 +605,7 @@ class AdminLeaseOfferController extends SalesRestController
         $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             [
-                ['key' => AdminPermission::KEY_SALES_PLATFORM_LEASE_OFFER],
+                ['key' => AdminPermission::KEY_SALES_BUILDING_LEASE_OFFER],
             ],
             $opLevel
         );

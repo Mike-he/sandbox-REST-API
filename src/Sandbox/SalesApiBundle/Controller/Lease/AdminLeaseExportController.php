@@ -117,7 +117,7 @@ class AdminLeaseExportController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $data = $this->checkPermission(AdminPermission::KEY_SALES_PLATFORM_LEASE_CLUE);
+        $data = $this->checkPermission(AdminPermission::KEY_SALES_BUILDING_LEASE_CLUE);
 
         $language = $paramFetcher->get('language');
         $buildingId = $paramFetcher->get('building');
@@ -262,7 +262,7 @@ class AdminLeaseExportController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $data = $this->checkPermission(AdminPermission::KEY_SALES_PLATFORM_LEASE_OFFER);
+        $data = $this->checkPermission(AdminPermission::KEY_SALES_BUILDING_LEASE_OFFER);
 
         $language = $paramFetcher->get('language');
         $buildingId = $paramFetcher->get('building');
@@ -617,7 +617,7 @@ class AdminLeaseExportController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $data = $this->checkPermission(AdminPermission::KEY_SALES_PLATFORM_LEASE_BILL);
+        $data = $this->checkPermission(AdminPermission::KEY_SALES_BUILDING_LEASE_BILL);
 
         $language = $paramFetcher->get('language');
         $channel = $paramFetcher->get('channel');

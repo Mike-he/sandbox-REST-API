@@ -82,9 +82,9 @@ class AdminPermission
     const KEY_SALES_PLATFORM_MEMBERSHIP_CARD = 'sales.platform.membership_card';
     const KEY_SALES_PLATFORM_MEMBERSHIP_CARD_ORDER = 'sales.platform.membership_card_order';
     const KEY_SALES_PLATFORM_MEMBERSHIP_CARD_PRODUCT = 'sales.platform.membership_card_product';
-    const KEY_SALES_PLATFORM_LEASE_CLUE = 'sales.platform.lease_clue';
-    const KEY_SALES_PLATFORM_LEASE_OFFER = 'sales.platform.lease_offer';
-    const KEY_SALES_PLATFORM_LEASE_BILL = 'sales.platform.bill';
+    const KEY_SALES_BUILDING_LEASE_CLUE = 'sales.building.lease_clue';
+    const KEY_SALES_BUILDING_LEASE_OFFER = 'sales.building.lease_offer';
+    const KEY_SALES_BUILDING_LEASE_BILL = 'sales.building.bill';
     const KEY_SALES_PLATFORM_ENTERPRISE_CUSTOMER = 'sales.platform.enterprise_customer';
     const KEY_SALES_PLATFORM_USER_GROUP = 'sales.platform.user_group';
     const KEY_SALES_BUILDING_PRICE = 'sales.building.price';
