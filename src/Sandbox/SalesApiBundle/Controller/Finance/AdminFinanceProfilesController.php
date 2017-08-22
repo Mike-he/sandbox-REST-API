@@ -12,6 +12,7 @@ use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyProfiles;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesFinanceProfileAccountPatchType;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesFinanceProfileExpressPatchType;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesFinanceProfileInvoicePatchType;
+use Sandbox\ApiBundle\Form\SalesAdmin\SalesFinanceProfileLessorPatchType;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesFinanceProfilesPatchType;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesFinanceProfilesPostType;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
@@ -202,6 +203,13 @@ class AdminFinanceProfilesController extends SalesRestController
             ));
         $profile->setInvoice($invoice);
 
+        $lessor = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfileLessor')
+            ->findOneBy(array(
+                'profileId' => $profile->getId(),
+            ));
+        $profile->setLessor($lessor);
+
         return new View($profile);
     }
 
@@ -311,6 +319,15 @@ class AdminFinanceProfilesController extends SalesRestController
             ));
         if ($invoice) {
             $em->remove($invoice);
+        }
+
+        $lessor = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfileLessor')
+            ->findOneBy(array(
+                'profileId' => $profile->getId(),
+            ));
+        if ($lessor) {
+            $em->remove($lessor);
         }
 
         // catch exception
@@ -459,6 +476,56 @@ class AdminFinanceProfilesController extends SalesRestController
 
         $form = $this->createForm(new SalesFinanceProfileInvoicePatchType(), $invoice);
         $form->submit(json_decode($invoiceJson, true));
+
+        $em = $this->getDoctrine()->getManager();
+        $em->beginTransaction();
+
+        // catch exception
+        try {
+            $em->flush();
+
+            $em->commit();
+        } catch (\Exception $e) {
+            $em->rollback();
+
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        return new View();
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     * @param $id
+     *
+     * @Route("/finance/profiles/lessor/{id}")
+     * @Method({"PATCH"})
+     *
+     * @return View
+     */
+    public function patchFinanceLessorAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
+        $lessor = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfileLessor')
+            ->findOneBy(array(
+                'id' => $id,
+                'salesCompanyId' => $salesCompanyId,
+            ));
+        $this->throwNotFoundIfNull($lessor, self::NOT_FOUND_MESSAGE);
+
+        $lessorJson = $this->container->get('serializer')->serialize($lessor, 'json');
+        $patch = new Patch($lessorJson, $request->getContent());
+        $lessorJson = $patch->apply();
+
+        $form = $this->createForm(new SalesFinanceProfileLessorPatchType(), $lessor);
+        $form->submit(json_decode($lessorJson, true));
 
         $em = $this->getDoctrine()->getManager();
         $em->beginTransaction();

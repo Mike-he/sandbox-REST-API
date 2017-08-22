@@ -5,7 +5,6 @@ namespace Sandbox\SalesApiBundle\Controller\Finance;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminStatusLog;
 use Sandbox\ApiBundle\Entity\Finance\FinanceReceivables;
-use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Traits\LeaseTrait;
@@ -14,6 +13,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
+use FOS\RestBundle\Request\ParamFetcherInterface;
+use FOS\RestBundle\Controller\Annotations;
 
 /**
  * Admin Finance Receivable Controller.
@@ -21,6 +22,7 @@ use FOS\RestBundle\View\View;
 class AdminFinanceReceivableController extends SalesRestController
 {
     use LeaseTrait;
+
     /**
      * @param Request $request the request object
      *
@@ -31,7 +33,7 @@ class AdminFinanceReceivableController extends SalesRestController
      *
      * @throws \Exception
      */
-    public function ReceivableAction(
+    public function receivableAction(
         Request $request
     ) {
         // check user permission
@@ -122,5 +124,38 @@ class AdminFinanceReceivableController extends SalesRestController
         $em->flush();
 
         return new View();
+    }
+
+    /**
+     * @param Request               $request      the request object
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/finance/receivable")
+     * @Method({"GET"})
+     *
+     * @Annotations\QueryParam(
+     *    name="order_number",
+     *    default=null,
+     *    nullable=false,
+     *    strict=true,
+     *    description="order number"
+     * )
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getReceivableAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $orderNumber = $paramFetcher->get('order_number');
+
+        $receivable = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Finance\FinanceReceivables')
+            ->findOneBy(array('orderNumber' => $orderNumber));
+        $this->throwNotFoundIfNull($receivable, self::NOT_FOUND_MESSAGE);
+
+        return new View($receivable);
     }
 }
