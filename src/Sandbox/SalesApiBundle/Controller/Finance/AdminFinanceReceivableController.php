@@ -154,10 +154,7 @@ class AdminFinanceReceivableController extends SalesRestController
         $receivable = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Finance\FinanceReceivables')
             ->findOneBy(array('orderNumber' => $orderNumber));
-
-        if (!$receivable) {
-            $receivable = array();
-        }
+        $this->throwNotFoundIfNull($receivable, self::NOT_FOUND_MESSAGE);
 
         return new View($receivable);
     }
