@@ -26,7 +26,6 @@ class ReservationRepository extends EntityRepository
      * @param $keyword
      * @param $keywordSearch
      * @param $productIds
-     * @param $buildingName
      * @param $status
      * @param $viewStart
      * @param $viewEnd
@@ -43,7 +42,6 @@ class ReservationRepository extends EntityRepository
         $keyword,
         $keywordSearch,
         $productIds,
-        $buildingName,
         $status,
         $viewStart,
         $viewEnd,
@@ -125,7 +123,7 @@ class ReservationRepository extends EntityRepository
                 ->setParameter('status', $status);
         }
 
-        if(!is_null($buildingName)){
+        if(!empty($productIds)){
             $query->andWhere('re.productId in (:productIds)')
                 ->setParameter('productIds', $productIds);
         }
@@ -142,7 +140,6 @@ class ReservationRepository extends EntityRepository
      * @param $keyword
      * @param $keywordSearch
      * @param $productIds
-     * @param $buildingName
      * @param $status
      * @param $viewStart
      * @param $viewEnd
@@ -157,7 +154,6 @@ class ReservationRepository extends EntityRepository
         $keyword,
         $keywordSearch,
         $productIds,
-        $buildingName,
         $status,
         $viewStart,
         $viewEnd,
@@ -237,7 +233,7 @@ class ReservationRepository extends EntityRepository
                 ->setParameter('status', $status);
         }
 
-        if(!is_null($buildingName)){
+        if(!empty($productIds)){
             $query->andWhere('re.productId in (:productIds)')
                 ->setParameter('productIds', $productIds);
         }

@@ -68,6 +68,11 @@ class SalesCompanyProfiles
     private $invoice;
 
     /**
+     * @var mixed
+     */
+    private $lessor;
+
+    /**
      * Get id.
      *
      * @return int
@@ -219,5 +224,21 @@ class SalesCompanyProfiles
     public function setInvoice($invoice)
     {
         $this->invoice = $invoice;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLessor()
+    {
+        return $this->lessor;
+    }
+
+    /**
+     * @param mixed $lessor
+     */
+    public function setLessor($lessor)
+    {
+        $this->lessor = $lessor;
     }
 }

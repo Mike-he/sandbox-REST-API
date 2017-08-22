@@ -100,8 +100,8 @@ class UserCustomerRepository extends EntityRepository
     public function searchCustomers(
         $salesCompanyId,
         $ids,
-        $userIds,
-        $search
+        $userIds = null,
+        $search = null
     ) {
         $query = $this->createQueryBuilder('c')
             ->select('
@@ -112,8 +112,12 @@ class UserCustomerRepository extends EntityRepository
                     c.name,
                     c.email
                 ')
-            ->where('c.companyId = :company')
-            ->setParameter('company', $salesCompanyId);
+            ->where('1=1');
+
+        if ($salesCompanyId) {
+            $query->andWhere('c.companyId = :company')
+                ->setParameter('company', $salesCompanyId);
+        }
 
         if ($ids && !empty($ids)) {
             $query->andWhere('c.id IN (:ids)')

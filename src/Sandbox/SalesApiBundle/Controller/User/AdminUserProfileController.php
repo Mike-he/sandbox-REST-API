@@ -1,6 +1,6 @@
 <?php
 
-namespace Sandbox\AdminApiBundle\Controller\User;
+namespace Sandbox\SalesApiBundle\Controller\User;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;

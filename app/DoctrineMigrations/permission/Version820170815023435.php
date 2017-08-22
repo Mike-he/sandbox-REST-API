@@ -12,7 +12,7 @@ use Sandbox\ApiBundle\Entity\Admin\AdminPermissionGroupMap;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-class Version920170815023435 extends AbstractMigration implements ContainerAwareInterface
+class Version820170815023435 extends AbstractMigration implements ContainerAwareInterface
 {
     use ContainerAwareTrait;
 
@@ -32,10 +32,10 @@ class Version920170815023435 extends AbstractMigration implements ContainerAware
         $em = $this->container->get('doctrine.orm.entity_manager');
 
         $cashierPermission = new AdminPermission();
-        $cashierPermission->setKey('sales.platform.cashier');
+        $cashierPermission->setKey('sales.building.cashier');
         $cashierPermission->setName('收银台管理');
         $cashierPermission->setPlatform('sales');
-        $cashierPermission->setLevel('global');
+        $cashierPermission->setLevel('specify');
         $cashierPermission->setOpLevelSelect('1,2');
         $cashierPermission->setMaxOpLevel('2');
         $em->persist($cashierPermission);

@@ -58,6 +58,13 @@ class ClientMembershipOrderController extends PaymentController
         $validPeriod = $specification->getValidPeriod();
         $accessNo = $card->getAccessNo();
 
+        //create Customer User
+        $this->get('sandbox_api.sales_customer')
+            ->createCustomer(
+                $userId,
+                $card->getCompanyId()
+            );
+
         // get start date
         $startDate = $this->getLastMembershipOrderEndDate($userId, $card);
 
@@ -122,12 +129,6 @@ class ClientMembershipOrderController extends PaymentController
             );
 
             $em->flush();
-
-            $this->get('sandbox_api.sales_customer')
-                ->createCustomer(
-                    $userId,
-                    $card->getCompanyId()
-                );
 
             // add user to user_group
             $this->addUserToUserGroup(
