@@ -32,21 +32,21 @@ class Version920170705012817 extends AbstractMigration implements ContainerAware
 
         $roomCities = $em->getRepository('SandboxApiBundle:Room\RoomCity')->findBy(array('level' => 4));
 
-        foreach ($roomCities as $city) {
-            $parentCity = $em->getRepository('SandboxApiBundle:Room\RoomCity')->find($city->getParentId());
-
-            $locationString = $parentCity->getName().$city->getName();
-
-            $ch = curl_init("http://api.map.baidu.com/geocoder/v2/?address=$locationString&output=json&ak=79a033f9382689a99c57e1eb846e6f4f");
-            $re = $this->callAPI($ch, 'GET');
-            $reArray = json_decode($re, true);
-
-            $lng = $reArray['result']['location']['lng'];
-            $lat = $reArray['result']['location']['lat'];
-
-            $city->setLng($lng);
-            $city->setLat($lat);
-        }
+//        foreach ($roomCities as $city) {
+//            $parentCity = $em->getRepository('SandboxApiBundle:Room\RoomCity')->find($city->getParentId());
+//
+//            $locationString = $parentCity->getName().$city->getName();
+//
+//            $ch = curl_init("http://api.map.baidu.com/geocoder/v2/?address=$locationString&output=json&ak=79a033f9382689a99c57e1eb846e6f4f");
+//            $re = $this->callAPI($ch, 'GET');
+//            $reArray = json_decode($re, true);
+//
+//            $lng = $reArray['result']['location']['lng'];
+//            $lat = $reArray['result']['location']['lat'];
+//
+//            $city->setLng($lng);
+//            $city->setLat($lat);
+//        }
 
         $em->flush();
     }
