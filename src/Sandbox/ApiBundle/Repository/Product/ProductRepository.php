@@ -2165,6 +2165,7 @@ class ProductRepository extends EntityRepository
                     r.area,
                     r.typeTag as type_tag,
                     r.description as description,
+                    b.id as building_id,
                     b.name as building_name,
                     rc.name as city_name,
                     rm.startHour as start_hour,
