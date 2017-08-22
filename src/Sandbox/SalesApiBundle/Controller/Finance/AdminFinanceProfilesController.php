@@ -7,6 +7,7 @@ use Rs\Json\Patch;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyProfileAccount;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyProfileExpress;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyProfileInvoice;
+use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyProfileLessor;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyProfiles;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesFinanceProfileAccountPatchType;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesFinanceProfileExpressPatchType;
@@ -83,6 +84,12 @@ class AdminFinanceProfilesController extends SalesRestController
         $invoice->setSalesCompanyId($salesCompanyId);
         $em->persist($invoice);
 
+        /** @var SalesCompanyProfileLessor $lessor */
+        $lessor = $profile->getLessor();
+        $lessor->setProfileId($profile->getId());
+        $lessor->setSalesCompanyId($salesCompanyId);
+        $em->persist($lessor);
+
         $em->flush();
 
         return new View(array(
@@ -135,6 +142,13 @@ class AdminFinanceProfilesController extends SalesRestController
                     'profileId' => $profile->getId(),
                 ));
             $profile->setInvoice($invoice);
+
+            $lessor = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfileLessor')
+                ->findOneBy(array(
+                    'profileId' => $profile->getId(),
+                ));
+            $profile->setLessor($lessor);
         }
 
         return new View($profiles);

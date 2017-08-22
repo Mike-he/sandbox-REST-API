@@ -74,16 +74,16 @@ class Version820170721093327 extends AbstractMigration implements ContainerAware
         $em->persist($leaseGroup);
 
         $leaseCluePermission = new AdminPermission();
-        $leaseCluePermission->setKey(AdminPermission::KEY_SALES_BUILDING_LEASE_CLUE);
+        $leaseCluePermission->setKey('sales.building.lease_clue');
         $leaseCluePermission->setName('线索权限');
         $leaseCluePermission->setPlatform('sales');
-        $leaseCluePermission->setLevel('global');
+        $leaseCluePermission->setLevel('specify');
         $leaseCluePermission->setOpLevelSelect('1,2');
         $leaseCluePermission->setMaxOpLevel('2');
         $em->persist($leaseCluePermission);
 
         $leaseOfferPermission = new AdminPermission();
-        $leaseOfferPermission->setKey(AdminPermission::KEY_SALES_BUILDING_LEASE_OFFER);
+        $leaseOfferPermission->setKey('sales.building.lease_offer');
         $leaseOfferPermission->setName('报价权限');
         $leaseOfferPermission->setPlatform('sales');
         $leaseOfferPermission->setLevel('global');
@@ -92,7 +92,7 @@ class Version820170721093327 extends AbstractMigration implements ContainerAware
         $em->persist($leaseOfferPermission);
 
         $leaseBillPermission = new AdminPermission();
-        $leaseBillPermission->setKey(AdminPermission::KEY_SALES_BUILDING_LEASE_BILL);
+        $leaseBillPermission->setKey('sales.building.bill');
         $leaseBillPermission->setName('账单权限');
         $leaseBillPermission->setPlatform('sales');
         $leaseBillPermission->setLevel('global');
@@ -139,10 +139,10 @@ class Version820170721093327 extends AbstractMigration implements ContainerAware
                 'key' => 'sales.building.user',
             ));
         $userPermission->setName('客户权限');
-        $userPermission->setKey(AdminPermission::KEY_SALES_PLATFORM_CUSTOMER);
+        $userPermission->setKey('sales.platform.customer');
 
         $enterpriseCustomerPermission = new AdminPermission();
-        $enterpriseCustomerPermission->setKey(AdminPermission::KEY_SALES_PLATFORM_ENTERPRISE_CUSTOMER);
+        $enterpriseCustomerPermission->setKey('sales.platform.enterprise_customer');
         $enterpriseCustomerPermission->setName('企业账户权限');
         $enterpriseCustomerPermission->setPlatform('sales');
         $enterpriseCustomerPermission->setLevel('global');
@@ -151,7 +151,7 @@ class Version820170721093327 extends AbstractMigration implements ContainerAware
         $em->persist($enterpriseCustomerPermission);
 
         $userGroupPermission = new AdminPermission();
-        $userGroupPermission->setKey(AdminPermission::KEY_SALES_PLATFORM_USER_GROUP);
+        $userGroupPermission->setKey('sales.platform.user_group');
         $userGroupPermission->setName('用户组权限');
         $userGroupPermission->setPlatform('sales');
         $userGroupPermission->setLevel('global');

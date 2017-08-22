@@ -27,7 +27,12 @@ class SalesFinanceProfilesPostType extends AbstractType
             ->add(
                 'invoice',
                 new SalesFinanceProfileInvoicePostType()
-            );
+            )
+            ->add(
+                'lessor',
+                new SalesFinanceProfileLessorPostType()
+            )
+        ;
     }
 
     /**
