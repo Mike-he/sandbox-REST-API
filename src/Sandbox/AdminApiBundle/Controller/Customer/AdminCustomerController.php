@@ -67,4 +67,24 @@ class AdminCustomerController extends AdminRestController
 
         return new View($customers);
     }
+
+    /**
+     * @param Request $request
+     *
+     *
+     * @Route("/customers/enterprise/{id}")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getEnterpriseAction(
+        Request $request,
+        $id
+    ) {
+        $enterprise = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\EnterpriseCustomer')
+            ->find($id);
+
+        return new View($enterprise);
+    }
 }

@@ -3,10 +3,12 @@
 namespace Sandbox\ApiBundle\Form\SalesAdmin;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
-class SalesFinanceProfilesPostType extends AbstractType
+class SalesFinanceProfileLessorPatchType extends AbstractType
 {
     /**
      * @param FormBuilderInterface $builder
@@ -15,24 +17,11 @@ class SalesFinanceProfilesPostType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('cover')
-            ->add(
-                'account',
-                new SalesFinanceProfileAccountPostType()
-            )
-            ->add(
-                'express',
-                new SalesFinanceProfileExpressPostType()
-            )
-            ->add(
-                'invoice',
-                new SalesFinanceProfileInvoicePostType()
-            )
-            ->add(
-                'lessor',
-                new SalesFinanceProfileLessorPostType()
-            )
-        ;
+            ->add('company_name')
+            ->add('address')
+            ->add('contact_name')
+            ->add('phone')
+            ->add('email');
     }
 
     /**
@@ -41,7 +30,7 @@ class SalesFinanceProfilesPostType extends AbstractType
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyProfiles',
+            'data_class' => 'Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyProfileLessor',
         ));
     }
 
