@@ -2,6 +2,7 @@
 
 namespace Sandbox\ClientApiBundle\Form\User;
 
+use Sandbox\ClientApiBundle\Form\ThirdParty\ThirdPartyOAuthLoginWeChatType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
@@ -13,6 +14,7 @@ class UserLoginType extends AbstractType
         $builder
             ->add('client', new UserClientType())
             ->add('device', new UserLoginDeviceType())
+            ->add('wechat', new ThirdPartyOAuthLoginWeChatType())
         ;
     }
 
