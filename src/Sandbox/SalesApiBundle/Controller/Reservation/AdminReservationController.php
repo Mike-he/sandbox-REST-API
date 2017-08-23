@@ -182,6 +182,7 @@ class AdminReservationController extends SalesRestController
             ->getRepository('SandboxApiBundle:Reservation\Reservation')
             ->findBySearch(
                 $salesCompanyId,
+                $buildingId,
                 $keyword,
                 $keywordSearch,
                 $productIds,

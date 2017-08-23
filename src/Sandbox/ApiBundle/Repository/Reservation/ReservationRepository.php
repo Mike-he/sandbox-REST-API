@@ -23,6 +23,7 @@ class ReservationRepository extends EntityRepository
 
     /**
      * @param $salesCompanyId
+     * @param $buildingId
      * @param $keyword
      * @param $keywordSearch
      * @param $productIds
@@ -39,6 +40,7 @@ class ReservationRepository extends EntityRepository
      */
     public function findBySearch(
         $salesCompanyId,
+        $buildingId,
         $keyword,
         $keywordSearch,
         $productIds,
@@ -123,7 +125,7 @@ class ReservationRepository extends EntityRepository
                 ->setParameter('status', $status);
         }
 
-        if(!empty($productIds)){
+        if(!is_null($buildingId)){
             $query->andWhere('re.productId in (:productIds)')
                 ->setParameter('productIds', $productIds);
         }
