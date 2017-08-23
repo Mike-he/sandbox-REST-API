@@ -9,7 +9,6 @@ use Sandbox\ApiBundle\Entity\Error\Error;
 use Sandbox\ApiBundle\Entity\ThirdParty\WeChat;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Form\User\UserCheckType;
-use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
 use Sandbox\ClientApiBundle\Data\User\UserLoginData;
 use Sandbox\ClientApiBundle\Form\User\UserLoginType;
 use Symfony\Component\HttpFoundation\Request;
@@ -104,12 +103,15 @@ class ClientUserLoginController extends UserLoginController
             $weChatData = $form['wechat']->getData();
 
             if (!is_null($weChatData)) {
-                // do oauth with WeChat API with code
-                $weChat = $this->authenticateWithWeChat($weChatData, $user);
-
+                $weChat = $this->getRepo('ThirdParty\WeChat')->findOneByAuthCode($weChatData->getCode());
                 if (is_null($weChat)) {
-                    throw new UnauthorizedHttpException(self::UNAUTHED_API_CALL);
+                    $this->throwNotFoundIfNull($weChat, self::NOT_FOUND_MESSAGE);
                 }
+
+                // do oauth with WeChat api with openId and accessToken
+                $this->throwUnauthorizedIfWeChatAuthFail($weChat);
+
+                $weChat->setUser($user);
             }
         }
 
@@ -289,85 +291,5 @@ class ClientUserLoginController extends UserLoginController
         $auth->setPassword($authArray[1]);
 
         return $auth;
-    }
-
-    /**
-     * @param ThirdPartyOAuthWeChatData $weChatData
-     *
-     * @return WeChat
-     */
-    private function authenticateWithWeChat(
-        $weChatData,
-        $user
-    ) {
-        $code = $weChatData->getCode();
-        $from = $weChatData->isFrom();
-        if (is_null($code) || empty($code)) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
-
-        // set default from type
-        if (is_null($from)) {
-            $from = ThirdPartyOAuthWeChatData::DATA_FROM_APPLICATION;
-        }
-
-        // call WeChat API to get access token
-        $result = $this->getWeChatAuthInfoByCode($code, $from);
-
-        if (!isset($result['unionid'])) {
-            return null;
-        }
-
-        // get WeChat by openId
-        $unionId = $result['unionid'];
-        $weChat = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:ThirdParty\WeChat')
-            ->findOneBy(array(
-                'unionid' => $unionId,
-            ));
-
-        $em = $this->getDoctrine()->getManager();
-        $now = new \DateTime();
-
-        // update existing WeChat
-        if (is_null($weChat)) {
-            $weChat = new WeChat();
-            $weChat->setOpenId($result['openid']);
-            $weChat->setCreationDate($now);
-
-            $em->persist($weChat);
-        }
-
-        $weChat->setAccessToken($result['access_token']);
-        $weChat->setRefreshToken($result['refresh_token']);
-        $weChat->setExpiresIn($result['expires_in']);
-        $weChat->setScope($result['scope']);
-        $weChat->setAuthCode($code);
-        $weChat->setLoginFrom($from);
-        $weChat->setModificationDate($now);
-
-        if (array_key_exists('unionid', $result)) {
-            $unionId = $result['unionid'];
-            $weChat->setUnionId($unionId);
-
-            // bind wechat login with current account
-            if ($user) {
-                $weChat->setUser($user);
-            } else {
-                $currentAccount = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:ThirdParty\WeChat')
-                    ->findOneBy(array(
-                        'unionid' => $unionId,
-                    ));
-
-                if (!is_null($currentAccount)) {
-                    $weChat->setUser($currentAccount->getUser());
-                }
-            }
-        }
-
-        $em->flush();
-
-        return $weChat;
     }
 }
