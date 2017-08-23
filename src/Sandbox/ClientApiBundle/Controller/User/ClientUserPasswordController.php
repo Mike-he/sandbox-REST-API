@@ -526,7 +526,7 @@ class ClientUserPasswordController extends UserPasswordController
                 $password
             );
 
-        if ($result["http_code"] != 204) {
+        if ($result['http_code'] != 204) {
             return $this->customErrorView(
                 400,
                 self::ERROR_JMESSAGE_SYNC_FAIL_CODE,
