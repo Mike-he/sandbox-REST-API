@@ -1988,7 +1988,6 @@ class AdminOrderController extends OrderController
                 );
             }
 
-
             $customer = $em->getRepository('SandboxApiBundle:User\UserCustomer')->find($order->getCustomerId());
             $this->throwNotFoundIfNull($customer, self::NOT_FOUND_MESSAGE);
 
@@ -2151,6 +2150,87 @@ class AdminOrderController extends OrderController
                 $product,
                 $timeUnit
             );
+
+            $orders = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Order\ProductOrder')
+                ->getOfficeRejected(
+                    $productId,
+                    $startDate,
+                    $endDate,
+                    null
+                );
+
+            foreach ($orders as $rejectedOrder) {
+                $status = $rejectedOrder->getStatus();
+                $channel = $rejectedOrder->getPayChannel();
+                $userId = $rejectedOrder->getUserId();
+                $price = $rejectedOrder->getPrice();
+
+                if ($channel == ProductOrder::CHANNEL_OFFLINE && $status == ProductOrder::STATUS_UNPAID) {
+                    $existTransfer = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:Order\OrderOfflineTransfer')
+                        ->findOneByOrderId($rejectedOrder->getId());
+                    $this->throwNotFoundIfNull($existTransfer, self::NOT_FOUND_MESSAGE);
+
+                    $transferStatus = $existTransfer->getTransferStatus();
+                    if ($transferStatus == OrderOfflineTransfer::STATUS_UNPAID) {
+                        $rejectedOrder->setStatus(ProductOrder::STATUS_CANCELLED);
+                        $rejectedOrder->setCancelledDate(new \DateTime());
+                        $rejectedOrder->setModificationDate(new \DateTime());
+                    } else {
+                        $existTransfer->setTransferStatus(OrderOfflineTransfer::STATUS_VERIFY);
+                    }
+                } else {
+                    $rejectedOrder->setStatus(ProductOrder::STATUS_CANCELLED);
+                    $rejectedOrder->setCancelledDate($now);
+                    $rejectedOrder->setModificationDate($now);
+                    $rejectedOrder->setCancelByUser(true);
+
+                    if ($price > 0) {
+                        $rejectedOrder->setNeedToRefund(true);
+
+                        if (ProductOrder::CHANNEL_ACCOUNT == $channel) {
+                            $balance = $this->postBalanceChange(
+                                $userId,
+                                $price,
+                                $rejectedOrder->getOrderNumber(),
+                                self::PAYMENT_CHANNEL_ACCOUNT,
+                                0,
+                                self::ORDER_REFUND
+                            );
+
+                            $rejectedOrder->setRefundProcessed(true);
+                            $rejectedOrder->setRefundProcessedDate($now);
+
+                            if (!is_null($balance)) {
+                                $rejectedOrder->setRefunded(true);
+                                $rejectedOrder->setNeedToRefund(false);
+                            }
+                        }
+                    }
+
+                    $em->flush();
+
+                    $this->generateAdminLogs(array(
+                        'logModule' => Log::MODULE_ROOM_ORDER,
+                        'logAction' => Log::ACTION_REJECT,
+                        'logObjectKey' => Log::OBJECT_ROOM_ORDER,
+                        'logObjectId' => $rejectedOrder->getId(),
+                    ));
+                }
+
+                if (!empty($orders)) {
+                    // send message
+                    $this->sendXmppProductOrderNotification(
+                        null,
+                        null,
+                        ProductOrder::ACTION_REJECTED,
+                        null,
+                        $orders,
+                        ProductOrderMessage::OFFICE_REJECTED_MESSAGE
+                    );
+                }
+            }
 
             $em->flush();
 
