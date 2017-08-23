@@ -2430,6 +2430,7 @@ class ClientOrderController extends OrderController
         Request $request
     ) {
         $userId = $this->getUserId();
+        $startDate = new \DateTime('2017-05-11');
 
         $count = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
@@ -2437,11 +2438,18 @@ class ClientOrderController extends OrderController
 
         $totalPrice = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->sumPendingEvaluationOrder($userId);
+            ->sumPendingEvaluationOrder($userId, $startDate);
+
+        $parameter = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Parameter\Parameter')
+            ->findOneBy(array('key' => Parameter::KEY_BEAN_ORDER_EVALUATION));
+        $value = $parameter->getValue();
+        $number = substr($value, 1);
 
         $data = array(
             'count' => $count,
-            'total_price' => $totalPrice,
+            'total_price' => (float) $totalPrice,
+            'total_bean' => (int) $totalPrice * $number,
         );
 
         return new View($data);

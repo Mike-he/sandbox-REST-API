@@ -4432,13 +4432,16 @@ class OrderRepository extends EntityRepository
     }
 
     public function sumPendingEvaluationOrder(
-        $userId
+        $userId,
+        $startDate
     ) {
         $query = $this->createQueryBuilder('o')
             ->select('SUM(o.discountPrice)')
             ->where('o.status = :completed')
             ->andWhere('o.userId = :userId')
             ->andWhere('o.hasEvaluated = false')
+            ->andWhere('o.endDate >= :startDate')
+            ->setParameter('startDate', $startDate)
             ->setParameter('completed', ProductOrder::STATUS_COMPLETED)
             ->setParameter('userId', $userId);
 
