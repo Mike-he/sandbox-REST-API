@@ -14,7 +14,12 @@ class UserLoginType extends AbstractType
         $builder
             ->add('client', new UserClientType())
             ->add('device', new UserLoginDeviceType())
-            ->add('wechat', new ThirdPartyOAuthLoginWeChatType())
+            ->add('wechat',
+                new ThirdPartyOAuthLoginWeChatType(),
+                array(
+                    'required' => false,
+                )
+            )
         ;
     }
 
