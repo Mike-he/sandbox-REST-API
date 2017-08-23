@@ -53,6 +53,4 @@ class ClientUserLogoutController extends UserLogoutController
 
         return new View();
     }
-
-
 }

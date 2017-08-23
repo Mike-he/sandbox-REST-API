@@ -6,6 +6,7 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Controller\User\UserLoginController;
 use Sandbox\ApiBundle\Entity\Auth\Auth;
 use Sandbox\ApiBundle\Entity\Error\Error;
+use Sandbox\ApiBundle\Entity\ThirdParty\WeChat;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Form\User\UserCheckType;
 use Sandbox\ClientApiBundle\Data\User\UserLoginData;
@@ -18,6 +19,7 @@ use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use JMS\Serializer\SerializationContext;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
+use Sandbox\ApiBundle\Traits\WeChatApi;
 
 /**
  * Login controller.
@@ -31,6 +33,8 @@ use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
  */
 class ClientUserLoginController extends UserLoginController
 {
+    use WeChatApi;
+
     const PREFIX_BASIC_AUTHORIZATION = 'Basic';
     const FRESH_TOKEN_EXPIRE_IN_TIME = '6 month';
 
@@ -94,6 +98,20 @@ class ClientUserLoginController extends UserLoginController
 
             if (!$form->isValid()) {
                 throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            }
+
+            $weChatData = $form['wechat']->getData();
+
+            if (!is_null($weChatData)) {
+                $weChat = $this->getRepo('ThirdParty\WeChat')->findOneByAuthCode($weChatData->getCode());
+                if (is_null($weChat)) {
+                    $this->throwNotFoundIfNull($weChat, self::NOT_FOUND_MESSAGE);
+                }
+
+                // do oauth with WeChat api with openId and accessToken
+                $this->throwUnauthorizedIfWeChatAuthFail($weChat);
+
+                $weChat->setUser($user);
             }
         }
 
