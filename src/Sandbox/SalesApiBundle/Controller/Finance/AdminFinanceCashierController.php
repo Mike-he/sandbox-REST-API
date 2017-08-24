@@ -317,6 +317,7 @@ class AdminFinanceCashierController extends SalesRestController
 
         $data = array(
             'id' => $bill->getId(),
+            'lease_id' => $bill->getLease()->getId(),
             'order_type' => 'bill',
             'serial_number' => $bill->getSerialNumber(),
             'lease_serial_number' => $bill->getLease()->getSerialNumber(),
