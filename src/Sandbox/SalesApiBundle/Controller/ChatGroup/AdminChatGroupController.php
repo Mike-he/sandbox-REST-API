@@ -140,6 +140,15 @@ class AdminChatGroupController extends ChatGroupController
      *    description="search by name, phone and email"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="tag",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="search by tag"
+     * )
+     *
      * @Route("/chatgroups")
      * @Method({"GET"})
      *
@@ -161,6 +170,7 @@ class AdminChatGroupController extends ChatGroupController
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $companyId = $adminPlatform['sales_company_id'];
         $search = $paramFetcher->get('search');
+        $tag = $paramFetcher->get('tag');
 
         // get my chat groups
         $chatGroups = $this->getDoctrine()
@@ -168,7 +178,8 @@ class AdminChatGroupController extends ChatGroupController
             ->getAdminChatGroups(
                 $companyId,
                 $userId,
-                $search
+                $search,
+                $tag
             );
 
         // response
@@ -429,59 +440,5 @@ class AdminChatGroupController extends ChatGroupController
 
         // response
         return new View($myServices);
-    }
-
-    /**
-     * Get History Message.
-     *
-     * @param Request $request the request object
-     *
-     * @Annotations\QueryParam(
-     *    name="fromJID",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    strict=true,
-     *    description=""
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="toJID",
-     *    array=false,
-     *    default=null,
-     *    nullable=false,
-     *    strict=true,
-     *    description=""
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="type",
-     *    array=false,
-     *    default="group",
-     *    nullable=true,
-     *    strict=true,
-     *    description=""
-     * )
-     *
-     * @Route("/chatgroups/service/history/message")
-     * @Method({"GET"})
-     *
-     * @return View
-     */
-    public function getHistoryMessageAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher
-    ) {
-        $fromJID = $paramFetcher->get('fromJID');
-        $toJID = $paramFetcher->get('toJID');
-        $type = $paramFetcher->get('type');
-
-        $fromJID = $fromJID ? '"'.$fromJID.'"' : null;
-        $toJID = '"'.$toJID.'"';
-        $type = '"'.$type.'"';
-
-        $message = $this->getHistoryMessage($fromJID, $toJID, $type);
-
-        return new View($message);
     }
 }
