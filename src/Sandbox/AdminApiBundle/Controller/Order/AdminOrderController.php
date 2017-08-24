@@ -1757,7 +1757,7 @@ class AdminOrderController extends OrderController
             }
 
             $order->setAdminId($adminId);
-            $order->setType(ProductOrder::PREORDER_TYPE);
+            $order->setType(ProductOrder::OFFICIAL_PREORDER_TYPE);
 
             if (0 == $order->getDiscountPrice()) {
                 $order->setStatus(ProductOrder::STATUS_PAID);
@@ -1765,10 +1765,7 @@ class AdminOrderController extends OrderController
             }
 
             // set order drawer
-            $this->setOrderDrawer(
-                $product,
-                $order
-            );
+            $order->setSalesInvoice(false);
 
             $em->persist($order);
 

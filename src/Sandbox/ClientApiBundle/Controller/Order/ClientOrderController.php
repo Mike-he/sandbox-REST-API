@@ -871,10 +871,7 @@ class ClientOrderController extends OrderController
             $order->setType(ProductOrder::OWN_TYPE);
 
             // set order drawer
-            $this->setOrderDrawer(
-                $product,
-                $order
-            );
+            $order->setSalesInvoice(false);
 
             // set service fee
             $company = $product->getRoom()->getBuilding()->getCompany();
