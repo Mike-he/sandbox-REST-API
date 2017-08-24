@@ -2255,9 +2255,10 @@ class AdminOrderController extends OrderController
                             $rejectedOrder->setNeedToRefund(false);
                         }
 
-                        if($status == ProductOrder::STATUS_UNPAID){
-                            $rejectedOrder->setNeedToRefund(false);
-                        }
+                    }
+
+                    if($status == ProductOrder::STATUS_UNPAID){
+                        $rejectedOrder->setNeedToRefund(false);
                     }
                 }
 
