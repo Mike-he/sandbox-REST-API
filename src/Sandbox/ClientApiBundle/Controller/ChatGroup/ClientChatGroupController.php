@@ -72,6 +72,7 @@ class ClientChatGroupController extends ChatGroupController
 
         $chatGroup = new ChatGroup();
         $chatGroup->setCreator($myUser);
+        $chatGroup->setTag(ChatGroup::JMESSAGE_SERVICE);
 
         // add member
         $chatGroupName = $name;

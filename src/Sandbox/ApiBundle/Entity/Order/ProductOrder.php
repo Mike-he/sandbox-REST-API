@@ -59,6 +59,7 @@ class ProductOrder
     const RESERVE_TYPE = 'reserve';
     const PREORDER_TYPE = 'preorder';
     const OWN_TYPE = 'own';
+    const OFFICIAL_PREORDER_TYPE = 'official_preorder';
 
     const PAYMENT_SUBJECT = 'SANDBOX3-预定房间';
     const PAYMENT_BODY = 'ROOM ORDER';

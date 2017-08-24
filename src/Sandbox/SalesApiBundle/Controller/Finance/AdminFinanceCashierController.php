@@ -150,10 +150,18 @@ class AdminFinanceCashierController extends SalesRestController
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
             ->find($salesCompanyId);
 
+        //get my buildings list
+        $myBuildingIds = $this->getMySalesBuildingIds(
+            $this->getAdminId(),
+            array(
+                AdminPermission::KEY_SALES_BUILDING_CASHIER,
+            )
+        );
+
         $orders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->getUnpaidPreOrders(
-                $salesCompanyId,
+                $myBuildingIds,
                 $building,
                 $type,
                 $startDate,
@@ -165,7 +173,7 @@ class AdminFinanceCashierController extends SalesRestController
         $bills = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
             ->getUnpaidBills(
-                $salesCompanyId,
+                $myBuildingIds,
                 $building,
                 $type,
                 $startDate,
@@ -309,6 +317,7 @@ class AdminFinanceCashierController extends SalesRestController
 
         $data = array(
             'id' => $bill->getId(),
+            'lease_id' => $bill->getLease()->getId(),
             'order_type' => 'bill',
             'serial_number' => $bill->getSerialNumber(),
             'lease_serial_number' => $bill->getLease()->getSerialNumber(),

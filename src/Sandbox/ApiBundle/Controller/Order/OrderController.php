@@ -1117,25 +1117,7 @@ class OrderController extends PaymentController
         $product,
         $order
     ) {
-        $type = $product->getRoom()->getType();
-        $salesCompany = $product->getRoom()->getBuilding()->getCompany();
-        $salesCompanyInfo = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
-            ->findOneBy(array(
-                'tradeTypes' => $type,
-                'company' => $salesCompany,
-            ));
-
-        if (is_null($salesCompanyInfo)) {
-            return;
-        }
-
-        $drawer = $salesCompanyInfo->getDrawer();
-        if ($drawer == SalesCompanyServiceInfos::DRAWER_SANDBOX) {
-            return;
-        }
-
-        $order->setSalesInvoice(true);
+        $order->setSalesInvoice(false);
 
         return;
     }

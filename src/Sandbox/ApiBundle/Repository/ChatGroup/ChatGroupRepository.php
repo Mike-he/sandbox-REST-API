@@ -70,13 +70,15 @@ class ChatGroupRepository extends EntityRepository
      * @param int    $companyId
      * @param int    $userId
      * @param string $search
+     * @param string $tag
      *
      * @return array
      */
     public function getAdminChatGroups(
         $companyId,
         $userId,
-        $search
+        $search,
+        $tag
     ) {
         $query = $this->createQueryBuilder('g')
             ->select('
@@ -96,8 +98,14 @@ class ChatGroupRepository extends EntityRepository
             ->andWhere('u.email LIKE :search OR u.phone LIKE :search OR up.name LIKE :search')
             ->setParameter('companyId', $companyId)
             ->setParameter('search', "%$search%")
-            ->setParameter('userId', $userId)
-            ->orderBy('g.creationDate', 'DESC');
+            ->setParameter('userId', $userId);
+
+        if ($tag) {
+            $query = $query->andWhere('g.tag = :tag')
+                ->andWhere('tag', $tag);
+        }
+
+        $query->orderBy('g.creationDate', 'DESC');
 
         return $query->getQuery()->getResult();
     }

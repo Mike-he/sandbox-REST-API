@@ -768,7 +768,7 @@ class OrderRepository extends EntityRepository
     /**
      * get unpaid preorder product orders.
      *
-     * @param $companyId
+     * @param $myBuildingIds
      * @param $buildingId
      * @param $type
      * @param $startDate
@@ -779,27 +779,26 @@ class OrderRepository extends EntityRepository
      * @return array
      */
     public function getUnpaidPreOrders(
-      $companyId,
-      $buildingId,
-      $type,
-      $startDate,
-      $endDate,
-      $keyword,
-      $keywordSearch
+        $myBuildingIds,
+        $buildingId,
+        $type,
+        $startDate,
+        $endDate,
+        $keyword,
+        $keywordSearch
     ) {
         $query = $this->createQueryBuilder('o')
             ->leftJoin('o.product', 'p')
             ->leftJoin('p.room', 'r')
-            ->leftJoin('r.building', 'b')
             ->where('o.status = :status')
             ->andWhere('o.type = :preorder')
-            ->andWhere('b.companyId = :company')
+            ->andWhere('r.buildingId in (:buildings)')
             ->setParameter('status', ProductOrder::STATUS_UNPAID)
             ->setParameter('preorder', ProductOrder::PREORDER_TYPE)
-            ->setParameter('company', $companyId);
+            ->setParameter('buildings', $myBuildingIds);
 
         if ($buildingId) {
-            $query->andWhere('b.id = :building')
+            $query->andWhere('r.buildingId = :building')
                 ->setParameter('building', $buildingId);
         }
 
