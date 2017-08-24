@@ -796,7 +796,7 @@ class LeaseBillRepository extends EntityRepository
     }
 
     /**
-     * @param $companyId
+     * @param $myBuildingIds
      * @param $building
      * @param $type
      * @param $startDate
@@ -807,7 +807,7 @@ class LeaseBillRepository extends EntityRepository
      * @return array
      */
     public function getUnpaidBills(
-        $companyId,
+        $myBuildingIds,
         $building,
         $type,
         $startDate,
@@ -818,9 +818,9 @@ class LeaseBillRepository extends EntityRepository
         $query = $this->createQueryBuilder('lb')
             ->leftJoin('lb.lease', 'l')
             ->where('lb.status = :status')
-            ->andWhere('l.companyId = :companyId')
+            ->andWhere('l.buildingId in (:buildingIds)')
             ->setParameter('status', LeaseBill::STATUS_UNPAID)
-            ->setParameter('companyId', $companyId);
+            ->setParameter('buildingIds', $myBuildingIds);
 
         if ($building) {
             $query->andWhere('l.buildingId = :buildingId')
