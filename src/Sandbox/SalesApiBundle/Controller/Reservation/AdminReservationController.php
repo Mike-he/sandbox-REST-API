@@ -320,9 +320,18 @@ class AdminReservationController extends SalesRestController
             ->getRepository('SandboxApiBundle:Product\ProductRentSet')
             ->findOneBy(array('product' => $productId));
        if(!is_null($rent)){
-           $data['product']['rent_price'] = $rent->getbasePrice();
-           $data['product']['unit_price'] = $rent->getUnitPrice();
+           $data['product']['rent']['rent_price'] = $rent->getbasePrice();
+           $data['product']['rent']['unit_price'] = $rent->getUnitPrice();
        }
+
+        $leasing = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\ProductLeasingSet')
+            ->findOneBy(array('product' => $productId));
+
+        if(!is_null($leasing)){
+            $data['product']['leasing']['base_price'] = $leasing->getbasePrice();
+            $data['product']['leasing']['unit_price'] = $leasing->getUnitPrice();
+        }
 
         return $data;
     }

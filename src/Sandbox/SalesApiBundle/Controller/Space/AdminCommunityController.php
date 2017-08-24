@@ -172,11 +172,6 @@ class AdminCommunityController extends SalesRestController
             )
         );
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
-        $platform = $adminPlatform['platform'];
-
-        if ($platform != AdminPermission::PERMISSION_PLATFORM_SALES) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-        }
 
         $salesCompanyId = $adminPlatform['sales_company_id'];
         $salesCompany = $this->getDoctrine()
@@ -366,6 +361,7 @@ class AdminCommunityController extends SalesRestController
         $myBuildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
             array(
+                AdminPermission::KEY_SALES_PLATFORM_BUILDING,
                 AdminPermission::KEY_SALES_BUILDING_PRODUCT,
                 AdminPermission::KEY_SALES_BUILDING_SPACE,
                 AdminPermission::KEY_SALES_BUILDING_BUILDING,

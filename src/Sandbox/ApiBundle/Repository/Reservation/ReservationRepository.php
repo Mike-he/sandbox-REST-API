@@ -56,6 +56,7 @@ class ReservationRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('re')
             ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'up.userId = re.userId')
+            ->leftJoin('SandboxApiBundle:User\UserProfile', 'upf', 'WITH', 'upf.userId = re.adminId')
            // ->leftJoin('SandboxApiBundle:Product\ProductRentSet','prt','WITH','prt.productId = re.productId')
             ->where('re.companyId = :companyId')
             ->setParameter('companyId', $salesCompanyId)
@@ -76,7 +77,7 @@ class ReservationRepository extends EntityRepository
                     $query->andWhere('re.contectPhone LIKE :search');
                     break;
                 case 'adminName':
-                    $query->andWhere('up.name LIKE :search');
+                    $query->andWhere('upf.name LIKE :search');
                     break;
                 case 'adminPhone':
                     $query->andWhere('up.phone LIKE :search');
@@ -167,6 +168,7 @@ class ReservationRepository extends EntityRepository
         $query = $this->createQueryBuilder('re')
             ->select('COUNT(re)')
             ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'up.userId = re.userId')
+            ->leftJoin('SandboxApiBundle:User\UserProfile', 'upf', 'WITH', 'upf.userId = re.adminId')
             ->where('re.companyId = :companyId')
             ->setParameter('companyId', $salesCompanyId)
         ;
@@ -186,7 +188,7 @@ class ReservationRepository extends EntityRepository
                     $query->andWhere('re.contectPhone LIKE :search');
                     break;
                 case 'adminName':
-                    $query->andWhere('up.name LIKE :search');
+                    $query->andWhere('upf.name LIKE :search');
                     break;
                 case 'adminPhone':
                     $query->andWhere('up.phone LIKE :search');
