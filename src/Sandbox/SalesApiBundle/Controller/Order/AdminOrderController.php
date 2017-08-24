@@ -2234,9 +2234,9 @@ class AdminOrderController extends OrderController
                 $rejectedOrder->setCancelByUser(true);
 
                 if ($price > 0) {
-                    if (ProductOrder::CHANNEL_ACCOUNT == $channel) {
+                    $rejectedOrder->setNeedToRefund(true);
 
-                        $rejectedOrder->setNeedToRefund(true);
+                    if (ProductOrder::CHANNEL_ACCOUNT == $channel) {
 
                         $balance = $this->postBalanceChange(
                             $userId,
@@ -2252,6 +2252,10 @@ class AdminOrderController extends OrderController
 
                         if (!is_null($balance)) {
                             $rejectedOrder->setRefunded(true);
+                            $rejectedOrder->setNeedToRefund(false);
+                        }
+
+                        if($status == ProductOrder::STATUS_UNPAID){
                             $rejectedOrder->setNeedToRefund(false);
                         }
                     }
