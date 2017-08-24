@@ -74,13 +74,13 @@ class ReservationRepository extends EntityRepository
                     $query->andWhere('re.contectName LIKE :search');
                     break;
                 case 'contectPhone':
-                    $query->andWhere('re.contectPhone LIKE :search');
+                    $query->andWhere('re.phone LIKE :search');
                     break;
                 case 'adminName':
                     $query->andWhere('upf.name LIKE :search');
                     break;
                 case 'adminPhone':
-                    $query->andWhere('up.phone LIKE :search');
+                    $query->andWhere('upf.phone LIKE :search');
                     break;
                 default:
                     break;
@@ -185,13 +185,13 @@ class ReservationRepository extends EntityRepository
                     $query->andWhere('re.contectName LIKE :search');
                     break;
                 case 'contectPhone':
-                    $query->andWhere('re.contectPhone LIKE :search');
+                    $query->andWhere('re.phone LIKE :search');
                     break;
                 case 'adminName':
                     $query->andWhere('upf.name LIKE :search');
                     break;
                 case 'adminPhone':
-                    $query->andWhere('up.phone LIKE :search');
+                    $query->andWhere('upf.phone LIKE :search');
                     break;
                 default:
                     break;
