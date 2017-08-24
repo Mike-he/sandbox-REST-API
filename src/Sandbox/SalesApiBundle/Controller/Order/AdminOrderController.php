@@ -2234,9 +2234,10 @@ class AdminOrderController extends OrderController
                 $rejectedOrder->setCancelByUser(true);
 
                 if ($price > 0) {
-                    $rejectedOrder->setNeedToRefund(true);
-
                     if (ProductOrder::CHANNEL_ACCOUNT == $channel) {
+
+                        $rejectedOrder->setNeedToRefund(true);
+
                         $balance = $this->postBalanceChange(
                             $userId,
                             $price,
@@ -2266,17 +2267,18 @@ class AdminOrderController extends OrderController
                 ));
             }
 
-            if (!empty($orders)) {
-                // send message
-                $this->sendXmppProductOrderNotification(
-                    null,
-                    null,
-                    ProductOrder::ACTION_REJECTED,
-                    null,
-                    $orders,
-                    ProductOrderMessage::OFFICE_REJECTED_MESSAGE
-                );
-            }
+        }
+
+        if (!empty($orders)) {
+            // send message
+            $this->sendXmppProductOrderNotification(
+                null,
+                null,
+                ProductOrder::ACTION_REJECTED,
+                null,
+                $orders,
+                ProductOrderMessage::OFFICE_REJECTED_MESSAGE
+            );
         }
     }
 }
