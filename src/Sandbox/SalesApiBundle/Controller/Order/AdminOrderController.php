@@ -2211,7 +2211,7 @@ class AdminOrderController extends OrderController
             $status = $rejectedOrder->getStatus();
             $channel = $rejectedOrder->getPayChannel();
             $userId = $rejectedOrder->getUserId();
-            $price = $rejectedOrder->getPrice();
+            $price = $rejectedOrder->getDiscountPrice();
 
             if ($channel == ProductOrder::CHANNEL_OFFLINE && $status == ProductOrder::STATUS_UNPAID) {
                 $existTransfer = $this->getDoctrine()
@@ -2278,6 +2278,5 @@ class AdminOrderController extends OrderController
                 );
             }
         }
-
     }
 }
