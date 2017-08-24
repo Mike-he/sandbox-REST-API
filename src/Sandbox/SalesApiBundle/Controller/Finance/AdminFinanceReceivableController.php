@@ -135,8 +135,9 @@ class AdminFinanceReceivableController extends SalesRestController
      *
      * @Annotations\QueryParam(
      *    name="order_number",
+     *    array=true,
      *    default=null,
-     *    nullable=false,
+     *    nullable=true,
      *    strict=true,
      *    description="order number"
      * )
@@ -153,8 +154,7 @@ class AdminFinanceReceivableController extends SalesRestController
 
         $receivable = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Finance\FinanceReceivables')
-            ->findOneBy(array('orderNumber' => $orderNumber));
-        $this->throwNotFoundIfNull($receivable, self::NOT_FOUND_MESSAGE);
+            ->findBy(array('orderNumber' => $orderNumber));
 
         return new View($receivable);
     }
