@@ -29,7 +29,7 @@ class Version920170824173219 extends AbstractMigration implements ContainerAware
         $em = $this->container->get('doctrine.orm.entity_manager');
 
         $beanFlow = $em->getRepository('SandboxApiBundle:User\UserBeanFlow')
-            ->findOneBy(array(),array('id'=>'DESC'));
+            ->findOneBy(array(), array('id' => 'DESC'));
 
         $total = $em->getRepository('SandboxApiBundle:User\User')->countTotalUsers();
 
