@@ -2082,6 +2082,15 @@ class AdminOrderController extends OrderController
                 $timeUnit
             );
 
+            $orders = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Order\ProductOrder')
+                ->getOfficeRejected(
+                    $productId,
+                    $startDate,
+                    $endDate
+                );
+            $this->rejectOrdersAction($orders,$now,$em);
+
             $em->flush();
 
             // set door access
@@ -2098,15 +2107,6 @@ class AdminOrderController extends OrderController
                 [$order],
                 ProductOrderMessage::ORDER_PREORDER_MESSAGE
             );
-
-            $orders = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Order\ProductOrder')
-                ->getOfficeRejected(
-                    $productId,
-                    $startDate,
-                    $endDate
-                );
-            $this->rejectOrdersAction($orders,$now,$em);
 
             $this->generateAdminLogs(array(
                 'logModule' => Log::MODULE_ORDER_PREORDER,
@@ -2262,28 +2262,27 @@ class AdminOrderController extends OrderController
                     }
                 }
 
-                $em->flush();
+//                $this->generateAdminLogs(array(
+//                    'logModule' => Log::MODULE_ROOM_ORDER,
+//                    'logAction' => Log::ACTION_REJECT,
+//                    'logObjectKey' => Log::OBJECT_ROOM_ORDER,
+//                    'logObjectId' => $rejectedOrder->getId(),
+//                ));
+            }
+            $em->flush();
 
-                $this->generateAdminLogs(array(
-                    'logModule' => Log::MODULE_ROOM_ORDER,
-                    'logAction' => Log::ACTION_REJECT,
-                    'logObjectKey' => Log::OBJECT_ROOM_ORDER,
-                    'logObjectId' => $rejectedOrder->getId(),
-                ));
+            if (!empty($orders)) {
+                // send message
+                $this->sendXmppProductOrderNotification(
+                    null,
+                    null,
+                    ProductOrder::ACTION_REJECTED,
+                    null,
+                    $orders,
+                    ProductOrderMessage::OFFICE_REJECTED_MESSAGE
+                );
             }
 
-        }
-
-        if (!empty($orders)) {
-            // send message
-            $this->sendXmppProductOrderNotification(
-                null,
-                null,
-                ProductOrder::ACTION_REJECTED,
-                null,
-                $orders,
-                ProductOrderMessage::OFFICE_REJECTED_MESSAGE
-            );
         }
     }
 }
