@@ -67,4 +67,76 @@ class UserBeanFlowRepository extends EntityRepository
 
         return $result;
     }
+
+    public function getFlows(
+        $startDate,
+        $endDate,
+        $userId,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('ubf')
+            ->where('1=1');
+
+        if ($startDate) {
+            $startDate = new \DateTime($startDate);
+            $query->andWhere('ubf.creationDate >= :startDate')
+                ->setParameter('startDate', $startDate);
+        }
+
+        if ($endDate) {
+            $endDate = new \DateTime($endDate);
+            $endDate->setTime(23, 59, 59);
+
+            $query->andWhere('ubf.creationDate <= :endDate')
+                ->setParameter('endDate', $endDate);
+        }
+
+        if ($userId) {
+            $query->andWhere('ubf.userId = :userId')
+                ->setParameter('userId', $userId);
+        }
+
+        $query->orderBy('ubf.creationDate', 'DESC');
+
+        $query->setMaxResults($limit)
+            ->setFirstResult($offset);
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
+
+    public function countFlows(
+        $startDate,
+        $endDate,
+        $userId
+    ) {
+        $query = $this->createQueryBuilder('ubf')
+            ->select('count(ubf.id)')
+            ->where('1=1');
+
+        if ($startDate) {
+            $startDate = new \DateTime($startDate);
+            $query->andWhere('ubf.creationDate >= :startDate')
+                ->setParameter('startDate', $startDate);
+        }
+
+        if ($endDate) {
+            $endDate = new \DateTime($endDate);
+            $endDate->setTime(23, 59, 59);
+
+            $query->andWhere('ubf.creationDate <= :endDate')
+                ->setParameter('endDate', $endDate);
+        }
+
+        if ($userId) {
+            $query->andWhere('ubf.userId = :userId')
+                ->setParameter('userId', $userId);
+        }
+
+        $result = $query->getQuery()->getSingleScalarResult();
+
+        return $result;
+    }
 }
