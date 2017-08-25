@@ -66,7 +66,7 @@ class Version920170825101200 extends AbstractMigration implements ContainerAware
                     'column' => 'status',
                     'name' => '状态',
                     'default' => true,
-                    'required' => true
+                    'required' => true,
                 ),
                 array(
                     'column' => 'payment_user_id',
@@ -109,7 +109,7 @@ class Version920170825101200 extends AbstractMigration implements ContainerAware
                     'name' => '空间类型',
                     'default' => true,
                     'required' => true,
-                )
+                ),
             );
 
         $eventOrderColumns =
@@ -148,13 +148,13 @@ class Version920170825101200 extends AbstractMigration implements ContainerAware
                     'column' => 'user_id',
                     'name' => '购买者',
                     'default' => true,
-                    'required' => false
+                    'required' => false,
                 ),
                 array(
                     'column' => 'creation_date',
                     'name' => '下单时间',
                     'default' => false,
-                    'required' => false
+                    'required' => false,
                 ),
                 array(
                     'column' => 'publish_company',
@@ -179,7 +179,7 @@ class Version920170825101200 extends AbstractMigration implements ContainerAware
                     'name' => '活动描述',
                     'default' => false,
                     'required' => false,
-                )
+                ),
             );
 
         $membershipOrderColumns =
@@ -218,13 +218,13 @@ class Version920170825101200 extends AbstractMigration implements ContainerAware
                     'column' => 'user_id',
                     'name' => '购买者',
                     'default' => true,
-                    'required' => false
+                    'required' => false,
                 ),
                 array(
                     'column' => 'creation_date',
                     'name' => '下单时间',
                     'default' => false,
-                    'required' => false
+                    'required' => false,
                 ),
                 array(
                     'column' => 'pay_channel',
@@ -243,7 +243,7 @@ class Version920170825101200 extends AbstractMigration implements ContainerAware
                     'name' => '会员卡规格',
                     'default' => false,
                     'required' => false,
-                )
+                ),
             );
 
         foreach ($productOrderColumns as $productOrderColumn) {

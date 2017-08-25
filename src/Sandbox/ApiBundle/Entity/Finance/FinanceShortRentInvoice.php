@@ -17,6 +17,8 @@ class FinanceShortRentInvoice
     const STATUS_PENDING = 'pending';
     const STATUS_INCOMPLETE = 'incomplete';
     const STATUS_COMPLETED = 'completed';
+    const DETAIL_APPLICATION = 'application';
+    const DETAIL_SERVICE_FEE = 'serviceFee';
 
     /**
      * @var int
@@ -64,6 +66,13 @@ class FinanceShortRentInvoice
      * @ORM\Column(name="companyId", type="integer")
      */
     private $companyId;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="detail", type="string")
+     */
+    private $detail;
 
     /**
      * Get id.
@@ -193,5 +202,29 @@ class FinanceShortRentInvoice
     public function getCompanyId()
     {
         return $this->companyId;
+    }
+
+    /**
+     * Set detail.
+     *
+     * @param string $detail
+     *
+     * @return FinanceShortRentInvoice
+     */
+    public function setDetail($detail)
+    {
+        $this->status = $detail;
+
+        return $this;
+    }
+
+    /**
+     * Get detail.
+     *
+     * @return string
+     */
+    public function getDetail()
+    {
+        return $this->detail;
     }
 }
