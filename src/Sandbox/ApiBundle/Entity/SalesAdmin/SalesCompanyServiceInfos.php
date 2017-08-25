@@ -53,9 +53,7 @@ class SalesCompanyServiceInfos
     /**
      * @var float
      *
-     * @Assert\NotNull()
-     *
-     * @ORM\Column(name="service_fee", type="float", precision=6, scale=3)
+     * @ORM\Column(name="service_fee", type="float", precision=6, scale=3, nullable=true)
      * @Serializer\Groups({"main", "admin_view"})
      */
     private $serviceFee;
@@ -71,10 +69,10 @@ class SalesCompanyServiceInfos
     /**
      * @var string
      *
-     * @ORM\Column(name="drawer", type="string", length=30)
+     * @ORM\Column(name="drawer", type="string", length=30, nullable=true)
      * @Serializer\Groups({"main", "admin_view"})
      */
-    private $drawer = self::DRAWER_SANDBOX;
+    private $drawer;
 
     /**
      * @var string

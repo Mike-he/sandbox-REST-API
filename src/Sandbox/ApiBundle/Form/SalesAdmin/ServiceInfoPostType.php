@@ -18,7 +18,6 @@ class ServiceInfoPostType extends AbstractType
             ->add('trade_types')
             ->add('service_fee')
             ->add('collection_method')
-            ->add('drawer')
             ->add('invoicing_subjects')
             ->add('status');
     }

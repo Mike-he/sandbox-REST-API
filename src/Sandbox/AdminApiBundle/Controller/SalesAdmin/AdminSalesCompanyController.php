@@ -1088,6 +1088,11 @@ class AdminSalesCompanyController extends SandboxRestController
                 throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_SERVICE_INFO_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE);
             }
 
+            if($serviceInfo['trade_types'] == SalesCompanyServiceInfos::TRADE_TYPE_LONGTERM)
+            {
+                $service->setCollectionMethod("");
+            }
+
             $service->setCompany($salesCompany);
 
             $em->persist($service);
