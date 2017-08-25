@@ -246,7 +246,6 @@ class Version920170825101200 extends AbstractMigration implements ContainerAware
                 )
             );
 
-
         foreach ($productOrderColumns as $productOrderColumn) {
             $list = new GenericList();
             $list->setColumn($productOrderColumn['column']);
