@@ -51,7 +51,7 @@ class Version920170825115320 extends AbstractMigration implements ContainerAware
                     'required' => false,
                 ),
                 array(
-                    'column' => 'price',
+                    'column' => 'discountPrice',
                     'name' => '实付款',
                     'default' => true,
                     'required' => true,
