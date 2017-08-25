@@ -115,7 +115,7 @@ class Version920170809167890 extends AbstractMigration implements ContainerAware
                     'name' => '抢单时间',
                     'default' => true,
                     'required' => false,
-                )
+                ),
             );
 
         foreach ($cashierColumns as $cashierColumn) {

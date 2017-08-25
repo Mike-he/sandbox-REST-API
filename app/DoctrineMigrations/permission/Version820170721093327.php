@@ -23,7 +23,6 @@ class Version820170721093327 extends AbstractMigration implements ContainerAware
     public function up(Schema $schema)
     {
         // this up() migration is auto-generated, please modify it to your needs
-
     }
 
     public function postUp(Schema $schema)
@@ -48,7 +47,7 @@ class Version820170721093327 extends AbstractMigration implements ContainerAware
                 'key' => AdminPermission::KEY_SALES_BUILDING_LONG_TERM_APPOINTMENT,
             ));
 
-        $map1= $em->getRepository('SandboxApiBundle:Admin\AdminPermissionGroupMap')
+        $map1 = $em->getRepository('SandboxApiBundle:Admin\AdminPermissionGroupMap')
             ->findOneBy(array(
                 'permission' => $leasePermission,
                 'group' => $tradeGroup,
@@ -192,6 +191,5 @@ class Version820170721093327 extends AbstractMigration implements ContainerAware
     public function down(Schema $schema)
     {
         // this down() migration is auto-generated, please modify it to your needs
-
     }
 }
