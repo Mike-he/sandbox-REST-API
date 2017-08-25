@@ -198,6 +198,7 @@ security:
 
     access_control:
         - { path: ^/sales/admin/lease/export, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET]}
+        - { path: ^/admin/user/bean/flows/export, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET]}
         - { path: ^/admin/leases/export_to_pdf, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET]}
         - { path: ^/sales/admin/pdf, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET]}
         - { path: ^/client/evaluations/check_my$, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }

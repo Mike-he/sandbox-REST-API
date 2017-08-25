@@ -19,7 +19,6 @@ class Version20170825093115 extends AbstractMigration
         $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
         $this->addSql('ALTER TABLE sales_company_service_infos CHANGE service_fee service_fee DOUBLE PRECISION DEFAULT NULL, CHANGE drawer drawer VARCHAR(30) DEFAULT NULL');
-        $this->addSql('ALTER TABLE user_bean_flows DROP total');
     }
 
     /**
@@ -31,6 +30,5 @@ class Version20170825093115 extends AbstractMigration
         $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
         $this->addSql('ALTER TABLE sales_company_service_infos CHANGE service_fee service_fee DOUBLE PRECISION NOT NULL, CHANGE drawer drawer VARCHAR(30) NOT NULL');
-        $this->addSql('ALTER TABLE user_bean_flows ADD total DOUBLE PRECISION NOT NULL');
     }
 }
