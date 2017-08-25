@@ -223,6 +223,7 @@ class UserRepository extends EntityRepository
         $query = $this->createQueryBuilder('u')
             ->select('
                 u.id,
+                u.xmppUsername as xmpp_username,
                 u.phone,
                 u.email,
                 u.banned,
