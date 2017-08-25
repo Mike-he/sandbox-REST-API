@@ -70,9 +70,19 @@ class FinanceShortRentInvoice
     /**
      * @var string
      *
-     * @ORM\Column(name="detail", type="string")
+     * @ORM\Column(name="invoice_no", type="string", length=255, nullable=true)
+     * @Serializer\Groups({"main", "sales_admin_detail"})
      */
-    private $detail;
+    private $invoiceNo;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="confirm_date", type="datetime", nullable=true)
+     * @Serializer\Groups({"main", "sales_admin_detail"})
+     */
+    private $confirmDate;
+
 
     /**
      * Get id.
@@ -205,26 +215,34 @@ class FinanceShortRentInvoice
     }
 
     /**
-     * Set detail.
-     *
-     * @param string $detail
-     *
-     * @return FinanceShortRentInvoice
+     * @return string
      */
-    public function setDetail($detail)
+    public function getInvoiceNo()
     {
-        $this->status = $detail;
-
-        return $this;
+        return $this->invoiceNo;
     }
 
     /**
-     * Get detail.
-     *
-     * @return string
+     * @param string $invoiceNo
      */
-    public function getDetail()
+    public function setInvoiceNo($invoiceNo)
     {
-        return $this->detail;
+        $this->invoiceNo = $invoiceNo;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getConfirmDate()
+    {
+        return $this->confirmDate;
+    }
+
+    /**
+     * @param \DateTime $confirmDate
+     */
+    public function setConfirmDate($confirmDate)
+    {
+        $this->confirmDate = $confirmDate;
     }
 }

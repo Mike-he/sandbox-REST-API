@@ -93,7 +93,7 @@ class ChatGroupController extends SandboxRestController
     ) {
         try {
             $chatRoomId = $chatGroup->getId();
-            $chatRoomName = $chatGroup->getName();
+            $chatRoomName = $chatGroup->getName().'@'.$chatGroup->getTag();
             $chatRoomDesc = $chatRoomName.'('.$chatRoomId.')';
             $ownerName = $chatGroup->getCreator()->getXmppUsername();
             $members = $this->getRepo('ChatGroup\ChatGroupMember')->findByChatGroup($chatGroup);

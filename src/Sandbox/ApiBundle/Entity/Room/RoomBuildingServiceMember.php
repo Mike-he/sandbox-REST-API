@@ -55,7 +55,7 @@ class RoomBuildingServiceMember
      *
      * @Serializer\Groups({"main", "admin_building"})
      */
-    private $tag = ChatGroup::XMPP_CUSTOMER_SERVICE;
+    private $tag = ChatGroup::CUSTOMER_SERVICE;
 
     /**
      * @return int
