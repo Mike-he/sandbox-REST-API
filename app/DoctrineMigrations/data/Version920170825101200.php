@@ -30,10 +30,10 @@ class Version920170825101200 extends AbstractMigration implements ContainerAware
 
         $em = $this->container->get('doctrine.orm.entity_manager');
 
-        $cashierColumns =
+        $productOrderColumns =
             array(
                 array(
-                    'column' => 'orderNumber',
+                    'column' => 'order_number',
                     'name' => '订单',
                     'default' => true,
                     'required' => true,
@@ -45,7 +45,7 @@ class Version920170825101200 extends AbstractMigration implements ContainerAware
                     'required' => false,
                 ),
                 array(
-                    'column' => 'rentPeriod',
+                    'column' => 'rent_period',
                     'name' => '租赁时间段',
                     'default' => true,
                     'required' => false,
@@ -57,7 +57,7 @@ class Version920170825101200 extends AbstractMigration implements ContainerAware
                     'required' => false,
                 ),
                 array(
-                    'column' => 'discountPrice',
+                    'column' => 'discount_price',
                     'name' => '订单原价',
                     'default' => true,
                     'required' => true,
@@ -75,7 +75,7 @@ class Version920170825101200 extends AbstractMigration implements ContainerAware
                     'required' => false,
                 ),
                 array(
-                    'column' => 'creationDate',
+                    'column' => 'creation_date',
                     'name' => '下单时间',
                     'default' => false,
                     'required' => false,
@@ -105,20 +105,179 @@ class Version920170825101200 extends AbstractMigration implements ContainerAware
                     'required' => false,
                 ),
                 array(
-                    'column' => 'roomType',
+                    'column' => 'room_type',
                     'name' => '空间类型',
                     'default' => true,
                     'required' => true,
                 )
             );
 
-        foreach ($cashierColumns as $cashierColumn) {
+        $eventOrderColumns =
+            array(
+                array(
+                    'column' => 'order_number',
+                    'name' => '订单',
+                    'default' => true,
+                    'required' => true,
+                ),
+                array(
+                    'column' => 'address',
+                    'name' => '活动地点',
+                    'default' => true,
+                    'required' => false,
+                ),
+                array(
+                    'column' => 'event_start_date',
+                    'name' => '活动时间',
+                    'default' => true,
+                    'required' => false,
+                ),
+                array(
+                    'column' => 'price',
+                    'name' => '实付款',
+                    'default' => true,
+                    'required' => true,
+                ),
+                array(
+                    'column' => 'status',
+                    'name' => '状态',
+                    'default' => true,
+                    'required' => true,
+                ),
+                array(
+                    'column' => 'user_id',
+                    'name' => '购买者',
+                    'default' => true,
+                    'required' => false
+                ),
+                array(
+                    'column' => 'creation_date',
+                    'name' => '下单时间',
+                    'default' => false,
+                    'required' => false
+                ),
+                array(
+                    'column' => 'publish_company',
+                    'name' => '发起公司',
+                    'default' => false,
+                    'required' => false,
+                ),
+                array(
+                    'column' => 'name',
+                    'name' => '活动名',
+                    'default' => true,
+                    'required' => true,
+                ),
+                array(
+                    'column' => 'pay_channel',
+                    'name' => '支付渠道',
+                    'default' => false,
+                    'required' => false,
+                ),
+                array(
+                    'column' => 'description',
+                    'name' => '活动描述',
+                    'default' => false,
+                    'required' => false,
+                )
+            );
+
+        $membershipOrderColumns =
+            array(
+                array(
+                    'column' => 'order_number',
+                    'name' => '订单',
+                    'default' => true,
+                    'required' => true,
+                ),
+                array(
+                    'column' => 'price',
+                    'name' => '单价',
+                    'default' => false,
+                    'required' => false,
+                ),
+                array(
+                    'column' => 'valid_period',
+                    'name' => '有效期',
+                    'default' => true,
+                    'required' => false,
+                ),
+                array(
+                    'column' => 'discount_price',
+                    'name' => '实付款',
+                    'default' => true,
+                    'required' => true,
+                ),
+                array(
+                    'column' => 'status',
+                    'name' => '状态',
+                    'default' => true,
+                    'required' => true,
+                ),
+                array(
+                    'column' => 'user_id',
+                    'name' => '购买者',
+                    'default' => true,
+                    'required' => false
+                ),
+                array(
+                    'column' => 'creation_date',
+                    'name' => '下单时间',
+                    'default' => false,
+                    'required' => false
+                ),
+                array(
+                    'column' => 'pay_channel',
+                    'name' => '支付渠道',
+                    'default' => false,
+                    'required' => false,
+                ),
+                array(
+                    'column' => 'name',
+                    'name' => '会员卡名',
+                    'default' => true,
+                    'required' => true,
+                ),
+                array(
+                    'column' => 'specification',
+                    'name' => '会员卡规格',
+                    'default' => false,
+                    'required' => false,
+                )
+            );
+
+
+        foreach ($productOrderColumns as $productOrderColumn) {
             $list = new GenericList();
-            $list->setColumn($cashierColumn['column']);
-            $list->setName($cashierColumn['name']);
-            $list->setDefault($cashierColumn['default']);
-            $list->setRequired($cashierColumn['required']);
-            $list->setObject(GenericList::OBJECT_RESERVATION);
+            $list->setColumn($productOrderColumn['column']);
+            $list->setName($productOrderColumn['name']);
+            $list->setDefault($productOrderColumn['default']);
+            $list->setRequired($productOrderColumn['required']);
+            $list->setObject(GenericList::OBJECT_PRODUCT_ORDER);
+            $list->setPlatform(GenericList::OBJECT_PLATFORM_SALES);
+
+            $em->persist($list);
+        }
+
+        foreach ($eventOrderColumns as $eventOrderColumn) {
+            $list = new GenericList();
+            $list->setColumn($eventOrderColumn['column']);
+            $list->setName($eventOrderColumn['name']);
+            $list->setDefault($eventOrderColumn['default']);
+            $list->setRequired($eventOrderColumn['required']);
+            $list->setObject(GenericList::OBJECT_EVENT_ORDER);
+            $list->setPlatform(GenericList::OBJECT_PLATFORM_SALES);
+
+            $em->persist($list);
+        }
+
+        foreach ($membershipOrderColumns as $membershipOrderColumn) {
+            $list = new GenericList();
+            $list->setColumn($membershipOrderColumn['column']);
+            $list->setName($membershipOrderColumn['name']);
+            $list->setDefault($membershipOrderColumn['default']);
+            $list->setRequired($membershipOrderColumn['required']);
+            $list->setObject(GenericList::OBJECT_MEMBERSHIP_ORDER);
             $list->setPlatform(GenericList::OBJECT_PLATFORM_SALES);
 
             $em->persist($list);
