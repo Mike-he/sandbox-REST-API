@@ -66,6 +66,22 @@ class FinanceShortRentInvoice
     private $companyId;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="invoice_no", type="string", length=255, nullable=true)
+     * @Serializer\Groups({"main", "sales_admin_detail"})
+     */
+    private $invoiceNo;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="confirm_date", type="datetime", nullable=true)
+     * @Serializer\Groups({"main", "sales_admin_detail"})
+     */
+    private $confirmDate;
+
+    /**
      * Get id.
      *
      * @return int
@@ -193,5 +209,37 @@ class FinanceShortRentInvoice
     public function getCompanyId()
     {
         return $this->companyId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getInvoiceNo()
+    {
+        return $this->invoiceNo;
+    }
+
+    /**
+     * @param string $invoiceNo
+     */
+    public function setInvoiceNo($invoiceNo)
+    {
+        $this->invoiceNo = $invoiceNo;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getConfirmDate()
+    {
+        return $this->confirmDate;
+    }
+
+    /**
+     * @param \DateTime $confirmDate
+     */
+    public function setConfirmDate($confirmDate)
+    {
+        $this->confirmDate = $confirmDate;
     }
 }
