@@ -4,7 +4,7 @@ namespace Sandbox\AdminApiBundle\Controller\User;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
-use Knp\Component\Pager\Paginator;
+use Sandbox\ApiBundle\Constants\BeanConstants;
 use Sandbox\ApiBundle\Controller\User\UserProfileController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Symfony\Component\HttpFoundation\Request;
@@ -46,6 +46,26 @@ class AdminUserBeanController extends UserProfileController
      *    description="userId"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="start_date",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="start date. Must be YYYY-mm-dd"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="end_date",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="end date. Must be YYYY-mm-dd"
+     * )
+     *
      * @Route("/user/bean/flows")
      * @Method({"GET"})
      *
@@ -59,25 +79,50 @@ class AdminUserBeanController extends UserProfileController
         $this->checkAdminUserPermission(AdminPermission::OP_LEVEL_VIEW);
 
         $userId = $paramFetcher->get('user');
+        $startDate = $paramFetcher->get('start_date');
+        $endDate = $paramFetcher->get('end_date');
 
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
 
+        $limit = $pageLimit;
+        $offset = ($pageIndex - 1) * $pageLimit;
+
         $flows = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserBeanFlow')
-            ->findBy(
-                array('userId' => $userId),
-                array('creationDate' => 'DESC')
+            ->getFlows(
+                $startDate,
+                $endDate,
+                $userId,
+                $limit,
+                $offset
             );
 
-        $paginator = new Paginator();
-        $pagination = $paginator->paginate(
-            $flows,
-            $pageIndex,
-            $pageLimit
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserBeanFlow')
+            ->countFlows(
+                $startDate,
+                $endDate,
+                $userId
+            );
+
+//        foreach ($flows as $flow) {
+//            $source = $this->get('translator')->trans(BeanConstants::TRANS_USER_BEAN.$flow->getSource());
+//
+//            $flow->setSource($source);
+//        }
+
+        $view = new View();
+        $view->setData(
+            array(
+                'current_page_number' => $pageIndex,
+                'num_items_per_page' => (int) $pageLimit,
+                'items' => $flows,
+                'total_count' => (int) $count,
+            )
         );
 
-        return new View($pagination);
+        return $view;
     }
 
     /**
