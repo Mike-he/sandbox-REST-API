@@ -11,7 +11,7 @@ use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-class Version920170825101200 extends AbstractMigration implements ContainerAwareInterface
+class Version920170825115320 extends AbstractMigration implements ContainerAwareInterface
 {
     use ContainerAwareTrait;
 
@@ -33,32 +33,26 @@ class Version920170825101200 extends AbstractMigration implements ContainerAware
         $cashierColumns =
             array(
                 array(
-                    'column' => 'orderNumber',
+                    'column' => 'order_number',
                     'name' => '订单',
                     'default' => true,
                     'required' => true,
                 ),
                 array(
-                    'column' => 'base_price',
+                    'column' => 'price',
                     'name' => '单价',
                     'default' => false,
                     'required' => false,
                 ),
                 array(
-                    'column' => 'rentPeriod',
-                    'name' => '租赁时间段',
+                    'column' => 'valid_period',
+                    'name' => '有效期',
                     'default' => true,
                     'required' => false,
                 ),
                 array(
                     'column' => 'price',
-                    'name' => '订单/账单原价',
-                    'default' => true,
-                    'required' => false,
-                ),
-                array(
-                    'column' => 'discountPrice',
-                    'name' => '订单原价',
+                    'name' => '实付款',
                     'default' => true,
                     'required' => true,
                 ),
@@ -66,49 +60,37 @@ class Version920170825101200 extends AbstractMigration implements ContainerAware
                     'column' => 'status',
                     'name' => '状态',
                     'default' => true,
-                    'required' => true
+                    'required' => true,
                 ),
                 array(
-                    'column' => 'payment_user_id',
-                    'name' => '付款人',
+                    'column' => 'user_id',
+                    'name' => '购买者',
                     'default' => true,
-                    'required' => false,
+                    'required' => false
                 ),
                 array(
                     'column' => 'creationDate',
                     'name' => '下单时间',
                     'default' => false,
-                    'required' => false,
+                    'required' => false
                 ),
                 array(
-                    'column' => 'invoice',
-                    'name' => '是否包含发票',
+                    'column' => 'pay_channel',
+                    'name' => '支付渠道',
                     'default' => false,
                     'required' => false,
                 ),
                 array(
-                    'column' => 'invoiced',
-                    'name' => '开票状态',
-                    'default' => true,
-                    'required' => false,
-                ),
-                array(
-                    'column' => 'type',
-                    'name' => '下单方式',
-                    'default' => false,
-                    'required' => false,
-                ),
-                array(
-                    'column' => 'description',
-                    'name' => '账单描述',
-                    'default' => false,
-                    'required' => false,
-                ),
-                array(
-                    'column' => 'roomType',
-                    'name' => '空间类型',
+                    'column' => 'name',
+                    'name' => '会员卡名',
                     'default' => true,
                     'required' => true,
+                ),
+                array(
+                    'column' => 'specification',
+                    'name' => '会员卡规格',
+                    'default' => false,
+                    'required' => false,
                 )
             );
 
@@ -118,7 +100,7 @@ class Version920170825101200 extends AbstractMigration implements ContainerAware
             $list->setName($cashierColumn['name']);
             $list->setDefault($cashierColumn['default']);
             $list->setRequired($cashierColumn['required']);
-            $list->setObject(GenericList::OBJECT_RESERVATION);
+            $list->setObject(GenericList::OBJECT_CASHIER);
             $list->setPlatform(GenericList::OBJECT_PLATFORM_SALES);
 
             $em->persist($list);
