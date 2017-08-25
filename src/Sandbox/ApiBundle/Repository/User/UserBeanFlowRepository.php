@@ -99,7 +99,7 @@ class UserBeanFlowRepository extends EntityRepository
 
         $query->orderBy('ubf.id', 'DESC');
 
-        if ($limit && $offset) {
+        if (!is_null($limit) && !is_null($offset)) {
             $query->setMaxResults($limit)
                 ->setFirstResult($offset);
         }
