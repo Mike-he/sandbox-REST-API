@@ -71,9 +71,9 @@ class UserBeanFlowRepository extends EntityRepository
     public function getFlows(
         $startDate,
         $endDate,
-        $userId,
-        $limit,
-        $offset
+        $userId = null,
+        $limit = null,
+        $offset = null
     ) {
         $query = $this->createQueryBuilder('ubf')
             ->where('1=1');
@@ -97,10 +97,12 @@ class UserBeanFlowRepository extends EntityRepository
                 ->setParameter('userId', $userId);
         }
 
-        $query->orderBy('ubf.creationDate', 'DESC');
+        $query->orderBy('ubf.id', 'DESC');
 
-        $query->setMaxResults($limit)
-            ->setFirstResult($offset);
+        if ($limit && $offset) {
+            $query->setMaxResults($limit)
+                ->setFirstResult($offset);
+        }
 
         $result = $query->getQuery()->getResult();
 
