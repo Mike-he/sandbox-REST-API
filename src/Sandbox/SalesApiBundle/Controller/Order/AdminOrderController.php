@@ -2264,12 +2264,6 @@ class AdminOrderController extends OrderController
 
                 $em->flush();
 
-                $this->generateAdminLogs(array(
-                    'logModule' => Log::MODULE_ROOM_ORDER,
-                    'logAction' => Log::ACTION_REJECT,
-                    'logObjectKey' => Log::OBJECT_ROOM_ORDER,
-                    'logObjectId' => $rejectedOrder->getId(),
-                ));
             }
 
         }
