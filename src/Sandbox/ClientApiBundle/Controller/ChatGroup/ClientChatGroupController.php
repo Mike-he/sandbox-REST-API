@@ -72,7 +72,7 @@ class ClientChatGroupController extends ChatGroupController
 
         $chatGroup = new ChatGroup();
         $chatGroup->setCreator($myUser);
-        $chatGroup->setTag(ChatGroup::JMESSAGE_SERVICE);
+        $chatGroup->setTag(ChatGroup::GROUP_SERVICE);
 
         // add member
         $chatGroupName = $name;
@@ -206,7 +206,7 @@ class ClientChatGroupController extends ChatGroupController
             return new View();
         }
 
-        if ($chatGroup->getTag() != ChatGroup::XMPP_CUSTOMER_SERVICE) {
+        if ($chatGroup->getTag() != ChatGroup::CUSTOMER_SERVICE) {
             // set group name
             if (is_null($chatGroup->getName()) || $chatGroup->getName()) {
                 $chatGroupName = $this->constructGroupChatName(
