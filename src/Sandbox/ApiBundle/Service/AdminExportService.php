@@ -61,6 +61,14 @@ class AdminExportService
                 $excelBody = $this->getExcelBillData($data, $lists, $language);
                 $fileName = '账单'.$min.' - '.$max;
                 break;
+            case GenericList::OBJECT_CASHIER:
+                $excelBody = $this->getExcelFinansherCrashier($data, $list, $language);
+                $fileName = '收银台'.$min.' - '.$max;
+                break;
+            case GenericList::OBJECT_PRODUCT_ORDER:
+                $excelBody = $this->getExcelProductOrder($data, $list, $language);
+                $fileName = '空间订单'.$min.' - '.$max;
+                break;
             default:
                 $excelBody = array();
                 $fileName = null;
@@ -497,5 +505,66 @@ class AdminExportService
         }
 
         return $excelBody;
+    }
+
+    /**
+     * @param $crashiers
+     * @param $list
+     * @param $language
+     * @return array
+     */
+    private function getExcelFinansherCrashier(
+        $crashiers,
+        $lists,
+        $language
+    ){
+        $excelBody = array();
+        foreach($crashiers as $crashier)
+        {
+//            $crashierList = array(
+//                'serial_number' => $crashier['serial_number'],
+//                'lease_serial_number' => $crashier['lease_serial_number']?$crashier['lease_serial_number']:''
+//            );
+            $body = array();
+            foreach($lists as $key=>$value) {
+                $body[] = $crashier[$key];
+            }
+
+            $excelBody[] = $body;
+        }
+
+        return $excelBody;
+    }
+
+    /**
+     * @param $orders
+     * @param $list
+     * @param $language
+     */
+    private function getExcelProductOrder(
+        $orders,
+        $list,
+        $language
+    ){
+        $excelBody = array();
+//        foreach($orders as $order)
+//        {
+//           $orderList = array(
+//               'order_number'
+//               'base_price'
+//               'rent_period'
+//               'price'
+//               'discount_price'
+//               'status'
+//               'payment_user_id'
+//               'creation_date'
+//               'invoice'
+//               'invoiced'
+//               'type'
+//               'description'
+//               'room_type'
+//           );
+ //       }
+
     }
 }
