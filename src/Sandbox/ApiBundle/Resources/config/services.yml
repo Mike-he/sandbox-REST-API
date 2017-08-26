@@ -26,3 +26,6 @@ services:
     sandbox_api.jmessage:
         class: Sandbox\ApiBundle\Service\JmessageService
         arguments: ['@service_container']
+    sandbox_api.export:
+        class: Sandbox\ApiBundle\Service\AdminExportService
+        arguments: ['@service_container']
