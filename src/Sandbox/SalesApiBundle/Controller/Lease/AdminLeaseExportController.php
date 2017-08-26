@@ -163,6 +163,7 @@ class AdminLeaseExportController extends SalesRestController
         return $this->get('sandbox_api.export')->exportExcel(
             $clues,
             GenericList::OBJECT_LEASE_CLUE,
+            $data['user_id'],
             $language,
             $min,
             $max
@@ -305,6 +306,7 @@ class AdminLeaseExportController extends SalesRestController
         return $this->get('sandbox_api.export')->exportExcel(
             $offers,
             GenericList::OBJECT_LEASE_OFFER,
+            $data['user_id'],
             $language,
             $min,
             $max
@@ -500,6 +502,7 @@ class AdminLeaseExportController extends SalesRestController
         return $this->get('sandbox_api.export')->exportExcel(
             $leases,
             GenericList::OBJECT_LEASE,
+            $data['user_id'],
             $language,
             $min,
             $max
@@ -676,6 +679,7 @@ class AdminLeaseExportController extends SalesRestController
         return $this->get('sandbox_api.export')->exportExcel(
             $bills,
             GenericList::OBJECT_LEASE_BILL,
+            $data['user_id'],
             $language,
             $min,
             $max

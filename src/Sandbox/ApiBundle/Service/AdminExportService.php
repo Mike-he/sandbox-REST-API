@@ -30,11 +30,12 @@ class AdminExportService
     public function exportExcel(
         $data,
         $key,
+        $adminId,
         $language,
         $min = null,
         $max = null
     ) {
-        $lists = $this->getGenericLists($key, $data['user_id']);
+        $lists = $this->getGenericLists($key, $adminId);
 
         $phpExcelObject = new \PHPExcel();
         $phpExcelObject->getProperties()->setTitle('Sandbox Excel');
