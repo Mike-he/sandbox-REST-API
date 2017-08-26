@@ -82,9 +82,9 @@ class AdminExportService
         $phpExcelObject->setActiveSheetIndex(0);
 
         // create the writer
-        $writer = $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel5');
+        $writer = $this->container->get('phpexcel')->createWriter($phpExcelObject, 'Excel5');
         // create the response
-        $response = $this->get('phpexcel')->createStreamedResponse($writer);
+        $response = $this->container->get('phpexcel')->createStreamedResponse($writer);
 
         $filename = $fileName.'.xls';
 
