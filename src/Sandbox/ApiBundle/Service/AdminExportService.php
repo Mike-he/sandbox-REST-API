@@ -2,14 +2,18 @@
 
 namespace Sandbox\ApiBundle\Service;
 
+use Sandbox\ApiBundle\Constants\EventOrderExport;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Event\Event;
+use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Sandbox\ApiBundle\Entity\GenericList\GenericList;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseClue;
 use Sandbox\ApiBundle\Entity\Lease\LeaseOffer;
 use Sandbox\ApiBundle\Entity\Lease\LeaseRentTypes;
+use Sandbox\ApiBundle\Entity\MembershipCard\MembershipOrder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class AdminExportService
@@ -69,6 +73,14 @@ class AdminExportService
             case GenericList::OBJECT_PRODUCT_ORDER:
                 $excelBody = $this->getExcelProductOrder($data, $lists, $language);
                 $fileName = '空间订单'.$min.' - '.$max;
+                break;
+            case GenericList::OBJECT_MEMBERSHIP_ORDER:
+                $excelBody = $this->getExcelMembershipOrder($data, $lists, $language);
+                $fileName = '会员卡订单'.$min.' - '.$max;
+                break;
+            case GenericList::OBJECT_EVENT_ORDER:
+                $excelBody = $this->getExcelEventOrder($data, $lists, $language);
+                $fileName = '活动订单'.$min.' - '.$max;
                 break;
             default:
                 $excelBody = array();
@@ -511,22 +523,21 @@ class AdminExportService
      * @param $crashiers
      * @param $lists
      * @param $language
+     *
      * @return array
      */
     private function getExcelFinansherCrashier(
         $crashiers,
         $lists,
         $language
-    ){
+    ) {
         $excelBody = array();
-        foreach($crashiers as $crashier)
-        {
+        foreach ($crashiers as $crashier) {
             $body = array();
-            foreach($lists as $key=>$value) {
-
-                if($key =='status'){
-                    $body[] = $value == 'unpaid'?'未付款':'已付款';
-                }else{
+            foreach ($lists as $key => $value) {
+                if ($key == 'status') {
+                    $body[] = $value == 'unpaid' ? '未付款' : '已付款';
+                } else {
                     $body[] = $crashier[$key];
                 }
             }
@@ -535,6 +546,7 @@ class AdminExportService
         }
         return $excelBody;
     }
+
 
     /**
      * @param $orders
@@ -549,13 +561,235 @@ class AdminExportService
     ) {
         $excelBody = array();
         foreach ($orders as $order) {
+            $productInfo = json_decode($order->getProductInfo(), true);
+
+            // set product type
+            $productTypeKey = $productInfo['room']['type'];
+
+            switch ($productTypeKey) {
+                case 'studio':
+                    $productTypeKey = 'others';
+                    break;
+                case 'space':
+                    $productTypeKey = 'others';
+                    break;
+                case 'fixed':
+                    $productTypeKey = 'desk';
+                    break;
+                case 'flexible':
+                    $productTypeKey = 'desk';
+                    break;
+                default:
+                    break;
+            }
+
+            $productType = $this->container->get('translator')->trans(
+                ProductOrderExport::TRANS_ROOM_TYPE.$productTypeKey,
+                array(),
+                null,
+                $language
+            );
+
+            // set unit price
+            $basePrice = null;
+            if (isset($productInfo['unit_price']) && isset($productInfo['base_price'])) {
+                $unitPriceKey = $productInfo['unit_price'];
+                $basePrice = $productInfo['base_price'];
+            } elseif (isset($productInfo['order']['unit_price'])) {
+                $unitPriceKey = $productInfo['order']['unit_price'];
+
+                if (isset($productInfo['room']['leasing_set'])) {
+                    foreach ($productInfo['room']['leasing_set'] as $item) {
+                        if ($item['unit_price'] == $unitPriceKey) {
+                            $basePrice = $item['base_price'];
+                        }
+                    }
+                }
+            } elseif (isset($productInfo['room']['leasing_set'])) {
+                $unitPriceKey = $productInfo['room']['leasing_set'][0]['unit_price'];
+                $basePrice = $productInfo['room']['leasing_set'][0]['base_price'];
+            }
+
+            $unitPrice = $this->container->get('translator')->trans(
+                ProductOrderExport::TRANS_ROOM_UNIT.$unitPriceKey,
+                array(),
+                null,
+                $language
+            );
+
+            // set status
+            $statusKey = $order->getStatus();
+            $status =  $this->container->get('translator')->trans(
+                ProductOrderExport::TRANS_PRODUCT_ORDER_STATUS.$statusKey,
+                array(),
+                null,
+                $language
+            );
+
+            $startTime = $order->getStartDate()->format('Y-m-d H:i:s');
+            $endTime = $order->getEndDate()->format('Y-m-d H:i:s');
+
+            $orderType = $order->getType();
+            if (is_null($orderType) || empty($orderType)) {
+                $orderType = 'user';
+            }
+
+            $orderType =  $this->container->get('translator')->trans(
+                ProductOrderExport::TRANS_PRODUCT_ORDER_TYPE.$orderType,
+                array(),
+                null,
+                $language
+            );
+
+            $orderList = array(
+                'order_number' => $order->getOrderNumber(),
+                'rent_period' => $startTime.'至'.$endTime,
+                'base_price' => $basePrice.'/'.$unitPrice,
+                'price' => $order->getPrice(),
+                'discount_price' => $order->getDiscountPrice(),
+                'status' => $status,
+                'payment_user_id' => $order->getCustomerId(),
+                'creation_date' => $order->getCreationDate()->format('Y-m-d H:i:s'),
+                'invoice' => '包含发票',
+                'invoiced' => $order->isInvoiced() ? '已开票' : '未开票',
+                'type' => $orderType,
+                'description' => $orderType,
+                'room_type' => $productType,
+            );
+
             $body = array();
-            foreach($lists as $key=>$value){
-                $body[] = $order[$key];
+            foreach($lists as $key=>$val){
+                $body[] = $orderList[$key];
             }
             $excelBody[] = $body;
         }
 
        return $excelBody;
+    }
+
+    /**
+     * @param MembershipOrder $orders
+     * @param $lists
+     * @param $language
+     *
+     * @return array
+     */
+    private function getExcelMembershipOrder(
+        $orders,
+        $lists,
+        $language
+    ) {
+        $excelBody = array();
+        foreach ($orders as $order) {
+            /** @var MembershipOrder $order */
+            $payments = $this->doctrine->getRepository('SandboxApiBundle:Payment\Payment')->findAll();
+            $payChannel = array();
+            foreach ($payments as $payment) {
+                $payChannel[$payment->getChannel()] = $payment->getName();
+            }
+
+            $customer = $this->doctrine
+                ->getRepository('SandboxApiBundle:User\UserCustomer')
+                ->findOneBy(array(
+                    'userId' => $order->getUser(),
+                    'companyId' => $order->getCard()->getCompanyId(),
+                ));
+
+            $drawee = $customer ? $customer->getName() : '';
+
+            $billList = array(
+                'order_number' => $order->getOrderNumber(),
+                'price' => $order->getPrice(),
+                'valid_period' => $order->getValidPeriod(),
+                'discount_price' => $order->getPrice(),
+                'status' => '已完成',
+                'user_id' => $drawee,
+                'creation_date' => $order->getCreationDate()->format('Y-m-d H:i:s'),
+                'pay_channel' => $payChannel[$order->getPayChannel()],
+                'name' => $order->getCard()->getName(),
+                'specification' => $order->getSpecification(),
+            );
+
+            $body = array();
+            foreach ($lists as $key => $value) {
+                $body[] = $billList[$key];
+            }
+
+            $excelBody[] = $body;
+        }
+
+        return $excelBody;
+    }
+
+    /**
+     * @param $orders
+     * @param $lists
+     * @param $language
+     *
+     * @return array
+     */
+    private function getExcelEventOrder(
+        $orders,
+        $lists,
+        $language
+    ) {
+        $excelBody = array();
+
+        foreach ($orders as $order) {
+            /** @var EventOrder $order */
+            /** @var Event $event */
+            $event = $order->getEvent();
+
+            // get order number
+            $orderNumber = $order->getOrderNumber();
+
+            // get user
+            $userId = $order->getUserId();
+            $userProfile = $this->doctrine
+                ->getRepository('SandboxApiBundle:User\UserProfile')
+                ->findOneBy(['userId' => $userId]);
+
+            // get status
+            $statusKey = $order->getStatus();
+            $status = $this->container->get('translator')->trans(
+                EventOrderExport::TRANS_EVENT_ORDER_STATUS.$statusKey,
+                array(),
+                null,
+                $language
+            );
+
+            $paymentChannel = $order->getPayChannel();
+            if (!is_null($paymentChannel) && !empty($paymentChannel)) {
+                $paymentChannel = $this->container->get('translator')->trans(
+                    EventOrderExport::TRANS_EVENT_ORDER_CHANNEL.$paymentChannel,
+                    array(),
+                    null,
+                    $language
+                );
+            }
+
+            $orderList = [
+                'order_number' => $orderNumber,
+                'address' => $event->getAddress(),
+                'event_start_date' => $event->getEventStartDate(),
+                'price' => $order->getPrice(),
+                'status' => $status,
+                'user_id' => $userProfile->getName(),
+                'creation_date' => $order->getCreationDate(),
+                'publish_company' => $event->getPublishCompany(),
+                'name' => $event->getName(),
+                'pay_channel' => $paymentChannel,
+                'description' => $event->getDescription(),
+            ];
+
+            $body = array();
+            foreach ($lists as $key => $value) {
+                $body[] = $orderList[$key];
+            }
+
+            $excelBody[] = $body;
+        }
+
+        return $excelBody;
     }
 }

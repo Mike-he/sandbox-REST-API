@@ -103,7 +103,7 @@ class ChatGroupRepository extends EntityRepository
 
         if ($tag) {
             $query = $query->andWhere('g.tag = :tag')
-                ->andWhere('tag', $tag);
+                ->setParameter('tag', $tag);
         }
 
         $query->orderBy('g.creationDate', 'DESC');
