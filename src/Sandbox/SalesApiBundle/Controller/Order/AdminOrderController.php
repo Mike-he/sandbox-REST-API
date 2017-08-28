@@ -2520,11 +2520,6 @@ class AdminOrderController extends OrderController
         foreach ($orders as $order) {
             $productInfo = json_decode($order->getProductInfo(), true);
 
-            // set product name
-            $productName = $productInfo['room']['city']['name'].
-                $productInfo['room']['building']['name'].
-                $productInfo['room']['name'];
-
             // set product type
             $productTypeKey = $productInfo['room']['type'];
 
