@@ -28,6 +28,10 @@ class CustomErrorMessagesConstants
     const ERROR_FINANCE_BILLS_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE = 'The format of payload for bills does not correct';
     const ERROR_FINANCE_BILL_MORE_THAN_TOTAL_SERVICE_FEE_CODE = 400003;
     const ERROR_FINANCE_BILL_MORE_THAN_TOTAL_SERVICE_FEE_MESSAGE = 'More than the total service fees';
+    const ERROR_FINANCE_SHORT_RENT_INVOICE_STATUS_NOT_CORRECT_CODE = 400004;
+    const ERROR_FINANCE_SHORT_RENT_INVOICE_STATUS_NOT_CORRECT_MESSAGE = 'Invoice status does not correct';
+    const ERROR_FINANCE_SHORT_RENT_INVOICE_PAYLOAD_FORMAT_NOT_CORRECT_CODE = 400005;
+    const ERROR_FINANCE_SHORT_RENT_INVOICE_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE = 'The format of payload for invoice does not correct';
 
     // CUSTOMER SERVICE
     const ERROR_CUSTOMER_SERVICE_PAYLOAD_NOT_CORRECT_CODE = 'The format of payload for customer service does not correct';
@@ -43,6 +47,7 @@ class CustomErrorMessagesConstants
     //Offline Transfer
     const ERROR_TRANSFER_STATUS_CODE = 400015;
     const ERROR_TRANSFER_STATUS_MESSAGE = 'Wrong Transfer Status';
+
 
     // 404 NOT FOUND MESSAGE
     // LEASE

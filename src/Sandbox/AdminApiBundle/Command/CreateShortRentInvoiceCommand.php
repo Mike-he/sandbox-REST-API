@@ -282,10 +282,10 @@ class CreateShortRentInvoiceCommand extends ContainerAwareCommand
                 ->findOneBy(['companyId' => $key]);
 
             if (!is_null($wallet)) {
-                $shortRentAmount = $wallet->getShortRentInvoiceAmount();
+                $withdrawableAmount = $wallet->getWithdrawableAmount();
                 $totalAmount = $wallet->getTotalAmount();
 
-                $wallet->setShortRentInvoiceAmount($shortRentAmount + $monthAmount);
+                $wallet->setWithdrawableAmount($withdrawableAmount + $monthAmount);
                 $wallet->setTotalAmount($totalAmount + $monthAmount);
             }
         }
