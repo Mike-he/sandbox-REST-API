@@ -235,7 +235,7 @@ class AdminExportService
                 $roomName = $product->getRoom()->getName();
                 $tag = $product->getRoom()->getTypeTag();
 
-                $roomTypeTag = $this->get('translator')->trans(
+                $roomTypeTag = $this->container->get('translator')->trans(
                     ProductOrderExport::TRANS_PREFIX.$tag,
                     array(),
                     null,
