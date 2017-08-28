@@ -29,7 +29,6 @@ class Version820170825053532 extends AbstractMigration implements ContainerAware
     public function postUp(Schema $schema)
     {
         parent::postUp($schema);
-
         $em = $this->container->get('doctrine.orm.entity_manager');
 
         $beanPermission = new AdminPermission();
@@ -56,13 +55,38 @@ class Version820170825053532 extends AbstractMigration implements ContainerAware
             ->findOneBy(['key' => 'sales.platform.invoice']);
         $invoicePermission->setName('客户开票权限');
 
+        $financeGroup = $em->getRepository('SandboxApiBundle:Admin\AdminPermissionGroups')
+            ->findOneBy([
+                'groupKey' => 'finance',
+                'platform' => 'sales',
+            ]);
+
         $serviceBillPermission = $em->getRepository('SandboxApiBundle:Admin\AdminPermission')
             ->findOneBy(['key' => 'sales.platform.long_term_service_bills']);
-        $em->remove($serviceBillPermission);
+
+        $map11 = $em->getRepository('SandboxApiBundle:Admin\AdminPermissionGroupMap')
+            ->findBy([
+                'permission' => $serviceBillPermission,
+            ]);
+        foreach ($map11 as $map) {
+            $em->remove($map);
+        }
+        if ($serviceBillPermission) {
+            $em->remove($serviceBillPermission);
+        }
 
         $monthlyBillPermission = $em->getRepository('SandboxApiBundle:Admin\AdminPermission')
             ->findOneBy(['key' => 'sales.platform.monthly_bills']);
-        $em->remove($monthlyBillPermission);
+        $map12 = $em->getRepository('SandboxApiBundle:Admin\AdminPermissionGroupMap')
+            ->findBy([
+                'permission' => $monthlyBillPermission,
+            ]);
+        foreach ($map12 as $map) {
+            $em->remove($map);
+        }
+        if ($monthlyBillPermission) {
+            $em->remove($monthlyBillPermission);
+        }
 
         $financeSummaryPermission = $em->getRepository('SandboxApiBundle:Admin\AdminPermission')
             ->findOneBy(['key' => 'sales.platform.financial_summary']);
@@ -71,17 +95,20 @@ class Version820170825053532 extends AbstractMigration implements ContainerAware
 
         $auditPermission = $em->getRepository('SandboxApiBundle:Admin\AdminPermission')
             ->findOneBy(['key' => 'sales.platform.audit']);
-        $em->remove($auditPermission);
+        $map13 = $em->getRepository('SandboxApiBundle:Admin\AdminPermissionGroupMap')
+            ->findBy([
+                'permission' => $auditPermission,
+            ]);
+        foreach ($map13 as $map) {
+            $em->remove($map);
+        }
+        if ($auditPermission) {
+            $em->remove($auditPermission);
+        }
 
         $withdrawalPermission = $em->getRepository('SandboxApiBundle:Admin\AdminPermission')
             ->findOneBy(['key' => 'sales.platform.withdrawal']);
         $withdrawalPermission->setName('账户钱包权限');
-
-        $financeGroup = $em->getRepository('SandboxApiBundle:Admin\AdminPermissionGroups')
-            ->findOneBy([
-                'groupKey' => 'finance',
-                'platform' => 'sales',
-            ]);
 
         $requestInvoicePermission = new AdminPermission();
         $requestInvoicePermission->setKey('sales.platform.request_invoice');
