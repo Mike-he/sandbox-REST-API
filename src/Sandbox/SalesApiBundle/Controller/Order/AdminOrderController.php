@@ -32,6 +32,7 @@ use Sandbox\ApiBundle\Entity\Product\Product;
 use Symfony\Component\HttpFoundation\Response;
 use Sandbox\ApiBundle\Traits\ProductOrderNotification;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
+use Sandbox\ApiBundle\Constants\ProductOrderExport;
 
 /**
  * Admin order controller.
@@ -552,7 +553,7 @@ class AdminOrderController extends OrderController
                     null,
                     $order->getId()
                 );
-            $this->rejectOrdersAction($orders,$now,$em);
+            $this->rejectOrdersAction($orders, $now, $em);
         }
 
         $em->flush();
@@ -2089,7 +2090,7 @@ class AdminOrderController extends OrderController
                     $startDate,
                     $endDate
                 );
-            $this->rejectOrdersAction($orders,$now,$em);
+            $this->rejectOrdersAction($orders, $now, $em);
 
             $em->flush();
 
@@ -2205,7 +2206,7 @@ class AdminOrderController extends OrderController
      * @param $now
      * @param $em
      */
-    private function rejectOrdersAction($orders,$now,$em)
+    private function rejectOrdersAction($orders, $now, $em)
     {
         foreach ($orders as $rejectedOrder) {
             $status = $rejectedOrder->getStatus();
@@ -2237,7 +2238,6 @@ class AdminOrderController extends OrderController
                     $rejectedOrder->setNeedToRefund(true);
 
                     if (ProductOrder::CHANNEL_ACCOUNT == $channel) {
-
                         $balance = $this->postBalanceChange(
                             $userId,
                             $price,
@@ -2254,14 +2254,12 @@ class AdminOrderController extends OrderController
                             $rejectedOrder->setRefunded(true);
                             $rejectedOrder->setNeedToRefund(false);
                         }
-
                     }
 
-                    if($status == ProductOrder::STATUS_UNPAID){
+                    if ($status == ProductOrder::STATUS_UNPAID) {
                         $rejectedOrder->setNeedToRefund(false);
                     }
                 }
-
             }
             $em->flush();
 
@@ -2276,12 +2274,11 @@ class AdminOrderController extends OrderController
                     ProductOrderMessage::OFFICE_REJECTED_MESSAGE
                 );
             }
-
         }
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -2447,12 +2444,13 @@ class AdminOrderController extends OrderController
      *
      * @Route("/export/orders")
      * @Method({"GET"})
+     *
      * @return \Symfony\Component\HttpFoundation\StreamedResponse
      */
     public function exportProductOrderAction(
         Request $request,
         ParamFetcherInterface $paramFetcher
-    ){
+    ) {
         $adminId = $this->getAdminId();
         // check user permission
         $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
@@ -2518,9 +2516,115 @@ class AdminOrderController extends OrderController
                 $status,
                 $roomId
             );
+        $bodys = array();
+        foreach ($orders as $order) {
+            $productInfo = json_decode($order->getProductInfo(), true);
+
+            // set product name
+            $productName = $productInfo['room']['city']['name'].
+                $productInfo['room']['building']['name'].
+                $productInfo['room']['name'];
+
+            // set product type
+            $productTypeKey = $productInfo['room']['type'];
+
+            switch ($productTypeKey) {
+                case 'studio':
+                    $productTypeKey = 'others';
+                    break;
+                case 'space':
+                    $productTypeKey = 'others';
+                    break;
+                case 'fixed':
+                    $productTypeKey = 'desk';
+                    break;
+                case 'flexible':
+                    $productTypeKey = 'desk';
+                    break;
+                default:
+                    break;
+            }
+
+            $productType = $this->get('translator')->trans(
+                ProductOrderExport::TRANS_ROOM_TYPE.$productTypeKey,
+                array(),
+                null,
+                $language
+            );
+
+            // set unit price
+            $basePrice = null;
+            if (isset($productInfo['unit_price']) && isset($productInfo['base_price'])) {
+                $unitPriceKey = $productInfo['unit_price'];
+                $basePrice = $productInfo['base_price'];
+            } elseif (isset($productInfo['order']['unit_price'])) {
+                $unitPriceKey = $productInfo['order']['unit_price'];
+
+                if (isset($productInfo['room']['leasing_set'])) {
+                    foreach ($productInfo['room']['leasing_set'] as $item) {
+                        if ($item['unit_price'] == $unitPriceKey) {
+                            $basePrice = $item['base_price'];
+                        }
+                    }
+                }
+            } elseif (isset($productInfo['room']['leasing_set'])) {
+                $unitPriceKey = $productInfo['room']['leasing_set'][0]['unit_price'];
+                $basePrice = $productInfo['room']['leasing_set'][0]['base_price'];
+            }
+
+            $unitPrice = $this->get('translator')->trans(
+                ProductOrderExport::TRANS_ROOM_UNIT.$unitPriceKey,
+                array(),
+                null,
+                $language
+            );
+
+            // set status
+            $statusKey = $order->getStatus();
+            $status = $this->get('translator')->trans(
+                ProductOrderExport::TRANS_PRODUCT_ORDER_STATUS.$statusKey,
+                array(),
+                null,
+                $language
+            );
+
+            $startTime = $order->getStartDate()->format('Y-m-d H:i:s');
+            $endTime = $order->getEndDate()->format('Y-m-d H:i:s');
+
+            $orderType = $order->getType();
+            if (is_null($orderType) || empty($orderType)) {
+                $orderType = 'user';
+            }
+
+            $orderType = $this->get('translator')->trans(
+                ProductOrderExport::TRANS_PRODUCT_ORDER_TYPE.$orderType,
+                array(),
+                null,
+                $language
+            );
+
+            $order = array(
+                'order_number' => $order->getOrderNumber(),
+                'rent_period' => $startTime.'至'.$endTime,
+                'base_price' => $basePrice,
+                'unit_price' => $unitPrice,
+                'price' => $order->getPrice(),
+                'discount_price' => $order->getDiscountPrice(),
+                'status' => $status,
+                'payment_user_id' => $order->getCustomerId(),
+                'creation_date' => $order->getCreationDate()->format('Y-m-d H:i:s'),
+                'invoice' => '包含发票',
+                'invoiced' => $order->isInvoiced() ? '已开票' : '未开票',
+                'type' => $orderType,
+                'description' => $orderType,
+                'room_type' => $productType,
+            );
+
+            $bodys[] = $order;
+        }
 
         return $this->get('sandbox_api.export')->exportExcel(
-            $orders,
+            $bodys,
             GenericList::OBJECT_PRODUCT_ORDER,
             $adminId,
             $language

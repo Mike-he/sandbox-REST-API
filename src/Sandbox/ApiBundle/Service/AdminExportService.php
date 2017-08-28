@@ -143,7 +143,6 @@ class AdminExportService
                 $lists[$genericList->getColumn()] = $genericList->getName();
             }
         }
-
         return $lists;
     }
 
@@ -534,176 +533,29 @@ class AdminExportService
 
             $excelBody[] = $body;
         }
-
         return $excelBody;
     }
 
-
+    /**
+     * @param $orders
+     * @param $lists
+     * @param $language
+     * @return array
+     */
     private function getExcelProductOrder(
         $orders,
         $lists,
         $language
     ) {
         $excelBody = array();
-
-        // set excel body
         foreach ($orders as $order) {
-            $productInfo = json_decode($order->getProductInfo(), true);
-
-            // set product name
-            $productName = $productInfo['room']['city']['name'].
-                $productInfo['room']['building']['name'].
-                $productInfo['room']['name'];
-
-            // set product type
-            $productTypeKey = $productInfo['room']['type'];
-
-            switch ($productTypeKey) {
-                case 'studio':
-                    $productTypeKey = 'others';
-                    break;
-                case 'space':
-                    $productTypeKey = 'others';
-                    break;
-                case 'fixed':
-                    $productTypeKey = 'desk';
-                    break;
-                case 'flexible':
-                    $productTypeKey = 'desk';
-                    break;
-                default:
-                    break;
-            }
-
-            $productType = $this->get('translator')->trans(
-                ProductOrderExport::TRANS_ROOM_TYPE.$productTypeKey,
-                array(),
-                null,
-                $language
-            );
-
-            // set unit price
-            $basePrice = null;
-            if (isset($productInfo['unit_price']) && isset($productInfo['base_price'])) {
-                $unitPriceKey = $productInfo['unit_price'];
-                $basePrice = $productInfo['base_price'];
-            } elseif (isset($productInfo['order']['unit_price'])) {
-                $unitPriceKey = $productInfo['order']['unit_price'];
-
-                if (isset($productInfo['room']['leasing_set'])) {
-                    foreach ($productInfo['room']['leasing_set'] as $item) {
-                        if ($item['unit_price'] == $unitPriceKey) {
-                            $basePrice = $item['base_price'];
-                        }
-                    }
-                }
-            } elseif (isset($productInfo['room']['leasing_set'])) {
-                $unitPriceKey = $productInfo['room']['leasing_set'][0]['unit_price'];
-                $basePrice = $productInfo['room']['leasing_set'][0]['base_price'];
-            }
-
-            $unitPrice = $this->get('translator')->trans(
-                ProductOrderExport::TRANS_ROOM_UNIT.$unitPriceKey,
-                array(),
-                null,
-                $language
-            );
-
-            // set status
-            $statusKey = $order->getStatus();
-            $status = $this->get('translator')->trans(
-                ProductOrderExport::TRANS_PRODUCT_ORDER_STATUS.$statusKey,
-                array(),
-                null,
-                $language
-            );
-
-            $startTime = $order->getStartDate()->format('Y-m-d H:i:s');
-            $endTime = $order->getEndDate()->format('Y-m-d H:i:s');
-
-            $userId = $order->getUserId();
-            $user = $this->getRepo('User\User')->find($userId);
-
-            $paymentChannel = $order->getPayChannel();
-            $refundChannel = $order->getRefundTo();
-            if (!is_null($paymentChannel) && !empty($paymentChannel)) {
-                $paymentChannel = $this->get('translator')->trans(
-                    ProductOrderExport::TRANS_PRODUCT_ORDER_CHANNEL.$paymentChannel,
-                    array(),
-                    null,
-                    $language
-                );
-
-                if ($statusKey == ProductOrder::STATUS_CANCELLED) {
-                    if (is_null($refundChannel)) {
-                        $refundChannel = ProductOrder::REFUND_TO_ORIGIN;
-                    } else {
-                        $refundChannel = ProductOrder::REFUND_TO_ACCOUNT;
-                    }
-
-                    $refundChannel = $this->get('translator')->trans(
-                        ProductOrderExport::TRANS_PRODUCT_ORDER_REFUND_TO.$refundChannel,
-                        array(),
-                        null,
-                        $language
-                    );
-                }
-            }
-
-            $orderType = $order->getType();
-            if (is_null($orderType) || empty($orderType)) {
-                $orderType = 'user';
-            }
-
-            $orderType = $this->get('translator')->trans(
-                ProductOrderExport::TRANS_PRODUCT_ORDER_TYPE.$orderType,
-                array(),
-                null,
-                $language
-            );
-
-            $companyName = null;
-            $buildingName = null;
-            $productId = $order->getProductId();
-            if (!is_null($productId)) {
-                $product = $this->getDoctrine()->getRepository('SandboxApiBundle:Product\Product')->find($productId);
-                $building = $product->getRoom()->getBuilding();
-                $buildingName = $building->getName();
-                $companyName = $building->getCompany()->getName();
-            }
-
-            $price = $order->getDiscountPrice();
-            $refund = $order->getActualRefundAmount();
-            if (is_null($refund) || empty($refund)) {
-                $refund = 0;
-            }
-
-            $actualAmount = $price - $refund;
-
-            // set excel body
-            $orderlist = array(
-                'order_number'=> $order->getOrderNumber(),
-                'base_price' => $basePrice,
-                'unit_price' => $unitPrice,
-                'rent_period' => $order->getRentPeriod(),
-                'price' => $order->getPrice(),
-                'discount_price' => $price,
-                'status' => $status,
-                'payment_user_id' => $order->getCustomerId(),
-                'creation_date' => $order->getCreationDate()->format('Y-m-d H:i:s'),
-                'invoice' => $order->getInvoice(),
-                'type' => $orderType,
-                'description' => $orderType,
-                'room_type' =>$productType
-            );
-
             $body = array();
             foreach($lists as $key=>$value){
-                $body[] = $orderlist[$key];
+                $body[] = $order[$key];
             }
-
             $excelBody[] = $body;
         }
+
        return $excelBody;
     }
 }
