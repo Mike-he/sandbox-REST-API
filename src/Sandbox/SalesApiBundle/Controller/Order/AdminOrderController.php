@@ -8,6 +8,7 @@ use Rs\Json\Patch;
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Sandbox\ApiBundle\Controller\Order\OrderController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\GenericList\GenericList;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
@@ -1400,7 +1401,6 @@ class AdminOrderController extends OrderController
         $admin = $this->authenticateAdminCookie();
         $adminId = $admin->getId();
         $companyId = $paramFetcher->get('company');
-
         // check user permission
         $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $adminId,
@@ -1465,7 +1465,13 @@ class AdminOrderController extends OrderController
                 $status
             );
 
-        return $this->getProductOrderExport($orders, $language);
+        return $this->get('sandbox_api.export')->exportExcel(
+            $orders,
+            GenericList::OBJECT_PRODUCT_ORDER,
+            $adminId,
+            $language
+        );
+       // return $this->getProductOrderExport($orders, $language);
     }
 
     /**

@@ -345,6 +345,8 @@ class AdminFinanceCashierController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ){
+        $adminId = $this->getAdminId();
+
         // check user permission
         $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
@@ -426,7 +428,7 @@ class AdminFinanceCashierController extends SalesRestController
                     $cashierBills[] = $this->generateCashierBill($bill, $company);
                 }
 
-                $result = array_merge($cashierOrders, $cashierBills);
+                $results = array_merge($cashierOrders, $cashierBills);
         }
 
         $cashierOrders = array();
@@ -450,6 +452,7 @@ class AdminFinanceCashierController extends SalesRestController
         $this->get('sandbox_api.export')->exportExcel(
              $results,
             GenericList::OBJECT_CASHIER,
+                   $adminId,
                    $language
              );
 

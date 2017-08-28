@@ -63,11 +63,11 @@ class AdminExportService
                 $fileName = '账单'.$min.' - '.$max;
                 break;
             case GenericList::OBJECT_CASHIER:
-                $excelBody = $this->getExcelFinansherCrashier($data, $list, $language);
+                $excelBody = $this->getExcelFinansherCrashier($data, $lists, $language);
                 $fileName = '收银台'.$min.' - '.$max;
                 break;
             case GenericList::OBJECT_PRODUCT_ORDER:
-                $excelBody = $this->getExcelProductOrder($data, $list, $language);
+                $excelBody = $this->getExcelProductOrder($data, $lists, $language);
                 $fileName = '空间订单'.$min.' - '.$max;
                 break;
             default:
@@ -510,7 +510,7 @@ class AdminExportService
 
     /**
      * @param $crashiers
-     * @param $list
+     * @param $lists
      * @param $language
      * @return array
      */
@@ -522,13 +522,14 @@ class AdminExportService
         $excelBody = array();
         foreach($crashiers as $crashier)
         {
-//            $crashierList = array(
-//                'serial_number' => $crashier['serial_number'],
-//                'lease_serial_number' => $crashier['lease_serial_number']?$crashier['lease_serial_number']:''
-//            );
             $body = array();
             foreach($lists as $key=>$value) {
-                $body[] = $crashier[$key];
+
+                if($key =='status'){
+                    $body[] = $value == 'unpaid'?'未付款':'已付款';
+                }else{
+                    $body[] = $crashier[$key];
+                }
             }
 
             $excelBody[] = $body;
@@ -537,35 +538,184 @@ class AdminExportService
         return $excelBody;
     }
 
-    /**
-     * @param $orders
-     * @param $list
-     * @param $language
-     */
+
     private function getExcelProductOrder(
         $orders,
-        $list,
+        $lists,
         $language
-    ){
+    ) {
         $excelBody = array();
-//        foreach($orders as $order)
-//        {
-//           $orderList = array(
-//               'order_number'
-//               'base_price'
-//               'rent_period'
-//               'price'
-//               'discount_price'
-//               'status'
-//               'payment_user_id'
-//               'creation_date'
-//               'invoice'
-//               'invoiced'
-//               'type'
-//               'description'
-//               'room_type'
-//           );
- //       }
 
+        // set excel body
+        foreach ($orders as $order) {
+            $productInfo = json_decode($order->getProductInfo(), true);
+
+            // set product name
+            $productName = $productInfo['room']['city']['name'].
+                $productInfo['room']['building']['name'].
+                $productInfo['room']['name'];
+
+            // set product type
+            $productTypeKey = $productInfo['room']['type'];
+
+            switch ($productTypeKey) {
+                case 'studio':
+                    $productTypeKey = 'others';
+                    break;
+                case 'space':
+                    $productTypeKey = 'others';
+                    break;
+                case 'fixed':
+                    $productTypeKey = 'desk';
+                    break;
+                case 'flexible':
+                    $productTypeKey = 'desk';
+                    break;
+                default:
+                    break;
+            }
+
+            $productType = $this->get('translator')->trans(
+                ProductOrderExport::TRANS_ROOM_TYPE.$productTypeKey,
+                array(),
+                null,
+                $language
+            );
+
+            // set unit price
+            $basePrice = null;
+            if (isset($productInfo['unit_price']) && isset($productInfo['base_price'])) {
+                $unitPriceKey = $productInfo['unit_price'];
+                $basePrice = $productInfo['base_price'];
+            } elseif (isset($productInfo['order']['unit_price'])) {
+                $unitPriceKey = $productInfo['order']['unit_price'];
+
+                if (isset($productInfo['room']['leasing_set'])) {
+                    foreach ($productInfo['room']['leasing_set'] as $item) {
+                        if ($item['unit_price'] == $unitPriceKey) {
+                            $basePrice = $item['base_price'];
+                        }
+                    }
+                }
+            } elseif (isset($productInfo['room']['leasing_set'])) {
+                $unitPriceKey = $productInfo['room']['leasing_set'][0]['unit_price'];
+                $basePrice = $productInfo['room']['leasing_set'][0]['base_price'];
+            }
+
+            $unitPrice = $this->get('translator')->trans(
+                ProductOrderExport::TRANS_ROOM_UNIT.$unitPriceKey,
+                array(),
+                null,
+                $language
+            );
+
+            // set status
+            $statusKey = $order->getStatus();
+            $status = $this->get('translator')->trans(
+                ProductOrderExport::TRANS_PRODUCT_ORDER_STATUS.$statusKey,
+                array(),
+                null,
+                $language
+            );
+
+            $startTime = $order->getStartDate()->format('Y-m-d H:i:s');
+            $endTime = $order->getEndDate()->format('Y-m-d H:i:s');
+
+            $userId = $order->getUserId();
+            $user = $this->getRepo('User\User')->find($userId);
+
+            $paymentChannel = $order->getPayChannel();
+            $refundChannel = $order->getRefundTo();
+            if (!is_null($paymentChannel) && !empty($paymentChannel)) {
+                $paymentChannel = $this->get('translator')->trans(
+                    ProductOrderExport::TRANS_PRODUCT_ORDER_CHANNEL.$paymentChannel,
+                    array(),
+                    null,
+                    $language
+                );
+
+                if ($statusKey == ProductOrder::STATUS_CANCELLED) {
+                    if (is_null($refundChannel)) {
+                        $refundChannel = ProductOrder::REFUND_TO_ORIGIN;
+                    } else {
+                        $refundChannel = ProductOrder::REFUND_TO_ACCOUNT;
+                    }
+
+                    $refundChannel = $this->get('translator')->trans(
+                        ProductOrderExport::TRANS_PRODUCT_ORDER_REFUND_TO.$refundChannel,
+                        array(),
+                        null,
+                        $language
+                    );
+                }
+            }
+
+            $orderType = $order->getType();
+            if (is_null($orderType) || empty($orderType)) {
+                $orderType = 'user';
+            }
+
+            $orderType = $this->get('translator')->trans(
+                ProductOrderExport::TRANS_PRODUCT_ORDER_TYPE.$orderType,
+                array(),
+                null,
+                $language
+            );
+
+            $companyName = null;
+            $buildingName = null;
+            $productId = $order->getProductId();
+            if (!is_null($productId)) {
+                $product = $this->getDoctrine()->getRepository('SandboxApiBundle:Product\Product')->find($productId);
+                $building = $product->getRoom()->getBuilding();
+                $buildingName = $building->getName();
+                $companyName = $building->getCompany()->getName();
+            }
+
+            $price = $order->getDiscountPrice();
+            $refund = $order->getActualRefundAmount();
+            if (is_null($refund) || empty($refund)) {
+                $refund = 0;
+            }
+
+            $actualAmount = $price - $refund;
+
+            // set excel body
+            $orderlist = array(
+                ProductOrderExport::COMPANY_NAME => $companyName,
+                ProductOrderExport::BUILDING_NAME => $buildingName,
+                ProductOrderExport::ORDER_NUMBER => $order->getOrderNumber(),
+                ProductOrderExport::PRODUCT_NAME => $productName,
+                ProductOrderExport::ROOM_TYPE => $productType,
+                ProductOrderExport::USER_ID => $userId,
+                ProductOrderExport::BASE_PRICE => $basePrice,
+                ProductOrderExport::UNIT_PRICE => $unitPrice,
+                ProductOrderExport::AMOUNT => $order->getPrice(),
+                ProductOrderExport::DISCOUNT_PRICE => $price,
+                ProductOrderExport::REFUND_AMOUNT => $refund,
+                ProductOrderExport::ACTUAL_AMOUNT => $actualAmount,
+                ProductOrderExport::START_TIME => $startTime,
+                ProductOrderExport::END_TIME => $endTime,
+                ProductOrderExport::ORDER_TIME => $order->getCreationDate()->format('Y-m-d H:i:s'),
+                ProductOrderExport::PAYMENT_TIME => $order->getPaymentDate()->format('Y-m-d H:i:s'),
+                ProductOrderExport::ORDER_STATUS => $status,
+                ProductOrderExport::REFUND_TO => $refundChannel,
+                ProductOrderExport::USER_PHONE => $user->getPhone(),
+                ProductOrderExport::USER_EMAIL => $user->getEmail(),
+                ProductOrderExport::PAYMENT_CHANNEL => $paymentChannel,
+                ProductOrderExport::ORDER_TYPE => $orderType,
+            );
+
+            $body = array();
+            foreach($lists as $key=>$value){
+                $body[] = $orderlist[$key];
+            }
+
+            $excelBody[] = $body;
+        }
+        var_dump($excelBody);exit();
+       return $excelBody;
     }
+
+
 }
