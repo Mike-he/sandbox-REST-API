@@ -7,6 +7,7 @@ use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
 use Sandbox\ApiBundle\Constants\EventOrderExport;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\GenericList\GenericList;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -356,7 +357,12 @@ class AdminEventOrderController extends SalesRestController
                 $companyId
             );
 
-        return $this->getEventOrderExport($orders, $language);
+        return $this->get('sandbox_api.export')->exportExcel(
+            $orders,
+            GenericList::OBJECT_EVENT_ORDER,
+            $adminId,
+            $language
+        );
     }
 
     /**

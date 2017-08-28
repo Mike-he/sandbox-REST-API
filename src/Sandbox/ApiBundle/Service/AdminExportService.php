@@ -2,8 +2,11 @@
 
 namespace Sandbox\ApiBundle\Service;
 
+use Sandbox\ApiBundle\Constants\EventOrderExport;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Event\Event;
+use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Sandbox\ApiBundle\Entity\GenericList\GenericList;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
@@ -74,6 +77,10 @@ class AdminExportService
             case GenericList::OBJECT_MEMBERSHIP_ORDER:
                 $excelBody = $this->getExcelMembershipOrder($data, $lists, $language);
                 $fileName = '会员卡订单'.$min.' - '.$max;
+                break;
+            case GenericList::OBJECT_EVENT_ORDER:
+                $excelBody = $this->getExcelEventOrder($data, $lists, $language);
+                $fileName = '活动订单'.$min.' - '.$max;
                 break;
             default:
                 $excelBody = array();
@@ -768,6 +775,78 @@ class AdminExportService
             $body = array();
             foreach ($lists as $key => $value) {
                 $body[] = $billList[$key];
+            }
+
+            $excelBody[] = $body;
+        }
+
+        return $excelBody;
+    }
+
+    /**
+     * @param $orders
+     * @param $lists
+     * @param $language
+     *
+     * @return array
+     */
+    private function getExcelEventOrder(
+        $orders,
+        $lists,
+        $language
+    ) {
+        $excelBody = array();
+
+        foreach ($orders as $order) {
+            /** @var EventOrder $order */
+            /** @var Event $event */
+            $event = $order->getEvent();
+
+            // get order number
+            $orderNumber = $order->getOrderNumber();
+
+            // get user
+            $userId = $order->getUserId();
+            $userProfile = $this->doctrine
+                ->getRepository('SandboxApiBundle:User\UserProfile')
+                ->findOneBy(['userId' => $userId]);
+
+            // get status
+            $statusKey = $order->getStatus();
+            $status = $this->container->get('translator')->trans(
+                EventOrderExport::TRANS_EVENT_ORDER_STATUS.$statusKey,
+                array(),
+                null,
+                $language
+            );
+
+            $paymentChannel = $order->getPayChannel();
+            if (!is_null($paymentChannel) && !empty($paymentChannel)) {
+                $paymentChannel = $this->container->get('translator')->trans(
+                    EventOrderExport::TRANS_EVENT_ORDER_CHANNEL.$paymentChannel,
+                    array(),
+                    null,
+                    $language
+                );
+            }
+
+            $orderList = [
+                'order_number' => $orderNumber,
+                'address' => $event->getAddress(),
+                'event_start_date' => $event->getEventStartDate(),
+                'price' => $order->getPrice(),
+                'status' => $status,
+                'user_id' => $userProfile->getName(),
+                'creation_date' => $order->getCreationDate(),
+                'publish_company' => $event->getPublishCompany(),
+                'name' => $event->getName(),
+                'pay_channel' => $paymentChannel,
+                'description' => $event->getDescription(),
+            ];
+
+            $body = array();
+            foreach ($lists as $key => $value) {
+                $body[] = $orderList[$key];
             }
 
             $excelBody[] = $body;
