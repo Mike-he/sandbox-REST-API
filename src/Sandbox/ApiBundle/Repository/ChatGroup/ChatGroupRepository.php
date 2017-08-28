@@ -88,7 +88,8 @@ class ChatGroupRepository extends EntityRepository
                 g.buildingId,
                 g.creatorId,
                 up.name as creator_name,
-                u.xmppUsername as creator_xmppUsername
+                u.xmppUsername as creator_xmppUsername,
+                g.gid
             ')
             ->leftJoin('SandboxApiBundle:ChatGroup\ChatGroupMember', 'm', 'WITH', 'g.id = m.chatGroup')
             ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'u.id = g.creatorId')
