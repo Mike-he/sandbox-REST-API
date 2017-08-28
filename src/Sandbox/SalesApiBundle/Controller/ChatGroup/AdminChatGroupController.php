@@ -143,7 +143,7 @@ class AdminChatGroupController extends ChatGroupController
      * @Annotations\QueryParam(
      *    name="tag",
      *    array=false,
-     *    default=null,
+     *    default="customer",
      *    nullable=true,
      *    strict=true,
      *    description="search by tag"
