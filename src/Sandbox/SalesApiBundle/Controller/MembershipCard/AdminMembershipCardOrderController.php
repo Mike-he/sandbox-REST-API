@@ -3,6 +3,7 @@
 namespace Sandbox\SalesApiBundle\Controller\MembershipCard;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
+use Sandbox\ApiBundle\Entity\GenericList\GenericList;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Symfony\Component\HttpFoundation\Request;
@@ -10,7 +11,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations;
-use Symfony\Component\HttpKernel\Exception\PreconditionFailedHttpException;
 use Sandbox\ApiBundle\Traits\FinanceSalesExportTraits;
 
 /**
@@ -375,48 +375,11 @@ class AdminMembershipCardOrderController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        //authenticate with web browser cookie
-        $admin = $this->authenticateAdminCookie();
-        $adminId = $admin->getId();
-        $token = $_COOKIE[self::ADMIN_COOKIE_NAME];
-
-        $userToken = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserToken')
-            ->findOneBy([
-                'userId' => $adminId,
-                'token' => $token,
-            ]);
-        $this->throwNotFoundIfNull($userToken, self::NOT_FOUND_MESSAGE);
-
-        $adminPlatform = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Admin\AdminPlatform')
-            ->findOneBy(array(
-                'userId' => $adminId,
-                'clientId' => $userToken->getClientId(),
-            ));
-        if (is_null($adminPlatform)) {
-            throw new PreconditionFailedHttpException(self::PRECONDITION_NOT_SET);
-        }
-
-        $companyId = $adminPlatform->getSalesCompanyId();
-
-        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
-            $adminId,
-            [
-                ['key' => AdminPermission::KEY_SALES_PLATFORM_MEMBERSHIP_CARD_ORDER],
-            ],
-            AdminPermission::OP_LEVEL_VIEW,
-            $adminPlatform->getPlatform(),
-            $companyId
-        );
-
-        $company = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
-            ->findOneBy([
-                'id' => $companyId,
-                'banned' => false,
-            ]);
-        $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
+        $data = $this->get('sandbox_api.admin_permission_check_service')
+            ->checkPermissionByCookie(
+                AdminPermission::KEY_SALES_PLATFORM_MEMBERSHIP_CARD_ORDER,
+                AdminPermission::PERMISSION_PLATFORM_SALES
+            );
 
         $language = $paramFetcher->get('language');
         $channel = $paramFetcher->get('channel');
@@ -439,12 +402,14 @@ class AdminMembershipCardOrderController extends SalesRestController
                 $createEnd,
                 null,
                 null,
-                $companyId
+                $data['company_id']
             );
 
-        return $this->getMembershipOrderExport(
-            $language,
-            $orders
+        return $this->get('sandbox_api.export')->exportExcel(
+            $orders,
+            GenericList::OBJECT_MEMBERSHIP_ORDER,
+            $data['user_id'],
+            $language
         );
     }
 

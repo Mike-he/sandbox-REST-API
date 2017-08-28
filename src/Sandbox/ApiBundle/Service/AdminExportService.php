@@ -10,6 +10,7 @@ use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseClue;
 use Sandbox\ApiBundle\Entity\Lease\LeaseOffer;
 use Sandbox\ApiBundle\Entity\Lease\LeaseRentTypes;
+use Sandbox\ApiBundle\Entity\MembershipCard\MembershipOrder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class AdminExportService
@@ -69,6 +70,10 @@ class AdminExportService
             case GenericList::OBJECT_PRODUCT_ORDER:
                 $excelBody = $this->getExcelProductOrder($data, $lists, $language);
                 $fileName = '空间订单'.$min.' - '.$max;
+                break;
+            case GenericList::OBJECT_MEMBERSHIP_ORDER:
+                $excelBody = $this->getExcelMembershipOrder($data, $lists, $language);
+                $fileName = '会员卡订单'.$min.' - '.$max;
                 break;
             default:
                 $excelBody = array();
@@ -512,22 +517,21 @@ class AdminExportService
      * @param $crashiers
      * @param $lists
      * @param $language
+     *
      * @return array
      */
     private function getExcelFinansherCrashier(
         $crashiers,
         $lists,
         $language
-    ){
+    ) {
         $excelBody = array();
-        foreach($crashiers as $crashier)
-        {
+        foreach ($crashiers as $crashier) {
             $body = array();
-            foreach($lists as $key=>$value) {
-
-                if($key =='status'){
-                    $body[] = $value == 'unpaid'?'未付款':'已付款';
-                }else{
+            foreach ($lists as $key => $value) {
+                if ($key == 'status') {
+                    $body[] = $value == 'unpaid' ? '未付款' : '已付款';
+                } else {
                     $body[] = $crashier[$key];
                 }
             }
@@ -537,7 +541,6 @@ class AdminExportService
 
         return $excelBody;
     }
-
 
     private function getExcelProductOrder(
         $orders,
@@ -707,15 +710,69 @@ class AdminExportService
             );
 
             $body = array();
-            foreach($lists as $key=>$value){
+            foreach ($lists as $key => $value) {
                 $body[] = $orderlist[$key];
             }
 
             $excelBody[] = $body;
         }
-        var_dump($excelBody);exit();
-       return $excelBody;
+        var_dump($excelBody);
+        exit();
+
+        return $excelBody;
     }
 
+    /**
+     * @param MembershipOrder $orders
+     * @param $lists
+     * @param $language
+     *
+     * @return array
+     */
+    private function getExcelMembershipOrder(
+        $orders,
+        $lists,
+        $language
+    ) {
+        $excelBody = array();
+        foreach ($orders as $order) {
+            /** @var MembershipOrder $order */
+            $payments = $this->doctrine->getRepository('SandboxApiBundle:Payment\Payment')->findAll();
+            $payChannel = array();
+            foreach ($payments as $payment) {
+                $payChannel[$payment->getChannel()] = $payment->getName();
+            }
 
+            $customer = $this->doctrine
+                ->getRepository('SandboxApiBundle:User\UserCustomer')
+                ->findOneBy(array(
+                    'userId' => $order->getUser(),
+                    'companyId' => $order->getCard()->getCompanyId(),
+                ));
+
+            $drawee = $customer ? $customer->getName() : '';
+
+            $billList = array(
+                'order_number' => $order->getOrderNumber(),
+                'price' => $order->getPrice(),
+                'valid_period' => $order->getValidPeriod(),
+                'discount_price' => $order->getPrice(),
+                'status' => '已完成',
+                'user_id' => $drawee,
+                'creation_date' => $order->getCreationDate()->format('Y-m-d H:i:s'),
+                'pay_channel' => $payChannel[$order->getPayChannel()],
+                'name' => $order->getCard()->getName(),
+                'specification' => $order->getSpecification(),
+            );
+
+            $body = array();
+            foreach ($lists as $key => $value) {
+                $body[] = $billList[$key];
+            }
+
+            $excelBody[] = $body;
+        }
+
+        return $excelBody;
+    }
 }
