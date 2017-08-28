@@ -79,6 +79,15 @@ class AdminFinanceShortRentInvoiceController extends SandboxRestController
      *    description="company"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="status",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Status"
+     * )
+     *
      *
      * @Method({"GET"})
      * @Route("/short/rent/invoices")
@@ -96,6 +105,7 @@ class AdminFinanceShortRentInvoiceController extends SandboxRestController
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
         $companyId = $paramFetcher->get('company_id');
+        $status = $paramFetcher->get('status');
 
         $offset = ($pageIndex - 1) * $pageLimit;
 
@@ -106,7 +116,7 @@ class AdminFinanceShortRentInvoiceController extends SandboxRestController
                 $createEnd,
                 null,
                 null,
-                null,
+                $status,
                 $companyId
             );
 
@@ -117,7 +127,7 @@ class AdminFinanceShortRentInvoiceController extends SandboxRestController
                 $createEnd,
                 null,
                 null,
-                null,
+                $status,
                 $companyId,
                 $pageLimit,
                 $offset
