@@ -682,28 +682,19 @@ class AdminExportService
 
             // set excel body
             $orderlist = array(
-                ProductOrderExport::COMPANY_NAME => $companyName,
-                ProductOrderExport::BUILDING_NAME => $buildingName,
-                ProductOrderExport::ORDER_NUMBER => $order->getOrderNumber(),
-                ProductOrderExport::PRODUCT_NAME => $productName,
-                ProductOrderExport::ROOM_TYPE => $productType,
-                ProductOrderExport::USER_ID => $userId,
-                ProductOrderExport::BASE_PRICE => $basePrice,
-                ProductOrderExport::UNIT_PRICE => $unitPrice,
-                ProductOrderExport::AMOUNT => $order->getPrice(),
-                ProductOrderExport::DISCOUNT_PRICE => $price,
-                ProductOrderExport::REFUND_AMOUNT => $refund,
-                ProductOrderExport::ACTUAL_AMOUNT => $actualAmount,
-                ProductOrderExport::START_TIME => $startTime,
-                ProductOrderExport::END_TIME => $endTime,
-                ProductOrderExport::ORDER_TIME => $order->getCreationDate()->format('Y-m-d H:i:s'),
-                ProductOrderExport::PAYMENT_TIME => $order->getPaymentDate()->format('Y-m-d H:i:s'),
-                ProductOrderExport::ORDER_STATUS => $status,
-                ProductOrderExport::REFUND_TO => $refundChannel,
-                ProductOrderExport::USER_PHONE => $user->getPhone(),
-                ProductOrderExport::USER_EMAIL => $user->getEmail(),
-                ProductOrderExport::PAYMENT_CHANNEL => $paymentChannel,
-                ProductOrderExport::ORDER_TYPE => $orderType,
+                'order_number'=> $order->getOrderNumber(),
+                'base_price' => $basePrice,
+                'unit_price' => $unitPrice,
+                'rent_period' => $order->getRentPeriod(),
+                'price' => $order->getPrice(),
+                'discount_price' => $price,
+                'status' => $status,
+                'payment_user_id' => $order->getCustomerId(),
+                'creation_date' => $order->getCreationDate()->format('Y-m-d H:i:s'),
+                'invoice' => $order->getInvoice(),
+                'type' => $orderType,
+                'description' => $orderType,
+                'room_type' =>$productType
             );
 
             $body = array();
@@ -713,9 +704,6 @@ class AdminExportService
 
             $excelBody[] = $body;
         }
-        var_dump($excelBody);exit();
        return $excelBody;
     }
-
-
 }

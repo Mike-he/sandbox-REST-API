@@ -1366,7 +1366,7 @@ class AdminOrderController extends OrderController
      *    description="filter for payment start. Must be YYYY-mm-dd"
      * )
      *
-     *  @Annotations\QueryParam(
+     * @Annotations\QueryParam(
      *    name="pay_end",
      *    array=false,
      *    default=null,
@@ -1465,13 +1465,7 @@ class AdminOrderController extends OrderController
                 $status
             );
 
-        return $this->get('sandbox_api.export')->exportExcel(
-            $orders,
-            GenericList::OBJECT_PRODUCT_ORDER,
-            $adminId,
-            $language
-        );
-       // return $this->getProductOrderExport($orders, $language);
+        return $this->getProductOrderExport($orders, $language);
     }
 
     /**
@@ -2284,5 +2278,252 @@ class AdminOrderController extends OrderController
             }
 
         }
+    }
+
+    /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="type",
+     *    array=true,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by room type"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="channel",
+     *    default=null,
+     *    nullable=true,
+     *    array=true,
+     *    description="payment channel"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="keyword",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="keyword_search",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="create_date_range",
+     *    default=null,
+     *    nullable=true,
+     *    description="create_date_range"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="create_start",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="start date. Must be YYYY-mm-dd"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="create_end",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="end date. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="status",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Order Status"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="rent_filter",
+     *    default=null,
+     *    nullable=true,
+     *    description="rent filter"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="start_date",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="start date. Must be YYYY-mm-dd"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="end_date",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="end date. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pay_date",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="filter for payment start. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pay_start",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="filter for payment start. Must be YYYY-mm-dd"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="pay_end",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="filter for payment end. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="room",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by room id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="user",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by user id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by building id"
+     * )
+     *
+     * * @Annotations\QueryParam(
+     *    name="language",
+     *    array=false,
+     *    default=null,
+     *    nullable=true
+     * )
+     *
+     * @Route("/export/orders")
+     * @Method({"GET"})
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse
+     */
+    public function exportProductOrderAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ){
+        $adminId = $this->getAdminId();
+        // check user permission
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
+            $adminId,
+            array(
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_CUSTOMER,
+                ),
+            ),
+            AdminPermission::OP_LEVEL_VIEW
+        );
+
+        //filters
+        $type = $paramFetcher->get('type');
+        $channel = $paramFetcher->get('channel');
+        $keyword = $paramFetcher->get('keyword');
+        $keywordSearch = $paramFetcher->get('keyword_search');
+        $createDateRange = $paramFetcher->get('create_date_range');
+        $createStart = $paramFetcher->get('create_start');
+        $createEnd = $paramFetcher->get('create_end');
+        $status = $paramFetcher->get('status');
+        $rentFilter = $paramFetcher->get('rent_filter');
+        $startDate = $paramFetcher->get('start_date');
+        $endDate = $paramFetcher->get('end_date');
+        $payDate = $paramFetcher->get('pay_date');
+        $payStart = $paramFetcher->get('pay_start');
+        $payEnd = $paramFetcher->get('pay_end');
+        $roomId = $paramFetcher->get('room');
+        $userId = $paramFetcher->get('user');
+        $buildingId = $paramFetcher->get('building');
+        $language = $paramFetcher->get('language');
+        //get my buildings list
+        $myBuildingIds = $this->getMySalesBuildingIds(
+            $this->getAdminId(),
+            array(
+                AdminPermission::KEY_SALES_BUILDING_ORDER,
+            )
+        );
+
+        $orders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getSalesOrdersForAdmin(
+                $channel,
+                $type,
+                null,
+                $buildingId,
+                $userId,
+                $rentFilter,
+                $startDate,
+                $endDate,
+                $payDate,
+                $payStart,
+                $payEnd,
+                $keyword,
+                $keywordSearch,
+                $myBuildingIds,
+                $createDateRange,
+                $createStart,
+                $createEnd,
+                $status,
+                $roomId
+            );
+
+        return $this->get('sandbox_api.export')->exportExcel(
+            $orders,
+            GenericList::OBJECT_PRODUCT_ORDER,
+            $adminId,
+            $language
+        );
     }
 }
