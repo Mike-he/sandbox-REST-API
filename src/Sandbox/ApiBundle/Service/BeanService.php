@@ -76,9 +76,9 @@ class BeanService
         $newBean = $oldBean + $amount;
 
         $lastBeanFlow = $em->getRepository('SandboxApiBundle:User\UserBeanFlow')
-            ->findOneBy(array(),array('id'=>'DESC'));
+            ->findOneBy(array(), array('id' => 'DESC'));
 
-        $totalBean = $lastBeanFlow ? $lastBeanFlow->getTotal()  : 0;
+        $totalBean = $lastBeanFlow ? $lastBeanFlow->getTotal() : 0;
 
         $beanFlow = new UserBeanFlow();
         $beanFlow->setUserId($userId);

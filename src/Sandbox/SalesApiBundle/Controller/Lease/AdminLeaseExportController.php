@@ -3,21 +3,15 @@
 namespace Sandbox\SalesApiBundle\Controller\Lease;
 
 use FOS\RestBundle\View\View;
-use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\GenericList\GenericList;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
-use Sandbox\ApiBundle\Entity\Lease\LeaseClue;
-use Sandbox\ApiBundle\Entity\Lease\LeaseOffer;
-use Sandbox\ApiBundle\Entity\Lease\LeaseRentTypes;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use FOS\RestBundle\Request\ParamFetcherInterface;
-use Symfony\Component\HttpKernel\Exception\PreconditionFailedHttpException;
 use FOS\RestBundle\Controller\Annotations;
 
 class AdminLeaseExportController extends SalesRestController
@@ -117,7 +111,11 @@ class AdminLeaseExportController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $data = $this->checkPermission(AdminPermission::KEY_SALES_BUILDING_LEASE_CLUE);
+        $data = $this->get('sandbox_api.admin_permission_check_service')
+            ->checkPermissionByCookie(
+                AdminPermission::KEY_SALES_BUILDING_LEASE_CLUE,
+                AdminPermission::PERMISSION_PLATFORM_SALES
+            );
 
         $language = $paramFetcher->get('language');
         $buildingId = $paramFetcher->get('building');
@@ -129,7 +127,7 @@ class AdminLeaseExportController extends SalesRestController
         $rentFilter = $paramFetcher->get('rent_filter');
         $startDate = $paramFetcher->get('start_date');
         $endDate = $paramFetcher->get('end_date');
-        
+
         $clues = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseClue')
             ->findClues(
@@ -260,7 +258,11 @@ class AdminLeaseExportController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $data = $this->checkPermission(AdminPermission::KEY_SALES_BUILDING_LEASE_OFFER);
+        $data = $this->get('sandbox_api.admin_permission_check_service')
+            ->checkPermissionByCookie(
+                AdminPermission::KEY_SALES_BUILDING_LEASE_OFFER,
+                AdminPermission::PERMISSION_PLATFORM_SALES
+            );
 
         $language = $paramFetcher->get('language');
         $buildingId = $paramFetcher->get('building');
@@ -450,7 +452,11 @@ class AdminLeaseExportController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $data = $this->checkPermission(AdminPermission::KEY_SALES_BUILDING_LONG_TERM_LEASE);
+        $data = $this->get('sandbox_api.admin_permission_check_service')
+            ->checkPermissionByCookie(
+                AdminPermission::KEY_SALES_BUILDING_LONG_TERM_LEASE,
+                AdminPermission::PERMISSION_PLATFORM_SALES
+            );
 
         $language = $paramFetcher->get('language');
         $status = $paramFetcher->get('status');
@@ -611,7 +617,11 @@ class AdminLeaseExportController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $data = $this->checkPermission(AdminPermission::KEY_SALES_BUILDING_LEASE_BILL);
+        $data = $this->get('sandbox_api.admin_permission_check_service')
+            ->checkPermissionByCookie(
+                AdminPermission::KEY_SALES_BUILDING_LEASE_BILL,
+                AdminPermission::PERMISSION_PLATFORM_SALES
+            );
 
         $language = $paramFetcher->get('language');
         $channel = $paramFetcher->get('channel');
@@ -684,68 +694,5 @@ class AdminLeaseExportController extends SalesRestController
             $min,
             $max
         );
-    }
-
-    /**
-     * @param $permission
-     *
-     * @return array
-     */
-    private function checkPermission(
-        $permission
-    ) {
-        //authenticate with web browser cookie
-        $admin = $this->authenticateAdminCookie();
-        $adminId = $admin->getId();
-        $token = $_COOKIE[self::ADMIN_COOKIE_NAME];
-
-        $userToken = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserToken')
-            ->findOneBy([
-                'userId' => $adminId,
-                'token' => $token,
-            ]);
-        $this->throwNotFoundIfNull($userToken, self::NOT_FOUND_MESSAGE);
-
-        $adminPlatform = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Admin\AdminPlatform')
-            ->findOneBy(array(
-                'userId' => $adminId,
-                'clientId' => $userToken->getClientId(),
-            ));
-        if (is_null($adminPlatform)) {
-            throw new PreconditionFailedHttpException(self::PRECONDITION_NOT_SET);
-        }
-
-        $companyId = $adminPlatform->getSalesCompanyId();
-
-        // check user permission
-        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
-            $adminId,
-            [
-                ['key' => $permission],
-            ],
-            AdminPermission::OP_LEVEL_VIEW,
-            AdminPermission::PERMISSION_PLATFORM_SALES,
-            $companyId
-        );
-
-        $myBuildingIds = $this->getMySalesBuildingIds(
-            $adminId,
-            array(
-                $permission,
-            ),
-            AdminPermission::OP_LEVEL_VIEW,
-            AdminPermission::PERMISSION_PLATFORM_SALES,
-            $companyId
-        );
-
-        $result = array(
-            'company_id' => $companyId,
-            'user_id' => $adminId,
-            'building_ids' => $myBuildingIds,
-        );
-
-        return $result;
     }
 }
