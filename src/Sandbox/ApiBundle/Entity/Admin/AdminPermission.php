@@ -66,6 +66,7 @@ class AdminPermission
     const KEY_OFFICIAL_PLATFORM_TRANSFER_CONFIRM = 'platform.transfer_confirm';
     const KEY_OFFICIAL_PLATFORM_SALES_MONITORING = 'platform.sales_monitoring';
     const KEY_OFFICIAL_PLATFORM_MEMBERSHIP_CARD_ORDER = 'platform.membership_card_order';
+    const KEY_OFFICIAL_PLATFORM_BEAN = 'platform.bean';
 
     const KEY_SALES_PLATFORM_DASHBOARD = 'sales.platform.dashboard';
     const KEY_SALES_PLATFORM_ADMIN = 'sales.platform.admin';

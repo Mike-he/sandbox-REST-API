@@ -112,11 +112,11 @@ class AdminUserBeanController extends UserProfileController
             $source = $this->get('translator')->trans(BeanConstants::TRANS_USER_BEAN.$flow->getSource());
 
             if ($flow->getType() == UserBeanFlow::TYPE_CONSUME) {
-                $DuibaOrder = $this->getDoctrine()
+                $duibaOrder = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Duiba\DuibaOrder')
                     ->findOneBy(array('duibaOrderNum' => $flow->getTradeId()));
 
-                $source = $DuibaOrder ? $source.'-'.$DuibaOrder->getDescription() : $source;
+                $source = $duibaOrder ? $source.'-'.$duibaOrder->getDescription() : $source;
             }
 
             $flow->setSource($source);
@@ -164,23 +164,23 @@ class AdminUserBeanController extends UserProfileController
      *
      * @return View
      */
-    public function exportBillsAction(
+    public function exportFlowsAction(
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
         //authenticate with web browser cookie
-//        $admin = $this->authenticateAdminCookie();
-//        $adminId = $admin->getId();
+        $admin = $this->authenticateAdminCookie();
+        $adminId = $admin->getId();
 
-        // check user permission
-//        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
-//            $adminId,
-//            [
-//                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_LONG_TERM_LEASE],
-//            ],
-//            AdminPermission::OP_LEVEL_VIEW,
-//            AdminPermission::PERMISSION_PLATFORM_OFFICIAL
-//        );
+        //check user permission
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
+            $adminId,
+            [
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_BEAN],
+            ],
+            AdminPermission::OP_LEVEL_VIEW,
+            AdminPermission::PERMISSION_PLATFORM_OFFICIAL
+        );
 
         $startDate = $paramFetcher->get('start_date');
         $endDate = $paramFetcher->get('end_date');
@@ -215,11 +215,11 @@ class AdminUserBeanController extends UserProfileController
             $source = $this->get('translator')->trans(BeanConstants::TRANS_USER_BEAN.$flow->getSource());
 
             if ($flow->getType() == UserBeanFlow::TYPE_CONSUME) {
-                $DuibaOrder = $this->getDoctrine()
+                $duibaOrder = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Duiba\DuibaOrder')
                     ->findOneBy(array('duibaOrderNum' => $flow->getTradeId()));
 
-                $source = $DuibaOrder ? $source.'-'.$DuibaOrder->getDescription() : $source;
+                $source = $duibaOrder ? $source.'-'.$duibaOrder->getDescription() : $source;
             }
 
             // set excel body
@@ -288,6 +288,7 @@ class AdminUserBeanController extends UserProfileController
             $this->getAdminId(),
             [
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_USER],
+                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_BEAN],
             ],
             $opLevel
         );
