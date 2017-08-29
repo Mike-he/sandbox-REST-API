@@ -2,7 +2,6 @@
 
 namespace Sandbox\SalesApiBundle\Controller\Finance;
 
-use FOS\RestBundle\Request\ParamFetcher;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
@@ -17,7 +16,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations;
-use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 /**
  * Admin Finance Cashier Controller.
@@ -242,7 +240,6 @@ class AdminFinanceCashierController extends SalesRestController
     }
 
     /**
-     *
      * @param Request               $request      the request object
      * @param ParamFetcherInterface $paramFetcher
      *
@@ -344,7 +341,7 @@ class AdminFinanceCashierController extends SalesRestController
     public function exportFianceCashierAction(
         Request $request,
         ParamFetcherInterface $paramFetcher
-    ){
+    ) {
         $adminId = $this->getAdminId();
 
         // check user permission
@@ -455,7 +452,6 @@ class AdminFinanceCashierController extends SalesRestController
                        $adminId,
                        $language
                  );
-
     }
 
     /**

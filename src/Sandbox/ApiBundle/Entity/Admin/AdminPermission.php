@@ -74,7 +74,6 @@ class AdminPermission
     const KEY_SALES_PLATFORM_INVOICE = 'sales.platform.invoice';
     const KEY_SALES_PLATFORM_EVENT = 'sales.platform.event';
     const KEY_SALES_PLATFORM_EVENT_ORDER = 'sales.platform.event_order';
-    const KEY_SALES_PLATFORM_LONG_TERM_SERVICE_BILLS = 'sales.platform.long_term_service_bills';
     const KEY_SALES_PLATFORM_MONTHLY_BILLS = 'sales.platform.monthly_bills';
     const KEY_SALES_PLATFORM_FINANCIAL_SUMMARY = 'sales.platform.financial_summary';
     const KEY_SALES_PLATFORM_WITHDRAWAL = 'sales.platform.withdrawal';

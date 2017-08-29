@@ -7,7 +7,6 @@ use JMS\Serializer\SerializationContext;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Sandbox\ApiBundle\Entity\Finance\FinanceBillAttachment;
 use Sandbox\ApiBundle\Entity\Finance\FinanceBillInvoiceInfo;
 use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentBill;
 use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentServiceBill;
@@ -519,12 +518,11 @@ class AdminFinanceLongRentBillController extends SalesRestController
      * @Method({"GET"})
      *
      * @return View
-     *
      */
     public function getLongRentBillFlowAction(
         Request $request,
         ParamFetcherInterface $paramFetcher
-    ){
+    ) {
         // check user permission
         $this->checkAdminSalesLongTermBillPermission($this->getAdminId(), AdminPermission::OP_LEVEL_VIEW);
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
@@ -539,7 +537,7 @@ class AdminFinanceLongRentBillController extends SalesRestController
         $bills = $this->getDoctrine()->getRepository('SandboxApiBundle:Finance\FinanceLongRentBill')
             ->getBillLists(
                 $salesCompanyId,
-                array(FinanceLongRentBill::STATUS_PAID,FinanceLongRentBill::STATUS_PENDING),
+                array(FinanceLongRentBill::STATUS_PAID, FinanceLongRentBill::STATUS_PENDING),
                 $createStart,
                 $createEnd,
                 null,
@@ -547,7 +545,7 @@ class AdminFinanceLongRentBillController extends SalesRestController
             );
 
         $billsLists = array();
-        foreach ($bills as $bill){
+        foreach ($bills as $bill) {
             $billsLists[] = $this->getBillsLists($bill);
         }
 
@@ -564,22 +562,22 @@ class AdminFinanceLongRentBillController extends SalesRestController
             );
 
         $serviceFeeBillsLists = array();
-        foreach ($serviceFeeBills as $serviceFeeBill){
+        foreach ($serviceFeeBills as $serviceFeeBill) {
             $serviceFeeBillsLists[] = $this->getServiceFeeBillsLists($serviceFeeBill);
         }
 
-        $result = array_merge($billsLists,$serviceFeeBillsLists);
+        $result = array_merge($billsLists, $serviceFeeBillsLists);
         $sort = array(
             'direction' => 'SORT_DESC',        //排序顺序标志 SORT_DESC 降序；SORT_ASC 升序
-            'field'     => 'createDate',       //排序字段
+            'field' => 'createDate',       //排序字段
         );
         $arrSort = array();
-        foreach( $result as $uniqid => $row){
-            foreach($row as $key=>$value){
+        foreach ($result as $uniqid => $row) {
+            foreach ($row as $key => $value) {
                 $arrSort[$key][$uniqid] = $value;
             }
         }
-        if($sort['direction']){
+        if ($sort['direction']) {
             array_multisort($arrSort[$sort['field']], constant($sort['direction']),  $result);
         }
 
@@ -611,6 +609,7 @@ class AdminFinanceLongRentBillController extends SalesRestController
 
     /**
      * @param $bill
+     *
      * @return array
      */
     private function getBillsLists($bill)
@@ -618,7 +617,7 @@ class AdminFinanceLongRentBillController extends SalesRestController
         $bill = array(
             'createDate' => $bill->getCreationDate()->format('Y-m-d'),
             'description' => '索取发票',
-            'amount' => '-'.$bill->getAmount()
+            'amount' => '-'.$bill->getAmount(),
         );
 
         return $bill;
@@ -626,6 +625,7 @@ class AdminFinanceLongRentBillController extends SalesRestController
 
     /**
      * @param $serviceFeeBill
+     *
      * @return array
      */
     private function getServiceFeeBillsLists($serviceFeeBill)
@@ -633,7 +633,7 @@ class AdminFinanceLongRentBillController extends SalesRestController
         $serviceFeeBill = array(
             'createDate' => $serviceFeeBill->getCreationDate()->format('Y-m-d'),
             'description' => '手续费账单',
-            'amount' => '+'.$serviceFeeBill->getAmount()
+            'amount' => '+'.$serviceFeeBill->getAmount(),
         );
 
         return $serviceFeeBill;

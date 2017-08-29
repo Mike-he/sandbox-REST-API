@@ -5,10 +5,11 @@ namespace Sandbox\ApiBundle\Traits;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Constants\EventOrderExport;
 use Sandbox\ApiBundle\Constants\LeaseConstants;
+use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentServiceBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
+use Sandbox\ApiBundle\Entity\MembershipCard\MembershipOrder;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Sandbox\ApiBundle\Entity\User\UserCustomer;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
@@ -81,7 +82,7 @@ trait FinanceSalesExportTraits
      * @param $language
      * @param $events
      * @param $shortOrders
-     * @param $longBills
+     * @param $membershipOrders
      *
      * @return mixed
      */
@@ -90,43 +91,66 @@ trait FinanceSalesExportTraits
         $language,
         $events,
         $shortOrders,
-        $longBills,
         $membershipOrders
     ) {
         $phpExcelObject = new \PHPExcel();
         $phpExcelObject->getProperties()->setTitle('Finance Summary');
 
-        $headers = $this->getSalesExcelHeaders($language);
+        $headers = [
+            '社区',
+            '类型',
+            '订单号',
+            '商品',
+            '商品类型',
+            '客户',
+            '下单方式',
+            '支付方式',
+            '支付渠道',
+            '单价',
+            '单位',
+            '订单原价',
+            '付款金额',
+            '退款金额',
+            '手续费',
+            '结算金额',
+            '租赁起始时间',
+            '租赁结束时间',
+            '创建时间',
+            '付款时间',
+            '订单状态',
+            '退款路径',
+            '客户手机',
+            '客户邮箱',
+        ];
 
         //Fill data
         $phpExcelObject->setActiveSheetIndex(0)->fromArray($headers, ' ', 'A1');
         $row = $phpExcelObject->getActiveSheet()->getHighestRow() + 1;
 
+        $em = $this->getContainer()->get('doctrine')->getManager();
+        $payments = $em->getRepository('SandboxApiBundle:Payment\Payment')->findAll();
+        $payChannels = array();
+        foreach ($payments as $payment) {
+            $payChannels[$payment->getChannel()] = $payment->getName();
+        }
+
         // set sheet body
         if (!is_null($shortOrders) && !empty($shortOrders)) {
-            $shortBody = $this->setShortOrderArray(
+            $shortBody = $this->getShortOrderBody(
                 $shortOrders,
-                $language
+                $language,
+                $payChannels
             );
 
             $phpExcelObject->setActiveSheetIndex(0)->fromArray($shortBody, ' ', "A$row");
             $row = $phpExcelObject->getActiveSheet()->getHighestRow() + 3;
         }
 
-        if (!is_null($longBills) && !empty($longBills)) {
-            $longBody = $this->setLongOrderArray(
-                $longBills,
-                $language
-            );
-
-            $phpExcelObject->setActiveSheetIndex(0)->fromArray($longBody, ' ', "A$row");
-            $row = $phpExcelObject->getActiveSheet()->getHighestRow() + 3;
-        }
-
         if (!is_null($events) && !empty($events)) {
-            $eventBody = $this->setEventArray(
+            $eventBody = $this->getEventOrderBody(
                 $events,
-                $language
+                $language,
+                $payChannels
             );
 
             $phpExcelObject->setActiveSheetIndex(0)->fromArray($eventBody, ' ', "A$row");
@@ -134,9 +158,10 @@ trait FinanceSalesExportTraits
         }
 
         if (!is_null($membershipOrders) && !empty($membershipOrders)) {
-            $membershipBody = $this->setMembershipArray(
+            $membershipBody = $this->getMembershipOrderBody(
                 $membershipOrders,
-                $language
+                $language,
+                $payChannels
             );
 
             $phpExcelObject->setActiveSheetIndex(0)->fromArray($membershipBody, ' ', "A$row");
@@ -206,41 +231,18 @@ trait FinanceSalesExportTraits
     /**
      * @param $events
      * @param $language
+     * @param $payChannels
      *
      * @return array
      */
-    private function setEventArray(
+    private function getEventOrderBody(
         $events,
-        $language
+        $language,
+        $payChannels
     ) {
         $eventBody = [];
-
-        $collection = $this->get('translator')->trans(
-            ProductOrderExport::TRANS_CLIENT_PROFILE_SANDBOX,
-            array(),
-            null,
-            $language
-        );
-
-        $orderCategory = $this->get('translator')->trans(
-            ProductOrderExport::TRANS_CLIENT_PROFILE_EVENT_ORDER,
-            array(),
-            null,
-            $language
-        );
-
-        $roomType = null;
-
-        $commission = null;
-
-        $orderType = $orderType = $this->get('translator')->trans(
-            ProductOrderExport::TRANS_PRODUCT_ORDER_TYPE.'user',
-            array(),
-            null,
-            $language
-        );
-
         foreach ($events as $event) {
+            /** @var EventOrder $event */
             $buildingId = $event->getEvent()->getBuildingId();
 
             if (is_null($buildingId)) {
@@ -250,67 +252,42 @@ trait FinanceSalesExportTraits
                 $buildingName = $building ? $building->getName() : null;
             }
 
-            $orderNumber = $event->getOrderNumber();
-
-            $productName = $event->getEvent()->getName();
-
-            $profile = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:User\UserProfile')
-                ->findOneBy(['userId' => $event->getUserId()]);
-            $username = $profile->getName();
+            $customer = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserCustomer')
+                ->findOneBy(array(
+                    'userId' => $event->getUserId(),
+                    'companyId' => $event->getEvent()->getSalesCompanyId(),
+                ));
 
             $basePrice = $event->getPrice();
+            $price = $event->getPrice();
+            $discountPrice = $event->getPrice();
+            $poundage = $discountPrice * $event->getServiceFee() / 100;
 
-            $unit = null;
-
-            $price = $basePrice;
-
-            $actualAmount = $price;
-
-            $income = $actualAmount - $actualAmount * $event->getServiceFee() / 100;
-
-            $leasingTime = $event->getEvent()->getEventStartDate()->format('Y-m-d H:i:s')
-                .' - '
-                .$event->getEvent()->getEventEndDate()->format('Y-m-d H:i:s');
-
-            $creationDate = $event->getCreationDate()->format('Y-m-d H:i:s');
-
-            $payDate = $event->getPaymentDate()->format('Y-m-d H:i:s');
-
-            $status = $this->get('translator')->trans(
-                EventOrderExport::TRANS_EVENT_ORDER_STATUS.$event->getStatus(),
-                array(),
-                null,
-                $language
-            );
-
-            $channel = $this->get('translator')->trans(
-                ProductOrderExport::TRANS_PRODUCT_ORDER_CHANNEL.$event->getPayChannel(),
-                array(),
-                null,
-                $language
-            );
-
-            $body = $this->getExportBody(
-                $collection,
-                $buildingName,
-                $orderCategory,
-                $orderNumber,
-                $productName,
-                $roomType,
-                $username,
-                $basePrice,
-                $unit,
-                $price,
-                $actualAmount,
-                $income,
-                $commission,
-                $leasingTime,
-                $creationDate,
-                $payDate,
-                $status,
-                $orderType,
-                $channel
+            $body = array(
+                'building_name' => $buildingName,
+                'order_type' => '活动订单',
+                'order_number' => $event->getOrderNumber(),
+                'room_name' => $event->getEvent()->getName(),
+                'room_type' => '',
+                'customer' => $customer ? $customer->getName() : '',
+                'order_method' => '用户自主下单',
+                'payment_method' => '创合代收',
+                'pay_channel' => $payChannels[$event->getPayChannel()],
+                'base_price' => $basePrice,
+                'unit_price' => '',
+                'price' => $price,
+                'discount_price' => $discountPrice,
+                'refund_amount' => '',
+                'poundage' => $poundage,
+                'settlement_amount' => $discountPrice - $poundage,
+                'start_date' => $event->getEvent()->getEventStartDate()->format('Y-m-d H:i:s'),
+                'end_date' => $event->getEvent()->getEventEndDate()->format('Y-m-d H:i:s'),
+                'creation_date' => $event->getCreationDate()->format('Y-m-d H:i:s'),
+                'payment_date' => $event->getPaymentDate()->format('Y-m-d H:i:s'),
+                'status' => '已完成',
+                'refundTo' => '',
+                'customer_phone' => $customer ? $customer->getPhone() : '',
+                'customer_email' => $customer ? $customer->getEmail() : '',
             );
 
             $eventBody[] = $body;
@@ -456,152 +433,179 @@ trait FinanceSalesExportTraits
     }
 
     /**
-     * @param $companyName
      * @param $shortOrders
      * @param $language
+     * @param $payChannels
      *
      * @return array
      */
-    private function setShortOrderArray(
+    private function getShortOrderBody(
         $shortOrders,
-        $language
+        $language,
+        $payChannels
     ) {
+        $em = $this->getContainer()->get('doctrine')->getManager();
+
         $shortBody = [];
-
-        $collection = $this->get('translator')->trans(
-            ProductOrderExport::TRANS_CLIENT_PROFILE_SANDBOX,
-            array(),
-            null,
-            $language
-        );
-
-        $orderCategory = $this->get('translator')->trans(
-            ProductOrderExport::TRANS_CLIENT_PROFILE_SHORT_RENT_ORDER,
-            array(),
-            null,
-            $language
-        );
-
-        $commission = null;
-
         foreach ($shortOrders as $order) {
-            $productId = $order->getProductId();
-            $product = $this->getDoctrine()->getRepository('SandboxApiBundle:Product\Product')->find($productId);
-            $building = $product->getRoom()->getBuilding();
-            $company = $building->getCompany();
-            $companyName = $company->getName();
-            $buildingName = $building->getName();
+            /** @var ProductOrder $order */
+            $product = $order->getProduct();
+            $room = $product->getRoom();
+            $building = $room->getBuilding();
 
-            $orderNumber = $order->getOrderNumber();
+            $customer = $em->getRepository('SandboxApiBundle:User\UserCustomer')
+                ->findOneBy(array(
+                    'userId' => $order->getUserId(),
+                    'companyId' => $building->getCompanyId(),
+                ));
 
-            $productInfo = json_decode($order->getProductInfo(), true);
-            $productName = $productInfo['room']['name'];
-
-            $roomType = $productInfo['room']['type'];
             $roomType = $this->get('translator')->trans(
-                ProductOrderExport::TRANS_ROOM_TYPE.$roomType,
+                ProductOrderExport::TRANS_ROOM_TYPE.$room->getType(),
                 array(),
                 null,
                 $language
             );
 
-            $companyServiceInfo = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
-                ->findOneBy([
-                    'company' => $company,
-                    'tradeTypes' => $roomType,
-                ]);
-            if (!is_null($companyServiceInfo)) {
-                $method = $companyServiceInfo->getCollectionMethod();
-                if ($method == SalesCompanyServiceInfos::COLLECTION_METHOD_SALES) {
-                    $collection = $companyName;
+            $unit = $this->get('translator')->trans(
+                ProductOrderExport::TRANS_ROOM_UNIT.$order->getUnitPrice(),
+                array(),
+                null,
+                $language
+            );
+
+            $discountPrice = $order->getDiscountPrice();
+            $refundAmount = $order->getActualRefundAmount();
+
+            $poundage = $discountPrice * $order->getServiceFee() / 100;
+
+            $refundTo = null;
+            if ($order->getRefundTo()) {
+                if ($order->getRefundTo() == 'account') {
+                    $refundTo = '退款到余额';
+                } else {
+                    $refundTo = '原路退回';
                 }
             }
 
-            $profile = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:User\UserProfile')
-                ->findOneBy(['userId' => $order->getUserId()]);
-            $username = $profile->getName();
-
-            $basePrice = $productInfo['base_price'];
-
-            $unit = $this->get('translator')->trans(
-                ProductOrderExport::TRANS_ROOM_UNIT.$productInfo['unit_price'],
-                array(),
-                null,
-                $language
+            $body = array(
+                'building_name' => $building->getName(),
+                'order_type' => '秒租订单',
+                'order_number' => $order->getOrderNumber(),
+                'room_name' => $room->getName(),
+                'room_type' => $roomType,
+                'customer' => $customer ? $customer->getName() : '',
+                'order_method' => $order->getType() == ProductOrder::OWN_TYPE ? '用户自主下单' : '官方推单',
+                'payment_method' => '创合代收',
+                'pay_channel' => $payChannels[$order->getPayChannel()],
+                'base_price' => $order->getBasePrice(),
+                'unit_price' => $unit,
+                'price' => $order->getPrice(),
+                'discount_price' => $discountPrice,
+                'refund_amount' => $order->getActualRefundAmount(),
+                'poundage' => $poundage,
+                'settlement_amount' => $discountPrice - $refundAmount - $poundage,
+                'start_date' => $order->getStartDate()->format('Y-m-d H:i:s'),
+                'end_date' => $order->getEndDate()->format('Y-m-d H:i:s'),
+                'creation_date' => $order->getCreationDate()->format('Y-m-d H:i:s'),
+                'payment_date' => $order->getPaymentDate()->format('Y-m-d H:i:s'),
+                'status' => '已完成',
+                'refundTo' => $refundTo,
+                'customer_phone' => $customer ? $customer->getPhone() : '',
+                'customer_email' => $customer ? $customer->getEmail() : '',
             );
-
-            $price = $order->getPrice();
-
-            $actualAmount = $order->getDiscountPrice();
-
-            $income = $actualAmount - $actualAmount * $order->getServiceFee() / 100;
-
-            $startTime = $order->getStartDate()->format('Y-m-d H:i:s');
-
-            $endTime = $order->getEndDate()->format('Y-m-d H:i:s');
-
-            $creationDate = $order->getCreationDate()->format('Y-m-d H:i:s');
-
-            $payDate = $order->getPaymentDate()->format('Y-m-d H:i:s');
-
-            $status = $this->get('translator')->trans(
-                ProductOrderExport::TRANS_PRODUCT_ORDER_STATUS.$order->getStatus(),
-                array(),
-                null,
-                $language
-            );
-
-            $type = $order->getType();
-            if (is_null($type) || empty($type)) {
-                $type = 'user';
-            }
-
-            $orderType = $this->get('translator')->trans(
-                ProductOrderExport::TRANS_PRODUCT_ORDER_TYPE.$type,
-                array(),
-                null,
-                $language
-            );
-
-            $channel = '';
-            if ($order->getPayChannel()) {
-                $channel = $this->get('translator')->trans(
-                    ProductOrderExport::TRANS_PRODUCT_ORDER_CHANNEL.$order->getPayChannel(),
-                    array(),
-                    null,
-                    $language
-                );
-            }
-
-            $body = $this->getExportBody(
-                $collection,
-                $buildingName,
-                $orderCategory,
-                $orderNumber,
-                $productName,
-                $roomType,
-                $username,
-                $basePrice,
-                $unit,
-                $price,
-                $actualAmount,
-                $income,
-                $commission,
-                $startTime,
-                $endTime,
-                $creationDate,
-                $payDate,
-                $status,
-                $orderType,
-                $channel
-            );
-
             $shortBody[] = $body;
         }
 
         return $shortBody;
+    }
+
+    /**
+     * @param $membershipOrders
+     * @param $language
+     *
+     * @return array
+     */
+    private function getMembershipOrderBody(
+        $membershipOrders,
+        $language,
+        $payChannels
+    ) {
+        $membershipBody = [];
+        foreach ($membershipOrders as $order) {
+            /** @var MembershipOrder $order */
+            $card = $order->getCard();
+
+            $buildingIds = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserGroupDoors')
+                ->getBuildingIdsByGroup(
+                    null,
+                    $card
+                );
+
+            $buildingName = null;
+            foreach ($buildingIds as $buildingId) {
+                $building = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')->find($buildingId);
+                $name = $building ? $building->getName() : null;
+
+                if (is_null($buildingName)) {
+                    $buildingName = $name;
+                } elseif (!is_null($name)) {
+                    $buildingName = $buildingName.", $name";
+                }
+            }
+
+            $period = $order->getValidPeriod();
+            $unit = $this->get('translator')->trans(
+                ProductOrderExport::TRANS_ROOM_UNIT.$order->getUnitPrice(),
+                array(),
+                null,
+                $language
+            );
+            $unit = $period.$unit;
+
+            $price = $order->getPrice();
+
+            $discountPrice = $price;
+
+            $poundage = $discountPrice * $order->getServiceFee() / 100;
+
+            $customer = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserCustomer')
+                ->findOneBy(array(
+                    'userId' => $order->getUser(),
+                    'companyId' => $order->getCard()->getCompanyId(),
+                ));
+
+            $body = array(
+                'building_name' => $buildingName,
+                'order_type' => '会员卡订单',
+                'order_number' => $order->getOrderNumber(),
+                'room_name' => $card->getName(),
+                'room_type' => '',
+                'customer' => $customer ? $customer->getName() : '',
+                'order_method' => '用户自主下单',
+                'payment_method' => '创合代收',
+                'pay_channel' => $payChannels[$order->getPayChannel()],
+                'base_price' => $order->getPrice(),
+                'unit_price' => $unit,
+                'price' => $order->getPrice(),
+                'discount_price' => $discountPrice,
+                'refund_amount' => '',
+                'poundage' => $poundage,
+                'settlement_amount' => $discountPrice - $poundage,
+                'start_date' => $order->getStartDate()->format('Y-m-d H:i:s'),
+                'end_date' => $order->getEndDate()->format('Y-m-d H:i:s'),
+                'creation_date' => $order->getCreationDate()->format('Y-m-d H:i:s'),
+                'payment_date' => $order->getPaymentDate()->format('Y-m-d H:i:s'),
+                'status' => '已完成',
+                'refundTo' => '',
+                'customer_phone' => $customer ? $customer->getPhone() : '',
+                'customer_email' => $customer ? $customer->getEmail() : '',
+            );
+
+            $membershipBody[] = $body;
+        }
+
+        return $membershipBody;
     }
 
     /**
@@ -878,6 +882,10 @@ trait FinanceSalesExportTraits
             $orderNumber = $serviceBill->getOrderNumber();
             $firstTag = substr($orderNumber, 0, 1);
 
+            $basePrice = null;
+            $unitPrice = null;
+            $refundTo = null;
+            $refundAmount = 0;
             switch ($firstTag) {
                 case 'P':
                     /** @var ProductOrder $order */
@@ -896,7 +904,6 @@ trait FinanceSalesExportTraits
                     $endDate = $order->getEndDate();
                     $creationDate = $order->getCreationDate()->format('Y-m-d H:i:s');
                     $paymentDate = $order->getPaymentDate()->format('Y-m-d H:i:s');
-                    $refundTo = $order->getRefundTo();
                     $basePrice = $order->getBasePrice();
                     $unitPrice = $order->getUnitPrice();
 
@@ -910,10 +917,22 @@ trait FinanceSalesExportTraits
                             ->findOneBy(array('userId' => $order->getUserId(), 'companyId' => $serviceBill->getCompanyId()));
                     }
 
+                    if ($order->getRefundTo()) {
+                        if ($order->getRefundTo() == 'account') {
+                            $refundTo = '退款到余额';
+                        } else {
+                            $refundTo = '原路退回';
+                        }
+                    }
+
                     break;
                 case 'B':
                     $bill = $em->getRepository('SandboxApiBundle:Lease\LeaseBill')
                         ->findOneBy(array('serialNumber' => $orderNumber));
+
+                    if (!$bill) {
+                        continue;
+                    }
 
                     /** @var LeaseBill $bill */
                     $lease = $bill->getLease();
@@ -921,19 +940,11 @@ trait FinanceSalesExportTraits
                     $payChannel = $bill->getPayChannel();
                     $price = $bill->getAmount();
                     $discountPrice = $bill->getRevisedAmount();
-                    $refundAmount = 0;
+
                     $startDate = $bill->getStartDate();
                     $endDate = $bill->getEndDate();
                     $creationDate = $bill->getSendDate()->format('Y-m-d H:i:s');
                     $paymentDate = $bill->getPaymentDate()->format('Y-m-d H:i:s');
-                    $refundTo = '';
-
-                    $productRentSet = $em->getRepository('SandboxApiBundle:Product\ProductRentSet')
-                        ->findOneBy(array('product' => $product));
-
-                    $basePrice = $productRentSet->getBasePrice();
-                    $unitPrice = $productRentSet->getUnitPrice();
-
                     $customer = $em->getRepository('SandboxApiBundle:User\UserCustomer')
                         ->find($lease->getLesseeCustomer());
 
