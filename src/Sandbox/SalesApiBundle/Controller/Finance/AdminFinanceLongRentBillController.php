@@ -218,12 +218,6 @@ class AdminFinanceLongRentBillController extends SalesRestController
         $em = $this->getDoctrine()->getManager();
         $em->persist($bill);
 
-//        $attachments = $bill->getAttachments();
-//        $this->addAttachments(
-//            $bill,
-//            $attachments
-//        );
-
         $this->addInvoiceInfo(
             $bill,
             $salesCompanyId
@@ -360,28 +354,6 @@ class AdminFinanceLongRentBillController extends SalesRestController
         return new View(array(
             'service_fee' => (float) $serviceFee,
         ));
-    }
-
-    /**
-     * @param $bill
-     * @param $attachments
-     */
-    private function addAttachments(
-        $bill,
-        $attachments
-    ) {
-        $em = $this->getDoctrine()->getManager();
-
-        if (!is_null($attachments) && !empty($attachments)) {
-            $billAttachment = new FinanceBillAttachment();
-            $billAttachment->setBill($bill);
-            $billAttachment->setContent($attachments[0]['content']);
-            $billAttachment->setAttachmentType($attachments[0]['attachment_type']);
-            $billAttachment->setFilename($attachments[0]['filename']);
-            $billAttachment->setPreview($attachments[0]['preview']);
-            $billAttachment->setSize($attachments[0]['size']);
-            $em->persist($billAttachment);
-        }
     }
 
     /**
@@ -567,7 +539,7 @@ class AdminFinanceLongRentBillController extends SalesRestController
         $bills = $this->getDoctrine()->getRepository('SandboxApiBundle:Finance\FinanceLongRentBill')
             ->getBillLists(
                 $salesCompanyId,
-                FinanceLongRentBill::STATUS_PAID,
+                array(FinanceLongRentBill::STATUS_PAID,FinanceLongRentBill::STATUS_PENDING),
                 $createStart,
                 $createEnd,
                 null,

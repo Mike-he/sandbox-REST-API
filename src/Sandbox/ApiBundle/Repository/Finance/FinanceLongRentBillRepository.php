@@ -37,8 +37,13 @@ class FinanceLongRentBillRepository extends EntityRepository
         }
 
         if (!is_null($status)) {
-            $query->andWhere('b.status = :status')
-                ->setParameter('status', $status);
+            if(is_array($status)){
+                $query->andWhere('b.status IN (:status)')
+                    ->setParameter('status', $status);
+            }else{
+                $query->andWhere('b.status = :status')
+                    ->setParameter('status', $status);
+            }
         }
 
         if (!is_null($createStart)) {

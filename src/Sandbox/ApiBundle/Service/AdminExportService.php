@@ -642,14 +642,20 @@ class AdminExportService
                 $language
             );
 
+            $customerId = $order->getCustomerId();
+            if($customerId){
+                $customer = $this->doctrine->getRepository('SandboxApiBundle:User\UserCustomer')
+                    ->find($customerId);
+            }
+
             $orderList = array(
                 'order_number' => $order->getOrderNumber(),
                 'rent_period' => $startTime.'至'.$endTime,
-                'base_price' => $basePrice.'/'.$unitPrice,
+                'base_price' => $basePrice.'元/'.$unitPrice,
                 'price' => $order->getPrice(),
                 'discount_price' => $order->getDiscountPrice(),
                 'status' => $status,
-                'payment_user_id' => $order->getCustomerId(),
+                'payment_user_id' => $customer? $customer->getName():'',
                 'creation_date' => $order->getCreationDate()->format('Y-m-d H:i:s'),
                 'invoice' => '包含发票',
                 'invoiced' => $order->isInvoiced() ? '已开票' : '未开票',

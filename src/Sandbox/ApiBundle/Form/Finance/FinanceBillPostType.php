@@ -16,7 +16,6 @@ class FinanceBillPostType extends AbstractType
     {
         $builder
             ->add('amount')
-            ->add('attachments')
             ->add('finance_profile_id')
         ;
     }
