@@ -218,11 +218,11 @@ class AdminFinanceLongRentBillController extends SalesRestController
         $em = $this->getDoctrine()->getManager();
         $em->persist($bill);
 
-        $attachments = $bill->getAttachments();
-        $this->addAttachments(
-            $bill,
-            $attachments
-        );
+//        $attachments = $bill->getAttachments();
+//        $this->addAttachments(
+//            $bill,
+//            $attachments
+//        );
 
         $this->addInvoiceInfo(
             $bill,
@@ -554,7 +554,7 @@ class AdminFinanceLongRentBillController extends SalesRestController
         ParamFetcherInterface $paramFetcher
     ){
         // check user permission
-        //$this->checkAdminSalesLongTermBillPermission($this->getAdminId(), AdminPermission::OP_LEVEL_VIEW);
+        $this->checkAdminSalesLongTermBillPermission($this->getAdminId(), AdminPermission::OP_LEVEL_VIEW);
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
