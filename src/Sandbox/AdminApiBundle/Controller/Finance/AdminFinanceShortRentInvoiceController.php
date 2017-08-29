@@ -193,7 +193,7 @@ class AdminFinanceShortRentInvoiceController extends SandboxRestController
             ->find($id);
 
         $currentStatus = $invoice->getStatus();
-        if ($currentStatus == FinanceShortRentInvoice::STATUS_COMPLETED) {
+        if ($currentStatus != FinanceShortRentInvoice::STATUS_INCOMPLETE) {
             return $this->customErrorView(
                 400,
                 CustomErrorMessagesConstants::ERROR_FINANCE_SHORT_RENT_INVOICE_STATUS_NOT_CORRECT_CODE,
