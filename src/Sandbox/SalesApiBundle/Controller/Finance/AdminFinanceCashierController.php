@@ -449,12 +449,12 @@ class AdminFinanceCashierController extends SalesRestController
             $beginDate[] = $result['start_date']->format('Ymd');
         }
 
-        $this->get('sandbox_api.export')->exportExcel(
-             $results,
-            GenericList::OBJECT_CASHIER,
-                   $adminId,
-                   $language
-             );
+        return $this->get('sandbox_api.export')->exportExcel(
+                 $results,
+                GenericList::OBJECT_CASHIER,
+                       $adminId,
+                       $language
+                 );
 
     }
 
