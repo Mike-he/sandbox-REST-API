@@ -661,7 +661,7 @@ class AdminFinanceLongRentBillController extends SalesRestController
         $serviceFeeBill = array(
             'createDate' => $serviceFeeBill->getCreationDate()->format('Y-m-d'),
             'description' => '手续费账单',
-            'amount' => '+'.$serviceFeeBill->getServiceFee()
+            'amount' => '+'.$serviceFeeBill->getAmount()
         );
 
         return $serviceFeeBill;
