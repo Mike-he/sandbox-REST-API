@@ -875,7 +875,6 @@ trait FinanceSalesExportTraits
             $payChannels[$payment->getChannel()] = $payment->getName();
         }
 
-        $unitPriceDesc = null;
         // set sheet body
         $excelBody = array();
         foreach ($serviceBills as $serviceBill) {
@@ -922,7 +921,10 @@ trait FinanceSalesExportTraits
                             ->find($customerId);
                     } else {
                         $customer = $em->getRepository('SandboxApiBundle:User\UserCustomer')
-                            ->findOneBy(array('userId' => $order->getUserId(), 'companyId' => $serviceBill->getCompanyId()));
+                            ->findOneBy(array(
+                                'userId' => $order->getUserId(),
+                                'companyId' => $serviceBill->getCompanyId()
+                            ));
                     }
 
                     if ($order->getRefundTo()) {
@@ -955,6 +957,8 @@ trait FinanceSalesExportTraits
                     $paymentDate = $bill->getPaymentDate()->format('Y-m-d H:i:s');
                     $customer = $em->getRepository('SandboxApiBundle:User\UserCustomer')
                         ->find($lease->getLesseeCustomer());
+
+                    $unitPriceDesc = null;
 
                     break;
                 default:
