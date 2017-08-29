@@ -25,8 +25,8 @@ class FinanceLongRentBillRepository extends EntityRepository
         $createEnd,
         $amountStart,
         $amountEnd,
-        $limit,
-        $offset
+        $limit=null,
+        $offset=null
     ) {
         $query = $this->createQueryBuilder('b')
             ->where('1=1');

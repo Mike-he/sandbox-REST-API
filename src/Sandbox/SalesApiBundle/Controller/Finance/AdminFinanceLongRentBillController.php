@@ -10,6 +10,7 @@ use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Finance\FinanceBillAttachment;
 use Sandbox\ApiBundle\Entity\Finance\FinanceBillInvoiceInfo;
 use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentBill;
+use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentServiceBill;
 use Sandbox\ApiBundle\Form\Finance\FinanceBillPatchType;
 use Sandbox\ApiBundle\Form\Finance\FinanceBillPostType;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
@@ -495,5 +496,174 @@ class AdminFinanceLongRentBillController extends SalesRestController
             ),
             $level
         );
+    }
+
+    /**
+     * @param Request               $request      the request object
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="create_start",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="start date. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="create_end",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="end date. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many products to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number "
+     * )
+     *
+     *
+     * @Route("/finance/long/rent/bill/flow")
+     * @Method({"GET"})
+     *
+     * @return View
+     *
+     */
+    public function getLongRentBillFlowAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ){
+        // check user permission
+        //$this->checkAdminSalesLongTermBillPermission($this->getAdminId(), AdminPermission::OP_LEVEL_VIEW);
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
+        $createStart = $paramFetcher->get('create_start');
+        $createEnd = $paramFetcher->get('create_end');
+
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+
+        $bills = $this->getDoctrine()->getRepository('SandboxApiBundle:Finance\FinanceLongRentBill')
+            ->getBillLists(
+                $salesCompanyId,
+                FinanceLongRentBill::STATUS_PAID,
+                $createStart,
+                $createEnd,
+                null,
+                null
+            );
+
+        $billsLists = array();
+        foreach ($bills as $bill){
+            $billsLists[] = $this->getBillsLists($bill);
+        }
+
+        $serviceFeeBills = $this->getDoctrine()->getRepository('SandboxApiBundle:Finance\FinanceLongRentServiceBill')
+            ->findServiceBillList(
+                $salesCompanyId,
+                FinanceLongRentServiceBill::TYPE_BILL_SERVICE_FEE,
+                null,
+                null,
+                $createStart,
+                $createEnd,
+                null,
+                null
+            );
+
+        $serviceFeeBillsLists = array();
+        foreach ($serviceFeeBills as $serviceFeeBill){
+            $serviceFeeBillsLists[] = $this->getServiceFeeBillsLists($serviceFeeBill);
+        }
+
+        $result = array_merge($billsLists,$serviceFeeBillsLists);
+        $sort = array(
+            'direction' => 'SORT_DESC',        //排序顺序标志 SORT_DESC 降序；SORT_ASC 升序
+            'field'     => 'createDate',       //排序字段
+        );
+        $arrSort = array();
+        foreach( $result as $uniqid => $row){
+            foreach($row as $key=>$value){
+                $arrSort[$key][$uniqid] = $value;
+            }
+        }
+        if($sort['direction']){
+            array_multisort($arrSort[$sort['field']], constant($sort['direction']),  $result);
+        }
+
+        $count = count($result);
+
+        // for pagination
+        $offset = ($pageIndex - 1) * $pageLimit;
+        $limit = $pageLimit;
+
+        $data = array();
+        for ($i = $offset; $i < $offset + $limit; ++$i) {
+            if (isset($result[$i])) {
+                array_push($data, $result[$i]);
+            }
+        }
+
+        $view = new View();
+        $view->setData(
+            array(
+                'current_page_number' => $pageIndex,
+                'num_items_per_page' => (int) $pageLimit,
+                'items' => $data,
+                'total_count' => (int) $count,
+            )
+        );
+
+        return $view;
+    }
+
+    /**
+     * @param $bill
+     * @return array
+     */
+    private function getBillsLists($bill)
+    {
+        $bill = array(
+            'createDate' => $bill->getCreationDate()->format('Y-m-d'),
+            'description' => '索取发票',
+            'amount' => '-'.$bill->getAmount()
+        );
+
+        return $bill;
+    }
+
+    /**
+     * @param $serviceFeeBill
+     * @return array
+     */
+    private function getServiceFeeBillsLists($serviceFeeBill)
+    {
+        $serviceFeeBill = array(
+            'createDate' => $serviceFeeBill->getCreationDate()->format('Y-m-d'),
+            'description' => '手续费账单',
+            'amount' => '+'.$serviceFeeBill->getServiceFee()
+        );
+
+        return $serviceFeeBill;
     }
 }
