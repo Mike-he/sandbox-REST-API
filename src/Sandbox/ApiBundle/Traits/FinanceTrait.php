@@ -4,6 +4,9 @@ namespace Sandbox\ApiBundle\Traits;
 
 use Sandbox\ApiBundle\Entity\Finance\FinanceDashboard;
 use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentServiceBill;
+use Sandbox\ApiBundle\Entity\Finance\FinanceSalesWallet;
+use Sandbox\ApiBundle\Entity\Finance\FinanceSalesWalletFlow;
+use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Constants\FinanceDashboardConstants;
 use Sandbox\ApiBundle\Entity\Parameter\Parameter;
@@ -64,6 +67,7 @@ trait FinanceTrait
 
             $em->persist($serviceBill);
 
+            /** @var FinanceSalesWallet $wallet */
             $wallet = $em->getRepository('SandboxApiBundle:Finance\FinanceSalesWallet')
                 ->findOneBy(['companyId' => $companyId]);
 
@@ -75,6 +79,25 @@ trait FinanceTrait
                 $wallet->setBillAmount($billAmount + $amount);
                 $wallet->setTotalAmount($totalAmount + $price);
                 $wallet->setWithdrawableAmount($withdrawAmount + $price - $amount);
+
+                switch (substr($orderNumber, 0, 1)) {
+                    case ProductOrder::LETTER_HEAD:
+                        $this->getContainer()->get('sandbox_api.sales_wallet')
+                            ->generateSalesWalletFlows(
+                                FinanceSalesWalletFlow::REALTIME_ORDERS_AMOUNT,
+                                "+$price",
+                                $companyId
+                            );
+                        break;
+                    case LeaseBill::LEASE_BILL_LETTER_HEAD:
+                        $this->getContainer()->get('sandbox_api.sales_wallet')
+                            ->generateSalesWalletFlows(
+                                FinanceSalesWalletFlow::REALTIME_BILLS_AMOUNT,
+                                "+$price",
+                                $companyId
+                            );
+                        break;
+                }
             }
         }
     }
