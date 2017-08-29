@@ -1240,7 +1240,7 @@ class AdminSalesCompanyController extends SandboxRestController
                 'op_level' => 2,
             ],
             [
-                'key' => AdminPermission::KEY_SALES_PLATFORM_LONG_TERM_SERVICE_BILLS,
+                'key' => AdminPermission::KEY_SALES_PLATFORM_REQUEST_INVOICE,
                 'op_level' => 2,
             ],
             [
@@ -1607,7 +1607,7 @@ class AdminSalesCompanyController extends SandboxRestController
                 'op_level' => 2,
             ],
             [
-                'key' => AdminPermission::KEY_SALES_PLATFORM_LONG_TERM_SERVICE_BILLS,
+                'key' => AdminPermission::KEY_SALES_PLATFORM_REQUEST_INVOICE,
                 'op_level' => 2,
             ],
             [
