@@ -35,7 +35,7 @@ class Version920170828152438 extends AbstractMigration implements ContainerAware
 
         foreach ($invoices as $invoice) {
             if ($invoice->getStatus() == FinanceShortRentInvoice::STATUS_PENDING) {
-                $invoice->setStatus(FinanceShortRentInvoice::STATUS_COMPLETED);
+                $invoice->setStatus(FinanceShortRentInvoice::STATUS_INCOMPLETE);
             }
         }
 
