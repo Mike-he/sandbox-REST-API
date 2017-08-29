@@ -5,8 +5,11 @@ namespace Sandbox\ApiBundle\Traits;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Constants\EventOrderExport;
 use Sandbox\ApiBundle\Constants\LeaseConstants;
+use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentServiceBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
+use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
+use Sandbox\ApiBundle\Entity\User\UserCustomer;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 trait FinanceSalesExportTraits
@@ -814,5 +817,218 @@ trait FinanceSalesExportTraits
         );
 
         return $body;
+    }
+
+    public function getFinanceExportPoundage(
+        $serviceBills,
+        $startString,
+        $language
+    ) {
+        $em = $this->getContainer()->get('doctrine')->getManager();
+
+        $phpExcelObject = new \PHPExcel();
+        $phpExcelObject->getProperties()->setTitle('Finance Export');
+
+        $headers = [
+            '社区',
+            '类型',
+            '订单号/账单号',
+            '商品',
+            '商品类型',
+            '客户名',
+            '下单方式',
+            '支付方式',
+            '支付渠道',
+            '单价',
+            '单位',
+            '订单原价',
+            '付款金额',
+            '退款金额',
+            '手续费',
+            '结算金额',
+            '租赁起始时间',
+            '租赁结束时间',
+            '创建时间',
+            '付款时间',
+            '订单状态',
+            '退款路径',
+            '客户手机',
+            '客户邮箱',
+        ];
+
+        //Fill data
+        $phpExcelObject->setActiveSheetIndex(0)->fromArray($headers, ' ', 'A1');
+        $row = $phpExcelObject->getActiveSheet()->getHighestRow() + 1;
+
+        $orderType = array(
+            'P' => '秒租订单',
+            'B' => '长租账单',
+        );
+
+        $payments = $em->getRepository('SandboxApiBundle:Payment\Payment')->findAll();
+        $payChannels = array();
+        foreach ($payments as $payment) {
+            $payChannels[$payment->getChannel()] = $payment->getName();
+        }
+
+        // set sheet body
+        $excelBody = array();
+        foreach ($serviceBills as $serviceBill) {
+            /** @var FinanceLongRentServiceBill $serviceBill */
+            $orderNumber = $serviceBill->getOrderNumber();
+            $firstTag = substr($orderNumber, 0, 1);
+
+            switch ($firstTag) {
+                case 'P':
+                    /** @var ProductOrder $order */
+                    $order = $em->getRepository('SandboxApiBundle:Order\ProductOrder')
+                        ->findOneBy(array('orderNumber' => $orderNumber));
+
+                    if (!$order) {
+                        continue;
+                    }
+                    $product = $order->getProduct();
+                    $payChannel = $order->getPayChannel();
+                    $price = $order->getPrice();
+                    $discountPrice = $order->getDiscountPrice();
+                    $refundAmount = $order->getActualRefundAmount();
+                    $startDate = $order->getStartDate();
+                    $endDate = $order->getEndDate();
+                    $creationDate = $order->getCreationDate()->format('Y-m-d H:i:s');
+                    $paymentDate = $order->getPaymentDate()->format('Y-m-d H:i:s');
+                    $refundTo = $order->getRefundTo();
+                    $basePrice = $order->getBasePrice();
+                    $unitPrice = $order->getUnitPrice();
+
+                    $customerId = $order->getCustomerId();
+                    if ($customerId) {
+                        /** @var UserCustomer $customer */
+                        $customer = $em->getRepository('SandboxApiBundle:User\UserCustomer')
+                            ->find($customerId);
+                    } else {
+                        $customer = $em->getRepository('SandboxApiBundle:User\UserCustomer')
+                            ->findOneBy(array('userId' => $order->getUserId(), 'companyId' => $serviceBill->getCompanyId()));
+                    }
+
+                    break;
+                case 'B':
+                    $bill = $em->getRepository('SandboxApiBundle:Lease\LeaseBill')
+                        ->findOneBy(array('serialNumber' => $orderNumber));
+
+                    /** @var LeaseBill $bill */
+                    $lease = $bill->getLease();
+                    $product = $lease->getProduct();
+                    $payChannel = $bill->getPayChannel();
+                    $price = $bill->getAmount();
+                    $discountPrice = $bill->getRevisedAmount();
+                    $refundAmount = 0;
+                    $startDate = $bill->getStartDate();
+                    $endDate = $bill->getEndDate();
+                    $creationDate = $bill->getSendDate()->format('Y-m-d H:i:s');
+                    $paymentDate = $bill->getPaymentDate()->format('Y-m-d H:i:s');
+                    $refundTo = '';
+
+                    $productRentSet = $em->getRepository('SandboxApiBundle:Product\ProductRentSet')
+                        ->findOneBy(array('product' => $product));
+
+                    $basePrice = $productRentSet->getBasePrice();
+                    $unitPrice = $productRentSet->getUnitPrice();
+
+                    $customer = $em->getRepository('SandboxApiBundle:User\UserCustomer')
+                        ->find($lease->getLesseeCustomer());
+
+                    break;
+                default:
+                    continue;
+            }
+
+            $room = $product->getRoom();
+            $building = $room->getBuilding();
+
+            $roomType = $this->get('translator')->trans(
+                ProductOrderExport::TRANS_ROOM_TYPE.$room->getType(),
+                array(),
+                null,
+                $language
+            );
+
+            $unitPriceDesc = $this->get('translator')->trans(
+                ProductOrderExport::TRANS_ROOM_UNIT.$unitPrice,
+                array(),
+                null,
+                $language
+            );
+
+            if ($payChannel == 'sales_offline') {
+                $payMethod = '销售方收款';
+                $receivables = $em->getRepository('SandboxApiBundle:Finance\FinanceReceivables')
+                        ->findOneBy(array('orderNumber' => $orderNumber));
+                $channel = $receivables->getPayChannel();
+            } else {
+                $payMethod = '创合代收';
+                $channel = $payChannels[$payChannel];
+            }
+
+            $body = array(
+                'building_name' => $building->getName(),
+                'order_type' => $orderType[$firstTag],
+                'order_number' => $orderNumber,
+                'room_name' => $room->getName(),
+                'room_type' => $roomType,
+                'customer' => $customer ? $customer->getName() : '',
+                'order_method' => '销售方推单',
+                'payment_method' => $payMethod,
+                'pay_channel' => $channel,
+                'base_price' => $basePrice,
+                'unit_price' => $unitPriceDesc,
+                'price' => $price,
+                'discount_price' => $discountPrice,
+                'refund_amount' => $refundAmount,
+                'poundage' => $serviceBill->getAmount(),
+                'settlement_amount' => $discountPrice - $refundAmount - $serviceBill->getAmount(),
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+                'creation_date' => $creationDate,
+                'payment_date' => $paymentDate,
+                'status' => '已完成',
+                'refundTo' => $refundTo,
+                'customer_phone' => $customer ? $customer->getPhone() : '',
+                'customer_email' => $customer ? $customer->getEmail() : '',
+            );
+
+            $excelBody[] = $body;
+        }
+
+        //Fill data
+        $phpExcelObject->setActiveSheetIndex(0)->fromArray($headers, ' ', 'A1');
+        $phpExcelObject->setActiveSheetIndex(0)->fromArray($excelBody, ' ', 'A2');
+
+        $phpExcelObject->getActiveSheet()->getStyle('A1:R1')->getFont()->setBold(true);
+
+        //set column dimension
+        for ($col = ord('a'); $col <= ord('o'); ++$col) {
+            $phpExcelObject->setActiveSheetIndex(0)->getColumnDimension(chr($col))->setAutoSize(true);
+        }
+        $phpExcelObject->getActiveSheet()->setTitle('Poundage');
+
+        // Set active sheet index to the first sheet, so Excel opens this as the first sheet
+        $phpExcelObject->setActiveSheetIndex(0);
+
+        // create the writer
+        $writer = $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel5');
+        // create the response
+        $response = $this->get('phpexcel')->createStreamedResponse($writer);
+
+        // adding headers
+        $dispositionHeader = $response->headers->makeDisposition(
+            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+            'poundage_'.$startString.'.xls'
+        );
+        $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
+        $response->headers->set('Pragma', 'public');
+        $response->headers->set('Cache-Control', 'maxage=1');
+        $response->headers->set('Content-Disposition', $dispositionHeader);
+
+        return $response;
     }
 }

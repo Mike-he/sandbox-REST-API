@@ -457,17 +457,18 @@ class AdminExportService
         );
 
         $excelBody = array();
+
+        $payments = $this->doctrine->getRepository('SandboxApiBundle:Payment\Payment')->findAll();
+        $payChannel = array();
+        foreach ($payments as $payment) {
+            $payChannel[$payment->getChannel()] = $payment->getName();
+        }
+
         foreach ($bills as $bill) {
             /** @var LeaseBill $bill */
             $company = $this->doctrine
                 ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
                 ->find($bill->getLease()->getCompanyId());
-
-            $payments = $this->doctrine->getRepository('SandboxApiBundle:Payment\Payment')->findAll();
-            $payChannel = array();
-            foreach ($payments as $payment) {
-                $payChannel[$payment->getChannel()] = $payment->getName();
-            }
 
             $drawee = null;
             if ($bill->getCustomerId()) {
