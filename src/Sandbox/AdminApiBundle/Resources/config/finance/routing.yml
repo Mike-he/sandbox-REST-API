@@ -27,12 +27,6 @@ sandbox_sales_admin_finance_short_rent_invoices:
     type:     annotation
     prefix:   /finance
 
-# Finance /admin/finance/short/rent/invoice/applications
-sandbox_sales_admin_finance_short_rent_invoice_applications:
-    resource: "@SandboxAdminApiBundle/Controller/Finance/AdminFinanceShortRentInvoiceApplicationController.php"
-    type:     annotation
-    prefix:   /finance/short/rent/invoice
-
 # Finance Dashboard /admin/finance/cash_flow/dashboard
 sandbox_admin_finance_dashboard:
     resource: "@SandboxAdminApiBundle/Controller/Finance/AdminFinanceDashboardController.php"

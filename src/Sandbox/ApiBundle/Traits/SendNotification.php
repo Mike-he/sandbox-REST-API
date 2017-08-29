@@ -293,9 +293,13 @@ trait SendNotification
         try {
             $apiURL = 'https://api.jpush.cn/v3/push';
 
+            $appKey = $this->getContainer()->getParameter('jpush_key');
+            $masterSecret = $this->getContainer()->getParameter('jpush_secret');
+
+            $auth = base64_encode($appKey.':'.$masterSecret);
             // call JPush API
             $ch = curl_init($apiURL);
-            $headers[] = 'Authorization: Basic MjA4ODI1MmFmYTUzY2MxNjkzMDJmNGQwOjk5ZThkZDNlZDlmZGNiMTZlYjExMWVkOQ==';
+            $headers[] = 'Authorization: Basic '.$auth;
 
             $this->callAPI(
                 $ch,
