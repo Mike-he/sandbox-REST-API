@@ -875,6 +875,7 @@ trait FinanceSalesExportTraits
             $payChannels[$payment->getChannel()] = $payment->getName();
         }
 
+        $unitPriceDesc = null;
         // set sheet body
         $excelBody = array();
         foreach ($serviceBills as $serviceBill) {
@@ -906,6 +907,13 @@ trait FinanceSalesExportTraits
                     $paymentDate = $order->getPaymentDate()->format('Y-m-d H:i:s');
                     $basePrice = $order->getBasePrice();
                     $unitPrice = $order->getUnitPrice();
+
+                    $unitPriceDesc = $this->get('translator')->trans(
+                        ProductOrderExport::TRANS_ROOM_UNIT.$unitPrice,
+                        array(),
+                        null,
+                        $language
+                    );
 
                     $customerId = $order->getCustomerId();
                     if ($customerId) {
@@ -963,12 +971,7 @@ trait FinanceSalesExportTraits
                 $language
             );
 
-            $unitPriceDesc = $this->get('translator')->trans(
-                ProductOrderExport::TRANS_ROOM_UNIT.$unitPrice,
-                array(),
-                null,
-                $language
-            );
+
 
             if ($payChannel == 'sales_offline') {
                 $payMethod = '销售方收款';
