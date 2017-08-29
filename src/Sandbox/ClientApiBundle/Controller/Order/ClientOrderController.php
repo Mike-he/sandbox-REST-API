@@ -1647,8 +1647,6 @@ class ClientOrderController extends OrderController
         $this->throwNotFoundIfNull($userId, self::NOT_FOUND_MESSAGE);
         array_push($users, $userId);
 
-        $currentUserId = $this->getUserId();
-
         $room = $order->getProduct()->getRoom();
         $type = $room->getType();
         $language = $request->getPreferredLanguage();
