@@ -401,20 +401,22 @@ class AdminFinanceCashierController extends SalesRestController
                 $keywordSearch
             );
 
+        $cashierOrders = array();
+        $cashierBills = array();
         switch ($orderType) {
             case self::ORDER_TYPE_ORDER:
                 foreach ($orders as $order) {
                     $cashierOrders[] = $this->generateCashierOrder($order, $company);
                 }
 
-                $result = $cashierOrders;
+                $results = $cashierOrders;
                 break;
             case self::ORDER_TYPE_BILL:
                 foreach ($bills as $bill) {
                     $cashierBills[] = $this->generateCashierBill($bill, $company);
                 }
 
-                $result = $cashierBills;
+                $results = $cashierBills;
                 break;
             default:
                 foreach ($orders as $order) {
@@ -427,19 +429,6 @@ class AdminFinanceCashierController extends SalesRestController
 
                 $results = array_merge($cashierOrders, $cashierBills);
         }
-
-        $cashierOrders = array();
-        $cashierBills = array();
-
-        foreach ($orders as $order) {
-            $cashierOrders[] = $this->generateCashierOrder($order, $company);
-        }
-
-        foreach ($bills as $bill) {
-            $cashierBills[] = $this->generateCashierBill($bill, $company);
-        }
-
-        $results = array_merge($cashierOrders, $cashierBills);
 
         $beginDate = array();
         foreach ($results as $result) {

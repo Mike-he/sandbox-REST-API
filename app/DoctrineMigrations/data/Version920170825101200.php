@@ -180,6 +180,12 @@ class Version920170825101200 extends AbstractMigration implements ContainerAware
                     'default' => false,
                     'required' => false,
                 ),
+                array(
+                    'column' => 'payment_date',
+                    'name' => '付款时间',
+                    'default' => true,
+                    'required' => false,
+                ),
             );
 
         $membershipOrderColumns =
