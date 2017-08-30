@@ -304,7 +304,7 @@ class NumberFormatter
      *                        NumberFormat::PATTERN_RULEBASED. It must conform to  the syntax
      *                        described in the ICU DecimalFormat or ICU RuleBasedNumberFormat documentation
      *
-     * @return NumberFormatter
+     * @return self
      *
      * @see http://www.php.net/manual/en/numberformatter.create.php
      * @see http://www.icu-project.org/apiref/icu4c/classDecimalFormat.html#_details
@@ -357,9 +357,9 @@ class NumberFormatter
     /**
      * Format a number.
      *
-     * @param number $value The value to format
-     * @param int    $type  Type of the formatting, one of the format type constants
-     *                      Only type NumberFormatter::TYPE_DEFAULT is currently supported.
+     * @param int|float $value The value to format
+     * @param int       $type  Type of the formatting, one of the format type constants
+     *                         Only type NumberFormatter::TYPE_DEFAULT is currently supported.
      *
      * @return bool|string The formatted value or false on error
      *
@@ -688,7 +688,7 @@ class NumberFormatter
      * @param float  $value    The numeric currency value
      * @param string $currency The 3-letter ISO 4217 currency code indicating the currency to use
      *
-     * @return string The rounded numeric currency value
+     * @return float The rounded numeric currency value
      *
      * @see http://en.wikipedia.org/wiki/Swedish_rounding
      * @see http://www.docjar.com/html/api/com/ibm/icu/util/Currency.java.html#1007
@@ -851,29 +851,8 @@ class NumberFormatter
             return false;
         }
 
-        if (PHP_INT_SIZE !== 8 && ($value > self::$int32Max || $value <= -self::$int32Max - 1)) {
-            // Bug #59597 was fixed on PHP 5.3.14 and 5.4.4
-            // The negative PHP_INT_MAX was being converted to float
-            if (
-                $value == -self::$int32Max - 1 &&
-                ((PHP_VERSION_ID < 50400 && PHP_VERSION_ID >= 50314) || PHP_VERSION_ID >= 50404 || (extension_loaded('intl') && method_exists('IntlDateFormatter', 'setTimeZone')))
-            ) {
-                return (int) $value;
-            }
-
+        if (PHP_INT_SIZE !== 8 && ($value > self::$int32Max || $value < -self::$int32Max - 1)) {
             return (float) $value;
-        }
-
-        if (PHP_INT_SIZE === 8) {
-            // Bug #59597 was fixed on PHP 5.3.14 and 5.4.4
-            // A 32 bit integer was being generated instead of a 64 bit integer
-            if (
-                  ($value > self::$int32Max || $value < -self::$int32Max - 1) &&
-                  (PHP_VERSION_ID < 50314 || (PHP_VERSION_ID >= 50400 && PHP_VERSION_ID < 50404)) &&
-                  !(extension_loaded('intl') && method_exists('IntlDateFormatter', 'setTimeZone'))
-            ) {
-                $value = (-2147483648 - ($value % -2147483648)) * ($value / abs($value));
-            }
         }
 
         return (int) $value;
