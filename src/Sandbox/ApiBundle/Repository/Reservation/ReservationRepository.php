@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Repository\Reservation;
 
 use Doctrine\ORM\EntityRepository;
 use Sandbox\ApiBundle\Entity\Reservation\Reservation;
+use Sandbox\ApiBundle\Form\Reservation\ReservationType;
 
 class ReservationRepository extends EntityRepository
 {
@@ -88,37 +89,49 @@ class ReservationRepository extends EntityRepository
             $query->setParameter('search', '%'.$keywordSearch.'%');
         }
 
-        if(!is_null($viewStart) && !is_null($viewEnd)){
+        if(!is_null($viewStart)){
             $viewStart = new \DateTime($viewStart);
             $viewStart->setTime(00, 00, 00);
             $query->andWhere('re.viewTime >= :viewStart')
                 ->setParameter('viewStart', $viewStart);
+        }
+
+        if(!is_null($viewEnd)){
             $viewEnd = new \DateTime($viewEnd);
             $viewEnd->setTime(23, 59, 59);
             $query->andWhere('re.viewTime <= :viewEnd')
                 ->setParameter('viewEnd', $viewEnd);
         }
 
-        if(!is_null($createStart) && !is_null($createEnd)){
+        if(!is_null($createStart)){
             $createStart = new \DateTime($createStart);
             $createStart->setTime(00, 00, 00);
             $query->andWhere('re.creationDate >= :createStart')
                 ->setParameter('createStart', $createStart);
+        }
+
+        if(!is_null($createEnd)){
             $createEnd = new \DateTime($createEnd);
             $createEnd->setTime(23, 59, 59);
             $query->andWhere('re.creationDate <= :createEnd')
                 ->setParameter('createEnd', $createEnd);
         }
 
-        if(!is_null($grabStart) && !is_null($grabEnd)){
-            $grabStart = new \DateTime($grabStart);
-            $grabStart->setTime(00, 00, 00);
-            $query->andWhere('re.grabDate >= :grabStart')
-                ->setParameter('grabStart', $grabStart);
-            $grabEnd = new \DateTime($grabEnd);
-            $grabEnd->setTime(23, 59, 59);
-            $query->andWhere('re.grabDate <= :grabEnd')
-                ->setParameter('grabEnd', $grabEnd);
+        if(!is_null($grabStart) || !is_null($grabEnd)){
+            $query->andWhere('re.status = :status')
+                ->setParameter('status', 'grabbed');
+            if(!empty($grabStart)){
+                $grabStart = new \DateTime($grabStart);
+                $grabStart->setTime(00, 00, 00);
+                $query->andWhere('re.grabDate >= :grabStart')
+                    ->setParameter('grabStart', $grabStart);
+            }
+            if(!empty($grabEnd)){
+                $grabEnd = new \DateTime($grabEnd);
+                $grabEnd->setTime(23, 59, 59);
+                $query->andWhere('re.grabDate <= :grabEnd')
+                    ->setParameter('grabEnd', $grabEnd);
+            }
         }
 
         if (!is_null($status)) {
@@ -199,37 +212,49 @@ class ReservationRepository extends EntityRepository
             $query->setParameter('search', '%'.$keywordSearch.'%');
         }
 
-        if(!is_null($viewStart) && !is_null($viewEnd)){
+        if(!is_null($viewStart)){
             $viewStart = new \DateTime($viewStart);
             $viewStart->setTime(00, 00, 00);
             $query->andWhere('re.viewTime >= :viewStart')
                 ->setParameter('viewStart', $viewStart);
+        }
+
+        if(!is_null($viewEnd)){
             $viewEnd = new \DateTime($viewEnd);
             $viewEnd->setTime(23, 59, 59);
             $query->andWhere('re.viewTime <= :viewEnd')
                 ->setParameter('viewEnd', $viewEnd);
         }
 
-        if(!is_null($createStart) && !is_null($createEnd)){
+        if(!is_null($createStart)){
             $createStart = new \DateTime($createStart);
             $createStart->setTime(00, 00, 00);
             $query->andWhere('re.creationDate >= :createStart')
                 ->setParameter('createStart', $createStart);
+        }
+
+        if(!is_null($createEnd)){
             $createEnd = new \DateTime($createEnd);
             $createEnd->setTime(23, 59, 59);
             $query->andWhere('re.creationDate <= :createEnd')
                 ->setParameter('createEnd', $createEnd);
         }
 
-        if(!is_null($grabStart) && !is_null($grabEnd)){
-            $grabStart = new \DateTime($grabStart);
-            $grabStart->setTime(00, 00, 00);
-            $query->andWhere('re.grabDate >= :grabStart')
-                ->setParameter('grabStart', $grabStart);
-            $grabEnd = new \DateTime($grabEnd);
-            $grabEnd->setTime(23, 59, 59);
-            $query->andWhere('re.grabDate <= :grabEnd')
-                ->setParameter('grabEnd', $grabEnd);
+        if(!is_null($grabStart) || !is_null($grabEnd)){
+            $query->andWhere('re.status = :status')
+                ->setParameter('status', 'grabbed');
+            if(!empty($grabStart)){
+                $grabStart = new \DateTime($grabStart);
+                $grabStart->setTime(00, 00, 00);
+                $query->andWhere('re.grabDate >= :grabStart')
+                    ->setParameter('grabStart', $grabStart);
+            }
+            if(!empty($grabEnd)){
+                $grabEnd = new \DateTime($grabEnd);
+                $grabEnd->setTime(23, 59, 59);
+                $query->andWhere('re.grabDate <= :grabEnd')
+                    ->setParameter('grabEnd', $grabEnd);
+            }
         }
 
         if (!is_null($status)) {
