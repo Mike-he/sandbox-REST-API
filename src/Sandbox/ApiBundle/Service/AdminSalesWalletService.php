@@ -41,7 +41,7 @@ class AdminSalesWalletService
         $flow->setTitle($title);
         $flow->setChangeAmount($amount);
         $flow->setWalletTotalAmount($wallet->getWithdrawableAmount());
-        $em->persist($wallet);
+        $em->persist($flow);
 
         $em->flush();
     }
