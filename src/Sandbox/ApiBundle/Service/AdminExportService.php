@@ -20,6 +20,7 @@ class AdminExportService
 {
     private $container;
     private $doctrine;
+    private $user;
 
     public function __construct(
         ContainerInterface $container

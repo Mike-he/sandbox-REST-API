@@ -2,6 +2,8 @@
 
 namespace Sandbox\AdminApiBundle\Command;
 
+use Sandbox\ApiBundle\Entity\Finance\FinanceSalesWallet;
+use Sandbox\ApiBundle\Entity\Finance\FinanceSalesWalletFlow;
 use Sandbox\ApiBundle\Entity\Finance\FinanceShortRentInvoice;
 use Sandbox\ApiBundle\Entity\Finance\FinanceSummary;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
@@ -287,6 +289,13 @@ class CreateShortRentInvoiceCommand extends ContainerAwareCommand
 
                 $wallet->setWithdrawableAmount($withdrawableAmount + $monthAmount);
                 $wallet->setTotalAmount($totalAmount + $monthAmount);
+
+                $this->getContainer()->get('sandbox_api.sales_wallet')
+                    ->generateSalesWalletFlows(
+                    FinanceSalesWalletFlow::MONTHLY_ORDER_AMOUNT,
+                    "+$monthAmount",
+                    $key
+                );
             }
         }
 

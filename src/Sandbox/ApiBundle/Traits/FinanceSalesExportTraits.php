@@ -907,6 +907,13 @@ trait FinanceSalesExportTraits
                     $basePrice = $order->getBasePrice();
                     $unitPrice = $order->getUnitPrice();
 
+                    $unitPriceDesc = $this->get('translator')->trans(
+                        ProductOrderExport::TRANS_ROOM_UNIT.$unitPrice,
+                        array(),
+                        null,
+                        $language
+                    );
+
                     $customerId = $order->getCustomerId();
                     if ($customerId) {
                         /** @var UserCustomer $customer */
@@ -914,7 +921,10 @@ trait FinanceSalesExportTraits
                             ->find($customerId);
                     } else {
                         $customer = $em->getRepository('SandboxApiBundle:User\UserCustomer')
-                            ->findOneBy(array('userId' => $order->getUserId(), 'companyId' => $serviceBill->getCompanyId()));
+                            ->findOneBy(array(
+                                'userId' => $order->getUserId(),
+                                'companyId' => $serviceBill->getCompanyId()
+                            ));
                     }
 
                     if ($order->getRefundTo()) {
@@ -948,6 +958,8 @@ trait FinanceSalesExportTraits
                     $customer = $em->getRepository('SandboxApiBundle:User\UserCustomer')
                         ->find($lease->getLesseeCustomer());
 
+                    $unitPriceDesc = null;
+
                     break;
                 default:
                     continue;
@@ -963,12 +975,7 @@ trait FinanceSalesExportTraits
                 $language
             );
 
-            $unitPriceDesc = $this->get('translator')->trans(
-                ProductOrderExport::TRANS_ROOM_UNIT.$unitPrice,
-                array(),
-                null,
-                $language
-            );
+
 
             if ($payChannel == 'sales_offline') {
                 $payMethod = '销售方收款';
