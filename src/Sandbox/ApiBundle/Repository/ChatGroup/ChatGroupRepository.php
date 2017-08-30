@@ -112,7 +112,7 @@ class ChatGroupRepository extends EntityRepository
     }
 
     /**
-     * @param $id
+     * @param $gid
      * @param $companyId
      * @param $userId
      *
@@ -121,7 +121,7 @@ class ChatGroupRepository extends EntityRepository
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
     public function getAdminChatGroupById(
-        $id,
+        $gid,
         $companyId,
         $userId
     ) {
@@ -137,11 +137,11 @@ class ChatGroupRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:ChatGroup\ChatGroupMember', 'm', 'WITH', 'g.id = m.chatGroup')
             ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'u.id = g.creatorId')
             ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'u.id = up.userId')
-            ->where('g.id = :id')
+            ->where('g.gid = :gid')
             ->andWhere('g.companyId = :companyId')
             ->andWhere('m.user = :userId')
             ->setParameter('companyId', $companyId)
-            ->setParameter('id', $id)
+            ->setParameter('gid', $gid)
             ->setParameter('userId', $userId);
 
         return $query->getQuery()->getOneOrNullResult();

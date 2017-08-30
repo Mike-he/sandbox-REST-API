@@ -190,16 +190,16 @@ class AdminChatGroupController extends ChatGroupController
      * Retrieve a given chat group.
      *
      * @param Request $request the request object
-     * @param int     $id
+     * @param string     $gid
      *
-     * @Route("/chatgroups/{id}")
+     * @Route("/chatgroups/{gid}")
      * @Method({"GET"})
      *
      * @return View
      */
     public function getChatGroupAction(
         Request $request,
-        $id
+        $gid
     ) {
         $userId = $this->getUserId();
         $user = $this->getDoctrine()
@@ -217,7 +217,7 @@ class AdminChatGroupController extends ChatGroupController
         $chatGroup = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:ChatGroup\ChatGroup')
             ->getAdminChatGroupById(
-                $id,
+                $gid,
                 $companyId,
                 $userId
             );
