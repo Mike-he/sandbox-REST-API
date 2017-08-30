@@ -75,6 +75,11 @@ class BeanService
 
         $newBean = $oldBean + $amount;
 
+        $lastBeanFlow = $em->getRepository('SandboxApiBundle:User\UserBeanFlow')
+            ->findOneBy(array(), array('id' => 'DESC'));
+
+        $totalBean = $lastBeanFlow ? $lastBeanFlow->getTotal() : 0;
+
         $beanFlow = new UserBeanFlow();
         $beanFlow->setUserId($userId);
         $beanFlow->setType($type);
@@ -83,6 +88,7 @@ class BeanService
         $beanFlow->setSource($source);
         $beanFlow->setTradeId($tradeId);
         $beanFlow->setCreationDate($now);
+        $beanFlow->setTotal($totalBean + $amount);
         $em->persist($beanFlow);
 
         $user->setBean($newBean);

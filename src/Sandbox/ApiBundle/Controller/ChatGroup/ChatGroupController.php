@@ -93,7 +93,7 @@ class ChatGroupController extends SandboxRestController
     ) {
         try {
             $chatRoomId = $chatGroup->getId();
-            $chatRoomName = $chatGroup->getName();
+            $chatRoomName = $chatGroup->getName().'@'.$chatGroup->getTag();
             $chatRoomDesc = $chatRoomName.'('.$chatRoomId.')';
             $ownerName = $chatGroup->getCreator()->getXmppUsername();
             $members = $this->getRepo('ChatGroup\ChatGroupMember')->findByChatGroup($chatGroup);
@@ -175,7 +175,7 @@ class ChatGroupController extends SandboxRestController
             }
 
             $service = $this->get('sandbox_api.jmessage');
-            $service->addGroupMembers($gid, $members);
+            $service->addGroupMembers($gid, $memberIds);
         } catch (\Exception $e) {
             error_log('Add chat group members went wrong!');
         }
@@ -193,7 +193,7 @@ class ChatGroupController extends SandboxRestController
             }
 
             $service = $this->get('sandbox_api.jmessage');
-            $service->deleteGroupMembers($gid, $members);
+            $service->deleteGroupMembers($gid, $memberIds);
         } catch (\Exception $e) {
             error_log('Delete chat group members went wrong!');
         }

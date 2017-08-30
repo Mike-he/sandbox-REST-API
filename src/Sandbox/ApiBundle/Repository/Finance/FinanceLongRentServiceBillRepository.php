@@ -15,6 +15,8 @@ class FinanceLongRentServiceBillRepository extends EntityRepository
      * @param $createEnd
      * @param $amountStart
      * @param $amountEnd
+     * @param $limit
+     * @param $offset
      *
      * @return array
      */
@@ -27,8 +29,8 @@ class FinanceLongRentServiceBillRepository extends EntityRepository
         $createEnd,
         $amountStart,
         $amountEnd,
-        $limit,
-        $offset
+        $limit = null,
+        $offset = null
     ) {
         $query = $this->createQueryBuilder('sb')
             ->where('sb.companyId = :company')
@@ -82,8 +84,11 @@ class FinanceLongRentServiceBillRepository extends EntityRepository
 
         $query->orderBy('sb.creationDate', 'DESC');
 
-        $query->setMaxResults($limit)
-            ->setFirstResult($offset);
+
+        if (!is_null($limit) && !is_null($offset)) {
+            $query->setMaxResults($limit)
+                ->setFirstResult($offset);
+        }
 
         $result = $query->getQuery()->getResult();
 

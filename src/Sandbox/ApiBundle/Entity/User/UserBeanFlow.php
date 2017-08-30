@@ -77,6 +77,13 @@ class UserBeanFlow
     private $creationDate;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="total", type="float")
+     */
+    private $total;
+
+    /**
      * @return int
      */
     public function getId()
@@ -194,5 +201,21 @@ class UserBeanFlow
     public function setCreationDate($creationDate)
     {
         $this->creationDate = $creationDate;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTotal()
+    {
+        return $this->total;
+    }
+
+    /**
+     * @param string $total
+     */
+    public function setTotal($total)
+    {
+        $this->total = $total;
     }
 }

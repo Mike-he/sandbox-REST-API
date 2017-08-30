@@ -3787,56 +3787,6 @@
         ]
     },
     {
-        "name": "symfony/icu",
-        "version": "v1.0.1",
-        "version_normalized": "1.0.1.0",
-        "target-dir": "Symfony/Component/Icu",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/symfony/icu.git",
-            "reference": "fdba214b1e087c149843bde976263c53ac10c975"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://packagist.phpcomposer.com/files/symfony/icu/fdba214b1e087c149843bde976263c53ac10c975.zip",
-            "reference": "fdba214b1e087c149843bde976263c53ac10c975",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3.3",
-            "symfony/intl": "~2.3"
-        },
-        "time": "2013-10-04T09:12:07+00:00",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "psr-0": {
-                "Symfony\\Component\\Icu\\": ""
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "MIT"
-        ],
-        "authors": [
-            {
-                "name": "Symfony Community",
-                "homepage": "http://symfony.com/contributors"
-            },
-            {
-                "name": "Bernhard Schussek",
-                "email": "bschussek@gmail.com"
-            }
-        ],
-        "description": "Contains an excerpt of the ICU data and classes to load it.",
-        "homepage": "http://symfony.com",
-        "keywords": [
-            "icu",
-            "intl"
-        ],
-        "abandoned": "symfony/intl"
-    },
-    {
         "name": "friendsofsymfony/elastica-bundle",
         "version": "v3.2.1",
         "version_normalized": "3.2.1.0",
@@ -6537,6 +6487,83 @@
             "api client",
             "jiguang",
             "jmessage"
+        ]
+    },
+    {
+        "name": "symfony/intl",
+        "version": "v3.3.8",
+        "version_normalized": "3.3.8.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/symfony/intl.git",
+            "reference": "431a020d3e7061e3d9c90e2279ba47ee44962820"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://files.phpcomposer.com/files/symfony/intl/431a020d3e7061e3d9c90e2279ba47ee44962820.zip",
+            "reference": "431a020d3e7061e3d9c90e2279ba47ee44962820",
+            "shasum": ""
+        },
+        "require": {
+            "php": "^5.5.9|>=7.0.8",
+            "symfony/polyfill-intl-icu": "~1.0"
+        },
+        "require-dev": {
+            "symfony/filesystem": "~2.8|~3.0"
+        },
+        "suggest": {
+            "ext-intl": "to use the component with locales other than \"en\""
+        },
+        "time": "2017-08-27T14:52:21+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "3.3-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Symfony\\Component\\Intl\\": ""
+            },
+            "classmap": [
+                "Resources/stubs"
+            ],
+            "exclude-from-classmap": [
+                "/Tests/"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Bernhard Schussek",
+                "email": "bschussek@gmail.com"
+            },
+            {
+                "name": "Eriksen Costa",
+                "email": "eriksen.costa@infranology.com.br"
+            },
+            {
+                "name": "Igor Wiedler",
+                "email": "igor@wiedler.ch"
+            },
+            {
+                "name": "Symfony Community",
+                "homepage": "https://symfony.com/contributors"
+            }
+        ],
+        "description": "A PHP replacement layer for the C intl extension that includes additional data from the ICU library.",
+        "homepage": "https://symfony.com",
+        "keywords": [
+            "i18n",
+            "icu",
+            "internationalization",
+            "intl",
+            "l10n",
+            "localization"
         ]
     }
 ]

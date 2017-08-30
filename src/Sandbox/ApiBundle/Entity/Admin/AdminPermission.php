@@ -66,6 +66,7 @@ class AdminPermission
     const KEY_OFFICIAL_PLATFORM_TRANSFER_CONFIRM = 'platform.transfer_confirm';
     const KEY_OFFICIAL_PLATFORM_SALES_MONITORING = 'platform.sales_monitoring';
     const KEY_OFFICIAL_PLATFORM_MEMBERSHIP_CARD_ORDER = 'platform.membership_card_order';
+    const KEY_OFFICIAL_PLATFORM_BEAN = 'platform.bean';
 
     const KEY_SALES_PLATFORM_DASHBOARD = 'sales.platform.dashboard';
     const KEY_SALES_PLATFORM_ADMIN = 'sales.platform.admin';
@@ -73,7 +74,6 @@ class AdminPermission
     const KEY_SALES_PLATFORM_INVOICE = 'sales.platform.invoice';
     const KEY_SALES_PLATFORM_EVENT = 'sales.platform.event';
     const KEY_SALES_PLATFORM_EVENT_ORDER = 'sales.platform.event_order';
-    const KEY_SALES_PLATFORM_LONG_TERM_SERVICE_BILLS = 'sales.platform.long_term_service_bills';
     const KEY_SALES_PLATFORM_MONTHLY_BILLS = 'sales.platform.monthly_bills';
     const KEY_SALES_PLATFORM_FINANCIAL_SUMMARY = 'sales.platform.financial_summary';
     const KEY_SALES_PLATFORM_WITHDRAWAL = 'sales.platform.withdrawal';
@@ -100,6 +100,8 @@ class AdminPermission
     const KEY_SALES_BUILDING_LONG_TERM_LEASE = 'sales.building.long_term_lease';
     const KEY_SALES_BUILDING_LONG_TERM_APPOINTMENT = 'sales.building.long_term_appointment';
     const KEY_SALES_BUILDING_CASHIER = 'sales.building.cashier';
+    const KEY_SALES_PLATFORM_REPORT_DOWNLOAD = 'sales.platform.report_download';
+    const KEY_SALES_PLATFORM_REQUEST_INVOICE = 'sales.platform.request_invoice';
 
     const KEY_SHOP_PLATFORM_DASHBOARD = 'shop.platform.dashboard';
     const KEY_SHOP_PLATFORM_ADMIN = 'shop.platform.admin';

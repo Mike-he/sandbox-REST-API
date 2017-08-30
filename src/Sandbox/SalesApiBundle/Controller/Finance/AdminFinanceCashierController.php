@@ -5,6 +5,7 @@ namespace Sandbox\SalesApiBundle\Controller\Finance;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\GenericList\GenericList;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseRentTypes;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
@@ -236,6 +237,210 @@ class AdminFinanceCashierController extends SalesRestController
         );
 
         return $view;
+    }
+
+    /**
+     * @param Request               $request      the request object
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by building id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="type",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by room type"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="order_type",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by order type"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="start_date",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="end date. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="end_date",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="start date. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="keyword",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="keyword_search",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many products to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="language",
+     *    array=false,
+     *    nullable=true,
+     * )
+     *
+     * @Route("/finance/cashier/export")
+     * @Method({"GET"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function exportFianceCashierAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $adminId = $this->getAdminId();
+
+        // check user permission
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
+            $this->getAdminId(),
+            [
+                ['key' => AdminPermission::KEY_SALES_BUILDING_CASHIER],
+            ],
+            AdminPermission::OP_LEVEL_VIEW
+        );
+
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
+        $orderType = $paramFetcher->get('order_type');
+        $building = $paramFetcher->get('building');
+        $type = $paramFetcher->get('type');
+        $startDate = $paramFetcher->get('start_date');
+        $endDate = $paramFetcher->get('end_date');
+        $keyword = $paramFetcher->get('keyword');
+        $keywordSearch = $paramFetcher->get('keyword_search');
+        $language = $paramFetcher->get('language');
+
+        $company = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
+            ->find($salesCompanyId);
+
+        //get my buildings list
+        $myBuildingIds = $this->getMySalesBuildingIds(
+            $this->getAdminId(),
+            array(
+                AdminPermission::KEY_SALES_BUILDING_CASHIER,
+            )
+        );
+
+        $orders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getUnpaidPreOrders(
+                $myBuildingIds,
+                $building,
+                $type,
+                $startDate,
+                $endDate,
+                $keyword,
+                $keywordSearch
+            );
+
+        $bills = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->getUnpaidBills(
+                $myBuildingIds,
+                $building,
+                $type,
+                $startDate,
+                $endDate,
+                $keyword,
+                $keywordSearch
+            );
+
+        $cashierOrders = array();
+        $cashierBills = array();
+        switch ($orderType) {
+            case self::ORDER_TYPE_ORDER:
+                foreach ($orders as $order) {
+                    $cashierOrders[] = $this->generateCashierOrder($order, $company);
+                }
+
+                $results = $cashierOrders;
+                break;
+            case self::ORDER_TYPE_BILL:
+                foreach ($bills as $bill) {
+                    $cashierBills[] = $this->generateCashierBill($bill, $company);
+                }
+
+                $results = $cashierBills;
+                break;
+            default:
+                foreach ($orders as $order) {
+                    $cashierOrders[] = $this->generateCashierOrder($order, $company);
+                }
+
+                foreach ($bills as $bill) {
+                    $cashierBills[] = $this->generateCashierBill($bill, $company);
+                }
+
+                $results = array_merge($cashierOrders, $cashierBills);
+        }
+
+        $beginDate = array();
+        foreach ($results as $result) {
+            $beginDate[] = $result['start_date']->format('Ymd');
+        }
+
+        return $this->get('sandbox_api.export')->exportExcel(
+                 $results,
+                GenericList::OBJECT_CASHIER,
+                       $adminId,
+                       $language
+                 );
     }
 
     /**

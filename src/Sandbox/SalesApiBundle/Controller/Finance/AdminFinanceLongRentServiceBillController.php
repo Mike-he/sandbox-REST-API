@@ -199,7 +199,7 @@ class AdminFinanceLongRentServiceBillController extends SalesRestController
             $adminId,
             array(
                 array(
-                    'key' => AdminPermission::KEY_SALES_PLATFORM_LONG_TERM_SERVICE_BILLS,
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_REQUEST_INVOICE,
                 ),
             ),
             $level

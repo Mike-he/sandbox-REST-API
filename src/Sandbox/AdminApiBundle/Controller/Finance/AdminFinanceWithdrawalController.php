@@ -7,6 +7,7 @@ use JMS\Serializer\SerializationContext;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Finance\FinanceSalesWalletFlow;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyWithdrawals;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesCompanyWithdrawalPatchType;
 use Symfony\Component\HttpFoundation\Request;
@@ -289,11 +290,18 @@ class AdminFinanceWithdrawalController extends PaymentController
 
             $current = $wallet->getWithdrawableAmount();
             $total = $wallet->getTotalAmount();
+            $amount = $withdrawal->getAmount();
 
-            $wallet->setWithdrawableAmount($current + $withdrawal->getAmount());
-            $wallet->setTotalAmount($total + $withdrawal->getAmount());
+            $wallet->setWithdrawableAmount($current + $amount);
+            $wallet->setTotalAmount($total + $amount);
 
             $withdrawal->setFailureTime($now);
+
+            $this->get('sandbox_api.sales_wallet')->generateSalesWalletFlows(
+                FinanceSalesWalletFlow::WITHDRAW_FAILED_AMOUNT,
+                "+$amount",
+                $company->getId()
+            );
         }
 
         $withdrawal->setOfficialAdminId($adminId);

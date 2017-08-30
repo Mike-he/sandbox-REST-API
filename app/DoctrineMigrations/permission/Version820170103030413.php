@@ -49,7 +49,7 @@ class Version820170103030413 extends AbstractMigration implements ContainerAware
             ));
 
         $salesPermission1 = new AdminPermission();
-        $salesPermission1->setKey(AdminPermission::KEY_SALES_PLATFORM_LONG_TERM_SERVICE_BILLS);
+        $salesPermission1->setKey('sales.platform.long_term_service_bills');
         $salesPermission1->setName('长租服务费账单权限');
         $salesPermission1->setPlatform('sales');
         $salesPermission1->setLevel('global');

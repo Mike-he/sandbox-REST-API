@@ -24,6 +24,9 @@ class GenericList
     const OBJECT_ENTERPRISE = 'enterprise';
     const OBJECT_CASHIER = 'cashier';
     const OBJECT_RESERVATION = 'reservation';
+    const OBJECT_PRODUCT_ORDER = 'product_order';
+    const OBJECT_EVENT_ORDER = 'event_order';
+    const OBJECT_MEMBERSHIP_ORDER = 'membership_order';
 
     /**
      * @var int

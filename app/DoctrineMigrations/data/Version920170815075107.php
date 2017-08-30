@@ -22,7 +22,6 @@ class Version920170815075107 extends AbstractMigration implements ContainerAware
     public function up(Schema $schema)
     {
         // this up() migration is auto-generated, please modify it to your needs
-
     }
 
     public function postUp(Schema $schema)
@@ -63,7 +62,6 @@ class Version920170815075107 extends AbstractMigration implements ContainerAware
         $em->persist($map2);
 
         $em->flush();
-
     }
 
     /**
@@ -72,6 +70,5 @@ class Version920170815075107 extends AbstractMigration implements ContainerAware
     public function down(Schema $schema)
     {
         // this down() migration is auto-generated, please modify it to your needs
-
     }
 }

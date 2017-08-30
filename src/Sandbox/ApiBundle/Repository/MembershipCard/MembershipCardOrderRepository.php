@@ -79,9 +79,7 @@ class MembershipCardOrderRepository extends EntityRepository
         $query = $this->createQueryBuilder('mo')
             ->select('DISTINCT mo')
             ->innerJoin('SandboxApiBundle:MembershipCard\MembershipCard', 'c', 'WITH', 'mo.card = c.id')
-            ->leftJoin('SandboxApiBundle:User\UserGroupDoors', 'd', 'WITH', 'd.card = c.id')
-            ->leftJoin('SandboxApiBundle:User\UserView', 'u', 'WITH', 'u.id = mo.user')
-            ->where('mo.id is not null');
+            ->where('1=1');
 
         if (!is_null($cardId)) {
             $query->andWhere('mo.card = :cardId')
@@ -103,13 +101,12 @@ class MembershipCardOrderRepository extends EntityRepository
                     $query->andWhere('c.name LIKE :search');
                     break;
                 case 'user':
-                    $query->andWhere('u.name LIKE :search');
+                    $query->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.userId = mo.user')
+                        ->andWhere('uc.name LIKE :search');
                     break;
                 case 'phone':
-                    $query->andWhere('u.phone LIKE :search');
-                    break;
-                case 'email':
-                    $query->andWhere('u.email LIKE :search');
+                    $query->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.userId = mo.user')
+                        ->andWhere('uc.phone LIKE :search');
                     break;
                 default:
                     $query->andWhere('mo.orderNumber LIKE :search');
@@ -124,7 +121,8 @@ class MembershipCardOrderRepository extends EntityRepository
         }
 
         if (!is_null($buildingId)) {
-            $query->andWhere('d.building = :buildingId')
+            $query->leftJoin('SandboxApiBundle:User\UserGroupDoors', 'd', 'WITH', 'd.card = c.id')
+                ->andWhere('d.building = :buildingId')
                 ->setParameter('buildingId', $buildingId);
         }
 
@@ -207,6 +205,7 @@ class MembershipCardOrderRepository extends EntityRepository
      * @param $createEnd
      * @param $companyId
      * @param null $cardId
+     * @param null $userId
      *
      * @return mixed
      */
@@ -224,8 +223,6 @@ class MembershipCardOrderRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('mo')
             ->innerJoin('SandboxApiBundle:MembershipCard\MembershipCard', 'c', 'WITH', 'mo.card = c.id')
-            ->leftJoin('SandboxApiBundle:User\UserGroupDoors', 'd', 'WITH', 'd.card = c.id')
-            ->leftJoin('SandboxApiBundle:User\UserView', 'u', 'WITH', 'u.id = mo.user')
             ->select('COUNT(DISTINCT mo)')
             ->where('mo.id is not null');
 
@@ -249,13 +246,12 @@ class MembershipCardOrderRepository extends EntityRepository
                     $query->andWhere('c.name LIKE :search');
                     break;
                 case 'user':
-                    $query->andWhere('u.name LIKE :search');
+                    $query->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.userId = mo.user')
+                        ->andWhere('uc.name LIKE :search');
                     break;
                 case 'phone':
-                    $query->andWhere('u.phone LIKE :search');
-                    break;
-                case 'email':
-                    $query->andWhere('u.email LIKE :search');
+                    $query->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.userId = mo.user')
+                        ->andWhere('uc.phone LIKE :search');
                     break;
                 default:
                     $query->andWhere('mo.orderNumber LIKE :search');
@@ -270,7 +266,8 @@ class MembershipCardOrderRepository extends EntityRepository
         }
 
         if (!is_null($buildingId)) {
-            $query->andWhere('d.building = :buildingId')
+            $query->leftJoin('SandboxApiBundle:User\UserGroupDoors', 'd', 'WITH', 'd.card = c.id')
+                ->andWhere('d.building = :buildingId')
                 ->setParameter('buildingId', $buildingId);
         }
 

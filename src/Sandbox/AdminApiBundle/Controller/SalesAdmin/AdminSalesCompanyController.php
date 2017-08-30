@@ -1088,6 +1088,11 @@ class AdminSalesCompanyController extends SandboxRestController
                 throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_SERVICE_INFO_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE);
             }
 
+            if($serviceInfo['trade_types'] == SalesCompanyServiceInfos::TRADE_TYPE_LONGTERM)
+            {
+                $service->setCollectionMethod("");
+            }
+
             $service->setCompany($salesCompany);
 
             $em->persist($service);
@@ -1235,7 +1240,7 @@ class AdminSalesCompanyController extends SandboxRestController
                 'op_level' => 2,
             ],
             [
-                'key' => AdminPermission::KEY_SALES_PLATFORM_LONG_TERM_SERVICE_BILLS,
+                'key' => AdminPermission::KEY_SALES_PLATFORM_REQUEST_INVOICE,
                 'op_level' => 2,
             ],
             [
@@ -1602,7 +1607,7 @@ class AdminSalesCompanyController extends SandboxRestController
                 'op_level' => 2,
             ],
             [
-                'key' => AdminPermission::KEY_SALES_PLATFORM_LONG_TERM_SERVICE_BILLS,
+                'key' => AdminPermission::KEY_SALES_PLATFORM_REQUEST_INVOICE,
                 'op_level' => 2,
             ],
             [

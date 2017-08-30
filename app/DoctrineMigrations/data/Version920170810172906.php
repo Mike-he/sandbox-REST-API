@@ -4,7 +4,6 @@ namespace Application\Migrations;
 
 use Doctrine\DBAL\Migrations\AbstractMigration;
 use Doctrine\DBAL\Schema\Schema;
-use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
@@ -31,7 +30,7 @@ class Version920170810172906 extends AbstractMigration implements ContainerAware
         $em = $this->container->get('doctrine.orm.entity_manager');
 
         $data = array(
-            Parameter::KEY_BEAN_PRODUCT_ORDER_PREORDER => "*0.2",
+            Parameter::KEY_BEAN_PRODUCT_ORDER_PREORDER => '*0.2',
             Parameter::KEY_POUNDAGE_ACCOUNT => 1,
             Parameter::KEY_POUNDAGE_WX => 1,
             Parameter::KEY_POUNDAGE_ALIPAY => 1,

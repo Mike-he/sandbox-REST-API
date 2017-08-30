@@ -3448,14 +3448,16 @@ class OrderRepository extends EntityRepository
     /**
      * @param $startDate
      * @param $endDate
-     * @param null $companyId
+     * @param null  $companyId
+     * @param array $orderTypes
      *
-     * @return mixed
+     * @return array
      */
     public function getCompletedOrderSummary(
         $startDate,
         $endDate,
-        $companyId = null
+        $companyId = null,
+        $orderTypes = array()
     ) {
         $query = $this->createQueryBuilder('o')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
@@ -3471,6 +3473,11 @@ class OrderRepository extends EntityRepository
         if (!is_null($companyId)) {
             $query->andWhere('b.company = :companyId')
                 ->setParameter('companyId', $companyId);
+        }
+
+        if (!empty($orderTypes)) {
+            $query->andWhere('o.type in (:type)')
+                ->setParameter('type', $orderTypes);
         }
 
         return  $query->getQuery()->getResult();

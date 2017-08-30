@@ -216,4 +216,27 @@ class UserRepository extends EntityRepository
 
         return $result;
     }
+
+    public function getUsersByXmppUsername(
+        $xmppUsernames
+    ) {
+        $query = $this->createQueryBuilder('u')
+            ->select('
+                u.id,
+                u.xmppUsername as xmpp_username,
+                u.phone,
+                u.email,
+                u.banned,
+                u.authorized,
+                up.name,
+                up.gender
+            ')
+            ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'up.userId = u.id')
+            ->where('u.xmppUsername in (:xmppUsernames)')
+            ->setParameter('xmppUsernames', $xmppUsernames);
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
 }
