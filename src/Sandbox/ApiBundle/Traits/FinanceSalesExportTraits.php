@@ -7,6 +7,7 @@ use Sandbox\ApiBundle\Constants\EventOrderExport;
 use Sandbox\ApiBundle\Constants\LeaseConstants;
 use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentServiceBill;
+use Sandbox\ApiBundle\Entity\Finance\FinanceSalesWalletFlow;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\MembershipCard\MembershipOrder;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
@@ -1046,6 +1047,80 @@ trait FinanceSalesExportTraits
         $response->headers->set('Pragma', 'public');
         $response->headers->set('Cache-Control', 'maxage=1');
         $response->headers->set('Content-Disposition', $dispositionHeader);
+
+        return $response;
+    }
+
+    /**
+     * @param $flows
+     * @param $startString
+     * @param $language
+     * @return mixed
+     */
+    public function getFinanceSalesWalletFlowsExport(
+       $flows,
+       $startString,
+       $language
+    ){
+        $em = $this->getContainer()->get('doctrine')->getManager();
+
+        $phpExcelObject = new \PHPExcel();
+        $phpExcelObject->getProperties()->setTitle('Finance Export');
+
+        $headers = [
+            '时间',
+            '明细',
+            '入账金额',
+            '出账金额',
+            '余额'
+        ];
+
+        $excelBody = array();
+        foreach($flows as $flow){
+            $title = $flow->getTitle();
+            if($title == FinanceSalesWalletFlow::WITHDRAW_AMOUNT){
+                $enterAmount = '';
+                $outAmount = $flow->getChangeAmount();
+            }else{
+                $enterAmount = $flow->getChangeAmount();
+                $outAmount = '';
+            }
+            $body = array(
+                'date' => $flow->getCreationDate()->format('Y-m-d'),
+                'title' => $title,
+                'enter_amount' => $enterAmount,
+                'out_amount' => $outAmount,
+                'total_amount' => $flow->getTotalAmount()
+            );
+            $excelBody[] = $body;
+        }
+
+        //Fill data
+        $phpExcelObject->setActiveSheetIndex(0)->fromArray($headers, ' ', 'A1');
+        $phpExcelObject->setActiveSheetIndex(0)->fromArray($excelBody, ' ', 'A2');
+
+        $phpExcelObject->getActiveSheet()->getStyle('A1:G1')->getFont()->setBold(true);
+
+        //set column dimension
+        for ($col = ord('a'); $col <= ord('s'); ++$col) {
+            $phpExcelObject->setActiveSheetIndex(0)->getColumnDimension(chr($col))->setAutoSize(true);
+        }
+        $phpExcelObject->getActiveSheet()->setTitle('导表');
+
+        // Set active sheet index to the first sheet, so Excel opens this as the first sheet
+        $phpExcelObject->setActiveSheetIndex(0);
+
+        // create the writer
+        $writer = $this->container->get('phpexcel')->createWriter($phpExcelObject, 'Excel5');
+        // create the response
+        $response = $this->container->get('phpexcel')->createStreamedResponse($writer);
+
+        $filename = '账户钱包流水_'.$startString.'.xls';
+
+        $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
+        $response->headers->set('Pragma', 'public');
+        $response->headers->set('Cache-Control', 'maxage=1');
+        $response->headers->set('Content-Disposition', 'attachment;filename='.$filename);
 
         return $response;
     }

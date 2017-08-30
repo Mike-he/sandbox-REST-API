@@ -183,4 +183,71 @@ class AdminFinanceExportController extends SalesRestController
             $membershipOrders
         );
     }
+
+    /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="startDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="endDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="language",
+     *    array=false,
+     *    nullable=true,
+     * )
+     *
+     * @Route("/finance/export/wallet_flows")
+     * @Method({"GET"})
+     * @return mixed
+     */
+    public function exportSalesWalletFlowsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ){
+        $data = $this->get('sandbox_api.admin_permission_check_service')
+            ->checkPermissionByCookie(
+                AdminPermission::KEY_SALES_PLATFORM_REPORT_DOWNLOAD,
+                AdminPermission::PERMISSION_PLATFORM_SALES
+            );
+        $salesCompanyId = $data['company_id'];
+
+        $startDate = $paramFetcher->get('startDate');
+        $endDate = $paramFetcher->get('endDate');
+        $language = $paramFetcher->get('language');
+
+        $now = new \DateTime('now');
+        $beginDate = clone $now;
+        $beginDate = $beginDate->modify('-30 days');
+        $startDate = is_null($startDate) ? $beginDate : $startDate;
+        $endDate = is_null($endDate) ? $now : $endDate;
+        $startString = $startDate->format('Y-m-d');
+
+        $flows = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Finance\FinanceSalesWalletFlow')
+            ->getAdminWalletFlows(
+                $salesCompanyId,
+                $startDate,
+                $endDate
+            );
+
+        return $this->getFinanceSalesWalletFlowsExport(
+                    $flows,
+                    $startString,
+                    $language
+        );
+    }
 }
