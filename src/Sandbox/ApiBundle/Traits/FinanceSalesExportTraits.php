@@ -1090,7 +1090,7 @@ trait FinanceSalesExportTraits
                 'title' => $title,
                 'enter_amount' => $enterAmount,
                 'out_amount' => $outAmount,
-                'total_amount' => $flow->getTotalAmount()
+                'total_amount' => $flow->getWalletTotalAmount()
             );
             $excelBody[] = $body;
         }
