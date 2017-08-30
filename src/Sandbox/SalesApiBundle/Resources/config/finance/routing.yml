@@ -1,3 +1,9 @@
+# Admin Finance Sales Wallet
+sandbox_sales_admin_finance_wallet_flow:
+    resource: "@SandboxSalesApiBundle/Controller/Finance/AdminFinanceSalesWalletController.php"
+    type:     annotation
+    prefix:   /
+
 # Admin Finance Account
 sandbox_sales_admin_finance_account:
     resource: "@SandboxSalesApiBundle/Controller/Finance/AdminFinanceProfilesController.php"

@@ -6,6 +6,7 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Finance\FinanceSalesWalletFlow;
 use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyWithdrawals;
@@ -148,6 +149,12 @@ class AdminFinanceWithdrawalController extends PaymentController
             'logObjectKey' => Log::OBJECT_WITHDRAWAL,
             'logObjectId' => $withdrawal->getId(),
         ));
+
+        $this->get('sandbox_api.sales_wallet')->generateSalesWalletFlows(
+            FinanceSalesWalletFlow::WITHDRAW_AMOUNT,
+            "-$amount",
+            $salesCompanyId
+        );
 
         // set view
         $view = new View();

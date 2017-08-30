@@ -9,7 +9,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * FinanceSalesWalletFlow
  *
  * @ORM\Table(name="finance_sales_wallet_flows")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Finance\FinanceSalesWalletFlowsRepository")
  */
 class FinanceSalesWalletFlow
 {
