@@ -552,7 +552,7 @@ class AdminFinanceLongRentBillController extends SalesRestController
         $serviceFeeBills = $this->getDoctrine()->getRepository('SandboxApiBundle:Finance\FinanceLongRentServiceBill')
             ->findServiceBillList(
                 $salesCompanyId,
-                FinanceLongRentServiceBill::TYPE_BILL_SERVICE_FEE,
+                null,
                 null,
                 null,
                 $createStart,
