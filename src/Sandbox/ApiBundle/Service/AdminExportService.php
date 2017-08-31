@@ -651,6 +651,8 @@ class AdminExportService
                     ->find($customerId);
             }
 
+            $paymentDate = $order->getPaymentDate();
+
             $orderList = array(
                 'order_number' => $order->getOrderNumber(),
                 'rent_period' => $startTime.'至'.$endTime,
@@ -660,6 +662,7 @@ class AdminExportService
                 'status' => $status,
                 'payment_user_id' => empty($customer) ? '' : $customer->getName(),
                 'creation_date' => $order->getCreationDate()->format('Y-m-d H:i:s'),
+                'payment_date' => $paymentDate ? $paymentDate->format('Y-m-d') : '',
                 'invoice' => '包含发票',
                 'invoiced' => $order->isInvoiced() ? '已开票' : '未开票',
                 'type' => $orderType,
