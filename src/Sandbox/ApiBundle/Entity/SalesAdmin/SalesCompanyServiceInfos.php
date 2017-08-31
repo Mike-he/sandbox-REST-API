@@ -64,7 +64,7 @@ class SalesCompanyServiceInfos
      * @ORM\Column(name="collection_method", type="string", length=30, nullable=true)
      * @Serializer\Groups({"main", "admin_view"})
      */
-    private $collectionMethod = self::COLLECTION_METHOD_SANDBOX;
+    private $collectionMethod;
 
     /**
      * @var string
