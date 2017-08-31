@@ -656,7 +656,7 @@ class AdminExportService
                 'price' => $order->getPrice(),
                 'discount_price' => $order->getDiscountPrice(),
                 'status' => $status,
-                'payment_user_id' => $customer? $customer->getName():'',
+                'payment_user_id' => empty($customer) ? '' : $customer->getName(),
                 'creation_date' => $order->getCreationDate()->format('Y-m-d H:i:s'),
                 'invoice' => '包含发票',
                 'invoiced' => $order->isInvoiced() ? '已开票' : '未开票',
