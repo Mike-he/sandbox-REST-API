@@ -26,7 +26,7 @@ class FinanceSalesWalletFlowsRepository extends EntityRepository
             ->setParameter('startDate', $startDate)
             ->setParameter('endDate', $endDate);
 
-        $query->orderBy('wf.creationDate', 'DESC');
+        $query->orderBy('wf.id', 'DESC');
 
         return $query->getQuery()->getResult();
     }
