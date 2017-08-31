@@ -305,7 +305,7 @@ class AdminLeaseBillController extends LeaseController
             FinanceLongRentServiceBill::TYPE_BILL_POUNDAGE
         );
 
-        $this->get('sandbox_api.bean')->postBeanChange(
+        $amount = $this->get('sandbox_api.bean')->postBeanChange(
             $bill->getDrawee(),
             $bill->getRevisedAmount(),
             $bill->getSerialNumber(),
@@ -322,7 +322,8 @@ class AdminLeaseBillController extends LeaseController
                 $user->getInviterId(),
                 $bill->getRevisedAmount(),
                 $bill->getSerialNumber(),
-                Parameter::KEY_BEAN_INVITEE_PAY_BILL
+                Parameter::KEY_BEAN_INVITEE_PAY_BILL,
+                $amount
             );
         }
 

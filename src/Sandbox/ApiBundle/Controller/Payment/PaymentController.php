@@ -1786,7 +1786,7 @@ class PaymentController extends DoorController
 
         if ($customer->getUserId()) {
             //update user bean
-            $this->get('sandbox_api.bean')->postBeanChange(
+            $amount = $this->get('sandbox_api.bean')->postBeanChange(
                 $customer->getUserId(),
                 $price,
                 $orderNumber,
@@ -1803,7 +1803,8 @@ class PaymentController extends DoorController
                     $user->getInviterId(),
                     $price,
                     $orderNumber,
-                    Parameter::KEY_BEAN_INVITEE_PAY_BILL
+                    Parameter::KEY_BEAN_INVITEE_PAY_BILL,
+                    $amount
                 );
             }
         }

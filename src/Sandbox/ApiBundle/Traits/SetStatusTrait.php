@@ -59,7 +59,7 @@ trait SetStatusTrait
 
         if ($userId) {
             //update user bean
-            $this->getContainer()->get('sandbox_api.bean')->postBeanChange(
+            $amount = $this->getContainer()->get('sandbox_api.bean')->postBeanChange(
                 $userId,
                 $order->getDiscountPrice(),
                 $order->getOrderNumber(),
@@ -76,7 +76,8 @@ trait SetStatusTrait
                     $user->getInviterId(),
                     $order->getDiscountPrice(),
                     $order->getOrderNumber(),
-                    Parameter::KEY_BEAN_INVITEE_PRODUCT_ORDER
+                    Parameter::KEY_BEAN_INVITEE_PRODUCT_ORDER,
+                    $amount
                 );
             }
         }
