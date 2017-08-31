@@ -27,6 +27,7 @@ class GenericList
     const OBJECT_PRODUCT_ORDER = 'product_order';
     const OBJECT_EVENT_ORDER = 'event_order';
     const OBJECT_MEMBERSHIP_ORDER = 'membership_order';
+    const OBJECT_CUSTOMER_INVOICE = 'customer_invoice';
 
     /**
      * @var int

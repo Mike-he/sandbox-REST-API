@@ -58,7 +58,7 @@ class Version920170825101200 extends AbstractMigration implements ContainerAware
                 ),
                 array(
                     'column' => 'discount_price',
-                    'name' => '订单原价',
+                    'name' => '实付款',
                     'default' => true,
                     'required' => true,
                 ),
@@ -81,6 +81,12 @@ class Version920170825101200 extends AbstractMigration implements ContainerAware
                     'required' => false,
                 ),
                 array(
+                    'column' => 'payment_date',
+                    'name' => '付款时间',
+                    'default' => true,
+                    'required' => false,
+                ),
+                array(
                     'column' => 'invoice',
                     'name' => '是否包含发票',
                     'default' => false,
@@ -95,12 +101,6 @@ class Version920170825101200 extends AbstractMigration implements ContainerAware
                 array(
                     'column' => 'type',
                     'name' => '下单方式',
-                    'default' => false,
-                    'required' => false,
-                ),
-                array(
-                    'column' => 'description',
-                    'name' => '账单描述',
                     'default' => false,
                     'required' => false,
                 ),
@@ -252,6 +252,94 @@ class Version920170825101200 extends AbstractMigration implements ContainerAware
                 ),
             );
 
+        $customerInvioceColumns =
+            array(
+                array(
+                    'column' => 'ID',
+                    'name' => 'ID',
+                    'default' => true,
+                    'required' => true,
+                ),
+                array(
+                    'column' => 'order_number',
+                    'name' => '订单号',
+                    'default' => true,
+                    'required' => true,
+                ),
+                array(
+                    'column' => 'invoice_number',
+                    'name' => '发票号',
+                    'default' => true,
+                    'required' => false,
+                ),
+                array(
+                    'column' => 'amount',
+                    'name' => '金额',
+                    'default' => true,
+                    'required' => true,
+                ),
+                array(
+                    'column' => 'company_name',
+                    'name' => '公司抬头',
+                    'default' => true,
+                    'required' => true,
+                ),
+                array(
+                    'column' => 'category',
+                    'name' => '科目',
+                    'default' => false,
+                    'required' => false,
+                ),
+                array(
+                    'column' => 'invoice_type',
+                    'name' => '发票类型',
+                    'default' => true,
+                    'required' => true,
+                ),
+                array(
+                    'column' => 'application_time',
+                    'name' => '申请开票时间',
+                    'default' => true,
+                    'required' => false,
+                ),
+                array(
+                    'column' => 'tax_registration_number',
+                    'name' => '纳税人识别号/身份证号',
+                    'default' => true,
+                    'required' => false,
+                ),
+                array(
+                    'column' => 'consignee_name',
+                    'name' => '收件人',
+                    'default' => false,
+                    'required' => false,
+                ),
+                array(
+                    'column' => 'consignee_address',
+                    'name' => '收件地址',
+                    'default' => false,
+                    'required' => false,
+                ),
+                array(
+                    'column' => 'customer_name',
+                    'name' => '客户名',
+                    'default' => false,
+                    'required' => false,
+                ),
+                array(
+                    'column' => 'customer_phone',
+                    'name' => '客户手机号',
+                    'default' => false,
+                    'required' => false,
+                ),
+                array(
+                    'column' => 'status',
+                    'name' => '状态',
+                    'default' => true,
+                    'required' => true,
+                )
+            );
+
         foreach ($productOrderColumns as $productOrderColumn) {
             $list = new GenericList();
             $list->setColumn($productOrderColumn['column']);
@@ -283,6 +371,18 @@ class Version920170825101200 extends AbstractMigration implements ContainerAware
             $list->setDefault($membershipOrderColumn['default']);
             $list->setRequired($membershipOrderColumn['required']);
             $list->setObject(GenericList::OBJECT_MEMBERSHIP_ORDER);
+            $list->setPlatform(GenericList::OBJECT_PLATFORM_SALES);
+
+            $em->persist($list);
+        }
+
+        foreach ($customerInvioceColumns as $customerInvioceColumn) {
+            $list = new GenericList();
+            $list->setColumn($customerInvioceColumn['column']);
+            $list->setName($customerInvioceColumn['name']);
+            $list->setDefault($customerInvioceColumn['default']);
+            $list->setRequired($customerInvioceColumn['required']);
+            $list->setObject(GenericList::OBJECT_CUSTOMER_INVOICE);
             $list->setPlatform(GenericList::OBJECT_PLATFORM_SALES);
 
             $em->persist($list);
