@@ -1263,6 +1263,9 @@ class AdminSalesCompanyController extends SandboxRestController
 
         $excludePermissionsKeyArray = array();
         foreach ($excludePermissions as $excludePermission) {
+            if(!$excludePermission){
+                continue;
+            }
             array_push($excludePermissionsKeyArray, $excludePermission['group_key']);
         }
 
@@ -1391,6 +1394,9 @@ class AdminSalesCompanyController extends SandboxRestController
 
         $excludePermissionsKeyArray = array();
         foreach ($excludePermissions as $excludePermission) {
+            if(!$excludePermission){
+                continue;
+            }
             array_push($excludePermissionsKeyArray, $excludePermission['group_key']);
         }
 
@@ -1506,6 +1512,9 @@ class AdminSalesCompanyController extends SandboxRestController
 
         $excludePermissionsKeyArray = array();
         foreach ($excludePermissions as $excludePermission) {
+            if(!$excludePermission){
+                continue;
+            }
             array_push($excludePermissionsKeyArray, $excludePermission['group_key']);
         }
 
@@ -1630,6 +1639,9 @@ class AdminSalesCompanyController extends SandboxRestController
 
         $excludePermissionsKeyArray = array();
         foreach ($excludePermissions as $excludePermission) {
+            if(!$excludePermission){
+                continue;
+            }
             array_push($excludePermissionsKeyArray, $excludePermission['group_key']);
         }
 
