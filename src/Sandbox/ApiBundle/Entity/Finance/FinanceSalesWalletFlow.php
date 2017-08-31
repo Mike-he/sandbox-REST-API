@@ -57,6 +57,13 @@ class FinanceSalesWalletFlow
     private $walletTotalAmount;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="order_number", type="string", length=255, nullable=true)
+     */
+    private $orderNumber;
+
+    /**
      * @var \DateTime
      *
      * @Gedmo\Timestampable(on="create")
@@ -158,6 +165,22 @@ class FinanceSalesWalletFlow
     public function getWalletTotalAmount()
     {
         return $this->walletTotalAmount;
+    }
+
+    /**
+     * @return string
+     */
+    public function getOrderNumber()
+    {
+        return $this->orderNumber;
+    }
+
+    /**
+     * @param string $orderNumber
+     */
+    public function setOrderNumber($orderNumber)
+    {
+        $this->orderNumber = $orderNumber;
     }
 
     /**

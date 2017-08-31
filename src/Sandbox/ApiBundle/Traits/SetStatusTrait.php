@@ -6,6 +6,7 @@ use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentServiceBill;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Parameter\Parameter;
+use Sandbox\ApiBundle\Entity\User\UserBeanFlow;
 
 /**
  * Consume Trait.
@@ -59,7 +60,7 @@ trait SetStatusTrait
 
         if ($userId) {
             //update user bean
-            $this->getContainer()->get('sandbox_api.bean')->postBeanChange(
+            $amount = $this->getContainer()->get('sandbox_api.bean')->postBeanChange(
                 $userId,
                 $order->getDiscountPrice(),
                 $order->getOrderNumber(),
@@ -76,7 +77,9 @@ trait SetStatusTrait
                     $user->getInviterId(),
                     $order->getDiscountPrice(),
                     $order->getOrderNumber(),
-                    Parameter::KEY_BEAN_INVITEE_PRODUCT_ORDER
+                    Parameter::KEY_BEAN_INVITEE_PRODUCT_ORDER,
+                    UserBeanFlow::TYPE_ADD,
+                    $amount
                 );
             }
         }

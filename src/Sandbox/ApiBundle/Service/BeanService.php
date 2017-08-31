@@ -22,17 +22,21 @@ class BeanService
 
     /**
      * @param $userId
-     * @param $amount
+     * @param $price
      * @param $tradeId
-     * @param $type
      * @param $source
+     * @param string $type
+     * @param null   $addAmount
+     *
+     * @return bool|string
      */
     public function postBeanChange(
         $userId,
-        $amount,
+        $price,
         $tradeId,
         $source,
-        $type = UserBeanFlow::TYPE_ADD
+        $type = UserBeanFlow::TYPE_ADD,
+        $addAmount = null
     ) {
         $em = $this->doctrine->getManager();
         $now = new \DateTime('now');
@@ -61,10 +65,10 @@ class BeanService
 
         switch ($operator) {
             case '+':
-                $amount = $amount + $number;
+                $amount = $number;
                 break;
             case '*':
-                $amount = $amount * $number;
+                $amount = $price * $number;
                 break;
 
             default:
@@ -75,10 +79,10 @@ class BeanService
 
         $newBean = $oldBean + $amount;
 
-        $lastBeanFlow = $em->getRepository('SandboxApiBundle:User\UserBeanFlow')
-            ->findOneBy(array(), array('id' => 'DESC'));
+        $totalUser = $em->getRepository('SandboxApiBundle:User\User')
+            ->countTotalUsers();
 
-        $totalBean = $lastBeanFlow ? $lastBeanFlow->getTotal() : 0;
+        $totalBean = $totalUser['bean'];
 
         $beanFlow = new UserBeanFlow();
         $beanFlow->setUserId($userId);
@@ -88,10 +92,12 @@ class BeanService
         $beanFlow->setSource($source);
         $beanFlow->setTradeId($tradeId);
         $beanFlow->setCreationDate($now);
-        $beanFlow->setTotal($totalBean + $amount);
+        $beanFlow->setTotal($totalBean + $amount + $addAmount);
         $em->persist($beanFlow);
 
         $user->setBean($newBean);
+
+        return $amount;
     }
 
     /**

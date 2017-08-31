@@ -25,11 +25,13 @@ class AdminSalesWalletService
      * @param $title
      * @param $amount
      * @param $companyId
+     * @param $orderNumber
      */
     public function generateSalesWalletFlows(
         $title,
         $amount,
-        $companyId
+        $companyId,
+        $orderNumber = null
     ) {
         $em = $this->doctrine->getManager();
 
@@ -41,6 +43,7 @@ class AdminSalesWalletService
         $flow->setTitle($title);
         $flow->setChangeAmount($amount);
         $flow->setWalletTotalAmount($wallet->getWithdrawableAmount());
+        $flow->setOrderNumber($orderNumber);
         $em->persist($flow);
 
         $em->flush();
