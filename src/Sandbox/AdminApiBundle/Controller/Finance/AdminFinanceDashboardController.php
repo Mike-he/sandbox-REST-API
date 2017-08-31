@@ -7,7 +7,6 @@ use FOS\RestBundle\View\View;
 use Sandbox\AdminApiBundle\Controller\AdminRestController;
 use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentBill;
 use Sandbox\ApiBundle\Entity\Finance\FinanceShortRentInvoice;
-use Sandbox\ApiBundle\Entity\Finance\FinanceShortRentInvoiceApplication;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyWithdrawals;
 use Sandbox\ApiBundle\Entity\Finance\FinanceDashboard;
 use Sandbox\ApiBundle\Traits\FinanceOfficialExportTraits;
