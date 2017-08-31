@@ -28,6 +28,7 @@ use Pingpp\Error\Base;
 use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
+use Sandbox\ApiBundle\Entity\User\UserBeanFlow;
 use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
 use Sandbox\ApiBundle\Traits\FinanceTrait;
 use Sandbox\ApiBundle\Traits\LeaseTrait;
@@ -1355,10 +1356,7 @@ class PaymentController extends DoorController
             ));
 
         if (!is_null($serviceInfo)) {
-            if ($serviceInfo->getDrawer() == SalesCompanyServiceInfos::COLLECTION_METHOD_SANDBOX) {
-                $order->setSalesInvoice(false);
-            }
-
+            $order->setSalesInvoice(false);
             $order->setServiceFee($serviceInfo->getServiceFee());
         }
 
@@ -1789,7 +1787,7 @@ class PaymentController extends DoorController
 
         if ($customer->getUserId()) {
             //update user bean
-            $this->get('sandbox_api.bean')->postBeanChange(
+            $amount = $this->get('sandbox_api.bean')->postBeanChange(
                 $customer->getUserId(),
                 $price,
                 $orderNumber,
@@ -1806,7 +1804,9 @@ class PaymentController extends DoorController
                     $user->getInviterId(),
                     $price,
                     $orderNumber,
-                    Parameter::KEY_BEAN_INVITEE_PAY_BILL
+                    Parameter::KEY_BEAN_INVITEE_PAY_BILL,
+                    UserBeanFlow::TYPE_ADD,
+                    $amount
                 );
             }
         }

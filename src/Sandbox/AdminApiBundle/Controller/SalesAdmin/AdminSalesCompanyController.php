@@ -1263,6 +1263,9 @@ class AdminSalesCompanyController extends SandboxRestController
 
         $excludePermissionsKeyArray = array();
         foreach ($excludePermissions as $excludePermission) {
+            if(!$excludePermission){
+                continue;
+            }
             array_push($excludePermissionsKeyArray, $excludePermission['group_key']);
         }
 
@@ -1391,6 +1394,9 @@ class AdminSalesCompanyController extends SandboxRestController
 
         $excludePermissionsKeyArray = array();
         foreach ($excludePermissions as $excludePermission) {
+            if(!$excludePermission){
+                continue;
+            }
             array_push($excludePermissionsKeyArray, $excludePermission['group_key']);
         }
 
@@ -1506,6 +1512,9 @@ class AdminSalesCompanyController extends SandboxRestController
 
         $excludePermissionsKeyArray = array();
         foreach ($excludePermissions as $excludePermission) {
+            if(!$excludePermission){
+                continue;
+            }
             array_push($excludePermissionsKeyArray, $excludePermission['group_key']);
         }
 
@@ -1630,6 +1639,9 @@ class AdminSalesCompanyController extends SandboxRestController
 
         $excludePermissionsKeyArray = array();
         foreach ($excludePermissions as $excludePermission) {
+            if(!$excludePermission){
+                continue;
+            }
             array_push($excludePermissionsKeyArray, $excludePermission['group_key']);
         }
 
@@ -1705,6 +1717,10 @@ class AdminSalesCompanyController extends SandboxRestController
                     'key' => $permissionArray['key'],
                 ));
 
+            if (!$permission) {
+                continue;
+            }
+
             $adminPositionPermissionMap = new AdminPositionPermissionMap();
             $adminPositionPermissionMap->setPosition($positionGeneralManager);
             $adminPositionPermissionMap->setPermission($permission);
@@ -1719,6 +1735,10 @@ class AdminSalesCompanyController extends SandboxRestController
                     'groupKey' => $generalManagerGroup,
                     'platform' => AdminPermissionGroups::GROUP_PLATFORM_SALES,
                 ));
+
+            if (!$group){
+                continue;
+            }
 
             $adminPositionGroupMap = new AdminPositionGroupBinding();
             $adminPositionGroupMap->setGroup($group);

@@ -12,7 +12,7 @@ use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentServiceBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBillOfflineTransfer;
 use Sandbox\ApiBundle\Entity\Parameter\Parameter;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
+use Sandbox\ApiBundle\Entity\User\UserBeanFlow;
 use Sandbox\ApiBundle\Form\Lease\LeaseBillOfflineTransferPatch;
 use Sandbox\ApiBundle\Traits\FinanceTrait;
 use Sandbox\ApiBundle\Traits\LeaseTrait;
@@ -306,7 +306,7 @@ class AdminLeaseBillController extends LeaseController
             FinanceLongRentServiceBill::TYPE_BILL_POUNDAGE
         );
 
-        $this->get('sandbox_api.bean')->postBeanChange(
+        $amount = $this->get('sandbox_api.bean')->postBeanChange(
             $bill->getDrawee(),
             $bill->getRevisedAmount(),
             $bill->getSerialNumber(),
@@ -323,7 +323,9 @@ class AdminLeaseBillController extends LeaseController
                 $user->getInviterId(),
                 $bill->getRevisedAmount(),
                 $bill->getSerialNumber(),
-                Parameter::KEY_BEAN_INVITEE_PAY_BILL
+                Parameter::KEY_BEAN_INVITEE_PAY_BILL,
+                UserBeanFlow::TYPE_ADD,
+                $amount
             );
         }
 
@@ -369,16 +371,6 @@ class AdminLeaseBillController extends LeaseController
             $building = $room->getBuilding();
             $company = $building->getCompany();
 
-            $companyService = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
-                ->findOneBy(array('company' => $company));
-
-            if ($companyService->getCollectionMethod() == SalesCompanyServiceInfos::COLLECTION_METHOD_SANDBOX) {
-                $collectionMethod = '创合收款';
-            } else {
-                $collectionMethod = $company->getName();
-            }
-
             $payments = $this->getDoctrine()->getRepository('SandboxApiBundle:Payment\Payment')->findAll();
             $payChannel = array();
             foreach ($payments as $payment) {
@@ -405,7 +397,6 @@ class AdminLeaseBillController extends LeaseController
                 'amount' => $bill->getAmount(),
                 'revised_amount' => $bill->getRevisedAmount() ? '￥'.$bill->getRevisedAmount() : '',
                 'status' => $status[$bill->getStatus()],
-                'collection_method' => $collectionMethod,
                 'pay_channel' => $bill->getPayChannel() ? $payChannel[$bill->getPayChannel()] : '',
                 'remark' => $bill->getRemark(),
                 'sales_invoice' => $bill->isSalesInvoice() ? $company->getName() : '创合开票',
@@ -431,7 +422,6 @@ class AdminLeaseBillController extends LeaseController
             '账单原价',
             '实收款',
             '账单状态',
-            '收款方',
             '支付渠道',
             '收款备注（销售方）',
             '开票方',

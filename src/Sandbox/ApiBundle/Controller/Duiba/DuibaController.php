@@ -108,6 +108,11 @@ class DuibaController extends SandboxRestController
 
         $em->persist($duibaOrder);
 
+        $totalUser = $em->getRepository('SandboxApiBundle:User\User')
+            ->countTotalUsers();
+
+        $totalBean = $totalUser['bean'];
+
         $beanFlow = new UserBeanFlow();
         $beanFlow->setUserId($_GET['uid']);
         $beanFlow->setType(UserBeanFlow::TYPE_CONSUME);
@@ -116,6 +121,7 @@ class DuibaController extends SandboxRestController
         $beanFlow->setSource(UserBeanFlow::SOURCE_EXCHANGE);
         $beanFlow->setTradeId($creditConsume['orderNum']);
         $beanFlow->setCreationDate($now);
+        $beanFlow->setTotal($totalBean - $creditConsume['credits']);
         $em->persist($beanFlow);
 
         $user->setBean($newBean);
@@ -179,6 +185,11 @@ class DuibaController extends SandboxRestController
                 $newBean = $user->getBean() + $duibaOrder->getCredits();
                 $user->setBean($newBean);
 
+                $totalUser = $em->getRepository('SandboxApiBundle:User\User')
+                    ->countTotalUsers();
+
+                $totalBean = $totalUser['bean'];
+
                 $beanFlow = new UserBeanFlow();
                 $beanFlow->setUserId($userId);
                 $beanFlow->setType(UserBeanFlow::TYPE_ADD);
@@ -187,6 +198,7 @@ class DuibaController extends SandboxRestController
                 $beanFlow->setSource(UserBeanFlow::SOURCE_EXCHANGE_FAIL);
                 $beanFlow->setTradeId($duibaOrder->getDuibaOrderNum());
                 $beanFlow->setCreationDate(new \DateTime('now'));
+                $beanFlow->setTotal($totalBean + $duibaOrder->getCredits());
                 $em->persist($beanFlow);
             } else {
                 return new View('error');

@@ -156,6 +156,7 @@ class AdminExportService
                 $lists[$genericList->getColumn()] = $genericList->getName();
             }
         }
+
         return $lists;
     }
 
@@ -546,14 +547,15 @@ class AdminExportService
 
             $excelBody[] = $body;
         }
+
         return $excelBody;
     }
-
 
     /**
      * @param $orders
      * @param $lists
      * @param $language
+     *
      * @return array
      */
     private function getExcelProductOrder(
@@ -621,7 +623,7 @@ class AdminExportService
 
             // set status
             $statusKey = $order->getStatus();
-            $status =  $this->container->get('translator')->trans(
+            $status = $this->container->get('translator')->trans(
                 ProductOrderExport::TRANS_PRODUCT_ORDER_STATUS.$statusKey,
                 array(),
                 null,
@@ -636,7 +638,7 @@ class AdminExportService
                 $orderType = 'user';
             }
 
-            $orderType =  $this->container->get('translator')->trans(
+            $orderType = $this->container->get('translator')->trans(
                 ProductOrderExport::TRANS_PRODUCT_ORDER_TYPE.$orderType,
                 array(),
                 null,
@@ -644,7 +646,7 @@ class AdminExportService
             );
 
             $customerId = $order->getCustomerId();
-            if($customerId){
+            if ($customerId) {
                 $customer = $this->doctrine->getRepository('SandboxApiBundle:User\UserCustomer')
                     ->find($customerId);
             }
@@ -656,7 +658,7 @@ class AdminExportService
                 'price' => $order->getPrice(),
                 'discount_price' => $order->getDiscountPrice(),
                 'status' => $status,
-                'payment_user_id' => $customer? $customer->getName():'',
+                'payment_user_id' => empty($customer) ? '' : $customer->getName(),
                 'creation_date' => $order->getCreationDate()->format('Y-m-d H:i:s'),
                 'invoice' => '包含发票',
                 'invoiced' => $order->isInvoiced() ? '已开票' : '未开票',
@@ -666,13 +668,13 @@ class AdminExportService
             );
 
             $body = array();
-            foreach($lists as $key=>$val){
+            foreach ($lists as $key => $val) {
                 $body[] = $orderList[$key];
             }
             $excelBody[] = $body;
         }
 
-       return $excelBody;
+        return $excelBody;
     }
 
     /**

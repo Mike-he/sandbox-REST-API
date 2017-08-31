@@ -234,7 +234,7 @@ class AdminFinanceExportController extends SalesRestController
         $beginDate = $beginDate->modify('-30 days');
         $startDate = is_null($startDate) ? $beginDate : $startDate;
         $endDate = is_null($endDate) ? $now : $endDate;
-        $startString = $startDate->format('Y-m-d');
+        $startString = is_object($startDate)?$startDate->format('Y-m-d'):$startDate;
 
         $flows = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Finance\FinanceSalesWalletFlow')

@@ -86,7 +86,8 @@ trait FinanceTrait
                             ->generateSalesWalletFlows(
                                 FinanceSalesWalletFlow::REALTIME_ORDERS_AMOUNT,
                                 "+$price",
-                                $companyId
+                                $companyId,
+                                $orderNumber
                             );
                         break;
                     case LeaseBill::LEASE_BILL_LETTER_HEAD:
@@ -94,7 +95,8 @@ trait FinanceTrait
                             ->generateSalesWalletFlows(
                                 FinanceSalesWalletFlow::REALTIME_BILLS_AMOUNT,
                                 "+$price",
-                                $companyId
+                                $companyId,
+                                $orderNumber
                             );
                         break;
                 }
