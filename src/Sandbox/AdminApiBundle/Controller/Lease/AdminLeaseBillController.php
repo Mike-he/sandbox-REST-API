@@ -12,6 +12,7 @@ use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentServiceBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBillOfflineTransfer;
 use Sandbox\ApiBundle\Entity\Parameter\Parameter;
+use Sandbox\ApiBundle\Entity\User\UserBeanFlow;
 use Sandbox\ApiBundle\Form\Lease\LeaseBillOfflineTransferPatch;
 use Sandbox\ApiBundle\Traits\FinanceTrait;
 use Sandbox\ApiBundle\Traits\LeaseTrait;
@@ -323,6 +324,7 @@ class AdminLeaseBillController extends LeaseController
                 $bill->getRevisedAmount(),
                 $bill->getSerialNumber(),
                 Parameter::KEY_BEAN_INVITEE_PAY_BILL,
+                UserBeanFlow::TYPE_ADD,
                 $amount
             );
         }

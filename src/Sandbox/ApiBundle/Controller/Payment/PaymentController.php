@@ -28,6 +28,7 @@ use Pingpp\Error\Base;
 use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
+use Sandbox\ApiBundle\Entity\User\UserBeanFlow;
 use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
 use Sandbox\ApiBundle\Traits\FinanceTrait;
 use Sandbox\ApiBundle\Traits\LeaseTrait;
@@ -1804,6 +1805,7 @@ class PaymentController extends DoorController
                     $price,
                     $orderNumber,
                     Parameter::KEY_BEAN_INVITEE_PAY_BILL,
+                    UserBeanFlow::TYPE_ADD,
                     $amount
                 );
             }
