@@ -1355,10 +1355,7 @@ class PaymentController extends DoorController
             ));
 
         if (!is_null($serviceInfo)) {
-            if ($serviceInfo->getDrawer() == SalesCompanyServiceInfos::COLLECTION_METHOD_SANDBOX) {
-                $order->setSalesInvoice(false);
-            }
-
+            $order->setSalesInvoice(false);
             $order->setServiceFee($serviceInfo->getServiceFee());
         }
 
