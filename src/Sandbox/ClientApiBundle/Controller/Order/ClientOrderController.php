@@ -886,6 +886,14 @@ class ClientOrderController extends OrderController
                 $order->setServiceFee($serviceInfo->getServiceFee());
             }
 
+            // set sales user
+            $customerId = $this->setSalesUser(
+                                $em,
+                                $user->getId(),
+                                $product
+                            );
+            $order->setCustomerId($customerId);
+
             $em->persist($order);
 
             // store order record
@@ -895,13 +903,6 @@ class ClientOrderController extends OrderController
                 $product,
                 $timeUnit,
                 $language
-            );
-
-            // set sales user
-            $this->setSalesUser(
-                $em,
-                $user->getId(),
-                $product
             );
 
             $em->flush();
