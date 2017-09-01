@@ -532,6 +532,7 @@ class AdminLeaseExportController extends SalesRestController
      *    name="channel",
      *    default=null,
      *    nullable=true,
+     *    array=true,
      *    description="pay channel"
      * )
      *
@@ -624,7 +625,7 @@ class AdminLeaseExportController extends SalesRestController
             );
 
         $language = $paramFetcher->get('language');
-        $channel = $paramFetcher->get('channel');
+        $channels = $paramFetcher->get('channel');
         $keyword = $paramFetcher->get('keyword');
         $keywordSearch = $paramFetcher->get('keyword_search');
         $sendStart = $paramFetcher->get('send_start');
@@ -633,17 +634,6 @@ class AdminLeaseExportController extends SalesRestController
         $payEndDate = $paramFetcher->get('pay_end_date');
         $status = $paramFetcher->get('status');
         $building = $paramFetcher->get('building');
-
-        if ($channel == LeaseBill::CHANNEL_SANDBOX) {
-            $channels = array(
-                LeaseBill::CHANNEL_ALIPAY,
-                LeaseBill::CHANNEL_WECHAT,
-                LeaseBill::CHANNEL_OFFLINE,
-                LeaseBill::CHANNEL_UNIONPAY,
-            );
-        } else {
-            $channels = $channel ? [$channel] : [];
-        }
 
         $leaseStatus = array(
             Lease::LEASE_STATUS_PERFORMING,
