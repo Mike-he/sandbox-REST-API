@@ -963,7 +963,7 @@ class AdminProductController extends ProductController
         $productRentSet->setEarliestRentDate($earliestRendDate);
         $productRentSet->setDeposit($rentSet['deposit']);
         $productRentSet->setRentalInfo($rentSet['rental_info']);
-        $productRentSet->setFilename($rentSet['filename']);
+//        $productRentSet->setFilename($rentSet['filename']);
         $productRentSet->setStatus(1);
         $em->persist($productRentSet);
     }
