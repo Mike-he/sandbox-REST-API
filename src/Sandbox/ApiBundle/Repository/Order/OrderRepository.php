@@ -1986,20 +1986,18 @@ class OrderRepository extends EntityRepository
 
         // filter by payment channel
         if (!is_null($channel) && !empty($channel)) {
-            if ($channel == 'sandbox') {
-                $channel = array(
+            if (in_array('sandbox',$channel)) {
+                $channel[] = array(
                     ProductOrder::CHANNEL_ACCOUNT,
                     ProductOrder::CHANNEL_ALIPAY,
                     ProductOrder::CHANNEL_UNIONPAY,
                     ProductOrder::CHANNEL_WECHAT,
                     ProductOrder::CHANNEL_WECHAT_PUB,
                 );
-                $query->andWhere('o.payChannel in (:channel)');
-            } else {
-                $query->leftJoin('SandboxApiBundle:Finance\FinanceReceivables', 'fr', 'WITH', 'o.orderNumber = fr.orderNumber')
-                    ->andWhere('fr.payChannel = :channel');
             }
-            $query->setParameter('channel', $channel);
+            $query->leftJoin('SandboxApiBundle:Finance\FinanceReceivables', 'fr', 'WITH', 'o.orderNumber = fr.orderNumber')
+                ->andWhere('o.payChannel in (:channel) or fr.payChannel in (:channel)')
+                ->setParameter('channel', $channel);
         }
 
         // filter by status
@@ -2222,20 +2220,18 @@ class OrderRepository extends EntityRepository
 
         // filter by payment channel
         if (!is_null($channel) && !empty($channel)) {
-            if ($channel == 'sandbox') {
-                $channel = array(
+            if (in_array('sandbox',$channel)) {
+                $channel[] = array(
                     ProductOrder::CHANNEL_ACCOUNT,
                     ProductOrder::CHANNEL_ALIPAY,
                     ProductOrder::CHANNEL_UNIONPAY,
                     ProductOrder::CHANNEL_WECHAT,
                     ProductOrder::CHANNEL_WECHAT_PUB,
                 );
-                $query->andWhere('o.payChannel in (:channel)');
-            } else {
-                $query->leftJoin('SandboxApiBundle:Finance\FinanceReceivables', 'fr', 'WITH', 'o.orderNumber = fr.orderNumber')
-                    ->andWhere('fr.payChannel = :channel');
             }
-            $query->setParameter('channel', $channel);
+            $query->leftJoin('SandboxApiBundle:Finance\FinanceReceivables', 'fr', 'WITH', 'o.orderNumber = fr.orderNumber')
+                ->andWhere('o.payChannel in (:channel) or fr.payChannel in (:channel)')
+                ->setParameter('channel', $channel);
         }
 
         // filter by status
