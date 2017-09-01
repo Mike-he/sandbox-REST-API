@@ -331,7 +331,7 @@ class AdminFinanceCashierController extends SalesRestController
      *    nullable=true,
      * )
      *
-     * @Route("/finance/cashier/export")
+     * @Route("/finance/export/cashier")
      * @Method({"GET"})
      *
      * @return View
@@ -348,9 +348,6 @@ class AdminFinanceCashierController extends SalesRestController
                 AdminPermission::PERMISSION_PLATFORM_SALES
             );
 
-        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
-        $salesCompanyId = $adminPlatform['sales_company_id'];
-
         $orderType = $paramFetcher->get('order_type');
         $building = $paramFetcher->get('building');
         $type = $paramFetcher->get('type');
@@ -362,15 +359,9 @@ class AdminFinanceCashierController extends SalesRestController
 
         $company = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
-            ->find($salesCompanyId);
+            ->find($data['company_id']);
 
-        //get my buildings list
-        $myBuildingIds = $this->getMySalesBuildingIds(
-            $this->getAdminId(),
-            array(
-                AdminPermission::KEY_SALES_BUILDING_CASHIER,
-            )
-        );
+        $myBuildingIds = $data['building_ids'];
 
         $orders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\ProductOrder')

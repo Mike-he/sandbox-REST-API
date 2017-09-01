@@ -2211,15 +2211,6 @@ class AdminOrderController extends OrderController
      *    nullable=true
      * )
      *
-     * @Annotations\QueryParam(
-     *    name="company",
-     *    array=false,
-     *    default=null,
-     *    nullable=false,
-     *    strict=true,
-     *    description="company id"
-     * )
-     *
      * @Route("/export/orders")
      * @Method({"GET"})
      *
@@ -2254,13 +2245,8 @@ class AdminOrderController extends OrderController
         $userId = $paramFetcher->get('user');
         $buildingId = $paramFetcher->get('building');
         $language = $paramFetcher->get('language');
-        //get my buildings list
-        $myBuildingIds = $this->getMySalesBuildingIds(
-            $this->getAdminId(),
-            array(
-                AdminPermission::KEY_SALES_BUILDING_ORDER,
-            )
-        );
+
+        $myBuildingIds = $data['building_ids'];
 
         $orders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
