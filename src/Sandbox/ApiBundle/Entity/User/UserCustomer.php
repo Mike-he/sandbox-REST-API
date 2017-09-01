@@ -139,6 +139,13 @@ class UserCustomer
     private $comment;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="is_deleted", type="boolean", nullable=false)
+     */
+    private $isDeleted = false;
+
+    /**
      * @var \DateTime
      * @Gedmo\Timestampable(on="create")
      *
@@ -532,6 +539,22 @@ class UserCustomer
     public function getComment()
     {
         return $this->comment;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDeleted()
+    {
+        return $this->isDeleted;
+    }
+
+    /**
+     * @param bool $isDeleted
+     */
+    public function setIsDeleted($isDeleted)
+    {
+        $this->isDeleted = $isDeleted;
     }
 
     /**

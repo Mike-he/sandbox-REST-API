@@ -23,6 +23,7 @@ class UserCustomerRepository extends EntityRepository
         $query = $this->createQueryBuilder('c');
 
         $query->where('c.companyId = :companyId')
+            ->andWhere('c.isDeleted = FALSE')
             ->setParameter('companyId', $salesCompanyId);
 
         if ($search) {
