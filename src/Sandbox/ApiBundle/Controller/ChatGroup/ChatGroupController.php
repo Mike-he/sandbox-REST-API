@@ -92,9 +92,21 @@ class ChatGroupController extends SandboxRestController
         $chatGroup
     ) {
         try {
-            $chatRoomId = $chatGroup->getId();
+//            $chatRoomId = $chatGroup->getId();
             $chatRoomName = $chatGroup->getName().'@'.$chatGroup->getTag();
-            $chatRoomDesc = $chatRoomName.'('.$chatRoomId.')';
+            $chatRoomDesc = array(
+                'tag' => $chatGroup->getTag(),
+            );
+            if ($chatGroup->getBuildingId()) {
+                $building = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                    ->find($chatGroup->getBuildingId());
+                if ($building) {
+                    $chatRoomDesc['avatar'] = $building->getAvatar();
+                }
+            }
+            $chatRoomDesc = json_encode($chatRoomDesc);
+
             $ownerName = $chatGroup->getCreator()->getXmppUsername();
             $members = $this->getRepo('ChatGroup\ChatGroupMember')->findByChatGroup($chatGroup);
 
