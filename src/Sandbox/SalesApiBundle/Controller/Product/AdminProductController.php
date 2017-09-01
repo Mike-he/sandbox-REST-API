@@ -474,6 +474,7 @@ class AdminProductController extends ProductController
         }
 
         $startDate = $form['start_date']->getData();
+        $startDate = new \DateTime($startDate);
         $startDate->setTime(00, 00, 00);
         $now = new \DateTime('now');
 
@@ -587,6 +588,7 @@ class AdminProductController extends ProductController
         );
 
         $startDate = $form['start_date']->getData();
+        $startDate = new \DateTime($startDate);
         $startDate->setTime(00, 00, 00);
 
         $product->setRoom($room);
@@ -961,7 +963,7 @@ class AdminProductController extends ProductController
         $productRentSet->setEarliestRentDate($earliestRendDate);
         $productRentSet->setDeposit($rentSet['deposit']);
         $productRentSet->setRentalInfo($rentSet['rental_info']);
-        $productRentSet->setFilename($rentSet['filename']);
+//        $productRentSet->setFilename($rentSet['filename']);
         $productRentSet->setStatus(1);
         $em->persist($productRentSet);
     }

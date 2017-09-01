@@ -1973,7 +1973,7 @@ class OrderRepository extends EntityRepository
             ->leftJoin('o.product', 'p')
             ->leftJoin('p.room', 'r')
             ->leftJoin('SandboxApiBundle:Order\ProductOrderRecord', 'por', 'WITH', 'por.orderId = o.id')
-            ->leftJoin('SandboxApiBundle:User\UserView', 'u', 'WITH', 'u.id = o.userId')
+            ->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.id = o.customerId')
             ->where('
                     (
                         (o.status != :unpaid) AND 
@@ -1986,8 +1986,20 @@ class OrderRepository extends EntityRepository
 
         // filter by payment channel
         if (!is_null($channel) && !empty($channel)) {
-            $query->andWhere('o.payChannel in (:channel)')
-                ->setParameter('channel', $channel);
+            if ($channel == 'sandbox') {
+                $channel = array(
+                    ProductOrder::CHANNEL_ACCOUNT,
+                    ProductOrder::CHANNEL_ALIPAY,
+                    ProductOrder::CHANNEL_UNIONPAY,
+                    ProductOrder::CHANNEL_WECHAT,
+                    ProductOrder::CHANNEL_WECHAT_PUB,
+                );
+                $query->andWhere('o.payChannel in (:channel)');
+            } else {
+                $query->leftJoin('SandboxApiBundle:Finance\FinanceReceivables', 'fr', 'WITH', 'o.orderNumber = fr.orderNumber')
+                    ->andWhere('fr.payChannel = :channel');
+            }
+            $query->setParameter('channel', $channel);
         }
 
         // filter by status
@@ -2094,17 +2106,11 @@ class OrderRepository extends EntityRepository
                 case 'number':
                     $query->andWhere('o.orderNumber LIKE :search');
                     break;
-                case 'room':
-                    $query->andWhere('r.name LIKE :search');
-                    break;
-                case 'user':
-                    $query->andWhere('u.name LIKE :search');
-                    break;
                 case 'phone':
-                    $query->andWhere('u.phone LIKE :search');
+                    $query->andWhere('uc.phone LIKE :search');
                     break;
-                case 'email':
-                    $query->andWhere('u.email LIKE :search');
+                case 'name':
+                    $query->andWhere('uc.name LIKE :search');
                     break;
                 default:
                     $query->andWhere('o.orderNumber LIKE :search');
@@ -2203,7 +2209,7 @@ class OrderRepository extends EntityRepository
             ->leftJoin('o.product', 'p')
             ->leftJoin('p.room', 'r')
             ->leftJoin('SandboxApiBundle:Order\ProductOrderRecord', 'por', 'WITH', 'por.orderId = o.id')
-            ->leftJoin('SandboxApiBundle:User\UserView', 'u', 'WITH', 'u.id = o.userId')
+            ->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.id = o.customerId')
             ->where('
                     (
                         (o.status != :unpaid) AND 
@@ -2216,8 +2222,20 @@ class OrderRepository extends EntityRepository
 
         // filter by payment channel
         if (!is_null($channel) && !empty($channel)) {
-            $query->andWhere('o.payChannel in (:channel)')
-                ->setParameter('channel', $channel);
+            if ($channel == 'sandbox') {
+                $channel = array(
+                    ProductOrder::CHANNEL_ACCOUNT,
+                    ProductOrder::CHANNEL_ALIPAY,
+                    ProductOrder::CHANNEL_UNIONPAY,
+                    ProductOrder::CHANNEL_WECHAT,
+                    ProductOrder::CHANNEL_WECHAT_PUB,
+                );
+                $query->andWhere('o.payChannel in (:channel)');
+            } else {
+                $query->leftJoin('SandboxApiBundle:Finance\FinanceReceivables', 'fr', 'WITH', 'o.orderNumber = fr.orderNumber')
+                    ->andWhere('fr.payChannel = :channel');
+            }
+            $query->setParameter('channel', $channel);
         }
 
         // filter by status
@@ -2324,18 +2342,11 @@ class OrderRepository extends EntityRepository
                 case 'number':
                     $query->andWhere('o.orderNumber LIKE :search');
                     break;
-                case 'room':
-                    $query->andWhere('r.name LIKE :search');
-                    break;
-                case 'user':
-                    $query->andWhere('u.name LIKE :search');
-                    break;
                 case 'phone':
-                    $query->andWhere('u.phone LIKE :search');
+                    $query->andWhere('uc.phone LIKE :search');
                     break;
-                case 'email':
-                    $query->andWhere('u.email LIKE :search');
-                    break;
+                case 'name':
+                    $query->andWhere('uc.name LIKE :search');
                 default:
                     $query->andWhere('o.orderNumber LIKE :search');
             }
