@@ -474,6 +474,7 @@ class AdminProductController extends ProductController
         }
 
         $startDate = $form['start_date']->getData();
+        $startDate = new \DateTime($startDate);
         $startDate->setTime(00, 00, 00);
         $now = new \DateTime('now');
 
@@ -587,6 +588,7 @@ class AdminProductController extends ProductController
         );
 
         $startDate = $form['start_date']->getData();
+        $startDate = new \DateTime($startDate);
         $startDate->setTime(00, 00, 00);
 
         $product->setRoom($room);
