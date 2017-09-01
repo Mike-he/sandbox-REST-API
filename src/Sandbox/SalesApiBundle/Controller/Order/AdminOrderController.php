@@ -2204,11 +2204,20 @@ class AdminOrderController extends OrderController
      *    description="Filter by building id"
      * )
      *
-     * * @Annotations\QueryParam(
+     * @Annotations\QueryParam(
      *    name="language",
      *    array=false,
      *    default=null,
      *    nullable=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="company",
+     *    array=false,
+     *    default=null,
+     *    nullable=false,
+     *    strict=true,
+     *    description="company id"
      * )
      *
      * @Route("/export/orders")
@@ -2220,20 +2229,11 @@ class AdminOrderController extends OrderController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $adminId = $this->getAdminId();
-        // check user permission
-        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
-            $adminId,
-            array(
-                array(
-                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER,
-                ),
-                array(
-                    'key' => AdminPermission::KEY_SALES_PLATFORM_CUSTOMER,
-                ),
-            ),
-            AdminPermission::OP_LEVEL_VIEW
-        );
+        $data = $this->get('sandbox_api.admin_permission_check_service')
+            ->checkPermissionByCookie(
+                AdminPermission::KEY_SALES_BUILDING_ORDER,
+                AdminPermission::PERMISSION_PLATFORM_SALES
+            );
 
         //filters
         $type = $paramFetcher->get('type');
@@ -2289,7 +2289,7 @@ class AdminOrderController extends OrderController
         return $this->get('sandbox_api.export')->exportExcel(
             $orders,
             GenericList::OBJECT_PRODUCT_ORDER,
-            $adminId,
+            $data['user_id'],
             $language
         );
     }

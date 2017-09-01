@@ -342,16 +342,11 @@ class AdminFinanceCashierController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $adminId = $this->getAdminId();
-
-        // check user permission
-        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
-            $this->getAdminId(),
-            [
-                ['key' => AdminPermission::KEY_SALES_BUILDING_CASHIER],
-            ],
-            AdminPermission::OP_LEVEL_VIEW
-        );
+        $data = $this->get('sandbox_api.admin_permission_check_service')
+            ->checkPermissionByCookie(
+                AdminPermission::KEY_SALES_BUILDING_CASHIER,
+                AdminPermission::PERMISSION_PLATFORM_SALES
+            );
 
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
@@ -438,7 +433,7 @@ class AdminFinanceCashierController extends SalesRestController
         return $this->get('sandbox_api.export')->exportExcel(
                  $results,
                 GenericList::OBJECT_CASHIER,
-                       $adminId,
+                       $data['user_id'],
                        $language
                  );
     }
