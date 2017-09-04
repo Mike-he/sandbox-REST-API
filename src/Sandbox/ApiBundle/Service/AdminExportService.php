@@ -677,7 +677,8 @@ class AdminExportService
                 'invoiced' => $order->isInvoiced() ? '已开票' : '未开票',
                 'type' => $orderType,
                 'description' => $orderType,
-                'room_type' => $productType
+                'room_type' => $productType,
+                'pay_channel' => $paymentChannel
             );
 
             $body = array();
