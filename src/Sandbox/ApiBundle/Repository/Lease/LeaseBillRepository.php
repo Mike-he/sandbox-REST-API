@@ -619,7 +619,16 @@ class LeaseBillRepository extends EntityRepository
         }
 
         if (!empty($channels)) {
-            $query->andWhere('lb.payChannel in (:channels)')
+            if (in_array('sandbox',$channels)) {
+                $channels[] = array(
+                    LeaseBill::CHANNEL_ALIPAY,
+                    LeaseBill::CHANNEL_WECHAT,
+                    LeaseBill::CHANNEL_OFFLINE,
+                    LeaseBill::CHANNEL_UNIONPAY,
+                );
+            }
+            $query->leftJoin('SandboxApiBundle:Finance\FinanceReceivables', 'fr', 'WITH', 'lb.serialNumber = fr.orderNumber')
+                ->andWhere('lb.payChannel in (:channels)')
                 ->setParameter('channels', $channels);
         }
 
@@ -734,7 +743,16 @@ class LeaseBillRepository extends EntityRepository
         }
 
         if (!empty($channels)) {
-            $query->andWhere('lb.payChannel in (:channels)')
+            if (in_array('sandbox',$channels)) {
+                $channels[] = array(
+                    LeaseBill::CHANNEL_ALIPAY,
+                    LeaseBill::CHANNEL_WECHAT,
+                    LeaseBill::CHANNEL_OFFLINE,
+                    LeaseBill::CHANNEL_UNIONPAY,
+                );
+            }
+            $query->leftJoin('SandboxApiBundle:Finance\FinanceReceivables', 'fr', 'WITH', 'lb.serialNumber = fr.orderNumber')
+                ->andWhere('lb.payChannel in (:channels)')
                 ->setParameter('channels', $channels);
         }
 
