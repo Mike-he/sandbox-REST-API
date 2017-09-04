@@ -185,7 +185,7 @@ class AdminFinanceExportController extends SalesRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -212,12 +212,13 @@ class AdminFinanceExportController extends SalesRestController
      *
      * @Route("/finance/export/wallet_flows")
      * @Method({"GET"})
+     *
      * @return mixed
      */
     public function exportSalesWalletFlowsAction(
         Request $request,
         ParamFetcherInterface $paramFetcher
-    ){
+    ) {
         $data = $this->get('sandbox_api.admin_permission_check_service')
             ->checkPermissionByCookie(
                 AdminPermission::KEY_SALES_PLATFORM_REPORT_DOWNLOAD,
@@ -234,7 +235,7 @@ class AdminFinanceExportController extends SalesRestController
         $beginDate = $beginDate->modify('-30 days');
         $startDate = is_null($startDate) ? $beginDate : $startDate;
         $endDate = is_null($endDate) ? $now : $endDate;
-        $startString = is_object($startDate)?$startDate->format('Y-m-d'):$startDate;
+        $startString = is_object($startDate) ? $startDate->format('Y-m-d') : $startDate;
 
         $flows = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Finance\FinanceSalesWalletFlow')

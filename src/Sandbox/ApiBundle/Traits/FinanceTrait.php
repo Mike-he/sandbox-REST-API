@@ -71,6 +71,7 @@ trait FinanceTrait
             $wallet = $em->getRepository('SandboxApiBundle:Finance\FinanceSalesWallet')
                 ->findOneBy(['companyId' => $companyId]);
 
+            $incoming = $price - $amount;
             if (!is_null($wallet)) {
                 $totalAmount = $wallet->getTotalAmount();
                 $billAmount = $wallet->getBillAmount();
@@ -85,7 +86,7 @@ trait FinanceTrait
                         $this->getContainer()->get('sandbox_api.sales_wallet')
                             ->generateSalesWalletFlows(
                                 FinanceSalesWalletFlow::REALTIME_ORDERS_AMOUNT,
-                                "+$price",
+                                "+$incoming",
                                 $companyId,
                                 $orderNumber
                             );
@@ -94,7 +95,7 @@ trait FinanceTrait
                         $this->getContainer()->get('sandbox_api.sales_wallet')
                             ->generateSalesWalletFlows(
                                 FinanceSalesWalletFlow::REALTIME_BILLS_AMOUNT,
-                                "+$price",
+                                "+$incoming",
                                 $companyId,
                                 $orderNumber
                             );

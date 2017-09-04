@@ -87,10 +87,16 @@ class AdminFinanceReceivableController extends SalesRestController
 
                     $customerId = $bill->getLease()->getLesseeCustomer();
 
+                    $customer = $em->getRepository('SandboxApiBundle:User\UserCustomer')->find($customerId);
+                    if (!$customer) {
+                        continue;
+                    }
+
                     $bill->setPayChannel(LeaseBill::CHANNEL_SALES_OFFLINE);
                     $bill->setPaymentDate($now);
                     $bill->setStatus(LeaseBill::STATUS_PAID);
                     $bill->setCustomerId($customerId);
+                    $bill->setDrawee($customer->getUserId());
 
                     $invoiced = $this->checkBillShouldInvoiced($bill->getLease());
                     if (!$invoiced) {
