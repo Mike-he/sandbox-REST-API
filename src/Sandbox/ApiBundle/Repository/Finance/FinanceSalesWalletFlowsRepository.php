@@ -21,11 +21,21 @@ class FinanceSalesWalletFlowsRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('wf')
             ->where('wf.companyId = :companyId')
-            ->andWhere('wf.creationDate >= :startDate')
-            ->andWhere('wf.creationDate <= :endDate')
-            ->setParameter('companyId', $salesCompanyId)
-            ->setParameter('startDate', $startDate)
-            ->setParameter('endDate', $endDate);
+            ->setParameter('companyId', $salesCompanyId);
+
+        if(!is_object($startDate)){
+            $startDate = new \DateTime($startDate);
+            $startDate->setTime(00, 00, 00);
+        }
+        $query->andWhere('wf.creationDate >= :createStart')
+            ->setParameter('createStart', $startDate);
+
+        if(!is_object($endDate)){
+            $endDate = new \DateTime($endDate);
+            $endDate->setTime(23, 59, 59);
+        }
+        $query->andWhere('wf.creationDate <= :createEnd')
+            ->setParameter('createEnd', $endDate);
 
         $query->orderBy('wf.id', 'DESC');
 
