@@ -19,7 +19,6 @@ class ProductPatchVisibleType extends AbstractType
             ->add('earliest_rent_date',
                 null,
                 array(
-                    'widget' => 'single_text',
                     'mapped' => false,
                 ));
     }
