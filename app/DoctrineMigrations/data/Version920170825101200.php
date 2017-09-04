@@ -110,6 +110,12 @@ class Version920170825101200 extends AbstractMigration implements ContainerAware
                     'default' => true,
                     'required' => true,
                 ),
+                array(
+                    'column' => 'pay_channel',
+                    'name' => '付款渠道',
+                    'default' => true,
+                    'required' => false,
+                ),
             );
 
         $eventOrderColumns =
@@ -171,7 +177,7 @@ class Version920170825101200 extends AbstractMigration implements ContainerAware
                 array(
                     'column' => 'pay_channel',
                     'name' => '支付渠道',
-                    'default' => false,
+                    'default' => true,
                     'required' => false,
                 ),
                 array(
@@ -235,7 +241,7 @@ class Version920170825101200 extends AbstractMigration implements ContainerAware
                 array(
                     'column' => 'pay_channel',
                     'name' => '支付渠道',
-                    'default' => false,
+                    'default' => true,
                     'required' => false,
                 ),
                 array(
