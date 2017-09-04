@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Repository\Finance;
 
 use Doctrine\ORM\EntityRepository;
+use Sandbox\ApiBundle\Entity\Finance\FinanceSalesWalletFlow;
 
 class FinanceSalesWalletFlowsRepository extends EntityRepository
 {
@@ -43,14 +44,21 @@ class FinanceSalesWalletFlowsRepository extends EntityRepository
         $startDate,
         $endDate
     ) {
+        $inputTypes = [
+            FinanceSalesWalletFlow::MONTHLY_ORDER_AMOUNT,
+            FinanceSalesWalletFlow::REALTIME_BILLS_AMOUNT,
+        ];
+
         $query = $this->createQueryBuilder('wf')
             ->select('SUM(wf.changeAmount)')
             ->where('wf.companyId = :companyId')
             ->andWhere('wf.creationDate >= :startDate')
             ->andWhere('wf.creationDate <= :endDate')
+            ->andWhere('wf.title IN (:types)')
             ->setParameter('companyId', $salesCompanyId)
             ->setParameter('startDate', $startDate)
-            ->setParameter('endDate', $endDate);
+            ->setParameter('endDate', $endDate)
+            ->setParameter('types', $inputTypes);
 
         return (float) $query->getQuery()->getSingleScalarResult();
     }
