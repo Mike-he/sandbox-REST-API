@@ -924,7 +924,7 @@ trait FinanceSalesExportTraits
                         $customer = $em->getRepository('SandboxApiBundle:User\UserCustomer')
                             ->findOneBy(array(
                                 'userId' => $order->getUserId(),
-                                'companyId' => $serviceBill->getCompanyId()
+                                'companyId' => $serviceBill->getCompanyId(),
                             ));
                     }
 
@@ -975,8 +975,6 @@ trait FinanceSalesExportTraits
                 null,
                 $language
             );
-
-
 
             if ($payChannel == 'sales_offline') {
                 $payMethod = '销售方收款';
@@ -1055,13 +1053,14 @@ trait FinanceSalesExportTraits
      * @param $flows
      * @param $startString
      * @param $language
+     *
      * @return mixed
      */
     public function getFinanceSalesWalletFlowsExport(
        $flows,
        $startString,
        $language
-    ){
+    ) {
         $em = $this->getContainer()->get('doctrine')->getManager();
 
         $phpExcelObject = new \PHPExcel();
@@ -1072,16 +1071,16 @@ trait FinanceSalesExportTraits
             '明细',
             '入账金额',
             '出账金额',
-            '余额'
+            '余额',
         ];
 
         $excelBody = array();
-        foreach($flows as $flow){
+        foreach ($flows as $flow) {
             $title = $flow->getTitle();
-            if($title == FinanceSalesWalletFlow::WITHDRAW_AMOUNT){
+            if ($title == FinanceSalesWalletFlow::WITHDRAW_AMOUNT) {
                 $enterAmount = '';
                 $outAmount = $flow->getChangeAmount();
-            }else{
+            } else {
                 $enterAmount = $flow->getChangeAmount();
                 $outAmount = '';
             }
@@ -1090,7 +1089,7 @@ trait FinanceSalesExportTraits
                 'title' => $title,
                 'enter_amount' => $enterAmount,
                 'out_amount' => $outAmount,
-                'total_amount' => $flow->getWalletTotalAmount()
+                'total_amount' => $flow->getWalletTotalAmount(),
             );
             $excelBody[] = $body;
         }
