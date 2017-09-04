@@ -17,9 +17,7 @@ class UserEnterpriseCustomerRepository extends EntityRepository
     public function searchSalesEnterpriseCustomers(
         $salesCompanyId,
         $keyword,
-        $keywordSearch,
-        $limit = null,
-        $offset = null
+        $keywordSearch
     ) {
         $query = $this->createQueryBuilder('ec')
                  ->leftJoin('SandboxApiBundle:User\EnterpriseCustomerContacts', 'ecc', 'WITH', 'ec.id = ecc.enterpriseCustomerId')
@@ -47,9 +45,6 @@ class UserEnterpriseCustomerRepository extends EntityRepository
             }
             $query->setParameter('search', '%'.$keywordSearch.'%');
         }
-
-        $query->setMaxResults($limit)
-            ->setFirstResult($offset);
 
         return $query->getQuery()->getResult();
     }

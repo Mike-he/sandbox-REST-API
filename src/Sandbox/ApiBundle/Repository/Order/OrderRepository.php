@@ -1986,14 +1986,12 @@ class OrderRepository extends EntityRepository
 
         // filter by payment channel
         if (!is_null($channel) && !empty($channel)) {
-            if (in_array('sandbox',$channel)) {
-                $channel[] = array(
-                    ProductOrder::CHANNEL_ACCOUNT,
-                    ProductOrder::CHANNEL_ALIPAY,
-                    ProductOrder::CHANNEL_UNIONPAY,
-                    ProductOrder::CHANNEL_WECHAT,
-                    ProductOrder::CHANNEL_WECHAT_PUB,
-                );
+            if (in_array('sandbox', $channel)) {
+                $channel[] = ProductOrder::CHANNEL_ACCOUNT;
+                $channel[] = ProductOrder::CHANNEL_ALIPAY;
+                $channel[] = ProductOrder::CHANNEL_UNIONPAY;
+                $channel[] = ProductOrder::CHANNEL_WECHAT;
+                $channel[] = ProductOrder::CHANNEL_WECHAT_PUB;
             }
             $query->leftJoin('SandboxApiBundle:Finance\FinanceReceivables', 'fr', 'WITH', 'o.orderNumber = fr.orderNumber')
                 ->andWhere('o.payChannel in (:channel) or fr.payChannel in (:channel)')

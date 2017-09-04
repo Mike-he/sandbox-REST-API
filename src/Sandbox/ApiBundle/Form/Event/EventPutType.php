@@ -24,13 +24,13 @@ class EventPutType extends AbstractType
             ->add('limit_number')
             ->add(
                 'registration_start_date',
-                'date',
+                null,
                 array(
                     'widget' => 'single_text',
                 ))
             ->add(
                 'registration_end_date',
-                'date',
+                null,
                 array(
                     'widget' => 'single_text',
                 ))
