@@ -2435,7 +2435,7 @@ class AdminOrderController extends OrderController
      *    description="Filter by building id"
      * )
      *
-     * * @Annotations\QueryParam(
+     * @Annotations\QueryParam(
      *    name="language",
      *    array=false,
      *    default=null,
@@ -2451,20 +2451,11 @@ class AdminOrderController extends OrderController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $adminId = $this->getAdminId();
-        // check user permission
-        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
-            $adminId,
-            array(
-                array(
-                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER,
-                ),
-                array(
-                    'key' => AdminPermission::KEY_SALES_PLATFORM_CUSTOMER,
-                ),
-            ),
-            AdminPermission::OP_LEVEL_VIEW
-        );
+        $data = $this->get('sandbox_api.admin_permission_check_service')
+            ->checkPermissionByCookie(
+                AdminPermission::KEY_SALES_BUILDING_ORDER,
+                AdminPermission::PERMISSION_PLATFORM_SALES
+            );
 
         //filters
         $type = $paramFetcher->get('type');
@@ -2485,13 +2476,8 @@ class AdminOrderController extends OrderController
         $userId = $paramFetcher->get('user');
         $buildingId = $paramFetcher->get('building');
         $language = $paramFetcher->get('language');
-        //get my buildings list
-        $myBuildingIds = $this->getMySalesBuildingIds(
-            $this->getAdminId(),
-            array(
-                AdminPermission::KEY_SALES_BUILDING_ORDER,
-            )
-        );
+
+        $myBuildingIds = $data['building_ids'];
 
         $orders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
@@ -2520,7 +2506,7 @@ class AdminOrderController extends OrderController
         return $this->get('sandbox_api.export')->exportExcel(
             $orders,
             GenericList::OBJECT_PRODUCT_ORDER,
-            $adminId,
+            $data['user_id'],
             $language
         );
     }
