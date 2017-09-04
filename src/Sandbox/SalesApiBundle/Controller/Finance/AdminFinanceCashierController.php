@@ -331,7 +331,7 @@ class AdminFinanceCashierController extends SalesRestController
      *    nullable=true,
      * )
      *
-     * @Route("/finance/cashier/export")
+     * @Route("/finance/export/cashier")
      * @Method({"GET"})
      *
      * @return View
@@ -342,19 +342,11 @@ class AdminFinanceCashierController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $adminId = $this->getAdminId();
-
-        // check user permission
-        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
-            $this->getAdminId(),
-            [
-                ['key' => AdminPermission::KEY_SALES_BUILDING_CASHIER],
-            ],
-            AdminPermission::OP_LEVEL_VIEW
-        );
-
-        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
-        $salesCompanyId = $adminPlatform['sales_company_id'];
+        $data = $this->get('sandbox_api.admin_permission_check_service')
+            ->checkPermissionByCookie(
+                AdminPermission::KEY_SALES_BUILDING_CASHIER,
+                AdminPermission::PERMISSION_PLATFORM_SALES
+            );
 
         $orderType = $paramFetcher->get('order_type');
         $building = $paramFetcher->get('building');
@@ -367,15 +359,9 @@ class AdminFinanceCashierController extends SalesRestController
 
         $company = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
-            ->find($salesCompanyId);
+            ->find($data['company_id']);
 
-        //get my buildings list
-        $myBuildingIds = $this->getMySalesBuildingIds(
-            $this->getAdminId(),
-            array(
-                AdminPermission::KEY_SALES_BUILDING_CASHIER,
-            )
-        );
+        $myBuildingIds = $data['building_ids'];
 
         $orders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
@@ -436,11 +422,11 @@ class AdminFinanceCashierController extends SalesRestController
         }
 
         return $this->get('sandbox_api.export')->exportExcel(
-                 $results,
-                GenericList::OBJECT_CASHIER,
-                       $adminId,
-                       $language
-                 );
+            $results,
+            GenericList::OBJECT_CASHIER,
+            $data['user_id'],
+            $language
+        );
     }
 
     /**
