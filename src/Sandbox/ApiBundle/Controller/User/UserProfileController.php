@@ -173,6 +173,8 @@ class UserProfileController extends SandboxRestController
             }
         }
 
+        $profile->setXmppUsername($user->getXmppUsername());
+
         // set view
         $view = new View($profile);
         $view->setSerializationContext(

@@ -116,7 +116,7 @@ class AdminUserBeanController extends UserProfileController
                     ->getRepository('SandboxApiBundle:Duiba\DuibaOrder')
                     ->findOneBy(array('duibaOrderNum' => $flow->getTradeId()));
 
-                $source = $duibaOrder ? $source.'-'.$duibaOrder->getDescription() : $source;
+                $source = $duibaOrder ? '赤豆消费-'.$duibaOrder->getDescription() : $source;
             }
 
             $flow->setSource($source);

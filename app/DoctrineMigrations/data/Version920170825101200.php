@@ -70,7 +70,7 @@ class Version920170825101200 extends AbstractMigration implements ContainerAware
                 ),
                 array(
                     'column' => 'payment_user_id',
-                    'name' => '付款人',
+                    'name' => '客户',
                     'default' => true,
                     'required' => false,
                 ),
@@ -109,6 +109,12 @@ class Version920170825101200 extends AbstractMigration implements ContainerAware
                     'name' => '空间类型',
                     'default' => true,
                     'required' => true,
+                ),
+                array(
+                    'column' => 'pay_channel',
+                    'name' => '付款渠道',
+                    'default' => true,
+                    'required' => false,
                 ),
             );
 
@@ -171,7 +177,7 @@ class Version920170825101200 extends AbstractMigration implements ContainerAware
                 array(
                     'column' => 'pay_channel',
                     'name' => '支付渠道',
-                    'default' => false,
+                    'default' => true,
                     'required' => false,
                 ),
                 array(
@@ -235,7 +241,7 @@ class Version920170825101200 extends AbstractMigration implements ContainerAware
                 array(
                     'column' => 'pay_channel',
                     'name' => '支付渠道',
-                    'default' => false,
+                    'default' => true,
                     'required' => false,
                 ),
                 array(

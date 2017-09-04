@@ -33,54 +33,57 @@ trait SetStatusTrait
         $order->setModificationDate(new \DateTime('now'));
 
         $type = $order->getType();
+        $payChannel = $order->getPayChannel();
 
-        if ($type == ProductOrder::PREORDER_TYPE) {
-            $parameter = Parameter::KEY_BEAN_PRODUCT_ORDER_PREORDER;
+        if ($payChannel != ProductOrder::CHANNEL_SALES_OFFLINE) {
+            if ($type == ProductOrder::PREORDER_TYPE) {
+                $parameter = Parameter::KEY_BEAN_PRODUCT_ORDER_PREORDER;
 
-            $this->generateLongRentServiceFee(
-                $order->getOrderNumber(),
-                $order->getProduct()->getRoom()->getBuilding()->getCompanyId(),
-                $order->getDiscountPrice(),
-                $order->getPayChannel(),
-                FinanceLongRentServiceBill::TYPE_BILL_POUNDAGE
-            );
-        } else {
-            $parameter = Parameter::KEY_BEAN_PRODUCT_ORDER;
-        }
+                $this->generateLongRentServiceFee(
+                    $order->getOrderNumber(),
+                    $order->getProduct()->getRoom()->getBuilding()->getCompanyId(),
+                    $order->getDiscountPrice(),
+                    $order->getPayChannel(),
+                    FinanceLongRentServiceBill::TYPE_BILL_POUNDAGE
+                );
+            } else {
+                $parameter = Parameter::KEY_BEAN_PRODUCT_ORDER;
+            }
 
-        if ($order->getCustomerId()) {
-            $customer = $this->getContainer()->get('doctrine')
-                ->getRepository('SandboxApiBundle:User\UserCustomer')
-                ->find($order->getCustomerId());
+            if ($order->getCustomerId()) {
+                $customer = $this->getContainer()->get('doctrine')
+                    ->getRepository('SandboxApiBundle:User\UserCustomer')
+                    ->find($order->getCustomerId());
 
-            $userId = $customer ? $customer->getUserId() : null;
-        } else {
-            $userId = $order->getUserId();
-        }
+                $userId = $customer ? $customer->getUserId() : null;
+            } else {
+                $userId = $order->getUserId();
+            }
 
-        if ($userId) {
-            //update user bean
-            $amount = $this->getContainer()->get('sandbox_api.bean')->postBeanChange(
-                $userId,
-                $order->getDiscountPrice(),
-                $order->getOrderNumber(),
-                $parameter
-            );
-
-            //update invitee bean
-            $user = $this->getContainer()->get('doctrine')
-                ->getRepository('SandboxApiBundle:User\User')
-                ->find($userId);
-
-            if ($user->getInviterId()) {
-                $this->getContainer()->get('sandbox_api.bean')->postBeanChange(
-                    $user->getInviterId(),
+            if ($userId) {
+                //update user bean
+                $amount = $this->getContainer()->get('sandbox_api.bean')->postBeanChange(
+                    $userId,
                     $order->getDiscountPrice(),
                     $order->getOrderNumber(),
-                    Parameter::KEY_BEAN_INVITEE_PRODUCT_ORDER,
-                    UserBeanFlow::TYPE_ADD,
-                    $amount
+                    $parameter
                 );
+
+                //update invitee bean
+                $user = $this->getContainer()->get('doctrine')
+                    ->getRepository('SandboxApiBundle:User\User')
+                    ->find($userId);
+
+                if ($user->getInviterId()) {
+                    $this->getContainer()->get('sandbox_api.bean')->postBeanChange(
+                        $user->getInviterId(),
+                        $order->getDiscountPrice(),
+                        $order->getOrderNumber(),
+                        Parameter::KEY_BEAN_INVITEE_PRODUCT_ORDER,
+                        UserBeanFlow::TYPE_ADD,
+                        $amount
+                    );
+                }
             }
         }
     }

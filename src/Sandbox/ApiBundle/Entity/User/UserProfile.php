@@ -464,6 +464,13 @@ class UserProfile
     private $buddyId;
 
     /**
+     * @var string
+     *
+     * @Serializer\Groups({"profile"})
+     */
+    private $xmppUsername;
+
+    /**
      * @return int
      */
     public function getId()
@@ -1008,5 +1015,21 @@ class UserProfile
         $now = new \DateTime('now');
         $this->setCreationDate($now);
         $this->setModificationDate($now);
+    }
+
+    /**
+     * @return string
+     */
+    public function getXmppUsername()
+    {
+        return $this->xmppUsername;
+    }
+
+    /**
+     * @param string $xmppUsername
+     */
+    public function setXmppUsername($xmppUsername)
+    {
+        $this->xmppUsername = $xmppUsername;
     }
 }

@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Repository\MembershipCard;
 
 use Doctrine\ORM\EntityRepository;
+use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 
 class MembershipCardOrderRepository extends EntityRepository
 {
@@ -88,6 +89,15 @@ class MembershipCardOrderRepository extends EntityRepository
 
         // filter by payment channel
         if (!is_null($channel) && !empty($channel)) {
+            if (in_array('sandbox', $channel)) {
+                $channel[] = array(
+                    ProductOrder::CHANNEL_ACCOUNT,
+                    ProductOrder::CHANNEL_ALIPAY,
+                    ProductOrder::CHANNEL_UNIONPAY,
+                    ProductOrder::CHANNEL_WECHAT,
+                    ProductOrder::CHANNEL_WECHAT_PUB,
+                );
+            }
             $query->andWhere('mo.payChannel in (:channel)')
                 ->setParameter('channel', $channel);
         }
@@ -233,6 +243,15 @@ class MembershipCardOrderRepository extends EntityRepository
 
         // filter by payment channel
         if (!is_null($channel) && !empty($channel)) {
+            if (in_array('sandbox', $channel)) {
+                $channel[] = array(
+                    ProductOrder::CHANNEL_ACCOUNT,
+                    ProductOrder::CHANNEL_ALIPAY,
+                    ProductOrder::CHANNEL_UNIONPAY,
+                    ProductOrder::CHANNEL_WECHAT,
+                    ProductOrder::CHANNEL_WECHAT_PUB,
+                );
+            }
             $query->andWhere('mo.payChannel in (:channel)')
                 ->setParameter('channel', $channel);
         }

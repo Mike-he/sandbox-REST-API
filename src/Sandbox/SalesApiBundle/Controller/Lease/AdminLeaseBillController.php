@@ -64,7 +64,8 @@ class AdminLeaseBillController extends SalesRestController
      *    name="channel",
      *    default=null,
      *    nullable=true,
-     *    description="pay channel"
+     *    array=true,
+     *    description="payment channel"
      * )
      *
      * @Annotations\QueryParam(
@@ -162,7 +163,7 @@ class AdminLeaseBillController extends SalesRestController
         $offset = ($pageIndex - 1) * $pageLimit;
         $limit = $pageLimit;
 
-        $channel = $paramFetcher->get('channel');
+        $channels = $paramFetcher->get('channel');
         $keyword = $paramFetcher->get('keyword');
         $keywordSearch = $paramFetcher->get('keyword_search');
         $sendStart = $paramFetcher->get('send_start');
@@ -178,17 +179,6 @@ class AdminLeaseBillController extends SalesRestController
                 AdminPermission::KEY_SALES_BUILDING_LEASE_BILL,
             )
         );
-
-        if ($channel == LeaseBill::CHANNEL_SANDBOX) {
-            $channels = array(
-                LeaseBill::CHANNEL_ALIPAY,
-                LeaseBill::CHANNEL_WECHAT,
-                LeaseBill::CHANNEL_OFFLINE,
-                LeaseBill::CHANNEL_UNIONPAY,
-            );
-        } else {
-            $channels = $channel ? [$channel] : [];
-        }
 
         $leaseStatus = array(
             Lease::LEASE_STATUS_PERFORMING,
