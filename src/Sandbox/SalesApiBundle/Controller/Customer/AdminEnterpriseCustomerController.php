@@ -273,7 +273,7 @@ class AdminEnterpriseCustomerController extends SalesRestController
     ) {
         $contacts = $enterpriseCustomer->getContacts();
 
-        if (is_null($contacts) || empty($contacts)) {
+        if (is_null($contacts)) {
             return;
         }
 

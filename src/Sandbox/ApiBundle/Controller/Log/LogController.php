@@ -55,6 +55,19 @@ class LogController extends SandboxRestController
         $em->persist($log);
         $em->flush();
 
+        if ($log->getLogObjectKey() == 'invoice' &&
+            $log->getLogAction() == 'create'
+        ) {
+            $this->get('sandbox_api.admin_status_log')
+                ->autoLog(
+                    $adminId,
+                    'completed',
+                    '确认开票',
+                    $log->getLogObjectKey(),
+                    $log->getLogObjectId()
+                );
+        }
+
         return new View(array(
             'id' => $log->getId(),
         ));

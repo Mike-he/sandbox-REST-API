@@ -9,7 +9,6 @@ use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Finance\FinanceBillInvoiceInfo;
 use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentBill;
-use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentServiceBill;
 use Sandbox\ApiBundle\Form\Finance\FinanceBillPatchType;
 use Sandbox\ApiBundle\Form\Finance\FinanceBillPostType;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;

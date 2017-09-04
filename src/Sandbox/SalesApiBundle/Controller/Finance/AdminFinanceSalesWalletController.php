@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 class AdminFinanceSalesWalletController extends SalesRestController
 {
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -91,7 +91,7 @@ class AdminFinanceSalesWalletController extends SalesRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/finance/wallet_flows/dashboard")
