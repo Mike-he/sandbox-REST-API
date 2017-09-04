@@ -185,17 +185,12 @@ class AdminEnterpriseCustomerController extends SalesRestController
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
-        $limit = $pageLimit;
-        $offset = ($pageIndex - 1) * $pageLimit;
-
         $enterpriseCustomers = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\EnterpriseCustomer')
             ->searchSalesEnterpriseCustomers(
                 $salesCompanyId,
                 $keyword,
-                $keywordSearch,
-                $limit,
-                $offset
+                $keywordSearch
             );
 
         foreach ($enterpriseCustomers as $enterpriseCustomer) {
@@ -208,25 +203,14 @@ class AdminEnterpriseCustomerController extends SalesRestController
             $enterpriseCustomer->setContacts($contacts);
         }
 
-        $count = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\EnterpriseCustomer')
-            ->getCountSalesEnterpriseCustomers(
-                $salesCompanyId,
-                $keyword,
-                $keywordSearch
-            );
-
-        $view = new View();
-        $view->setData(
-            array(
-                'current_page_number' => $pageIndex,
-                'num_items_per_page' => (int)$pageLimit,
-                'items' => $enterpriseCustomers,
-                'total_count' => (int)$count,
-            )
+        $paginator = new Paginator();
+        $response = $paginator->paginate(
+            $enterpriseCustomers,
+            $pageIndex,
+            $pageLimit
         );
 
-        return $view;
+        return new View($response);
     }
 
     /**
