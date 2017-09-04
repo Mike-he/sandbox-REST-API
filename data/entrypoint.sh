@@ -43,7 +43,7 @@ chmod o+rwx app/cache -R
 chmod o+rwx app/logs -R
 chmod o+rwx /data/openfire -R
 
-cp -r web/image/ /data/openfire/
+# cp -r web/image/ /data/openfire/
 
 if [ ! -z "$CRON_JOB" ]; then
   if [ "$CRON_JOB" == true ]; then
