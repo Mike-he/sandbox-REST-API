@@ -22,30 +22,13 @@ class EventPutType extends AbstractType
             ->add('city_id')
             ->add('address')
             ->add('limit_number')
-            ->add(
-                'registration_start_date',
-                null,
-                array(
-                    'widget' => 'single_text',
-                ))
-            ->add(
-                'registration_end_date',
-                null,
-                array(
-                    'widget' => 'single_text',
-                ))
+            ->add('registration_start_date')
+            ->add('registration_end_date')
             ->add('forms')
             ->add('publish_company')
             ->add('isCharge')
             ->add('price')
-            ->add(
-                'submit',
-                null,
-                array(
-                    'mapped' => false,
-                )
-            )
-        ;
+            ->add('submit');
     }
 
     /**
