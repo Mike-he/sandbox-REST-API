@@ -191,8 +191,6 @@ class AdminCustomerController extends SalesRestController
             );
         }
 
-        $customer->setIsDeleted(true);
-
         $em = $this->getDoctrine()->getManager();
 
         $user = $this->getDoctrine()
@@ -201,23 +199,26 @@ class AdminCustomerController extends SalesRestController
                 'phoneCode' => $phoneCode,
                 'phone' => $phone,
             ));
-        $userProfile = $em->getRepository('SandboxApiBundle:User\UserProfile')
-            ->findOneBy(array('userId' => $user->getId()));
-        $userName = $userProfile ? $userProfile->getName() : null;
 
         $userId = $user ? $user->getId() : null;
 
-        $customerNew = new UserCustomer();
-        $customerNew->setName($userName);
-        $customerNew->setPhoneCode($phoneCode);
-        $customerNew->setPhone($phone);
-        $customerNew->setUserId($userId);
-        $customerNew->setCompanyId($customer->getCompanyId());
-        $em->persist($customerNew);
+        // update user groups
+        $userGroupUsers = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
+            ->findBy(array(
+                'customerId' => $customer->getId(),
+            ));
+        foreach ($userGroupUsers as $user) {
+            $user->setUserId($userId);
+        }
+
+        $customer->setPhoneCode($phoneCode);
+        $customer->setPhone($phone);
+        $customer->setUserId($userId);
         $em->flush();
 
         return new View(array(
-            'id' => $customerNew->getId(),
+            'id' => $customer->getId(),
         ));
     }
 
