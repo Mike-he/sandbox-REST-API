@@ -422,11 +422,11 @@ class AdminFinanceCashierController extends SalesRestController
         }
 
         return $this->get('sandbox_api.export')->exportExcel(
-                 $results,
-                GenericList::OBJECT_CASHIER,
-                       $data['user_id'],
-                       $language
-                 );
+            $results,
+            GenericList::OBJECT_CASHIER,
+            $data['user_id'],
+            $language
+        );
     }
 
     /**

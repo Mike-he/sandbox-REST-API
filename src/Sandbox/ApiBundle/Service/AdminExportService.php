@@ -653,6 +653,16 @@ class AdminExportService
 
             $paymentDate = $order->getPaymentDate();
 
+            $paymentChannel = $order->getPayChannel();
+            if (!is_null($paymentChannel) && !empty($paymentChannel)) {
+                $paymentChannel = $this->container->get('translator')->trans(
+                    ProductOrderExport::TRANS_PRODUCT_ORDER_CHANNEL.$paymentChannel,
+                    array(),
+                    null,
+                    $language
+                );
+            }
+
             $orderList = array(
                 'order_number' => $order->getOrderNumber(),
                 'rent_period' => $startTime.'至'.$endTime,
@@ -667,7 +677,7 @@ class AdminExportService
                 'invoiced' => $order->isInvoiced() ? '已开票' : '未开票',
                 'type' => $orderType,
                 'description' => $orderType,
-                'room_type' => $productType,
+                'room_type' => $productType
             );
 
             $body = array();
