@@ -237,6 +237,7 @@ class AdminEnterpriseCustomerController extends SalesRestController
                 'id' => $id,
                 'companyId' => $salesCompanyId,
             ));
+        $this->throwNotFoundIfNull($enterpriseCustomer, self::NOT_FOUND_MESSAGE);
 
         $contacts = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\EnterpriseCustomerContacts')
