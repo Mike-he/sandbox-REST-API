@@ -98,6 +98,7 @@ class ChatGroupController extends SandboxRestController
                 'tag' => $chatGroup->getTag(),
             );
             if ($chatGroup->getBuildingId()) {
+                $chatRoomDesc['building_id'] = $chatGroup->getBuildingId();
                 $building = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Room\RoomBuilding')
                     ->find($chatGroup->getBuildingId());
@@ -141,16 +142,28 @@ class ChatGroupController extends SandboxRestController
         $chatGroup
     ) {
         try {
-            $chatRoomId = $chatGroup->getId();
             $chatRoomName = $chatGroup->getName();
-            $chatRoomdesc = $chatRoomName.'('.$chatRoomId.')';
+            $chatRoomDesc = array(
+                'tag' => $chatGroup->getTag(),
+            );
+            if ($chatGroup->getBuildingId()) {
+                $chatRoomDesc['building_id'] = $chatGroup->getBuildingId();
+                $building = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                    ->find($chatGroup->getBuildingId());
+                if ($building) {
+                    $chatRoomDesc['avatar'] = $building->getAvatar();
+                }
+            }
+            $chatRoomDesc = json_encode($chatRoomDesc);
+            
             $gid = $chatGroup->getGid();
 
             $service = $this->get('sandbox_api.jmessage');
             $service->updateGroup(
                 $gid,
                 $chatRoomName,
-                $chatRoomdesc
+                $chatRoomDesc
             );
         } catch (\Exception $e) {
             error_log('Update chat group went wrong!');
