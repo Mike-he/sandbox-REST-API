@@ -619,13 +619,12 @@ class LeaseBillRepository extends EntityRepository
         }
 
         if (!empty($channels)) {
-            if (in_array('sandbox',$channels)) {
-                $channels[] = array(
-                    LeaseBill::CHANNEL_ALIPAY,
-                    LeaseBill::CHANNEL_WECHAT,
-                    LeaseBill::CHANNEL_OFFLINE,
-                    LeaseBill::CHANNEL_UNIONPAY,
-                );
+            if (in_array('sandbox', $channel)) {
+                $channel[] = ProductOrder::CHANNEL_ACCOUNT;
+                $channel[] = ProductOrder::CHANNEL_ALIPAY;
+                $channel[] = ProductOrder::CHANNEL_UNIONPAY;
+                $channel[] = ProductOrder::CHANNEL_WECHAT;
+                $channel[] = ProductOrder::CHANNEL_WECHAT_PUB;
             }
             $query->leftJoin('SandboxApiBundle:Finance\FinanceReceivables', 'fr', 'WITH', 'lb.serialNumber = fr.orderNumber')
                 ->andWhere('lb.payChannel in (:channels)')
@@ -743,13 +742,12 @@ class LeaseBillRepository extends EntityRepository
         }
 
         if (!empty($channels)) {
-            if (in_array('sandbox',$channels)) {
-                $channels[] = array(
-                    LeaseBill::CHANNEL_ALIPAY,
-                    LeaseBill::CHANNEL_WECHAT,
-                    LeaseBill::CHANNEL_OFFLINE,
-                    LeaseBill::CHANNEL_UNIONPAY,
-                );
+            if (in_array('sandbox', $channel)) {
+                $channel[] = ProductOrder::CHANNEL_ACCOUNT;
+                $channel[] = ProductOrder::CHANNEL_ALIPAY;
+                $channel[] = ProductOrder::CHANNEL_UNIONPAY;
+                $channel[] = ProductOrder::CHANNEL_WECHAT;
+                $channel[] = ProductOrder::CHANNEL_WECHAT_PUB;
             }
             $query->leftJoin('SandboxApiBundle:Finance\FinanceReceivables', 'fr', 'WITH', 'lb.serialNumber = fr.orderNumber')
                 ->andWhere('lb.payChannel in (:channels)')
