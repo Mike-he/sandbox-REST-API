@@ -9,9 +9,6 @@ RUN apt-get update && apt-get upgrade -y
 RUN apt-get install -y vim cron wget git nginx php5-fpm php5-mysql php5-curl php5-common php5-redis php5-gd libxrender1 fonts-wqy-zenhei \
   && rm -fr /var/lib/apt/lists/*
 
-RUN echo "* soft nofile 200000" >>  /etc/security/limits.conf
-RUN echo "* hard nofile 200000" >>  /etc/security/limits.conf
-
 # Copy startup script
 COPY data/entrypoint.sh /root/entrypoint.sh
 RUN chown root:root /root/entrypoint.sh && chmod +x /root/entrypoint.sh
