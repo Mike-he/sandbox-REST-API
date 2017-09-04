@@ -26,7 +26,6 @@ use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
  */
 class UserLoginController extends SandboxRestController
 {
-
     const PLATFORM_IPHONE = 'iphone';
     const PLATFORM_ANDROID = 'android';
 
