@@ -70,7 +70,7 @@ class Version920170825101200 extends AbstractMigration implements ContainerAware
                 ),
                 array(
                     'column' => 'payment_user_id',
-                    'name' => '付款人',
+                    'name' => '客户',
                     'default' => true,
                     'required' => false,
                 ),
