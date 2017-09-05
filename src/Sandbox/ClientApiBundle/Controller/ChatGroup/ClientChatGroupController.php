@@ -259,11 +259,16 @@ class ClientChatGroupController extends ChatGroupController
         }
 
         // get chatGroup
-        $chatGroup = $this->getRepo('ChatGroup\ChatGroup')->find($id);
+        $chatGroup = $this->getRepo('ChatGroup\ChatGroup')->findOneBy(array('gid' => $id));
         $this->throwNotFoundIfNull($chatGroup, self::NOT_FOUND_MESSAGE);
 
         // get chat group and members array for response
-        $chatGroupArray = $this->getRepo('ChatGroup\ChatGroup')->getChatGroup($id, $myUserId);
+        $chatGroupArray = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:ChatGroup\ChatGroup')
+            ->getChatGroup(
+                $chatGroup->getId(),
+                $myUserId
+            );
 
         $members = $this->getRepo('ChatGroup\ChatGroupMember')->findByChatGroup($chatGroup);
         if (!is_null($members) && !empty($members)) {

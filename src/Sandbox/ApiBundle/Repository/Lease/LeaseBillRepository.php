@@ -619,12 +619,12 @@ class LeaseBillRepository extends EntityRepository
         }
 
         if (!empty($channels)) {
-            if (in_array('sandbox', $channel)) {
-                $channel[] = ProductOrder::CHANNEL_ACCOUNT;
-                $channel[] = ProductOrder::CHANNEL_ALIPAY;
-                $channel[] = ProductOrder::CHANNEL_UNIONPAY;
-                $channel[] = ProductOrder::CHANNEL_WECHAT;
-                $channel[] = ProductOrder::CHANNEL_WECHAT_PUB;
+            if (in_array('sandbox', $channels)) {
+                $channels[] = ProductOrder::CHANNEL_ACCOUNT;
+                $channels[] = ProductOrder::CHANNEL_ALIPAY;
+                $channels[] = ProductOrder::CHANNEL_UNIONPAY;
+                $channels[] = ProductOrder::CHANNEL_WECHAT;
+                $channels[] = ProductOrder::CHANNEL_WECHAT_PUB;
             }
             $query->leftJoin('SandboxApiBundle:Finance\FinanceReceivables', 'fr', 'WITH', 'lb.serialNumber = fr.orderNumber')
                 ->andWhere('lb.payChannel in (:channels)')
@@ -742,12 +742,12 @@ class LeaseBillRepository extends EntityRepository
         }
 
         if (!empty($channels)) {
-            if (in_array('sandbox', $channel)) {
-                $channel[] = ProductOrder::CHANNEL_ACCOUNT;
-                $channel[] = ProductOrder::CHANNEL_ALIPAY;
-                $channel[] = ProductOrder::CHANNEL_UNIONPAY;
-                $channel[] = ProductOrder::CHANNEL_WECHAT;
-                $channel[] = ProductOrder::CHANNEL_WECHAT_PUB;
+            if (in_array('sandbox', $channels)) {
+                $channels[] = ProductOrder::CHANNEL_ACCOUNT;
+                $channels[] = ProductOrder::CHANNEL_ALIPAY;
+                $channels[] = ProductOrder::CHANNEL_UNIONPAY;
+                $channels[] = ProductOrder::CHANNEL_WECHAT;
+                $channels[] = ProductOrder::CHANNEL_WECHAT_PUB;
             }
             $query->leftJoin('SandboxApiBundle:Finance\FinanceReceivables', 'fr', 'WITH', 'lb.serialNumber = fr.orderNumber')
                 ->andWhere('lb.payChannel in (:channels)')
