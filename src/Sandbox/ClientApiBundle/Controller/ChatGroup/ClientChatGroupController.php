@@ -239,16 +239,16 @@ class ClientChatGroupController extends ChatGroupController
      * Retrieve everything a given chat group.
      *
      * @param Request $request the request object
-     * @param int     $id
+     * @param int     $gid
      *
-     * @Route("/chatgroups/{id}/all")
+     * @Route("/chatgroups/{gid}/all")
      * @Method({"GET"})
      *
      * @return View
      */
     public function getChatGroupAllAction(
         Request $request,
-        $id
+        $gid
     ) {
         $myUserId = $this->getUserId();
         $myUser = $this->getRepo('User\User')->find($myUserId);
@@ -259,7 +259,7 @@ class ClientChatGroupController extends ChatGroupController
         }
 
         // get chatGroup
-        $chatGroup = $this->getRepo('ChatGroup\ChatGroup')->findOneBy(array('gid' => $id));
+        $chatGroup = $this->getRepo('ChatGroup\ChatGroup')->findOneBy(array('gid' => $gid));
         $this->throwNotFoundIfNull($chatGroup, self::NOT_FOUND_MESSAGE);
 
         // get chat group and members array for response
@@ -354,16 +354,16 @@ class ClientChatGroupController extends ChatGroupController
      * Remove / quit a given chat group.
      *
      * @param Request $request the request object
-     * @param int     $id
+     * @param int     $gid
      *
-     * @Route("/chatgroups/{id}")
+     * @Route("/chatgroups/{gid}")
      * @Method({"DELETE"})
      *
      * @return View
      */
     public function deleteChatGroupAction(
         Request $request,
-        $id
+        $gid
     ) {
         $myUserId = $this->getUserId();
         $myUser = $this->getRepo('User\User')->find($myUserId);
@@ -374,7 +374,7 @@ class ClientChatGroupController extends ChatGroupController
         }
 
         // get chatGroup
-        $chatGroup = $this->getRepo('ChatGroup\ChatGroup')->find($id);
+        $chatGroup = $this->getRepo('ChatGroup\ChatGroup')->findOneBy(array('gid' => $gid));
         if (is_null($chatGroup)) {
             return new View();
         }
@@ -389,10 +389,7 @@ class ClientChatGroupController extends ChatGroupController
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
-        // update chat group in Openfire
-        if ($chatGroup->getGid()) {
-            $this->deleteXmppChatGroup($chatGroup->getGid());
-        }
+        $this->deleteXmppChatGroup($gid);
 
         // remove from db
         $em = $this->getDoctrine()->getManager();

@@ -627,7 +627,7 @@ class LeaseBillRepository extends EntityRepository
                 $channels[] = ProductOrder::CHANNEL_WECHAT_PUB;
             }
             $query->leftJoin('SandboxApiBundle:Finance\FinanceReceivables', 'fr', 'WITH', 'lb.serialNumber = fr.orderNumber')
-                ->andWhere('lb.payChannel in (:channels)')
+                ->andWhere('lb.payChannel in (:channels) OR fr.payChannel in (:channels)')
                 ->setParameter('channels', $channels);
         }
 
@@ -750,7 +750,7 @@ class LeaseBillRepository extends EntityRepository
                 $channels[] = ProductOrder::CHANNEL_WECHAT_PUB;
             }
             $query->leftJoin('SandboxApiBundle:Finance\FinanceReceivables', 'fr', 'WITH', 'lb.serialNumber = fr.orderNumber')
-                ->andWhere('lb.payChannel in (:channels)')
+                ->andWhere('lb.payChannel in (:channels) OR fr.payChannel in (:channels)')
                 ->setParameter('channels', $channels);
         }
 
