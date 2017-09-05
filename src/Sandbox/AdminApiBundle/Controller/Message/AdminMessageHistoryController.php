@@ -8,6 +8,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\Request;
+use FOS\RestBundle\Controller\Annotations;
 
 class AdminMessageHistoryController extends AdminMessagePushController
 {
@@ -37,5 +38,35 @@ class AdminMessageHistoryController extends AdminMessagePushController
             'xmpp_username' => 'service',
             'xmpp_code' => $user->getPassword(),
         ));
+    }
+
+    /**
+     * @param Request $request the request object
+     *
+     * @Annotations\QueryParam(
+     *    name="media_id",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="search by tag"
+     * )
+     *
+     * @Route("/messages/media")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getMediaAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $mediaId = $paramFetcher->get('media_id');
+
+        $media = $this->get('sandbox_api.jmessage')->getMedia($mediaId);
+
+        $result = $media['body'];
+
+        return new View($result);
     }
 }

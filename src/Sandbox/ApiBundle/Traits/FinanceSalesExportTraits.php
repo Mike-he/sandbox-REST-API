@@ -2,6 +2,7 @@
 
 namespace Sandbox\ApiBundle\Traits;
 
+use Doctrine\ORM\EntityManager;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Constants\EventOrderExport;
 use Sandbox\ApiBundle\Constants\LeaseConstants;
@@ -445,7 +446,23 @@ trait FinanceSalesExportTraits
         $language,
         $payChannels
     ) {
+        /** @var EntityManager $em */
         $em = $this->getContainer()->get('doctrine')->getManager();
+
+        $orderType = [
+            ProductOrder::OWN_TYPE => '用户自主下单',
+            ProductOrder::OFFICIAL_PREORDER_TYPE => '官方推单',
+            ProductOrder::PREORDER_TYPE => '销售方推单',
+        ];
+
+        $receivableTypes = [
+            'sales_wx' => '微信',
+            'sales_alipay' => '支付宝支付',
+            'sales_cash' => '现金',
+            'sales_others' => '其他',
+            'sales_pos' => 'POS机',
+            'sales_remit' => '线下汇款',
+        ];
 
         $shortBody = [];
         foreach ($shortOrders as $order) {
@@ -488,6 +505,18 @@ trait FinanceSalesExportTraits
                 }
             }
 
+            $paymentMethod = $order->getPayChannel() == ProductOrder::CHANNEL_SALES_OFFLINE ? '销售方收款' : '创合代收';
+
+            if ($order->getPayChannel() == ProductOrder::CHANNEL_SALES_OFFLINE) {
+                $receivable = $em->getRepository('SandboxApiBundle:Finance\FinanceReceivables')
+                    ->findOneBy([
+                        'orderNumber' => $order->getOrderNumber(),
+                    ]);
+                $payChannel = $receivableTypes[$receivable->getPayChannel()];
+            } else {
+                $payChannel = $payChannels[$order->getPayChannel()];
+            }
+
             $body = array(
                 'building_name' => $building->getName(),
                 'order_type' => '秒租订单',
@@ -495,9 +524,9 @@ trait FinanceSalesExportTraits
                 'room_name' => $room->getName(),
                 'room_type' => $roomType,
                 'customer' => $customer ? $customer->getName() : '',
-                'order_method' => $order->getType() == ProductOrder::OWN_TYPE ? '用户自主下单' : '官方推单',
-                'payment_method' => '创合代收',
-                'pay_channel' => $payChannels[$order->getPayChannel()],
+                'order_method' => $orderType[$order->getType()],
+                'payment_method' => $paymentMethod,
+                'pay_channel' => $payChannel,
                 'base_price' => $order->getBasePrice(),
                 'unit_price' => $unit,
                 'price' => $order->getPrice(),
