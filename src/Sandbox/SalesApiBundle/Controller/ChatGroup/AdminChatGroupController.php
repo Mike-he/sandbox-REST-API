@@ -27,6 +27,36 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 class AdminChatGroupController extends ChatGroupController
 {
     /**
+     * @param Request $request the request object
+     *
+     * @Annotations\QueryParam(
+     *    name="media_id",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="search by tag"
+     * )
+     *
+     * @Route("/chatgroups/media")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getMediaAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $mediaId = $paramFetcher->get('media_id');
+
+        $media = $this->get('sandbox_api.jmessage')->getMedia($mediaId);
+
+        $result = $media['body'];
+
+        return new View($result);
+    }
+
+    /**
      * Retrieve all other service members by sales company.
      *
      * @param Request $request the request object

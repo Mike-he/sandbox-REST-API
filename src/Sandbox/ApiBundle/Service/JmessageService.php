@@ -2,6 +2,7 @@
 
 namespace Sandbox\ApiBundle\Service;
 
+use JMessage\IM\Resource;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use JMessage\JMessage;
 use JMessage\IM\User;
@@ -37,6 +38,11 @@ class JmessageService
      */
     private $group;
 
+    /**
+     * @var Resource
+     */
+    private $resource;
+
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
@@ -45,6 +51,7 @@ class JmessageService
         $this->client = new JMessage($this->appKey, $this->masterSecret);
         $this->user = new User($this->client);
         $this->group = new Group($this->client);
+        $this->resource = new Resource($this->client);
     }
 
     public function createUser(
@@ -111,5 +118,11 @@ class JmessageService
         $usernames
     ) {
         $this->group->removeMembers($gid, $usernames);
+    }
+
+    public function getMedia(
+        $mediaId
+    ) {
+        return $this->resource->download($mediaId);
     }
 }
