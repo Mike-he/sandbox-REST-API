@@ -251,4 +251,90 @@ class AdminFinanceExportController extends SalesRestController
                     $language
         );
     }
+
+    /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="startDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="endDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="language",
+     *    array=false,
+     *    nullable=true,
+     * )
+     *
+     * @Route("/finance/export/orders")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function exportSalesOrdersAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $data = $this->get('sandbox_api.admin_permission_check_service')
+            ->checkPermissionByCookie(
+                AdminPermission::KEY_SALES_PLATFORM_REPORT_DOWNLOAD,
+                AdminPermission::PERMISSION_PLATFORM_SALES
+            );
+
+        $startDate = new \DateTime($paramFetcher->get('startDate'));
+        $endDate = new \DateTime($paramFetcher->get('endDate'));
+        $endDate = $endDate->setTime('23', '59', '59');
+        $language = $paramFetcher->get('language');
+
+        // event orders
+        $events = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventOrder')
+            ->getEventOrderSummary(
+                $startDate,
+                $endDate,
+                $data['company_id']
+            );
+
+        $orderTypes = [
+            ProductOrder::OWN_TYPE,
+            ProductOrder::OFFICIAL_PREORDER_TYPE,
+            ProductOrder::PREORDER_TYPE,
+        ];
+        $shortOrders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getCompletedOrderSummary(
+                $startDate,
+                $endDate,
+                $data['company_id'],
+                $orderTypes
+            );
+
+        $membershipOrders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:MembershipCard\MembershipOrder')
+            ->getMembershipOrdersByDate(
+                $startDate,
+                $endDate,
+                $data['company_id']
+            );
+
+        return $this->getFinanceSummaryExport(
+            $startDate,
+            $language,
+            $events,
+            $shortOrders,
+            $membershipOrders
+        );
+    }
 }
