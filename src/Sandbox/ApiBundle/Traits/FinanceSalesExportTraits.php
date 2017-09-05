@@ -1315,16 +1315,20 @@ trait FinanceSalesExportTraits
                     'companyId' => $building->getCompanyId(),
                 ));
 
-            $paymentMethod = $bill->getPayChannel() == ProductOrder::CHANNEL_SALES_OFFLINE ? '销售方收款' : '创合代收';
+            $paymentMethod = '';
+            $payChannel = '';
+            if (!is_null($bill->getPayChannel())) {
+                $paymentMethod = $bill->getPayChannel() == ProductOrder::CHANNEL_SALES_OFFLINE ? '销售方收款' : '创合代收';
 
-            if ($bill->getPayChannel() == ProductOrder::CHANNEL_SALES_OFFLINE) {
-                $receivable = $em->getRepository('SandboxApiBundle:Finance\FinanceReceivables')
-                    ->findOneBy([
-                        'orderNumber' => $lease->getSerialNumber(),
-                    ]);
-                $payChannel = $receivableTypes[$receivable->getPayChannel()];
-            } else {
-                $payChannel = $payChannels[$bill->getPayChannel()];
+                if ($bill->getPayChannel() == ProductOrder::CHANNEL_SALES_OFFLINE) {
+                    $receivable = $em->getRepository('SandboxApiBundle:Finance\FinanceReceivables')
+                        ->findOneBy([
+                            'orderNumber' => $lease->getSerialNumber(),
+                        ]);
+                    $payChannel = $receivableTypes[$receivable->getPayChannel()];
+                } else {
+                    $payChannel = $payChannels[$bill->getPayChannel()];
+                }
             }
 
             $serviceBill = $em->getRepository('SandboxApiBundle:Finance\FinanceLongRentServiceBill')
