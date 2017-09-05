@@ -892,4 +892,35 @@ class LeaseBillRepository extends EntityRepository
 
         return $result;
     }
+
+    /**
+     * @param $buildingIds
+     * @param $startDate
+     * @param $endDate
+     * @param $leaseStatus
+     *
+     * @return array
+     */
+    public function getExportSalesBills(
+        $buildingIds,
+        $startDate,
+        $endDate,
+        $leaseStatus
+    ) {
+        $query = $this->createQueryBuilder('lb')
+            ->leftJoin('lb.lease', 'l')
+            ->where('l.status in (:leaseStatus)')
+            ->andWhere('l.buildingId in (:buildingIds)')
+            ->setParameter('leaseStatus', $leaseStatus)
+            ->setParameter('buildingIds', $buildingIds);
+
+        $query->andWhere('lb.paymentDate >= :startDate')
+            ->andWhere('lb.paymentDate <= :endDate')
+            ->setParameter('startDate', $startDate)
+            ->setParameter('endDate', $endDate);
+
+        $query->orderBy('lb.creationDate', 'DESC');
+
+        return $query->getQuery()->getResult();
+    }
 }

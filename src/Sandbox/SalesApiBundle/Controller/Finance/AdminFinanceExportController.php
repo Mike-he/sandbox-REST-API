@@ -4,6 +4,7 @@ namespace Sandbox\SalesApiBundle\Controller\Finance;
 
 use FOS\RestBundle\View\View;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Traits\FinanceSalesExportTraits;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
@@ -259,6 +260,94 @@ class AdminFinanceExportController extends SalesRestController
      *
      * @Annotations\QueryParam(
      *    name="start_date",
+     *    name="startDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="end_date",
+     *    name="endDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="language",
+     *    array=false,
+     *    nullable=true,
+     * )
+     *
+     * @Route("/finance/export/orders")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function exportSalesOrdersAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $data = $this->get('sandbox_api.admin_permission_check_service')
+            ->checkPermissionByCookie(
+                AdminPermission::KEY_SALES_PLATFORM_REPORT_DOWNLOAD,
+                AdminPermission::PERMISSION_PLATFORM_SALES
+            );
+
+        $startDate = new \DateTime($paramFetcher->get('startDate'));
+        $endDate = new \DateTime($paramFetcher->get('endDate'));
+        $endDate = $endDate->setTime('23', '59', '59');
+        $language = $paramFetcher->get('language');
+
+        // event orders
+        $events = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventOrder')
+            ->getEventOrderSummary(
+                $startDate,
+                $endDate,
+                $data['company_id']
+            );
+
+        $orderTypes = [
+            ProductOrder::OWN_TYPE,
+            ProductOrder::OFFICIAL_PREORDER_TYPE,
+            ProductOrder::PREORDER_TYPE,
+        ];
+        $shortOrders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getCompletedOrderSummary(
+                $startDate,
+                $endDate,
+                $data['company_id'],
+                $orderTypes
+            );
+
+        $membershipOrders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:MembershipCard\MembershipOrder')
+            ->getMembershipOrdersByDate(
+                $startDate,
+                $endDate,
+                $data['company_id']
+            );
+
+        return $this->getFinanceSummaryExport(
+            $startDate,
+            $language,
+            $events,
+            $shortOrders,
+            $membershipOrders
+        );
+    }
+
+    /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="start_date",
      *    array=false,
      *    default=null,
      *    nullable=true,
@@ -349,6 +438,7 @@ class AdminFinanceExportController extends SalesRestController
         $results = array_merge($cashierOrders, $cashierBills);
 
         return $this->getFinanceCashierExport(
+            $startDate,
             $results,
             $language
         );
@@ -368,12 +458,12 @@ class AdminFinanceExportController extends SalesRestController
         $language
     ) {
         $customer = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:User\UserCustomer')
-                ->findOneBy(
-                    array(
-                        'userId' => $order->getUserId(),
-                        'companyId' => $company->getId(),
-                    ));
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->findOneBy(
+                array(
+                    'userId' => $order->getUserId(),
+                    'companyId' => $company->getId(),
+                ));
         $product = $order->getProduct();
         $room = $product->getRoom();
         $building = $room->getBuilding();
@@ -490,5 +580,53 @@ class AdminFinanceExportController extends SalesRestController
         );
 
         return $data;
+    }
+
+    /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/finance/export/bills")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function exportSalesBillsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $data = $this->get('sandbox_api.admin_permission_check_service')
+            ->checkPermissionByCookie(
+                AdminPermission::KEY_SALES_PLATFORM_REPORT_DOWNLOAD,
+                AdminPermission::PERMISSION_PLATFORM_SALES
+            );
+
+        $startDate = new \DateTime($paramFetcher->get('startDate'));
+        $endDate = new \DateTime($paramFetcher->get('endDate'));
+        $endDate = $endDate->setTime('23', '59', '59');
+        $language = $paramFetcher->get('language');
+
+        $leaseStatus = array(
+            Lease::LEASE_STATUS_PERFORMING,
+            Lease::LEASE_STATUS_TERMINATED,
+            Lease::LEASE_STATUS_MATURED,
+            Lease::LEASE_STATUS_END,
+            Lease::LEASE_STATUS_CLOSED,
+        );
+
+        $bills = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->getExportSalesBills(
+                $data['building_ids'],
+                $startDate,
+                $endDate,
+                $leaseStatus
+            );
+
+        return $this->getFinanceExportBills(
+            $startDate,
+            $language,
+            $bills
+        );
     }
 }
