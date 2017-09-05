@@ -436,6 +436,7 @@ class AdminFinanceExportController extends SalesRestController
         $results = array_merge($cashierOrders, $cashierBills);
 
         return $this->getFinanceCashierExport(
+            $startDate,
             $results,
             $language
         );
