@@ -112,5 +112,5 @@ parameters:
     duiba_app_secret: 3ynCsWqXzcErULFvSEojLH94pnxb
     duiba_app_env: sta
 
-    jpush_key: 420eca01c1f66df61eebe448
-    jpush_secret: fb7c2c860f9c782e4454a4f6
+    jpush_key: 053c3281736d2c34b51e58be
+    jpush_secret: 7772afddf154443ab12fa13d
