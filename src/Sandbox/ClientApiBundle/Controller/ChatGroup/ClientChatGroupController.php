@@ -379,11 +379,6 @@ class ClientChatGroupController extends ChatGroupController
             return new View();
         }
 
-        $tag = $chatGroup->getTag();
-        if (!is_null($tag)) {
-            throw new AccessDeniedHttpException();
-        }
-
         // only chat group creator is allowed to remove it
         if ($myUser != $chatGroup->getCreator()) {
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
