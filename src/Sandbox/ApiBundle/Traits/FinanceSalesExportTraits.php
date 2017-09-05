@@ -1315,7 +1315,7 @@ trait FinanceSalesExportTraits
                     'companyId' => $building->getCompanyId(),
                 ));
 
-            if (!is_null($bill->getPayChannel())) {
+            if (is_null($bill->getPayChannel())) {
                 continue;
             }
 
@@ -1326,14 +1326,14 @@ trait FinanceSalesExportTraits
                     ->findOneBy([
                         'orderNumber' => $lease->getSerialNumber(),
                     ]);
-                $payChannel = $receivableTypes[$receivable->getPayChannel()];
+                $payChannel = !is_null($receivable) ? $receivableTypes[$receivable->getPayChannel()] : '';
             } else {
                 $payChannel = $payChannels[$bill->getPayChannel()];
             }
 
             $serviceBill = $em->getRepository('SandboxApiBundle:Finance\FinanceLongRentServiceBill')
                 ->findOneBy(['orderNumber' => $bill->getSerialNumber()]);
-            $serviceBillAmount = is_null($serviceBill) ? $serviceBill->getAmount() : '';
+            $serviceBillAmount = !is_null($serviceBill) ? $serviceBill->getAmount() : '';
 
             $body = array(
                 'building_name' => $building->getName(),
@@ -1374,7 +1374,7 @@ trait FinanceSalesExportTraits
         for ($col = ord('a'); $col <= ord('o'); ++$col) {
             $phpExcelObject->setActiveSheetIndex(0)->getColumnDimension(chr($col))->setAutoSize(true);
         }
-        $phpExcelObject->getActiveSheet()->setTitle('Poundage');
+        $phpExcelObject->getActiveSheet()->setTitle('1');
 
         // Set active sheet index to the first sheet, so Excel opens this as the first sheet
         $phpExcelObject->setActiveSheetIndex(0);
