@@ -12,6 +12,7 @@ use Sandbox\ApiBundle\Entity\Finance\FinanceSalesWalletFlow;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\MembershipCard\MembershipOrder;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
+use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Entity\User\UserCustomer;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
@@ -1149,6 +1150,242 @@ trait FinanceSalesExportTraits
         $response->headers->set('Pragma', 'public');
         $response->headers->set('Cache-Control', 'maxage=1');
         $response->headers->set('Content-Disposition', 'attachment;filename='.$filename);
+
+        return $response;
+    }
+
+    /**
+     * @param $results
+     * @param $language
+     * @return mixed
+     */
+    public function getFinanceCashierExport(
+        $results,
+        $language
+    ){
+        $em = $this->getContainer()->get('doctrine')->getManager();
+
+        $phpExcelObject = new \PHPExcel();
+        $phpExcelObject->getProperties()->setTitle('Finance Export');
+
+        $headers = [
+            '社区',
+            '类型',
+            '订单号/账单号',
+            '商品',
+            '房间类型',
+            '客户名',
+            '下单方式',
+            '支付方式',
+            '支付渠道',
+            '单价',
+            '单位',
+            '订单/账单原价',
+            '付款金额',
+            '退款金额',
+            '手续费',
+            '结算金额',
+            '租赁起始时间',
+            '租赁结束时间',
+            '创建时间',
+            '付款时间',
+            '订单状态',
+            '退款路径',
+            '客户手机',
+            '客户邮箱',
+        ];
+
+        $excelBody = array();
+        foreach ($results as $result) {
+
+            $excelBody[] = $result;
+        }
+
+        //Fill data
+        $phpExcelObject->setActiveSheetIndex(0)->fromArray($headers, ' ', 'A1');
+        $phpExcelObject->setActiveSheetIndex(0)->fromArray($excelBody, ' ', 'A2');
+
+        $phpExcelObject->getActiveSheet()->getStyle('A1:G1')->getFont()->setBold(true);
+
+        //set column dimension
+        for ($col = ord('a'); $col <= ord('s'); ++$col) {
+            $phpExcelObject->setActiveSheetIndex(0)->getColumnDimension(chr($col))->setAutoSize(true);
+        }
+        $phpExcelObject->getActiveSheet()->setTitle('导表');
+
+        // Set active sheet index to the first sheet, so Excel opens this as the first sheet
+        $phpExcelObject->setActiveSheetIndex(0);
+
+        // create the writer
+        $writer = $this->container->get('phpexcel')->createWriter($phpExcelObject, 'Excel5');
+        // create the response
+        $response = $this->container->get('phpexcel')->createStreamedResponse($writer);
+
+        $filename = '收银台明细.xls';
+
+        $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
+        $response->headers->set('Pragma', 'public');
+        $response->headers->set('Cache-Control', 'maxage=1');
+        $response->headers->set('Content-Disposition', 'attachment;filename='.$filename);
+
+        return $response;
+    }
+
+    /**
+     * @param $startDate
+     * @param $language
+     * @param $bills
+     *
+     * @return mixed
+     */
+    public function getFinanceExportBills(
+        $startDate,
+        $language,
+        $bills
+    ) {
+        /** @var EntityManager $em */
+        $em = $this->getContainer()->get('doctrine')->getManager();
+
+        $phpExcelObject = new \PHPExcel();
+        $phpExcelObject->getProperties()->setTitle('Finance Export');
+
+        $headers = [
+            '社区',
+            '类型',
+            '订单号/账单号',
+            '合同号',
+            '账单名',
+            '客户名',
+            '下单方式',
+            '支付方式',
+            '支付渠道',
+            '单价',
+            '单位',
+            '账单原价',
+            '付款金额',
+            '退款金额',
+            '手续费',
+            '结算金额',
+            '账单起始时间',
+            '账单结束时间',
+            '推送时间',
+            '付款时间',
+            '账单状态',
+            '退款路径',
+            '客户手机',
+            '客户邮箱',
+        ];
+
+        $orderMethod = [
+            LeaseBill::ORDER_METHOD_BACKEND => '销售方推送',
+            LeaseBill::ORDER_METHOD_AUTO => '自动推送',
+        ];
+
+        $receivableTypes = [
+            'sales_wx' => '微信',
+            'sales_alipay' => '支付宝支付',
+            'sales_cash' => '现金',
+            'sales_others' => '其他',
+            'sales_pos' => 'POS机',
+            'sales_remit' => '线下汇款',
+        ];
+
+        $payments = $em->getRepository('SandboxApiBundle:Payment\Payment')->findAll();
+        $payChannels = array();
+        foreach ($payments as $payment) {
+            $payChannels[$payment->getChannel()] = $payment->getName();
+        }
+
+        // set sheet body
+        $excelBody = [];
+        foreach ($bills as $bill) {
+            /** @var LeaseBill $bill */
+            $lease = $bill->getLease();
+            /** @var Product $product */
+            $product = $lease->getProduct();
+            $room = $product->getRoom();
+            $building = $room->getBuilding();
+
+            $customer = $em->getRepository('SandboxApiBundle:User\UserCustomer')
+                ->findOneBy(array(
+                    'userId' => $bill->getCustomerId(),
+                    'companyId' => $building->getCompanyId(),
+                ));
+
+            $paymentMethod = $bill->getPayChannel() == ProductOrder::CHANNEL_SALES_OFFLINE ? '销售方收款' : '创合代收';
+
+            if ($bill->getPayChannel() == ProductOrder::CHANNEL_SALES_OFFLINE) {
+                $receivable = $em->getRepository('SandboxApiBundle:Finance\FinanceReceivables')
+                    ->findOneBy([
+                        'orderNumber' => $lease->getSerialNumber(),
+                    ]);
+                $payChannel = $receivableTypes[$receivable->getPayChannel()];
+            } else {
+                $payChannel = $payChannels[$bill->getPayChannel()];
+            }
+
+            $serviceBill = $em->getRepository('SandboxApiBundle:Finance\FinanceLongRentServiceBill')
+                ->findOneBy(['orderNumber' => $bill->getSerialNumber()]);
+            $serviceBillAmount = is_null($serviceBill) ? $serviceBill->getAmount() : '';
+
+            $body = array(
+                'building_name' => $building->getName(),
+                'order_type' => '长租订单',
+                'order_number' => $bill->getLease()->getSerialNumber(),
+                'room_name' => $room->getName(),
+                'room_type' => $bill->getName(),
+                'customer' => $customer ? $customer->getName() : '',
+                'order_method' => $orderMethod[$bill->getOrderMethod()],
+                'payment_method' => $paymentMethod,
+                'pay_channel' => $payChannel,
+                'base_price' => '',
+                'unit_price' => '',
+                'price' => $bill->getAmount(),
+                'discount_price' => $bill->getRevisedAmount(),
+                'refund_amount' => '',
+                'poundage' => $serviceBillAmount,
+                'settlement_amount' => $bill->getRevisedAmount() - $serviceBillAmount,
+                'start_date' => $bill->getStartDate()->format('Y-m-d H:i:s'),
+                'end_date' => $bill->getEndDate()->format('Y-m-d H:i:s'),
+                'creation_date' => $bill->getCreationDate()->format('Y-m-d H:i:s'),
+                'payment_date' => $bill->getPaymentDate()->format('Y-m-d H:i:s'),
+                'status' => $bill->getStatus() == 'paid' ? '已付款' : '未付款',
+                'refundTo' => '',
+                'customer_phone' => $customer ? $customer->getPhone() : '',
+                'customer_email' => $customer ? $customer->getEmail() : '',
+            );
+            $excelBody[] = $body;
+        }
+
+        //Fill data
+        $phpExcelObject->setActiveSheetIndex(0)->fromArray($headers, ' ', 'A1');
+        $phpExcelObject->setActiveSheetIndex(0)->fromArray($excelBody, ' ', 'A2');
+
+        $phpExcelObject->getActiveSheet()->getStyle('A1:R1')->getFont()->setBold(true);
+
+        //set column dimension
+        for ($col = ord('a'); $col <= ord('o'); ++$col) {
+            $phpExcelObject->setActiveSheetIndex(0)->getColumnDimension(chr($col))->setAutoSize(true);
+        }
+        $phpExcelObject->getActiveSheet()->setTitle('Poundage');
+
+        // Set active sheet index to the first sheet, so Excel opens this as the first sheet
+        $phpExcelObject->setActiveSheetIndex(0);
+
+        // create the writer
+        $writer = $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel5');
+        // create the response
+        $response = $this->get('phpexcel')->createStreamedResponse($writer);
+
+        // adding headers
+        $dispositionHeader = $response->headers->makeDisposition(
+            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+            'bills_'.$startDate.'.xls'
+        );
+        $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
+        $response->headers->set('Pragma', 'public');
+        $response->headers->set('Cache-Control', 'maxage=1');
+        $response->headers->set('Content-Disposition', $dispositionHeader);
 
         return $response;
     }
