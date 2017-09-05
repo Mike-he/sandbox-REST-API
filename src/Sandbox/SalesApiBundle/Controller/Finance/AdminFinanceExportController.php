@@ -587,7 +587,7 @@ class AdminFinanceExportController extends SalesRestController
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
-     *    name="start_date",
+     *    name="startDate",
      *    array=false,
      *    default=null,
      *    nullable=true,
@@ -595,7 +595,7 @@ class AdminFinanceExportController extends SalesRestController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="end_date",
+     *    name="endDate",
      *    array=false,
      *    default=null,
      *    nullable=true,
