@@ -1315,20 +1315,20 @@ trait FinanceSalesExportTraits
                     'companyId' => $building->getCompanyId(),
                 ));
 
-            $paymentMethod = '';
-            $payChannel = '';
             if (!is_null($bill->getPayChannel())) {
-                $paymentMethod = $bill->getPayChannel() == ProductOrder::CHANNEL_SALES_OFFLINE ? '销售方收款' : '创合代收';
+                continue;
+            }
 
-                if ($bill->getPayChannel() == ProductOrder::CHANNEL_SALES_OFFLINE) {
-                    $receivable = $em->getRepository('SandboxApiBundle:Finance\FinanceReceivables')
-                        ->findOneBy([
-                            'orderNumber' => $lease->getSerialNumber(),
-                        ]);
-                    $payChannel = $receivableTypes[$receivable->getPayChannel()];
-                } else {
-                    $payChannel = $payChannels[$bill->getPayChannel()];
-                }
+            $paymentMethod = $bill->getPayChannel() == ProductOrder::CHANNEL_SALES_OFFLINE ? '销售方收款' : '创合代收';
+
+            if ($bill->getPayChannel() == ProductOrder::CHANNEL_SALES_OFFLINE) {
+                $receivable = $em->getRepository('SandboxApiBundle:Finance\FinanceReceivables')
+                    ->findOneBy([
+                        'orderNumber' => $lease->getSerialNumber(),
+                    ]);
+                $payChannel = $receivableTypes[$receivable->getPayChannel()];
+            } else {
+                $payChannel = $payChannels[$bill->getPayChannel()];
             }
 
             $serviceBill = $em->getRepository('SandboxApiBundle:Finance\FinanceLongRentServiceBill')
@@ -1387,7 +1387,7 @@ trait FinanceSalesExportTraits
         // adding headers
         $dispositionHeader = $response->headers->makeDisposition(
             ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-            'bills_'.$startDate.'.xls'
+            'bills_'.$startDate->format('Y-m-d').'.xls'
         );
         $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
         $response->headers->set('Pragma', 'public');
