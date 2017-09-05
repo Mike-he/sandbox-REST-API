@@ -1220,7 +1220,7 @@ trait FinanceSalesExportTraits
         // create the response
         $response = $this->container->get('phpexcel')->createStreamedResponse($writer);
 
-        $filename = '账户钱包流水.xls';
+        $filename = '收银台明细.xls';
 
         $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
         $response->headers->set('Pragma', 'public');
