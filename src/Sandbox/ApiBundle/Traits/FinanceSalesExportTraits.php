@@ -1159,6 +1159,7 @@ trait FinanceSalesExportTraits
      * @return mixed
      */
     public function getFinanceCashierExport(
+        $startDate,
         $results,
         $language
     ){
@@ -1220,7 +1221,9 @@ trait FinanceSalesExportTraits
         // create the response
         $response = $this->container->get('phpexcel')->createStreamedResponse($writer);
 
-        $filename = '收银台明细.xls';
+        $startDate = new \DateTime($startDate);
+        $startString = $startDate -> format('Y-m-d');
+        $filename = '收银台明细_'.$startString.'.xls';
 
         $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
         $response->headers->set('Pragma', 'public');
