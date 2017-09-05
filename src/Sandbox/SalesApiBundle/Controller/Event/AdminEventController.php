@@ -634,8 +634,8 @@ class AdminEventController extends SalesRestController
         $cityId = $event->getCityId();
         $buildingId = $event->getBuildingId();
         $limitNumber = (int) $event->getLimitNumber();
-        $registrationStartDate = $event->getRegistrationStartDate();
-        $registrationEndDate = $event->getRegistrationEndDate();
+        $registrationStartDate = new \DateTime($event->getRegistrationStartDate());
+        $registrationEndDate = new \DateTime($event->getRegistrationEndDate());
 
         $registrationStartDate->setTime(00, 00, 00);
         $registrationEndDate->setTime(23, 59, 59);
