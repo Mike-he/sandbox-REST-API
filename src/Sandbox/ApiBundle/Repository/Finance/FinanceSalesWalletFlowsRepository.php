@@ -57,6 +57,7 @@ class FinanceSalesWalletFlowsRepository extends EntityRepository
         $inputTypes = [
             FinanceSalesWalletFlow::MONTHLY_ORDER_AMOUNT,
             FinanceSalesWalletFlow::REALTIME_BILLS_AMOUNT,
+            FinanceSalesWalletFlow::REALTIME_ORDERS_AMOUNT,
         ];
 
         $query = $this->createQueryBuilder('wf')
