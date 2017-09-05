@@ -566,19 +566,12 @@ class AdminFinanceLongRentBillController extends SalesRestController
         }
 
         $result = array_merge($billsLists, $serviceFeeBillsLists);
-        $sort = array(
-            'direction' => 'SORT_DESC',        //排序顺序标志 SORT_DESC 降序；SORT_ASC 升序
-            'field' => 'createDate',       //排序字段
-        );
-        $arrSort = array();
-        foreach ($result as $uniqid => $row) {
-            foreach ($row as $key => $value) {
-                $arrSort[$key][$uniqid] = $value;
-            }
+
+        $time = [];
+        foreach($result as $k=>$v){
+            $time[] = $v['createDate'];
         }
-        if ($sort['direction']) {
-            array_multisort($arrSort[$sort['field']], constant($sort['direction']),  $result);
-        }
+        array_multisort($time,SORT_DESC,$result);
 
         $count = count($result);
 
@@ -614,7 +607,7 @@ class AdminFinanceLongRentBillController extends SalesRestController
     private function getBillsLists($bill)
     {
         $bill = array(
-            'createDate' => $bill->getCreationDate()->format('Y-m-d'),
+            'createDate' => $bill->getCreationDate()->format('Y-m-d H:i:s'),
             'description' => '索取发票',
             'amount' => '-'.$bill->getAmount(),
         );
@@ -630,7 +623,7 @@ class AdminFinanceLongRentBillController extends SalesRestController
     private function getServiceFeeBillsLists($serviceFeeBill)
     {
         $serviceFeeBill = array(
-            'createDate' => $serviceFeeBill->getCreationDate()->format('Y-m-d'),
+            'createDate' => $serviceFeeBill->getCreationDate()->format('Y-m-d H:i:s'),
             'description' => '手续费账单',
             'amount' => '+'.$serviceFeeBill->getAmount(),
         );
