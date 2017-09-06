@@ -1308,12 +1308,9 @@ trait FinanceSalesExportTraits
             $product = $lease->getProduct();
             $room = $product->getRoom();
             $building = $room->getBuilding();
-
-            $customer = $em->getRepository('SandboxApiBundle:User\UserCustomer')
-                ->findOneBy(array(
-                    'userId' => $bill->getCustomerId(),
-                    'companyId' => $building->getCompanyId(),
-                ));
+            
+            $customerId = $bill->getCustomerId() ? $bill->getCustomerId() : $lease->getLesseeCustomer();
+            $customer = $em->getRepository('SandboxApiBundle:User\UserCustomer')->find($customerId);
 
             if (is_null($bill->getPayChannel())) {
                 continue;
