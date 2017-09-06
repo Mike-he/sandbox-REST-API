@@ -1308,13 +1308,9 @@ trait FinanceSalesExportTraits
             $product = $lease->getProduct();
             $room = $product->getRoom();
             $building = $room->getBuilding();
-            
+
             $customerId = $bill->getCustomerId() ? $bill->getCustomerId() : $lease->getLesseeCustomer();
             $customer = $em->getRepository('SandboxApiBundle:User\UserCustomer')->find($customerId);
-
-            if (is_null($bill->getPayChannel())) {
-                continue;
-            }
 
             $paymentMethod = $bill->getPayChannel() == ProductOrder::CHANNEL_SALES_OFFLINE ? '销售方收款' : '创合代收';
 
