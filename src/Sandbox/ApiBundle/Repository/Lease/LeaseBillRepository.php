@@ -915,12 +915,12 @@ class LeaseBillRepository extends EntityRepository
             ->setParameter('status', $billStatus)
         ;
 
-        $query->andWhere('lb.paymentDate >= :startDate')
-            ->andWhere('lb.paymentDate <= :endDate')
+        $query->andWhere('lb.sendDate >= :startDate')
+            ->andWhere('lb.sendDate <= :endDate')
             ->setParameter('startDate', $startDate)
             ->setParameter('endDate', $endDate);
 
-        $query->orderBy('lb.creationDate', 'DESC');
+        $query->orderBy('lb.sendDate', 'DESC');
 
         return $query->getQuery()->getResult();
     }
