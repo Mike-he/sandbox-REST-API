@@ -347,7 +347,7 @@ class AdminFinanceExportController extends SalesRestController
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
-     *    name="start_date",
+     *    name="startDate",
      *    array=false,
      *    default=null,
      *    nullable=true,
@@ -355,7 +355,7 @@ class AdminFinanceExportController extends SalesRestController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="end_date",
+     *    name="endDate",
      *    array=false,
      *    default=null,
      *    nullable=true,
@@ -365,7 +365,8 @@ class AdminFinanceExportController extends SalesRestController
      * @Annotations\QueryParam(
      *    name="language",
      *    array=false,
-     *    nullable=true,
+     *    default="zh",
+     *    nullable=true
      * )
      *
      * @Route("/finance/export/cashiers")
@@ -383,8 +384,8 @@ class AdminFinanceExportController extends SalesRestController
                 AdminPermission::PERMISSION_PLATFORM_SALES
             );
 
-        $startDate = $paramFetcher->get('start_date');
-        $endDate = $paramFetcher->get('end_date');
+        $startDate = $paramFetcher->get('startDate');
+        $endDate = $paramFetcher->get('endDate');
         $language = $paramFetcher->get('language');
 
         $company = $this->getDoctrine()
@@ -475,8 +476,13 @@ class AdminFinanceExportController extends SalesRestController
             $language
         );
 
-        $unitDescription = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_UNIT.$order->getUnitPrice());
-        $basePrice = $order->getUnitPrice() ? $order->getBasePrice().'元/'.$unitDescription : '';
+        $unit = $this->get('translator')->trans(
+            ProductOrderExport::TRANS_ROOM_UNIT.$order->getUnitPrice(),
+            array(),
+            null,
+            $language
+        );
+
         $discountPrice = $order->getDiscountPrice();
         $refundAmount = $order->getActualRefundAmount();
         $poundage = $discountPrice * $order->getServiceFee() / 100;
@@ -494,13 +500,13 @@ class AdminFinanceExportController extends SalesRestController
             'order_type' => '秒租订单',
             'serial_number' => $order->getOrderNumber(),
             'room_name' => $room->getName(),
-            'room_type_tag' => $roomType,
+            'room_type' => $roomType,
             'customer' => $customer ? $customer->getName() : '',
             'order_method' => '销售方推单',
             'payment_method' => '销售方收款',
             'pay_channel' => $order->getPayChannel() ? $payChannels[$order->getPayChannel()] : '',
-            'base_price' => $basePrice,
-            'unit_price' => $unitDescription,
+            'base_price' => $order->getBasePrice(),
+            'unit_price' => $unit,
             'amount' => $order->getPrice(),
             'revised_amount' => $order->getDiscountPrice(),
             'refund_amount' => $order->getActualRefundAmount(),
@@ -557,7 +563,7 @@ class AdminFinanceExportController extends SalesRestController
             'order_type' => '长租账单',
             'serial_number' => $bill->getSerialNumber(),
             'room_name' => $room->getName(),
-            'room_type_tag' => $roomType,
+            'room_type' => $roomType,
             'customer' => $customer ? $customer->getName() : '',
             'order_method' => '销售方推单',
             'payment_method' => '销售方收款',

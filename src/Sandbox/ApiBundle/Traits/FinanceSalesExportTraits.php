@@ -1255,7 +1255,7 @@ trait FinanceSalesExportTraits
         $headers = [
             '社区',
             '类型',
-            '订单号/账单号',
+            '账单号',
             '合同号',
             '账单名',
             '客户名',
@@ -1338,7 +1338,7 @@ trait FinanceSalesExportTraits
             $body = array(
                 'building_name' => $building->getName(),
                 'order_type' => '长租订单',
-                'order_number' => $bill->getLease()->getSerialNumber(),
+                'order_number' => $bill->getSerialNumber(),
                 'room_name' => $room->getName(),
                 'room_type' => $bill->getName(),
                 'customer' => $customer ? $customer->getName() : '',
