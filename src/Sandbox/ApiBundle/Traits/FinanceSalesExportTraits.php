@@ -1271,6 +1271,7 @@ trait FinanceSalesExportTraits
                 $payChannel = '';
                 $serviceBillAmount = '';
                 $paymentDate = '';
+                $settlementAmount = '';
             } else {
                 $status = '已付款';
                 $paymentMethod = $bill->getPayChannel() == ProductOrder::CHANNEL_SALES_OFFLINE ? '销售方收款' : '创合代收';
@@ -1287,6 +1288,7 @@ trait FinanceSalesExportTraits
                     ->findOneBy(['orderNumber' => $bill->getSerialNumber()]);
                 $serviceBillAmount = !is_null($serviceBill) ? $serviceBill->getAmount() : '';
                 $paymentDate = $bill->getPaymentDate()->format('Y-m-d H:i:s');
+                $settlementAmount = $bill->getRevisedAmount() - $serviceBillAmount;
             }
 
             $body = array(
@@ -1305,7 +1307,7 @@ trait FinanceSalesExportTraits
                 'discount_price' => $bill->getRevisedAmount(),
                 'refund_amount' => '',
                 'poundage' => $serviceBillAmount,
-                'settlement_amount' => $bill->getRevisedAmount() - $serviceBillAmount,
+                'settlement_amount' => $settlementAmount,
                 'start_date' => $bill->getStartDate()->format('Y-m-d H:i:s'),
                 'end_date' => $bill->getEndDate()->format('Y-m-d H:i:s'),
                 'creation_date' => $bill->getSendDate()->format('Y-m-d H:i:s'),
