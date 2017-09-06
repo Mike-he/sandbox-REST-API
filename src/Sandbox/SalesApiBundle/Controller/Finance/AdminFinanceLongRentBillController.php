@@ -568,10 +568,10 @@ class AdminFinanceLongRentBillController extends SalesRestController
         $result = array_merge($billsLists, $serviceFeeBillsLists);
 
         $time = [];
-        foreach($result as $k=>$v){
+        foreach ($result as $k => $v) {
             $time[] = $v['createDate'];
         }
-        array_multisort($time,SORT_DESC,$result);
+        array_multisort($time, SORT_DESC, $result);
 
         $count = count($result);
 

@@ -897,7 +897,7 @@ class LeaseBillRepository extends EntityRepository
      * @param $buildingIds
      * @param $startDate
      * @param $endDate
-     * @param $leaseStatus
+     * @param $billStatus
      *
      * @return array
      */
@@ -905,16 +905,14 @@ class LeaseBillRepository extends EntityRepository
         $buildingIds,
         $startDate,
         $endDate,
-        $leaseStatus
+        $billStatus
     ) {
         $query = $this->createQueryBuilder('lb')
             ->leftJoin('lb.lease', 'l')
-            ->where('l.status in (:leaseStatus)')
-            ->andWhere('l.buildingId in (:buildingIds)')
-            ->andWhere('lb.status = :status')
-            ->setParameter('leaseStatus', $leaseStatus)
+            ->where('l.buildingId in (:buildingIds)')
+            ->andWhere('lb.status in (:status)')
             ->setParameter('buildingIds', $buildingIds)
-            ->setParameter('status', LeaseBill::STATUS_PAID)
+            ->setParameter('status', $billStatus)
         ;
 
         $query->andWhere('lb.paymentDate >= :startDate')

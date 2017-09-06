@@ -5,6 +5,7 @@ namespace Sandbox\SalesApiBundle\Controller\Finance;
 use FOS\RestBundle\View\View;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
+use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Traits\FinanceSalesExportTraits;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
@@ -255,7 +256,7 @@ class AdminFinanceExportController extends SalesRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -343,7 +344,7 @@ class AdminFinanceExportController extends SalesRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -450,6 +451,7 @@ class AdminFinanceExportController extends SalesRestController
      * @param $company
      * @param $payChannels
      * @param $language
+     *
      * @return array
      */
     private function generateCashierOrder(
@@ -515,11 +517,11 @@ class AdminFinanceExportController extends SalesRestController
             'start_date' => $order->getStartDate()->format('Y-m-d H:i:s'),
             'end_date' => $order->getEndDate()->format('Y-m-d H:i:s'),
             'creation_date' => $order->getCreationDate()->format('Y-m-d H:i:s'),
-            'payment_date' => $order->getPaymentDate() ? $order->getPaymentDate()->format('Y-m-d H:i:s'):'',
+            'payment_date' => $order->getPaymentDate() ? $order->getPaymentDate()->format('Y-m-d H:i:s') : '',
             'status' => $order->getStatus(),
             'refundTo' => $refundTo,
             'customer_phone' => $customer ? $customer->getPhone() : '',
-            'customer_email' => $customer ? $customer->getEmail() : ''
+            'customer_email' => $customer ? $customer->getEmail() : '',
         );
 
         return $data;
@@ -530,6 +532,7 @@ class AdminFinanceExportController extends SalesRestController
      * @param $company
      * @param $payChannels
      * @param $language
+     *
      * @return array
      */
     private function generateCashierBill(
@@ -541,7 +544,7 @@ class AdminFinanceExportController extends SalesRestController
         $leaseRentTypes = $bill->getLease()->getLeaseRentTypes();
 
         $customer = null;
-        if($bill->getCustomerId()){
+        if ($bill->getCustomerId()) {
             $customer = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:User\UserCustomer')
                 ->find($bill->getCustomerId());
@@ -582,14 +585,14 @@ class AdminFinanceExportController extends SalesRestController
             'status' => $bill->getStatus(),
             'refundTo' => '',
             'customer_phone' => $customer ? $customer->getPhone() : '',
-            'customer_email' => $customer ? $customer->getEmail() : ''
+            'customer_email' => $customer ? $customer->getEmail() : '',
         );
 
         return $data;
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -634,12 +637,8 @@ class AdminFinanceExportController extends SalesRestController
         $endDate = $endDate->setTime('23', '59', '59');
         $language = $paramFetcher->get('language');
 
-        $leaseStatus = array(
-            Lease::LEASE_STATUS_PERFORMING,
-            Lease::LEASE_STATUS_TERMINATED,
-            Lease::LEASE_STATUS_MATURED,
-            Lease::LEASE_STATUS_END,
-            Lease::LEASE_STATUS_CLOSED,
+        $billStatus = array(
+            LeaseBill::STATUS_PAID,
         );
 
         $bills = $this->getDoctrine()
@@ -648,7 +647,7 @@ class AdminFinanceExportController extends SalesRestController
                 $data['building_ids'],
                 $startDate,
                 $endDate,
-                $leaseStatus
+                $billStatus
             );
 
         return $this->getFinanceExportBills(
