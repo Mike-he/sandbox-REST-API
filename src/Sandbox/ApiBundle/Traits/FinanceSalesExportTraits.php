@@ -1270,6 +1270,7 @@ trait FinanceSalesExportTraits
                 $paymentMethod = '';
                 $payChannel = '';
                 $serviceBillAmount = '';
+                $paymentDate = '';
             } else {
                 $status = '已付款';
                 $paymentMethod = $bill->getPayChannel() == ProductOrder::CHANNEL_SALES_OFFLINE ? '销售方收款' : '创合代收';
@@ -1285,6 +1286,7 @@ trait FinanceSalesExportTraits
                 $serviceBill = $em->getRepository('SandboxApiBundle:Finance\FinanceLongRentServiceBill')
                     ->findOneBy(['orderNumber' => $bill->getSerialNumber()]);
                 $serviceBillAmount = !is_null($serviceBill) ? $serviceBill->getAmount() : '';
+                $paymentDate = $bill->getPaymentDate()->format('Y-m-d H:i:s');
             }
 
             $body = array(
@@ -1306,8 +1308,8 @@ trait FinanceSalesExportTraits
                 'settlement_amount' => $bill->getRevisedAmount() - $serviceBillAmount,
                 'start_date' => $bill->getStartDate()->format('Y-m-d H:i:s'),
                 'end_date' => $bill->getEndDate()->format('Y-m-d H:i:s'),
-                'creation_date' => $bill->getCreationDate()->format('Y-m-d H:i:s'),
-                'payment_date' => $bill->getPaymentDate()->format('Y-m-d H:i:s'),
+                'creation_date' => $bill->getSendDate()->format('Y-m-d H:i:s'),
+                'payment_date' => $paymentDate,
                 'status' => $status,
                 'refundTo' => '',
                 'customer_phone' => $customer ? $customer->getPhone() : '',
