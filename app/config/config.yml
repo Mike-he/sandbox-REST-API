@@ -44,6 +44,8 @@ twig:
         openfire_plugin_file_server: "%openfire_plugin_file_server%"
         sms_api_url: "%sms_api_url%"
         sms_api_key: "%sms_api_key%"
+        sms_v2_api_url: "%sms_v2_api_url%"
+        sms_marketing_api_key: "%sms_marketing_api_key%"
         email_from_address: "%email_from_address%"
         email_from_name: "%email_from_name%"
         xmpp_domain: "%xmpp_domain%"

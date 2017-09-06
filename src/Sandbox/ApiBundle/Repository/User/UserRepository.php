@@ -216,4 +216,24 @@ class UserRepository extends EntityRepository
 
         return $result;
     }
+
+    /**
+     * @param $limit
+     * @param $offset
+     *
+     * @return array
+     */
+    public function getUsersByLimit(
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('u')
+            ->select('u.phone')
+            ->where('u.phone IS NOT NULL')
+            ->andWhere("u.phoneCode = '+86'")
+            ->setFirstResult($offset)
+            ->setMaxResults($limit);
+
+        return $query->getQuery()->getResult();
+    }
 }

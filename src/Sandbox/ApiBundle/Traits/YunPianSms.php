@@ -41,6 +41,26 @@ trait YunPianSms
     }
 
     /**
+     * @param $phones
+     * @param $text
+     *
+     * @return string
+     */
+    public function send_marketing_sms(
+        $phones,
+        $text
+    ) {
+        $smsV2URL = $this->getParameter('sms_v2_api_url');
+        $smsMarktingApiKey = $this->getParameter('sms_marketing_api_key');
+
+        $encoded_text = urlencode("$text");
+        $mobile = urlencode("$phones");
+        $post_string = "apikey=$smsMarktingApiKey&text=$encoded_text&mobile=$mobile";
+
+        return $this->sock_post($smsV2URL, $post_string);
+    }
+
+    /**
      * url 为服务的url地址
      * query 为请求串.
      *
