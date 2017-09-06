@@ -500,7 +500,7 @@ trait FinanceSalesExportTraits
             }
 
             $refundTo = null;
-            if ($order->getRefundTo()) {
+            if ($order->isRefunded()) {
                 if ($order->getRefundTo() == 'account') {
                     $refundTo = '退款到余额';
                 } else {
@@ -811,7 +811,7 @@ trait FinanceSalesExportTraits
 
                     $customerId = $order->getCustomerId();
 
-                    if ($order->getRefundTo()) {
+                    if ($order->isRefunded()) {
                         if ($order->getRefundTo() == 'account') {
                             $refundTo = '退款到余额';
                         } else {
@@ -1086,7 +1086,7 @@ trait FinanceSalesExportTraits
                     $startDate = $order->getStartDate()->format('Y-m-d H:i:s');
                     $endDate = $order->getEndDate()->format('Y-m-d H:i:s');
                     $creationDate = $order->getCreationDate()->format('Y-m-d H:i:s');
-                    if ($order->getRefundTo()) {
+                    if ($order->isRefunded()) {
                         if ($order->getRefundTo() == 'account') {
                             $refundTo = '退款到余额';
                         } else {
@@ -1270,6 +1270,8 @@ trait FinanceSalesExportTraits
                 $paymentMethod = '';
                 $payChannel = '';
                 $serviceBillAmount = '';
+                $paymentDate = '';
+                $settlementAmount = '';
             } else {
                 $status = '已付款';
                 $paymentMethod = $bill->getPayChannel() == ProductOrder::CHANNEL_SALES_OFFLINE ? '销售方收款' : '创合代收';
@@ -1285,6 +1287,8 @@ trait FinanceSalesExportTraits
                 $serviceBill = $em->getRepository('SandboxApiBundle:Finance\FinanceLongRentServiceBill')
                     ->findOneBy(['orderNumber' => $bill->getSerialNumber()]);
                 $serviceBillAmount = !is_null($serviceBill) ? $serviceBill->getAmount() : '';
+                $paymentDate = $bill->getPaymentDate()->format('Y-m-d H:i:s');
+                $settlementAmount = $bill->getRevisedAmount() - $serviceBillAmount;
             }
 
             $body = array(
@@ -1303,11 +1307,11 @@ trait FinanceSalesExportTraits
                 'discount_price' => $bill->getRevisedAmount(),
                 'refund_amount' => '',
                 'poundage' => $serviceBillAmount,
-                'settlement_amount' => $bill->getRevisedAmount() - $serviceBillAmount,
+                'settlement_amount' => $settlementAmount,
                 'start_date' => $bill->getStartDate()->format('Y-m-d H:i:s'),
                 'end_date' => $bill->getEndDate()->format('Y-m-d H:i:s'),
-                'creation_date' => $bill->getCreationDate()->format('Y-m-d H:i:s'),
-                'payment_date' => $bill->getPaymentDate()->format('Y-m-d H:i:s'),
+                'creation_date' => $bill->getSendDate()->format('Y-m-d H:i:s'),
+                'payment_date' => $paymentDate,
                 'status' => $status,
                 'refundTo' => '',
                 'customer_phone' => $customer ? $customer->getPhone() : '',
