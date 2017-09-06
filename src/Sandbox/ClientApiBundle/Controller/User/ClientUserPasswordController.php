@@ -231,12 +231,11 @@ class ClientUserPasswordController extends UserPasswordController
             );
         }
 
-        $phoneCode = $user->getPhoneCode();
-
         // save or update forget password
         $forgetPassword = $this->saveOrUpdateForgetPassword(
             $user->getId(),
-            'submit', $email,
+            'submit',
+            $email,
             $phone,
             $phoneCode
         );
