@@ -5,7 +5,6 @@ namespace Application\Migrations;
 use Doctrine\DBAL\Migrations\AbstractMigration;
 use Doctrine\DBAL\Schema\Schema;
 use Sandbox\ApiBundle\Entity\Finance\FinanceShortRentInvoice;
-use Sandbox\ApiBundle\Entity\GenericList\GenericList;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 

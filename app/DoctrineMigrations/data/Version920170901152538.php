@@ -4,8 +4,6 @@ namespace Application\Migrations;
 
 use Doctrine\DBAL\Migrations\AbstractMigration;
 use Doctrine\DBAL\Schema\Schema;
-use Sandbox\ApiBundle\Entity\Finance\FinanceShortRentInvoice;
-use Sandbox\ApiBundle\Entity\GenericList\GenericList;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
@@ -36,18 +34,18 @@ class Version920170901152538 extends AbstractMigration implements ContainerAware
         foreach ($orders as $order) {
             $userId = $order->getUserId();
             $product = $order->getProduct();
-            if(is_null($product)){
-               continue;
+            if (is_null($product)) {
+                continue;
             }
             $companyId = $product->getRoom()->getBuilding()->getCompanyId();
             $customer = $em->getRepository('SandboxApiBundle:User\UserCustomer')
                             ->findOneBy(array(
-                                'userId'=>$userId,
-                                'companyId'=>$companyId
+                                'userId' => $userId,
+                                'companyId' => $companyId,
                             ));
 
             if (is_null($order->getCustomerId())) {
-                if(!is_null($customer)){
+                if (!is_null($customer)) {
                     $order->setCustomerId($customer->getId());
                 }
             }

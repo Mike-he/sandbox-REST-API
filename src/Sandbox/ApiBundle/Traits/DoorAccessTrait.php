@@ -613,7 +613,7 @@ trait DoorAccessTrait
             );
 
             sleep(150);
-            
+
             // add user to 'SANDBOX3' GROUP
             $this->setMembershipEmployeeCard(
                 $base,

@@ -5,6 +5,7 @@ namespace Sandbox\SalesApiBundle\Controller\Finance;
 use FOS\RestBundle\View\View;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
+use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Traits\FinanceSalesExportTraits;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
@@ -13,7 +14,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
-use Sandbox\ApiBundle\Constants\ProductOrderExport;
 
 class AdminFinanceExportController extends SalesRestController
 {
@@ -86,7 +86,6 @@ class AdminFinanceExportController extends SalesRestController
 
         return $this->getFinanceExportPoundage(
             $serviceBills,
-            $startString,
             $language
         );
     }
@@ -177,8 +176,9 @@ class AdminFinanceExportController extends SalesRestController
                 $data['company_id']
             );
 
+        $filename = '秒租平台订单报表';
         return $this->getFinanceSummaryExport(
-            $startDate,
+            $filename,
             $language,
             $events,
             $shortOrders,
@@ -237,7 +237,6 @@ class AdminFinanceExportController extends SalesRestController
         $beginDate = $beginDate->modify('-30 days');
         $startDate = is_null($startDate) ? $beginDate : $startDate;
         $endDate = is_null($endDate) ? $now : $endDate;
-        $startString = is_object($startDate) ? $startDate->format('Y-m-d') : $startDate;
 
         $flows = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Finance\FinanceSalesWalletFlow')
@@ -248,14 +247,13 @@ class AdminFinanceExportController extends SalesRestController
             );
 
         return $this->getFinanceSalesWalletFlowsExport(
-                    $flows,
-                    $startString,
-                    $language
+            $flows,
+            $language
         );
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -333,8 +331,9 @@ class AdminFinanceExportController extends SalesRestController
                 $data['company_id']
             );
 
+        $filename = '订单明细导表';
         return $this->getFinanceSummaryExport(
-            $startDate,
+            $filename,
             $language,
             $events,
             $shortOrders,
@@ -343,7 +342,7 @@ class AdminFinanceExportController extends SalesRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -388,208 +387,22 @@ class AdminFinanceExportController extends SalesRestController
         $endDate = $paramFetcher->get('endDate');
         $language = $paramFetcher->get('language');
 
-        $company = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
-            ->find($data['company_id']);
-
-        $myBuildingIds = $data['building_ids'];
-
-        $orders = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->getUnpaidPreOrders(
-                $myBuildingIds,
-                null,
-                null,
+        $receivables = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Finance\FinanceReceivables')
+            ->getOrderLists(
+                $data['company_id'],
                 $startDate,
-                $endDate,
-                null,
-                null
+                $endDate
             );
-
-        $bills = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
-            ->getUnpaidBills(
-                $myBuildingIds,
-                null,
-                null,
-                $startDate,
-                $endDate,
-                null,
-                null
-            );
-
-        $em = $this->getContainer()->get('doctrine')->getManager();
-        $payments = $em->getRepository('SandboxApiBundle:Payment\Payment')->findAll();
-        $payChannels = array();
-        foreach ($payments as $payment) {
-            $payChannels[$payment->getChannel()] = $payment->getName();
-        }
-
-        $cashierOrders = array();
-        $cashierBills = array();
-
-        foreach ($orders as $order) {
-            $cashierOrders[] = $this->generateCashierOrder($order, $company, $payChannels, $language);
-        }
-
-        foreach ($bills as $bill) {
-            $cashierBills[] = $this->generateCashierBill($bill, $company, $payChannels, $language);
-        }
-
-        $results = array_merge($cashierOrders, $cashierBills);
 
         return $this->getFinanceCashierExport(
-            $startDate,
-            $results,
+            $receivables,
             $language
         );
     }
 
     /**
-     * @param $order
-     * @param $company
-     * @param $payChannels
-     * @param $language
-     * @return array
-     */
-    private function generateCashierOrder(
-        $order,
-        $company,
-        $payChannels,
-        $language
-    ) {
-        $customer = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserCustomer')
-            ->findOneBy(
-                array(
-                    'userId' => $order->getUserId(),
-                    'companyId' => $company->getId(),
-                ));
-        $product = $order->getProduct();
-        $room = $product->getRoom();
-        $building = $room->getBuilding();
-
-        $roomType = $this->get('translator')->trans(
-            ProductOrderExport::TRANS_ROOM_TYPE.$room->getType(),
-            array(),
-            null,
-            $language
-        );
-
-        $unit = $this->get('translator')->trans(
-            ProductOrderExport::TRANS_ROOM_UNIT.$order->getUnitPrice(),
-            array(),
-            null,
-            $language
-        );
-
-        $discountPrice = $order->getDiscountPrice();
-        $refundAmount = $order->getActualRefundAmount();
-        $poundage = $discountPrice * $order->getServiceFee() / 100;
-        $refundTo = null;
-        if ($order->getRefundTo()) {
-            if ($order->getRefundTo() == 'account') {
-                $refundTo = '退款到余额';
-            } else {
-                $refundTo = '原路退回';
-            }
-        }
-
-        $data = array(
-            'building_name' => $building->getName(),
-            'order_type' => '秒租订单',
-            'serial_number' => $order->getOrderNumber(),
-            'room_name' => $room->getName(),
-            'room_type' => $roomType,
-            'customer' => $customer ? $customer->getName() : '',
-            'order_method' => '销售方推单',
-            'payment_method' => '销售方收款',
-            'pay_channel' => $order->getPayChannel() ? $payChannels[$order->getPayChannel()] : '',
-            'base_price' => $order->getBasePrice(),
-            'unit_price' => $unit,
-            'amount' => $order->getPrice(),
-            'revised_amount' => $order->getDiscountPrice(),
-            'refund_amount' => $order->getActualRefundAmount(),
-            'poundage' => $poundage,
-            'settlement_amount' => $discountPrice - $refundAmount - $poundage,
-            'start_date' => $order->getStartDate()->format('Y-m-d H:i:s'),
-            'end_date' => $order->getEndDate()->format('Y-m-d H:i:s'),
-            'creation_date' => $order->getCreationDate()->format('Y-m-d H:i:s'),
-            'payment_date' => $order->getPaymentDate() ? $order->getPaymentDate()->format('Y-m-d H:i:s'):'',
-            'status' => $order->getStatus(),
-            'refundTo' => $refundTo,
-            'customer_phone' => $customer ? $customer->getPhone() : '',
-            'customer_email' => $customer ? $customer->getEmail() : ''
-        );
-
-        return $data;
-    }
-
-    /**
-     * @param $bill
-     * @param $company
-     * @param $payChannels
-     * @param $language
-     * @return array
-     */
-    private function generateCashierBill(
-        $bill,
-        $company,
-        $payChannels,
-        $language
-    ) {
-        $leaseRentTypes = $bill->getLease()->getLeaseRentTypes();
-
-        $customer = null;
-        if($bill->getCustomerId()){
-            $customer = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:User\UserCustomer')
-                ->find($bill->getCustomerId());
-        }
-
-        $product = $bill->getLease()->getProduct();
-        $room = $product->getRoom();
-        $building = $room->getBuilding();
-
-        $roomType = $this->get('translator')->trans(
-            ProductOrderExport::TRANS_ROOM_TYPE.$room->getType(),
-            array(),
-            null,
-            $language
-        );
-
-        $data = array(
-            'building_name' => $building->getName(),
-            'order_type' => '长租账单',
-            'serial_number' => $bill->getSerialNumber(),
-            'room_name' => $room->getName(),
-            'room_type' => $roomType,
-            'customer' => $customer ? $customer->getName() : '',
-            'order_method' => '销售方推单',
-            'payment_method' => '销售方收款',
-            'pay_channel' => $bill->getPayChannel() ? $payChannels[$bill->getPayChannel()] : '',
-            'base_price' => '',
-            'unit_price' => '',
-            'amount' => $bill->getAmount(),
-            'revised_amount' => $bill->getRevisedAmount(),
-            'refund_amount' => '',
-            'poundage' => '',
-            'settlement_amount' => '',
-            'start_date' => $bill->getStartDate()->format('Y-m-d H:i:s'),
-            'end_date' => $bill->getEndDate()->format('Y-m-d H:i:s'),
-            'creation_date' => $bill->getCreationDate()->format('Y-m-d H:i:s'),
-            'payment_date' => $bill->getPaymentDate() ? $bill->getPaymentDate()->format('Y-m-d H:i:s') : '',
-            'status' => $bill->getStatus(),
-            'refundTo' => '',
-            'customer_phone' => $customer ? $customer->getPhone() : '',
-            'customer_email' => $customer ? $customer->getEmail() : ''
-        );
-
-        return $data;
-    }
-
-    /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -634,12 +447,9 @@ class AdminFinanceExportController extends SalesRestController
         $endDate = $endDate->setTime('23', '59', '59');
         $language = $paramFetcher->get('language');
 
-        $leaseStatus = array(
-            Lease::LEASE_STATUS_PERFORMING,
-            Lease::LEASE_STATUS_TERMINATED,
-            Lease::LEASE_STATUS_MATURED,
-            Lease::LEASE_STATUS_END,
-            Lease::LEASE_STATUS_CLOSED,
+        $billStatus = array(
+            LeaseBill::STATUS_UNPAID,
+            LeaseBill::STATUS_PAID,
         );
 
         $bills = $this->getDoctrine()
@@ -648,11 +458,10 @@ class AdminFinanceExportController extends SalesRestController
                 $data['building_ids'],
                 $startDate,
                 $endDate,
-                $leaseStatus
+                $billStatus
             );
 
         return $this->getFinanceExportBills(
-            $startDate,
             $language,
             $bills
         );

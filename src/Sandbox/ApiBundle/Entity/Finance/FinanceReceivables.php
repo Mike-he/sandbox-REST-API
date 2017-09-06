@@ -73,6 +73,13 @@ class FinanceReceivables
     private $creationDate;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="company_id", type="integer")
+     */
+    private $companyId;
+
+    /**
      * Get id.
      *
      * @return int
@@ -192,5 +199,21 @@ class FinanceReceivables
     public function setReceiver($receiver)
     {
         $this->receiver = $receiver;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCompanyId()
+    {
+        return $this->companyId;
+    }
+
+    /**
+     * @param int $companyId
+     */
+    public function setCompanyId($companyId)
+    {
+        $this->companyId = $companyId;
     }
 }

@@ -142,7 +142,7 @@ class OrderRepository extends EntityRepository
 
     /**
      * @param $userId
-     * @param $cusomerIds
+     * @param $customerIds
      * @param $limit
      * @param $offset
      *
@@ -150,7 +150,7 @@ class OrderRepository extends EntityRepository
      */
     public function getUserRefundOrders(
         $userId,
-        $cusomerIds,
+        $customerIds,
         $limit,
         $offset
     ) {
@@ -3468,10 +3468,22 @@ class OrderRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
             ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
             ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'r.buildingId = b.id')
-            ->where('o.status = :completed')
+            ->where('
+                    o.status = :completed  OR
+                    (
+                        o.status = :cancelled AND 
+                        (o.needToRefund = :needToRefund OR
+                        o.refunded = :refunded
+                        )
+                        
+                    )    
+                ')
             ->andWhere('o.startDate >= :start')
             ->andWhere('o.startDate <= :end')
             ->setParameter('completed', ProductOrder::STATUS_COMPLETED)
+            ->setParameter('cancelled', ProductOrder::STATUS_CANCELLED)
+            ->setParameter('needToRefund', true)
+            ->setParameter('refunded', true)
             ->setParameter('start', $startDate)
             ->setParameter('end', $endDate);
 

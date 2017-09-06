@@ -46,6 +46,9 @@ class AdminFinanceReceivableController extends SalesRestController
             AdminPermission::OP_LEVEL_EDIT
         );
 
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
         $payloads = json_decode($request->getContent(), true);
 
         $em = $this->getDoctrine()->getManager();
@@ -125,6 +128,7 @@ class AdminFinanceReceivableController extends SalesRestController
             $receivable->setTransactionNumber($payload['transaction_number']);
             $receivable->setRemark($payload['remark']);
             $receivable->setReceiver($this->getAdminId());
+            $receivable->setCompanyId($salesCompanyId);
             $em->persist($receivable);
         }
         $em->flush();

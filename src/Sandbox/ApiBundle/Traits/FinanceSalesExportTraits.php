@@ -3,17 +3,18 @@
 namespace Sandbox\ApiBundle\Traits;
 
 use Doctrine\ORM\EntityManager;
+use Proxies\__CG__\Sandbox\ApiBundle\Entity\Finance\FinanceReceivables;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Constants\EventOrderExport;
 use Sandbox\ApiBundle\Constants\LeaseConstants;
 use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentServiceBill;
 use Sandbox\ApiBundle\Entity\Finance\FinanceSalesWalletFlow;
+use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\MembershipCard\MembershipOrder;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Product\Product;
-use Sandbox\ApiBundle\Entity\User\UserCustomer;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 trait FinanceSalesExportTraits
@@ -81,7 +82,7 @@ trait FinanceSalesExportTraits
     }
 
     /**
-     * @param $firstDate
+     * @param $filename
      * @param $language
      * @param $events
      * @param $shortOrders
@@ -90,7 +91,7 @@ trait FinanceSalesExportTraits
      * @return mixed
      */
     public function getFinanceSummaryExport(
-        $firstDate,
+        $filename,
         $language,
         $events,
         $shortOrders,
@@ -186,17 +187,13 @@ trait FinanceSalesExportTraits
         // create the response
         $response = $this->get('phpexcel')->createStreamedResponse($writer);
 
-        $stringDate = $firstDate->format('Y-m');
-
         // adding headers
-        $dispositionHeader = $response->headers->makeDisposition(
-            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-            'summary_'.$stringDate.'.xls'
-        );
+        $filename = $filename.'.xls';
+
         $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
         $response->headers->set('Pragma', 'public');
         $response->headers->set('Cache-Control', 'maxage=1');
-        $response->headers->set('Content-Disposition', $dispositionHeader);
+        $response->headers->set('Content-Disposition', 'attachment;filename='.$filename);
 
         return $response;
     }
@@ -264,7 +261,6 @@ trait FinanceSalesExportTraits
             $basePrice = $event->getPrice();
             $price = $event->getPrice();
             $discountPrice = $event->getPrice();
-            $poundage = $discountPrice * $event->getServiceFee() / 100;
 
             $body = array(
                 'building_name' => $buildingName,
@@ -281,8 +277,8 @@ trait FinanceSalesExportTraits
                 'price' => $price,
                 'discount_price' => $discountPrice,
                 'refund_amount' => '',
-                'poundage' => $poundage,
-                'settlement_amount' => $discountPrice - $poundage,
+                'poundage' => '',
+                'settlement_amount' => $discountPrice,
                 'start_date' => $event->getEvent()->getEventStartDate()->format('Y-m-d H:i:s'),
                 'end_date' => $event->getEvent()->getEventEndDate()->format('Y-m-d H:i:s'),
                 'creation_date' => $event->getCreationDate()->format('Y-m-d H:i:s'),
@@ -495,7 +491,13 @@ trait FinanceSalesExportTraits
             $discountPrice = $order->getDiscountPrice();
             $refundAmount = $order->getActualRefundAmount();
 
-            $poundage = $discountPrice * $order->getServiceFee() / 100;
+            $poundage = '';
+            if ($order->getType() == ProductOrder::PREORDER_TYPE) {
+                $serviceBill = $em->getRepository('SandboxApiBundle:Finance\FinanceLongRentServiceBill')
+                    ->findOneBy(array('orderNumber' => $order->getOrderNumber()));
+
+                $poundage = $serviceBill ? $serviceBill->getAmount() : '';
+            }
 
             $refundTo = null;
             if ($order->getRefundTo()) {
@@ -506,16 +508,23 @@ trait FinanceSalesExportTraits
                 }
             }
 
-            $paymentMethod = $order->getPayChannel() == ProductOrder::CHANNEL_SALES_OFFLINE ? '销售方收款' : '创合代收';
+            if ($order->getPayChannel()) {
+                $paymentMethod = $order->getPayChannel() == ProductOrder::CHANNEL_SALES_OFFLINE ? '销售方收款' : '创合代收';
 
-            if ($order->getPayChannel() == ProductOrder::CHANNEL_SALES_OFFLINE) {
-                $receivable = $em->getRepository('SandboxApiBundle:Finance\FinanceReceivables')
-                    ->findOneBy([
-                        'orderNumber' => $order->getOrderNumber(),
-                    ]);
-                $payChannel = $receivableTypes[$receivable->getPayChannel()];
+                if ($order->getPayChannel() == ProductOrder::CHANNEL_SALES_OFFLINE) {
+                    $receivable = $em->getRepository('SandboxApiBundle:Finance\FinanceReceivables')
+                        ->findOneBy([
+                            'orderNumber' => $order->getOrderNumber(),
+                        ]);
+                    $payChannel = $receivableTypes[$receivable->getPayChannel()];
+                    $paymentDate = $order->getPaymentDate()->format('Y-m-d H:i:s');
+                } else {
+                    $payChannel = $payChannels[$order->getPayChannel()];
+                }
             } else {
-                $payChannel = $payChannels[$order->getPayChannel()];
+                $paymentMethod = '';
+                $payChannel = '';
+                $paymentDate = '';
             }
 
             $body = array(
@@ -538,7 +547,7 @@ trait FinanceSalesExportTraits
                 'start_date' => $order->getStartDate()->format('Y-m-d H:i:s'),
                 'end_date' => $order->getEndDate()->format('Y-m-d H:i:s'),
                 'creation_date' => $order->getCreationDate()->format('Y-m-d H:i:s'),
-                'payment_date' => $order->getPaymentDate()->format('Y-m-d H:i:s'),
+                'payment_date' => $paymentDate,
                 'status' => '已完成',
                 'refundTo' => $refundTo,
                 'customer_phone' => $customer ? $customer->getPhone() : '',
@@ -597,9 +606,6 @@ trait FinanceSalesExportTraits
             $price = $order->getPrice();
 
             $discountPrice = $price;
-
-            $poundage = $discountPrice * $order->getServiceFee() / 100;
-
             $customer = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserCustomer')
                 ->findOneBy(array(
                     'userId' => $order->getUser(),
@@ -621,8 +627,8 @@ trait FinanceSalesExportTraits
                 'price' => $order->getPrice(),
                 'discount_price' => $discountPrice,
                 'refund_amount' => '',
-                'poundage' => $poundage,
-                'settlement_amount' => $discountPrice - $poundage,
+                'poundage' => '',
+                'settlement_amount' => $discountPrice,
                 'start_date' => $order->getStartDate()->format('Y-m-d H:i:s'),
                 'end_date' => $order->getEndDate()->format('Y-m-d H:i:s'),
                 'creation_date' => $order->getCreationDate()->format('Y-m-d H:i:s'),
@@ -639,147 +645,6 @@ trait FinanceSalesExportTraits
         return $membershipBody;
     }
 
-    /**
-     * @param $companyName
-     * @param $longOrders
-     * @param $language
-     *
-     * @return array
-     */
-    private function setLongOrderArray(
-        $longBills,
-        $language
-    ) {
-        $longBody = [];
-
-        $collection = $this->get('translator')->trans(
-            ProductOrderExport::TRANS_CLIENT_PROFILE_SANDBOX,
-            array(),
-            null,
-            $language
-        );
-
-        $orderCategory = $this->get('translator')->trans(
-            ProductOrderExport::TRANS_CLIENT_PROFILE_LONG_RENT_ORDER,
-            array(),
-            null,
-            $language
-        );
-
-        foreach ($longBills as $longBill) {
-            /** @var LeaseBill $longBill */
-            $lease = $longBill->getLease();
-            $product = $lease->getProduct();
-            $room = $product->getRoom();
-            $building = $room->getBuilding();
-            $company = $building->getCompany();
-            $companyName = $company->getName();
-            $buildingName = $building->getName();
-            $city = $building->getCity();
-
-            $orderNumber = $longBill->getSerialNumber();
-
-            $productName = $room->getName();
-
-            $roomType = $room->getType();
-            $roomType = $this->get('translator')->trans(
-                ProductOrderExport::TRANS_ROOM_TYPE.$roomType,
-                array(),
-                null,
-                $language
-            );
-
-            $collection = $companyName;
-
-            $profile = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:User\UserProfile')
-                ->findOneBy(['userId' => $lease->getSupervisor()->getId()]);
-            $username = $profile->getName();
-
-            $basePrice = $product->getBasePrice();
-
-            $unit = $this->get('translator')->trans(
-                ProductOrderExport::TRANS_ROOM_UNIT.$product->getUnitPrice(),
-                array(),
-                null,
-                $language
-            );
-
-            $price = $longBill->getAmount();
-
-            $actualAmount = $longBill->getRevisedAmount();
-
-            $income = $actualAmount;
-
-            $commission = 0;
-
-            $serviceBill = $this->getContainer()
-                ->get('doctrine')
-                ->getRepository('SandboxApiBundle:Finance\FinanceLongRentServiceBill')
-                ->findOneBy([
-                    'orderNumber' => $longBill->getSerialNumber(),
-                ]);
-            if (!is_null($serviceBill)) {
-                $commission = $serviceBill->getAmount();
-            }
-
-            $startTime = $longBill->getStartDate()->format('Y-m-d H:i:s');
-            $endTime = $longBill->getEndDate()->format('Y-m-d H:i:s');
-
-            $creationDate = $longBill->getCreationDate()->format('Y-m-d H:i:s');
-
-            $payDate = $longBill->getPaymentDate()->format('Y-m-d H:i:s');
-
-            $status = $this->get('translator')->trans(
-                ProductOrderExport::TRANS_PRODUCT_ORDER_STATUS.$longBill->getStatus(),
-                array(),
-                null,
-                $language
-            );
-
-            $type = $longBill->getOrderMethod();
-            $orderType = $this->get('translator')->trans(
-                LeaseConstants::TRANS_LEASE_BILL_ORDER_METHOD.$type,
-                array(),
-                null,
-                $language
-            );
-
-            $channel = $this->get('translator')->trans(
-                ProductOrderExport::TRANS_PRODUCT_ORDER_CHANNEL.$longBill->getPayChannel(),
-                array(),
-                null,
-                $language
-            );
-
-            $body = $this->getExportBody(
-                $collection,
-                $buildingName,
-                $orderCategory,
-                $orderNumber,
-                $productName,
-                $roomType,
-                $username,
-                $basePrice,
-                $unit,
-                $price,
-                $actualAmount,
-                $income,
-                $commission,
-                $startTime,
-                $endTime,
-                $creationDate,
-                $payDate,
-                $status,
-                $orderType,
-                $channel
-            );
-
-            $longBody[] = $body;
-        }
-
-        return $longBody;
-    }
 
     /**
      * @param $collection
@@ -856,7 +721,6 @@ trait FinanceSalesExportTraits
 
     public function getFinanceExportPoundage(
         $serviceBills,
-        $startString,
         $language
     ) {
         $em = $this->getContainer()->get('doctrine')->getManager();
@@ -946,17 +810,6 @@ trait FinanceSalesExportTraits
                     );
 
                     $customerId = $order->getCustomerId();
-                    if ($customerId) {
-                        /** @var UserCustomer $customer */
-                        $customer = $em->getRepository('SandboxApiBundle:User\UserCustomer')
-                            ->find($customerId);
-                    } else {
-                        $customer = $em->getRepository('SandboxApiBundle:User\UserCustomer')
-                            ->findOneBy(array(
-                                'userId' => $order->getUserId(),
-                                'companyId' => $serviceBill->getCompanyId(),
-                            ));
-                    }
 
                     if ($order->getRefundTo()) {
                         if ($order->getRefundTo() == 'account') {
@@ -986,8 +839,8 @@ trait FinanceSalesExportTraits
                     $endDate = $bill->getEndDate();
                     $creationDate = $bill->getSendDate()->format('Y-m-d H:i:s');
                     $paymentDate = $bill->getPaymentDate()->format('Y-m-d H:i:s');
-                    $customer = $em->getRepository('SandboxApiBundle:User\UserCustomer')
-                        ->find($lease->getLesseeCustomer());
+
+                    $customerId = $bill->getCustomerId() ? $bill->getCustomerId() : $lease->getLesseeCustomer();
 
                     $unitPriceDesc = null;
 
@@ -998,6 +851,9 @@ trait FinanceSalesExportTraits
 
             $room = $product->getRoom();
             $building = $room->getBuilding();
+
+            $customer = $em->getRepository('SandboxApiBundle:User\UserCustomer')
+                ->find($customerId);
 
             $roomType = $this->get('translator')->trans(
                 ProductOrderExport::TRANS_ROOM_TYPE.$room->getType(),
@@ -1067,28 +923,24 @@ trait FinanceSalesExportTraits
         $response = $this->get('phpexcel')->createStreamedResponse($writer);
 
         // adding headers
-        $dispositionHeader = $response->headers->makeDisposition(
-            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-            'poundage_'.$startString.'.xls'
-        );
+        $filename = '交易手续费报表.xls';
+
         $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
         $response->headers->set('Pragma', 'public');
         $response->headers->set('Cache-Control', 'maxage=1');
-        $response->headers->set('Content-Disposition', $dispositionHeader);
+        $response->headers->set('Content-Disposition', 'attachment;filename='.$filename);
 
         return $response;
     }
 
     /**
      * @param $flows
-     * @param $startString
      * @param $language
      *
      * @return mixed
      */
     public function getFinanceSalesWalletFlowsExport(
        $flows,
-       $startString,
        $language
     ) {
         $em = $this->getContainer()->get('doctrine')->getManager();
@@ -1144,7 +996,7 @@ trait FinanceSalesExportTraits
         // create the response
         $response = $this->container->get('phpexcel')->createStreamedResponse($writer);
 
-        $filename = '账户钱包流水_'.$startString.'.xls';
+        $filename = '账户钱包流水导表.xls';
 
         $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
         $response->headers->set('Pragma', 'public');
@@ -1155,15 +1007,16 @@ trait FinanceSalesExportTraits
     }
 
     /**
-     * @param $results
+     * @param FinanceReceivables $receivables
      * @param $language
+     *
      * @return mixed
      */
     public function getFinanceCashierExport(
-        $startDate,
-        $results,
+        $receivables,
         $language
-    ){
+    ) {
+        /** @var EntityManager $em */
         $em = $this->getContainer()->get('doctrine')->getManager();
 
         $phpExcelObject = new \PHPExcel();
@@ -1196,10 +1049,114 @@ trait FinanceSalesExportTraits
             '客户邮箱',
         ];
 
-        $excelBody = array();
-        foreach ($results as $result) {
+        $receivableTypes = [
+            'sales_wx' => '微信',
+            'sales_alipay' => '支付宝支付',
+            'sales_cash' => '现金',
+            'sales_others' => '其他',
+            'sales_pos' => 'POS机',
+            'sales_remit' => '线下汇款',
+        ];
 
-            $excelBody[] = $result;
+        $excelBody = array();
+        foreach ($receivables as $receivable) {
+            /** @var FinanceReceivables $receivable */
+            $orderNumber = $receivable->getOrderNumber();
+            $refundTo = '';
+            switch (substr($orderNumber, 0, 1)) {
+                case ProductOrder::LETTER_HEAD:
+                    $orderType = '秒租订单';
+                    $order = $em->getRepository('SandboxApiBundle:Order\ProductOrder')
+                        ->findOneBy(array('orderNumber' => $orderNumber));
+                    /** @var Product $product */
+                    $product = $order->getProduct();
+
+                    $customerId = $order->getCustomerId();
+                    $basePrice = $order->getBasePrice();
+                    $unit = $this->get('translator')->trans(
+                        ProductOrderExport::TRANS_ROOM_UNIT.$order->getUnitPrice(),
+                        array(),
+                        null,
+                        $language
+                    );
+
+                    $amount = $order->getPrice();
+                    $revisedAmount = $order->getDiscountPrice();
+                    $refundAmount = $order->getActualRefundAmount();
+                    $startDate = $order->getStartDate()->format('Y-m-d H:i:s');
+                    $endDate = $order->getEndDate()->format('Y-m-d H:i:s');
+                    $creationDate = $order->getCreationDate()->format('Y-m-d H:i:s');
+                    if ($order->getRefundTo()) {
+                        if ($order->getRefundTo() == 'account') {
+                            $refundTo = '退款到余额';
+                        } else {
+                            $refundTo = '原路退回';
+                        }
+                    }
+
+                    break;
+                case LeaseBill::LEASE_BILL_LETTER_HEAD:
+                    $orderType = '长租账单';
+                    $bill = $em->getRepository('SandboxApiBundle:Lease\LeaseBill')
+                        ->findOneBy(array('serialNumber' => $orderNumber));
+
+                    /** @var Lease $lease */
+                    $lease = $bill->getLease();
+                    $product = $lease->getProduct();
+
+                    $customerId = $bill->getCustomerId() ? $bill->getCustomerId() : $lease->getLesseeCustomer();
+                    $basePrice = '';
+                    $unit = '';
+                    $amount = $bill->getAmount();
+                    $revisedAmount = $bill->getRevisedAmount();
+                    $refundAmount = '';
+                    $startDate = $bill->getStartDate()->format('Y-m-d H:i:s');
+                    $endDate = $bill->getEndDate()->format('Y-m-d H:i:s');
+                    $creationDate = $bill->getSendDate()->format('Y-m-d H:i:s');
+
+                    break;
+            }
+
+            $room = $product->getRoom();
+            $building = $room->getBuilding();
+
+            $roomType = $this->get('translator')->trans(
+                ProductOrderExport::TRANS_ROOM_TYPE.$room->getType(),
+                array(),
+                null,
+                $language
+            );
+
+            $customer = $em->getRepository('SandboxApiBundle:User\UserCustomer')->find($customerId);
+
+            $body = array(
+                'building_name' => $building->getName(),
+                'order_type' => $orderType,
+                'serial_number' => $orderNumber,
+                'room_name' => $room->getName(),
+                'room_type' => $roomType,
+                'customer' => $customer ? $customer->getName() : '',
+                'order_method' => '销售方推单',
+                'payment_method' => '销售方收款',
+                'pay_channel' => $receivableTypes[$receivable->getPayChannel()],
+                'base_price' => $basePrice,
+                'unit_price' => $unit,
+                'amount' => $amount,
+                'revised_amount' => $revisedAmount,
+                'refund_amount' => $refundAmount,
+                'poundage' => '',
+                'settlement_amount' => $revisedAmount - $refundAmount,
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+                'creation_date' => $creationDate,
+                'payment_date' => $receivable->getCreationDate()->format('Y-m-d H:i:s'),
+                'status' => '已完成',
+                'refundTo' => $refundTo,
+                'customer_phone' => $customer ? $customer->getPhone() : '',
+                'customer_email' => $customer ? $customer->getEmail() : '',
+            );
+
+            $excelBody[] = $body;
         }
 
         //Fill data
@@ -1222,9 +1179,7 @@ trait FinanceSalesExportTraits
         // create the response
         $response = $this->container->get('phpexcel')->createStreamedResponse($writer);
 
-        $startDate = new \DateTime($startDate);
-        $startString = $startDate -> format('Y-m-d');
-        $filename = '收银台明细_'.$startString.'.xls';
+        $filename = '收银台明细导表.xls';
 
         $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
         $response->headers->set('Pragma', 'public');
@@ -1235,14 +1190,12 @@ trait FinanceSalesExportTraits
     }
 
     /**
-     * @param $startDate
      * @param $language
      * @param $bills
      *
      * @return mixed
      */
     public function getFinanceExportBills(
-        $startDate,
         $language,
         $bills
     ) {
@@ -1312,21 +1265,27 @@ trait FinanceSalesExportTraits
             $customerId = $bill->getCustomerId() ? $bill->getCustomerId() : $lease->getLesseeCustomer();
             $customer = $em->getRepository('SandboxApiBundle:User\UserCustomer')->find($customerId);
 
-            $paymentMethod = $bill->getPayChannel() == ProductOrder::CHANNEL_SALES_OFFLINE ? '销售方收款' : '创合代收';
-
-            if ($bill->getPayChannel() == ProductOrder::CHANNEL_SALES_OFFLINE) {
-                $receivable = $em->getRepository('SandboxApiBundle:Finance\FinanceReceivables')
-                    ->findOneBy([
-                        'orderNumber' => $bill->getSerialNumber(),
-                    ]);
-                $payChannel = !is_null($receivable) ? $receivableTypes[$receivable->getPayChannel()] : '';
+            if ($bill->getStatus() == LeaseBill::STATUS_UNPAID) {
+                $status = '未付款';
+                $paymentMethod = '';
+                $payChannel = '';
+                $serviceBillAmount = '';
             } else {
-                $payChannel = $payChannels[$bill->getPayChannel()];
+                $status = '已付款';
+                $paymentMethod = $bill->getPayChannel() == ProductOrder::CHANNEL_SALES_OFFLINE ? '销售方收款' : '创合代收';
+                if ($bill->getPayChannel() == ProductOrder::CHANNEL_SALES_OFFLINE) {
+                    $receivable = $em->getRepository('SandboxApiBundle:Finance\FinanceReceivables')
+                        ->findOneBy([
+                            'orderNumber' => $bill->getSerialNumber(),
+                        ]);
+                    $payChannel = !is_null($receivable) ? $receivableTypes[$receivable->getPayChannel()] : '';
+                } else {
+                    $payChannel = $payChannels[$bill->getPayChannel()];
+                }
+                $serviceBill = $em->getRepository('SandboxApiBundle:Finance\FinanceLongRentServiceBill')
+                    ->findOneBy(['orderNumber' => $bill->getSerialNumber()]);
+                $serviceBillAmount = !is_null($serviceBill) ? $serviceBill->getAmount() : '';
             }
-
-            $serviceBill = $em->getRepository('SandboxApiBundle:Finance\FinanceLongRentServiceBill')
-                ->findOneBy(['orderNumber' => $bill->getSerialNumber()]);
-            $serviceBillAmount = !is_null($serviceBill) ? $serviceBill->getAmount() : '';
 
             $body = array(
                 'building_name' => $building->getName(),
@@ -1349,7 +1308,7 @@ trait FinanceSalesExportTraits
                 'end_date' => $bill->getEndDate()->format('Y-m-d H:i:s'),
                 'creation_date' => $bill->getCreationDate()->format('Y-m-d H:i:s'),
                 'payment_date' => $bill->getPaymentDate()->format('Y-m-d H:i:s'),
-                'status' => $bill->getStatus() == 'paid' ? '已付款' : '未付款',
+                'status' => $status,
                 'refundTo' => '',
                 'customer_phone' => $customer ? $customer->getPhone() : '',
                 'customer_email' => $customer ? $customer->getEmail() : '',
@@ -1378,14 +1337,12 @@ trait FinanceSalesExportTraits
         $response = $this->get('phpexcel')->createStreamedResponse($writer);
 
         // adding headers
-        $dispositionHeader = $response->headers->makeDisposition(
-            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-            'bills_'.$startDate->format('Y-m-d').'.xls'
-        );
+        $filename = '账单明细导表.xls';
+
         $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
         $response->headers->set('Pragma', 'public');
         $response->headers->set('Cache-Control', 'maxage=1');
-        $response->headers->set('Content-Disposition', $dispositionHeader);
+        $response->headers->set('Content-Disposition', 'attachment;filename='.$filename);
 
         return $response;
     }

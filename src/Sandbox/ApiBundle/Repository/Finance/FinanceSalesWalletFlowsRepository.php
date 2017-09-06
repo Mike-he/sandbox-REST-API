@@ -23,14 +23,14 @@ class FinanceSalesWalletFlowsRepository extends EntityRepository
             ->where('wf.companyId = :companyId')
             ->setParameter('companyId', $salesCompanyId);
 
-        if(!is_object($startDate)){
+        if (!is_object($startDate)) {
             $startDate = new \DateTime($startDate);
             $startDate->setTime(00, 00, 00);
         }
         $query->andWhere('wf.creationDate >= :createStart')
             ->setParameter('createStart', $startDate);
 
-        if(!is_object($endDate)){
+        if (!is_object($endDate)) {
             $endDate = new \DateTime($endDate);
             $endDate->setTime(23, 59, 59);
         }
