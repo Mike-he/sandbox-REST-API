@@ -494,13 +494,13 @@ trait FinanceSalesExportTraits
 
             if ($order->getType() == ProductOrder::PREORDER_TYPE) {
                 $serviceBill = $em->getRepository('SandboxApiBundle:Finance\FinanceLongRentServiceBill')
-                    ->findOneBy(array('orderNumber'=>$order->getOrderNumber()));
+                    ->findOneBy(array('orderNumber' => $order->getOrderNumber()));
 
-                $poundage = $serviceBill->getAmount();
+                $poundage = $serviceBill ? $serviceBill->getAmount() : $discountPrice * $order->getServiceFee() / 100;
             } else {
                 $poundage = $discountPrice * $order->getServiceFee() / 100;
             }
-            
+
             $refundTo = null;
             if ($order->getRefundTo()) {
                 if ($order->getRefundTo() == 'account') {
