@@ -512,12 +512,14 @@ trait FinanceSalesExportTraits
                             'orderNumber' => $order->getOrderNumber(),
                         ]);
                     $payChannel = $receivableTypes[$receivable->getPayChannel()];
+                    $paymentDate = $order->getPaymentDate()->format('Y-m-d H:i:s')
                 } else {
                     $payChannel = $payChannels[$order->getPayChannel()];
                 }
             } else {
                 $paymentMethod = '';
                 $payChannel = '';
+                $paymentDate = '';
             }
 
             $body = array(
@@ -540,7 +542,7 @@ trait FinanceSalesExportTraits
                 'start_date' => $order->getStartDate()->format('Y-m-d H:i:s'),
                 'end_date' => $order->getEndDate()->format('Y-m-d H:i:s'),
                 'creation_date' => $order->getCreationDate()->format('Y-m-d H:i:s'),
-                'payment_date' => $order->getPaymentDate()->format('Y-m-d H:i:s'),
+                'payment_date' => $paymentDate,
                 'status' => '已完成',
                 'refundTo' => $refundTo,
                 'customer_phone' => $customer ? $customer->getPhone() : '',
