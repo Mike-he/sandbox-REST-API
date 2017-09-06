@@ -500,7 +500,7 @@ trait FinanceSalesExportTraits
             }
 
             $refundTo = null;
-            if ($order->getRefundTo()) {
+            if ($order->isRefunded()) {
                 if ($order->getRefundTo() == 'account') {
                     $refundTo = '退款到余额';
                 } else {
@@ -811,7 +811,7 @@ trait FinanceSalesExportTraits
 
                     $customerId = $order->getCustomerId();
 
-                    if ($order->getRefundTo()) {
+                    if ($order->isRefunded()) {
                         if ($order->getRefundTo() == 'account') {
                             $refundTo = '退款到余额';
                         } else {
@@ -1086,7 +1086,7 @@ trait FinanceSalesExportTraits
                     $startDate = $order->getStartDate()->format('Y-m-d H:i:s');
                     $endDate = $order->getEndDate()->format('Y-m-d H:i:s');
                     $creationDate = $order->getCreationDate()->format('Y-m-d H:i:s');
-                    if ($order->getRefundTo()) {
+                    if ($order->isRefunded()) {
                         if ($order->getRefundTo() == 'account') {
                             $refundTo = '退款到余额';
                         } else {
