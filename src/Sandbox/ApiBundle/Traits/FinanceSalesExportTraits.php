@@ -512,7 +512,7 @@ trait FinanceSalesExportTraits
                             'orderNumber' => $order->getOrderNumber(),
                         ]);
                     $payChannel = $receivableTypes[$receivable->getPayChannel()];
-                    $paymentDate = $order->getPaymentDate()->format('Y-m-d H:i:s')
+                    $paymentDate = $order->getPaymentDate()->format('Y-m-d H:i:s');
                 } else {
                     $payChannel = $payChannels[$order->getPayChannel()];
                 }
