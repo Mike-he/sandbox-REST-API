@@ -29,6 +29,8 @@ twig:
     globals:
         sms_api_url: "%sms_api_url%"
         sms_api_key: "%sms_api_key%"
+        sms_v2_api_url: "%sms_v2_api_url%"
+        sms_marketing_api_key: "%sms_marketing_api_key%"
         email_from_address: "%email_from_address%"
         email_from_name: "%email_from_name%"
         pingpp_key: "%pingpp_key%"
