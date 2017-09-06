@@ -586,6 +586,28 @@ class AdminFinanceExportController extends SalesRestController
      * @param Request $request
      * @param ParamFetcherInterface $paramFetcher
      *
+     * @Annotations\QueryParam(
+     *    name="startDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="endDate",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="language",
+     *    array=false,
+     *    nullable=true,
+     * )
+     *
      * @Route("/finance/export/bills")
      * @Method({"GET"})
      *

@@ -1315,6 +1315,10 @@ trait FinanceSalesExportTraits
                     'companyId' => $building->getCompanyId(),
                 ));
 
+            if (is_null($bill->getPayChannel())) {
+                continue;
+            }
+
             $paymentMethod = $bill->getPayChannel() == ProductOrder::CHANNEL_SALES_OFFLINE ? '销售方收款' : '创合代收';
 
             if ($bill->getPayChannel() == ProductOrder::CHANNEL_SALES_OFFLINE) {
@@ -1322,14 +1326,14 @@ trait FinanceSalesExportTraits
                     ->findOneBy([
                         'orderNumber' => $lease->getSerialNumber(),
                     ]);
-                $payChannel = $receivableTypes[$receivable->getPayChannel()];
+                $payChannel = !is_null($receivable) ? $receivableTypes[$receivable->getPayChannel()] : '';
             } else {
                 $payChannel = $payChannels[$bill->getPayChannel()];
             }
 
             $serviceBill = $em->getRepository('SandboxApiBundle:Finance\FinanceLongRentServiceBill')
                 ->findOneBy(['orderNumber' => $bill->getSerialNumber()]);
-            $serviceBillAmount = is_null($serviceBill) ? $serviceBill->getAmount() : '';
+            $serviceBillAmount = !is_null($serviceBill) ? $serviceBill->getAmount() : '';
 
             $body = array(
                 'building_name' => $building->getName(),
@@ -1370,7 +1374,7 @@ trait FinanceSalesExportTraits
         for ($col = ord('a'); $col <= ord('o'); ++$col) {
             $phpExcelObject->setActiveSheetIndex(0)->getColumnDimension(chr($col))->setAutoSize(true);
         }
-        $phpExcelObject->getActiveSheet()->setTitle('Poundage');
+        $phpExcelObject->getActiveSheet()->setTitle('1');
 
         // Set active sheet index to the first sheet, so Excel opens this as the first sheet
         $phpExcelObject->setActiveSheetIndex(0);
@@ -1383,7 +1387,7 @@ trait FinanceSalesExportTraits
         // adding headers
         $dispositionHeader = $response->headers->makeDisposition(
             ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-            'bills_'.$startDate.'.xls'
+            'bills_'.$startDate->format('Y-m-d').'.xls'
         );
         $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
         $response->headers->set('Pragma', 'public');

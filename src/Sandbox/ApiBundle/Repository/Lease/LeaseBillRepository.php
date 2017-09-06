@@ -911,6 +911,7 @@ class LeaseBillRepository extends EntityRepository
             ->leftJoin('lb.lease', 'l')
             ->where('l.status in (:leaseStatus)')
             ->andWhere('l.buildingId in (:buildingIds)')
+            ->andWhere('lb.payChannel IS NOT NULL')
             ->setParameter('leaseStatus', $leaseStatus)
             ->setParameter('buildingIds', $buildingIds);
 
