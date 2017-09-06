@@ -84,7 +84,6 @@ class FinanceLongRentServiceBillRepository extends EntityRepository
 
         $query->orderBy('sb.creationDate', 'DESC');
 
-
         if (!is_null($limit) && !is_null($offset)) {
             $query->setMaxResults($limit)
                 ->setFirstResult($offset);

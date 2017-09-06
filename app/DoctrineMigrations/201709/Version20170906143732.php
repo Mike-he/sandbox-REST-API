@@ -4,16 +4,12 @@ namespace Application\Migrations;
 
 use Doctrine\DBAL\Migrations\AbstractMigration;
 use Doctrine\DBAL\Schema\Schema;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-class Version920170828100623 extends AbstractMigration implements ContainerAwareInterface
+class Version20170906143732 extends AbstractMigration
 {
-    use ContainerAwareTrait;
-
     /**
      * @param Schema $schema
      */
@@ -21,21 +17,8 @@ class Version920170828100623 extends AbstractMigration implements ContainerAware
     {
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
-    }
 
-    public function postUp(Schema $schema)
-    {
-        parent::postUp($schema);
-
-        $em = $this->container->get('doctrine.orm.entity_manager');
-
-        $serviceMembers = $em->getRepository('SandboxApiBundle:Room\RoomBuildingServiceMember')->findAll();
-
-        foreach ($serviceMembers as $serviceMember) {
-            $serviceMember->setTag('customer');
-        }
-
-        $em->flush();
+        $this->addSql('ALTER TABLE finance_receivables ADD company_id INT NOT NULL');
     }
 
     /**
@@ -45,5 +28,7 @@ class Version920170828100623 extends AbstractMigration implements ContainerAware
     {
         // this down() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
+
+        $this->addSql('ALTER TABLE finance_receivables DROP company_id');
     }
 }

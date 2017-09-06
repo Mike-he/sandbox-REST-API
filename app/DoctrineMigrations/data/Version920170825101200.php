@@ -343,7 +343,7 @@ class Version920170825101200 extends AbstractMigration implements ContainerAware
                     'name' => '状态',
                     'default' => true,
                     'required' => true,
-                )
+                ),
             );
 
         foreach ($productOrderColumns as $productOrderColumn) {
