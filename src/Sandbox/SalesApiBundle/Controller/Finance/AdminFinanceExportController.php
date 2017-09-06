@@ -176,8 +176,9 @@ class AdminFinanceExportController extends SalesRestController
                 $data['company_id']
             );
 
+        $filename = '秒租平台订单报表';
         return $this->getFinanceSummaryExport(
-            $startDate,
+            $filename,
             $language,
             $events,
             $shortOrders,
@@ -330,8 +331,9 @@ class AdminFinanceExportController extends SalesRestController
                 $data['company_id']
             );
 
+        $filename = '订单明细导表';
         return $this->getFinanceSummaryExport(
-            $startDate,
+            $filename,
             $language,
             $events,
             $shortOrders,

@@ -82,7 +82,7 @@ trait FinanceSalesExportTraits
     }
 
     /**
-     * @param $firstDate
+     * @param $filename
      * @param $language
      * @param $events
      * @param $shortOrders
@@ -91,7 +91,7 @@ trait FinanceSalesExportTraits
      * @return mixed
      */
     public function getFinanceSummaryExport(
-        $firstDate,
+        $filename,
         $language,
         $events,
         $shortOrders,
@@ -187,10 +187,8 @@ trait FinanceSalesExportTraits
         // create the response
         $response = $this->get('phpexcel')->createStreamedResponse($writer);
 
-        $stringDate = $firstDate->format('Y-m');
-
         // adding headers
-        $filename = '秒租平台订单导表.xls';
+        $filename = $filename.'.xls';
 
         $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
         $response->headers->set('Pragma', 'public');
@@ -505,16 +503,21 @@ trait FinanceSalesExportTraits
                 }
             }
 
-            $paymentMethod = $order->getPayChannel() == ProductOrder::CHANNEL_SALES_OFFLINE ? '销售方收款' : '创合代收';
+            if ($order->getPayChannel()) {
+                $paymentMethod = $order->getPayChannel() == ProductOrder::CHANNEL_SALES_OFFLINE ? '销售方收款' : '创合代收';
 
-            if ($order->getPayChannel() == ProductOrder::CHANNEL_SALES_OFFLINE) {
-                $receivable = $em->getRepository('SandboxApiBundle:Finance\FinanceReceivables')
-                    ->findOneBy([
-                        'orderNumber' => $order->getOrderNumber(),
-                    ]);
-                $payChannel = $receivableTypes[$receivable->getPayChannel()];
+                if ($order->getPayChannel() == ProductOrder::CHANNEL_SALES_OFFLINE) {
+                    $receivable = $em->getRepository('SandboxApiBundle:Finance\FinanceReceivables')
+                        ->findOneBy([
+                            'orderNumber' => $order->getOrderNumber(),
+                        ]);
+                    $payChannel = $receivableTypes[$receivable->getPayChannel()];
+                } else {
+                    $payChannel = $payChannels[$order->getPayChannel()];
+                }
             } else {
-                $payChannel = $payChannels[$order->getPayChannel()];
+                $paymentMethod = '';
+                $payChannel = '';
             }
 
             $body = array(
