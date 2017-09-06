@@ -1324,7 +1324,7 @@ trait FinanceSalesExportTraits
             if ($bill->getPayChannel() == ProductOrder::CHANNEL_SALES_OFFLINE) {
                 $receivable = $em->getRepository('SandboxApiBundle:Finance\FinanceReceivables')
                     ->findOneBy([
-                        'orderNumber' => $lease->getSerialNumber(),
+                        'orderNumber' => $bill->getSerialNumber(),
                     ]);
                 $payChannel = !is_null($receivable) ? $receivableTypes[$receivable->getPayChannel()] : '';
             } else {
@@ -1337,10 +1337,10 @@ trait FinanceSalesExportTraits
 
             $body = array(
                 'building_name' => $building->getName(),
-                'order_type' => '长租订单',
-                'order_number' => $bill->getSerialNumber(),
-                'room_name' => $room->getName(),
-                'room_type' => $bill->getName(),
+                'order_type' => '长租账单',
+                'serial_number' => $bill->getSerialNumber(),
+                'lease_serial_number' => $lease->getSerialNumber(),
+                'bill_name' => $bill->getName(),
                 'customer' => $customer ? $customer->getName() : '',
                 'order_method' => $orderMethod[$bill->getOrderMethod()],
                 'payment_method' => $paymentMethod,
