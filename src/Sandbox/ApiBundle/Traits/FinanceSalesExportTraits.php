@@ -261,7 +261,6 @@ trait FinanceSalesExportTraits
             $basePrice = $event->getPrice();
             $price = $event->getPrice();
             $discountPrice = $event->getPrice();
-            $poundage = $discountPrice * $event->getServiceFee() / 100;
 
             $body = array(
                 'building_name' => $buildingName,
@@ -278,8 +277,8 @@ trait FinanceSalesExportTraits
                 'price' => $price,
                 'discount_price' => $discountPrice,
                 'refund_amount' => '',
-                'poundage' => $poundage,
-                'settlement_amount' => $discountPrice - $poundage,
+                'poundage' => '',
+                'settlement_amount' => $discountPrice,
                 'start_date' => $event->getEvent()->getEventStartDate()->format('Y-m-d H:i:s'),
                 'end_date' => $event->getEvent()->getEventEndDate()->format('Y-m-d H:i:s'),
                 'creation_date' => $event->getCreationDate()->format('Y-m-d H:i:s'),
@@ -492,13 +491,12 @@ trait FinanceSalesExportTraits
             $discountPrice = $order->getDiscountPrice();
             $refundAmount = $order->getActualRefundAmount();
 
+            $poundage = '';
             if ($order->getType() == ProductOrder::PREORDER_TYPE) {
                 $serviceBill = $em->getRepository('SandboxApiBundle:Finance\FinanceLongRentServiceBill')
                     ->findOneBy(array('orderNumber' => $order->getOrderNumber()));
 
-                $poundage = $serviceBill ? $serviceBill->getAmount() : $discountPrice * $order->getServiceFee() / 100;
-            } else {
-                $poundage = $discountPrice * $order->getServiceFee() / 100;
+                $poundage = $serviceBill ? $serviceBill->getAmount() : '';
             }
 
             $refundTo = null;
@@ -608,9 +606,6 @@ trait FinanceSalesExportTraits
             $price = $order->getPrice();
 
             $discountPrice = $price;
-
-            $poundage = $discountPrice * $order->getServiceFee() / 100;
-
             $customer = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserCustomer')
                 ->findOneBy(array(
                     'userId' => $order->getUser(),
@@ -632,8 +627,8 @@ trait FinanceSalesExportTraits
                 'price' => $order->getPrice(),
                 'discount_price' => $discountPrice,
                 'refund_amount' => '',
-                'poundage' => $poundage,
-                'settlement_amount' => $discountPrice - $poundage,
+                'poundage' => '',
+                'settlement_amount' => $discountPrice,
                 'start_date' => $order->getStartDate()->format('Y-m-d H:i:s'),
                 'end_date' => $order->getEndDate()->format('Y-m-d H:i:s'),
                 'creation_date' => $order->getCreationDate()->format('Y-m-d H:i:s'),
@@ -650,147 +645,6 @@ trait FinanceSalesExportTraits
         return $membershipBody;
     }
 
-    /**
-     * @param $companyName
-     * @param $longOrders
-     * @param $language
-     *
-     * @return array
-     */
-    private function setLongOrderArray(
-        $longBills,
-        $language
-    ) {
-        $longBody = [];
-
-        $collection = $this->get('translator')->trans(
-            ProductOrderExport::TRANS_CLIENT_PROFILE_SANDBOX,
-            array(),
-            null,
-            $language
-        );
-
-        $orderCategory = $this->get('translator')->trans(
-            ProductOrderExport::TRANS_CLIENT_PROFILE_LONG_RENT_ORDER,
-            array(),
-            null,
-            $language
-        );
-
-        foreach ($longBills as $longBill) {
-            /** @var LeaseBill $longBill */
-            $lease = $longBill->getLease();
-            $product = $lease->getProduct();
-            $room = $product->getRoom();
-            $building = $room->getBuilding();
-            $company = $building->getCompany();
-            $companyName = $company->getName();
-            $buildingName = $building->getName();
-            $city = $building->getCity();
-
-            $orderNumber = $longBill->getSerialNumber();
-
-            $productName = $room->getName();
-
-            $roomType = $room->getType();
-            $roomType = $this->get('translator')->trans(
-                ProductOrderExport::TRANS_ROOM_TYPE.$roomType,
-                array(),
-                null,
-                $language
-            );
-
-            $collection = $companyName;
-
-            $profile = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:User\UserProfile')
-                ->findOneBy(['userId' => $lease->getSupervisor()->getId()]);
-            $username = $profile->getName();
-
-            $basePrice = $product->getBasePrice();
-
-            $unit = $this->get('translator')->trans(
-                ProductOrderExport::TRANS_ROOM_UNIT.$product->getUnitPrice(),
-                array(),
-                null,
-                $language
-            );
-
-            $price = $longBill->getAmount();
-
-            $actualAmount = $longBill->getRevisedAmount();
-
-            $income = $actualAmount;
-
-            $commission = 0;
-
-            $serviceBill = $this->getContainer()
-                ->get('doctrine')
-                ->getRepository('SandboxApiBundle:Finance\FinanceLongRentServiceBill')
-                ->findOneBy([
-                    'orderNumber' => $longBill->getSerialNumber(),
-                ]);
-            if (!is_null($serviceBill)) {
-                $commission = $serviceBill->getAmount();
-            }
-
-            $startTime = $longBill->getStartDate()->format('Y-m-d H:i:s');
-            $endTime = $longBill->getEndDate()->format('Y-m-d H:i:s');
-
-            $creationDate = $longBill->getCreationDate()->format('Y-m-d H:i:s');
-
-            $payDate = $longBill->getPaymentDate()->format('Y-m-d H:i:s');
-
-            $status = $this->get('translator')->trans(
-                ProductOrderExport::TRANS_PRODUCT_ORDER_STATUS.$longBill->getStatus(),
-                array(),
-                null,
-                $language
-            );
-
-            $type = $longBill->getOrderMethod();
-            $orderType = $this->get('translator')->trans(
-                LeaseConstants::TRANS_LEASE_BILL_ORDER_METHOD.$type,
-                array(),
-                null,
-                $language
-            );
-
-            $channel = $this->get('translator')->trans(
-                ProductOrderExport::TRANS_PRODUCT_ORDER_CHANNEL.$longBill->getPayChannel(),
-                array(),
-                null,
-                $language
-            );
-
-            $body = $this->getExportBody(
-                $collection,
-                $buildingName,
-                $orderCategory,
-                $orderNumber,
-                $productName,
-                $roomType,
-                $username,
-                $basePrice,
-                $unit,
-                $price,
-                $actualAmount,
-                $income,
-                $commission,
-                $startTime,
-                $endTime,
-                $creationDate,
-                $payDate,
-                $status,
-                $orderType,
-                $channel
-            );
-
-            $longBody[] = $body;
-        }
-
-        return $longBody;
-    }
 
     /**
      * @param $collection
@@ -1336,7 +1190,6 @@ trait FinanceSalesExportTraits
     }
 
     /**
-     * @param $startDate
      * @param $language
      * @param $bills
      *

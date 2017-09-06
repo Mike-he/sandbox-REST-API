@@ -3472,7 +3472,10 @@ class OrderRepository extends EntityRepository
                     o.status = :completed  OR
                     (
                         o.status = :cancelled AND 
-                        o.needToRefund = :needToRefund
+                        (o.needToRefund = :needToRefund OR
+                        o.refunded = :refunded
+                        )
+                        
                     )    
                 ')
             ->andWhere('o.startDate >= :start')
@@ -3480,6 +3483,7 @@ class OrderRepository extends EntityRepository
             ->setParameter('completed', ProductOrder::STATUS_COMPLETED)
             ->setParameter('cancelled', ProductOrder::STATUS_CANCELLED)
             ->setParameter('needToRefund', true)
+            ->setParameter('refunded', true)
             ->setParameter('start', $startDate)
             ->setParameter('end', $endDate);
 
