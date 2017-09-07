@@ -6,7 +6,6 @@ use Doctrine\ORM\EntityManager;
 use Proxies\__CG__\Sandbox\ApiBundle\Entity\Finance\FinanceReceivables;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Constants\EventOrderExport;
-use Sandbox\ApiBundle\Constants\LeaseConstants;
 use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentServiceBill;
 use Sandbox\ApiBundle\Entity\Finance\FinanceSalesWalletFlow;
@@ -644,7 +643,6 @@ trait FinanceSalesExportTraits
 
         return $membershipBody;
     }
-
 
     /**
      * @param $collection
