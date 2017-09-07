@@ -92,7 +92,7 @@ class ChatGroupController extends SandboxRestController
         $chatGroup
     ) {
         try {
-//            $chatRoomId = $chatGroup->getId();
+            //            $chatRoomId = $chatGroup->getId();
             $chatRoomName = $chatGroup->getName().'@'.$chatGroup->getTag();
             $chatRoomDesc = array(
                 'tag' => $chatGroup->getTag(),
@@ -156,7 +156,7 @@ class ChatGroupController extends SandboxRestController
                 }
             }
             $chatRoomDesc = json_encode($chatRoomDesc);
-            
+
             $gid = $chatGroup->getGid();
 
             $service = $this->get('sandbox_api.jmessage');

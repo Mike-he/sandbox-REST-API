@@ -384,8 +384,6 @@ trait DoorAccessTrait
                     $accessNo,
                     ProductOrder::STATUS_CANCELLED
                 );
-
-                $this->removeOldMembershipCardAccessNo($accessNo);
             }
 
             if ($periodArray['result'] != DoorAccessConstants::RESULT_OK) {
@@ -783,80 +781,11 @@ trait DoorAccessTrait
     }
 
     /**
-     * @param $em
-     * @param $base
-     * @param $accessNo
-     * @param $userId
-     * @param $buildingId
-     * @param $startDate
-     * @param $endDate
-     */
-    public function setMembershipCardDoorAccess(
-        $em,
-        $base,
-        $accessNo,
-        $userId,
-        $buildingId,
-        $startDate,
-        $endDate
-    ) {
-        $this->storeDoorAccess(
-            $em,
-            $accessNo,
-            $userId,
-            $buildingId,
-            null,
-            $startDate,
-            $endDate
-        );
-
-        $em->flush();
-
-        $userArray = $this->getUserArrayIfAuthed(
-            $base,
-            $userId,
-            []
-        );
-
-        $groupDoors = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserGroupDoors')
-            ->findBy(array('building' => $buildingId));
-
-        $doorArray = [];
-        foreach ($groupDoors as $groupDoor) {
-            $door = ['doorid' => $groupDoor->getDoorControlId()];
-            array_push($doorArray, $door);
-        }
-
-        // set room access
-        if (!empty($userArray)) {
-            try {
-                $this->setRoomOrderPermission(
-                    $base,
-                    $userArray,
-                    $accessNo,
-                    $startDate,
-                    $endDate,
-                    $doorArray
-                );
-            } catch (\Exception $e) {
-                error_log('Set door access went wrong!');
-            }
-        }
-    }
-
-    /**
-     * @param $accessNo
-     * @param $userId
-     * @param $orderStartDate
-     * @param $orderEndDate
+     * @param $userIds
      * @param $doorBuildingIds
      */
     public function addUserDoorAccess(
-        $accessNo,
         $userIds,
-        $orderStartDate,
-        $orderEndDate,
         $doorBuildingIds
     ) {
         foreach ($doorBuildingIds as $buildingId) {
@@ -887,27 +816,5 @@ trait DoorAccessTrait
 
             $em->flush();
         }
-    }
-
-    /**
-     * remove old membershipcard accessNo.
-     *
-     * @param $accessNo
-     */
-    protected function removeOldMembershipCardAccessNo(
-        $accessNo
-    ) {
-        $em = $this->getContainer()->get('doctrine')->getManager();
-
-        $oldAccessNo = $this->getContainer()
-            ->get('doctrine')
-            ->getRepository(BundleConstants::BUNDLE.':'.'MembershipCard\MembershipCardAccessNo')
-            ->findOneBy(array('accessNo' => $accessNo));
-
-        if ($oldAccessNo) {
-            $em->remove($oldAccessNo);
-        }
-
-        $em->flush();
     }
 }

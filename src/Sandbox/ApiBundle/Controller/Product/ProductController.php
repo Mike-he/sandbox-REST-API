@@ -6,7 +6,6 @@ use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\Room\RoomTypeTags;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use FOS\RestBundle\View\View;
 use JMS\Serializer\SerializationContext;
