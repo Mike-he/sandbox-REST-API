@@ -191,7 +191,7 @@ class AdminFinanceExportController extends SalesRestController
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
-     *    name="startDate",
+     *    name="start_date",
      *    array=false,
      *    default=null,
      *    nullable=true,
@@ -199,7 +199,7 @@ class AdminFinanceExportController extends SalesRestController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="endDate",
+     *    name="end_date",
      *    array=false,
      *    default=null,
      *    nullable=true,
@@ -228,8 +228,8 @@ class AdminFinanceExportController extends SalesRestController
             );
         $salesCompanyId = $data['company_id'];
 
-        $startDate = $paramFetcher->get('startDate');
-        $endDate = $paramFetcher->get('endDate');
+        $startDate = $paramFetcher->get('start_date');
+        $endDate = $paramFetcher->get('end_date');
         $language = $paramFetcher->get('language');
 
         $now = new \DateTime('now');
@@ -258,7 +258,6 @@ class AdminFinanceExportController extends SalesRestController
      *
      * @Annotations\QueryParam(
      *    name="start_date",
-     *    name="startDate",
      *    array=false,
      *    default=null,
      *    nullable=true,
@@ -267,7 +266,6 @@ class AdminFinanceExportController extends SalesRestController
      *
      * @Annotations\QueryParam(
      *    name="end_date",
-     *    name="endDate",
      *    array=false,
      *    default=null,
      *    nullable=true,
@@ -295,8 +293,8 @@ class AdminFinanceExportController extends SalesRestController
                 AdminPermission::PERMISSION_PLATFORM_SALES
             );
 
-        $startDate = new \DateTime($paramFetcher->get('startDate'));
-        $endDate = new \DateTime($paramFetcher->get('endDate'));
+        $startDate = new \DateTime($paramFetcher->get('start_date'));
+        $endDate = new \DateTime($paramFetcher->get('end_date'));
         $endDate = $endDate->setTime('23', '59', '59');
         $language = $paramFetcher->get('language');
 
@@ -346,7 +344,7 @@ class AdminFinanceExportController extends SalesRestController
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
-     *    name="startDate",
+     *    name="start_date",
      *    array=false,
      *    default=null,
      *    nullable=true,
@@ -354,7 +352,7 @@ class AdminFinanceExportController extends SalesRestController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="endDate",
+     *    name="end_date",
      *    array=false,
      *    default=null,
      *    nullable=true,
@@ -383,8 +381,8 @@ class AdminFinanceExportController extends SalesRestController
                 AdminPermission::PERMISSION_PLATFORM_SALES
             );
 
-        $startDate = $paramFetcher->get('startDate');
-        $endDate = $paramFetcher->get('endDate');
+        $startDate = $paramFetcher->get('start_date');
+        $endDate = $paramFetcher->get('end_date');
         $language = $paramFetcher->get('language');
 
         $receivables = $this->getDoctrine()
@@ -406,7 +404,7 @@ class AdminFinanceExportController extends SalesRestController
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
-     *    name="startDate",
+     *    name="start_date",
      *    array=false,
      *    default=null,
      *    nullable=true,
@@ -414,7 +412,7 @@ class AdminFinanceExportController extends SalesRestController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="endDate",
+     *    name="end_date",
      *    array=false,
      *    default=null,
      *    nullable=true,
@@ -442,8 +440,8 @@ class AdminFinanceExportController extends SalesRestController
                 AdminPermission::PERMISSION_PLATFORM_SALES
             );
 
-        $startDate = new \DateTime($paramFetcher->get('startDate'));
-        $endDate = new \DateTime($paramFetcher->get('endDate'));
+        $startDate = new \DateTime($paramFetcher->get('start_date'));
+        $endDate = new \DateTime($paramFetcher->get('end_date'));
         $endDate = $endDate->setTime('23', '59', '59');
         $language = $paramFetcher->get('language');
 
