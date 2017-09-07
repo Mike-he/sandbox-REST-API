@@ -1,3 +1,9 @@
+# User SMS
+sandbox_admin_api_user_sms:
+    resource: "@SandboxAdminApiBundle/Controller/User/AdminUserSMSController.php"
+    type:     annotation
+    prefix:   /
+
 # Admin User Login /admin/auth/login
 sandbox_admin_api_auth_login:
     resource: "@SandboxAdminApiBundle/Controller/Admin/AdminUserLoginController.php"
@@ -311,11 +317,5 @@ sandbox_admin_api_user_bean:
 
 sandbox_admin_api_admin_remarks:
     resource: "@SandboxAdminApiBundle/Controller/Admin/AdminRemarkController.php"
-    type:     annotation
-    prefix:   /
-
-# User SMS
-sandbox_admin_api_user_sms:
-    resource: "@SandboxAdminApiBundle/Controller/User/AdminUserSMSController.php"
     type:     annotation
     prefix:   /

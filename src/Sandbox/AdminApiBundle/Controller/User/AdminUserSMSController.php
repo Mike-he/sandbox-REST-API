@@ -30,6 +30,7 @@ class AdminUserSMSController extends AdminRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        var_dump(2);exit;
         $userCounts = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\User')
             ->countTotalUsers();
