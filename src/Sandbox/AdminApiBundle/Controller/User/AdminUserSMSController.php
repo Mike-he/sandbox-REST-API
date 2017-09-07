@@ -40,6 +40,7 @@ class AdminUserSMSController extends AdminRestController
         $pagesMax = $counts / $limit;
         $pagesMax = (int) $pagesMax;
 
+        $response = [];
         for ($offset = 0; $offset <= $pagesMax; $offset++) {
             $phonesArray = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:User\User')
@@ -55,12 +56,14 @@ class AdminUserSMSController extends AdminRestController
 
             $phones = substr($phones, 0, -1);
 
-            $this->send_marketing_sms(
+            $re = $this->send_marketing_sms(
                 $phones,
                 '【创合秒租】创合邀您参与99公益活动，9月7-9日早上9点，您捐1元就能让腾讯捐2.99亿，一起来为公益“抢钱”吧！详细信息请见创合秒租app或微信公众号。t.cn/RpP24bG 回T退订'
             );
+
+            array_push($response, $re);
         }
 
-        return new View();
+        return new View($response);
     }
 }
