@@ -13,7 +13,6 @@ use Sandbox\ApiBundle\Entity\Order\ProductOrderRecord;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\Room\RoomTypeUnit;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Sandbox\ApiBundle\Traits\ProductOrderNotification;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;

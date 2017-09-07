@@ -1328,7 +1328,6 @@ class PaymentController extends DoorController
         $card = $specification->getCard();
         $validPeriod = $specification->getValidPeriod();
         $unit = $specification->getUnitPrice();
-        $accessNo = $card->getAccessNo();
 
         $startDate = $this->getLastMembershipOrderEndDate($userId, $card);
         $endDate = clone $startDate;
@@ -1390,10 +1389,7 @@ class PaymentController extends DoorController
             );
 
         $this->addUserDoorAccess(
-            $accessNo,
             array($userId),
-            $startDate,
-            $endDate,
             $doorBuildingIds
         );
 

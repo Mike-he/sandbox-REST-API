@@ -2,6 +2,7 @@
 
 namespace Sandbox\AdminApiBundle\Command;
 
+use Doctrine\ORM\EntityManager;
 use Sandbox\ApiBundle\Constants\DoorAccessConstants;
 use Sandbox\ApiBundle\Entity\User\UserGroup;
 use Sandbox\ApiBundle\Traits\DoorAccessTrait;
@@ -21,6 +22,7 @@ class RemoveGroupUserToDoorsCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        /** @var EntityManager $em */
         $em = $this->getContainer()->get('doctrine')->getManager();
 
         $groups = $em->getRepository('SandboxApiBundle:User\UserGroup')

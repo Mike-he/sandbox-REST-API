@@ -1977,7 +1977,6 @@ class SandboxRestController extends FOSRestController
 
         $now = new \DateTime('now');
         $card = $door->getCard();
-        $accessNo = $card->getAccessNo();
 
         // add user to user_group
         $em = $this->getDoctrine()->getManager();
@@ -1994,10 +1993,7 @@ class SandboxRestController extends FOSRestController
         // add user to door access
         if ($now >= $startDate) {
             $this->addUserDoorAccess(
-                $accessNo,
                 $userIds,
-                $startDate,
-                $endDate,
                 array($buildingId)
             );
         }

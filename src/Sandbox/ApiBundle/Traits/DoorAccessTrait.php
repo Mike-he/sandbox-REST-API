@@ -846,17 +846,11 @@ trait DoorAccessTrait
     }
 
     /**
-     * @param $accessNo
-     * @param $userId
-     * @param $orderStartDate
-     * @param $orderEndDate
+     * @param $userIds
      * @param $doorBuildingIds
      */
     public function addUserDoorAccess(
-        $accessNo,
         $userIds,
-        $orderStartDate,
-        $orderEndDate,
         $doorBuildingIds
     ) {
         foreach ($doorBuildingIds as $buildingId) {
