@@ -160,6 +160,7 @@ class AdminMessageHistoryController extends AdminMessagePushController
                 'phone' => $user->getPhone(),
                 'email' => $user->getEmail(),
                 'authorized' => $user->isAuthorized(),
+                'banned' => $user->isBanned(),
                 'jid' => $jid,
                 'message' => [
                     'msg_type' => $lastMessage->getMsgType(),
