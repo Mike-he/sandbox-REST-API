@@ -3,11 +3,14 @@
 namespace Sandbox\AdminApiBundle\Controller\Message;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
+use Sandbox\AdminApiBundle\Command\SyncJmessageCommand;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Message\JMessageHistory;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations;
 
@@ -246,5 +249,29 @@ class AdminMessageHistoryController extends AdminMessagePushController
             'total_count' => $count,
             'items' => $messages,
         ));
+    }
+
+    /**
+     * @param Request $request the request object
+     *
+     * @Route("/messages/sync/history")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getSyncHistoryAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        //execute SyncJmessageCommand
+        $command = new SyncJmessageCommand();
+        $command->setContainer($this->container);
+
+        $input = new ArrayInput(array());
+        $output = new NullOutput();
+
+        $command->run($input, $output);
+
+        return new View();
     }
 }
