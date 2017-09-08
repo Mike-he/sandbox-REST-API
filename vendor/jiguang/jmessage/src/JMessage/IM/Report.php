@@ -4,7 +4,7 @@ use JMessage\IM;
 
 class Report extends IM {
 
-    const BASE_URL = 'https://report.im.jpush.cn/v1/';
+    const BASE_URL = 'https://report.im.jpush.cn/v2/';
 
     public function getMessages($start, $count, $beginTime = null, $endTime = null) {
         $uri = self::BASE_URL . 'messages';
@@ -12,7 +12,7 @@ class Report extends IM {
     }
 
     public function getUserMessages($username, $start, $count, $beginTime = null, $endTime = null) {
-        $uri = self::BASE_URL . '/users/' . $username . '/messages';
+        $uri = self::BASE_URL . 'users/' . $username . '/messages';
         return $this->report($uri, $start, $count, $beginTime, $endTime);
     }
 

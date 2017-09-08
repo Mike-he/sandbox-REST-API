@@ -7,6 +7,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use JMessage\JMessage;
 use JMessage\IM\User;
 use JMessage\IM\Group;
+use JMessage\IM\Report;
 
 /**
  * Class JmessageService.
@@ -43,6 +44,11 @@ class JmessageService
      */
     private $resource;
 
+    /**
+     * @var Report
+     */
+    private $report;
+
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
@@ -52,6 +58,7 @@ class JmessageService
         $this->user = new User($this->client);
         $this->group = new Group($this->client);
         $this->resource = new Resource($this->client);
+        $this->report = new Report($this->client);
     }
 
     public function createUser(
@@ -124,5 +131,35 @@ class JmessageService
         $mediaId
     ) {
         return $this->resource->download($mediaId);
+    }
+
+    public function getMessages(
+        $beginTime,
+        $endTime
+    ) {
+        $response = $this->report->getMessages(
+            0,
+            1000,
+            $beginTime,
+            $endTime
+        );
+
+        return $response;
+    }
+
+    public function getUserMessages(
+        $user,
+        $beginTime,
+        $endTime
+    ) {
+        $response = $this->report->getUserMessages(
+            $user,
+            0,
+            1000,
+            $beginTime,
+            $endTime
+        );
+
+        return $response;
     }
 }
