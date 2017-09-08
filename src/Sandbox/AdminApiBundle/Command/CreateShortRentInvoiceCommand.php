@@ -2,7 +2,6 @@
 
 namespace Sandbox\AdminApiBundle\Command;
 
-use Sandbox\ApiBundle\Entity\Finance\FinanceSalesWallet;
 use Sandbox\ApiBundle\Entity\Finance\FinanceSalesWalletFlow;
 use Sandbox\ApiBundle\Entity\Finance\FinanceShortRentInvoice;
 use Sandbox\ApiBundle\Entity\Finance\FinanceSummary;

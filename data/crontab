@@ -26,3 +26,4 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 15 0 1 * * root php /var/www/sandbox-REST-API/app/console sandbox:api-bundle:set_finance_dashboard
 */5 * * * * root php /var/www/sandbox-REST-API/app/console sandbox:api-bundle:add_group_user_to_door
 30 0 * * * root php /var/www/sandbox-REST-API/app/console sandbox:api-bundle:remove_group_user_to_doors
+0 */1 * * * root php /var/www/sandbox-REST-API/app/console sandbox:api-bundle:sync:Jemssage
