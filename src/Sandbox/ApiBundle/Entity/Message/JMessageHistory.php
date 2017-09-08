@@ -83,6 +83,13 @@ class JMessageHistory
     private $creationDate;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="msg_type", type="string",length=64)
+     */
+    private $msgType;
+
+    /**
      * Get id.
      *
      * @return int
@@ -226,5 +233,21 @@ class JMessageHistory
     public function getCreationDate()
     {
         return $this->creationDate;
+    }
+
+    /**
+     * @return string
+     */
+    public function getMsgType()
+    {
+        return $this->msgType;
+    }
+
+    /**
+     * @param string $msgType
+     */
+    public function setMsgType($msgType)
+    {
+        $this->msgType = $msgType;
     }
 }
