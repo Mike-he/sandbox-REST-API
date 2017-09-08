@@ -375,12 +375,11 @@ class AdminFinanceExportController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-//        $data = $this->get('sandbox_api.admin_permission_check_service')
-//            ->checkPermissionByCookie(
-//                AdminPermission::KEY_SALES_PLATFORM_REPORT_DOWNLOAD,
-//                AdminPermission::PERMISSION_PLATFORM_SALES
-//            );
-        $data['company_id'] = 3;
+        $data = $this->get('sandbox_api.admin_permission_check_service')
+            ->checkPermissionByCookie(
+                AdminPermission::KEY_SALES_PLATFORM_REPORT_DOWNLOAD,
+                AdminPermission::PERMISSION_PLATFORM_SALES
+            );
 
         $startDate = $paramFetcher->get('start_date');
         $endDate = $paramFetcher->get('end_date');
