@@ -2218,7 +2218,7 @@ class OrderRepository extends EntityRepository
 
         // filter by payment channel
         if (!is_null($channel) && !empty($channel)) {
-            if (in_array('sandbox',$channel)) {
+            if (in_array('sandbox', $channel)) {
                 $channel[] = array(
                     ProductOrder::CHANNEL_ACCOUNT,
                     ProductOrder::CHANNEL_ALIPAY,
@@ -3497,6 +3497,8 @@ class OrderRepository extends EntityRepository
                 ->setParameter('type', $orderTypes);
         }
 
+        $query->orderBy('o.creationDate', 'DESC');
+
         return  $query->getQuery()->getResult();
     }
 
@@ -4512,5 +4514,43 @@ class OrderRepository extends EntityRepository
         $result = $query->getQuery()->getSingleScalarResult();
 
         return (int) $result;
+    }
+
+    public function getPreOrders(
+        $companyId,
+        $startDate,
+        $endDate
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->select('o.orderNumber as order_number')
+            ->leftJoin('o.product','p')
+            ->leftJoin('p.room', 'r')
+            ->leftJoin('r.building', 'b')
+            ->andWhere('o.type = :preorder')
+            ->setParameter('preorder', ProductOrder::PREORDER_TYPE);
+
+        if ($startDate) {
+            $startDate = new \DateTime($startDate);
+
+            $query->andWhere('o.creationDate >= :startDate')
+                ->setParameter('startDate', $startDate);
+        }
+
+        if ($endDate) {
+            $endDate = new \DateTime($endDate);
+            $endDate->setTime(23, 59, 59);
+
+            $query->andWhere('o.creationDate <= :endDate')
+                ->setParameter('endDate', $endDate);
+        }
+
+        if (!is_null($companyId)) {
+            $query->andWhere('b.company = :companyId')
+                ->setParameter('companyId', $companyId);
+        }
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
     }
 }

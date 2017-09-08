@@ -924,4 +924,39 @@ class LeaseBillRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    public function getSendBills(
+        $companyId,
+        $startDate,
+        $endDate
+    ) {
+        $query = $this->createQueryBuilder('lb')
+            ->select('lb.serialNumber as order_number')
+            ->leftJoin('lb.lease', 'l')
+            ->leftJoin('l.product', 'p')
+            ->leftJoin('p.room', 'r')
+            ->leftJoin('r.building', 'b')
+            ->where('lb.sendDate is not null')
+            ->andWhere('b.companyId = :companyId')
+            ->setParameter('companyId', $companyId);
+
+        if ($startDate) {
+            $startDate = new \DateTime($startDate);
+
+            $query->andWhere('lb.sendDate >= :startDate')
+                ->setParameter('startDate', $startDate);
+        }
+
+        if ($endDate) {
+            $endDate = new \DateTime($endDate);
+            $endDate->setTime(23, 59, 59);
+
+            $query->andWhere('lb.sendDate <= :endDate')
+                ->setParameter('endDate', $endDate);
+        }
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
 }

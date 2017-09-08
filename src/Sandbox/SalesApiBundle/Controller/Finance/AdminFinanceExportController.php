@@ -375,26 +375,39 @@ class AdminFinanceExportController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $data = $this->get('sandbox_api.admin_permission_check_service')
-            ->checkPermissionByCookie(
-                AdminPermission::KEY_SALES_PLATFORM_REPORT_DOWNLOAD,
-                AdminPermission::PERMISSION_PLATFORM_SALES
-            );
+//        $data = $this->get('sandbox_api.admin_permission_check_service')
+//            ->checkPermissionByCookie(
+//                AdminPermission::KEY_SALES_PLATFORM_REPORT_DOWNLOAD,
+//                AdminPermission::PERMISSION_PLATFORM_SALES
+//            );
+        $data['company_id'] = 3;
 
         $startDate = $paramFetcher->get('start_date');
         $endDate = $paramFetcher->get('end_date');
         $language = $paramFetcher->get('language');
 
-        $receivables = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Finance\FinanceReceivables')
-            ->getOrderLists(
+        $orders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getPreOrders(
                 $data['company_id'],
                 $startDate,
                 $endDate
             );
 
+        $bills = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->getSendBills(
+                $data['company_id'],
+                $startDate,
+                $endDate
+            );
+
+
+        $orderNumbers = array_merge($orders,$bills);
+
+
         return $this->getFinanceCashierExport(
-            $receivables,
+            $orderNumbers,
             $language
         );
     }

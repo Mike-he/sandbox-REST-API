@@ -3,7 +3,6 @@
 namespace Sandbox\ApiBundle\Traits;
 
 use Doctrine\ORM\EntityManager;
-use Proxies\__CG__\Sandbox\ApiBundle\Entity\Finance\FinanceReceivables;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Constants\EventOrderExport;
 use Sandbox\ApiBundle\Entity\Event\EventOrder;
@@ -460,6 +459,11 @@ trait FinanceSalesExportTraits
             'sales_remit' => '线下汇款',
         ];
 
+        $status = [
+            ProductOrder::STATUS_CANCELLED => '已取消',
+            ProductOrder::STATUS_COMPLETED => '已完成',
+        ];
+
         $shortBody = [];
         foreach ($shortOrders as $order) {
             /** @var ProductOrder $order */
@@ -547,7 +551,7 @@ trait FinanceSalesExportTraits
                 'end_date' => $order->getEndDate()->format('Y-m-d H:i:s'),
                 'creation_date' => $order->getCreationDate()->format('Y-m-d H:i:s'),
                 'payment_date' => $paymentDate,
-                'status' => '已完成',
+                'status' => $status[$order->getStatus()],
                 'refundTo' => $refundTo,
                 'customer_phone' => $customer ? $customer->getPhone() : '',
                 'customer_email' => $customer ? $customer->getEmail() : '',
@@ -1005,13 +1009,13 @@ trait FinanceSalesExportTraits
     }
 
     /**
-     * @param FinanceReceivables $receivables
+     * @param $orderNumbers
      * @param $language
      *
      * @return mixed
      */
     public function getFinanceCashierExport(
-        $receivables,
+        $orderNumbers,
         $language
     ) {
         /** @var EntityManager $em */
@@ -1056,11 +1060,37 @@ trait FinanceSalesExportTraits
             'sales_remit' => '线下汇款',
         ];
 
+        $payments = $em->getRepository('SandboxApiBundle:Payment\Payment')->findAll();
+        $payChannels = array();
+        foreach ($payments as $payment) {
+            $payChannels[$payment->getChannel()] = $payment->getName();
+        }
+
+        $orderStatus = [
+          ProductOrder::STATUS_COMPLETED => '已完成',
+          ProductOrder::STATUS_CANCELLED => '已取消',
+          ProductOrder::STATUS_PAID => '已付款',
+          ProductOrder::STATUS_UNPAID => '未付款',
+        ];
+
+        $billStatus = [
+          LeaseBill::STATUS_UNPAID => '未付款',
+          LeaseBill::STATUS_PAID => '已完成',
+        ];
+
         $excelBody = array();
-        foreach ($receivables as $receivable) {
-            /** @var FinanceReceivables $receivable */
-            $orderNumber = $receivable->getOrderNumber();
+        foreach ($orderNumbers as $orderNumber) {
+            $orderNumber = $orderNumber['order_number'];
             $refundTo = '';
+            $paymentMethod = '';
+            $payChannel = '';
+            $paymentDate = '';
+
+            $serviceBill = $em->getRepository('SandboxApiBundle:Finance\FinanceLongRentServiceBill')
+                ->findOneBy(array('orderNumber' => $orderNumber));
+
+            $poundage = $serviceBill ? $serviceBill->getAmount() : '';
+
             switch (substr($orderNumber, 0, 1)) {
                 case ProductOrder::LETTER_HEAD:
                     $orderType = '秒租订单';
@@ -1092,6 +1122,12 @@ trait FinanceSalesExportTraits
                         }
                     }
 
+                    $channel = $order->getPayChannel();
+
+                    $paymentDate = $order->getPaymentDate() ? $bill->getPaymentDate()->format('Y-m-d H:i:s') : '';
+
+                    $status = $orderStatus[$order->getStatus()];
+
                     break;
                 case LeaseBill::LEASE_BILL_LETTER_HEAD:
                     $orderType = '长租账单';
@@ -1112,6 +1148,12 @@ trait FinanceSalesExportTraits
                     $endDate = $bill->getEndDate()->format('Y-m-d H:i:s');
                     $creationDate = $bill->getSendDate()->format('Y-m-d H:i:s');
 
+                    $channel = $bill->getPayChannel();
+
+                    $paymentDate = $bill->getPaymentDate() ? $bill->getPaymentDate()->format('Y-m-d H:i:s') : '';
+
+                    $status = $billStatus[$bill->getStatus()];
+
                     break;
             }
 
@@ -1127,6 +1169,20 @@ trait FinanceSalesExportTraits
 
             $customer = $em->getRepository('SandboxApiBundle:User\UserCustomer')->find($customerId);
 
+            if ($channel) {
+                if ($channel == ProductOrder::CHANNEL_SALES_OFFLINE) {
+                    $receivable = $em->getRepository('SandboxApiBundle:Finance\FinanceReceivables')
+                        ->findOneBy([
+                            'orderNumber' => $orderNumber,
+                        ]);
+                    $payChannel = $receivableTypes[$receivable->getPayChannel()];
+                    $paymentMethod = '销售方收款';
+                } else {
+                    $paymentMethod = '创合代收';
+                    $payChannel = $payChannels[$order->getPayChannel()];
+                }
+            }
+
             $body = array(
                 'building_name' => $building->getName(),
                 'order_type' => $orderType,
@@ -1135,20 +1191,20 @@ trait FinanceSalesExportTraits
                 'room_type' => $roomType,
                 'customer' => $customer ? $customer->getName() : '',
                 'order_method' => '销售方推单',
-                'payment_method' => '销售方收款',
-                'pay_channel' => $receivableTypes[$receivable->getPayChannel()],
+                'payment_method' => $paymentMethod,
+                'pay_channel' => $payChannel,
                 'base_price' => $basePrice,
                 'unit_price' => $unit,
                 'amount' => $amount,
                 'revised_amount' => $revisedAmount,
                 'refund_amount' => $refundAmount,
-                'poundage' => '',
-                'settlement_amount' => $revisedAmount - $refundAmount,
+                'poundage' => $poundage,
+                'settlement_amount' => $revisedAmount - $refundAmount - $poundage,
                 'start_date' => $startDate,
                 'end_date' => $endDate,
                 'creation_date' => $creationDate,
-                'payment_date' => $receivable->getCreationDate()->format('Y-m-d H:i:s'),
-                'status' => '已完成',
+                'payment_date' => $paymentDate,
+                'status' => $status,
                 'refundTo' => $refundTo,
                 'customer_phone' => $customer ? $customer->getPhone() : '',
                 'customer_email' => $customer ? $customer->getEmail() : '',
