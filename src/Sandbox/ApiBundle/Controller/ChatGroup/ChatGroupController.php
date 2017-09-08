@@ -40,9 +40,6 @@ class ChatGroupController extends SandboxRestController
                 $user = $member->getUser();
                 $profile = $this->getRepo('User\UserProfile')->findOneByUser($user);
 
-                $jid = $this->constructXmppJid($user->getXmppUsername());
-                $profile->setJid($jid);
-
                 $memberArray['profile'] = $profile;
                 array_push($membersArray, $memberArray);
             } catch (\Exception $e) {

@@ -1092,20 +1092,6 @@ class SandboxRestController extends FOSRestController
         $mailer->send($message);
     }
 
-    //--------------------for user default value--------------------//
-    /**
-     * @param $username
-     *
-     * @return string
-     */
-    protected function constructXmppJid(
-        $username
-    ) {
-        $twig = $this->container->get('twig');
-        $globals = $twig->getGlobals();
-
-        return $username.'@'.$globals['xmpp_domain'];
-    }
 
     //--------------------generate default verification code and token--------------------//
     /**
