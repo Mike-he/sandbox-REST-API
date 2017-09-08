@@ -1124,7 +1124,7 @@ trait FinanceSalesExportTraits
 
                     $channel = $order->getPayChannel();
 
-                    $paymentDate = $order->getPaymentDate() ? $bill->getPaymentDate()->format('Y-m-d H:i:s') : '';
+                    $paymentDate = $order->getPaymentDate() ? $order->getPaymentDate()->format('Y-m-d H:i:s') : '';
 
                     $status = $orderStatus[$order->getStatus()];
 
