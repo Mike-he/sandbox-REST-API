@@ -54,6 +54,7 @@ class SyncJmessageCommand extends ContainerAwareCommand
                 $jmessage->setMsgId($message['msgid']);
                 $jmessage->setTargetId($message['target_id']);
                 $jmessage->setTargetType($message['target_type']);
+                $jmessage->setMsgType($message['msg_type']);
 
                 $em->persist($jmessage);
             }

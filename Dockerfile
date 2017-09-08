@@ -6,7 +6,7 @@ COPY data/sources.list /etc/apt/sources.list
 RUN apt-get update && apt-get upgrade -y
 
 # Install tools
-RUN apt-get install -y vim cron wget git nginx php5-fpm php5-mysql php5-curl php5-common php5-redis php5-gd libxrender1 fonts-wqy-zenhei \
+RUN apt-get install -y vim cron wget git nginx php5-fpm php5-mysql php5-curl php5-common php5-redis php5-gd libxrender1 fonts-wqy-zenhei php5-mcrypt \
   && rm -fr /var/lib/apt/lists/*
 
 # Copy startup script

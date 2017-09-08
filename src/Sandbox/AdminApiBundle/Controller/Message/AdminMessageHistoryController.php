@@ -150,27 +150,9 @@ class AdminMessageHistoryController extends AdminMessagePushController
                 ->getRepository('SandboxApiBundle:Message\JMessageHistory')
                 ->getLastMessages(
                     $jid,
+                    'service',
                     JMessageHistory::TARGET_TYPE_SINGLE
                 );
-
-            $messageFromJid = $lastMessage->getFromId();
-
-            if ($jid == $messageFromJid) {
-                $fromUserProfileName = $userProfile->getName();
-            } else {
-                $userMessage = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:User\User')
-                    ->findOneBy([
-                        'xmppUsername' => $messageFromJid,
-                    ]);
-
-                $userProfileMessage = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:User\UserProfile')
-                    ->findOneBy([
-                        'user' => $userMessage,
-                    ]);
-                $fromUserProfileName = $userProfileMessage->getName();
-            }
 
             $usersArray[] = array(
                 'id' => $user->getId(),
@@ -178,11 +160,12 @@ class AdminMessageHistoryController extends AdminMessagePushController
                 'phone' => $user->getPhone(),
                 'email' => $user->getEmail(),
                 'authorized' => $user->isAuthorized(),
+                'banned' => $user->isBanned(),
                 'jid' => $jid,
                 'message' => [
-                    'from_user_profile_name' => $fromUserProfileName,
+                    'msg_type' => $lastMessage->getMsgType(),
                     'body' => $lastMessage->getMsgBody(),
-                    'sentDate' => $lastMessage->getMsgCtime(),
+                    'sent_date' => $lastMessage->getMsgCtime(),
                 ],
             );
         }
@@ -190,6 +173,78 @@ class AdminMessageHistoryController extends AdminMessagePushController
         return new View(array(
             'total_count' => $count,
             'items' => $usersArray,
+        ));
+    }
+
+    /**
+     * @param Request $request the request object
+     *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many rooms to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="from_id",
+     *    array=false,
+     *    default=null,
+     *    nullable=false,
+     *    strict=true,
+     *    description="search by tag"
+     * )
+     *
+     * @Route("/messages/single/history")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getSingleHistoryAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $fromId = $paramFetcher->get('from_id');
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+
+        $limit = $pageLimit;
+        $offset = ($pageIndex - 1) * $pageLimit;
+
+        $messages = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Message\JMessageHistory')
+            ->getSingleMessages(
+                $fromId,
+                'service',
+                JMessageHistory::TARGET_TYPE_SINGLE,
+                $limit,
+                $offset
+            );
+
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Message\JMessageHistory')
+            ->countSingleMessages(
+                $fromId,
+                'service',
+                JMessageHistory::TARGET_TYPE_SINGLE
+            );
+
+        return new View(array(
+            'total_count' => $count,
+            'items' => $messages,
         ));
     }
 }
