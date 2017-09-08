@@ -150,6 +150,7 @@ class AdminMessageHistoryController extends AdminMessagePushController
                 ->getRepository('SandboxApiBundle:Message\JMessageHistory')
                 ->getLastMessages(
                     $jid,
+                    'service',
                     JMessageHistory::TARGET_TYPE_SINGLE
                 );
 

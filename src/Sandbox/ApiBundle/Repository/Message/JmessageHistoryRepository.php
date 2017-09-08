@@ -36,13 +36,16 @@ class JmessageHistoryRepository extends EntityRepository
 
     public function getLastMessages(
         $fromID,
+        $targetId,
         $type
     ) {
         $query = $this->createQueryBuilder('m')
             ->where('m.targetType = :type')
             ->andWhere('m.fromId = :fromId')
+            ->andWhere('m.targetId = :targetId')
             ->setParameter('type', $type)
             ->setParameter('fromId', $fromID)
+            ->setParameter('targetId', $targetId)
             ->setMaxResults(1);
 
         $query->orderBy('m.msgCtime', 'DESC');
