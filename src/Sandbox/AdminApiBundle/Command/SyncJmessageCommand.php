@@ -24,7 +24,7 @@ class SyncJmessageCommand extends ContainerAwareCommand
         $service = $this->getContainer()->get('sandbox_api.jmessage');
 
         $statDate = new \DateTime();
-        $interval = new \DateInterval('P2H');
+        $interval = new \DateInterval('PT2H');
         $statDate->sub($interval);
         $endDate = new \DateTime();
 
@@ -48,7 +48,7 @@ class SyncJmessageCommand extends ContainerAwareCommand
             if (!$jmessage) {
                 $jmessage = new JMessageHistory();
                 $jmessage->setFromId($message['from_id']);
-                $jmessage->setMsgBody(json_encode($message['msg_body'],JSON_UNESCAPED_UNICODE));
+                $jmessage->setMsgBody(json_encode($message['msg_body'], JSON_UNESCAPED_UNICODE));
                 $jmessage->setMsgCtime($message['msg_ctime']);
                 $jmessage->setFromAppKey($message['from_appkey']);
                 $jmessage->setMsgId($message['msgid']);
