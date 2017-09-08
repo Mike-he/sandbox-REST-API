@@ -68,7 +68,7 @@ class JmessageHistoryRepository extends EntityRepository
             ->setParameter('fromId', $fromID)
             ->setParameter('targetId', $targetId);
 
-        $query->orderBy('m.msgCtime', 'DESC');
+        $query->orderBy('m.msgCtime', 'ASC');
 
         $query->setMaxResults($limit)
             ->setFirstResult($offset);
