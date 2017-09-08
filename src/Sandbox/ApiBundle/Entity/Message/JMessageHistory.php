@@ -9,10 +9,13 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * Message.
  *
  * @ORM\Table(name="jmessages_history")
- * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Message\MessageRepository")
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Message\JmessageHistoryRepository")
  */
 class JMessageHistory
 {
+    const TARGET_TYPE_SINGLE = 'single';
+    const TARGET_TYPE_GROUP = 'group';
+
     /**
      * @var int
      *

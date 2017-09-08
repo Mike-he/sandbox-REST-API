@@ -4,6 +4,7 @@ namespace Sandbox\AdminApiBundle\Controller\Message;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Message\JMessageHistory;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
@@ -68,5 +69,127 @@ class AdminMessageHistoryController extends AdminMessagePushController
         $result = $media['body'];
 
         return new View($result);
+    }
+
+    /**
+     * @param Request $request the request object
+     *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many rooms to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number "
+     * )
+     *
+     * @Route("/messages/history")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getHistoryAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+
+        $min = ($pageIndex - 1) * $pageLimit;
+        $max = $min + $pageLimit - 1;
+
+        $messages = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Message\JMessageHistory')
+            ->getFromIds(
+                JMessageHistory::TARGET_TYPE_SINGLE,
+                'service'
+            );
+
+        $fromIds = [];
+        foreach ($messages as $message) {
+            array_push($fromIds, $message['from_id']);
+        }
+
+        $fromIds = array_values(array_unique($fromIds));
+
+        $count = count($fromIds);
+
+        $userJIDs = [];
+        foreach ($fromIds as $key => $jid) {
+            if ($min <= $key && $key <= $max) {
+                array_push($userJIDs, $jid);
+            }
+        }
+
+        $usersArray = [];
+        foreach ($userJIDs as $jid) {
+            $user = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\User')
+                ->findOneBy([
+                    'xmppUsername' => $jid,
+                ]);
+
+            $userProfile = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserProfile')
+                ->findOneBy([
+                    'user' => $user,
+                ]);
+
+            $lastMessage = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Message\JMessageHistory')
+                ->getLastMessages(
+                    $jid,
+                    JMessageHistory::TARGET_TYPE_SINGLE
+                );
+
+            $messageFromJid = $lastMessage->getFromId();
+
+            if ($jid == $messageFromJid) {
+                $fromUserProfileName = $userProfile->getName();
+            } else {
+                $userMessage = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:User\User')
+                    ->findOneBy([
+                        'xmppUsername' => $messageFromJid,
+                    ]);
+
+                $userProfileMessage = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:User\UserProfile')
+                    ->findOneBy([
+                        'user' => $userMessage,
+                    ]);
+                $fromUserProfileName = $userProfileMessage->getName();
+            }
+
+            $usersArray[] = array(
+                'id' => $user->getId(),
+                'name' => $userProfile->getName(),
+                'phone' => $user->getPhone(),
+                'email' => $user->getEmail(),
+                'authorized' => $user->isAuthorized(),
+                'jid' => $jid,
+                'message' => [
+                    'from_user_profile_name' => $fromUserProfileName,
+                    'body' => $lastMessage->getMsgBody(),
+                    'sentDate' => $lastMessage->getMsgCtime(),
+                ],
+            );
+        }
+
+        return new View(array(
+            'total_count' => $count,
+            'items' => $usersArray,
+        ));
     }
 }
