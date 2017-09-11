@@ -47,7 +47,9 @@ class ClientAuthController extends AuthController
         Request $request
     ) {
         $myUserId = $this->getUserId();
-        $myUser = $this->getRepo('User\User')->find($myUserId);
+        $myUser = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\User')
+            ->find($myUserId);
 
         if ($myUser->isBanned()) {
             throw new UnauthorizedHttpException(null, self::UNAUTHED_API_CALL);
@@ -56,6 +58,8 @@ class ClientAuthController extends AuthController
         $view = new View();
         $view->setData(array(
             'id' => $myUserId,
+            'phone' => $myUser->getPhone(),
+            'email' => $myUser->getEmail(),
         ));
 
         return $view;
