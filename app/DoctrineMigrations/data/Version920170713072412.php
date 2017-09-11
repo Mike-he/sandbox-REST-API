@@ -4,7 +4,9 @@ namespace Application\Migrations;
 
 use Doctrine\DBAL\Migrations\AbstractMigration;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\ORM\EntityManager;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
+use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
@@ -29,6 +31,7 @@ class Version920170713072412 extends AbstractMigration implements ContainerAware
     {
         parent::postUp($schema);
 
+        /** @var EntityManager $em */
         $em = $this->container->get('doctrine.orm.entity_manager');
 
         $salesUsers = $em->getRepository('SandboxApiBundle:SalesAdmin\SalesUser')
@@ -44,10 +47,6 @@ class Version920170713072412 extends AbstractMigration implements ContainerAware
                 continue;
             }
 
-            $userProfile = $em->getRepository('SandboxApiBundle:User\UserProfile')
-                ->findOneBy(array('userId' => $userId));
-            $userName = $userProfile ? $userProfile->getName() : null;
-
             $customer = $em->getRepository('SandboxApiBundle:User\UserCustomer')
                 ->findOneBy(array(
                     'userId' => $userId,
@@ -55,6 +54,10 @@ class Version920170713072412 extends AbstractMigration implements ContainerAware
                 ));
 
             if (!$customer) {
+                $userProfile = $em->getRepository('SandboxApiBundle:User\UserProfile')
+                    ->findOneBy(array('userId' => $userId));
+                $userName = $userProfile ? $userProfile->getName() : null;
+
                 $customer = new UserCustomer();
                 $customer->setUserId($userId);
                 $customer->setCompanyId($companyId);
@@ -64,26 +67,30 @@ class Version920170713072412 extends AbstractMigration implements ContainerAware
                 $customer->setEmail($user->getEmail());
                 $customer->setIsAutoCreated(true);
                 $em->persist($customer);
-                $em->flush();
-            }
-
-            $userGroups = $em->getRepository('SandboxApiBundle:User\UserGroup')
-                ->findBy(array(
-                    'companyId' => $companyId,
-                ));
-
-            foreach ($userGroups as $group) {
-                $groupUserHasUser = $em->getRepository('SandboxApiBundle:User\UserGroupHasUser')
-                    ->findBy(array(
-                        'userId' => $userId,
-                        'groupId' => $group->getId(),
-                    ));
-
-                foreach ($groupUserHasUser as $item) {
-                    $item->setCustomerId($customer->getId());
-                }
             }
         }
+        $em->flush();
+
+
+        $groupUserHasUser = $em->getRepository('SandboxApiBundle:User\UserGroupHasUser')
+            ->findAll();
+
+        foreach ($groupUserHasUser as $groupHasUser) {
+            $groupId = $groupHasUser->getGroupId();
+            $group = $em->getRepository('SandboxApiBundle:User\UserGroup')->find($groupId);
+
+            $customer = $em->getRepository('SandboxApiBundle:User\UserCustomer')
+                ->findOneBy(
+                    array(
+                        'userId'=>$groupHasUser->getUserId(),
+                        'companyId'=>$group->getCompanyId()
+                    )
+                );
+            if ($customer) {
+                $groupHasUser->setCustomerId($customer->getId());
+            }
+        }
+        $em->flush();
 
         $leases = $em->getRepository('SandboxApiBundle:Lease\Lease')
             ->findAll();
