@@ -53,26 +53,26 @@ class Version920170809167890 extends AbstractMigration implements ContainerAware
                 array(
                     'column' => 'contect_name',
                     'name' => '联系人',
-                    'default' => false,
-                    'required' => true,
+                    'default' => true,
+                    'required' => false,
                 ),
                 array(
                     'column' => 'phone',
                     'name' => '电话',
                     'default' => true,
-                    'required' => true,
+                    'required' => false,
                 ),
                 array(
                     'column' => 'view_time',
                     'name' => '看房时间',
                     'default' => true,
-                    'required' => true,
+                    'required' => false,
                 ),
                 array(
                     'column' => 'comment',
                     'name' => '客户备注',
                     'default' => true,
-                    'required' => true,
+                    'required' => false,
                 ),
                 array(
                     'column' => 'status',
@@ -95,7 +95,7 @@ class Version920170809167890 extends AbstractMigration implements ContainerAware
                 array(
                     'column' => 'admin_name',
                     'name' => '抢单人',
-                    'default' => true,
+                    'default' => false,
                     'required' => false,
                 ),
                 array(
@@ -113,7 +113,7 @@ class Version920170809167890 extends AbstractMigration implements ContainerAware
                 array(
                     'column' => 'grab_date',
                     'name' => '抢单时间',
-                    'default' => true,
+                    'default' => false,
                     'required' => false,
                 ),
             );
