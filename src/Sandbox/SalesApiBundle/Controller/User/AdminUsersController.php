@@ -465,7 +465,7 @@ class AdminUsersController extends DoorController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $ids = empty($paramFetcher->get('id')) ? null : $paramFetcher->get('id');
+        $ids = $paramFetcher->get('id');
         $search = $paramFetcher->get('query');
 
         $users = $this->getDoctrine()
