@@ -89,13 +89,7 @@ class ChatGroupController extends SandboxRestController
         $chatGroup
     ) {
         try {
-            if ($chatGroup->getTag() == ChatGroup::CUSTOMER_SERVICE) {
-                $name = '客服@'.$chatGroup->getTag();
-            } else {
-                $name = '@'.$chatGroup->getTag();
-            }
-            
-            $chatRoomName = $chatGroup->getName().$name;
+            $chatRoomName = $chatGroup->getName().'@'.$chatGroup->getTag();
             $chatRoomDesc = array(
                 'tag' => $chatGroup->getTag(),
             );
@@ -144,7 +138,7 @@ class ChatGroupController extends SandboxRestController
         $chatGroup
     ) {
         try {
-            $chatRoomName = $chatGroup->getName();
+            $chatRoomName = $chatGroup->getName().'@'.$chatGroup->getTag();
             $chatRoomDesc = array(
                 'tag' => $chatGroup->getTag(),
             );
