@@ -311,7 +311,7 @@ class Version920170825101200 extends AbstractMigration implements ContainerAware
                 array(
                     'column' => 'tax_registration_number',
                     'name' => '纳税人识别号/身份证号',
-                    'default' => true,
+                    'default' => false,
                     'required' => false,
                 ),
                 array(
