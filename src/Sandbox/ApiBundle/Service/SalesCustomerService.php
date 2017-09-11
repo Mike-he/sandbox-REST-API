@@ -50,6 +50,7 @@ class SalesCustomerService
         $customer->setPhoneCode($phoneCode);
         $customer->setPhone($phone);
         $customer->setCompanyId($companyId);
+        $customer->setIsAutoCreated(true);
         $em->persist($customer);
 
         $em->flush();

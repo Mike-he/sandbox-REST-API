@@ -62,6 +62,7 @@ class Version920170713072412 extends AbstractMigration implements ContainerAware
                 $customer->setPhoneCode($user->getPhoneCode());
                 $customer->setPhone($user->getPhone());
                 $customer->setEmail($user->getEmail());
+                $customer->setIsAutoCreated(true);
                 $em->persist($customer);
                 $em->flush();
             }
@@ -131,6 +132,7 @@ class Version920170713072412 extends AbstractMigration implements ContainerAware
                     $myCustomer->setPhoneCode($user->getPhoneCode());
                     $myCustomer->setPhone($user->getPhone());
                     $myCustomer->setEmail($user->getEmail());
+                    $myCustomer->setIsAutoCreated(true);
                     $em->persist($myCustomer);
                     $em->flush();
                 }
@@ -169,6 +171,7 @@ class Version920170713072412 extends AbstractMigration implements ContainerAware
                 $myCustomer->setPhoneCode($user->getPhoneCode());
                 $myCustomer->setPhone($user->getPhone());
                 $myCustomer->setEmail($user->getEmail());
+                $myCustomer->setIsAutoCreated(true);
                 $em->persist($myCustomer);
                 $em->flush();
             }

@@ -146,6 +146,13 @@ class UserCustomer
     private $isDeleted = false;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="is_auto_created", type="boolean", nullable=false)
+     */
+    private $isAutoCreated = false;
+
+    /**
      * @var \DateTime
      * @Gedmo\Timestampable(on="create")
      *
@@ -635,5 +642,21 @@ class UserCustomer
     public function setCardNo($cardNo)
     {
         $this->cardNo = $cardNo;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAutoCreated()
+    {
+        return $this->isAutoCreated;
+    }
+
+    /**
+     * @param bool $isAutoCreated
+     */
+    public function setIsAutoCreated($isAutoCreated)
+    {
+        $this->isAutoCreated = $isAutoCreated;
     }
 }
