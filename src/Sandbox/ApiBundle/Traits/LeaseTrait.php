@@ -162,24 +162,6 @@ trait LeaseTrait
     }
 
     /**
-     * @param $userId
-     *
-     * @return string
-     */
-    private function generateAvatarUrl(
-        $userId
-    ) {
-        $dir = '/data/openfire/image';
-        $avatar = $dir.'/person/'.$userId.'/avatar_small.jpg';
-
-        if (!file_exists($avatar)) {
-            $avatar = 'https://property.sandbox3.cn/img/head.png';
-        }
-
-        return $avatar;
-    }
-
-    /**
      * @param Lease $lease
      * @param $date
      */
