@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
- * SalesCompanyProfileLessor
+ * SalesCompanyProfileLessor.
  *
  * @ORM\Table(name="sales_company_profile_lessor")
  * @ORM\Entity
@@ -14,7 +14,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 class SalesCompanyProfileLessor
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -87,11 +87,10 @@ class SalesCompanyProfileLessor
      */
     private $modificationDate;
 
-
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -131,9 +130,10 @@ class SalesCompanyProfileLessor
     }
 
     /**
-     * Set companyName
+     * Set companyName.
      *
      * @param string $companyName
+     *
      * @return SalesCompanyProfileLessor
      */
     public function setCompanyName($companyName)
@@ -144,9 +144,9 @@ class SalesCompanyProfileLessor
     }
 
     /**
-     * Get companyName
+     * Get companyName.
      *
-     * @return string 
+     * @return string
      */
     public function getCompanyName()
     {
@@ -154,9 +154,10 @@ class SalesCompanyProfileLessor
     }
 
     /**
-     * Set address
+     * Set address.
      *
      * @param string $address
+     *
      * @return SalesCompanyProfileLessor
      */
     public function setAddress($address)
@@ -167,9 +168,9 @@ class SalesCompanyProfileLessor
     }
 
     /**
-     * Get address
+     * Get address.
      *
-     * @return string 
+     * @return string
      */
     public function getAddress()
     {
@@ -177,9 +178,10 @@ class SalesCompanyProfileLessor
     }
 
     /**
-     * Set contactName
+     * Set contactName.
      *
      * @param string $contactName
+     *
      * @return SalesCompanyProfileLessor
      */
     public function setContactName($contactName)
@@ -190,9 +192,9 @@ class SalesCompanyProfileLessor
     }
 
     /**
-     * Get contactName
+     * Get contactName.
      *
-     * @return string 
+     * @return string
      */
     public function getContactName()
     {
@@ -200,9 +202,10 @@ class SalesCompanyProfileLessor
     }
 
     /**
-     * Set phone
+     * Set phone.
      *
      * @param string $phone
+     *
      * @return SalesCompanyProfileLessor
      */
     public function setPhone($phone)
@@ -213,9 +216,9 @@ class SalesCompanyProfileLessor
     }
 
     /**
-     * Get phone
+     * Get phone.
      *
-     * @return string 
+     * @return string
      */
     public function getPhone()
     {
@@ -223,9 +226,10 @@ class SalesCompanyProfileLessor
     }
 
     /**
-     * Set email
+     * Set email.
      *
      * @param string $email
+     *
      * @return SalesCompanyProfileLessor
      */
     public function setEmail($email)
@@ -236,9 +240,9 @@ class SalesCompanyProfileLessor
     }
 
     /**
-     * Get email
+     * Get email.
      *
-     * @return string 
+     * @return string
      */
     public function getEmail()
     {

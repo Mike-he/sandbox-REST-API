@@ -5,6 +5,7 @@ namespace Sandbox\SalesApiBundle\Controller\Customer;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
+use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\User\UserCustomer;
 use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
 use Sandbox\ApiBundle\Form\User\UserCustomerPatchType;
@@ -162,8 +163,13 @@ class AdminCustomerController extends SalesRestController
     ) {
         $customer = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserCustomer')
-            ->find($id);
+            ->findOneBy([
+                'id' => $id,
+                'isAutoCreated' => false,
+            ]);
         $this->throwNotFoundIfNull($customer, self::NOT_FOUND_MESSAGE);
+
+        $customerId = $customer->getId();
 
         $data = json_decode($request->getContent(), true);
         $phoneCode = $data['phone_code'];
@@ -176,6 +182,8 @@ class AdminCustomerController extends SalesRestController
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
+        $em = $this->getDoctrine()->getManager();
+
         $customerOrigin = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserCustomer')
             ->findOneBy(array(
@@ -184,41 +192,68 @@ class AdminCustomerController extends SalesRestController
                 'companyId' => $salesCompanyId,
             ));
         if ($customerOrigin) {
-            return $this->customErrorView(
-                400,
-                self::ERROR_CUSTOMER_EXIST_CODE,
-                self::ERROR_CUSTOMER_EXIST_MESSAGE
-            );
+            $customerNewId = $customerOrigin->getId();
+        } else {
+            $user = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\User')
+                ->findOneBy(array(
+                    'phoneCode' => $phoneCode,
+                    'phone' => $phone,
+                ));
+
+            $userId = $user ? $user->getId() : null;
+            $customerId = $customer->getId();
+            $customerNew = new UserCustomer();
+            $customerNew->setPhoneCode($phoneCode);
+            $customerNew->setPhone($phone);
+            $customerNew->setUserId($userId);
+            $customerNew->setCompanyId($salesCompanyId);
+            $customerNew->setName($customer->getName());
+            $customerNew->setSex($customer->getSex());
+            $customerNew->setAvatar($customer->getAvatar());
+            $customerNew->setBirthday($customer->getBirthday());
+            $customerNew->setEmail($customer->getEmail());
+            $customerNew->setNationality($customer->getNationality());
+            $customerNew->setIdType($customer->getIdType());
+            $customerNew->setIdNumber($customer->getIdNumber());
+            $customerNew->setCompanyName($customer->getCompanyName());
+            $customerNew->setPosition($customer->getPosition());
+            $em->persist($customerNew);
+            $em->flush();
+
+            $customerNewId = $customerNew->getId();
         }
 
-        $em = $this->getDoctrine()->getManager();
+        // update bills & leases & backend push orders
+        $bills = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->findBy(['customerId' => $customerId]);
 
-        $user = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\User')
-            ->findOneBy(array(
-                'phoneCode' => $phoneCode,
-                'phone' => $phone,
-            ));
-
-        $userId = $user ? $user->getId() : null;
-
-        // update user groups
-        $userGroupUsers = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserGroupHasUser')
-            ->findBy(array(
-                'customerId' => $customer->getId(),
-            ));
-        foreach ($userGroupUsers as $user) {
-            $user->setUserId($userId);
+        foreach ($bills as $bill) {
+            $bill->setCustomerId($customerNewId);
         }
 
-        $customer->setPhoneCode($phoneCode);
-        $customer->setPhone($phone);
-        $customer->setUserId($userId);
+        $leases = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\Lease')
+            ->findBy(['lesseeCustomer' => $customerId]);
+        foreach ($leases as $lease) {
+            $lease->setLesseeCustomer($customerNewId);
+        }
+
+        $pushOrders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->findBy([
+                'customerId' => $customerId,
+                'type' => [ProductOrder::PREORDER_TYPE, ProductOrder::OFFICIAL_PREORDER_TYPE],
+            ]);
+        foreach ($pushOrders as $order) {
+            $order->setCustomerId($customerNewId);
+        }
+
         $em->flush();
 
         return new View(array(
-            'id' => $customer->getId(),
+            'id' => $customerNewId,
         ));
     }
 
