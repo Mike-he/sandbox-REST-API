@@ -158,10 +158,10 @@ class LeaseOfferRepository extends EntityRepository
         $keyword,
         $keywordSearch,
         $createStart,
+        $createEnd,
         $rentFilter,
         $startDate,
-        $endDate,
-        $createEnd
+        $endDate
     ) {
         $query = $this->createQueryBuilder('lo')
             ->select('count(lo.id)')
