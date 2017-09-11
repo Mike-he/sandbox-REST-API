@@ -114,7 +114,7 @@ class AdminEnterpriseCustomerController extends SalesRestController
 
         $enterpriseCustomers = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\EnterpriseCustomer')
-            ->getEnterpriseCustomerAction($ids);
+            ->findBy(['id' => $ids]);
 
         foreach ($enterpriseCustomers as $enterpriseCustomer) {
             $contacts = $this->getDoctrine()

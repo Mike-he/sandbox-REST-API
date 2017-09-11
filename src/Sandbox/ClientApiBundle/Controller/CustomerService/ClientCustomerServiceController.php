@@ -138,7 +138,7 @@ class ClientCustomerServiceController extends ChatGroupController
         $company = $building->getCompany();
 
         // create new chat group
-        $chatGroupName = $building->getName();
+        $chatGroupName = $building->getName().'客服';
 
         $chatGroup = new ChatGroup();
         $chatGroup->setCreator($myUser);
