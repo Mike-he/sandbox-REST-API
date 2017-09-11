@@ -218,6 +218,7 @@ class AdminCustomerController extends SalesRestController
             $customerNew->setIdNumber($customer->getIdNumber());
             $customerNew->setCompanyName($customer->getCompanyName());
             $customerNew->setPosition($customer->getPosition());
+            $em->persist($customerNew);
             $em->flush();
 
             $customerNewId = $customerNew->getId();
