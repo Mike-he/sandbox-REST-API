@@ -67,6 +67,10 @@ class ComposerStaticInit42c73cf4dec95db6e30a2f354aa5457f
             'Predis\\' => 7,
             'Pingpp\\' => 7,
         ),
+        'O' => 
+        array (
+            'OSS\\' => 4,
+        ),
         'N' => 
         array (
             'Negotiation\\' => 12,
@@ -237,6 +241,10 @@ class ComposerStaticInit42c73cf4dec95db6e30a2f354aa5457f
         'Pingpp\\' => 
         array (
             0 => __DIR__ . '/..' . '/pingplusplus/pingpp-php/lib',
+        ),
+        'OSS\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/aliyuncs/oss-sdk-php/src/OSS',
         ),
         'Negotiation\\' => 
         array (
