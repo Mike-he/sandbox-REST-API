@@ -383,7 +383,7 @@ class FileServerController extends SandboxRestController
             }
             $content_type = 'image/'.$pregR[0];
             $filename = $fileid.'.'.$pregR[0];
-            $newfile = '/home/vagrant/sandbox-rest-api/web/'.$filename;
+            $newfile = $_SERVER['DOCUMENT_ROOT'].'/'.$filename;
             $object = $path.'/'.$filename;
             preg_match('/(?<=base64,)[\S|\s]+/', $file, $streamForW);
             file_put_contents($newfile, base64_decode($streamForW[0]));
@@ -608,7 +608,7 @@ class FileServerController extends SandboxRestController
 
         $ossClient->getObject($bucket, $object, $options);
 
-        $thumb = '/home/vagrant/sandbox-rest-api/web/'.$newfile;
+        $thumb = $_SERVER['DOCUMENT_ROOT'].'/'.$newfile;
         $ossClient->uploadFile($bucket,  $path.'/'.$newfile, $thumb);
         unlink($thumb);
 
