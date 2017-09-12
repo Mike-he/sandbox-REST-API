@@ -2,6 +2,7 @@
 
 namespace Sandbox\ApiBundle\Service;
 
+use JMessage\IM\Friend;
 use JMessage\IM\Resource;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use JMessage\JMessage;
@@ -49,6 +50,11 @@ class JmessageService
      */
     private $report;
 
+    /**
+     * @var Friend
+     */
+    private $friend;
+
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
@@ -59,6 +65,7 @@ class JmessageService
         $this->group = new Group($this->client);
         $this->resource = new Resource($this->client);
         $this->report = new Report($this->client);
+        $this->friend = new Friend($this->client);
     }
 
     public function createUser(
@@ -161,5 +168,12 @@ class JmessageService
         );
 
         return $response;
+    }
+
+    public function addFriends(
+        $user,
+        $friends
+    ) {
+        $this->friend->add($user, $friends);
     }
 }
