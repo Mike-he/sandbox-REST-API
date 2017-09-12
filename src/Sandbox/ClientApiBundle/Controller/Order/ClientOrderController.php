@@ -4,6 +4,7 @@ namespace Sandbox\ClientApiBundle\Controller\Order;
 
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Controller\Order\OrderController;
+use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentServiceBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
 use Sandbox\ApiBundle\Entity\Order\TransferAttachment;
@@ -12,6 +13,7 @@ use Sandbox\ApiBundle\Entity\Room\RoomTypes;
 use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
 use Sandbox\ApiBundle\Form\Order\OrderOfflineTransferPost;
 use Sandbox\ApiBundle\Form\Order\TransferAttachmentType;
+use Sandbox\ApiBundle\Traits\FinanceTrait;
 use Sandbox\ApiBundle\Traits\SetStatusTrait;
 use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
 use Symfony\Component\HttpFoundation\Response;
@@ -45,6 +47,7 @@ use JMS\Serializer\SerializationContext;
 class ClientOrderController extends OrderController
 {
     use SetStatusTrait;
+    use FinanceTrait;
 
     /**
      * Get all orders for current user.
@@ -1302,6 +1305,17 @@ class ClientOrderController extends OrderController
                         );
                     }
                 }
+            }
+
+            if ($order->getType() == ProductOrder::PREORDER_TYPE) {
+                $this->generateRefundOrderWalletFlow(
+                    $orderNumber,
+                    $order->getProduct()->getRoom()->getBuilding()->getCompanyId(),
+                    $price,
+                    $price,
+                    $channel,
+                    FinanceLongRentServiceBill::TYPE_BILL_POUNDAGE
+                );
             }
         }
 

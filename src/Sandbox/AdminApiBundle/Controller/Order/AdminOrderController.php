@@ -5,6 +5,7 @@ namespace Sandbox\AdminApiBundle\Controller\Order;
 use JMS\Serializer\SerializationContext;
 use Knp\Component\Pager\Paginator;
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
+use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentServiceBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
 use Sandbox\ApiBundle\Entity\User\User;
@@ -19,6 +20,7 @@ use Sandbox\ApiBundle\Form\Order\OrderRefundFeePatch;
 use Sandbox\ApiBundle\Form\Order\OrderRefundPatch;
 use Sandbox\ApiBundle\Form\Order\OrderReserveType;
 use Sandbox\ApiBundle\Form\Order\PreOrderType;
+use Sandbox\ApiBundle\Traits\FinanceTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -42,6 +44,7 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class AdminOrderController extends OrderController
 {
+    use FinanceTrait;
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
@@ -261,15 +264,16 @@ class AdminOrderController extends OrderController
         // check user permission
         $this->checkAdminOrderPermission($this->getAdminId(), AdminPermission::OP_LEVEL_EDIT);
 
-        $order = $this->getRepo('Order\ProductOrder')->findOneBy(
-            [
-                'id' => $id,
-                'status' => ProductOrder::STATUS_CANCELLED,
-                'needToRefund' => true,
-                'refunded' => false,
-                'refundProcessed' => true,
-            ]
-        );
+        $order = $this->getDoctrine()->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->findOneBy(
+                [
+                    'id' => $id,
+                    'status' => ProductOrder::STATUS_CANCELLED,
+                    'needToRefund' => true,
+                    'refunded' => false,
+                    'refundProcessed' => true,
+                ]
+            );
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
 
         // bind data
@@ -302,6 +306,17 @@ class AdminOrderController extends OrderController
 
         $order->setNeedToRefund(false);
         $order->setModificationDate(new \DateTime());
+
+        if ($order->getType() == ProductOrder::PREORDER_TYPE) {
+            $this->generateRefundOrderWalletFlow(
+                $order->getOrderNumber(),
+                $order->getProduct()->getRoom()->getBuilding()->getCompanyId(),
+                $order->getDiscountPrice(),
+                $order->getActualRefundAmount(),
+                $channel,
+                FinanceLongRentServiceBill::TYPE_BILL_POUNDAGE
+            );
+        }
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();
