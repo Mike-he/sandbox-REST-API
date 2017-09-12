@@ -772,6 +772,15 @@ trait FinanceSalesExportTraits
             $payChannels[$payment->getChannel()] = $payment->getName();
         }
 
+        $receivableTypes = [
+            'sales_wx' => '微信',
+            'sales_alipay' => '支付宝支付',
+            'sales_cash' => '现金',
+            'sales_others' => '其他',
+            'sales_pos' => 'POS机',
+            'sales_remit' => '线下汇款',
+        ];
+
         // set sheet body
         $excelBody = array();
         foreach ($serviceBills as $serviceBill) {
@@ -868,7 +877,7 @@ trait FinanceSalesExportTraits
                 $payMethod = '销售方收款';
                 $receivables = $em->getRepository('SandboxApiBundle:Finance\FinanceReceivables')
                         ->findOneBy(array('orderNumber' => $orderNumber));
-                $channel = $receivables->getPayChannel();
+                $channel = $receivableTypes[$receivables->getPayChannel()];
             } else {
                 $payMethod = '创合代收';
                 $channel = $payChannels[$payChannel];
