@@ -158,11 +158,11 @@ trait FinanceTrait
                 $billAmount = $wallet->getBillAmount();
                 $withdrawAmount = $wallet->getWithdrawableAmount();
 
-                $amount = $price - $refundAmount - $amount;
+                $serviceAmount = $price - $refundAmount - $amount;
 
-                $wallet->setBillAmount($billAmount - $amount);
-                $wallet->setTotalAmount($totalAmount - $amount);
-                $wallet->setWithdrawableAmount($withdrawAmount - $amount);
+                $wallet->setBillAmount($billAmount - $serviceAmount);
+                $wallet->setTotalAmount($totalAmount - $serviceAmount);
+                $wallet->setWithdrawableAmount($withdrawAmount - $serviceAmount);
 
                 /** @var AdminSalesWalletService $salesWalletServices */
                 $salesWalletServices = $this->getContainer()->get('sandbox_api.sales_wallet');
@@ -174,9 +174,10 @@ trait FinanceTrait
                     $orderNumber
                 );
 
+                $refund = $refundAmount + $serviceAmount;
                 $salesWalletServices->generateSalesWalletFlows(
                     FinanceSalesWalletFlow::REFUND_ORDERS_AMOUNT,
-                    "-($refundAmount + $amount)",
+                    "-($refund)",
                     $companyId,
                     $orderNumber
                 );
