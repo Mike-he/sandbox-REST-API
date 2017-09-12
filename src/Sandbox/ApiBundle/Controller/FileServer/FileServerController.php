@@ -10,6 +10,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use FOS\RestBundle\View\View;
+use OSS\OssClient;
+use Sandbox\ApiBundle\Constants\OssConstants;
 
 /**
  * Class FileServerController.
@@ -369,7 +371,9 @@ class FileServerController extends SandboxRestController
         $preview_height = $paramFetcher->get('preview_height');
         $preview_width = $paramFetcher->get('preview_width');
 
-        $path = $this->getPath($target, $id);
+        //$path = $this->getPath($target, $id);
+        $ossClient = $this->getOssClient();
+        $path = $this->getOssPath($target, $id);
         $fileid = $this->getName();
 
         if ($type == 'base64') {
@@ -388,18 +392,22 @@ class FileServerController extends SandboxRestController
             if (is_null($file)) {
                 throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
             }
+
             $content_type = 'image/'.$file->guessExtension();
             $filename = $fileid.'.'.$file->guessExtension();
-            $file->move($path, $filename);
+            //$file->move($path, $filename);
 
+            $object = $path.'/'.$filename;
+            $download_link = $this->uploadImage($ossClient, $file, $object);
             $newfile = $path.'/'.$filename;
         }
 
         if ($type == 'avatar' || $type == 'background') {
-            copy($newfile, $path.'/'.$type.'.jpg');
-            $this->createThumb($newfile, $path.'/'.$type.'_small.jpg', 92, 92);
-            $this->createThumb($newfile, $path.'/'.$type.'_medium.jpg', 192, 192);
-            $this->createThumb($newfile, $path.'/'.$type.'_large.jpg', 400, 400);
+
+              $this->ossThumbImage($ossClient, $object, $path, $type.'_small.jpg', 92, 92);
+              $this->ossThumbImage($ossClient, $object, $path, $type.'_medium.jpg', 192, 192);
+              $this->ossThumbImage($ossClient, $object, $path, $type.'_large.jpg', 400, 400);
+
         }
 
         if ($type == 'image') {
@@ -407,18 +415,13 @@ class FileServerController extends SandboxRestController
         }
 
         if (!is_null($preview_height) && !is_null($preview_width)) {
+
             $preview = $path.'/preview';
-            if (!file_exists($preview)) {
-                mkdir($preview, 0777, true);
-            }
-            $this->createThumb($newfile, $preview.'/'.$filename, $preview_width, $preview_height);
+
+            $pre_link = $this->ossThumbImage($ossClient, $object, $preview, $filename, $preview_width, $preview_height);
         }
 
-        $img_url = $this->container->getParameter('image_url');
-        $id = $id ? '/'.$id : '';
-        $download_link = $img_url.'/'.$target.$id.'/'.$filename;
-        $preview_link = $preview_height ? $img_url.'/'.$target.$id.'/preview/'.$filename : $download_link;
-
+        $preview_link = $preview_height ? $pre_link : $download_link;
         $result = array(
             'content_type' => $content_type,
             'download_link' => $download_link,
@@ -452,60 +455,15 @@ class FileServerController extends SandboxRestController
         return strtolower(strrchr($oriName, '.'));
     }
 
-    /**
-     * @param $target
-     * @param $id
-     *
-     * @return string
-     */
-    private function getPath(
-        $target,
-        $id
-    ) {
-        $dir = '/data/openfire/image';
-
-        if (!is_null($target)) {
-            $dir = $dir.'/'.$target;
-        }
+    private function getOssPath($target, $id)
+    {
+        $dir = $target;
 
         if (!is_null($id)) {
-            $dir = $dir.'/'.$id;
-        }
-
-        if (!file_exists($dir)) {
-            if (!mkdir($dir, 0777, true)) {
-                return false;
-            }
+            $dir = $target.'/'.$id;
         }
 
         return $dir;
-    }
-
-    /**
-     * Thumbnails.
-     *
-     * @param $srcImgPath
-     * @param $targetImgPath
-     * @param $dstW
-     * @param $dstH
-     *
-     * @return bool
-     */
-    private function createThumb(
-        $srcImgPath,
-        $targetImgPath,
-        $dstW,
-        $dstH
-    ) {
-        $src_image = $this->imgCreate($srcImgPath);
-        $srcW = imagesx($src_image); //获得图片宽
-        $srcH = imagesy($src_image); //获得图片高
-
-        $dst_image = imagecreatetruecolor($dstW, $dstH);
-
-        imagecopyresized($dst_image, $src_image, 0, 0, 0, 0, $dstW, $dstH, $srcW, $srcH);
-
-        return imagejpeg($dst_image, $targetImgPath);
     }
 
     /**
@@ -600,5 +558,61 @@ class FileServerController extends SandboxRestController
         } else {
             imagejpeg($src_image, $targetImgPath);
         }
+    }
+
+    private function getOssClient()
+    {
+        $ak = OssConstants::ACCESS_KEY_ID;
+        $sk = OssConstants::ACCESS_KEY_SECRET;
+        $endpoint = OssConstants::ENDPOINT;
+
+        return new OssClient($ak,$sk,$endpoint);
+    }
+
+    /**
+     * @param  $file
+     * @param  $object
+     * @return string
+     */
+    private function uploadImage(
+        $ossClient,
+        $file,
+        $object
+    ) {
+        $endpoint = OssConstants::ENDPOINT;
+        $bucket = OssConstants::DEV_BUCKET;
+        $ossClient->uploadFile($bucket,  $object, $file);
+
+        $download_link = 'http://'.$bucket.'.'.$endpoint.'/'.$object;
+
+        return $download_link;
+    }
+
+    /**
+     * @param $object
+     * @param $path
+     * @param $newfile
+     * @param $h
+     * @param $w
+     * @return string
+     */
+    private function ossThumbImage($ossClient, $object, $path, $newfile, $h, $w)
+    {
+        $endpoint = OssConstants::ENDPOINT;
+        $bucket = OssConstants::DEV_BUCKET;
+        $hight = "h_".$h;
+        $width = "w_".$w;
+        $options = array(
+            OssClient::OSS_FILE_DOWNLOAD => $newfile,
+            OssClient::OSS_PROCESS => "image/resize,m_fixed,$hight,$width");
+
+        $ossClient->getObject($bucket, $object, $options);
+
+        $thumb = '/home/vagrant/sandbox-rest-api/web/'.$newfile;
+        $ossClient->uploadFile($bucket,  $path.'/'.$newfile, $thumb);
+        unlink($thumb);
+
+        $link = 'http://'.$bucket.'.'.$endpoint.'/'.$path.'/'.$newfile;
+        return $link;
     }
 }
