@@ -80,9 +80,11 @@ trait FinanceTrait
                 $billAmount = $wallet->getBillAmount();
                 $withdrawAmount = $wallet->getWithdrawableAmount();
 
+                $incomingWithdrawAmount = $withdrawAmount + $price - $amount;
+
                 $wallet->setBillAmount($billAmount + $amount);
                 $wallet->setTotalAmount($totalAmount + $price);
-                $wallet->setWithdrawableAmount($withdrawAmount + $price - $amount);
+                $wallet->setWithdrawableAmount($incomingWithdrawAmount);
 
                 /** @var AdminSalesWalletService $salesWalletServices */
                 $salesWalletServices = $this->getContainer()->get('sandbox_api.sales_wallet');
@@ -90,19 +92,21 @@ trait FinanceTrait
                 switch (substr($orderNumber, 0, 1)) {
                     case ProductOrder::LETTER_HEAD:
                         $salesWalletServices->generateSalesWalletFlows(
-                                FinanceSalesWalletFlow::REALTIME_ORDERS_AMOUNT,
-                                "+$incoming",
-                                $companyId,
-                                $orderNumber
-                            );
+                            FinanceSalesWalletFlow::REALTIME_ORDERS_AMOUNT,
+                            "+$incoming",
+                            $companyId,
+                            $orderNumber,
+                            $incomingWithdrawAmount
+                        );
                         break;
                     case LeaseBill::LEASE_BILL_LETTER_HEAD:
                         $salesWalletServices->generateSalesWalletFlows(
-                                FinanceSalesWalletFlow::REALTIME_BILLS_AMOUNT,
-                                "+$incoming",
-                                $companyId,
-                                $orderNumber
-                            );
+                            FinanceSalesWalletFlow::REALTIME_BILLS_AMOUNT,
+                            "+$incoming",
+                            $companyId,
+                            $orderNumber,
+                            $incomingWithdrawAmount
+                        );
                         break;
                 }
             }
@@ -169,19 +173,23 @@ trait FinanceTrait
                 $salesWalletServices = $this->getContainer()->get('sandbox_api.sales_wallet');
 
                 //入账流水
+                $incomingWithdrawAmount = $withdrawAmount + $price;
                 $salesWalletServices->generateSalesWalletFlows(
                     FinanceSalesWalletFlow::REALTIME_ORDERS_AMOUNT,
                     "+$price",
                     $companyId,
-                    $orderNumber
+                    $orderNumber,
+                    $incomingWithdrawAmount
                 );
 
                 //退款流水
+                $refundWithdrawAmount = $withdrawAmount + $walletAmount;
                 $salesWalletServices->generateSalesWalletFlows(
                     FinanceSalesWalletFlow::REFUND_ORDERS_AMOUNT,
                     "-$refund",
                     $companyId,
-                    $orderNumber
+                    $orderNumber,
+                    $refundWithdrawAmount
                 );
             }
         }

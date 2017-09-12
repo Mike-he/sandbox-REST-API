@@ -31,18 +31,16 @@ class AdminSalesWalletService
         $title,
         $amount,
         $companyId,
-        $orderNumber = null
+        $orderNumber = null,
+        $walletAmount = null
     ) {
         $em = $this->doctrine->getManager();
-
-        $wallet = $em->getRepository('SandboxApiBundle:Finance\FinanceSalesWallet')
-            ->findOneBy(['companyId' => $companyId]);
 
         $flow = new FinanceSalesWalletFlow();
         $flow->setCompanyId($companyId);
         $flow->setTitle($title);
         $flow->setChangeAmount($amount);
-        $flow->setWalletTotalAmount($wallet->getWithdrawableAmount());
+        $flow->setWalletTotalAmount($walletAmount);
         $flow->setOrderNumber($orderNumber);
         $em->persist($flow);
 

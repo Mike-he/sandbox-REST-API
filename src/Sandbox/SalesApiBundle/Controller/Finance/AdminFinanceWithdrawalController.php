@@ -121,7 +121,9 @@ class AdminFinanceWithdrawalController extends PaymentController
 
         $total = $wallet->getTotalAmount();
 
-        $wallet->setWithdrawableAmount($current - $amount);
+        $incomingWithdrawAmount = $current - $amount;
+
+        $wallet->setWithdrawableAmount();
         $wallet->setTotalAmount($total - $amount);
 
         $error = $this->handleWithdrawalPost(
@@ -138,6 +140,14 @@ class AdminFinanceWithdrawalController extends PaymentController
             );
         }
 
+        $this->get('sandbox_api.sales_wallet')->generateSalesWalletFlows(
+            FinanceSalesWalletFlow::WITHDRAW_AMOUNT,
+            "-$amount",
+            $salesCompanyId,
+            null,
+            $incomingWithdrawAmount
+        );
+
         $em = $this->getDoctrine()->getManager();
         $em->persist($withdrawal);
         $em->flush();
@@ -150,11 +160,7 @@ class AdminFinanceWithdrawalController extends PaymentController
             'logObjectId' => $withdrawal->getId(),
         ));
 
-        $this->get('sandbox_api.sales_wallet')->generateSalesWalletFlows(
-            FinanceSalesWalletFlow::WITHDRAW_AMOUNT,
-            "-$amount",
-            $salesCompanyId
-        );
+
 
         // set view
         $view = new View();
