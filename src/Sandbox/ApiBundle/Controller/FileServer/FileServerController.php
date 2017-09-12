@@ -580,12 +580,11 @@ class FileServerController extends SandboxRestController
         $file,
         $object
     ) {
-        $endpoint = $this->getParameter('oss_endpoint');
+        $img_url = $this->getParameter('image_url');
         $bucket = $this->getParameter('oss_bucket');
         $ossClient->uploadFile($bucket,  $object, $file);
 
-        $download_link = 'http://'.$bucket.'.'.$endpoint.'/'.$object;
-
+        $download_link = $img_url.'/'.$object;
         return $download_link;
     }
 
@@ -599,7 +598,7 @@ class FileServerController extends SandboxRestController
      */
     private function ossThumbImage($ossClient, $object, $path, $newfile, $h, $w)
     {
-        $endpoint = $this->getParameter('oss_endpoint');
+        $img_url = $this->getParameter('image_url');
         $bucket = $this->getParameter('oss_bucket');
         $hight = "h_".$h;
         $width = "w_".$w;
@@ -613,7 +612,7 @@ class FileServerController extends SandboxRestController
         $ossClient->uploadFile($bucket,  $path.'/'.$newfile, $thumb);
         unlink($thumb);
 
-        $link = 'http://'.$bucket.'.'.$endpoint.'/'.$path.'/'.$newfile;
+        $link = $img_url.'/'.$path.'/'.$newfile;
         return $link;
     }
 }
