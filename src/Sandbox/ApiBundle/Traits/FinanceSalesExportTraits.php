@@ -723,7 +723,8 @@ trait FinanceSalesExportTraits
 
     public function getFinanceExportPoundage(
         $serviceBills,
-        $language
+        $language,
+        $filename
     ) {
         $em = $this->getContainer()->get('doctrine')->getManager();
 
@@ -934,7 +935,7 @@ trait FinanceSalesExportTraits
         $response = $this->get('phpexcel')->createStreamedResponse($writer);
 
         // adding headers
-        $filename = '交易手续费报表.xls';
+        $filename = $filename.'.xls';
 
         $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
         $response->headers->set('Pragma', 'public');
@@ -952,7 +953,8 @@ trait FinanceSalesExportTraits
      */
     public function getFinanceSalesWalletFlowsExport(
        $flows,
-       $language
+       $language,
+       $filename
     ) {
         $em = $this->getContainer()->get('doctrine')->getManager();
 
@@ -1007,7 +1009,7 @@ trait FinanceSalesExportTraits
         // create the response
         $response = $this->container->get('phpexcel')->createStreamedResponse($writer);
 
-        $filename = '账户钱包流水导表.xls';
+        $filename = $filename.'.xls';
 
         $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
         $response->headers->set('Pragma', 'public');
@@ -1025,7 +1027,8 @@ trait FinanceSalesExportTraits
      */
     public function getFinanceCashierExport(
         $orderNumbers,
-        $language
+        $language,
+        $filename
     ) {
         /** @var EntityManager $em */
         $em = $this->getContainer()->get('doctrine')->getManager();
@@ -1242,7 +1245,7 @@ trait FinanceSalesExportTraits
         // create the response
         $response = $this->container->get('phpexcel')->createStreamedResponse($writer);
 
-        $filename = '收银台明细导表.xls';
+        $filename = $filename.'.xls';
 
         $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
         $response->headers->set('Pragma', 'public');
@@ -1260,7 +1263,8 @@ trait FinanceSalesExportTraits
      */
     public function getFinanceExportBills(
         $language,
-        $bills
+        $bills,
+        $filename
     ) {
         /** @var EntityManager $em */
         $em = $this->getContainer()->get('doctrine')->getManager();
@@ -1404,7 +1408,7 @@ trait FinanceSalesExportTraits
         $response = $this->get('phpexcel')->createStreamedResponse($writer);
 
         // adding headers
-        $filename = '账单明细导表.xls';
+        $filename = $filename.'.xls';
 
         $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
         $response->headers->set('Pragma', 'public');
