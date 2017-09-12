@@ -47,7 +47,6 @@ use JMS\Serializer\SerializationContext;
 class ClientOrderController extends OrderController
 {
     use SetStatusTrait;
-    use FinanceTrait;
 
     /**
      * Get all orders for current user.
