@@ -307,17 +307,6 @@ class AdminOrderController extends OrderController
         $order->setNeedToRefund(false);
         $order->setModificationDate(new \DateTime());
 
-        if ($order->getType() == ProductOrder::PREORDER_TYPE) {
-            $this->generateRefundOrderWalletFlow(
-                $order->getOrderNumber(),
-                $order->getProduct()->getRoom()->getBuilding()->getCompanyId(),
-                $order->getDiscountPrice(),
-                $order->getActualRefundAmount(),
-                $channel,
-                FinanceLongRentServiceBill::TYPE_BILL_POUNDAGE
-            );
-        }
-
         $em = $this->getDoctrine()->getManager();
         $em->flush();
 
@@ -573,15 +562,17 @@ class AdminOrderController extends OrderController
         // check user permission
         $this->checkAdminOrderPermission($this->getAdminId(), AdminPermission::OP_LEVEL_EDIT);
 
-        $order = $this->getRepo('Order\ProductOrder')->findOneBy(
-            [
-                'id' => $id,
-                'status' => ProductOrder::STATUS_CANCELLED,
-                'needToRefund' => true,
-                'refunded' => false,
-                'refundProcessed' => false,
-            ]
-        );
+        $order = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->findOneBy(
+                [
+                    'id' => $id,
+                    'status' => ProductOrder::STATUS_CANCELLED,
+                    'needToRefund' => true,
+                    'refunded' => false,
+                    'refundProcessed' => false,
+                ]
+            );
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
 
         // bind data
@@ -600,6 +591,17 @@ class AdminOrderController extends OrderController
                 400,
                 self::WRONG_REFUND_AMOUNT_CODE,
                 self::WRONG_REFUND_AMOUNT_MESSAGE
+            );
+        }
+
+        if ($order->getType() == ProductOrder::PREORDER_TYPE) {
+            $this->generateRefundOrderWalletFlow(
+                $order->getOrderNumber(),
+                $order->getProduct()->getRoom()->getBuilding()->getCompanyId(),
+                $price,
+                $refund,
+                $order->getPayChannel(),
+                FinanceLongRentServiceBill::TYPE_BILL_POUNDAGE
             );
         }
 
