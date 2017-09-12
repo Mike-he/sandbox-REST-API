@@ -2,6 +2,7 @@
 
 namespace Sandbox\ApiBundle\Traits;
 
+use Doctrine\ORM\EntityManager;
 use Sandbox\ApiBundle\Entity\Finance\FinanceDashboard;
 use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentServiceBill;
 use Sandbox\ApiBundle\Entity\Finance\FinanceSalesWallet;
@@ -11,6 +12,7 @@ use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Constants\FinanceDashboardConstants;
 use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
+use Sandbox\ApiBundle\Service\AdminSalesWalletService;
 
 /**
  * Finance Trait.
@@ -36,6 +38,7 @@ trait FinanceTrait
         $channel,
         $type
     ) {
+        /** @var EntityManager $em */
         $em = $this->getContainer()->get('doctrine')->getManager();
 
         $date = round(microtime(true) * 1000).rand(1000, 9999);
@@ -81,10 +84,12 @@ trait FinanceTrait
                 $wallet->setTotalAmount($totalAmount + $price);
                 $wallet->setWithdrawableAmount($withdrawAmount + $price - $amount);
 
+                /** @var AdminSalesWalletService $salesWalletServices */
+                $salesWalletServices = $this->getContainer()->get('sandbox_api.sales_wallet');
+
                 switch (substr($orderNumber, 0, 1)) {
                     case ProductOrder::LETTER_HEAD:
-                        $this->getContainer()->get('sandbox_api.sales_wallet')
-                            ->generateSalesWalletFlows(
+                        $salesWalletServices->generateSalesWalletFlows(
                                 FinanceSalesWalletFlow::REALTIME_ORDERS_AMOUNT,
                                 "+$incoming",
                                 $companyId,
@@ -92,8 +97,7 @@ trait FinanceTrait
                             );
                         break;
                     case LeaseBill::LEASE_BILL_LETTER_HEAD:
-                        $this->getContainer()->get('sandbox_api.sales_wallet')
-                            ->generateSalesWalletFlows(
+                        $salesWalletServices->generateSalesWalletFlows(
                                 FinanceSalesWalletFlow::REALTIME_BILLS_AMOUNT,
                                 "+$incoming",
                                 $companyId,
@@ -101,6 +105,84 @@ trait FinanceTrait
                             );
                         break;
                 }
+            }
+        }
+    }
+
+    private function generateRefundOrderWalletFlow(
+        $orderNumber,
+        $companyId,
+        $price,
+        $refundAmount,
+        $channel,
+        $type
+    ) {
+        /** @var EntityManager $em */
+        $em = $this->getContainer()->get('doctrine')->getManager();
+
+        $date = round(microtime(true) * 1000).rand(1000, 9999);
+
+        $serialNumber = FinanceLongRentServiceBill::SERVICE_FEE_LETTER_HEAD.$date;
+
+        $parameter = $em->getRepository('SandboxApiBundle:Parameter\Parameter')
+            ->findOneBy(array('key' => Parameter::KEY_POUNDAGE.$channel));
+
+        $fee = $parameter ? $parameter->getValue() : 0;
+
+        $serviceBill = $em->getRepository('SandboxApiBundle:Finance\FinanceLongRentServiceBill')
+            ->findOneBy(
+                array(
+                    'orderNumber' => $orderNumber,
+                    'type' => $type,
+                )
+            );
+
+        $amount = ($price * $fee) / 100;
+        if (!$serviceBill) {
+            $serviceBill = new FinanceLongRentServiceBill();
+            $serviceBill->setSerialNumber($serialNumber);
+            $serviceBill->setServiceFee($fee);
+            $serviceBill->setAmount($amount);
+            $serviceBill->setType($type);
+            $serviceBill->setCompanyId($companyId);
+            $serviceBill->setOrderNumber($orderNumber);
+
+            $em->persist($serviceBill);
+
+            /** @var FinanceSalesWallet $wallet */
+            $wallet = $em->getRepository('SandboxApiBundle:Finance\FinanceSalesWallet')
+                ->findOneBy(['companyId' => $companyId]);
+
+            if (!is_null($wallet)) {
+                $totalAmount = $wallet->getTotalAmount();
+                $billAmount = $wallet->getBillAmount();
+                $withdrawAmount = $wallet->getWithdrawableAmount();
+
+                $refund = $refundAmount + $amount;
+                $walletAmount = $price - $refund;
+
+                $wallet->setBillAmount($billAmount + $walletAmount);
+                $wallet->setTotalAmount($totalAmount + $walletAmount);
+                $wallet->setWithdrawableAmount($withdrawAmount + $walletAmount);
+
+                /** @var AdminSalesWalletService $salesWalletServices */
+                $salesWalletServices = $this->getContainer()->get('sandbox_api.sales_wallet');
+
+                //入账流水
+                $salesWalletServices->generateSalesWalletFlows(
+                    FinanceSalesWalletFlow::REALTIME_ORDERS_AMOUNT,
+                    "+$price",
+                    $companyId,
+                    $orderNumber
+                );
+
+                //退款流水
+                $salesWalletServices->generateSalesWalletFlows(
+                    FinanceSalesWalletFlow::REFUND_ORDERS_AMOUNT,
+                    "-$refund",
+                    $companyId,
+                    $orderNumber
+                );
             }
         }
     }

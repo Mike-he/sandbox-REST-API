@@ -4,6 +4,7 @@ namespace Sandbox\ClientApiBundle\Controller\Order;
 
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Controller\Order\OrderController;
+use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentServiceBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
 use Sandbox\ApiBundle\Entity\Order\TransferAttachment;
@@ -1301,6 +1302,16 @@ class ClientOrderController extends OrderController
                             $order->getOrderNumber()
                         );
                     }
+                }
+                if ($order->getType() == ProductOrder::PREORDER_TYPE) {
+                    $this->generateRefundOrderWalletFlow(
+                        $order->getOrderNumber(),
+                        $order->getProduct()->getRoom()->getBuilding()->getCompanyId(),
+                        $price,
+                        $price,
+                        $channel,
+                        FinanceLongRentServiceBill::TYPE_BILL_POUNDAGE
+                    );
                 }
             }
         }

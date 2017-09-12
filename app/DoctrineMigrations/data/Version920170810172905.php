@@ -47,11 +47,13 @@ class Version920170810172905 extends AbstractMigration implements ContainerAware
 
                     if (isset($info['unit_price']) && !is_null($info['unit_price'])) {
                         $order->setUnitPrice($info['unit_price']);
-                        if ($info['base_price']) {
+                        if (isset($info['base_price'])) {
                             $order->setBasePrice($info['base_price']);
                         } else {
-                            $seat = $info['room']['seat'];
-                            $order->setBasePrice($seat['base_price']);
+                            if (isset($info['room']['seat'])) {
+                                $seat = $info['room']['seat'];
+                                $order->setBasePrice($seat['base_price']);
+                            }
                         }
                     } else {
                         if (isset($info['order'])) {

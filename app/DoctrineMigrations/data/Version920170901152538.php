@@ -32,19 +32,18 @@ class Version920170901152538 extends AbstractMigration implements ContainerAware
         $orders = $em->getRepository('SandboxApiBundle:Order\ProductOrder')->findAll();
 
         foreach ($orders as $order) {
-            $userId = $order->getUserId();
-            $product = $order->getProduct();
-            if (is_null($product)) {
-                continue;
-            }
-            $companyId = $product->getRoom()->getBuilding()->getCompanyId();
-            $customer = $em->getRepository('SandboxApiBundle:User\UserCustomer')
-                            ->findOneBy(array(
-                                'userId' => $userId,
-                                'companyId' => $companyId,
-                            ));
-
             if (is_null($order->getCustomerId())) {
+                $userId = $order->getUserId();
+                $product = $order->getProduct();
+                if (is_null($product)) {
+                    continue;
+                }
+                $companyId = $product->getRoom()->getBuilding()->getCompanyId();
+                $customer = $em->getRepository('SandboxApiBundle:User\UserCustomer')
+                                ->findOneBy(array(
+                                    'userId' => $userId,
+                                    'companyId' => $companyId,
+                                ));
                 if (!is_null($customer)) {
                     $order->setCustomerId($customer->getId());
                 }

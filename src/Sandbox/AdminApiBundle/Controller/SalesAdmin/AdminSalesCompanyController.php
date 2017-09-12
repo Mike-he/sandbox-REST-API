@@ -13,6 +13,7 @@ use Sandbox\ApiBundle\Entity\Admin\AdminPositionPermissionMap;
 use Sandbox\ApiBundle\Entity\Admin\AdminPositionUserBinding;
 use Sandbox\ApiBundle\Entity\Finance\FinanceSalesWallet;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
+use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdmin;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesCompanyPatchType;
@@ -216,19 +217,9 @@ class AdminSalesCompanyController extends SandboxRestController
             $shops = $this->getDoctrine()->getRepository('SandboxApiBundle:Shop\Shop')->getShopsByCompany($company);
             $shopCounts = count($shops);
 
+            /** @var SalesCompany $company*/
             $company->setBuildingCounts((int) $buildingCounts);
             $company->setShopCounts((int) $shopCounts);
-
-            // new pending building
-//            $pendingBuilding = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')
-//                ->findOneBy(array(
-//                    'companyId' => $company,
-//                    'status' => RoomBuilding::STATUS_PENDING,
-//                    'isDeleted' => false,
-//                ));
-//            if (!is_null($pendingBuilding)) {
-//                $company->setHasPendingBuilding(true);
-//            }
 
             // new pending shop
             foreach ($shops as $shop) {
@@ -348,17 +339,6 @@ class AdminSalesCompanyController extends SandboxRestController
 
         $company->setBuildingCounts((int) $buildingCounts);
         $company->setShopCounts((int) $shopCounts);
-
-        // new pending building
-//        $pendingBuilding = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')
-//            ->findOneBy(array(
-//                'companyId' => $company,
-//                'status' => RoomBuilding::STATUS_PENDING,
-//                'isDeleted' => false,
-//            ));
-//        if (!is_null($pendingBuilding)) {
-//            $company->setHasPendingBuilding(true);
-//        }
 
         // new pending shop
         foreach ($shops as $shop) {
@@ -781,6 +761,20 @@ class AdminSalesCompanyController extends SandboxRestController
                 $adminPositionUser->setUser($user);
                 $adminPositionUser->setPosition($position);
                 $em->persist($adminPositionUser);
+            }
+
+            $salesAdmin = $em->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
+                ->findOneBy(array('userId'=>$userId));
+
+            if (is_null($salesAdmin)) {
+                $salesAdmin = new SalesAdmin();
+                $salesAdmin->setUserId($userId);
+                $salesAdmin->setPassword($user->getPassword());
+                $salesAdmin->setXmppUsername('admin_'.$user->getXmppUsername());
+                $salesAdmin->setPhoneCode($user->getPhoneCode());
+                $salesAdmin->setPhone($user->getPhone());
+
+                $em->persist($salesAdmin);
             }
         }
     }
