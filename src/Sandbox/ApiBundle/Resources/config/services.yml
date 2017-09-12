@@ -32,3 +32,6 @@ services:
     sandbox_api.sales_wallet:
         class: Sandbox\ApiBundle\Service\AdminSalesWalletService
         arguments: ['@service_container']
+    sandbox_api.des_encrypt:
+        class: Sandbox\ApiBundle\Service\DESencryptService
+        arguments: ['@service_container']
