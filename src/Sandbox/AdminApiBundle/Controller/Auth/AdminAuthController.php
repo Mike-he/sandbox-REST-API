@@ -106,7 +106,6 @@ class AdminAuthController extends AuthController
                     'is_super_admin' => $condition,
                     'client_id' => $this->getUser()->getClientId(),
                     'xmpp_username' => $this->getUser()->getMyUser()->getXmppUsername(),
-                    'xmpp_code' => $this->getUser()->getMyUser()->getPassword(),
                 ],
             )
         );
