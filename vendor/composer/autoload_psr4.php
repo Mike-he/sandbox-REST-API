@@ -33,6 +33,7 @@ return array(
     'Psr\\Log\\' => array($vendorDir . '/psr/log/Psr/Log'),
     'Predis\\' => array($vendorDir . '/predis/predis/src'),
     'Pingpp\\' => array($vendorDir . '/pingplusplus/pingpp-php/lib'),
+    'OSS\\' => array($vendorDir . '/aliyuncs/oss-sdk-php/src/OSS'),
     'Negotiation\\' => array($vendorDir . '/willdurand/negotiation/src/Negotiation'),
     'Monolog\\' => array($vendorDir . '/monolog/monolog/src/Monolog'),
     'Liuggio\\ExcelBundle\\' => array($vendorDir . '/liuggio/ExcelBundle'),
