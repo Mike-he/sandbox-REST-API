@@ -286,14 +286,18 @@ class CreateShortRentInvoiceCommand extends ContainerAwareCommand
                 $withdrawableAmount = $wallet->getWithdrawableAmount();
                 $totalAmount = $wallet->getTotalAmount();
 
-                $wallet->setWithdrawableAmount($withdrawableAmount + $monthAmount);
+                $incomingWithdrawAmount = $withdrawableAmount + $monthAmount;
+
+                $wallet->setWithdrawableAmount($incomingWithdrawAmount);
                 $wallet->setTotalAmount($totalAmount + $monthAmount);
 
                 $this->getContainer()->get('sandbox_api.sales_wallet')
                     ->generateSalesWalletFlows(
                     FinanceSalesWalletFlow::MONTHLY_ORDER_AMOUNT,
                     "+$monthAmount",
-                    $key
+                    $key,
+                    null,
+                    $incomingWithdrawAmount
                 );
             }
         }

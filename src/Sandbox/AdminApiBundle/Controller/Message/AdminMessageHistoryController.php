@@ -40,7 +40,7 @@ class AdminMessageHistoryController extends AdminMessagePushController
 
         return new View(array(
             'xmpp_username' => 'service',
-            'xmpp_code' => $user->getPassword(),
+            'xmpp_code' => $this->get('sandbox_api.des_encrypt')->encrypt($user->getPassword()),
         ));
     }
 

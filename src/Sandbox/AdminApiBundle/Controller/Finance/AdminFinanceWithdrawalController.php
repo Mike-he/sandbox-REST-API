@@ -292,7 +292,8 @@ class AdminFinanceWithdrawalController extends PaymentController
             $total = $wallet->getTotalAmount();
             $amount = $withdrawal->getAmount();
 
-            $wallet->setWithdrawableAmount($current + $amount);
+            $incomingWithdrawAmount = $current + $amount;
+            $wallet->setWithdrawableAmount($incomingWithdrawAmount);
             $wallet->setTotalAmount($total + $amount);
 
             $withdrawal->setFailureTime($now);
@@ -300,7 +301,9 @@ class AdminFinanceWithdrawalController extends PaymentController
             $this->get('sandbox_api.sales_wallet')->generateSalesWalletFlows(
                 FinanceSalesWalletFlow::WITHDRAW_FAILED_AMOUNT,
                 "+$amount",
-                $company->getId()
+                $company->getId(),
+                null,
+                $incomingWithdrawAmount
             );
         }
 
