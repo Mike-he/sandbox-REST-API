@@ -121,3 +121,8 @@ parameters:
 
     jpush_key: 24549eef0e5dfe83b1483586
     jpush_secret: 83aa0ae09df6f9e1a302cae0
+
+    oss_access_key_id: LTAIWj72yqRsw2GW
+    oss_access_key_secret: aeL8mj8epd6vWFpneS7VlAnrQ0kgRx
+    oss_endpoint: oss-cn-shanghai.aliyuncs.com
+    oss_bucket: sandbox3-dev-image

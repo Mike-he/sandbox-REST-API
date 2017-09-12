@@ -383,10 +383,13 @@ class FileServerController extends SandboxRestController
             }
             $content_type = 'image/'.$pregR[0];
             $filename = $fileid.'.'.$pregR[0];
-            $newfile = $path.'/'.$filename;
-
+            $newfile = '/home/vagrant/sandbox-rest-api/web/'.$filename;
+            $object = $path.'/'.$filename;
             preg_match('/(?<=base64,)[\S|\s]+/', $file, $streamForW);
             file_put_contents($newfile, base64_decode($streamForW[0]));
+
+            $download_link = $this->uploadImage( $ossClient, $newfile, $object);
+            unlink($newfile);
         } else {
             $file = $request->files->get('file');
             if (is_null($file)) {
@@ -403,11 +406,9 @@ class FileServerController extends SandboxRestController
         }
 
         if ($type == 'avatar' || $type == 'background') {
-
               $this->ossThumbImage($ossClient, $object, $path, $type.'_small.jpg', 92, 92);
               $this->ossThumbImage($ossClient, $object, $path, $type.'_medium.jpg', 192, 192);
               $this->ossThumbImage($ossClient, $object, $path, $type.'_large.jpg', 400, 400);
-
         }
 
         if ($type == 'image') {
@@ -562,9 +563,9 @@ class FileServerController extends SandboxRestController
 
     private function getOssClient()
     {
-        $ak = OssConstants::ACCESS_KEY_ID;
-        $sk = OssConstants::ACCESS_KEY_SECRET;
-        $endpoint = OssConstants::ENDPOINT;
+        $ak = $this->getParameter('oss_access_key_id');
+        $sk = $this->getParameter('oss_access_key_secret');
+        $endpoint = $this->getParameter('oss_endpoint');
 
         return new OssClient($ak,$sk,$endpoint);
     }
@@ -579,8 +580,8 @@ class FileServerController extends SandboxRestController
         $file,
         $object
     ) {
-        $endpoint = OssConstants::ENDPOINT;
-        $bucket = OssConstants::DEV_BUCKET;
+        $endpoint = $this->getParameter('oss_endpoint');
+        $bucket = $this->getParameter('oss_bucket');
         $ossClient->uploadFile($bucket,  $object, $file);
 
         $download_link = 'http://'.$bucket.'.'.$endpoint.'/'.$object;
@@ -598,8 +599,8 @@ class FileServerController extends SandboxRestController
      */
     private function ossThumbImage($ossClient, $object, $path, $newfile, $h, $w)
     {
-        $endpoint = OssConstants::ENDPOINT;
-        $bucket = OssConstants::DEV_BUCKET;
+        $endpoint = $this->getParameter('oss_endpoint');
+        $bucket = $this->getParameter('oss_bucket');
         $hight = "h_".$h;
         $width = "w_".$w;
         $options = array(
