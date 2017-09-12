@@ -26,6 +26,7 @@ class AdminSalesWalletService
      * @param $amount
      * @param $companyId
      * @param $orderNumber
+     * @param $walletAmount
      */
     public function generateSalesWalletFlows(
         $title,
@@ -43,7 +44,5 @@ class AdminSalesWalletService
         $flow->setWalletTotalAmount($walletAmount);
         $flow->setOrderNumber($orderNumber);
         $em->persist($flow);
-
-        $em->flush();
     }
 }
