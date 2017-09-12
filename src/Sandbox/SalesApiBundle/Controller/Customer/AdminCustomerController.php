@@ -70,6 +70,10 @@ class AdminCustomerController extends SalesRestController
         $userIds = $paramFetcher->get('user_id');
         $query = $paramFetcher->get('query');
 
+        if (empty($ids) && empty($userIds) && empty($query)) {
+            return new View([]);
+        }
+
         $customers = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserCustomer')
             ->searchCustomers(
