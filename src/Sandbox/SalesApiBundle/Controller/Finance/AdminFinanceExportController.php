@@ -84,9 +84,11 @@ class AdminFinanceExportController extends SalesRestController
                 null
             );
 
+        $filename = '交易手续费报表'.$year.$month;
         return $this->getFinanceExportPoundage(
             $serviceBills,
-            $language
+            $language,
+            $filename
         );
     }
 
@@ -176,7 +178,7 @@ class AdminFinanceExportController extends SalesRestController
                 $data['company_id']
             );
 
-        $filename = '秒租平台订单报表';
+        $filename = '秒租平台订单报表'.$year.$month;
         return $this->getFinanceSummaryExport(
             $filename,
             $language,
@@ -235,20 +237,22 @@ class AdminFinanceExportController extends SalesRestController
         $now = new \DateTime('now');
         $beginDate = clone $now;
         $beginDate = $beginDate->modify('-30 days');
-        $startDate = is_null($startDate) ? $beginDate : $startDate;
-        $endDate = is_null($endDate) ? $now : $endDate;
+        $start = is_null($startDate) ? $beginDate : $startDate;
+        $end = is_null($endDate) ? $now : $endDate;
 
         $flows = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Finance\FinanceSalesWalletFlow')
             ->getAdminWalletFlows(
                 $salesCompanyId,
-                $startDate,
-                $endDate
+                $start,
+                $end
             );
 
+        $filename = '账户钱包流水导表'.$startDate.'-'.$startDate;
         return $this->getFinanceSalesWalletFlowsExport(
             $flows,
-            $language
+            $language,
+            $filename
         );
     }
 
@@ -293,8 +297,11 @@ class AdminFinanceExportController extends SalesRestController
                 AdminPermission::PERMISSION_PLATFORM_SALES
             );
 
-        $startDate = new \DateTime($paramFetcher->get('start_date'));
-        $endDate = new \DateTime($paramFetcher->get('end_date'));
+        $start = $paramFetcher->get('start_date');
+        $end = $paramFetcher->get('end_date');
+
+        $startDate = new \DateTime($start);
+        $endDate = new \DateTime($end);
         $endDate = $endDate->setTime('23', '59', '59');
         $language = $paramFetcher->get('language');
 
@@ -329,7 +336,7 @@ class AdminFinanceExportController extends SalesRestController
                 $data['company_id']
             );
 
-        $filename = '订单明细导表';
+        $filename = '订单明细导表'.$start.'-'.$start;
         return $this->getFinanceSummaryExport(
             $filename,
             $language,
@@ -404,10 +411,11 @@ class AdminFinanceExportController extends SalesRestController
 
         $orderNumbers = array_merge($orders,$bills);
 
-
+        $filename = '收银台明细导表'.$startDate.'-'.$endDate;
         return $this->getFinanceCashierExport(
             $orderNumbers,
-            $language
+            $language,
+            $filename
         );
     }
 
@@ -452,8 +460,12 @@ class AdminFinanceExportController extends SalesRestController
                 AdminPermission::PERMISSION_PLATFORM_SALES
             );
 
-        $startDate = new \DateTime($paramFetcher->get('start_date'));
-        $endDate = new \DateTime($paramFetcher->get('end_date'));
+
+        $start = $paramFetcher->get('start_date');
+        $end = $paramFetcher->get('end_date');
+
+        $startDate = new \DateTime($start);
+        $endDate = new \DateTime($end);
         $endDate = $endDate->setTime('23', '59', '59');
         $language = $paramFetcher->get('language');
 
@@ -471,9 +483,11 @@ class AdminFinanceExportController extends SalesRestController
                 $billStatus
             );
 
+        $filename = '账单明细导表'.$start.'-'.$end;
         return $this->getFinanceExportBills(
             $language,
-            $bills
+            $bills,
+            $filename
         );
     }
 }
