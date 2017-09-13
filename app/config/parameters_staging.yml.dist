@@ -120,5 +120,5 @@ parameters:
 
     oss_access_key_id: LTAIWj72yqRsw2GW
     oss_access_key_secret: aeL8mj8epd6vWFpneS7VlAnrQ0kgRx
-    oss_endpoint: oss-cn-shanghai.aliyuncs.com
+    oss_endpoint: oss-cn-shanghai-internal.aliyuncs.com
     oss_bucket: sandbox3-staging-image

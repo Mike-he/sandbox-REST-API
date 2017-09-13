@@ -7,6 +7,9 @@ ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && echo "${TZ}" > /etc/timezone
 
 cd /var/www/sandbox-REST-API
 
+# Enable write permission for folder
+chmod 777 web/
+
 # Copy pdf bin
 cp data/pdf_bin/* /usr/bin/ && chmod +x /usr/bin/wkhtmltopdf /usr/bin/wkhtmltoimage
 
