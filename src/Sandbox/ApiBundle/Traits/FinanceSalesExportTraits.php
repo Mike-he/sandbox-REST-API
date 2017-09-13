@@ -831,6 +831,8 @@ trait FinanceSalesExportTraits
                         }
                     }
 
+                    $status = $order->getStatus() == ProductOrder::STATUS_COMPLETED ? '已完成' : '已取消';
+
                     break;
                 case 'B':
                     $bill = $em->getRepository('SandboxApiBundle:Lease\LeaseBill')
@@ -855,6 +857,8 @@ trait FinanceSalesExportTraits
                     $customerId = $bill->getCustomerId() ? $bill->getCustomerId() : $lease->getLesseeCustomer();
 
                     $unitPriceDesc = null;
+
+                    $status = '已完成';
 
                     break;
                 default:
@@ -905,7 +909,7 @@ trait FinanceSalesExportTraits
                 'end_date' => $endDate,
                 'creation_date' => $creationDate,
                 'payment_date' => $paymentDate,
-                'status' => '已完成',
+                'status' => $status,
                 'refundTo' => $refundTo,
                 'customer_phone' => $customer ? $customer->getPhone() : '',
                 'customer_email' => $customer ? $customer->getEmail() : '',

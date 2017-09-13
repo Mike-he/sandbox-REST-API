@@ -248,7 +248,12 @@ class AdminFinanceExportController extends SalesRestController
                 $end
             );
 
-        $filename = '账户钱包流水导表'.$startDate.'-'.$startDate;
+        $startDate = new \DateTime($startDate);
+        $endDate = new \DateTime($endDate);
+        $startName = $startDate->format('Ymd');
+        $endName = $endDate->format('Ymd');
+
+        $filename = '账户钱包流水导表'.$startName.'-'.$endName;
         return $this->getFinanceSalesWalletFlowsExport(
             $flows,
             $language,
@@ -336,7 +341,12 @@ class AdminFinanceExportController extends SalesRestController
                 $data['company_id']
             );
 
-        $filename = '订单明细导表'.$start.'-'.$start;
+        $startDate = new \DateTime($startDate);
+        $endDate = new \DateTime($endDate);
+        $startName = $startDate->format('Ymd');
+        $endName = $endDate->format('Ymd');
+
+        $filename = '订单明细导表'.$startName.'-'.$endName;
         return $this->getFinanceSummaryExport(
             $filename,
             $language,
@@ -411,7 +421,12 @@ class AdminFinanceExportController extends SalesRestController
 
         $orderNumbers = array_merge($orders,$bills);
 
-        $filename = '收银台明细导表'.$startDate.'-'.$endDate;
+        $startDate = new \DateTime($startDate);
+        $endDate = new \DateTime($endDate);
+        $startName = $startDate->format('Ymd');
+        $endName = $endDate->format('Ymd');
+
+        $filename = '收银台明细导表'.$startName.'-'.$endName;
         return $this->getFinanceCashierExport(
             $orderNumbers,
             $language,
@@ -483,7 +498,10 @@ class AdminFinanceExportController extends SalesRestController
                 $billStatus
             );
 
-        $filename = '账单明细导表'.$start.'-'.$end;
+        $startName = $startDate->format('Ymd');
+        $endName = $endDate->format('Ymd');
+
+        $filename = '账单明细导表'.$startName.'-'.$endName;
         return $this->getFinanceExportBills(
             $language,
             $bills,
