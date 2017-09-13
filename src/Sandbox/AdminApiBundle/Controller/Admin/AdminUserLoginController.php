@@ -92,7 +92,7 @@ class AdminUserLoginController extends AdminRestController
         if (!$salesAdmin) {
             $salesAdmin = new SalesAdmin();
             $salesAdmin->setPhone($admin->getPhone());
-            $salesAdmin->setPhoneCode($admin->setPhoneCode());
+            $salesAdmin->setPhoneCode($admin->getPhoneCode());
             $salesAdmin->setXmppUsername('admin_'.$admin->getXmppUsername());
             $salesAdmin->setPassword($admin->getPassword());
             $salesAdmin->getUserId($admin->getId());
