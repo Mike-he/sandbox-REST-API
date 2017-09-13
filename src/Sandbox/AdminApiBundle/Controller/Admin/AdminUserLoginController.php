@@ -95,7 +95,7 @@ class AdminUserLoginController extends AdminRestController
             $salesAdmin->setPhoneCode($admin->getPhoneCode());
             $salesAdmin->setXmppUsername('admin_'.$admin->getXmppUsername());
             $salesAdmin->setPassword($admin->getPassword());
-            $salesAdmin->getUserId($admin->getId());
+            $salesAdmin->setUserId($admin->getId());
 
             $em->persist($salesAdmin);
             $em->flush();
