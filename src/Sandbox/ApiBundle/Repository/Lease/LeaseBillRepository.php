@@ -941,16 +941,11 @@ class LeaseBillRepository extends EntityRepository
             ->setParameter('companyId', $companyId);
 
         if ($startDate) {
-            $startDate = new \DateTime($startDate);
-
             $query->andWhere('lb.sendDate >= :startDate')
                 ->setParameter('startDate', $startDate);
         }
 
         if ($endDate) {
-            $endDate = new \DateTime($endDate);
-            $endDate->setTime(23, 59, 59);
-
             $query->andWhere('lb.sendDate <= :endDate')
                 ->setParameter('endDate', $endDate);
         }
