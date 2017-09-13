@@ -1202,8 +1202,18 @@ class AdminBuildingController extends LocationController
                 ->getRepository('SandboxApiBundle:ChatGroup\ChatGroup')
                 ->find($key);
 
+            $membersIds = [];
+            foreach ($vals as $member) {
+                $salesAdmin = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
+                    ->findOneBy(array('userId' => $member->getId()));
+                if ($salesAdmin) {
+                    $memberIds[] = $salesAdmin->getXmppUsername();
+                }
+            }
+
             // call openfire
-            $this->addXmppChatGroupMember($group, $vals);
+            $this->addXmppChatGroupMember($group, $membersIds);
         }
     }
 
@@ -1281,8 +1291,18 @@ class AdminBuildingController extends LocationController
                 ->getRepository('SandboxApiBundle:ChatGroup\ChatGroup')
                 ->find($key);
 
+            $membersIds = [];
+            foreach ($vals as $member) {
+                $salesAdmin = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
+                    ->findOneBy(array('userId' => $member->getId()));
+                if ($salesAdmin) {
+                    $memberIds[] = $salesAdmin->getXmppUsername();
+                }
+            }
+
             // call openfire
-            $this->deleteXmppChatGroupMember($group, $vals);
+            $this->deleteXmppChatGroupMember($group, $membersIds);
         }
     }
 

@@ -132,7 +132,12 @@ class ClientChatGroupMemberController extends ClientChatGroupController
 
         $em->flush();
 
-        $this->addXmppChatGroupMember($chatGroup, $members);
+        $membersIds = [];
+        foreach ($members as $member) {
+            $memberIds[] = $member->getXmppUsername();
+        }
+
+        $this->addXmppChatGroupMember($chatGroup, $membersIds);
 
         return new view();
     }
@@ -216,7 +221,7 @@ class ClientChatGroupMemberController extends ClientChatGroupController
             $em->remove($chatGroupMember);
             $em->flush();
 
-            $this->deleteXmppChatGroupMember($chatGroup, array($user));
+            $this->deleteXmppChatGroupMember($chatGroup, array($user->getXmppUsername()));
         }
 
         return new View();
@@ -268,8 +273,13 @@ class ClientChatGroupMemberController extends ClientChatGroupController
 
         $em->flush();
 
+        $membersIds = [];
+        foreach ($members as $member) {
+            $memberIds[] = $member->getXmppUsername();
+        }
+
         // update chat group in Openfire
-        $this->deleteXmppChatGroupMember($chatGroup, $members);
+        $this->deleteXmppChatGroupMember($chatGroup, $membersIds);
 
         return new View();
     }
