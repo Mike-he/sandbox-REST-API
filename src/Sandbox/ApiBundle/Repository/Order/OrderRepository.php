@@ -4530,16 +4530,11 @@ class OrderRepository extends EntityRepository
             ->setParameter('preorder', ProductOrder::PREORDER_TYPE);
 
         if ($startDate) {
-            $startDate = new \DateTime($startDate);
-
             $query->andWhere('o.creationDate >= :startDate')
                 ->setParameter('startDate', $startDate);
         }
 
         if ($endDate) {
-            $endDate = new \DateTime($endDate);
-            $endDate->setTime(23, 59, 59);
-
             $query->andWhere('o.creationDate <= :endDate')
                 ->setParameter('endDate', $endDate);
         }

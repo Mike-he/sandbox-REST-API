@@ -341,8 +341,6 @@ class AdminFinanceExportController extends SalesRestController
                 $data['company_id']
             );
 
-        $startDate = new \DateTime($startDate);
-        $endDate = new \DateTime($endDate);
         $startName = $startDate->format('Ymd');
         $endName = $endDate->format('Ymd');
 
@@ -402,6 +400,10 @@ class AdminFinanceExportController extends SalesRestController
         $endDate = $paramFetcher->get('end_date');
         $language = $paramFetcher->get('language');
 
+        $startDate = new \DateTime($startDate);
+        $endDate = new \DateTime($endDate);
+        $endDate->setTime(23, 59, 59);
+
         $orders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->getPreOrders(
@@ -418,11 +420,8 @@ class AdminFinanceExportController extends SalesRestController
                 $endDate
             );
 
-
         $orderNumbers = array_merge($orders,$bills);
 
-        $startDate = new \DateTime($startDate);
-        $endDate = new \DateTime($endDate);
         $startName = $startDate->format('Ymd');
         $endName = $endDate->format('Ymd');
 
