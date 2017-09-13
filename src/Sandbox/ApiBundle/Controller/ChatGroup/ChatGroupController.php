@@ -109,9 +109,20 @@ class ChatGroupController extends SandboxRestController
 
             $membersIds = array();
             foreach ($members as $member) {
-                $memberId = $member->getUser()->getXmppUsername();
-                if ($memberId != $ownerName) {
-                    array_push($membersIds, $memberId);
+                /* @var ChatGroupMember $member */
+                if ($chatGroup->getTag() == ChatGroup::CUSTOMER_SERVICE) {
+                    $salesAdmin = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
+                        ->findOneBy(array('userId' => $member->getUser()->getId()));
+                    if ($salesAdmin) {
+                        $memberId = $salesAdmin->getXmppUsername();
+                        array_push($membersIds, $memberId);
+                    }
+                } else {
+                    $memberId = $member->getUser()->getXmppUsername();
+                    if ($memberId != $ownerName) {
+                        array_push($membersIds, $memberId);
+                    }
                 }
             }
 
@@ -182,18 +193,14 @@ class ChatGroupController extends SandboxRestController
 
     /**
      * @param ChatGroup $chatGroup
-     * @param $members
+     * @param $memberIds
      */
     protected function addXmppChatGroupMember(
         $chatGroup,
-        $members
+        $memberIds
     ) {
         try {
             $gid = $chatGroup->getGid();
-            $memberIds = [];
-            foreach ($members as $member) {
-                $memberIds[] = $member->getXmppUsername();
-            }
 
             $service = $this->get('sandbox_api.jmessage');
             $service->addGroupMembers($gid, $memberIds);
@@ -202,16 +209,16 @@ class ChatGroupController extends SandboxRestController
         }
     }
 
+    /**
+     * @param ChatGroup $chatGroup
+     * @param $memberIds
+     */
     protected function deleteXmppChatGroupMember(
         $chatGroup,
-        $members
+        $memberIds
     ) {
         try {
             $gid = $chatGroup->getGid();
-            $memberIds = [];
-            foreach ($members as $member) {
-                $memberIds[] = $member->getXmppUsername();
-            }
 
             $service = $this->get('sandbox_api.jmessage');
             $service->deleteGroupMembers($gid, $memberIds);

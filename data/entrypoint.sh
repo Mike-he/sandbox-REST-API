@@ -7,6 +7,9 @@ ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && echo "${TZ}" > /etc/timezone
 
 cd /var/www/sandbox-REST-API
 
+# Enable write permission for folder
+chmod 777 web/
+
 # Copy pdf bin
 cp data/pdf_bin/* /usr/bin/ && chmod +x /usr/bin/wkhtmltopdf /usr/bin/wkhtmltoimage
 
@@ -41,9 +44,6 @@ php app/console cache:clear --env=dev
 
 chmod o+rwx app/cache -R
 chmod o+rwx app/logs -R
-chmod o+rwx /data/openfire -R
-
-cp -r web/image/ /data/openfire/
 
 if [ ! -z "$CRON_JOB" ]; then
   if [ "$CRON_JOB" == true ]; then
