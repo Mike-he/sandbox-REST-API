@@ -11,7 +11,7 @@ cd /var/www/sandbox-REST-API
 chmod 777 web/
 
 # Copy pdf bin
-cp data/pdf_bin/* /usr/bin/ && chmod +x /usr/bin/wkhtmltopdf /usr/bin/wkhtmltoimage
+cp data/pdf_bin/* /usr/bin/ && chmod +x /usr/bin/wkhtmltopdf
 
 # Copy composer on system and install it globally
 cp data/composer.phar /usr/local/bin/composer && chmod +x /usr/local/bin/composer

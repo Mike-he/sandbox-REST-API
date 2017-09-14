@@ -388,7 +388,7 @@ class FileServerController extends SandboxRestController
             preg_match('/(?<=base64,)[\S|\s]+/', $file, $streamForW);
             file_put_contents($newfile, base64_decode($streamForW[0]));
 
-            $download_link = $this->uploadImage( $ossClient, $newfile, $object);
+            $download_link = $this->uploadImage( $ossClient, $newfile, $object, $path, $type);
             unlink($newfile);
         } else {
             $file = $request->files->get('file');
@@ -401,18 +401,19 @@ class FileServerController extends SandboxRestController
             //$file->move($path, $filename);
 
             $object = $path.'/'.$filename;
-            $download_link = $this->uploadImage($ossClient, $file, $object);
-            $newfile = $path.'/'.$filename;
+            $download_link = $this->uploadImage($ossClient, $file, $object, $path, $type);
         }
 
         if ($type == 'avatar' || $type == 'background') {
+              $object = $path.'/'.$type.'.'.$file->guessExtension();
               $this->ossThumbImage($ossClient, $object, $path, $type.'_small.jpg', 92, 92);
               $this->ossThumbImage($ossClient, $object, $path, $type.'_medium.jpg', 192, 192);
               $this->ossThumbImage($ossClient, $object, $path, $type.'_large.jpg', 400, 400);
         }
 
         if ($type == 'image') {
-            $this->resizeImage($newfile, $newfile, 800, 800);
+            //$this->resizeImage($newfile, $newfile, 800, 800);
+            $this->ossResizeImage($ossClient, $object, $filename,800,800);
         }
 
         if (!is_null($preview_height) && !is_null($preview_width)) {
@@ -571,17 +572,26 @@ class FileServerController extends SandboxRestController
     }
 
     /**
-     * @param  $file
-     * @param  $object
+     * @param $ossClient
+     * @param $file
+     * @param $object
+     * @param $path
+     * @param $type
      * @return string
      */
     private function uploadImage(
         $ossClient,
         $file,
-        $object
+        $object,
+        $path,
+        $type
     ) {
         $img_url = $this->getParameter('image_url');
         $bucket = $this->getParameter('oss_bucket');
+
+        if($type == 'avatar' || $type == 'background'){
+            $object = $path.'/'.$type.'.'.$file->guessExtension();
+        }
         $ossClient->uploadFile($bucket,  $object, $file);
 
         $download_link = $img_url.'/'.$object;
@@ -614,5 +624,33 @@ class FileServerController extends SandboxRestController
 
         $link = $img_url.'/'.$path.'/'.$newfile;
         return $link;
+    }
+
+    /**
+     * @param $ossClient
+     * @param $object
+     * @param $newfile
+     * @param $h
+     * @param $w
+     */
+    private function ossResizeImage(
+        $ossClient,
+        $object,
+        $newfile,
+        $h,
+        $w
+    ){
+        $bucket = $this->getParameter('oss_bucket');
+        $hight = "h_".$h;
+        $width = "w_".$w;
+        $options = array(
+            OssClient::OSS_FILE_DOWNLOAD => $newfile,
+            OssClient::OSS_PROCESS => "image/resize,m_lfit,$hight,$width");
+
+        $ossClient->getObject($bucket,$object,$options);
+        $image = $_SERVER['DOCUMENT_ROOT'].'/'.$newfile;
+        $ossClient->uploadFile($bucket,  $object, $image);
+
+        unlink($image);
     }
 }
