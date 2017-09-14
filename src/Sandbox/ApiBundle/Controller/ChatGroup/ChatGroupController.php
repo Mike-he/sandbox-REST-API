@@ -109,18 +109,18 @@ class ChatGroupController extends SandboxRestController
 
             $membersIds = array();
             foreach ($members as $member) {
-                /* @var ChatGroupMember $member */
-                if ($chatGroup->getTag() == ChatGroup::CUSTOMER_SERVICE) {
-                    $salesAdmin = $this->getDoctrine()
-                        ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
-                        ->findOneBy(array('userId' => $member->getUser()->getId()));
-                    if ($salesAdmin) {
-                        $memberId = $salesAdmin->getXmppUsername();
-                        array_push($membersIds, $memberId);
-                    }
-                } else {
-                    $memberId = $member->getUser()->getXmppUsername();
-                    if ($memberId != $ownerName) {
+                $memberId = $member->getUser()->getXmppUsername();
+                if ($memberId != $ownerName) {
+                    /* @var ChatGroupMember $member */
+                    if ($chatGroup->getTag() == ChatGroup::CUSTOMER_SERVICE) {
+                        $salesAdmin = $this->getDoctrine()
+                            ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
+                            ->findOneBy(array('userId' => $member->getUser()->getId()));
+                        if ($salesAdmin) {
+                            $salesMemberId = $salesAdmin->getXmppUsername();
+                            array_push($membersIds, $salesMemberId);
+                        }
+                    } else {
                         array_push($membersIds, $memberId);
                     }
                 }
