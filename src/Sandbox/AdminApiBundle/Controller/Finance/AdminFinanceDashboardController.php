@@ -180,6 +180,7 @@ class AdminFinanceDashboardController extends AdminRestController
             ->getTimePeriods(
                 FinanceDashboard::TYPE_CASH_FLOW
             );
+        $financeCashFlowDashboardTimePeriods = array_reverse($financeCashFlowDashboardTimePeriods);
 
         $response = array();
         foreach ($financeCashFlowDashboardTimePeriods as $period) {
@@ -248,6 +249,7 @@ class AdminFinanceDashboardController extends AdminRestController
             ->getTimePeriods(
                 FinanceDashboard::TYPE_BALANCE_FLOW
             );
+        $financeBalanceFlowDashboardTimePeriods = array_reverse($financeBalanceFlowDashboardTimePeriods);
 
         $response = array();
         foreach ($financeBalanceFlowDashboardTimePeriods as $period) {
