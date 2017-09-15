@@ -37,6 +37,7 @@ class FinanceDashboardConstants
     const UPACP_TOP_UP_AMOUNT = 'upacp_top_up_amount';
     const REFUND_TO_ACCOUNT_AMOUNT = 'refund_to_account_amount';
     const ACCOUNT_REFUND_TO_ACCOUNT_AMOUNT = 'account_refund_to_account_amount';
+    const OFFLINE_TOP_UP_AMOUNT = 'offline_top_up_amount';
     const TOTAL_TOP_UP_COUNT = 'total_top_up_count';
     const WX_TOP_UP_COUNT = 'wx_top_up_count';
     const WX_PUB_TOP_UP_COUNT = 'wx_pub_top_up_count';
@@ -44,6 +45,7 @@ class FinanceDashboardConstants
     const UPACP_TOP_UP_COUNT = 'upacp_top_up_count';
     const REFUND_TO_ACCOUNT_COUNT = 'refund_to_account_count';
     const ACCOUNT_REFUND_TO_ACCOUNT_COUNT = 'account_refund_to_account_count';
+    const OFFLINE_TOP_UP_COUNT = 'offline_top_up_count';
     const SPACE_EXPEND_AMOUNT = 'space_expend_amount';
     const SHOP_EXPEND_AMOUNT = 'shop_expend_amount';
     const ACTIVITY_EXPEND_AMOUNT = 'activity_expend_amount';

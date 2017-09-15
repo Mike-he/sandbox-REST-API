@@ -939,14 +939,17 @@ trait FinanceTrait
         $startDate,
         $endDate
     ) {
-        $topUpTotalAmount = $this->getContainer()->get('doctrine')
+        /** @var EntityManager $em */
+        $em = $this->get('doctrine')->getManager();
+
+        $topUpTotalAmount = $em
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->getTopUpAmount(
                 $startDate,
                 $endDate
             );
 
-        $wxTopUpAmount = $this->getContainer()->get('doctrine')
+        $wxTopUpAmount = $em
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->getTopUpAmount(
                 $startDate,
@@ -954,7 +957,7 @@ trait FinanceTrait
                 ProductOrder::CHANNEL_WECHAT
             );
 
-        $wxPubTopUpAmount = $this->getContainer()->get('doctrine')
+        $wxPubTopUpAmount = $em
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->getTopUpAmount(
                 $startDate,
@@ -962,7 +965,7 @@ trait FinanceTrait
                 ProductOrder::CHANNEL_WECHAT_PUB
             );
 
-        $alipayTopUpAmount = $this->getContainer()->get('doctrine')
+        $alipayTopUpAmount = $em
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->getTopUpAmount(
                 $startDate,
@@ -970,7 +973,7 @@ trait FinanceTrait
                 ProductOrder::CHANNEL_ALIPAY
             );
 
-        $upacpTopUpAmount = $this->getContainer()->get('doctrine')
+        $upacpTopUpAmount = $em
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->getTopUpAmount(
                 $startDate,
@@ -978,14 +981,14 @@ trait FinanceTrait
                 ProductOrder::CHANNEL_UNIONPAY
             );
 
-        $refundToAccountAmount = $this->getContainer()->get('doctrine')
+        $refundToAccountAmount = $em
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->getRefundedToBalanceAmount(
                 $startDate,
                 $endDate
             );
 
-        $accountRefundToAccountAmount = $this->getContainer()->get('doctrine')
+        $accountRefundToAccountAmount = $em
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->getTopUpAmount(
                 $startDate,
@@ -993,14 +996,22 @@ trait FinanceTrait
                 ProductOrder::CHANNEL_ACCOUNT
             );
 
-        $topUpTotalCount = $this->getContainer()->get('doctrine')
+        $offlineTopUpAmount = $em
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getTopUpAmount(
+                $startDate,
+                $endDate,
+                ProductOrder::CHANNEL_OFFLINE
+            );
+
+        $topUpTotalCount = $em
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->countTopUpOrder(
                 $startDate,
                 $endDate
             );
 
-        $wxTopUpCount = $this->getContainer()->get('doctrine')
+        $wxTopUpCount = $em
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->countTopUpOrder(
                 $startDate,
@@ -1008,7 +1019,7 @@ trait FinanceTrait
                 ProductOrder::CHANNEL_WECHAT
             );
 
-        $wxPubTopUpCount = $this->getContainer()->get('doctrine')
+        $wxPubTopUpCount = $em
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->countTopUpOrder(
                 $startDate,
@@ -1016,7 +1027,7 @@ trait FinanceTrait
                 ProductOrder::CHANNEL_WECHAT_PUB
             );
 
-        $alipayTopUpCount = $this->getContainer()->get('doctrine')
+        $alipayTopUpCount = $em
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->countTopUpOrder(
                 $startDate,
@@ -1024,7 +1035,7 @@ trait FinanceTrait
                 ProductOrder::CHANNEL_ALIPAY
             );
 
-        $upacpTopUpCount = $this->getContainer()->get('doctrine')
+        $upacpTopUpCount = $em
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->countTopUpOrder(
                 $startDate,
@@ -1032,14 +1043,14 @@ trait FinanceTrait
                 ProductOrder::CHANNEL_UNIONPAY
             );
 
-        $refundToAccountCount = $this->getContainer()->get('doctrine')
+        $refundToAccountCount = $em
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->countRefundedToBalance(
                 $startDate,
                 $endDate
             );
 
-        $accountRefundToAccountCount = $this->getContainer()->get('doctrine')
+        $accountRefundToAccountCount = $em
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->countTopUpOrder(
                 $startDate,
@@ -1047,28 +1058,36 @@ trait FinanceTrait
                 ProductOrder::CHANNEL_ACCOUNT
             );
 
-        $spaceOrderExpendAmount = $this->getContainer()->get('doctrine')
+        $offlineTopUpCount = $em
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->countTopUpOrder(
+                $startDate,
+                $endDate,
+                ProductOrder::CHANNEL_OFFLINE
+            );
+
+        $spaceOrderExpendAmount = $em
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->spaceOrderByAccountAmount(
                 $startDate,
                 $endDate
             );
 
-        $shopOrderExpendAmount = $this->getContainer()->get('doctrine')
+        $shopOrderExpendAmount = $em
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->shopOrderByAccountAmount(
                 $startDate,
                 $endDate
             );
 
-        $activityOrderExpendAmount = $this->getContainer()->get('doctrine')
+        $activityOrderExpendAmount = $em
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->activityOrderByAccountAmount(
                 $startDate,
                 $endDate
             );
 
-        $membershipCardOrderExpendAmount = $this->getContainer()->get('doctrine')
+        $membershipCardOrderExpendAmount = $em
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->membershipCardOrderByAccount(
                 $startDate,
@@ -1077,28 +1096,28 @@ trait FinanceTrait
 
         $totalExpendAmount = $spaceOrderExpendAmount + $shopOrderExpendAmount + $activityOrderExpendAmount + $membershipCardOrderExpendAmount;
 
-        $spaceOrderExpendCount = $this->getContainer()->get('doctrine')
+        $spaceOrderExpendCount = $em
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->countSpaceOrderByAccount(
                 $startDate,
                 $endDate
             );
 
-        $shopOrderExpendCount = $this->getContainer()->get('doctrine')
+        $shopOrderExpendCount = $em
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->countShopOrderByAccount(
                 $startDate,
                 $endDate
             );
 
-        $activityOrderExpendCount = $this->getContainer()->get('doctrine')
+        $activityOrderExpendCount = $em
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->countActivityOrderByAccount(
                 $startDate,
                 $endDate
             );
 
-        $membershipCardOrderExpendCount = $this->getContainer()->get('doctrine')
+        $membershipCardOrderExpendCount = $em
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->countMembershipCardOrderByAccount(
                 $startDate,
@@ -1130,6 +1149,7 @@ trait FinanceTrait
             FinanceDashboardConstants::UPACP_TOP_UP_AMOUNT => $upacpTopUpAmount,
             FinanceDashboardConstants::REFUND_TO_ACCOUNT_AMOUNT => $refundToAccountAmount,
             FinanceDashboardConstants::ACCOUNT_REFUND_TO_ACCOUNT_AMOUNT => $accountRefundToAccountAmount,
+            FinanceDashboardConstants::OFFLINE_TOP_UP_AMOUNT => $offlineTopUpAmount,
             FinanceDashboardConstants::TOTAL_TOP_UP_COUNT => $topUpTotalCount,
             FinanceDashboardConstants::WX_TOP_UP_COUNT => $wxTopUpCount,
             FinanceDashboardConstants::WX_PUB_TOP_UP_COUNT => $wxPubTopUpCount,
@@ -1137,6 +1157,7 @@ trait FinanceTrait
             FinanceDashboardConstants::UPACP_TOP_UP_COUNT => $upacpTopUpCount,
             FinanceDashboardConstants::REFUND_TO_ACCOUNT_COUNT => $refundToAccountCount,
             FinanceDashboardConstants::ACCOUNT_REFUND_TO_ACCOUNT_COUNT => $accountRefundToAccountCount,
+            FinanceDashboardConstants::OFFLINE_TOP_UP_COUNT => $offlineTopUpCount,
             FinanceDashboardConstants::SPACE_EXPEND_AMOUNT => $spaceOrderExpendAmount,
             FinanceDashboardConstants::SHOP_EXPEND_AMOUNT => $shopOrderExpendAmount,
             FinanceDashboardConstants::ACTIVITY_EXPEND_AMOUNT => $activityOrderExpendAmount,
