@@ -375,7 +375,7 @@ class AdminBuildingController extends LocationController
                 AdminPermission::PERMISSION_PLATFORM_SALES,
                 $companyId
             );
-        
+
         // set more information
         $this->setRoomBuildingMoreInformation($building, $request);
 
@@ -1184,34 +1184,27 @@ class AdminBuildingController extends LocationController
                 $em->persist($newGroupMember);
 
                 $groupId = $chatGroup->getId();
-
-                if (!array_key_exists($groupId, $addGroups)) {
-                    $addGroups = [
-                        "$groupId" => [$user],
-                    ];
-                } else {
-                    array_push($addGroups["$groupId"], $user);
-                }
+                $addGroups[$groupId][] = $user->getId();
             }
         }
 
         $em->flush();
 
-        foreach ($addGroups as $key => $vals) {
+        foreach ($addGroups as $key => $users) {
             $group = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:ChatGroup\ChatGroup')
                 ->find($key);
 
             $membersIds = [];
-            foreach ($vals as $member) {
+            foreach ($users as $userId) {
                 $salesAdmin = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
-                    ->findOneBy(array('userId' => $member->getId()));
+                    ->findOneBy(array('userId' => $userId));
                 if ($salesAdmin) {
-                    $memberIds[] = $salesAdmin->getXmppUsername();
+                    $membersIds[] = $salesAdmin->getXmppUsername();
+                    var_dump($salesAdmin->getXmppUsername());
                 }
             }
-
             // call openfire
             $this->addXmppChatGroupMember($group, $membersIds);
         }
@@ -1273,31 +1266,24 @@ class AdminBuildingController extends LocationController
                 $em->remove($groupMember);
 
                 $groupId = $chatGroup->getId();
-
-                if (!array_key_exists($groupId, $removeGroups)) {
-                    $removeGroups = [
-                        "$groupId" => [$groupMember->getUser()],
-                    ];
-                } else {
-                    array_push($removeGroups["$groupId"], $groupMember->getUser());
-                }
+                $removeGroups[$groupId][] = $groupMember->getUser()->getId();
             }
         }
 
         $em->flush();
 
-        foreach ($removeGroups as $key => $vals) {
+        foreach ($removeGroups as $key => $users) {
             $group = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:ChatGroup\ChatGroup')
                 ->find($key);
 
             $membersIds = [];
-            foreach ($vals as $member) {
+            foreach ($users as $userId) {
                 $salesAdmin = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
-                    ->findOneBy(array('userId' => $member->getId()));
+                    ->findOneBy(array('userId' => $userId));
                 if ($salesAdmin) {
-                    $memberIds[] = $salesAdmin->getXmppUsername();
+                    $membersIds[] = $salesAdmin->getXmppUsername();
                 }
             }
 
