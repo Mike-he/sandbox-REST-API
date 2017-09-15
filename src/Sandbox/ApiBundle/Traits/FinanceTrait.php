@@ -525,6 +525,15 @@ trait FinanceTrait
         $accountRefundToAccountAmountDashboard->setType(FinanceDashboard::TYPE_BALANCE_FLOW);
         $em->persist($accountRefundToAccountAmountDashboard);
 
+        $offlineTopUpAmount = $balanceDashboard[FinanceDashboardConstants::OFFLINE_TOP_UP_AMOUNT];
+
+        $offlineTopUpAmountDashboard = new FinanceDashboard();
+        $offlineTopUpAmountDashboard->setTimePeriod($year.'-'.$month);
+        $offlineTopUpAmountDashboard->setParameterKey(FinanceDashboardConstants::OFFLINE_TOP_UP_AMOUNT);
+        $offlineTopUpAmountDashboard->setParameterValue((string) $offlineTopUpAmount);
+        $offlineTopUpAmountDashboard->setType(FinanceDashboard::TYPE_BALANCE_FLOW);
+        $em->persist($offlineTopUpAmountDashboard);
+
         $topUpTotalCount = $balanceDashboard[FinanceDashboardConstants::TOTAL_TOP_UP_COUNT];
 
         $topUpTotalCountDashboard = new FinanceDashboard();
@@ -587,6 +596,15 @@ trait FinanceTrait
         $accountRefundToAccountCountDashboard->setParameterValue((string) $accountRefundToAccountCount);
         $accountRefundToAccountCountDashboard->setType(FinanceDashboard::TYPE_BALANCE_FLOW);
         $em->persist($accountRefundToAccountCountDashboard);
+
+        $offlineTopUpCount = $balanceDashboard[FinanceDashboardConstants::OFFLINE_TOP_UP_COUNT];
+
+        $offlineTopUpCountDashboard = new FinanceDashboard();
+        $offlineTopUpCountDashboard->setTimePeriod($year.'-'.$month);
+        $offlineTopUpCountDashboard->setParameterKey(FinanceDashboardConstants::OFFLINE_TOP_UP_AMOUNT);
+        $offlineTopUpCountDashboard->setParameterValue((string) $offlineTopUpCount);
+        $offlineTopUpCountDashboard->setType(FinanceDashboard::TYPE_BALANCE_FLOW);
+        $em->persist($offlineTopUpCountDashboard);
 
         $spaceOrderExpendAmount = $balanceDashboard[FinanceDashboardConstants::SPACE_EXPEND_AMOUNT];
 
