@@ -940,7 +940,7 @@ trait FinanceTrait
         $endDate
     ) {
         /** @var EntityManager $em */
-        $em = $this->get('doctrine')->getManager();
+        $em = $this->getContainer()->get('doctrine')->getManager();
 
         $topUpTotalAmount = $em
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
