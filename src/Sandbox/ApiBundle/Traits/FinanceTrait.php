@@ -601,7 +601,7 @@ trait FinanceTrait
 
         $offlineTopUpCountDashboard = new FinanceDashboard();
         $offlineTopUpCountDashboard->setTimePeriod($year.'-'.$month);
-        $offlineTopUpCountDashboard->setParameterKey(FinanceDashboardConstants::OFFLINE_TOP_UP_AMOUNT);
+        $offlineTopUpCountDashboard->setParameterKey(FinanceDashboardConstants::OFFLINE_TOP_UP_COUNT);
         $offlineTopUpCountDashboard->setParameterValue((string) $offlineTopUpCount);
         $offlineTopUpCountDashboard->setType(FinanceDashboard::TYPE_BALANCE_FLOW);
         $em->persist($offlineTopUpCountDashboard);
