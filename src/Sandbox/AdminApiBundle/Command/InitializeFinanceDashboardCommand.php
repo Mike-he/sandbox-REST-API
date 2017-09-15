@@ -38,6 +38,8 @@ class InitializeFinanceDashboardCommand extends ContainerAwareCommand
                 $endDate = new \DateTime($endString);
                 $endDate->setTime(23, 59, 59);
 
+                $month = '0'.$month;
+
                 $dashboard = $this->getContainer()
                     ->get('doctrine')
                     ->getRepository('SandboxApiBundle:Finance\FinanceDashboard')
