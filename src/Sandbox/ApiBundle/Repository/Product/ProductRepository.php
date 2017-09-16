@@ -2182,4 +2182,34 @@ class ProductRepository extends EntityRepository
 
         return $result;
     }
+
+    /**
+     * @param $buildingId
+     *
+     * @return array
+     */
+    public function searchLeasesProducts(
+        $buildingId
+    ) {
+        $query = $this->createQueryBuilder('p')
+            ->select('
+                p.id AS product_id,
+                r.name AS room_name,
+                r.allowedPeople as allowed_people,
+                r.area,
+                r.id as room_id
+            ')
+            ->leftjoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
+            ->leftJoin('SandboxApiBundle:Product\ProductRentSet', 'prs', 'WITH', 'prs.product = p.id')
+            ->where('p.visible = TRUE')
+            ->andWhere('p.isDeleted = FALSE')
+            ->andWhere('prs.id IS NOT NULL');
+
+        if (!is_null($buildingId)) {
+            $query->andWhere('r.buildingId = :buildingId')
+                ->setParameter('buildingId', $buildingId);
+        }
+
+        return $query->getQuery()->getResult();
+    }
 }

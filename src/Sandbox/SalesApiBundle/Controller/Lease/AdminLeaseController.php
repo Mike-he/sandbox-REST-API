@@ -43,6 +43,47 @@ class AdminLeaseController extends SalesRestController
     use LeaseTrait;
 
     /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *     name="building",
+     *     array=false,
+     *     default=null,
+     *     nullable=false,
+     *     strict=true
+     * )
+     *
+     * @Route("/leases/valid_products")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function searchLeaseProductsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $buildingId = $paramFetcher->get('building');
+
+        $products = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\Product')
+            ->searchLeasesProducts($buildingId);
+
+        foreach ($products as &$product) {
+            $attachment = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomAttachmentBinding')
+                ->findAttachmentsByRoom($product['room_id'], 1);
+
+            if (!empty($attachment)) {
+                $product['content'] = $attachment[0]['content'];
+                $product['preview'] = $attachment[0]['preview'];
+            }
+        }
+
+        return new View($products);
+    }
+
+    /**
      * Get Lease Detail.
      *
      * @param $id
