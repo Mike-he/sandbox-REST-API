@@ -31,6 +31,7 @@ use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Symfony\Component\HttpFoundation\Response;
 use Sandbox\ApiBundle\Traits\ProductOrderNotification;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 
@@ -1689,8 +1690,24 @@ class AdminOrderController extends OrderController
                 );
             }
 
-            $customer = $em->getRepository('SandboxApiBundle:User\UserCustomer')->find($order->getCustomerId());
-            $this->throwNotFoundIfNull($customer, self::NOT_FOUND_MESSAGE);
+            $userId = $order->getUserId();
+            $customerId = $order->getCustomerId();
+
+            if ($order->getUserId()) {
+                $user = $em->getRepository('SandboxApiBundle:User\User')->find($order->getUserId());
+                $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
+            }
+
+            if ($order->getCustomerId()) {
+                $customer = $em->getRepository('SandboxApiBundle:User\UserCustomer')->find($order->getCustomerId());
+                $this->throwNotFoundIfNull($customer, self::NOT_FOUND_MESSAGE);
+
+                $user = $em->getRepository('SandboxApiBundle:User\User')->find($customer->getUserId());
+            }
+
+            if (is_null($userId) && is_null($customerId)) {
+                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            }
 
             $productId = $order->getProductId();
             $product = $this->getDoctrine()
@@ -1777,13 +1794,6 @@ class AdminOrderController extends OrderController
                     self::PRICE_MISMATCH_CODE,
                     self::PRICE_MISMATCH_MESSAGE
                 );
-            }
-
-            $user = null;
-            if ($customer->getUserId()) {
-                $user = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:User\User')
-                    ->find($customer->getUserId());
             }
 
             // check booking dates and order duplication

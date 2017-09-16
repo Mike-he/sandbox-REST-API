@@ -259,4 +259,26 @@ class UserRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param $search
+     *
+     * @return array
+     */
+    public function searchSalesUsers(
+        $search
+    ) {
+        $query = $this->createQueryBuilder('u')
+            ->select('
+                u.id,
+                up.name,
+                u.phone
+            ')
+            ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'up.userId = u.id')
+            ->where('u.phone LIKE :search')
+            ->orWhere('u.email LIKE :search')
+            ->setParameter('search', $search.'%');
+
+        return $query->getQuery()->getResult();
+    }
 }

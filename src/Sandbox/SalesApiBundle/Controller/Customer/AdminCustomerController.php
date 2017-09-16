@@ -24,6 +24,60 @@ class AdminCustomerController extends SalesRestController
     const ERROR_CUSTOMER_EXIST_MESSAGE = 'Customer exist';
 
     /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *     name="query",
+     *     array=false,
+     *     default=null,
+     *     strict=true,
+     *     nullable=true
+     * )
+     *
+     * @Route("/open/customer_or_user")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getQueryCustomerOrUserAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $search = $paramFetcher->get('query');
+
+        if (is_null($search)) {
+            return new View([]);
+        }
+
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
+        if (!filter_var($search, FILTER_VALIDATE_EMAIL)) {
+            $customers = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserCustomer')
+                ->searchSalesCustomers(
+                    $salesCompanyId,
+                    $search
+                );
+
+            if (!empty($customers)) {
+                return new View($customers);
+            }
+        }
+
+        $users = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\User')
+            ->searchSalesUsers($search);
+
+        if (!empty($users)) {
+            return new View($users);
+        }
+
+        return new View([]);
+    }
+
+    /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
