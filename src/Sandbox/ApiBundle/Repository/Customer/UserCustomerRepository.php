@@ -140,4 +140,39 @@ class UserCustomerRepository extends EntityRepository
         return $result;
     }
 
+    /**
+     * @param $salesCompanyId
+     * @param $search
+     *
+     * @return array
+     */
+    public function searchSalesCustomers(
+        $salesCompanyId,
+        $search
+    ) {
+        $query = $this->createQueryBuilder('c')
+            ->select('
+                    c.id AS customer_id,
+                    c.userId as user_id,
+                    c.phone,
+                    c.avatar,
+                    c.name,
+                    c.email
+                ')
+            ->where('1=1');
+
+        if ($salesCompanyId) {
+            $query->andWhere('c.companyId = :company')
+                ->setParameter('company', $salesCompanyId);
+        }
+
+        if ($search) {
+            $query->andWhere('c.phone LIKE :search')
+                ->setParameter('search', '%'.$search.'%');
+        }
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
 }

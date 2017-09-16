@@ -56,18 +56,13 @@ class AdminCustomerController extends SalesRestController
         if (!filter_var($search, FILTER_VALIDATE_EMAIL)) {
             $customers = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:User\UserCustomer')
-                ->searchCustomers(
+                ->searchSalesCustomers(
                     $salesCompanyId,
-                    null,
-                    null,
                     $search
                 );
 
             if (!empty($customers)) {
-                return new View([
-                    'type' => 'customer',
-                    'items' => $customers,
-                ]);
+                return new View($customers);
             }
         }
 
@@ -76,10 +71,7 @@ class AdminCustomerController extends SalesRestController
             ->searchSalesUsers($search);
 
         if (!empty($users)) {
-            return new View([
-                'type' => 'user',
-                'items' => $users,
-            ]);
+            return new View($users);
         }
 
         return new View([]);
