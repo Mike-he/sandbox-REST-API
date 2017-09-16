@@ -39,6 +39,7 @@ class SalesCustomerService
 
         $phoneCode = $user->getPhoneCode();
         $phone = $user->getPhone();
+        $email = $user->getEmail();
 
         $userProfile = $em->getRepository('SandboxApiBundle:User\UserProfile')
             ->findOneBy(array('userId' => $userId));
@@ -49,6 +50,7 @@ class SalesCustomerService
         $customer->setUserId($userId);
         $customer->setPhoneCode($phoneCode);
         $customer->setPhone($phone);
+        $customer->setEmail($email);
         $customer->setCompanyId($companyId);
         $customer->setIsAutoCreated(true);
         $em->persist($customer);
