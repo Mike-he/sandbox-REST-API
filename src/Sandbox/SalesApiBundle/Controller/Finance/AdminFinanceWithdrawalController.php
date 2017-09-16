@@ -123,7 +123,7 @@ class AdminFinanceWithdrawalController extends PaymentController
 
         $incomingWithdrawAmount = $current - $amount;
 
-        $wallet->setWithdrawableAmount();
+        $wallet->setWithdrawableAmount($incomingWithdrawAmount);
         $wallet->setTotalAmount($total - $amount);
 
         $error = $this->handleWithdrawalPost(
