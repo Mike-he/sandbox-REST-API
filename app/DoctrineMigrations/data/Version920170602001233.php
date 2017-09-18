@@ -32,11 +32,21 @@ class Version920170602001233 extends AbstractMigration implements ContainerAware
         $offline = $em->getRepository('SandboxApiBundle:Payment\Payment')
             ->findOneBY(array('channel' => 'offline'));
 
+        $wxPub = $em->getRepository('SandboxApiBundle:Payment\Payment')
+            ->findOneBY(array('channel' => 'wx_pub'));
+
         if ($offline) {
             $pm1 = new PaymentMap();
             $pm1->setPayment($offline);
             $pm1->setType('recharge');
             $em->persist($pm1);
+        }
+
+        if ($wxPub) {
+            $pm2 = new PaymentMap();
+            $pm2->setPayment($wxPub);
+            $pm2->setType('recharge');
+            $em->persist($pm2);
         }
 
         $em->flush();
