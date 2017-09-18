@@ -1661,6 +1661,10 @@ class AdminOrderController extends OrderController
                 ->getRepository('SandboxApiBundle:Product\Product')
                 ->find($productId);
 
+            $salesCompanyId = $product->getRoom()->getBuilding()->getCompanyId();
+            $customerId = $this->get('sandbox_api.sales_customer')->createCustomer($user->getId(), $salesCompanyId);
+            $order->setCustomerId($customerId);
+
             $startDate = new \DateTime($order->getStartDate());
 
             // check product
