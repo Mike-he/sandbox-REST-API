@@ -112,6 +112,11 @@ class MembershipCard
     private $cardUrl;
 
     /**
+     * @var array
+     */
+    private $buildingIds;
+
+    /**
      * @return int
      */
     public function getId()
@@ -325,5 +330,21 @@ class MembershipCard
     public function setCardUrl($cardUrl)
     {
         $this->cardUrl = $cardUrl;
+    }
+
+    /**
+     * @return array
+     */
+    public function getBuildingIds()
+    {
+        return $this->buildingIds;
+    }
+
+    /**
+     * @param array $buildingIds
+     */
+    public function setBuildingIds($buildingIds)
+    {
+        $this->buildingIds = $buildingIds;
     }
 }
