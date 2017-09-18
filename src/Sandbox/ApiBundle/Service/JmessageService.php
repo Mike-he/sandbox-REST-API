@@ -70,9 +70,10 @@ class JmessageService
 
     public function createUser(
         $username,
-        $password
+        $password,
+        $nickname = null
     ) {
-        $this->user->register($username, $password);
+        $this->user->register($username, $password,$nickname);
     }
 
     public function updatePassword(

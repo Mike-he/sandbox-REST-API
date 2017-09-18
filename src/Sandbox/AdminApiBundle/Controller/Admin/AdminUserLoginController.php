@@ -100,10 +100,17 @@ class AdminUserLoginController extends AdminRestController
             $em->persist($salesAdmin);
             $em->flush();
 
+            $profile = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserProfile')
+                ->findOneBy(array('userId' => $admin->getId()));
+
+            $nickname = $profile ? $profile->getName() : null;
+
             $this->get('sandbox_api.jmessage')
                 ->createUser(
                     $salesAdmin->getXmppUsername(),
-                    $salesAdmin->getPassword()
+                    $salesAdmin->getPassword(),
+                    $nickname
                 );
         }
 

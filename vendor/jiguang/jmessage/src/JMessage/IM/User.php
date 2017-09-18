@@ -6,11 +6,16 @@ class User extends IM {
 
     const BASE_URI = 'https://api.im.jpush.cn/v1/users/';
 
-    public function register($username, $password) {
+    public function register($username, $password,$nickname) {
         $body = [[
             'username' => $username,
             'password' => $password
         ]];
+
+        if ($nickname) {
+            $body['nickname'] = $nickname;
+        }
+
         return $this->batchRegister($body);
     }
     public function batchRegister(array $users) {
