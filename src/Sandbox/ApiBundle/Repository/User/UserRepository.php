@@ -270,7 +270,7 @@ class UserRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('u')
             ->select('
-                u.id,
+                u.id AS user_id,
                 up.name,
                 u.phone
             ')
