@@ -15,6 +15,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Admin Finance Receivable Controller.
@@ -119,6 +120,13 @@ class AdminFinanceReceivableController extends SalesRestController
                     break;
                 default:
                     continue;
+            }
+
+            if ($payload['pay_channel'] == 'sales_cash') {
+                if (!isset($payload['amount'])) {
+                    throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+                }
+                $amount = $payload['amount'];
             }
 
             $receivable = new FinanceReceivables();
