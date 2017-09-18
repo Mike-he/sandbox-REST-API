@@ -1693,20 +1693,26 @@ class AdminOrderController extends OrderController
             $userId = $order->getUserId();
             $customerId = $order->getCustomerId();
 
+            if (is_null($userId) && is_null($customerId)) {
+                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            }
+
             if ($order->getUserId()) {
                 $user = $em->getRepository('SandboxApiBundle:User\User')->find($order->getUserId());
                 $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
+
+                $salesCompanyId = $order->getProduct()->getRoom()->getBuilding()->getCompanyId();
+
+                $customerId = $this->get('sandbox_api.sales_customer')->createCustomer($user->getId(), $salesCompanyId);
             }
 
-            if ($order->getCustomerId()) {
+            if ($customerId) {
                 $customer = $em->getRepository('SandboxApiBundle:User\UserCustomer')->find($order->getCustomerId());
                 $this->throwNotFoundIfNull($customer, self::NOT_FOUND_MESSAGE);
 
                 $user = $em->getRepository('SandboxApiBundle:User\User')->find($customer->getUserId());
-            }
 
-            if (is_null($userId) && is_null($customerId)) {
-                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+                $order->setCustomerId($customerId);
             }
 
             $productId = $order->getProductId();
