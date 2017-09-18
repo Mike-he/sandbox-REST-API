@@ -4,6 +4,7 @@ namespace Sandbox\SalesApiBundle\Controller\Dashboard;
 
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
+use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sandbox\ApiBundle\Entity\Room\Room;
@@ -369,7 +370,7 @@ class AdminDashBoardController extends SalesRestController
     }
 
     /**
-     * @param $orders
+     * @param ProductOrder $orders
      *
      * @return array
      */
@@ -378,6 +379,7 @@ class AdminDashBoardController extends SalesRestController
     ) {
         $result = array();
         foreach ($orders as $order) {
+            /** @var ProductOrder $order */
             $invitedPeoples = $order->getInvitedPeople();
             $invited = array();
             foreach ($invitedPeoples as $invitedPeople) {
@@ -397,6 +399,7 @@ class AdminDashBoardController extends SalesRestController
                 'type' => $order->getType(),
                 'status' => $order->getStatus(),
                 'pay_channel' => $order->getPayChannel(),
+                'customer_id' => $order->getCustomerId(),
             );
         }
 
@@ -413,6 +416,7 @@ class AdminDashBoardController extends SalesRestController
     ) {
         $result = array();
         foreach ($orders as $order) {
+            /** @var ProductOrder $order */
             $invitedPeoples = $order->getInvitedPeople();
             $invited = array();
             foreach ($invitedPeoples as $invitedPeople) {
@@ -441,6 +445,7 @@ class AdminDashBoardController extends SalesRestController
                     'type' => $order->getType(),
                     'status' => $order->getStatus(),
                     'pay_channel' => $order->getPayChannel(),
+                    'customer_id' => $order->getCustomerId(),
                 );
             }
         }
@@ -458,6 +463,7 @@ class AdminDashBoardController extends SalesRestController
     ) {
         $result = array();
         foreach ($leases as $lease) {
+            /** @var Lease $lease */
             $result[] = array(
                 'lease_id' => $lease->getId(),
                 'start_date' => $lease->getStartDate(),
