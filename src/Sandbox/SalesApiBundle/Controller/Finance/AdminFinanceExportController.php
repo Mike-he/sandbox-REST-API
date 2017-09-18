@@ -85,6 +85,7 @@ class AdminFinanceExportController extends SalesRestController
             );
 
         $filename = '交易手续费报表'.$year.$month;
+
         return $this->getFinanceExportPoundage(
             $serviceBills,
             $language,
@@ -179,6 +180,7 @@ class AdminFinanceExportController extends SalesRestController
             );
 
         $filename = '秒租平台订单报表'.$year.$month;
+
         return $this->getFinanceSummaryExport(
             $filename,
             $language,
@@ -254,6 +256,7 @@ class AdminFinanceExportController extends SalesRestController
         $endName = $endDate->format('Ymd');
 
         $filename = '账户钱包流水导表'.$startName.'-'.$endName;
+
         return $this->getFinanceSalesWalletFlowsExport(
             $flows,
             $language,
@@ -345,6 +348,7 @@ class AdminFinanceExportController extends SalesRestController
         $endName = $endDate->format('Ymd');
 
         $filename = '订单明细导表'.$startName.'-'.$endName;
+
         return $this->getFinanceSummaryExport(
             $filename,
             $language,
@@ -420,12 +424,13 @@ class AdminFinanceExportController extends SalesRestController
                 $endDate
             );
 
-        $orderNumbers = array_merge($orders,$bills);
+        $orderNumbers = array_merge($orders, $bills);
 
         $startName = $startDate->format('Ymd');
         $endName = $endDate->format('Ymd');
 
         $filename = '收银台明细导表'.$startName.'-'.$endName;
+
         return $this->getFinanceCashierExport(
             $orderNumbers,
             $language,
@@ -474,7 +479,6 @@ class AdminFinanceExportController extends SalesRestController
                 AdminPermission::PERMISSION_PLATFORM_SALES
             );
 
-
         $start = $paramFetcher->get('start_date');
         $end = $paramFetcher->get('end_date');
 
@@ -501,6 +505,7 @@ class AdminFinanceExportController extends SalesRestController
         $endName = $endDate->format('Ymd');
 
         $filename = '账单明细导表'.$startName.'-'.$endName;
+
         return $this->getFinanceExportBills(
             $language,
             $bills,

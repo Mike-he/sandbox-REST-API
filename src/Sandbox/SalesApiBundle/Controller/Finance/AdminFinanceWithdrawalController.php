@@ -160,8 +160,6 @@ class AdminFinanceWithdrawalController extends PaymentController
             'logObjectId' => $withdrawal->getId(),
         ));
 
-
-
         // set view
         $view = new View();
         $view->setStatusCode(201);
