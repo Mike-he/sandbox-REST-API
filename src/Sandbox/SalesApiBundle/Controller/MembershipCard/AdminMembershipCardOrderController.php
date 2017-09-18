@@ -444,6 +444,21 @@ class AdminMembershipCardOrderController extends SalesRestController
             return new View();
         }
 
+        $card = $order->getCard();
+
+        $groupDoors = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserGroupDoors')
+            ->findBy([
+                'card' => $card,
+            ]);
+
+        $buildingIds = [];
+        foreach ($groupDoors as $door) {
+            array_push($buildingIds, $door->getBuilding());
+        }
+
+        $card->setBuildingIds($buildingIds);
+
         $user = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\User')
             ->find($order->getUser());
