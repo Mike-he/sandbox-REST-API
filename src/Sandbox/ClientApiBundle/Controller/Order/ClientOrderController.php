@@ -1647,15 +1647,7 @@ class ClientOrderController extends OrderController
 
         $now = new \DateTime();
 
-        if ($order->getCustomerId()) {
-            $customer = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:User\UserCustomer')
-                ->find($order->getCustomerId());
-
-            $userId = $customer->getUserId();
-        } else {
-            $userId = $order->getUserId();
-        }
+        $userId = $order->getUserId();
         $this->throwNotFoundIfNull($userId, self::NOT_FOUND_MESSAGE);
         array_push($users, $userId);
 
