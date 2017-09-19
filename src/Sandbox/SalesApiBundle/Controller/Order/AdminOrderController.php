@@ -1712,10 +1712,13 @@ class AdminOrderController extends OrderController
             }
 
             if ($customerId) {
+                $user = null;
                 $customer = $em->getRepository('SandboxApiBundle:User\UserCustomer')->find($order->getCustomerId());
                 $this->throwNotFoundIfNull($customer, self::NOT_FOUND_MESSAGE);
 
-                $user = $em->getRepository('SandboxApiBundle:User\User')->find($customer->getUserId());
+                if ($customer->getUserId()) {
+                    $user = $em->getRepository('SandboxApiBundle:User\User')->find($customer->getUserId());
+                }
             }
 
             $productId = $order->getProductId();
