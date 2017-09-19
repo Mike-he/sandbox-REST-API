@@ -399,6 +399,7 @@ class AdminCustomerController extends SalesRestController
     ) {
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
+        $offset = ($pageIndex - 1) * $pageLimit;
 
         $query = $paramFetcher->get('query');
         $groupId = $paramFetcher->get('group_id');
@@ -406,28 +407,45 @@ class AdminCustomerController extends SalesRestController
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
+        if (is_null($pageLimit) || is_null($pageIndex)) {
+            $customers = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserCustomer')
+                ->getSalesAdminCustomers(
+                    $salesCompanyId,
+                    $query,
+                    $groupId
+                );
+
+            return new View($customers);
+        }
+
         $customers = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserCustomer')
             ->getSalesAdminCustomers(
                 $salesCompanyId,
                 $query,
-                $groupId
+                $groupId,
+                $pageLimit,
+                $offset
             );
 
         foreach ($customers as $customer) {
             $this->generateCustomer($customer);
         }
 
-        if (!is_null($pageIndex) && !is_null($pageLimit)) {
-            $paginator = new Paginator();
-            $customers = $paginator->paginate(
-                $customers,
-                $pageIndex,
-                $pageLimit
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->countSalesAdminCustomers(
+                $salesCompanyId,
+                $query,
+                $groupId
             );
-        }
 
-        return new View($customers);
+        return new View([
+            'items' => $customers,
+            'total_count' => $count,
+            'current_page_number' => $pageIndex,
+        ]);
     }
 
     /**

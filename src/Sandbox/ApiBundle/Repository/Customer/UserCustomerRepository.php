@@ -10,15 +10,17 @@ class UserCustomerRepository extends EntityRepository
      * @param $salesCompanyId
      * @param $search
      * @param $groupId
-     * @param $pageLimit
-     * @param $pageIndex
+     * @param $limit
+     * @param $offset
      *
      * @return mixed
      */
     public function getSalesAdminCustomers(
         $salesCompanyId,
         $search,
-        $groupId
+        $groupId,
+        $limit = null,
+        $offset = null
     ) {
         $query = $this->createQueryBuilder('c');
 
@@ -41,9 +43,51 @@ class UserCustomerRepository extends EntityRepository
                 ->setParameter('groupId', $groupId);
         }
 
+        if (!is_null($limit) && !is_null($offset)) {
+            $query->setMaxResults($limit)
+                ->setFirstResult($offset);
+        }
+
         $query->orderBy('c.id', 'DESC');
 
         return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $salesCompanyId
+     * @param $search
+     * @param $groupId
+     *
+     * @return mixed
+     */
+    public function countSalesAdminCustomers(
+        $salesCompanyId,
+        $search,
+        $groupId
+    ) {
+        $query = $this->createQueryBuilder('c')
+            ->select('COUNT(c.id)');
+
+        $query->where('c.companyId = :companyId')
+            ->andWhere('c.isDeleted = FALSE')
+            ->setParameter('companyId', $salesCompanyId);
+
+        if ($search) {
+            $query->andWhere('(
+                c.name LIKE :search OR
+                c.phone LIKE :search OR
+                c.email LIKE :search
+            )')
+                ->setParameter('search', $search.'%');
+        }
+
+        if ($groupId) {
+            $query->leftJoin('SandboxApiBundle:User\UserGroupHasUser', 'gu', 'WITH', 'gu.customerId = c.id')
+                ->andWhere('gu.groupId = :groupId')
+                ->setParameter('groupId', $groupId);
+        }
+
+        return (int) $query->getQuery()->getSingleScalarResult();
     }
 
     /**
