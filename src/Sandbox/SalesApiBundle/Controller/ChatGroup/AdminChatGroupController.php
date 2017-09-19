@@ -309,11 +309,6 @@ class AdminChatGroupController extends ChatGroupController
 
         // find user as creator
         $creatorId = $chatGroup->getCreatorId();
-
-        if ($userId == $creatorId) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
-
         $creator = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\User')
             ->findOneBy([
