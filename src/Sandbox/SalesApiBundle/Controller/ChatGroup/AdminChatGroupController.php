@@ -359,7 +359,7 @@ class AdminChatGroupController extends ChatGroupController
         // set new chat group
         $chatGroup->setCompanyId($companyId);
         $chatGroup->setCreator($creator);
-        $chatGroup->setName($building->getName());
+        $chatGroup->setName($building->getName().'客服');
 
         $em->persist($chatGroup);
 
@@ -371,7 +371,7 @@ class AdminChatGroupController extends ChatGroupController
                 'tag' => $chatGroup->getTag(),
             ]);
 
-        $finalMembers = [$creator];
+        $finalMembers = [];
         foreach ($members as $member) {
             $user = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:User\User')
@@ -379,11 +379,8 @@ class AdminChatGroupController extends ChatGroupController
                     'id' => $member->getUserId(),
                     'banned' => false,
                 ]);
+            
             if (is_null($user)) {
-                continue;
-            }
-
-            if ($member->getUserId() == $creatorId) {
                 continue;
             }
 
