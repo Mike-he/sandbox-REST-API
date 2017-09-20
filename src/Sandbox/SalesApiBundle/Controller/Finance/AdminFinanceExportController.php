@@ -347,7 +347,7 @@ class AdminFinanceExportController extends SalesRestController
         $startName = $startDate->format('Ymd');
         $endName = $endDate->format('Ymd');
 
-        $filename = '订单明细导表'.$startName.'-'.$endName;
+        $filename = '后台推送订单导表'.$startName.'-'.$endName;
 
         return $this->getFinanceSummaryExport(
             $filename,
