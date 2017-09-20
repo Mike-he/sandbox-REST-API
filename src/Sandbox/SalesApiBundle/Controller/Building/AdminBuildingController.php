@@ -1202,7 +1202,6 @@ class AdminBuildingController extends LocationController
                     ->findOneBy(array('userId' => $userId));
                 if ($salesAdmin) {
                     $membersIds[] = $salesAdmin->getXmppUsername();
-                    var_dump($salesAdmin->getXmppUsername());
                 }
             }
             // call openfire
@@ -1245,10 +1244,6 @@ class AdminBuildingController extends LocationController
 
             //remove member from chat group
             foreach ($chatGroups as $chatGroup) {
-                if ($userId == $chatGroup->getCreatorId()) {
-                    continue;
-                }
-
                 $groupMember = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:ChatGroup\ChatGroupMember')
                     ->findOneBy([
