@@ -217,6 +217,29 @@ class UserRepository extends EntityRepository
         return $result;
     }
 
+    public function getUsersByXmppUsername(
+        $xmppUsernames
+    ) {
+        $query = $this->createQueryBuilder('u')
+            ->select('
+                u.id,
+                u.xmppUsername as xmpp_username,
+                u.phone,
+                u.email,
+                u.banned,
+                u.authorized,
+                up.name,
+                up.gender
+            ')
+            ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'up.userId = u.id')
+            ->where('u.xmppUsername in (:xmppUsernames)')
+            ->setParameter('xmppUsernames', $xmppUsernames);
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
+
     /**
      * @param $limit
      * @param $offset
@@ -233,6 +256,28 @@ class UserRepository extends EntityRepository
             ->andWhere("u.phoneCode = '+86'")
             ->setFirstResult($offset)
             ->setMaxResults($limit);
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $search
+     *
+     * @return array
+     */
+    public function searchSalesUsers(
+        $search
+    ) {
+        $query = $this->createQueryBuilder('u')
+            ->select('
+                u.id AS user_id,
+                up.name,
+                u.phone
+            ')
+            ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'up.userId = u.id')
+            ->where('u.phone LIKE :search')
+            ->orWhere('u.email LIKE :search')
+            ->setParameter('search', $search.'%');
 
         return $query->getQuery()->getResult();
     }

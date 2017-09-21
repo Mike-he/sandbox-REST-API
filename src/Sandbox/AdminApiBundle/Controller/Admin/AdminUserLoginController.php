@@ -7,6 +7,7 @@ use JMS\Serializer\SerializationContext;
 use Sandbox\AdminApiBundle\Controller\AdminRestController;
 use Sandbox\AdminApiBundle\Controller\Traits\HandleAdminLoginDataTrait;
 use Sandbox\ApiBundle\Entity\Error\Error;
+use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdmin;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\User\UserClient;
 use Sandbox\ApiBundle\Entity\User\UserToken;
@@ -83,6 +84,35 @@ class AdminUserLoginController extends AdminRestController
         $this->sendSMSNotification(
             $userCheckCode
         );
+
+        $salesAdmin = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
+            ->findOneBy(array('userId' => $admin->getId()));
+
+        if (!$salesAdmin) {
+            $salesAdmin = new SalesAdmin();
+            $salesAdmin->setPhone($admin->getPhone());
+            $salesAdmin->setPhoneCode($admin->getPhoneCode());
+            $salesAdmin->setXmppUsername('admin_'.$admin->getXmppUsername());
+            $salesAdmin->setPassword($admin->getPassword());
+            $salesAdmin->setUserId($admin->getId());
+
+            $em->persist($salesAdmin);
+            $em->flush();
+
+            $profile = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserProfile')
+                ->findOneBy(array('userId' => $admin->getId()));
+
+            $nickname = $profile ? $profile->getName() : null;
+
+            $this->get('sandbox_api.jmessage')
+                ->createUser(
+                    $salesAdmin->getXmppUsername(),
+                    $salesAdmin->getPassword(),
+                    $nickname
+                );
+        }
 
         // here is a back door for testing
         $isTest = $request->query->get('test');

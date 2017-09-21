@@ -77,6 +77,7 @@ class LeaseRepository extends EntityRepository
      * @param $createEnd
      * @param $rentFilter
      * @param $startDate
+     * @param $companyId
      * @param $endDate
      * @param $roomId
      * @param $limit
@@ -98,16 +99,14 @@ class LeaseRepository extends EntityRepository
         $endDate,
         $companyId,
         $roomId,
-        $limit,
-        $offset,
+        $limit = null,
+        $offset = null,
         $userId = null
     ) {
         $query = $this->createQueryBuilder('l')
             ->leftJoin('l.product', 'p')
             ->leftJoin('p.room', 'r')
-            ->orderBy('l.id', 'DESC')
-            ->setMaxResults($limit)
-            ->setFirstResult($offset);
+            ->orderBy('l.id', 'DESC');
 
         $query = $this->generateQueryForLeases(
             $query,
@@ -126,31 +125,10 @@ class LeaseRepository extends EntityRepository
             $userId
         );
 
-        return $query->getQuery()->getResult();
-    }
-
-    /**
-     * @param $userId
-     * @param $limit
-     * @param $offset
-     *
-     * @return array
-     */
-    public function getClientLeases(
-        $userId,
-        $limit,
-        $offset
-    ) {
-        $query = $this->createQueryBuilder('l')
-            ->leftJoin('l.supervisor', 'u')
-            ->leftJoin('l.drawee', 'du')
-            ->where('(u.id = :userId OR du.id = :userId)')
-            ->andWhere('l.status != :status')
-            ->orderBy('l.confirmingDate', 'DESC')
-            ->setParameter('userId', $userId)
-            ->setParameter('status', Lease::LEASE_STATUS_DRAFTING)
-            ->setMaxResults($limit)
-            ->setFirstResult($offset);
+        if (!is_null($limit) && !is_null($offset)) {
+            $query->setMaxResults($limit)
+                ->setFirstResult($offset);
+        }
 
         return $query->getQuery()->getResult();
     }
@@ -195,8 +173,7 @@ class LeaseRepository extends EntityRepository
         }
 
         if (!is_null($companyId) && !empty($companyId)) {
-            $query->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'rb', 'WITH', 'r.buildingId = rb.id')
-                ->andWhere('rb.companyId = :companyId')
+            $query->andWhere('l.companyId = :companyId')
                 ->setParameter('companyId', $companyId);
         }
 
@@ -205,10 +182,7 @@ class LeaseRepository extends EntityRepository
                 ->setParameter('roomId', $roomId);
         }
 
-        if ($status == 'all') {
-            $query->andWhere('l.status != :status')
-                ->setParameter('status', Lease::LEASE_STATUS_DRAFTING);
-        } else {
+        if ($status) {
             $query->andWhere('l.status = :status')
                 ->setParameter('status', $status);
         }
@@ -246,14 +220,14 @@ class LeaseRepository extends EntityRepository
                 $last = $now;
             }
 
-            $query->andWhere('l.confirmingDate >= :last')
+            $query->andWhere('l.creationDate >= :last')
                 ->setParameter('last', $last);
         } else {
             if (!is_null($createStart) && !empty($createStart)) {
                 $createStart = new \DateTime($createStart);
                 $createStart->setTime(0, 0, 0);
 
-                $query->andWhere('l.confirmingDate >= :createStart')
+                $query->andWhere('l.creationDate >= :createStart')
                     ->setParameter('createStart', $createStart);
             }
 
@@ -261,7 +235,7 @@ class LeaseRepository extends EntityRepository
                 $createEnd = new \DateTime($createEnd);
                 $createEnd->setTime(23, 59, 59);
 
-                $query->andWhere('l.confirmingDate <= :createEnd')
+                $query->andWhere('l.creationDate <= :createEnd')
                     ->setParameter('createEnd', $createEnd);
             }
         }
@@ -305,10 +279,10 @@ class LeaseRepository extends EntityRepository
                 ->setParameter('endDate', $endDate);
         }
 
-        if (!is_null($userId)) {
-            $query->andWhere('(l.supervisor = :userId OR l.drawee = :userId)')
-                ->setParameter('userId', $userId);
-        }
+//        if (!is_null($userId)) {
+//            $query->andWhere('(l.supervisor = :userId OR l.drawee = :userId)')
+//                ->setParameter('userId', $userId);
+//        }
 
         return $query;
     }
@@ -354,8 +328,21 @@ class LeaseRepository extends EntityRepository
         $search
     ) {
         $query = $this->createQueryBuilder('l')
-            ->select('l.id, u.id as supervisor, l.startDate, l.endDate, up.name as username, b.address, r.name, r.type, p.roomId, p.id as productId, l.creationDate')
-            ->leftJoin('l.supervisor', 'u')
+            ->select('
+                    l.id, 
+                    u.id as supervisor, 
+                    l.startDate, 
+                    l.endDate, 
+                    up.name as username, 
+                    b.address, 
+                    r.name, 
+                    r.type, 
+                    p.roomId, 
+                    p.id as productId, 
+                    l.creationDate
+                ')
+            ->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'l.lesseeCustomer = uc.id')
+            ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'uc.userId = u.id')
             ->leftJoin('u.userProfile', 'up')
             ->leftJoin('l.product', 'p')
             ->leftJoin('p.room', 'r')
@@ -364,8 +351,7 @@ class LeaseRepository extends EntityRepository
             ->leftJoin('l.invitedPeople', 'i')
             ->where(
                 '(
-                    l.supervisor = :userId OR
-                    l.drawee = :userId OR
+                    uc.userId = :userId OR
                     i.id = :userId
                 )'
             )
@@ -416,21 +402,21 @@ class LeaseRepository extends EntityRepository
     }
 
     /**
-     * @param $userId
+     * @param $customerIds
      * @param $statusArray
      *
      * @return array
      */
     public function getLeaseNumbersForClientLease(
-        $userId,
+        $customerIds,
         $statusArray
     ) {
         $query = $this->createQueryBuilder('l')
             ->select('l.serialNumber')
             ->where('l.status IN (:status)')
-            ->andWhere('(l.drawee = :userId OR l.supervisor = :userId)')
+            ->andWhere('l.lesseeCustomer IN (:customerIds)')
             ->setParameter('status', $statusArray)
-            ->setParameter('userId', $userId);
+            ->setParameter('customerIds', $customerIds);
 
         $query->orderBy('l.modificationDate', 'DESC');
 
@@ -447,9 +433,10 @@ class LeaseRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('l')
             ->select('count(l.id)')
+            ->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'l.lesseeCustomer = uc.id')
             ->leftJoin('l.invitedPeople', 'p')
             ->where('l.status IN (:status)')
-            ->andWhere('(l.drawee = :userId OR l.supervisor = :userId OR p.id = :userId)')
+            ->andWhere('(uc.userId = :userId OR p.id = :userId)')
             ->andWhere('l.startDate <= :now')
             ->andWhere('l.endDate >= :now')
             ->setParameter('status', $status)

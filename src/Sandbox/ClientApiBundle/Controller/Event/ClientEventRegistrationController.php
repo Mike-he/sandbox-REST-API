@@ -125,6 +125,22 @@ class ClientEventRegistrationController extends EventController
         Request $request,
         $event_id
     ) {
+        $userId = $this->getUserId();
+
+        // check event is valid
+        $event = $this->getRepo('Event\Event')->findOneBy(array(
+            'id' => $event_id,
+            'isDeleted' => false,
+        ));
+        $this->throwNotFoundIfNull($event, self::NOT_FOUND_MESSAGE);
+
+        if ($event->getSalesCompanyId()) {
+            $customerId = $this->get('sandbox_api.sales_customer')->createCustomer(
+                $userId,
+                $event->getSalesCompanyId()
+            );
+        }
+
         $eventRegistration = new EventRegistration();
 
         $form = $this->createForm(new EventRegistrationPostType(), $eventRegistration);
@@ -136,7 +152,7 @@ class ClientEventRegistrationController extends EventController
 
         return $this->handleEventRequest(
             $eventRegistration,
-            $event_id,
+            $event,
             $request
         );
     }
@@ -178,26 +194,17 @@ class ClientEventRegistrationController extends EventController
 
     /**
      * @param EventRegistration $eventRegistration
-     * @param int               $eventId
+     * @param Event             $event
      * @param Request           $request
      *
      * @return View
      */
     private function handleEventRequest(
         $eventRegistration,
-        $eventId,
+        $event,
         $request
     ) {
         $userId = $this->getUserId();
-
-        // check event is valid
-        $event = $this->getRepo('Event\Event')->findOneBy(array(
-            'id' => $eventId,
-            'isDeleted' => false,
-        ));
-        if (is_null($event)) {
-            throw new BadRequestHttpException(self::ERROR_EVENT_INVALID);
-        }
 
         // check if registration over limit number
         $isOverLimitNumber = $this->checkIfOverLimitNumber($event);

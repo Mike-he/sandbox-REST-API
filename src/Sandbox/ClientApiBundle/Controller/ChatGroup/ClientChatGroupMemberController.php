@@ -33,15 +33,15 @@ class ClientChatGroupMemberController extends ClientChatGroupController
      * Get members.
      *
      * @param Request $request contains request info
-     * @param int     $id      id of the company
+     * @param int     $gid      id of the company
      *
-     * @Get("/chatgroups/{id}/members")
+     * @Get("/chatgroups/{gid}/members")
      *
      * @return array
      */
     public function getChatGroupMembersAction(
         Request $request,
-        $id
+        $gid
     ) {
         $myUserId = $this->getUserId();
         $myUser = $this->getRepo('User\User')->find($myUserId);
@@ -52,13 +52,8 @@ class ClientChatGroupMemberController extends ClientChatGroupController
         }
 
         // get chat group and members
-        $chatGroup = $this->getRepo('ChatGroup\ChatGroup')->find($id);
+        $chatGroup = $this->getRepo('ChatGroup\ChatGroup')->findOneBy(array('gid' => $gid));
         $this->throwNotFoundIfNull($chatGroup, self::NOT_FOUND_MESSAGE);
-
-        $tag = $chatGroup->getTag();
-        if (!is_null($tag)) {
-            throw new AccessDeniedHttpException();
-        }
 
         $members = $this->getRepo('ChatGroup\ChatGroupMember')->getChatGroupMembers($chatGroup);
         if (is_null($members) || empty($members)) {
@@ -81,15 +76,15 @@ class ClientChatGroupMemberController extends ClientChatGroupController
      * add members.
      *
      * @param Request $request
-     * @param int     $id
+     * @param int     $gid
      *
-     * @POST("/chatgroups/{id}/members")
+     * @POST("/chatgroups/{gid}/members")
      *
      * @return View
      */
     public function postChatGroupMembersAction(
         Request $request,
-        $id
+        $gid
     ) {
         $myUserId = $this->getUserId();
         $myUser = $this->getRepo('User\User')->find($myUserId);
@@ -100,13 +95,8 @@ class ClientChatGroupMemberController extends ClientChatGroupController
         }
 
         // get chatGroup
-        $chatGroup = $this->getRepo('ChatGroup\ChatGroup')->find($id);
+        $chatGroup = $this->getRepo('ChatGroup\ChatGroup')->findOneBy(array('gid' => $gid));
         $this->throwNotFoundIfNull($chatGroup, self::NOT_FOUND_MESSAGE);
-
-        $tag = $chatGroup->getTag();
-        if (!is_null($tag)) {
-            throw new AccessDeniedHttpException();
-        }
 
         //add member
         $em = $this->getDoctrine()->getManager();
@@ -142,8 +132,12 @@ class ClientChatGroupMemberController extends ClientChatGroupController
 
         $em->flush();
 
-        // update chat group in Openfire
-        $this->addXmppChatGroupMember($chatGroup, $members);
+        $membersIds = [];
+        foreach ($members as $member) {
+            $memberIds[] = $member->getXmppUsername();
+        }
+
+        $this->addXmppChatGroupMember($chatGroup, $membersIds);
 
         return new view();
     }
@@ -162,12 +156,12 @@ class ClientChatGroupMemberController extends ClientChatGroupController
      *    description=""
      * )
      *
-     * @Delete("/chatgroups/{id}/members")
+     * @Delete("/chatgroups/{gid}/members")
      *
      * @return View
      */
     public function deleteChatGroupMembersAction(
-        $id,
+        $gid,
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
@@ -180,13 +174,8 @@ class ClientChatGroupMemberController extends ClientChatGroupController
         }
 
         // get chat group
-        $chatGroup = $this->getRepo('ChatGroup\ChatGroup')->find($id);
+        $chatGroup = $this->getRepo('ChatGroup\ChatGroup')->findOneBy(array('gid' => $gid));
         $this->throwNotFoundIfNull($chatGroup, self::NOT_FOUND_MESSAGE);
-
-        $tag = $chatGroup->getTag();
-        if (!is_null($tag)) {
-            throw new AccessDeniedHttpException();
-        }
 
         $memberIds = $paramFetcher->get('id');
 
@@ -232,9 +221,7 @@ class ClientChatGroupMemberController extends ClientChatGroupController
             $em->remove($chatGroupMember);
             $em->flush();
 
-            // update chat group in Openfire
-
-            $this->deleteXmppChatGroupMember($chatGroup, array($user));
+            $this->deleteXmppChatGroupMember($chatGroup, array($user->getXmppUsername()));
         }
 
         return new View();
@@ -286,8 +273,13 @@ class ClientChatGroupMemberController extends ClientChatGroupController
 
         $em->flush();
 
+        $membersIds = [];
+        foreach ($members as $member) {
+            $memberIds[] = $member->getXmppUsername();
+        }
+
         // update chat group in Openfire
-        $this->deleteXmppChatGroupMember($chatGroup, $members);
+        $this->deleteXmppChatGroupMember($chatGroup, $membersIds);
 
         return new View();
     }

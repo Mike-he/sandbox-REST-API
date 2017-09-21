@@ -33,6 +33,7 @@ class ProductOrder
     const CHANNEL_UNION_CREDIT = 'cnp_u';
     const CHANNEL_WECHAT_PUB = 'wx_pub';
     const CHANNEL_OFFLINE = 'offline';
+    const CHANNEL_SALES_OFFLINE = 'sales_offline';
 
     const PRODUCT_MAP = 'product';
 
@@ -57,6 +58,8 @@ class ProductOrder
 
     const RESERVE_TYPE = 'reserve';
     const PREORDER_TYPE = 'preorder';
+    const OWN_TYPE = 'own';
+    const OFFICIAL_PREORDER_TYPE = 'official_preorder';
 
     const PAYMENT_SUBJECT = 'SANDBOX3-预定房间';
     const PAYMENT_BODY = 'ROOM ORDER';
@@ -96,7 +99,7 @@ class ProductOrder
     /**
      * @var int
      *
-     * @ORM\Column(name="userId", type="integer", nullable=false)
+     * @ORM\Column(name="userId", type="integer", nullable=true)
      *
      * @Serializer\Groups({"main", "admin_detail", "current_order", "client"})
      */
@@ -104,7 +107,7 @@ class ProductOrder
 
     /**
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User")
-     * @ORM\JoinColumn(name="userId", referencedColumnName="id", onDelete="CASCADE")
+     * @ORM\JoinColumn(name="userId", referencedColumnName="id", onDelete="SET NULL")
      * @Serializer\Groups({"main", "admin_detail"})
      **/
     private $user;
@@ -516,6 +519,33 @@ class ProductOrder
      * @Serializer\Groups({"main", "client"})
      */
     private $tip = false;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="base_price", type="decimal", precision=10, scale=2)
+     *
+     * @Serializer\Groups({"main", "client", "admin_detail"})
+     */
+    private $basePrice;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="unit_price", type="string")
+     *
+     * @Serializer\Groups({"main", "client", "admin_detail"})
+     */
+    private $unitPrice;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="customer_id", type="integer", nullable=true)
+     *
+     * @Serializer\Groups({"main", "admin_detail", "admin_order"})
+     */
+    private $customerId;
 
     /**
      * @Serializer\VirtualProperty
@@ -1692,5 +1722,53 @@ class ProductOrder
     public function setTip($tip)
     {
         $this->tip = $tip;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBasePrice()
+    {
+        return $this->basePrice;
+    }
+
+    /**
+     * @param mixed $basePrice
+     */
+    public function setBasePrice($basePrice)
+    {
+        $this->basePrice = $basePrice;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUnitPrice()
+    {
+        return $this->unitPrice;
+    }
+
+    /**
+     * @param mixed $unitPrice
+     */
+    public function setUnitPrice($unitPrice)
+    {
+        $this->unitPrice = $unitPrice;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCustomerId()
+    {
+        return $this->customerId;
+    }
+
+    /**
+     * @param mixed $customerId
+     */
+    public function setCustomerId($customerId)
+    {
+        $this->customerId = $customerId;
     }
 }

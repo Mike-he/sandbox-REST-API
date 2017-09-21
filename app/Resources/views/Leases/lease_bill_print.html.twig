@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+	<style type="text/css">
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+		.space-b-box {
+		  border: 1px solid #D9D9DA;
+		  margin-bottom: 15px;
+		}
+		.space-b-box:last-child {
+		  margin: 0;
+		}
+		.space-b-box.n-bor {
+		  border: none;
+		}
+		.space-b-box .last-box {
+		  line-height: 22px;
+		  border-left: 1px solid #F0F0F0;
+		}
+		.space-b-box .blake-txt {
+		  position: relative;
+		  display: inline-block;
+		  margin-right: 10px;
+		  color: #000;
+		}
+		.space-b-box .blake-txt:hover .u-box {
+		  display: block;
+		}
+		.space-b-box .blake-txt .ic_msg {
+		  position: absolute;
+		  right: 8px;
+		  top: 8px;
+		}
+		.space-b-box .grey-txt {
+		  margin-left: 10px;
+		  font-size: 12px;
+		}
+		.space-b-box .right-txt {
+		  text-align: right;
+		}
+		.space-b-box .f-right {
+		  float: right;
+		  font-size: 12px;
+		}
+		.space-b-box .link-txt {
+		  position: relative;
+		  color: #3399CC;
+		  cursor: pointer;
+		}
+		.space-b-box .link-txt:hover {
+		  text-decoration: underline;
+		}
+		.space-b-box .link-txt:hover .u-box {
+		  display: block;
+		}
+		.space-b-box .link-txt .u-box {
+		  position: absolute;
+		  top: 110%;
+		  left: 0;
+		  z-index: 100;
+		  display: none;
+		  margin-top: -4px;
+		  padding-right: 30px;
+		  text-align: left;
+		  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+		}
+		.space-b-box .link-txt .u-box .ic_msg {
+		  position: absolute;
+		  right: 8px;
+		  top: 8px;
+		}
+		.space-b-box .b-title {
+		  padding: 0 10px;
+		  line-height: 32px;
+		  background-color: #F5F5F5;
+		  font-size: 12px;
+		}
+		.space-b-box .b-title:before,
+		.space-b-box .b-title:after {
+		  content: " ";
+		  display: table;
+		}
+		.space-b-box .b-title:after {
+		  clear: both;
+		}
+		.space-b-box .b-title.tit-top {
+		  border-bottom: 1px solid #E6E6E6;
+		}
+		.space-b-box .b-title.tit-bot {
+		  border-top: 1px solid #E6E6E6;
+		}
+		.space-b-box .b-title .detail-tag {
+		  margin-top: 6px;
+		  margin-right: 10px;
+		  padding: 0 7px;
+		}
+		.space-b-box .b-title .del-txt {
+		  color: #9C847D;
+		  text-decoration: line-through;
+		}
+		.space-b-box .b-title .link-txt {
+		  position: relative;
+		  display: inline-block;
+		  margin-right: 10px;
+		  color: #3399CC;
+		  cursor: pointer;
+		}
+		.space-b-box .b-title .span-block {
+		  display: inline-block;
+		  margin-right: 15px;
+		}
+		.space-b-box .b-title .u-box {
+		  position: absolute;
+		  top: 100%;
+		  left: 0;
+		  z-index: 100;
+		  display: none;
+		  margin-top: -4px;
+		  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+		}
+		.space-b-box .line-width {
+		  padding: 10px 0;
+		}
+		.space-b-box .line-width.s-line {
+		  padding: 0;
+		  border-bottom: 1px solid #D9D9DA;
+		}
+		.space-b-box .line-width.s-line:last-child {
+		  border-bottom: none;
+		}
+		.space-b-box .line-width.s-line .line-item {
+		  height: 80px;
+		  color: #000;
+		}
+		.space-b-box .line-width.s-line .g-item {
+		  padding: 10px;
+		}
+		.space-b-box .line-width.bor-line {
+		  border-bottom: 1px solid #D9D9DA;
+		}
+		.space-b-box .line-item {
+		  display: table;
+		  width: 100%;
+		  height: 105px;
+		  font-size: 12px;
+		  line-height: 18px;
+		  color: #9A847C;
+		}
+		.space-b-box.line-item90 .line-item {
+		  height: 90px;
+		}
+		.space-b-box .item-con {
+		  display: table-cell;
+		  padding: 10px 0;
+		  vertical-align: middle;
+		  width: 100%;
+		}
+		.space-b-box .item-con .arrow {
+		  display: none;
+		}
+		.space-b-box .item-con .desc-i {
+		  margin: 5px 0;
+		}
+		.space-b-box .item-con div {
+		  word-break: break-all;
+		}
+		.space-b-box .item-con .s-des {
+		  display: inline-block;
+		  max-width: 100%;
+		  margin: 0;
+		  cursor: pointer;
+		  height: 30px;
+		  padding: 5px;
+		  border-radius: 3px;
+		  overflow: hidden;
+		  text-overflow: ellipsis;
+		  white-space: nowrap;
+		}
+		.space-b-box .item-con .s-des.dis {
+		  pointer-events: none;
+		  opacity: .3;
+		}
+		.space-b-box .item-con .s-des:hover {
+		  border: 1px solid #CFCECE;
+		  padding: 5px 4px;
+		  line-height: 16px;
+		  background: -webkit-linear-gradient(top, #ffffff, #F6F7F7);
+		  background: -webkit-gradient(linear, top, from(#ffffff), to(#F6F7F7));
+		}
+		.space-b-box .item-con .user-des {
+		  display: -webkit-box;
+		  height: 30px;
+		  line-height: 24px;
+		  padding: 3px;
+		  border-radius: 3px;
+		  overflow: hidden;
+		  text-overflow: ellipsis;
+		  -webkit-line-clamp: 1;
+		  cursor: pointer;
+		}
+		.space-b-box .item-con .user-des.dis {
+		  pointer-events: none;
+		  opacity: .3;
+		}
+		.space-b-box .item-con .user-des:hover {
+		  border: 1px solid #CFCECE;
+		  padding: 3px;
+		  line-height: 22px;
+		  background: -webkit-linear-gradient(top, #ffffff, #F6F7F7);
+		  background: -webkit-gradient(linear, top, from(#ffffff), to(#F6F7F7));
+		}
+		.space-b-box .item-info {
+		  position: relative;
+		  float: left;
+		  padding-left: 56px;
+		}
+		.space-b-box .item-info .h-bor {
+		  position: absolute;
+		  top: 0;
+		  left: 0;
+		  display: inline-block;
+		  width: 54px;
+		  height: 54px;
+		  border-radius: 50%;
+		}
+		.space-b-box .item-info .h-bor.green {
+		  border: 2px solid #00AF5B;
+		}
+		.space-b-box .item-info .h-bor.red {
+		  border: 2px solid #E02C4E;
+		}
+		.space-b-box .item-info .h-bor.grey {
+		  border: 2px solid #CACACA;
+		}
+		.space-b-box .item-info .u-info {
+		  height: 54px;
+		  -webkit-box-pack: center;
+		}
+		.space-b-box .item-info img {
+		  width: 50px;
+		  height: 50px;
+		  border-radius: 50%;
+		  border: 2px solid #fff;
+		}
+		.space-b-box .item-info p {
+		  padding: 0;
+		  text-align: left;
+		  margin: 0;
+		}
+		.space-b-box .status {
+		  position: relative;
+		  display: inline-block;
+		  cursor: pointer;
+		}
+		.space-b-box .status:hover .status-txt {
+		  color: #C83665;
+		}
+		.space-b-box .status:hover .status-box {
+		  display: block;
+		}
+		.space-b-box .status .status-box {
+		  display: none;
+		  position: absolute;
+		  top: 100%;
+		  right: 0;
+		  width: 250px;
+		  border: 1px solid #D9D9DA;
+		  border-radius: 6px;
+		  box-shadow: 5px 5px 3px rgba(0, 0, 0, 0.3);
+		  color: #515151;
+		  line-height: 32px;
+		  overflow: hidden;
+		  cursor: default;
+		  z-index: 100;
+		}
+		.space-b-box .status .status-box .status-head {
+		  padding: 0 10px;
+		  border-bottom: 1px solid #F0F0F0;
+		  background-color: #F9F9FA;
+		  text-align: left;
+		}
+		.space-b-box .status .status-box .status-con {
+		  padding: 20px 10px;
+		  background-color: #FCFCFC;
+		}
+		.space-b-box .status .status-box .status-line {
+		  height: 32px;
+		  overflow: hidden;
+		  cursor: text;
+		}
+		.space-b-box .status .status-box .con-left {
+		  float: left;
+		  max-width: 45%;
+		  overflow: hidden;
+		  text-overflow: ellipsis;
+		  white-space: nowrap;
+		}
+		.space-b-box .status .status-box .con-right {
+		  float: right;
+		  max-width: 55%;
+		  color: #AFAFAF;
+		  overflow: hidden;
+		  text-overflow: ellipsis;
+		  white-space: nowrap;
+		}
+		.space-b-box .p-w-t {
+		  position: relative;
+		  height: 60px;
+		}
+		.space-b-box .p-w-t .p-p {
+		  position: absolute;
+		  top: 0;
+		  left: 0;
+		  width: 60px;
+		  height: 60px;
+		  overflow: hidden;
+		}
+		.space-b-box .p-w-t .p-p img {
+		  width: 100%;
+		  min-height: 100%;
+		}
+		.space-b-box .p-w-t .p-t {
+		  padding-left: 70px;
+		}
+		.space-b-box .p-w-t .p-t.no-pl {
+		  padding-left: 0;
+		}
+		.space-b-box .p-w-t .p-t .arrow {
+		  display: none;
+		}
+		.space-b-box .p-w-t .p-t .p-t-top {
+		  height: 40px;
+		  line-height: 20px;
+		  overflow: hidden;
+		  text-overflow: ellipsis;
+		  display: -webkit-box;
+		  -webkit-line-clamp: 2;
+		}
+		.space-b-box .p-w-t .p-t .p-t-top.black {
+		  color: #000;
+		}
+		.space-b-box .p-w-t .p-t .p-t-top.hover:hover {
+		  color: #3399CC;
+		  text-decoration: underline;
+		  cursor: pointer;
+		}
+		.space-b-box .p-w-t .p-t .p-t-top.c-align {
+		  height: 60px;
+		  -webkit-box-pack: center;
+		}
+		.space-b-box .p-w-t .p-t .p-t-bot {
+		  position: relative;
+		  height: 18px;
+		  color: #000;
+		  overflow: hidden;
+		  text-overflow: ellipsis;
+		  display: -webkit-box;
+		  -webkit-line-clamp: 1;
+		}
+		.space-b-box .p-w-t .p-t .p-t-bot.grey {
+		  color: #9A847C;
+		  cursor: default;
+		}
+		.space-b-box .p-w-t .p-t .p-t-bot .u-box {
+		  position: absolute;
+		  top: 24px;
+		  left: 0;
+		  display: none;
+		  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+		}
+		.space-b-box .p-w-t .p-t .p-t-bot .for-hover {
+		  display: inline-block;
+		  cursor: pointer;
+		}
+		.space-b-box .p-w-t .p-t .p-t-bot .for-hover:hover .u-box {
+		  display: block;
+		}
+		.space-b-box .p-w-t .p-t .p-t-bot .text-con {
+		  overflow: hidden;
+		  text-overflow: ellipsis;
+		  display: -webkit-box;
+		  -webkit-line-clamp: 1;
+		}
+		.space-b-box .p-w-t .p-t .pt-bot-hide {
+		  word-break: break-all;
+		}
+		.detail-page {
+		  position: relative;
+		  min-width: 768px;
+		  border-radius: 4px;
+		  color: #000;
+		  background-color: #fff;
+		}
+		.detail-page.page-height {
+		  height: 100%;
+		}
+		.detail-page.pt69 {
+		  padding-top: 69px;
+		}
+		.detail-page .detail-head {
+		  height: 69px;
+		  padding: 20px 28px;
+		  line-height: 26px;
+		  border-bottom: 1px solid #D7D7D7;
+		}
+		.detail-page .detail-head.huge-font {
+		  font-size: 18px;
+		}
+		.detail-page .detail-head .head-right {
+		  float: right;
+		}
+		.detail-page .detail-head .head-tip {
+		  display: inline-block;
+		  margin: 0 15px;
+		  color: #A1A1A1;
+		  font-size: 12px;
+		}
+		.detail-page .detail-head.fixed {
+		  position: absolute;
+		  top: 0;
+		  left: 0;
+		  width: 100%;
+		}
+		.detail-page .detail-head .head-op {
+		  float: right;
+		  display: inline-block;
+		  padding: 4px 6px;
+		  line-height: 16px;
+		  border: 1px solid #00CC6C;
+		  border-radius: 2px;
+		  font-size: 12px;
+		  color: #00CC6C;
+		  cursor: pointer;
+		  margin-left: 10px;
+		}
+		.detail-page .detail-head .head-op.red {
+		  color: #E02C4E;
+		  border-color: #E02C4E;
+		}
+		.detail-page .detail-scroller {
+		  height: 100%;
+		  overflow: auto;
+		}
+		.detail-page .detail-scroller .bot-btns {
+		  margin: 0 30px;
+		  padding: 15px 0 5px;
+		  background-color: #fff;
+		  font-size: 12px;
+		}
+		.detail-page .detail-scroller .step-suc {
+		  position: absolute;
+		  top: 50%;
+		  left: 0;
+		  width: 100%;
+		  padding: 0 15%;
+		  margin-top: -65px;
+		  text-align: center;
+		  color: #ADADAD;
+		}
+		.detail-page .detail-scroller .step-suc .s-des {
+		  display: inline-block;
+		  height: 55px;
+		  line-height: 55px;
+		}
+		.detail-page .detail-scroller .step-suc .s-des .suc-icon {
+		  width: 30px;
+		  height: 30px;
+		  margin: 0 10px;
+		}
+		.detail-page .detail-scroller .step-suc .suc-btn {
+		  padding: 20px 0;
+		}
+		.detail-page .detail-scroller .step-suc .suc-btn .btn-item {
+		  display: inline-block;
+		  width: 30%;
+		  padding: 5px 0;
+		  margin: 0 3%;
+		  border: 1px solid #C2C3C4;
+		  cursor: pointer;
+		}
+		.detail-page .detail-mid {
+		  padding: 34px 28px 40px;
+		  border-bottom: 1px solid #D7D7D7;
+		  font-size: 12px;
+		}
+		.detail-page .detail-mid.pb20 {
+		  padding-bottom: 20px;
+		}
+		.detail-page .detail-mid .d-m-top {
+		  padding-bottom: 34px;
+		  line-height: 20px;
+		  overflow: hidden;
+		}
+		.detail-page .detail-mid .d-m-top .d-t-item {
+		  float: left;
+		  width: 20%;
+		  color: #5B4D46;
+		}
+		.detail-page .detail-mid .d-m-top .item-cat {
+		  color: #000;
+		}
+		.detail-page .detail-mid .b-title {
+		  padding: 0;
+		}
+		.detail-page .detail-mid .tit-top .line-item {
+		  height: auto;
+		  color: #000;
+		}
+		.detail-page .detail-mid .mid-btns {
+		  padding-top: 10px;
+		}
+		.detail-page .detail-bot {
+		  padding: 0 28px;
+		  overflow: hidden;
+		  font-size: 12px;
+		}
+		.detail-page .detail-bot .d-b-left {
+		  float: left;
+		  width: 50%;
+		  padding: 20px 0;
+		}
+		.detail-page .detail-bot .d-b-left .d-left-line {
+		  padding: 8px 0;
+		}
+		.detail-page .detail-bot .d-b-left .d-left-line .d-r-name {
+		  color: #A28E86;
+		  margin: 0 5px;
+		  font-style: italic;
+		}
+		.detail-page .detail-bot .d-b-left .line-cat {
+		  margin-right: 20px;
+		}
+		.detail-page .detail-bot .d-b-right {
+		  float: right;
+		  width: 30%;
+		  padding: 20px 0;
+		}
+		.detail-page .detail-bot .d-b-right .d-right-line {
+		  padding: 10px 0;
+		  border-bottom: 1px solid #D7D7D7;
+		  line-height: normal;
+		}
+		.detail-page .detail-bot .d-b-right .d-right-line:last-child {
+		  border-bottom: none;
+		}
+		.detail-page .detail-bot .d-b-right .d-right-line.red-th {
+		  color: #F44451;
+		  font-size: 16px;
+		}
+		.detail-page .detail-bot .d-b-right .d-right-line:before,
+		.detail-page .detail-bot .d-b-right .d-right-line:after {
+		  content: " ";
+		  display: table;
+		}
+		.detail-page .detail-bot .d-b-right .d-right-line:after {
+		  clear: both;
+		}
+		.detail-page .detail-bot .d-b-right .d-right-line .d-r-op {
+		  padding: 5px 0;
+		}
+		.detail-page .detail-bot .d-b-right .d-right-line .grey-f {
+		  color: #A28E86;
+		  text-align: left;
+		}
+		.detail-page .detail-bot .d-b-right .d-right-line .grey-f .d-r-name {
+		  margin-right: 10px;
+		  font-style: italic;
+		}
+		.detail-page .detail-bot .d-b-right .d-r-right {
+		  float: right;
+		  width: 80%;
+		  padding-left: 10px;
+		  text-align: right;
+		}
+		.detail-page .detail-bot .d-b-right .d-r-left {
+		  float: left;
+		  width: 20%;
+		}
+		.space-b-box .item-con {
+		  display: table-cell;
+		  padding: 10px 0;
+		  vertical-align: middle;
+		  width: 100%;
+		}
+		.space-b-box .item-con .arrow {
+		  display: none;
+		}
+		.space-b-box .item-con .desc-i {
+		  margin: 5px 0;
+		}
+		.space-b-box .item-con div {
+		  word-break: break-all;
+		}
+		.space-b-box .item-con .s-des {
+		  display: inline-block;
+		  max-width: 100%;
+		  margin: 0;
+		  cursor: pointer;
+		  height: 30px;
+		  padding: 5px;
+		  border-radius: 3px;
+		  overflow: hidden;
+		  text-overflow: ellipsis;
+		  white-space: nowrap;
+		}
+		.space-b-box .item-con .s-des.dis {
+		  pointer-events: none;
+		  opacity: .3;
+		}
+		.space-b-box .item-con .s-des:hover {
+		  border: 1px solid #CFCECE;
+		  padding: 5px 4px;
+		  line-height: 16px;
+		  background: -webkit-linear-gradient(top, #ffffff, #F6F7F7);
+		  background: -webkit-gradient(linear, top, from(#ffffff), to(#F6F7F7));
+		}
+		.space-b-box .item-con .user-des {
+		  display: -webkit-box;
+		  height: 30px;
+		  line-height: 24px;
+		  padding: 3px;
+		  border-radius: 3px;
+		  overflow: hidden;
+		  text-overflow: ellipsis;
+		  -webkit-line-clamp: 1;
+		  cursor: pointer;
+		}
+		.space-b-box .item-con .user-des.dis {
+		  pointer-events: none;
+		  opacity: .3;
+		}
+		.space-b-box .item-con .user-des:hover {
+		  border: 1px solid #CFCECE;
+		  padding: 3px;
+		  line-height: 22px;
+		  background: -webkit-linear-gradient(top, #ffffff, #F6F7F7);
+		  background: -webkit-gradient(linear, top, from(#ffffff), to(#F6F7F7));
+		}
+		.space-b-box .line-width.s-line .line-item {
+		  height: 80px;
+		  color: #000;
+		}
+		.space-b-box .line-width.s-line .g-item {
+		  padding: 10px;
+		}
+		.space-b-box .line-width.bor-line {
+		  border-bottom: 1px solid #D9D9DA;
+		}
+		.space-b-box .line-item {
+		  display: table;
+		  width: 100%;
+		  height: 105px;
+		  font-size: 12px;
+		  line-height: 18px;
+		  color: #9A847C;
+		}
+		.space-b-box.line-item90 .line-item {
+		  height: 90px;
+		}
+		.line-width:before,
+		.line-width:after {
+		  content: " ";
+		  display: table;
+		}
+		.line-width:after {
+		  clear: both;
+		}
+		.line-width .line-item {
+		  float: left;
+		  padding: 0 10px;
+		  text-align: center;
+		}
+		.line-width .line-item.per32 {
+		  width: 32%;
+		}
+		.line-width .line-item.per38 {
+		  width: 38%;
+		}
+		.line-width .line-item.per36 {
+		  width: 36%;
+		}
+		.line-width .line-item.per28 {
+		  width: 28%;
+		}
+		.line-width .line-item.per40 {
+		  width: 40%;
+		}
+		.line-width .line-item.per62 {
+		  width: 62%;
+		}
+		.line-width .line-item.per19 {
+		  width: 19%;
+		}
+		.line-width .line-item.per17 {
+		  width: 17%;
+		}
+		.line-width .line-item.per20 {
+		  width: 20%;
+		}
+		.line-width .line-item.per25 {
+		  width: 25%;
+		}
+		.line-width .line-item.per35 {
+		  width: 35%;
+		}
+		.line-width .line-item.per30 {
+		  width: 30%;
+		}
+		.line-width .line-item.per10 {
+		  width: 10%;
+		}
+		.line-width .line-item.per11 {
+		  width: 11%;
+		}
+		.line-width .line-item.per15 {
+		  width: 15%;
+		}
+		.line-width .line-item.per14 {
+		  width: 14%;
+		}
+		.line-width .line-item.per27 {
+		  width: 27%;
+		}
+		.line-width .line-item.per13 {
+		  width: 13%;
+		}
+		.line-width .line-item.per9_5 {
+		  width: 9.5%;
+		}
+		.line-width .line-item.per55 {
+		  width: 55%;
+		}
+		.line-width .line-item.per50 {
+		  width: 50%;
+		}
+		.line-width .line-item.t-left {
+		  text-align: left;
+		}
+		.line-width .line-item .big-f {
+		  font-size: 14px;
+		  font-weight: bold;
+		  color: #554742;
+		}
+	</style>
+</head>
+<body>
+	<div class="detail-page">
+		<div class="detail-head">
+			<span>账单号：{{bill.serialNumber}}</span>
+		</div>
+		<div class="detail-mid">
+			<div class="d-m-top">
+				<div class="d-t-item">
+					<span class="item-cat">租赁人 :</span>
+					<span>{{ customer.name }}</span>
+				</div>
+				<div class="d-t-item">
+					<span class="item-cat">手机 :</span>
+					<span>{{ customer.phone }}</span>
+				</div>
+				<div class="d-t-item">
+					<span class="item-cat">邮箱 :</span>
+					<span>{{ customer.email }}</span>
+				</div>
+				<div class="d-t-item">
+					<span class="item-cat">会员卡号 :</span>
+					<span>{{ user ? user.cardNo}}</span>
+				</div>
+			</div>
+			<div class="space-b-box">
+                <div class="b-title tit-top">
+                    <div class="line-width info-tit">
+                        <div class="line-item per32 t-left">
+                            合同号: <span class="link-txt">{{ bill.lease.serialNumber }}</span>
+                        </div>
+                        <div class="line-item per38">
+                            账单
+                        </div>
+                        <div class="line-item per15">
+                            账单时间段
+                        </div>
+                        <div class="line-item per15">
+                            账单金额
+                        </div>
+                    </div>
+                </div>
+                <div class="line-width">
+                    <div class="line-item per32 t-left">
+                        <div class="item-con">
+                            <div class="p-w-t">
+                                <div class="p-p">
+                                	{#<img src="">#}
+                                </div>
+                                <div class="p-t">
+                                    <div class="p-t-top">
+                                    	{{ building.city.name }}, {{ building.name }}, {{ product.room.name }}
+                                    </div>
+                                    <div class="p-t-bot">
+                                        <span>办公室</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="line-item per38">
+                        <div class="item-con">
+                        	<div class="big-f">{{ bill.name }}</div>
+                        	<div>{{ bill.description }}</div>
+                        </div>
+                    </div>
+                    <div class="line-item per15">
+                        <div class="item-con">
+                            <div>{{bill.startDate | date('Y-m-d') }}</div>
+                            <div>-</div>
+                            <div>{{bill.endDate | date('Y-m-d')}}</div>
+                        </div>
+                    </div>
+                    <div class="line-item per15">
+                        <div class="item-con">
+                            <div class="big-f">{{ bill.amount }}元</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+		</div>
+		<div class="detail-bot">
+			<div class="d-b-left">
+				<div class="d-left-line">
+					<span class="line-cat">推送时间</span>
+					<span class="line-cat">{{ bill.sendDate | date('Y-m-d') }}</span>
+				</div>
+				<div class="d-left-line">
+					<span class="line-cat">付款渠道</span>
+					<span class="detail-tag green">{{ bill.payChannel ? channels[bill.payChannel] }}</span>
+				</div>
+			</div>
+			<div class="d-b-right">
+				<div class="d-right-line red-th">
+					<div class="d-r-left">
+						<span>应付款</span>
+					</div>
+					<div class="d-r-right">
+						{{ bill.revisedAmount }} 元
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</body>
+</html>

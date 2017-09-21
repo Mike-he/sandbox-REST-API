@@ -4,7 +4,6 @@ namespace Sandbox\ApiBundle\Entity\SalesAdmin;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * SalesCompanyServiceInfos.
@@ -53,9 +52,7 @@ class SalesCompanyServiceInfos
     /**
      * @var float
      *
-     * @Assert\NotNull()
-     *
-     * @ORM\Column(name="service_fee", type="float", precision=6, scale=3)
+     * @ORM\Column(name="service_fee", type="float", precision=6, scale=3, nullable=true)
      * @Serializer\Groups({"main", "admin_view"})
      */
     private $serviceFee;
@@ -66,15 +63,15 @@ class SalesCompanyServiceInfos
      * @ORM\Column(name="collection_method", type="string", length=30, nullable=true)
      * @Serializer\Groups({"main", "admin_view"})
      */
-    private $collectionMethod = self::COLLECTION_METHOD_SANDBOX;
+    private $collectionMethod;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="drawer", type="string", length=30)
+     * @ORM\Column(name="drawer", type="string", length=30, nullable=true)
      * @Serializer\Groups({"main", "admin_view"})
      */
-    private $drawer = self::DRAWER_SANDBOX;
+    private $drawer;
 
     /**
      * @var string

@@ -3,6 +3,7 @@
 namespace Sandbox\ClientApiBundle\Data\User;
 
 use Sandbox\ApiBundle\Entity\User\UserClient;
+use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
 
 /**
  * User Login Incoming Data.
@@ -18,6 +19,11 @@ class UserLoginData
      * @var UserLoginDeviceData
      */
     private $device;
+
+    /**
+     * @var ThirdPartyOAuthWeChatData
+     */
+    private $wechat;
 
     /**
      * @return UserClient
@@ -49,5 +55,21 @@ class UserLoginData
     public function setDevice($device)
     {
         $this->device = $device;
+    }
+
+    /**
+     * @return ThirdPartyOAuthWeChatData
+     */
+    public function getWechat()
+    {
+        return $this->wechat;
+    }
+
+    /**
+     * @param ThirdPartyOAuthWeChatData $wechat
+     */
+    public function setWechat($wechat)
+    {
+        $this->wechat = $wechat;
     }
 }

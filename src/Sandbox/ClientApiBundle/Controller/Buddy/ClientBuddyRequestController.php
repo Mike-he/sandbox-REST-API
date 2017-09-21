@@ -119,6 +119,7 @@ class ClientBuddyRequestController extends BuddyRequestController
     ) {
         // get my user
         $myUserId = $this->getUserId();
+        /** @var User $myUser */
         $myUser = $this->getRepo('User\User')->find($myUserId);
 
         // get incoming data
@@ -175,14 +176,14 @@ class ClientBuddyRequestController extends BuddyRequestController
             $buddyRequest->setMessage($message);
         }
 
+        $this->get('sandbox_api.jmessage')
+            ->addFriends(
+                $myUser->getXmppUsername(),
+                [$recvUser->getXmppUsername()]
+            );
+
         $em->flush();
 
-        // send buddy notification by xmpp
-        $this->sendXmppBuddyNotification(
-            $myUser,
-            $recvUser,
-            'request'
-        );
 
         // set view
         $view = new View();
@@ -270,13 +271,6 @@ class ClientBuddyRequestController extends BuddyRequestController
                 if (!is_null($buddyRequest)) {
                     $buddyRequest->setStatus(BuddyRequest::STATUS_ACCEPTED);
                 }
-
-                // send buddy notification by xmpp
-                $this->sendXmppBuddyNotification(
-                    $myUser,
-                    $askUser,
-                    'add'
-                );
             }
 
             $em->flush();

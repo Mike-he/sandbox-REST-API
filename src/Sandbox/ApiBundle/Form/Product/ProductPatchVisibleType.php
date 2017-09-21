@@ -17,9 +17,8 @@ class ProductPatchVisibleType extends AbstractType
         $builder->add('visible')
             ->add('appointment')
             ->add('earliest_rent_date',
-                'date',
+                null,
                 array(
-                    'widget' => 'single_text',
                     'mapped' => false,
                 ));
     }

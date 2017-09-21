@@ -9,7 +9,6 @@
     "require": {
         "php": ">=5.3.3",
         "symfony/symfony": "~2.3",
-        "symfony/icu": "1.0.*",
         "doctrine/orm": "~2.2,>=2.2.3",
         "doctrine/doctrine-bundle": "1.2.*",
         "doctrine/migrations": "^1.4",
@@ -39,7 +38,10 @@
         "stof/doctrine-extensions-bundle": "~1.1@dev",
         "knplabs/knp-snappy-bundle": "^1.4",
         "snc/redis-bundle": "2.x-dev",
-        "predis/predis": "^1.0"
+        "predis/predis": "^1.0",
+        "jiguang/jmessage": "^1.1",
+        "symfony/intl": "^3.3",
+        "aliyuncs/oss-sdk-php": "^2.2"
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "@stable",

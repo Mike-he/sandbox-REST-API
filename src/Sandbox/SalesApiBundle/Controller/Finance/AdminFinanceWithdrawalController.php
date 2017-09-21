@@ -6,6 +6,7 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Finance\FinanceSalesWalletFlow;
 use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyWithdrawals;
@@ -120,7 +121,9 @@ class AdminFinanceWithdrawalController extends PaymentController
 
         $total = $wallet->getTotalAmount();
 
-        $wallet->setWithdrawableAmount($current - $amount);
+        $incomingWithdrawAmount = $current - $amount;
+
+        $wallet->setWithdrawableAmount($incomingWithdrawAmount);
         $wallet->setTotalAmount($total - $amount);
 
         $error = $this->handleWithdrawalPost(
@@ -136,6 +139,14 @@ class AdminFinanceWithdrawalController extends PaymentController
                 $error['message']
             );
         }
+
+        $this->get('sandbox_api.sales_wallet')->generateSalesWalletFlows(
+            FinanceSalesWalletFlow::WITHDRAW_AMOUNT,
+            "-$amount",
+            $salesCompanyId,
+            null,
+            $incomingWithdrawAmount
+        );
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($withdrawal);
@@ -398,7 +409,7 @@ class AdminFinanceWithdrawalController extends PaymentController
 
         $account = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfileAccount')
-            ->findOneBy(array('salesCompany' => $salesCompanyId));
+            ->findOneBy(array('salesCompanyId' => $salesCompanyId));
 
         if (!$account) {
             $check = false;
@@ -406,7 +417,7 @@ class AdminFinanceWithdrawalController extends PaymentController
 
         $express = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfileExpress')
-            ->findOneBy(array('salesCompany' => $salesCompanyId));
+            ->findOneBy(array('salesCompanyId' => $salesCompanyId));
 
         if (!$express) {
             $check = false;
@@ -414,7 +425,7 @@ class AdminFinanceWithdrawalController extends PaymentController
 
         $invoice = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfileInvoice')
-            ->findOneBy(array('salesCompany' => $salesCompanyId));
+            ->findOneBy(array('salesCompanyId' => $salesCompanyId));
 
         if (!$invoice) {
             $check = false;
@@ -435,10 +446,18 @@ class AdminFinanceWithdrawalController extends PaymentController
         $withdrawal,
         $adminId
     ) {
+        $financeProfileId = $withdrawal->getFinanceProfileId();
+        $financeProfile = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfiles')
+            ->find($financeProfileId);
+        if (is_null($financeProfile)) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
         // get bank info
         $account = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfileAccount')
-            ->findOneBy(['salesCompany' => $company]);
+            ->findOneBy(['profileId' => $financeProfileId]);
         if (is_null($account)) {
             return $this->setErrorArray(
                 self::COMPANY_PROFILE_ACCOUNT_INCOMPLETE_CODE,

@@ -10,6 +10,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use FOS\RestBundle\View\View;
+use OSS\OssClient;
+use Sandbox\ApiBundle\Constants\OssConstants;
 
 /**
  * Class FileServerController.
@@ -29,10 +31,7 @@ class FileServerController extends SandboxRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $twig = $this->container->get('twig');
-        $globals = $twig->getGlobals();
-
-        $domain = $globals['file_server_url'];
+        $domain = $this->container->getParameter('rest_file_server_url');
 
         return new View(array(
             'file_server_domain' => $domain,
@@ -61,17 +60,7 @@ class FileServerController extends SandboxRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $alltargets = array('bulletin', 'chatgroup', 'company',  'id_photo', 'menu',  'person',  'user_card');
-        $target = $paramFetcher->get('target');
-
-        $domain = null;
-        if (!is_null($target)) {
-            if (in_array($target, $alltargets)) {
-                $domain = $this->container->getParameter('file_server_url');
-            } else {
-                $domain = $this->container->getParameter('rest_file_server_url');
-            }
-        }
+        $domain = $this->container->getParameter('rest_file_server_url');
 
         return new View(array(
             'file_server_domain' => $domain,
@@ -382,7 +371,9 @@ class FileServerController extends SandboxRestController
         $preview_height = $paramFetcher->get('preview_height');
         $preview_width = $paramFetcher->get('preview_width');
 
-        $path = $this->getPath($target, $id);
+        //$path = $this->getPath($target, $id);
+        $ossClient = $this->getOssClient();
+        $path = $this->getOssPath($target, $id);
         $fileid = $this->getName();
 
         if ($type == 'base64') {
@@ -392,46 +383,47 @@ class FileServerController extends SandboxRestController
             }
             $content_type = 'image/'.$pregR[0];
             $filename = $fileid.'.'.$pregR[0];
-            $newfile = $path.'/'.$filename;
-
+            $newfile = $_SERVER['DOCUMENT_ROOT'].'/'.$filename;
+            $object = $path.'/'.$filename;
             preg_match('/(?<=base64,)[\S|\s]+/', $file, $streamForW);
             file_put_contents($newfile, base64_decode($streamForW[0]));
+
+            $download_link = $this->uploadImage( $ossClient, $newfile, $object, $path, $type);
+            unlink($newfile);
         } else {
             $file = $request->files->get('file');
             if (is_null($file)) {
                 throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
             }
+
             $content_type = 'image/'.$file->guessExtension();
             $filename = $fileid.'.'.$file->guessExtension();
-            $file->move($path, $filename);
+            //$file->move($path, $filename);
 
-            $newfile = $path.'/'.$filename;
+            $object = $path.'/'.$filename;
+            $download_link = $this->uploadImage($ossClient, $file, $object, $path, $type);
         }
 
         if ($type == 'avatar' || $type == 'background') {
-            copy($newfile, $path.'/'.$type.'.jpg');
-            $this->createThumb($newfile, $path.'/'.$type.'_small.jpg', 92, 92);
-            $this->createThumb($newfile, $path.'/'.$type.'_medium.jpg', 192, 192);
-            $this->createThumb($newfile, $path.'/'.$type.'_large.jpg', 400, 400);
+              $object = $path.'/'.$type.'.'.$file->guessExtension();
+              $this->ossThumbImage($ossClient, $object, $path, $type.'_small.jpg', 92, 92);
+              $this->ossThumbImage($ossClient, $object, $path, $type.'_medium.jpg', 192, 192);
+              $this->ossThumbImage($ossClient, $object, $path, $type.'_large.jpg', 400, 400);
         }
 
         if ($type == 'image') {
-            $this->resizeImage($newfile, $newfile, 800, 800);
+            //$this->resizeImage($newfile, $newfile, 800, 800);
+            $this->ossResizeImage($ossClient, $object, $filename,800,800);
         }
 
         if (!is_null($preview_height) && !is_null($preview_width)) {
+
             $preview = $path.'/preview';
-            if (!file_exists($preview)) {
-                mkdir($preview, 0777, true);
-            }
-            $this->createThumb($newfile, $preview.'/'.$filename, $preview_width, $preview_height);
+
+            $pre_link = $this->ossThumbImage($ossClient, $object, $preview, $filename, $preview_width, $preview_height);
         }
 
-        $img_url = $this->container->getParameter('image_url');
-        $id = $id ? '/'.$id : '';
-        $download_link = $img_url.'/'.$target.$id.'/'.$filename;
-        $preview_link = $preview_height ? $img_url.'/'.$target.$id.'/preview/'.$filename : $download_link;
-
+        $preview_link = $preview_height ? $pre_link : $download_link;
         $result = array(
             'content_type' => $content_type,
             'download_link' => $download_link,
@@ -465,60 +457,15 @@ class FileServerController extends SandboxRestController
         return strtolower(strrchr($oriName, '.'));
     }
 
-    /**
-     * @param $target
-     * @param $id
-     *
-     * @return string
-     */
-    private function getPath(
-        $target,
-        $id
-    ) {
-        $dir = '/data/openfire/image';
-
-        if (!is_null($target)) {
-            $dir = $dir.'/'.$target;
-        }
+    private function getOssPath($target, $id)
+    {
+        $dir = $target;
 
         if (!is_null($id)) {
-            $dir = $dir.'/'.$id;
-        }
-
-        if (!file_exists($dir)) {
-            if (!mkdir($dir, 0777, true)) {
-                return false;
-            }
+            $dir = $target.'/'.$id;
         }
 
         return $dir;
-    }
-
-    /**
-     * Thumbnails.
-     *
-     * @param $srcImgPath
-     * @param $targetImgPath
-     * @param $dstW
-     * @param $dstH
-     *
-     * @return bool
-     */
-    private function createThumb(
-        $srcImgPath,
-        $targetImgPath,
-        $dstW,
-        $dstH
-    ) {
-        $src_image = $this->imgCreate($srcImgPath);
-        $srcW = imagesx($src_image); //获得图片宽
-        $srcH = imagesy($src_image); //获得图片高
-
-        $dst_image = imagecreatetruecolor($dstW, $dstH);
-
-        imagecopyresized($dst_image, $src_image, 0, 0, 0, 0, $dstW, $dstH, $srcW, $srcH);
-
-        return imagejpeg($dst_image, $targetImgPath);
     }
 
     /**
@@ -613,5 +560,97 @@ class FileServerController extends SandboxRestController
         } else {
             imagejpeg($src_image, $targetImgPath);
         }
+    }
+
+    private function getOssClient()
+    {
+        $ak = $this->getParameter('oss_access_key_id');
+        $sk = $this->getParameter('oss_access_key_secret');
+        $endpoint = $this->getParameter('oss_endpoint');
+
+        return new OssClient($ak,$sk,$endpoint);
+    }
+
+    /**
+     * @param $ossClient
+     * @param $file
+     * @param $object
+     * @param $path
+     * @param $type
+     * @return string
+     */
+    private function uploadImage(
+        $ossClient,
+        $file,
+        $object,
+        $path,
+        $type
+    ) {
+        $img_url = $this->getParameter('image_url');
+        $bucket = $this->getParameter('oss_bucket');
+
+        if($type == 'avatar' || $type == 'background'){
+            $object = $path.'/'.$type.'.'.$file->guessExtension();
+        }
+        $ossClient->uploadFile($bucket,  $object, $file);
+
+        $download_link = $img_url.'/'.$object;
+        return $download_link;
+    }
+
+    /**
+     * @param $object
+     * @param $path
+     * @param $newfile
+     * @param $h
+     * @param $w
+     * @return string
+     */
+    private function ossThumbImage($ossClient, $object, $path, $newfile, $h, $w)
+    {
+        $img_url = $this->getParameter('image_url');
+        $bucket = $this->getParameter('oss_bucket');
+        $hight = "h_".$h;
+        $width = "w_".$w;
+        $options = array(
+            OssClient::OSS_FILE_DOWNLOAD => $newfile,
+            OssClient::OSS_PROCESS => "image/resize,m_fixed,$hight,$width");
+
+        $ossClient->getObject($bucket, $object, $options);
+
+        $thumb = $_SERVER['DOCUMENT_ROOT'].'/'.$newfile;
+        $ossClient->uploadFile($bucket,  $path.'/'.$newfile, $thumb);
+        unlink($thumb);
+
+        $link = $img_url.'/'.$path.'/'.$newfile;
+        return $link;
+    }
+
+    /**
+     * @param $ossClient
+     * @param $object
+     * @param $newfile
+     * @param $h
+     * @param $w
+     */
+    private function ossResizeImage(
+        $ossClient,
+        $object,
+        $newfile,
+        $h,
+        $w
+    ){
+        $bucket = $this->getParameter('oss_bucket');
+        $hight = "h_".$h;
+        $width = "w_".$w;
+        $options = array(
+            OssClient::OSS_FILE_DOWNLOAD => $newfile,
+            OssClient::OSS_PROCESS => "image/resize,m_lfit,$hight,$width");
+
+        $ossClient->getObject($bucket,$object,$options);
+        $image = $_SERVER['DOCUMENT_ROOT'].'/'.$newfile;
+        $ossClient->uploadFile($bucket,  $object, $image);
+
+        unlink($image);
     }
 }

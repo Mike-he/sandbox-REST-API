@@ -92,7 +92,7 @@ class AdminLeaseController extends AdminRestController
         $lease = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\Lease')->find($id);
 
-        $this->throwNotFoundIfNull($lease, self::NOT_FOUND_MESSAGE);
+        $this->throwNotFoundIfNull($lease, CustomErrorMessagesConstants::ERROR_LEASE_NOT_FOUND_MESSAGE);
 
         $bills = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
@@ -101,25 +101,37 @@ class AdminLeaseController extends AdminRestController
                 'type' => LeaseBill::TYPE_LEASE,
             ));
 
-        $drawee = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserView')
-            ->find($lease->getDrawee()->getId());
+        $customer = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->find($lease->getLesseeCustomer());
 
-        $supervisor = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserView')
-            ->find($lease->getSupervisor()->getId());
+        $enterprise = null;
+        if ($lease->getLesseeEnterprise()) {
+            $enterprise = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\EnterpriseCustomer')
+                ->find($lease->getLesseeEnterprise());
+        }
 
-        $excludeLeaseRentTypes = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Lease\LeaseRentTypes')
-            ->getExcludeLeaseRentTypes($lease);
+        $building = null;
+        if ($lease->getBuildingId()) {
+            $building = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                ->find($lease->getBuildingId());
+        }
+
+        $product = null;
+        if ($lease->getProductId()) {
+            $product = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\Product')
+                ->find($lease->getProductId());
+        }
 
         $html = $this->renderView(':Leases:leases_print.html.twig', array(
             'lease' => $lease,
-            'drawee' => $drawee,
-            'supervisor' => $supervisor,
-            'draweeAvatarUrl' => $this->generateAvatarUrl($drawee->getId()),
-            'supervisorAvatarUrl' => $this->generateAvatarUrl($supervisor->getId()),
-            'excludeTypes' => $excludeLeaseRentTypes,
+            'building' => $building,
+            'product' => $product,
+            'customer' => $customer,
+            'enterprise' => $enterprise,
             'bills' => $bills,
         ));
 
@@ -144,7 +156,7 @@ class AdminLeaseController extends AdminRestController
      * @Annotations\QueryParam(
      *    name="status",
      *    array=false,
-     *    default="all",
+     *    default=null,
      *    nullable=true,
      *    strict=true,
      *    description="status of lease"

@@ -21,7 +21,6 @@ class Version920170519034548 extends AbstractMigration implements ContainerAware
     public function up(Schema $schema)
     {
         // this up() migration is auto-generated, please modify it to your needs
-
     }
 
     /**
@@ -146,7 +145,6 @@ class Version920170519034548 extends AbstractMigration implements ContainerAware
 
             $em->flush();
         }
-
     }
 
     /**
@@ -155,6 +153,5 @@ class Version920170519034548 extends AbstractMigration implements ContainerAware
     public function down(Schema $schema)
     {
         // this down() migration is auto-generated, please modify it to your needs
-
     }
 }

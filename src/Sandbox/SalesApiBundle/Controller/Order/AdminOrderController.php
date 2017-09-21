@@ -8,6 +8,7 @@ use Rs\Json\Patch;
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Sandbox\ApiBundle\Controller\Order\OrderController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\GenericList\GenericList;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
@@ -30,7 +31,9 @@ use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Symfony\Component\HttpFoundation\Response;
 use Sandbox\ApiBundle\Traits\ProductOrderNotification;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
+use Sandbox\ApiBundle\Constants\ProductOrderExport;
 
 /**
  * Admin order controller.
@@ -551,76 +554,7 @@ class AdminOrderController extends OrderController
                     null,
                     $order->getId()
                 );
-
-            foreach ($orders as $rejectedOrder) {
-                $status = $rejectedOrder->getStatus();
-                $channel = $rejectedOrder->getPayChannel();
-
-                if ($channel == ProductOrder::CHANNEL_OFFLINE && $status == ProductOrder::STATUS_UNPAID) {
-                    $existTransfer = $this->getDoctrine()
-                        ->getRepository('SandboxApiBundle:Order\OrderOfflineTransfer')
-                        ->findOneByOrderId($rejectedOrder->getId());
-                    $this->throwNotFoundIfNull($existTransfer, self::NOT_FOUND_MESSAGE);
-
-                    $transferStatus = $existTransfer->getTransferStatus();
-                    if ($transferStatus == OrderOfflineTransfer::STATUS_UNPAID) {
-                        $rejectedOrder->setStatus(ProductOrder::STATUS_CANCELLED);
-                        $rejectedOrder->setCancelledDate(new \DateTime());
-                        $rejectedOrder->setModificationDate(new \DateTime());
-                    } else {
-                        $existTransfer->setTransferStatus(OrderOfflineTransfer::STATUS_VERIFY);
-                    }
-                } else {
-                    $rejectedOrder->setStatus(ProductOrder::STATUS_CANCELLED);
-                    $rejectedOrder->setCancelledDate($now);
-                    $rejectedOrder->setModificationDate($now);
-                    $rejectedOrder->setCancelByUser(true);
-
-                    if ($price > 0) {
-                        $rejectedOrder->setNeedToRefund(true);
-
-                        if (ProductOrder::CHANNEL_ACCOUNT == $channel) {
-                            $balance = $this->postBalanceChange(
-                                $userId,
-                                $price,
-                                $rejectedOrder->getOrderNumber(),
-                                self::PAYMENT_CHANNEL_ACCOUNT,
-                                0,
-                                self::ORDER_REFUND
-                            );
-
-                            $rejectedOrder->setRefundProcessed(true);
-                            $rejectedOrder->setRefundProcessedDate($now);
-
-                            if (!is_null($balance)) {
-                                $rejectedOrder->setRefunded(true);
-                                $rejectedOrder->setNeedToRefund(false);
-                            }
-                        }
-                    }
-
-                    $em->flush();
-
-                    $this->generateAdminLogs(array(
-                        'logModule' => Log::MODULE_ROOM_ORDER,
-                        'logAction' => Log::ACTION_REJECT,
-                        'logObjectKey' => Log::OBJECT_ROOM_ORDER,
-                        'logObjectId' => $rejectedOrder->getId(),
-                    ));
-                }
-
-                if (!empty($orders)) {
-                    // send message
-                    $this->sendXmppProductOrderNotification(
-                        null,
-                        null,
-                        ProductOrder::ACTION_REJECTED,
-                        null,
-                        $orders,
-                        ProductOrderMessage::OFFICE_REJECTED_MESSAGE
-                    );
-                }
-            }
+            $this->rejectOrdersAction($orders, $now, $em);
         }
 
         $em->flush();
@@ -633,6 +567,75 @@ class AdminOrderController extends OrderController
         ));
 
         return new View();
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *     name="order_id",
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="product_id",
+     *     nullable=false,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="start_date",
+     *     nullable=false,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="end_date",
+     *     nullable=false,
+     *     strict=true
+     * )
+     *
+     * @Route("/orders/other_rejected")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getOtherRejectedOrdersAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $orderId = $paramFetcher->get('order_id');
+        $productId = $paramFetcher->get('product_id');
+        $startDate = $paramFetcher->get('start_date');
+        $endDate = $paramFetcher->get('end_date');
+
+        $orders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getOfficeRejected(
+                $productId,
+                $startDate,
+                $endDate,
+                null,
+                $orderId
+            );
+
+        $response = [];
+        foreach ($orders as $order) {
+            /** @var ProductOrder $order */
+            $orderArray = [
+                'id' => $order->getId(),
+                'user_name' => $order->getUser()->getUserProfile()->getName(),
+                'order_number' => $order->getOrderNumber(),
+                'start_date' => $order->getStartDate(),
+                'end_date' => $order->getEndDate(),
+            ];
+
+            array_push($response, $orderArray);
+        }
+
+        return new View($response);
     }
 
     /**
@@ -902,7 +905,7 @@ class AdminOrderController extends OrderController
                     'key' => AdminPermission::KEY_SALES_BUILDING_ORDER,
                 ),
                 array(
-                    'key' => AdminPermission::KEY_SALES_BUILDING_USER,
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_CUSTOMER,
                 ),
             ),
             AdminPermission::OP_LEVEL_VIEW
@@ -1237,238 +1240,6 @@ class AdminOrderController extends OrderController
     }
 
     /**
-     * Export orders to excel.
-     *
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
-     *
-     * @Annotations\QueryParam(
-     *    name="language",
-     *    default="zh",
-     *    nullable=true,
-     *    requirements="(zh|en)",
-     *    strict=true,
-     *    description="export language"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="type",
-     *    array=true,
-     *    default=null,
-     *    nullable=true,
-     *    strict=true,
-     *    description="Filter by room type"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="channel",
-     *    default=null,
-     *    nullable=true,
-     *    array=true,
-     *    description="payment channel"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="keyword",
-     *    default=null,
-     *    nullable=true,
-     *    description="search query"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="keyword_search",
-     *    default=null,
-     *    nullable=true,
-     *    description="search query"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="create_date_range",
-     *    default=null,
-     *    nullable=true,
-     *    description="create_date_range"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="create_start",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
-     *    strict=true,
-     *    description="start date. Must be YYYY-mm-dd"
-     * )
-     *
-     *  @Annotations\QueryParam(
-     *    name="create_end",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
-     *    strict=true,
-     *    description="end date. Must be YYYY-mm-dd"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="status",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    strict=true,
-     *    description="Order Status"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="rent_filter",
-     *    default=null,
-     *    nullable=true,
-     *    description="rent filter"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="start_date",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
-     *    strict=true,
-     *    description="start date. Must be YYYY-mm-dd"
-     * )
-     *
-     *  @Annotations\QueryParam(
-     *    name="end_date",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
-     *    strict=true,
-     *    description="end date. Must be YYYY-mm-dd"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="pay_date",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
-     *    strict=true,
-     *    description="filter for payment start. Must be YYYY-mm-dd"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="pay_start",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
-     *    strict=true,
-     *    description="filter for payment start. Must be YYYY-mm-dd"
-     * )
-     *
-     *  @Annotations\QueryParam(
-     *    name="pay_end",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
-     *    strict=true,
-     *    description="filter for payment end. Must be YYYY-mm-dd"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="company",
-     *    array=false,
-     *    default=null,
-     *    nullable=false,
-     *    strict=true,
-     *    description="company id"
-     * )
-     *
-     *
-     * @Route("/orders/export")
-     * @Method({"GET"})
-     *
-     * @throws \Exception
-     *
-     * @return View
-     */
-    public function getExcelOrders(
-        Request $request,
-        ParamFetcherInterface $paramFetcher
-    ) {
-        //authenticate with web browser cookie
-        $admin = $this->authenticateAdminCookie();
-        $adminId = $admin->getId();
-        $companyId = $paramFetcher->get('company');
-
-        // check user permission
-        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
-            $adminId,
-            array(
-                array(
-                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER,
-                ),
-            ),
-            AdminPermission::OP_LEVEL_VIEW,
-            AdminPermission::PERMISSION_PLATFORM_SALES,
-            $companyId
-        );
-
-        $language = $paramFetcher->get('language');
-        $type = $paramFetcher->get('type');
-        $channel = $paramFetcher->get('channel');
-        $keyword = $paramFetcher->get('keyword');
-        $keywordSearch = $paramFetcher->get('keyword_search');
-        $createDateRange = $paramFetcher->get('create_date_range');
-        $createStart = $paramFetcher->get('create_start');
-        $createEnd = $paramFetcher->get('create_end');
-        $status = $paramFetcher->get('status');
-        $rentFilter = $paramFetcher->get('rent_filter');
-        $startDate = $paramFetcher->get('start_date');
-        $endDate = $paramFetcher->get('end_date');
-        $payDate = $paramFetcher->get('pay_date');
-        $payStart = $paramFetcher->get('pay_start');
-        $payEnd = $paramFetcher->get('pay_end');
-
-        //get my buildings list
-        $myBuildingIds = $this->getMySalesBuildingIds(
-            $adminId,
-            array(
-                AdminPermission::KEY_SALES_BUILDING_ORDER,
-            ),
-            null,
-            AdminPermission::PERMISSION_PLATFORM_SALES,
-            $companyId
-        );
-
-        //get array of orders
-        $orders = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->getSalesOrdersToExport(
-                $channel,
-                $type,
-                null,
-                null,
-                null,
-                $rentFilter,
-                $startDate,
-                $endDate,
-                $payDate,
-                $payStart,
-                $payEnd,
-                $keyword,
-                $keywordSearch,
-                $myBuildingIds,
-                $createDateRange,
-                $createStart,
-                $createEnd,
-                $status
-            );
-
-        return $this->getProductOrderExport($orders, $language);
-    }
-
-    /**
      * Get member order renter info.
      *
      * @param Request $request
@@ -1506,7 +1277,7 @@ class AdminOrderController extends OrderController
                     'building_id' => $buildingId,
                 ),
                 array(
-                    'key' => AdminPermission::KEY_SALES_BUILDING_USER,
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_CUSTOMER,
                     'building_id' => $buildingId,
                 ),
                 array(
@@ -1628,7 +1399,8 @@ class AdminOrderController extends OrderController
                 $endDate,
                 $user,
                 $type,
-                $timeUnit
+                $timeUnit,
+                0
             );
 
             if (!empty($error)) {
@@ -1918,8 +1690,36 @@ class AdminOrderController extends OrderController
                 );
             }
 
-            $user = $this->getRepo('User\User')->find($order->getUserId());
-            $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
+            $userId = $order->getUserId();
+            $customerId = $order->getCustomerId();
+
+            if (is_null($userId) && is_null($customerId)) {
+                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            }
+
+            if ($userId) {
+                $user = $em->getRepository('SandboxApiBundle:User\User')->find($order->getUserId());
+                $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
+
+                $productId = $order->getProductId();
+                $product = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Product\Product')
+                    ->find($productId);
+                $salesCompanyId = $product->getRoom()->getBuilding()->getCompanyId();
+
+                $newCustomerId = $this->get('sandbox_api.sales_customer')->createCustomer($user->getId(), $salesCompanyId);
+                $order->setCustomerId($newCustomerId);
+            }
+
+            if ($customerId) {
+                $user = null;
+                $customer = $em->getRepository('SandboxApiBundle:User\UserCustomer')->find($order->getCustomerId());
+                $this->throwNotFoundIfNull($customer, self::NOT_FOUND_MESSAGE);
+
+                if ($customer->getUserId()) {
+                    $user = $em->getRepository('SandboxApiBundle:User\User')->find($customer->getUserId());
+                }
+            }
 
             $productId = $order->getProductId();
             $product = $this->getDoctrine()
@@ -2020,7 +1820,8 @@ class AdminOrderController extends OrderController
                 $endDate,
                 $user,
                 $type,
-                $timeUnit
+                $timeUnit,
+                $basePrice
             );
 
             if (!empty($error)) {
@@ -2056,29 +1857,11 @@ class AdminOrderController extends OrderController
 
             $order->setAdminId($adminId);
             $order->setType(ProductOrder::PREORDER_TYPE);
+            $order->setSalesInvoice(true);
 
             if (0 == $order->getDiscountPrice()) {
                 $order->setStatus(ProductOrder::STATUS_PAID);
                 $order->setPaymentDate($now);
-            }
-
-            // set order drawer
-            $this->setOrderDrawer(
-                $product,
-                $order
-            );
-
-            // set service fee
-            $companyId = $product->getRoom()->getBuilding()->getCompanyId();
-            $serviceInfo = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
-                ->findOneBy([
-                    'company' => $companyId,
-                    'tradeTypes' => $type,
-                ]);
-
-            if (!is_null($serviceInfo)) {
-                $order->setServiceFee($serviceInfo->getServiceFee());
             }
 
             $em->persist($order);
@@ -2091,12 +1874,14 @@ class AdminOrderController extends OrderController
                 $timeUnit
             );
 
-            // set sales user
-            $this->setSalesUser(
-                $em,
-                $user->getId(),
-                $product
-            );
+            $orders = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Order\ProductOrder')
+                ->getOfficeRejected(
+                    $productId,
+                    $startDate,
+                    $endDate
+                );
+            $this->rejectOrdersAction($orders, $now, $em);
 
             $em->flush();
 
@@ -2205,5 +1990,315 @@ class AdminOrderController extends OrderController
         ));
 
         return new View();
+    }
+
+    /**
+     * @param $orders
+     * @param $now
+     * @param $em
+     */
+    private function rejectOrdersAction($orders, $now, $em)
+    {
+        foreach ($orders as $rejectedOrder) {
+            $status = $rejectedOrder->getStatus();
+            $channel = $rejectedOrder->getPayChannel();
+            $userId = $rejectedOrder->getUserId();
+            $price = $rejectedOrder->getDiscountPrice();
+
+            if ($channel == ProductOrder::CHANNEL_OFFLINE && $status == ProductOrder::STATUS_UNPAID) {
+                $existTransfer = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Order\OrderOfflineTransfer')
+                    ->findOneByOrderId($rejectedOrder->getId());
+                $this->throwNotFoundIfNull($existTransfer, self::NOT_FOUND_MESSAGE);
+
+                $transferStatus = $existTransfer->getTransferStatus();
+                if ($transferStatus == OrderOfflineTransfer::STATUS_UNPAID) {
+                    $rejectedOrder->setStatus(ProductOrder::STATUS_CANCELLED);
+                    $rejectedOrder->setCancelledDate(new \DateTime());
+                    $rejectedOrder->setModificationDate(new \DateTime());
+                } else {
+                    $existTransfer->setTransferStatus(OrderOfflineTransfer::STATUS_VERIFY);
+                }
+            } else {
+                $rejectedOrder->setStatus(ProductOrder::STATUS_CANCELLED);
+                $rejectedOrder->setCancelledDate($now);
+                $rejectedOrder->setModificationDate($now);
+                $rejectedOrder->setCancelByUser(true);
+
+                if ($price > 0) {
+                    $rejectedOrder->setNeedToRefund(true);
+
+                    if (ProductOrder::CHANNEL_ACCOUNT == $channel) {
+                        $balance = $this->postBalanceChange(
+                            $userId,
+                            $price,
+                            $rejectedOrder->getOrderNumber(),
+                            self::PAYMENT_CHANNEL_ACCOUNT,
+                            0,
+                            self::ORDER_REFUND
+                        );
+
+                        $rejectedOrder->setRefundProcessed(true);
+                        $rejectedOrder->setRefundProcessedDate($now);
+
+                        if (!is_null($balance)) {
+                            $rejectedOrder->setRefunded(true);
+                            $rejectedOrder->setNeedToRefund(false);
+                        }
+                    }
+
+                    if ($status == ProductOrder::STATUS_UNPAID) {
+                        $rejectedOrder->setNeedToRefund(false);
+                    }
+                }
+            }
+            $em->flush();
+
+            if (!empty($orders)) {
+                // send message
+                $this->sendXmppProductOrderNotification(
+                    null,
+                    null,
+                    ProductOrder::ACTION_REJECTED,
+                    null,
+                    $orders,
+                    ProductOrderMessage::OFFICE_REJECTED_MESSAGE
+                );
+            }
+        }
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="type",
+     *    array=true,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by room type"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="channel",
+     *    default=null,
+     *    nullable=true,
+     *    array=true,
+     *    description="payment channel"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="keyword",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="keyword_search",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="create_date_range",
+     *    default=null,
+     *    nullable=true,
+     *    description="create_date_range"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="create_start",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="start date. Must be YYYY-mm-dd"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="create_end",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="end date. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="status",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Order Status"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="rent_filter",
+     *    default=null,
+     *    nullable=true,
+     *    description="rent filter"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="start_date",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="start date. Must be YYYY-mm-dd"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="end_date",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="end date. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pay_date",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="filter for payment start. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pay_start",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="filter for payment start. Must be YYYY-mm-dd"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="pay_end",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="filter for payment end. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="room",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by room id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="user",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by user id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="building",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by building id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="language",
+     *    array=false,
+     *    default=null,
+     *    nullable=true
+     * )
+     *
+     * @Route("/export/orders")
+     * @Method({"GET"})
+     *
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse
+     */
+    public function exportProductOrderAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $data = $this->get('sandbox_api.admin_permission_check_service')
+            ->checkPermissionByCookie(
+                AdminPermission::KEY_SALES_BUILDING_ORDER,
+                AdminPermission::PERMISSION_PLATFORM_SALES
+            );
+
+        //filters
+        $type = $paramFetcher->get('type');
+        $channel = $paramFetcher->get('channel');
+        $keyword = $paramFetcher->get('keyword');
+        $keywordSearch = $paramFetcher->get('keyword_search');
+        $createDateRange = $paramFetcher->get('create_date_range');
+        $createStart = $paramFetcher->get('create_start');
+        $createEnd = $paramFetcher->get('create_end');
+        $status = $paramFetcher->get('status');
+        $rentFilter = $paramFetcher->get('rent_filter');
+        $startDate = $paramFetcher->get('start_date');
+        $endDate = $paramFetcher->get('end_date');
+        $payDate = $paramFetcher->get('pay_date');
+        $payStart = $paramFetcher->get('pay_start');
+        $payEnd = $paramFetcher->get('pay_end');
+        $roomId = $paramFetcher->get('room');
+        $userId = $paramFetcher->get('user');
+        $buildingId = $paramFetcher->get('building');
+        $language = $paramFetcher->get('language');
+
+        $myBuildingIds = $data['building_ids'];
+
+        $orders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getSalesOrdersForAdmin(
+                $channel,
+                $type,
+                null,
+                $buildingId,
+                $userId,
+                $rentFilter,
+                $startDate,
+                $endDate,
+                $payDate,
+                $payStart,
+                $payEnd,
+                $keyword,
+                $keywordSearch,
+                $myBuildingIds,
+                $createDateRange,
+                $createStart,
+                $createEnd,
+                $status,
+                $roomId
+            );
+
+        return $this->get('sandbox_api.export')->exportExcel(
+            $orders,
+            GenericList::OBJECT_PRODUCT_ORDER,
+            $data['user_id'],
+            $language
+        );
     }
 }

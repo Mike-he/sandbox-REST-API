@@ -11,13 +11,14 @@
 
 namespace Symfony\Component\Intl\Tests\Data\Bundle\Writer;
 
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Intl\Data\Bundle\Writer\PhpBundleWriter;
 
 /**
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class PhpBundleWriterTest extends \PHPUnit_Framework_TestCase
+class PhpBundleWriterTest extends TestCase
 {
     /**
      * @var PhpBundleWriter
@@ -68,10 +69,6 @@ class PhpBundleWriterTest extends \PHPUnit_Framework_TestCase
      */
     public function testWriteResourceBundle()
     {
-        if (PHP_VERSION_ID < 50315 || (PHP_VERSION_ID >= 50400 && PHP_VERSION_ID < 50404)) {
-            $this->markTestSkipped('ResourceBundle implements Traversable only as of PHP 5.3.15 and 5.4.4');
-        }
-
         $bundle = new \ResourceBundle('rb', __DIR__.'/Fixtures', false);
 
         $this->writer->write($this->directory, 'en', $bundle);

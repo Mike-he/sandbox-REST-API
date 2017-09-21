@@ -14,15 +14,8 @@ class LoadLeaseData extends AbstractFixture implements OrderedFixtureInterface
     {
         $l1 = new Lease();
         $l1->setDeposit(12456);
-        $l1->setSupervisor($this->getReference('user-mike'));
-        $l1->setDrawee($this->getReference('user-mike'));
         $l1->setStartDate(new \DateTime('2016-11-01'));
         $l1->setEndDate(new \DateTime('2017-07-01'));
-        $l1->setLesseeEmail('mike@sandbox3.cn');
-        $l1->setLesseeAddress('展想广场');
-        $l1->setLesseeName('mike');
-        $l1->setLesseePhone('13100000001');
-        $l1->setLesseeContact('xlkjli');
         $l1->setLessorEmail('dong@sandbox3.cn');
         $l1->setLessorAddress('东方明珠');
         $l1->setLessorName('dong');
@@ -36,25 +29,30 @@ class LoadLeaseData extends AbstractFixture implements OrderedFixtureInterface
         $l1->setSupplementaryTerms('woquniqutaqu');
         $l1->setTotalRent(96000);
         $l1->setProduct($this->getReference('product-for-longterm'));
+        $l1->setLesseeType('personal');
+        $l1->setLesseeCustomer(1);
+        $l1->setCompanyId($this->getReference('sales-company-sandbox')->getId());
         $this->addReference('lease_one', $l1);
 
         $l2 = new Lease();
         $l2->setSerialNumber('HT345689892');
-        $l2->setSupervisor($this->getReference('user-2'));
-        $l2->setDrawee($this->getReference('user-2'));
         $l2->setStartDate(new \DateTime('2016-01-01'));
         $l2->setEndDate(new \DateTime('2016-06-01'));
         $l2->setProduct($this->getReference('product-for-longterm'));
+        $l2->setLesseeType('personal');
+        $l2->setLesseeCustomer(1);
+        $l2->setCompanyId($this->getReference('sales-company-sandbox')->getId());
         $l2->setStatus(Lease::LEASE_STATUS_DRAFTING);
 
         $l3 = new Lease();
         $l3->setSerialNumber('HT12356890564');
-        $l3->setSupervisor($this->getReference('user-mike'));
-        $l3->setDrawee($this->getReference('user-mike'));
         $l3->setStartDate(new \DateTime('2016-11-01'));
         $l3->setEndDate(new \DateTime('2017-07-01'));
         $l3->setStatus(Lease::LEASE_STATUS_CLOSED);
         $l3->setProduct($this->getReference('product-for-longterm'));
+        $l3->setLesseeType('personal');
+        $l3->setLesseeCustomer(1);
+        $l3->setCompanyId($this->getReference('sales-company-sandbox')->getId());
 
         $lb1 = new LeaseBill();
         $lb1->setSerialNumber('B1234567');

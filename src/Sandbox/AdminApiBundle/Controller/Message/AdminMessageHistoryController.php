@@ -3,20 +3,21 @@
 namespace Sandbox\AdminApiBundle\Controller\Message;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
+use Sandbox\AdminApiBundle\Command\SyncJmessageCommand;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Sandbox\ApiBundle\Traits\OpenfireApi;
+use Sandbox\ApiBundle\Entity\Message\JMessageHistory;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\View\View;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\HttpFoundation\Request;
+use FOS\RestBundle\Controller\Annotations;
 
 class AdminMessageHistoryController extends AdminMessagePushController
 {
-    use OpenfireApi;
-
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/messages/service_authorization")
@@ -31,121 +32,50 @@ class AdminMessageHistoryController extends AdminMessagePushController
         // check user permission
         $this->checkAdminMessagePermission(AdminPermission::OP_LEVEL_VIEW);
 
-        $em = $this->getDoctrine()->getManager();
-
         $user = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\User')
             ->findOneBy(array(
                 'xmppUsername' => 'service',
             ));
 
-        $userToken = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserToken')
-            ->findOneBy(array(
-                'user' => $user,
-            ));
-
-        $userToken->setCreationDate(new \DateTime('now'));
-        $userToken->setModificationDate(new \DateTime('now'));
-        $em->flush();
-
-        $authorization = 'Basic ' . base64_encode($userToken->getToken() . ':' . $userToken->getClientId());
-
         return new View(array(
-            'Authorization' => $authorization,
+            'xmpp_username' => 'service',
+            'xmpp_code' => $this->get('sandbox_api.des_encrypt')->encrypt($user->getPassword()),
         ));
     }
 
     /**
-     * Get History Message.
-     *
-     * @param Request               $request      the request object
-     * @param ParamFetcherInterface $paramFetcher param fetcher service
+     * @param Request $request the request object
      *
      * @Annotations\QueryParam(
-     *    name="fromJID",
-     *    array=false,
-     *    default=null,
-     *    nullable=false,
-     *    strict=true,
-     *    description=""
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="toJID",
-     *    array=false,
-     *    default=null,
-     *    nullable=false,
-     *    strict=true,
-     *    description=""
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="type",
-     *    array=false,
-     *    default=null,
-     *    nullable=false,
-     *    strict=true,
-     *    description=""
-     * )
-     *
-     * @Route("/messages/service_history_message")
-     * @Method({"GET"})
-     *
-     * @return View
-     */
-    public function getHistoryMessageAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher
-    ) {
-        // check user permission
-        $this->checkAdminMessagePermission(AdminPermission::OP_LEVEL_VIEW);
-
-        $fromJID = $paramFetcher->get('fromJID');
-        $toJID = $paramFetcher->get('toJID');
-        $type = $paramFetcher->get('type');
-
-        $fromJID = '"'.$fromJID.'"';
-        $toJID = '"'.$toJID.'"';
-        $type = '"'.$type.'"';
-
-        $message = $this->getHistoryMessageForService($fromJID, $toJID, $type);
-
-        return new View($message);
-    }
-
-    /**
-     * Get History Message.
-     *
-     * @param Request               $request      the request object
-     * @param ParamFetcherInterface $paramFetcher param fetcher service
-     *
-     * @Annotations\QueryParam(
-     *    name="fromJID",
+     *    name="media_id",
      *    array=false,
      *    default=null,
      *    nullable=true,
      *    strict=true,
-     *    description=""
+     *    description="search by tag"
      * )
      *
-     * @Annotations\QueryParam(
-     *    name="toJID",
-     *    array=false,
-     *    default=null,
-     *    nullable=false,
-     *    strict=true,
-     *    description=""
-     * )
+     * @Route("/messages/media")
+     * @Method({"GET"})
      *
-     * @Annotations\QueryParam(
-     *    name="type",
-     *    array=false,
-     *    default=null,
-     *    nullable=false,
-     *    strict=true,
-     *    description=""
-     * )
+     * @return View
+     */
+    public function getMediaAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $mediaId = $paramFetcher->get('media_id');
+
+        $media = $this->get('sandbox_api.jmessage')->getMedia($mediaId);
+
+        $result = $media['body'];
+
+        return new View($result);
+    }
+
+    /**
+     * @param Request $request the request object
      *
      * @Annotations\QueryParam(
      *    name="pageLimit",
@@ -167,43 +97,39 @@ class AdminMessageHistoryController extends AdminMessagePushController
      *    description="page number "
      * )
      *
-     * @Route("/messages/service_clients")
+     * @Route("/messages/history")
      * @Method({"GET"})
      *
      * @return View
      */
-    public function getHistoryMessageClientsAction(
+    public function getHistoryAction(
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        // check user permission
-        $this->checkAdminMessagePermission(AdminPermission::OP_LEVEL_VIEW);
-
-        $fromJID = $paramFetcher->get('fromJID');
-        $toJID = $paramFetcher->get('toJID');
-        $type = $paramFetcher->get('type');
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
 
         $min = ($pageIndex - 1) * $pageLimit;
         $max = $min + $pageLimit - 1;
 
-        $toJID = '"'.$toJID.'"';
-        $type = '"'.$type.'"';
+        $messages = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Message\JMessageHistory')
+            ->getFromIds(
+                JMessageHistory::TARGET_TYPE_SINGLE,
+                'service'
+            );
 
-        $messages = $this->getHistoryMessage($fromJID, $toJID, $type);
-
-        $fromJIDs = [];
+        $fromIds = [];
         foreach ($messages as $message) {
-            array_push($fromJIDs, $message['fromJID']);
+            array_push($fromIds, $message['from_id']);
         }
 
-        $fromJIDs = array_values(array_unique($fromJIDs));
+        $fromIds = array_values(array_unique($fromIds));
 
-        $count = count($fromJIDs);
+        $count = count($fromIds);
 
         $userJIDs = [];
-        foreach ($fromJIDs as $key => $jid) {
+        foreach ($fromIds as $key => $jid) {
             if ($min <= $key && $key <= $max) {
                 array_push($userJIDs, $jid);
             }
@@ -211,13 +137,10 @@ class AdminMessageHistoryController extends AdminMessagePushController
 
         $usersArray = [];
         foreach ($userJIDs as $jid) {
-            $xmppUsername = explode('@', $jid);
-            $xmppUsername = $xmppUsername[0];
-
             $user = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:User\User')
                 ->findOneBy([
-                    'xmppUsername' => $xmppUsername,
+                    'xmppUsername' => $jid,
                 ]);
 
             $userProfile = $this->getDoctrine()
@@ -226,41 +149,129 @@ class AdminMessageHistoryController extends AdminMessagePushController
                     'user' => $user,
                 ]);
 
-            $lastMessage = $this->getHistoryMessage($jid, $toJID, '"single"', 0, 1);
-            $messageFromJid = $lastMessage[0]['fromJID'];
-            $xmppUsernameMessage = explode('@', $messageFromJid);
-            $xmppUsernameMessage = $xmppUsernameMessage[0];
+            $lastMessage = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Message\JMessageHistory')
+                ->getLastMessages(
+                    $jid,
+                    'service',
+                    JMessageHistory::TARGET_TYPE_SINGLE
+                );
 
-            $userMessage = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:User\User')
-                ->findOneBy([
-                    'xmppUsername' => $xmppUsernameMessage,
-                ]);
-
-            $userProfileMessage = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:User\UserProfile')
-                ->findOneBy([
-                    'user' => $userMessage,
-                ]);
-
-            array_push($usersArray, [
+            $usersArray[] = array(
                 'id' => $user->getId(),
                 'name' => $userProfile->getName(),
                 'phone' => $user->getPhone(),
                 'email' => $user->getEmail(),
                 'authorized' => $user->isAuthorized(),
+                'banned' => $user->isBanned(),
                 'jid' => $jid,
                 'message' => [
-                    'from_user_profile_name' => $userProfileMessage->getName(),
-                    'body' => $lastMessage[0]['body'],
-                    'sentDate' => $lastMessage[0]['sentDate'],
+                    'msg_type' => $lastMessage->getMsgType(),
+                    'body' => $lastMessage->getMsgBody(),
+                    'sent_date' => $lastMessage->getMsgCtime(),
                 ],
-            ]);
+            );
         }
 
         return new View(array(
             'total_count' => $count,
             'items' => $usersArray,
         ));
+    }
+
+    /**
+     * @param Request $request the request object
+     *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many rooms to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="from_id",
+     *    array=false,
+     *    default=null,
+     *    nullable=false,
+     *    strict=true,
+     *    description="search by tag"
+     * )
+     *
+     * @Route("/messages/single/history")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getSingleHistoryAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $fromId = $paramFetcher->get('from_id');
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+
+        $limit = $pageLimit;
+        $offset = ($pageIndex - 1) * $pageLimit;
+
+        $messages = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Message\JMessageHistory')
+            ->getSingleMessages(
+                $fromId,
+                'service',
+                JMessageHistory::TARGET_TYPE_SINGLE,
+                $limit,
+                $offset
+            );
+
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Message\JMessageHistory')
+            ->countSingleMessages(
+                $fromId,
+                'service',
+                JMessageHistory::TARGET_TYPE_SINGLE
+            );
+
+        return new View(array(
+            'total_count' => $count,
+            'items' => $messages,
+        ));
+    }
+
+    /**
+     * @param Request $request the request object
+     *
+     * @Route("/messages/sync/history")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getSyncHistoryAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        //execute SyncJmessageCommand
+        $command = new SyncJmessageCommand();
+        $command->setContainer($this->container);
+
+        $input = new ArrayInput(array());
+        $output = new NullOutput();
+
+        $command->run($input, $output);
+
+        return new View();
     }
 }

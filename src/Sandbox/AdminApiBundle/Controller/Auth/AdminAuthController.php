@@ -95,6 +95,10 @@ class AdminAuthController extends AuthController
             ->getRepository('SandboxApiBundle:User\UserView')
             ->find($adminId);
 
+        $salesAdmin = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
+            ->findOneBy(array('userId'=>$adminId));
+
         // response
         return new View(
             array(
@@ -105,7 +109,8 @@ class AdminAuthController extends AuthController
                     'phone' => $admin->getPhone(),
                     'is_super_admin' => $condition,
                     'client_id' => $this->getUser()->getClientId(),
-                    'xmpp_username' => $this->getUser()->getMyUser()->getXmppUsername(),
+                    'xmpp_username' => $salesAdmin->getXmppUsername(),
+                    'xmpp_code' => $this->get('sandbox_api.des_encrypt')->encrypt($salesAdmin->getPassword())
                 ],
             )
         );

@@ -108,6 +108,8 @@ product_order:
     refund_amount: 退款金额
     actual_amount: 实收款
     leasing_time: 租赁时间
+    start_time: 租赁开始时间
+    end_time: 租赁结束时间
     order_time: 创建时间
     payment_time: 付款时间
     status: 订单状态
@@ -200,10 +202,10 @@ user:
     bean_product_order: 成功预定秒租
     bean_pay_bill: 成功支付合同账单
     bean_shop_order: 成功完成店铺订单
-    bean_event_order: 成功支付线上收费活动订单
     bean_membership_order: 购买会员卡
     bean_exchange: 赤豆商城兑换商品
     bean_exchange_fail: 赤豆商城兑换商品失败退回
+    bean_product_order_preorder: 成功预定秒租
 
 company:
   industry:
@@ -308,6 +310,7 @@ client:
     same_password: 新密码与旧密码不能相同
     phone_number_used: 该手机号已被使用
     email_already_used: 该邮箱已被使用
+    jemssage_sync_fail: 同步JMessage失败
   payment_check:
     invalid_verification: 验证码无效
     password_first_error: 密码不正确，你还可以输入2次

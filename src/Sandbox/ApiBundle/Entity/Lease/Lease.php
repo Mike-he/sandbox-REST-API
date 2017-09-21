@@ -17,17 +17,22 @@ use Gedmo\Mapping\Annotation as Gedmo;
  */
 class Lease
 {
-    const LEASE_STATUS_DRAFTING = 'drafting';
+    const LEASE_STATUS_DRAFTING = 'drafting'; //未生效
+    const LEASE_STATUS_PERFORMING = 'performing'; //生效,履行中
+    const LEASE_STATUS_TERMINATED = 'terminated'; //已终止
+    const LEASE_STATUS_MATURED = 'matured'; //已到期
+    const LEASE_STATUS_END = 'end'; //已结束
+    const LEASE_STATUS_CLOSED = 'closed'; //已关闭,作废
+
     const LEASE_STATUS_RECONFIRMING = 'reconfirming';
     const LEASE_STATUS_CONFIRMING = 'confirming';
     const LEASE_STATUS_CONFIRMED = 'confirmed';
-    const LEASE_STATUS_PERFORMING = 'performing';
-    const LEASE_STATUS_END = 'end';
     const LEASE_STATUS_EXPIRED = 'expired';
-    const LEASE_STATUS_TERMINATED = 'terminated';
-    const LEASE_STATUS_CLOSED = 'closed';
-    const LEASE_STATUS_MATURED = 'matured';
+
     const LEASE_LETTER_HEAD = 'C';
+
+    const LEASE_LESSEE_TYPE_ENTERPRISE = 'enterprise';
+    const LEASE_LESSEE_TYPE_PERSONAL = 'personal';
 
     /**
      * @var int
@@ -36,7 +41,7 @@ class Lease
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      *
-     * @Serializer\Groups({"main", "lease_bill", "lease_list"})
+     * @Serializer\Groups({"main", "lease_bill", "lease_list", "log"})
      */
     private $id;
 
@@ -45,75 +50,116 @@ class Lease
      *
      * @ORM\Column(name="serial_number", type="string", length=50, nullable=true)
      *
-     * @Serializer\Groups({"main", "client","lease_bill", "lease_list"})
+     * @Serializer\Groups({"main", "client","lease_bill", "lease_list", "log"})
      */
     private $serialNumber;
 
     /**
-     * @var User
+     * @var Sandbox\ApiBundle\Entity\Room\RoomBuilding
      *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User")
-     * @ORM\JoinColumn(name="drawee", referencedColumnName="id", onDelete="SET NULL")
+     * @ORM\Column(name="building_id",type="integer", nullable=true)
      *
-     * @Serializer\Groups({"client"})
+     * @Serializer\Groups({"log"})
      */
-    private $drawee;
+    private $buildingId;
+
+    /**
+     * @var Sandbox\ApiBundle\Entity\Product\Product
+     *
+     * @ORM\Column(name="product_id",type="integer", nullable=true)
+     *
+     * @Serializer\Groups({"log"})
+     */
+    private $productId;
 
     /**
      * @var string
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Product\Product")
-     * @ORM\JoinColumn(name="product_id", referencedColumnName="id", onDelete="CASCADE")
+     * @ORM\JoinColumn(name="product_id", referencedColumnName="id", onDelete="SET NULL")
      *
      * @Serializer\Groups({"client"})
      */
     private $product;
 
     /**
-     * Person in charge.
-     *
-     * @var User
-     *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User")
-     * @ORM\JoinColumn(name="supervisor", referencedColumnName="id", onDelete="SET NULL")
-     */
-    private $supervisor;
-
-    /**
-     * House used purpose.
-     *
      * @var string
      *
-     * @ORM\Column(name="purpose", type="text", nullable=true)
+     * @ORM\Column(name="lessor_name", type="string", length=40, nullable=true)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main","log"})
      */
-    private $purpose;
+    private $lessorName;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="other_expenses", type="text", nullable=true)
+     * @ORM\Column(name="lessor_address", type="string", length=255, nullable=true)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main","log"})
      */
-    private $otherExpenses;
+    private $lessorAddress;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="supplementary_terms", type="text", nullable=true)
+     * @ORM\Column(name="lessor_contact", type="string", length=20, nullable=true)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main","log"})
      */
-    private $supplementaryTerms;
+    private $lessorContact;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="lessor_phone", type="string", length=128, nullable=true)
+     *
+     * @Serializer\Groups({"main","log"})
+     */
+    private $lessorPhone;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="lessor_email", type="string", length=128, nullable=true)
+     *
+     * @Serializer\Groups({"main","log"})
+     */
+    private $lessorEmail;
+
+    /**
+     * @var string 承租方类型
+     *
+     * @ORM\Column(name="lessee_type", type="string", length=40)
+     *
+     * @Serializer\Groups({"main", "log", "lease_list"})
+     */
+    private $lesseeType;
+
+    /**
+     * @var int 承租企业
+     *
+     * @ORM\Column(name="lessee_enterprise", type="integer", length=20, nullable=true)
+     *
+     * @Serializer\Groups({"main", "log", "lease_list"})
+     */
+    private $lesseeEnterprise;
+
+    /**
+     * @var int 承租方联系人
+     *
+     * @ORM\Column(name="lessee_customer", type="integer", length=20)
+     *
+     * @Serializer\Groups({"main", "log", "lease_list", "lease_bill"})
+     */
+    private $lesseeCustomer;
 
     /**
      * @var \DateTime
      *
      * @ORM\Column(name="start_date", type="datetime", nullable=true)
      *
-     * @Serializer\Groups({"main", "lease_list", "room_usage"})
+     * @Serializer\Groups({"main", "lease_list", "room_usage","log"})
      */
     private $startDate;
 
@@ -122,9 +168,83 @@ class Lease
      *
      * @ORM\Column(name="end_date", type="datetime", nullable=true)
      *
-     * @Serializer\Groups({"main", "lease_list", "room_usage"})
+     * @Serializer\Groups({"main", "lease_list", "room_usage","log"})
      */
     private $endDate;
+
+    /**
+     * @var float
+     *
+     * @ORM\Column(name="monthly_rent", type="decimal", precision=10, scale=2, nullable=true)
+     *
+     * @Serializer\Groups({"main", "lease_list","log"})
+     */
+    private $monthlyRent;
+
+    /**
+     * @var float
+     *
+     * @ORM\Column(name="total_rent", type="decimal", precision=10, scale=2, nullable=true)
+     *
+     * @Serializer\Groups({"main", "lease_list","log"})
+     */
+    private $totalRent;
+
+    /**
+     * @var float
+     *
+     * @ORM\Column(name="deposit", type="decimal", precision=10, scale=2, nullable=true)
+     *
+     * @Serializer\Groups({"main", "lease_list","log"})
+     */
+    private $deposit;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="deposit_note", type="string", length=255, nullable=true)
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $depositNote;
+
+    /**
+     * House used purpose.
+     *
+     * @var string
+     *
+     * @ORM\Column(name="purpose", type="text", nullable=true)
+     *
+     * @Serializer\Groups({"main","log"})
+     */
+    private $purpose;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="other_expenses", type="text", nullable=true)
+     *
+     * @Serializer\Groups({"main","log"})
+     */
+    private $otherExpenses;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="supplementary_terms", type="text", nullable=true)
+     *
+     * @Serializer\Groups({"main","log"})
+     */
+    private $supplementaryTerms;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="status", type="string", length=15, nullable=true)
+     *
+     * @Serializer\Groups({"main", "lease_list","log"})
+     */
+    private $status;
 
     /**
      * @var \DateTime
@@ -147,6 +267,56 @@ class Lease
     private $modificationDate;
 
     /**
+     * @var LeaseRentTypes
+     *
+     * @ORM\ManyToMany(targetEntity="LeaseRentTypes")
+     * @ORM\JoinTable(
+     *      name="lease_has_rent_types",
+     *      joinColumns={@ORM\JoinColumn(name="lease_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="lease_rent_types_id", referencedColumnName="id")}
+     * )
+     *
+     * @Serializer\Groups({"main","log", "lease_list", "lease_bill"})
+     */
+    private $leaseRentTypes;
+
+    /**
+     * @var Sandbox\ApiBundle\Entity\Lease\LeaseClue
+     *
+     * @ORM\Column(name="lease_clue_id", type="integer", nullable=true)
+     *
+     * @Serializer\Groups({"log"})
+     */
+    private $LeaseClueId;
+
+    /**
+     * @var Sandbox\ApiBundle\Entity\Lease\LeaseOffer
+     *
+     * @ORM\Column(name="lease_offer_id", type="integer", nullable=true)
+     *
+     * @Serializer\Groups({"log"})
+     */
+    private $LeaseOfferId;
+
+    /**
+     * @var User
+     *
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User")
+     * @ORM\JoinColumn(name="drawee", referencedColumnName="id", onDelete="SET NULL")
+     */
+    private $drawee;
+
+    /**
+     * Person in charge.
+     *
+     * @var User
+     *
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User")
+     * @ORM\JoinColumn(name="supervisor", referencedColumnName="id", onDelete="SET NULL")
+     */
+    private $supervisor;
+
+    /**
      * The creation date of formal lease.
      *
      * @var \DateTime
@@ -158,57 +328,10 @@ class Lease
     private $confirmingDate;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="status", type="string", length=15, nullable=true)
-     *
-     * @Serializer\Groups({"main", "lease_list"})
-     */
-    private $status;
-
-    /**
-     * @var float
-     *
-     * @ORM\Column(name="monthly_rent", type="decimal", precision=10, scale=2, nullable=true)
-     *
-     * @Serializer\Groups({"main"})
-     */
-    private $monthlyRent;
-
-    /**
-     * @var float
-     *
-     * @ORM\Column(name="total_rent", type="decimal", precision=10, scale=2, nullable=true)
-     *
-     * @Serializer\Groups({"main", "lease_list"})
-     */
-    private $totalRent;
-
-    /**
-     * @var float
-     *
-     * @ORM\Column(name="deposit", type="decimal", precision=10, scale=2, nullable=true)
-     *
-     * @Serializer\Groups({"main"})
-     */
-    private $deposit;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="deposit_note", type="string", length=255, nullable=true)
-     *
-     * @Serializer\Groups({"main"})
-     */
-    private $depositNote;
-
-    /**
      * @var ProductAppointment
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Product\ProductAppointment")
      * @ORM\JoinColumn(name="product_appointment_id", referencedColumnName="id", onDelete="SET NULL")
-     *
-     * @Serializer\Groups({"main"})
      */
     private $productAppointment;
 
@@ -216,8 +339,6 @@ class Lease
      * @var string
      *
      * @ORM\Column(name="lessee_name", type="string", length=40, nullable=true)
-     *
-     * @Serializer\Groups({"main", "lease_list"})
      */
     private $lesseeName;
 
@@ -225,8 +346,6 @@ class Lease
      * @var string
      *
      * @ORM\Column(name="lessee_address", type="string", length=255, nullable=true)
-     *
-     * @Serializer\Groups({"main", "lease_list"})
      */
     private $lesseeAddress;
 
@@ -234,8 +353,6 @@ class Lease
      * @var string
      *
      * @ORM\Column(name="lessee_contact", type="string", length=20, nullable=true)
-     *
-     * @Serializer\Groups({"main"})
      */
     private $lesseeContact;
 
@@ -243,8 +360,6 @@ class Lease
      * @var string
      *
      * @ORM\Column(name="lessee_phone", type="string", length=128, nullable=true)
-     *
-     * @Serializer\Groups({"main", "lease_list"})
      */
     private $lesseePhone;
 
@@ -252,69 +367,8 @@ class Lease
      * @var string
      *
      * @ORM\Column(name="lessee_email", type="string", length=128, nullable=true)
-     *
-     * @Serializer\Groups({"main", "lease_list"})
      */
     private $lesseeEmail;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="lessor_name", type="string", length=40, nullable=true)
-     *
-     * @Serializer\Groups({"main"})
-     */
-    private $lessorName;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="lessor_address", type="string", length=255, nullable=true)
-     *
-     * @Serializer\Groups({"main"})
-     */
-    private $lessorAddress;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="lessor_contact", type="string", length=20, nullable=true)
-     *
-     * @Serializer\Groups({"main"})
-     */
-    private $lessorContact;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="lessor_phone", type="string", length=128, nullable=true)
-     *
-     * @Serializer\Groups({"main"})
-     */
-    private $lessorPhone;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="lessor_email", type="string", length=128, nullable=true)
-     *
-     * @Serializer\Groups({"main"})
-     */
-    private $lessorEmail;
-
-    /**
-     * @var LeaseRentTypes
-     *
-     * @ORM\ManyToMany(targetEntity="LeaseRentTypes")
-     * @ORM\JoinTable(
-     *      name="lease_has_rent_types",
-     *      joinColumns={@ORM\JoinColumn(name="lease_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="lease_rent_types_id", referencedColumnName="id")}
-     * )
-     *
-     * @Serializer\Groups({"main"})
-     */
-    private $leaseRentTypes;
 
     /**
      * @var array
@@ -394,7 +448,7 @@ class Lease
      *
      * @ORM\Column(name="is_auto", type="boolean")
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "log"})
      */
     private $isAuto = false;
 
@@ -403,9 +457,23 @@ class Lease
      *
      * @ORM\Column(name="plan_day", type="integer", nullable=true)
      *
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "log"})
      */
     private $planDay;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="company_id", type="integer")
+     *
+     * @Serializer\Groups({"log"})
+     */
+    private $companyId;
+
+    /**
+     * @Serializer\Groups({"main", "log", "lease_list"})
+     */
+    private $lesseeEnterpriseName;
 
     public function __construct()
     {
@@ -926,28 +994,6 @@ class Lease
     }
 
     /**
-     * @Serializer\VirtualProperty
-     * @Serializer\SerializedName("drawee")
-     * @Serializer\Groups({"main", "lease_list", "lease_bill"})
-     */
-    public function getDraweeId()
-    {
-        return is_null($this->drawee) ?
-            null : $this->drawee->getId();
-    }
-
-    /**
-     * @Serializer\VirtualProperty
-     * @Serializer\SerializedName("supervisor")
-     * @Serializer\Groups({"main", "lease_list", "room_usage"})
-     */
-    public function getSupervisorId()
-    {
-        return is_null($this->supervisor) ?
-            null : $this->supervisor->getId();
-    }
-
-    /**
      * @return int
      */
     public function getUnpaidLeaseBillsAmount()
@@ -970,31 +1016,34 @@ class Lease
      */
     public function degenerateProduct()
     {
-        return [
-            'id' => $this->product->getId(),
-            'unit_price' => $this->product->getUnitPrice(),
-            'base_price' => $this->product->getBasePrice(),
-            'room' => [
-                'id' => $this->product->getRoom()->getId(),
-                'number' => $this->product->getRoom()->getNumber(),
-                'name' => $this->product->getRoom()->getName(),
-                'type' => $this->product->getRoom()->getType(),
-                'area' => $this->product->getRoom()->getArea(),
-                'allowed_people' => $this->product->getRoom()->getAllowedPeople(),
-                'building' => [
-                    'id' => $this->product->getRoom()->getBuilding()->getId(),
-                    'name' => $this->product->getRoom()->getBuilding()->getName(),
-                    'address' => $this->product->getRoom()->getBuilding()->getAddress(),
-                    'company' => [
-                        'id' => $this->product->getRoom()->getBuilding()->getCompanyId(),
-                        'name' => $this->product->getRoom()->getBuilding()->getCompany()->getName(),
+        if ($this->product) {
+            return [
+                'id' => $this->product->getId(),
+                'room' => [
+                    'id' => $this->product->getRoom()->getId(),
+                    'number' => $this->product->getRoom()->getNumber(),
+                    'name' => $this->product->getRoom()->getName(),
+                    'type' => $this->product->getRoom()->getType(),
+                    'type_tag' => $this->product->getRoom()->getTypeTag(),
+                    'area' => $this->product->getRoom()->getArea(),
+                    'allowed_people' => $this->product->getRoom()->getAllowedPeople(),
+                    'building' => [
+                        'id' => $this->product->getRoom()->getBuilding()->getId(),
+                        'name' => $this->product->getRoom()->getBuilding()->getName(),
+                        'address' => $this->product->getRoom()->getBuilding()->getAddress(),
+                        'company' => [
+                            'id' => $this->product->getRoom()->getBuilding()->getCompanyId(),
+                            'name' => $this->product->getRoom()->getBuilding()->getCompany()->getName(),
+                        ],
                     ],
+                    'city' => $this->product->getRoom()->getBuilding()->getCity()->getName(),
+                    'attachment' => $this->product->getRoom()->degenerateAttachment(),
                 ],
-                'city' => $this->product->getRoom()->getBuilding()->getCity()->getName(),
-                'attachment' => $this->product->getRoom()->degenerateAttachment(),
-            ],
-            'lease_rent_types' => $this->product->getLeaseRentTypes(),
-        ];
+                'lease_rent_types' => $this->product->getLeaseRentTypes(),
+            ];
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -1051,14 +1100,6 @@ class Lease
     public function getRoom()
     {
         return $this->product->getRoom();
-    }
-
-    /**
-     * @return int
-     */
-    public function getBuildingId()
-    {
-        return $this->product->getRoom()->getBuilding()->getId();
     }
 
     /**
@@ -1236,5 +1277,149 @@ class Lease
     public function setPlanDay($planDay)
     {
         $this->planDay = $planDay;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLesseeType()
+    {
+        return $this->lesseeType;
+    }
+
+    /**
+     * @param string $lesseeType
+     */
+    public function setLesseeType($lesseeType)
+    {
+        $this->lesseeType = $lesseeType;
+    }
+
+    /**
+     * @return int
+     */
+    public function getLesseeEnterprise()
+    {
+        return $this->lesseeEnterprise;
+    }
+
+    /**
+     * @param int $lesseeEnterprise
+     */
+    public function setLesseeEnterprise($lesseeEnterprise)
+    {
+        $this->lesseeEnterprise = $lesseeEnterprise;
+    }
+
+    /**
+     * @return int
+     */
+    public function getLesseeCustomer()
+    {
+        return $this->lesseeCustomer;
+    }
+
+    /**
+     * @param int $lesseeCustomer
+     */
+    public function setLesseeCustomer($lesseeCustomer)
+    {
+        $this->lesseeCustomer = $lesseeCustomer;
+    }
+
+    /**
+     * @return Sandbox\ApiBundle\Entity\Room\RoomBuilding
+     */
+    public function getBuildingId()
+    {
+        return $this->buildingId;
+    }
+
+    /**
+     * @param Sandbox\ApiBundle\Entity\Room\RoomBuilding $buildingId
+     */
+    public function setBuildingId($buildingId)
+    {
+        $this->buildingId = $buildingId;
+    }
+
+    /**
+     * @return Sandbox\ApiBundle\Entity\Product\Product
+     */
+    public function getProductId()
+    {
+        return $this->productId;
+    }
+
+    /**
+     * @param Sandbox\ApiBundle\Entity\Product\Product $productId
+     */
+    public function setProductId($productId)
+    {
+        $this->productId = $productId;
+    }
+
+    /**
+     * @return Sandbox\ApiBundle\Entity\Lease\LeaseClue
+     */
+    public function getLeaseClueId()
+    {
+        return $this->LeaseClueId;
+    }
+
+    /**
+     * @param Sandbox\ApiBundle\Entity\Lease\LeaseClue $LeaseClueId
+     */
+    public function setLeaseClueId($LeaseClueId)
+    {
+        $this->LeaseClueId = $LeaseClueId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLeaseOfferId()
+    {
+        return $this->LeaseOfferId;
+    }
+
+    /**
+     * @param mixed $LeaseOfferId
+     */
+    public function setLeaseOfferId($LeaseOfferId)
+    {
+        $this->LeaseOfferId = $LeaseOfferId;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCompanyId()
+    {
+        return $this->companyId;
+    }
+
+    /**
+     * @param int $companyId
+     */
+    public function setCompanyId($companyId)
+    {
+        $this->companyId = $companyId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLesseeEnterpriseName()
+    {
+        return $this->lesseeEnterpriseName;
+    }
+
+    /**
+     * @param mixed $lesseeEnterpriseName
+     */
+    public function setLesseeEnterpriseName($lesseeEnterpriseName)
+    {
+        $this->lesseeEnterpriseName = $lesseeEnterpriseName;
     }
 }

@@ -4,6 +4,7 @@ namespace Sandbox\ClientApiBundle\Controller\Order;
 
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Controller\Order\OrderController;
+use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentServiceBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
 use Sandbox\ApiBundle\Entity\Order\TransferAttachment;
@@ -185,11 +186,16 @@ class ClientOrderController extends OrderController
         $language = $request->getPreferredLanguage();
         $orders = [];
 
+        $customerIds = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->getCustomerIdsByUserId($userId);
+
         $orderRepo = $this->getDoctrine()->getRepository('SandboxApiBundle:Order\ProductOrder');
         switch ($status) {
             case ProductOrder::COMBINE_STATUS_PENDING:
                 $orders = $orderRepo->getUserPendingOrders(
                     $userId,
+                    $customerIds,
                     $limit,
                     $offset
                 );
@@ -198,6 +204,7 @@ class ClientOrderController extends OrderController
             case ProductOrder::STATUS_COMPLETED:
                 $orders = $orderRepo->getUserCompletedOrders(
                     $userId,
+                    $customerIds,
                     $limit,
                     $offset
                 );
@@ -206,6 +213,7 @@ class ClientOrderController extends OrderController
             case ProductOrder::COMBINE_STATUS_REFUND:
                 $orders = $orderRepo->getUserRefundOrders(
                     $userId,
+                    $customerIds,
                     $limit,
                     $offset
                 );
@@ -214,6 +222,7 @@ class ClientOrderController extends OrderController
             case ProductOrder::COMBINE_STATUS_INCOMPLETE:
                 $orders = $orderRepo->getUserIncompleteOrders(
                     $userId,
+                    $customerIds,
                     $limit,
                     $offset
                 );
@@ -222,6 +231,7 @@ class ClientOrderController extends OrderController
             case ProductOrder::COMBINE_STATUS_ALL:
                 $orders = $orderRepo->getUserAllOrders(
                     $userId,
+                    $customerIds,
                     $limit,
                     $offset
                 );
@@ -633,8 +643,10 @@ class ClientOrderController extends OrderController
             $current[$key] = $row['start_date'];
         }
 
-        array_multisort($current, SORT_ASC, $finalArray);
-        $finalArray = array_slice($finalArray, $offset, $limit);
+        if ($finalArray) {
+            array_multisort($current, SORT_ASC, $finalArray);
+            $finalArray = array_slice($finalArray, $offset, $limit);
+        }
 
         return new View($finalArray);
     }
@@ -841,7 +853,8 @@ class ClientOrderController extends OrderController
                 $endDate,
                 $user,
                 $type,
-                $timeUnit
+                $timeUnit,
+                $basePrice
             );
 
             if (!empty($error)) {
@@ -856,11 +869,10 @@ class ClientOrderController extends OrderController
                 $order->setRejected(true);
             }
 
+            $order->setType(ProductOrder::OWN_TYPE);
+
             // set order drawer
-            $this->setOrderDrawer(
-                $product,
-                $order
-            );
+            $order->setSalesInvoice(false);
 
             // set service fee
             $company = $product->getRoom()->getBuilding()->getCompany();
@@ -875,6 +887,14 @@ class ClientOrderController extends OrderController
                 $order->setServiceFee($serviceInfo->getServiceFee());
             }
 
+            // set sales user
+            $customerId = $this->setSalesUser(
+                                $em,
+                                $user->getId(),
+                                $product
+                            );
+            $order->setCustomerId($customerId);
+
             $em->persist($order);
 
             // store order record
@@ -884,13 +904,6 @@ class ClientOrderController extends OrderController
                 $product,
                 $timeUnit,
                 $language
-            );
-
-            // set sales user
-            $this->setSalesUser(
-                $em,
-                $user->getId(),
-                $product
             );
 
             $em->flush();
@@ -1290,6 +1303,16 @@ class ClientOrderController extends OrderController
                         );
                     }
                 }
+                if ($order->getType() == ProductOrder::PREORDER_TYPE) {
+                    $this->generateRefundOrderWalletFlow(
+                        $order->getOrderNumber(),
+                        $order->getProduct()->getRoom()->getBuilding()->getCompanyId(),
+                        $price,
+                        $price,
+                        $channel,
+                        FinanceLongRentServiceBill::TYPE_BILL_POUNDAGE
+                    );
+                }
             }
         }
 
@@ -1604,8 +1627,8 @@ class ClientOrderController extends OrderController
     }
 
     /**
-     * @param Request $request
-     * @param $order
+     * @param Request      $request
+     * @param ProductOrder $order
      *
      * @return View
      */
@@ -1623,11 +1646,10 @@ class ClientOrderController extends OrderController
         }
 
         $now = new \DateTime();
+
         $userId = $order->getUserId();
         $this->throwNotFoundIfNull($userId, self::NOT_FOUND_MESSAGE);
         array_push($users, $userId);
-
-        $currentUserId = $this->getUserId();
 
         $room = $order->getProduct()->getRoom();
         $type = $room->getType();
@@ -2407,6 +2429,7 @@ class ClientOrderController extends OrderController
         Request $request
     ) {
         $userId = $this->getUserId();
+        $startDate = new \DateTime('2017-05-11');
 
         $count = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
@@ -2414,11 +2437,18 @@ class ClientOrderController extends OrderController
 
         $totalPrice = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->sumPendingEvaluationOrder($userId);
+            ->sumPendingEvaluationOrder($userId, $startDate);
+
+        $parameter = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Parameter\Parameter')
+            ->findOneBy(array('key' => Parameter::KEY_BEAN_ORDER_EVALUATION));
+        $value = $parameter->getValue();
+        $number = substr($value, 1);
 
         $data = array(
             'count' => $count,
-            'total_price' => $totalPrice,
+            'total_price' => (float) $totalPrice,
+            'total_bean' => (int) $totalPrice * $number,
         );
 
         return new View($data);

@@ -235,13 +235,20 @@ class ClientEventOrderController extends PaymentController
 
         $userId = $this->getUserId();
 
-        $order = new EventOrder();
-
         // check if event exists
         $event = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Event\Event')
             ->find($id);
         $this->throwNotFoundIfNull($event, self::NOT_FOUND_MESSAGE);
+
+        if ($event->getSalesCompanyId()) {
+            $customerId = $this->get('sandbox_api.sales_customer')->createCustomer(
+                $userId,
+                $event->getSalesCompanyId()
+            );
+        }
+
+        $order = new EventOrder();
 
         // check event
         $error = new Error();

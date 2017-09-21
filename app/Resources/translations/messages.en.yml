@@ -108,6 +108,8 @@ product_order:
     refund_amount: Refund Amount
     actual_amount: Actual Amount
     leasing_time: Leasing Time
+    start_time: Start Time
+    end_time: End Time
     order_time: Order Creation
     payment_time: Payment Date
     status: Status
@@ -201,10 +203,10 @@ user:
     bean_product_order: Order Room
     bean_pay_bill: Pay Bills
     bean_shop_order: Buy Coffee
-    bean_event_order: 成功支付线上收费活动订单
     bean_membership_order: Buy Member Card
     bean_exchange: Exchange Goods in Store
     bean_exchange_fail: Fail to Exchange
+    bean_product_order_preorder: Order Room
 
 company:
   industry:
@@ -309,6 +311,7 @@ client:
     same_password: Same password.
     phone_number_used: Phone number already used.
     email_already_used: Email address already used.
+    jemssage_sync_fail: Sync Jmessage failure.
   payment_check:
     invalid_verification: Invalid Verification
     password_first_error: Wrong password, you still have 2 times.

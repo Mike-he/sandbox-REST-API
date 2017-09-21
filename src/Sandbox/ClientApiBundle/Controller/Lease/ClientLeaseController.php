@@ -5,7 +5,6 @@ namespace Sandbox\ClientApiBundle\Controller\Lease;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use JMS\Serializer\SerializationContext;
-use Rs\Json\Patch;
 use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
 use Sandbox\ApiBundle\Constants\DoorAccessConstants;
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
@@ -13,9 +12,7 @@ use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
-use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
-use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Sandbox\ApiBundle\Entity\Product\ProductAppointment;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
@@ -27,7 +24,6 @@ use Sandbox\ApiBundle\Traits\LeaseTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use FOS\RestBundle\Controller\Annotations;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -73,104 +69,28 @@ class ClientLeaseController extends SandboxRestController
     ) {
         $userId = $this->getUserId();
 
+        $customerIds = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->getCustomerIdsByUserId($userId);
+
+        if (empty($customerIds)) {
+            return new View();
+        }
+
         $offset = $paramFetcher->get('offset');
         $limit = $paramFetcher->get('limit');
         $status = $paramFetcher->get('status');
 
-        $longTermNumbersArray = $this->generateLongTermNumbersArray($userId, $status, $offset, $limit);
+        $longTermNumbersArray = $this->generateLongTermNumbersArray($customerIds, $status, $offset, $limit);
 
         $response = array();
         foreach ($longTermNumbersArray as $number) {
-            $firstLetter = substr($number, 0, 1);
-
-            switch ($firstLetter) {
-                case ProductAppointment::APPOINTMENT_NUMBER_LETTER:
-                    $responseArray = $this->getAppointmentResponseArray($number);
-                    $product = $responseArray->getProduct();
-                    $productRentSet = $this->getDoctrine()
-                        ->getRepository('SandboxApiBundle:Product\ProductRentSet')
-                        ->findOneBy(array(
-                            'product' => $product,
-                            'status' => true,
-                        ));
-                    $product->setRentSet($productRentSet);
-                    break;
-                case Lease::LEASE_LETTER_HEAD:
-                    $responseArray = $this->getLeaseResponseArray($number);
-                    break;
-                default:
-                    $responseArray = array();
-                    break;
-            }
-
-            if (!empty($responseArray)) {
-                array_push($response, $responseArray);
-            }
+            $response[] = $this->getLeaseResponseArray($number);
         }
 
         $view = new View($response);
-        $view->setSerializationContext(SerializationContext::create()->setGroups(['client_appointment_list']));
 
         return $view;
-    }
-
-    /**
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
-     *
-     * @Annotations\QueryParam(
-     *     name="ids",
-     *     array=true
-     * )
-     *
-     * @Route("/leases/time_remaining")
-     * @Method({"GET"})
-     *
-     * @return View
-     */
-    public function getLeaseTimeRemainingAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher
-    ) {
-        $ids = $paramFetcher->get('ids');
-
-        $expireInParameter = $this->getParameterRepo()
-            ->findOneBy(array(
-                'key' => Parameter::KEY_LEASE_CONFIRM_EXPIRE_IN,
-            ));
-
-        $response = array();
-        foreach ($ids as $id) {
-            $lease = $this->getLeaseRepo()
-                ->findOneBy(array(
-                    'id' => $id,
-                    'status' => Lease::LEASE_STATUS_CONFIRMING,
-                ));
-
-            if (is_null($lease)) {
-                continue;
-            }
-
-            $modificationDate = $lease->getModificationDate()->setTime(23, 59, 59);
-            $leaseExpireInDate = $modificationDate->add(new \DateInterval('P'.$expireInParameter->getValue()));
-
-            $now = new \DateTime('now');
-            $diffDate = $now->diff($leaseExpireInDate);
-
-            array_push($response, array(
-                'lease_id' => $id,
-                'remaining_days' => $diffDate->d,
-                'remaining_hours' => $diffDate->h,
-                'remaining_minutes' => $diffDate->i,
-                'remaining_seconds' => $diffDate->s,
-            ));
-        }
-
-        if (empty($response)) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
-
-        return new View($response);
     }
 
     /**
@@ -186,10 +106,17 @@ class ClientLeaseController extends SandboxRestController
     public function getLeaseAction(
         $id
     ) {
-        $lease = $this->getLeaseRepo()
+        $lease = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\Lease')
             ->find($id);
 
         $this->throwNotFoundIfNull($lease, self::NOT_FOUND_MESSAGE);
+
+        $lesseeCustomer = $lease->getLesseeCustomer();
+        $customer = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->find($lesseeCustomer);
+        $lease->setLesseeCustomer($customer->getUserId());
 
         $bills = $this->getLeaseBillRepo()
             ->findBy(array(
@@ -217,6 +144,15 @@ class ClientLeaseController extends SandboxRestController
 
         $this->setLeaseLogs($lease);
 
+        if ($lease->getLesseeEnterprise()) {
+            $enterprise = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\EnterpriseCustomer')
+                ->find($lease->getLesseeEnterprise());
+
+            $enterpriseName = $enterprise ? $enterprise->getName() : '';
+            $lease->setLesseeEnterpriseName($enterpriseName);
+        }
+
         $view = new View();
         $view->setSerializationContext(
             SerializationContext::create()->setGroups(['main'])
@@ -224,125 +160,6 @@ class ClientLeaseController extends SandboxRestController
         $view->setData($lease);
 
         return $view;
-    }
-
-    /**
-     * Patch Lease Status.
-     *
-     * @param $request
-     * @param $id
-     *
-     * @Route("/leases/{id}/status")
-     * @Method({"PATCH"})
-     *
-     * @throws \Exception
-     *
-     * @return View
-     */
-    public function patchLeaseStatusAction(
-        Request $request,
-        $id
-    ) {
-        $payload = json_decode($request->getContent(), true);
-
-        $lease = $this->getDoctrine()->getRepository('SandboxApiBundle:Lease\Lease')->find($id);
-        $this->throwNotFoundIfNull($lease, CustomErrorMessagesConstants::ERROR_LEASE_NOT_FOUND_MESSAGE);
-
-        // check user permission
-        $this->checkUserLeasePermission($lease);
-
-        $status = $lease->getStatus();
-
-        if (
-            $payload['status'] != Lease::LEASE_STATUS_CONFIRMED ||
-            ($status != Lease::LEASE_STATUS_RECONFIRMING &&
-            $status != Lease::LEASE_STATUS_CONFIRMING)
-        ) {
-            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE);
-        }
-
-        $em = $this->getDoctrine()->getManager();
-        if ($status == Lease::LEASE_STATUS_CONFIRMING) {
-            $lease->setAccessNo($this->generateAccessNumber());
-
-            $base = $lease->getBuilding()->getServer();
-            $roomDoors = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Room\RoomDoors')
-                ->findBy(['room' => $lease->getRoom()]);
-
-            if (!is_null($base) && !empty($base) && !empty($roomDoors)) {
-                $this->storeDoorAccess(
-                    $em,
-                    $lease->getAccessNo(),
-                    $lease->getSupervisorId(),
-                    $lease->getBuildingId(),
-                    $lease->getRoomId(),
-                    $lease->getStartDate(),
-                    $lease->getEndDate()
-                );
-
-                $em->flush();
-
-                $userArray = $this->getUserArrayIfAuthed(
-                    $base,
-                    $lease->getSupervisorId(),
-                    []
-                );
-
-                // set room access
-                if (!empty($userArray)) {
-                    $this->callSetRoomOrderCommand(
-                        $base,
-                        $userArray,
-                        $roomDoors,
-                        $lease->getAccessNo(),
-                        $lease->getStartDate(),
-                        $lease->getEndDate()
-                    );
-                }
-            }
-
-            // set product invisible and can't be appointed
-            $product = $lease->getProduct();
-            if (!is_null($product)) {
-                $product->setVisible(false);
-                $product->setAppointment(false);
-            }
-
-            $this->setDoorAccessForMembershipCard(
-                $lease->getBuildingId(),
-                [$lease->getSupervisorId()],
-                $lease->getStartDate(),
-                $lease->getEndDate(),
-                $lease->getSerialNumber(),
-                UserGroupHasUser::TYPE_LEASE
-            );
-        }
-
-        // If the lease has been executed, when the state 'reconfirming' is reconfirmed
-        // the lease status should be changed to 'performing'
-        $log = $this->getLogsRepo()->findOneBy(array(
-            'logModule' => Log::MODULE_LEASE,
-            'logAction' => Log::ACTION_PERFORMING,
-            'logObjectId' => $lease->getId(),
-        ));
-
-        if (!is_null($log)) {
-            $lease->setStatus(Lease::LEASE_STATUS_PERFORMING);
-        } else {
-            $lease->setStatus($payload['status']);
-        }
-
-        $lease->setConformedDate(new \DateTime('now'));
-        $em->flush();
-
-        // aout push bills
-        if ($lease->isIsAuto()) {
-            $now = new \DateTime();
-            $this->autoPushBills($lease, $now);
-        }
-
-        return new View();
     }
 
     /**
@@ -360,22 +177,23 @@ class ClientLeaseController extends SandboxRestController
         Request $request,
         $id
     ) {
-        $lease = $this->getLeaseRepo()->find($id);
+        $lease = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\Lease')
+            ->find($id);
         $this->throwNotFoundIfNull($lease);
 
         // check user permission
-        $this->throwAccessDeniedIfNotSameUser($lease->getSupervisorId());
+        $leaseUserId = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->getUserIdByCustomerId($lease->getLesseeCustomer());
+        $this->throwAccessDeniedIfNotSameUser($leaseUserId);
 
         $status = $lease->getStatus();
         $endDate = $lease->getEndDate();
         $now = new \DateTime();
 
         // limit inviting people conditions
-        if ((
-                $status !== Lease::LEASE_STATUS_CONFIRMED &&
-                $status !== Lease::LEASE_STATUS_PERFORMING &&
-                $status !== Lease::LEASE_STATUS_RECONFIRMING
-            ) ||
+        if ($status !== Lease::LEASE_STATUS_PERFORMING ||
             $now >= $endDate
         ) {
             throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE);
@@ -383,22 +201,27 @@ class ClientLeaseController extends SandboxRestController
 
         $people = json_decode($request->getContent(), true);
 
-        $this->setDoorAccessForInvite(
-            $lease,
-            $people['add'],
-            $people['remove']
-        );
+        if ($leaseUserId) {
+            $this->setDoorAccessForInvite(
+                $lease,
+                $leaseUserId,
+                $people['add'],
+                $people['remove']
+            );
+        }
 
         return new View();
     }
 
     /**
      * @param Lease $lease
+     * @param int   $userId
      * @param array $users
      * @param array $removeUsers
      */
     private function setDoorAccessForInvite(
         $lease,
+        $userId,
         $users,
         $removeUsers
     ) {
@@ -431,7 +254,7 @@ class ClientLeaseController extends SandboxRestController
                 $lease,
                 $recvUsers,
                 ProductOrder::ACTION_INVITE_ADD,
-                $lease->getSupervisorId(),
+                $userId,
                 [],
                 ProductOrderMessage::APPOINT_MESSAGE_PART1,
                 ProductOrderMessage::APPOINT_MESSAGE_PART2
@@ -444,7 +267,7 @@ class ClientLeaseController extends SandboxRestController
                 $lease,
                 $removedUserArray,
                 ProductOrder::ACTION_INVITE_REMOVE,
-                $lease->getSupervisorId(),
+                $userId,
                 [],
                 ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART1,
                 ProductOrderMessage::CANCEL_ORDER_MESSAGE_PART2
@@ -454,7 +277,7 @@ class ClientLeaseController extends SandboxRestController
 
     /**
      * @param $users
-     * @param $lease
+     * @param Lease $lease
      * @param $base
      *
      * @return array|mixed
@@ -478,6 +301,9 @@ class ClientLeaseController extends SandboxRestController
             // find user
             $user = $this->getUserRepo()->find($userId);
             $this->throwNotFoundIfNull($user, User::ERROR_NOT_FOUND);
+
+            // check and add user in sales customer
+            $this->get('sandbox_api.sales_customer')->createCustomer($userId, $lease->getCompanyId());
 
             // find user in invitedPeople
             if (!$invitedPeople->contains($user)) {
@@ -625,19 +451,10 @@ class ClientLeaseController extends SandboxRestController
     }
 
     /**
-     * @param Lease $lease
-     */
-    public function checkUserLeasePermission($lease)
-    {
-        $userId = $this->getUserId();
-        if ($userId != $lease->getSupervisorId()
-        && $userId != $lease->getDraweeId()) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-        }
-    }
-
-    /**
      * @param $userId
+     * @param $status
+     * @param $offset
+     * @param $limit
      *
      * @return array
      */
@@ -647,22 +464,12 @@ class ClientLeaseController extends SandboxRestController
         $offset,
         $limit
     ) {
-        $pendingProductAppointmentNumbers = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Product\ProductAppointment')
-            ->getAppointmentNumbersForClientLease(
-                $userId,
-                array(ProductAppointment::STATUS_PENDING)
-            );
-
         $validLeaseNumbers = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\Lease')
             ->getLeaseNumbersForClientLease(
                 $userId,
                 array(
-                    Lease::LEASE_STATUS_CONFIRMED,
-                    Lease::LEASE_STATUS_CONFIRMING,
                     Lease::LEASE_STATUS_PERFORMING,
-                    Lease::LEASE_STATUS_RECONFIRMING,
                     Lease::LEASE_STATUS_MATURED,
                 )
             );
@@ -673,24 +480,12 @@ class ClientLeaseController extends SandboxRestController
                 $userId,
                 array(
                     Lease::LEASE_STATUS_END,
-                    Lease::LEASE_STATUS_EXPIRED,
                     Lease::LEASE_STATUS_TERMINATED,
                     Lease::LEASE_STATUS_CLOSED,
                 )
             );
 
-        $invalidProductAppointmentNumbers = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Product\ProductAppointment')
-            ->getAppointmentNumbersForClientLease(
-                $userId,
-                array(
-                    ProductAppointment::STATUS_REJECTED,
-                    ProductAppointment::STATUS_WITHDRAWN,
-                )
-            );
-
         $longTermArray = array();
-        $longTermArray = array_merge($longTermArray, $pendingProductAppointmentNumbers);
         $longTermArray = array_merge($longTermArray, $validLeaseNumbers);
 
         if ($status == ProductAppointment::STATUS_PENDING) {
@@ -706,7 +501,6 @@ class ClientLeaseController extends SandboxRestController
         }
 
         $longTermArray = array_merge($longTermArray, $invalidLeaseNumbers);
-        $longTermArray = array_merge($longTermArray, $invalidProductAppointmentNumbers);
 
         // for pagination
         $numbers = array();
@@ -717,23 +511,6 @@ class ClientLeaseController extends SandboxRestController
         }
 
         return $numbers;
-    }
-
-    /**
-     * @param $number
-     *
-     * @return null|object|ProductAppointment
-     */
-    private function getAppointmentResponseArray(
-        $number
-    ) {
-        $appointment = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Product\ProductAppointment')
-            ->findOneBy(array(
-                'appointmentNumber' => $number,
-            ));
-
-        return $appointment;
     }
 
     /**
@@ -752,10 +529,7 @@ class ClientLeaseController extends SandboxRestController
 
         $bills = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
-            ->findBy(array(
-                'lease' => $lease,
-                'status' => LeaseBill::STATUS_UNPAID,
-            ));
+            ->getClientLeaseBills($lease, LeaseBill::STATUS_UNPAID);
 
         $response = array(
             'id' => $lease->getId(),
@@ -768,6 +542,7 @@ class ClientLeaseController extends SandboxRestController
             'creation_date' => $lease->getCreationDate(),
             'confirming_date' => $lease->getConfirmingDate(),
             'monthly_rent' => $lease->getMonthlyRent(),
+            'bills' => $bills,
         );
 
         return $response;

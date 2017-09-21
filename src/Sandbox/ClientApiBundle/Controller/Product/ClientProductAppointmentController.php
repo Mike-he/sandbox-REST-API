@@ -4,11 +4,15 @@ namespace Sandbox\ClientApiBundle\Controller\Product;
 
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Controller\Product\ProductController;
+use Sandbox\ApiBundle\Entity\Admin\AdminRemark;
+use Sandbox\ApiBundle\Entity\Admin\AdminStatusLog;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
+use Sandbox\ApiBundle\Entity\Lease\LeaseClue;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Entity\Product\ProductAppointment;
 use Sandbox\ApiBundle\Form\Product\ProductAppointmentPatchType;
 use Sandbox\ApiBundle\Form\Product\ProductAppointmentPostType;
+use Sandbox\ApiBundle\Traits\GenerateSerialNumberTrait;
 use Sandbox\ApiBundle\Traits\HasAccessToEntityRepositoryTrait;
 use Sandbox\ApiBundle\Traits\StringUtil;
 use Sandbox\ApiBundle\Traits\YunPianSms;
@@ -36,6 +40,7 @@ class ClientProductAppointmentController extends ProductController
     use HasAccessToEntityRepositoryTrait;
     use YunPianSms;
     use StringUtil;
+    use GenerateSerialNumberTrait;
 
     /**
      * @param Request               $request
@@ -83,6 +88,17 @@ class ClientProductAppointmentController extends ProductController
                 $limit,
                 $offset
             );
+
+        foreach ($appointments as $appointment) {
+            $product = $appointment->getProduct();
+            $productRentSet = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\ProductRentSet')
+                ->findOneBy(array(
+                    'product' => $product,
+                    'status' => true,
+                ));
+            $product->setRentSet($productRentSet);
+        }
 
         $view = new View($appointments);
         $view->setSerializationContext(SerializationContext::create()->setGroups(['client_appointment_list']));
@@ -298,6 +314,58 @@ class ClientProductAppointmentController extends ProductController
         $em = $this->getDoctrine()->getManager();
         $em->persist($appointment);
         $em->flush();
+
+        /** @var Product $product */
+        $building = $product->getRoom()->getBuilding();
+
+        $productRentSet = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\ProductRentSet')
+            ->findOneBy(array('product' => $product));
+
+        $customerId = $this->get('sandbox_api.sales_customer')->createCustomer(
+            $this->getUserId(),
+            $building->getCompanyId()
+        );
+
+        $serialNumber = $this->generateSerialNumber(LeaseClue::LEASE_CLUE_LETTER_HEAD);
+
+        $leaseClue = new LeaseClue();
+        $leaseClue->setSerialNumber($serialNumber);
+        $leaseClue->setCompanyId($building->getCompanyId());
+        $leaseClue->setBuildingId($building->getId());
+        $leaseClue->setProductId($product->getId());
+        $leaseClue->setLesseeName($appointment->getApplicantName());
+        $leaseClue->setLesseeAddress($appointment->getAddress());
+        $leaseClue->setLesseeEmail($appointment->getApplicantEmail());
+        $leaseClue->setLesseePhone($appointment->getApplicantPhone());
+        $leaseClue->setLesseeCustomer($customerId);
+        $leaseClue->setStartDate($appointment->getStartRentDate());
+        $leaseClue->setEndDate($appointment->getEndRentDate());
+        $leaseClue->setCycle($appointment->getRentTimeLength());
+        $leaseClue->setProductAppointmentId($appointment->getId());
+        $leaseClue->setMonthlyRent($productRentSet->getBasePrice());
+        $leaseClue->setStatus(LeaseClue::LEASE_CLUE_STATUS_CLUE);
+        $em->persist($leaseClue);
+        $em->flush();
+
+        $message = '创建申请，自动创建线索';
+        $this->get('sandbox_api.admin_remark')->autoRemark(
+            $this->getUserId(),
+            'sales',
+            $building->getCompanyId(),
+            $message,
+            AdminRemark::OBJECT_LEASE_CLUE,
+            $leaseClue->getId()
+        );
+
+        $logMessage = '申请线索';
+        $this->get('sandbox_api.admin_status_log')->autoLog(
+            $this->getUserId(),
+            LeaseClue::LEASE_CLUE_STATUS_CLUE,
+            $logMessage,
+            AdminStatusLog::OBJECT_LEASE_CLUE,
+            $leaseClue->getId()
+        );
 
         $this->sendNotification($product);
 

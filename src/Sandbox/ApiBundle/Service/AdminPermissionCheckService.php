@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\Service;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\PreconditionFailedHttpException;
 
 /**
  * Class AdminPermissionCheckService.
@@ -12,6 +13,8 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 class AdminPermissionCheckService
 {
     const NOT_ALLOWED_MESSAGE = 'You are not allowed to perform this action';
+    const ADMIN_COOKIE_NAME = 'sandbox_admin_token';
+    const PRECONDITION_NOT_SET = 'The precondition not set';
 
     private $container;
     private $doctrine;
@@ -366,5 +369,201 @@ class AdminPermissionCheckService
         }
 
         return array_map('current', $excludePermissionIdsQuery->getQuery()->getResult());
+    }
+
+    /**
+     * @param $adminId
+     */
+    public function checkHasPosition(
+        $adminId,
+        $platform,
+        $salesCompanyId
+    ) {
+        $bindings = $this->doctrine
+            ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+            ->getBindingsByUser(
+                $adminId,
+                $platform,
+                $salesCompanyId
+            );
+
+        if (count($bindings) >= 1) {
+            return;
+        }
+
+        throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+    }
+
+    /**
+     * @param $permission
+     * @param $platform
+     *
+     * @return array
+     */
+    public function checkPermissionByCookie(
+        $permission,
+        $platform
+    ) {
+        $cookie_name = self::ADMIN_COOKIE_NAME;
+        if (!isset($_COOKIE[$cookie_name])) {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        }
+
+        $token = $_COOKIE[$cookie_name];
+        $adminToken = $this->doctrine
+            ->getRepository('SandboxApiBundle:User\UserToken')
+            ->findOneBy(array(
+                'token' => $token,
+            ));
+        if (is_null($adminToken)) {
+            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
+        }
+
+        $admin = $adminToken->getUser();
+        $adminId = $admin->getId();
+
+        $adminPlatform = $this->doctrine
+            ->getRepository('SandboxApiBundle:Admin\AdminPlatform')
+            ->findOneBy(array(
+                'userId' => $adminId,
+                'clientId' => $adminToken->getClientId(),
+            ));
+        if (is_null($adminPlatform)) {
+            throw new PreconditionFailedHttpException(self::PRECONDITION_NOT_SET);
+        }
+
+        $companyId = $adminPlatform->getSalesCompanyId();
+
+        // check user permission
+        $this->checkPermissions(
+            $adminId,
+            [
+                ['key' => $permission],
+            ],
+            AdminPermission::OP_LEVEL_VIEW,
+            $platform,
+            $companyId
+        );
+
+        $myBuildingIds = $this->getMySalesBuildingIds(
+            $adminId,
+            array(
+                $permission,
+            ),
+            AdminPermission::OP_LEVEL_VIEW,
+            $platform,
+            $companyId
+        );
+
+        $result = array(
+            'company_id' => $companyId,
+            'user_id' => $adminId,
+            'building_ids' => $myBuildingIds,
+        );
+
+        return $result;
+    }
+
+    /**
+     * @param $adminId
+     * @param $permissionKeys
+     * @param int  $opLevel
+     * @param null $platform
+     * @param null $salesCompanyId
+     *
+     * @return array
+     */
+    public function getMySalesBuildingIds(
+        $adminId,
+        $permissionKeys,
+        $opLevel = AdminPermission::OP_LEVEL_VIEW,
+        $platform = null,
+        $salesCompanyId = null
+    ) {
+        // get permission
+        if (empty($permissionKeys)) {
+            return array();
+        }
+
+        if (is_null($platform)) {
+            // get platform cookies
+            $adminPlatform = $this->container->get('sandbox_api.admin_platform')->getAdminPlatform();
+            $platform = $adminPlatform['platform'];
+            $salesCompanyId = $adminPlatform['sales_company_id'];
+        }
+
+        $isSuperAdmin = $this->hasSuperAdminPosition(
+            $adminId,
+            $platform,
+            $salesCompanyId
+        );
+
+        // check permission by sales monitoring permission
+        $hasSalesMonitoringPermission = $this->checkSalesMonitoringPermission(
+            $platform,
+            $adminId
+        );
+
+        if ($isSuperAdmin || $hasSalesMonitoringPermission) {
+            // if user is super admin, get all buildings
+            $myBuildings = $this->doctrine
+                ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                ->getBuildingsByCompany($salesCompanyId);
+
+            if (empty($myBuildings)) {
+                return $myBuildings;
+            }
+
+            $ids = array();
+            foreach ($myBuildings as $building) {
+                array_push($ids, $building['id']);
+            }
+
+            return $ids;
+        }
+
+        // if common admin, than get my permissions list
+        $myPermissions = $this->getMyAdminPermissions(
+            $adminId,
+            $platform,
+            $salesCompanyId
+        );
+
+        if (in_array(AdminPermission::KEY_SALES_PLATFORM_BUILDING, $permissionKeys) ||
+            in_array(AdminPermission::KEY_SALES_PLATFORM_INVOICE, $permissionKeys)) {
+            foreach ($myPermissions  as $myPermission) {
+                if (AdminPermission::KEY_SALES_PLATFORM_BUILDING == $myPermission['key'] ||
+                    AdminPermission::KEY_SALES_PLATFORM_INVOICE == $myPermission['key']) {
+                    $myBuildings = $this->doctrine
+                        ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                        ->getBuildingsByCompany($salesCompanyId);
+
+                    if (empty($myBuildings)) {
+                        return $myBuildings;
+                    }
+
+                    $ids = array();
+                    foreach ($myBuildings as $building) {
+                        array_push($ids, $building['id']);
+                    }
+
+                    return $ids;
+                }
+            }
+        }
+
+        $ids = array();
+        foreach ($permissionKeys as $permissionKey) {
+            foreach ($myPermissions as $myPermission) {
+                if ($permissionKey == $myPermission['key']
+                    && $opLevel <= $myPermission['op_level']
+                    && !is_null($myPermission['building_id'])
+                ) {
+                    array_push($ids, $myPermission['building_id']);
+                }
+            }
+        }
+
+        return $ids;
     }
 }

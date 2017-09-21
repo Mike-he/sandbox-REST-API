@@ -420,14 +420,7 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p37->setOpLevelSelect('1,2');
         $manager->persist($p37);
 
-        $salesPermission1 = new AdminPermission();
-        $salesPermission1->setKey(AdminPermission::KEY_SALES_PLATFORM_LONG_TERM_SERVICE_BILLS);
-        $salesPermission1->setName('长租服务费账单权限');
-        $salesPermission1->setPlatform('sales');
-        $salesPermission1->setLevel('global');
-        $salesPermission1->setOpLevelSelect('1,2');
-        $salesPermission1->setMaxOpLevel('2');
-        $manager->persist($salesPermission1);
+
 
         $salesPermission2 = new AdminPermission();
         $salesPermission2->setKey(AdminPermission::KEY_SALES_PLATFORM_MONTHLY_BILLS);

@@ -7,6 +7,7 @@ use Rs\Json\Patch;
 use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
+use Sandbox\ApiBundle\Entity\Admin\AdminStatusLog;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBillOfflineTransfer;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBillTransferAttachment;
@@ -40,12 +41,9 @@ class ClientLeaseBillController extends PaymentController
         Request $request,
         $id
     ) {
-        $userId = $this->getUserId();
-
         $bill = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
             ->findOneBy(array(
-                'drawee' => $userId,
                 'id' => $id,
             ));
         $this->throwNotFoundIfNull($bill, self::NOT_FOUND_MESSAGE);
@@ -160,10 +158,18 @@ class ClientLeaseBillController extends PaymentController
             }
         }
 
+        $customerIds = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->getCustomerIdsByUserId($userId);
+
+        if (empty($customerIds)) {
+            return new View();
+        }
+
         $bills = $this->getDoctrine()
             ->getRepository("SandboxApiBundle:Lease\LeaseBill")
             ->findMyBills(
-                $userId,
+                $customerIds,
                 $leaseId,
                 $type,
                 $status,
@@ -232,21 +238,6 @@ class ClientLeaseBillController extends PaymentController
                 )
             );
         $this->throwNotFoundIfNull($bill, CustomErrorMessagesConstants::ERROR_BILL_NOT_FOUND_MESSAGE);
-
-        //check collection method
-        $room = $bill->getLease()->getProduct()->getRoom();
-        $company = $room->getBuilding()->getCompany();
-
-        $collectionMethod = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
-            ->getCollectionMethod(
-                $company,
-                SalesCompanyServiceInfos::TRADE_TYPE_LONGTERM
-            );
-
-        if ($collectionMethod == SalesCompanyServiceInfos::COLLECTION_METHOD_SALES) {
-            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILL_COLLECTION_METHOD_MESSAGE);
-        }
 
         $requestContent = json_decode($request->getContent(), true);
         $channel = $requestContent['channel'];
@@ -371,74 +362,96 @@ class ClientLeaseBillController extends PaymentController
         return new View();
     }
 
+//    /**
+//     * Patch bill status.
+//     *
+//     * @param Request $request
+//     * @param $id
+//     *
+//     * @Route("/leases/bills/{id}")
+//     * @Method({"PATCH"})
+//     *
+//     * @return View
+//     *
+//     * @throws \Exception
+//     */
+//    public function patchBillAction(
+//        Request $request,
+//        $id
+//    ) {
+//        $bill = $this->getDoctrine()->getRepository("SandboxApiBundle:Lease\LeaseBill")
+//            ->findOneBy(
+//                array(
+//                    'id' => $id,
+//                    'status' => LeaseBill::STATUS_UNPAID,
+//                )
+//            );
+//        $this->throwNotFoundIfNull($bill, CustomErrorMessagesConstants::ERROR_BILL_NOT_FOUND_MESSAGE);
+
+//        //check collection method
+//        $room = $bill->getLease()->getProduct()->getRoom();
+//        $company = $room->getBuilding()->getCompany();
+
+//        $collectionMethod = $this->getDoctrine()
+//            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
+//            ->getCollectionMethod(
+//                $company,
+//                SalesCompanyServiceInfos::TRADE_TYPE_LONGTERM
+//            );
+
+//        if ($collectionMethod != SalesCompanyServiceInfos::COLLECTION_METHOD_SALES) {
+//            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILL_COLLECTION_METHOD_MESSAGE);
+//        }
+
+//        // check if request user is the same as drawee
+//        $leaseUserId = $this->getDoctrine()
+//            ->getRepository('SandboxApiBundle:User\UserCustomer')
+//            ->getUserIdByCustomerId($bill->getLease()->getLesseeCustomer());
+//        $this->throwAccessDeniedIfNotSameUser($leaseUserId);
+
+//        $billJson = $this->container->get('serializer')->serialize($bill, 'json');
+//        $patch = new Patch($billJson, $request->getContent());
+//        $billJson = $patch->apply();
+//        $form = $this->createForm(new LeaseBillPatchType(), $bill);
+//        $form->submit(json_decode($billJson, true));
+
+//        $newStatus = $bill->getStatus();
+//        if ($newStatus != LeaseBill::STATUS_VERIFY) {
+//            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILL_STATUS_NOT_CORRECT_MESSAGE);
+//        }
+
+//        $customer = $this->getDoctrine()
+//            ->getRepository('SandboxApiBundle:User\UserCustomer')
+//            ->findOneBy(array(
+//                'userId' => $this->getUserId(),
+//                'companyId' => $bill->getLease()->getCompanyId(),
+//            ));
+
+//        $this->throwNotFoundIfNull($customer, self::NOT_FOUND_MESSAGE);
+
+//        $bill->setPayChannel(LeaseBill::CHANNEL_SALES_OFFLINE);
+//        $bill->setDrawee($this->getUserId());
+//        $bill->setPaymentDate(new \DateTime());
+//        $bill->setCustomerId($customer->getId());
+
+//        $em = $this->getDoctrine()->getManager();
+//        $em->persist($bill);
+//        $em->flush();
+
+//        $logMessage = '使用 销售方收款方式 支付账单';
+//        $this->get('sandbox_api.admin_status_log')->autoLog(
+//            $this->getUserId(),
+//            LeaseBill::STATUS_VERIFY,
+//            $logMessage,
+//            AdminStatusLog::OBJECT_LEASE_BILL,
+//            $bill->getId()
+//        );
+
+//        return new View();
+//    }
+
     /**
-     * Patch bill status.
-     *
-     * @param Request $request
-     * @param $id
-     *
-     * @Route("/leases/bills/{id}")
-     * @Method({"PATCH"})
-     *
-     * @return View
-     *
-     * @throws \Exception
-     */
-    public function patchBillAction(
-        Request $request,
-        $id
-    ) {
-        $bill = $this->getDoctrine()->getRepository("SandboxApiBundle:Lease\LeaseBill")
-            ->findOneBy(
-                array(
-                    'id' => $id,
-                    'status' => LeaseBill::STATUS_UNPAID,
-                )
-            );
-        $this->throwNotFoundIfNull($bill, CustomErrorMessagesConstants::ERROR_BILL_NOT_FOUND_MESSAGE);
-
-        //check collection method
-        $room = $bill->getLease()->getProduct()->getRoom();
-        $company = $room->getBuilding()->getCompany();
-
-        $collectionMethod = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
-            ->getCollectionMethod(
-                $company,
-                SalesCompanyServiceInfos::TRADE_TYPE_LONGTERM
-            );
-
-        if ($collectionMethod != SalesCompanyServiceInfos::COLLECTION_METHOD_SALES) {
-            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILL_COLLECTION_METHOD_MESSAGE);
-        }
-
-        // check if request user is the same as drawee
-        $this->throwAccessDeniedIfNotSameUser($bill->getLease()->getDrawee()->getId());
-
-        $billJson = $this->container->get('serializer')->serialize($bill, 'json');
-        $patch = new Patch($billJson, $request->getContent());
-        $billJson = $patch->apply();
-        $form = $this->createForm(new LeaseBillPatchType(), $bill);
-        $form->submit(json_decode($billJson, true));
-
-        $newStatus = $bill->getStatus();
-        if ($newStatus != LeaseBill::STATUS_VERIFY) {
-            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILL_STATUS_NOT_CORRECT_MESSAGE);
-        }
-
-        $bill->setPayChannel(LeaseBill::CHANNEL_SALES_OFFLINE);
-        $bill->setDrawee($this->getUserId());
-        $bill->setPaymentDate(new \DateTime());
-
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($bill);
-        $em->flush();
-
-        return new View();
-    }
-
-    /**
-     * @param $bills
+     * @param LeaseBill $bills
      *
      * @return array
      */
@@ -447,6 +460,7 @@ class ClientLeaseBillController extends PaymentController
     ) {
         $result = array();
         foreach ($bills as $bill) {
+            /** @var LeaseBill $bill */
             $room = $bill->getLease()->getProduct()->getRoom();
             $building = $room->getBuilding();
             $company = $building->getCompany();
@@ -488,6 +502,7 @@ class ClientLeaseBillController extends PaymentController
                 'preview' => $attachment ? $attachment[0]['preview'] : '',
                 'transfer' => $transfer,
                 'collection_method' => $collectionMethod,
+                'pay_channel' => $bill->getPayChannel(),
             );
         }
 
@@ -514,7 +529,16 @@ class ClientLeaseBillController extends PaymentController
                 SalesCompanyServiceInfos::TRADE_TYPE_LONGTERM
             );
 
-        $drawee = $bill->getDrawee() ? $bill->getDrawee() : $bill->getLease()->getDrawee()->getId();
+        if ($bill->getDrawee()) {
+            $drawee = $bill->getDrawee();
+        } else {
+            $leaseCustomer = $bill->getLease()->getLesseeCustomer();
+            $customer = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserCustomer')
+                ->find($leaseCustomer);
+
+            $drawee = $customer->getUserId();
+        }
 
         $attachment = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\RoomAttachmentBinding')
@@ -564,13 +588,14 @@ class ClientLeaseBillController extends PaymentController
                         'name' => $company->getName(),
                     ),
             'payment_user_id' => $bill->getPaymentUserId(),
+            'invoiced' => $bill->isInvoiced(),
         );
 
         return $result;
     }
 
     /**
-     * @param $bill
+     * @param LeaseBill $bill
      * @param $channel
      *
      * @return View
@@ -579,8 +604,18 @@ class ClientLeaseBillController extends PaymentController
         $bill,
         $channel
     ) {
+        $customer = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->findOneBy(array(
+                'userId' => $this->getUserId(),
+                'companyId' => $bill->getLease()->getCompanyId(),
+            ));
+
+        $this->throwNotFoundIfNull($customer, self::NOT_FOUND_MESSAGE);
+
         $bill->setPayChannel($channel);
         $bill->setDrawee($this->getUserId());
+        $bill->setCustomerId($customer->getId());
 
         $transfer = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBillOfflineTransfer')
@@ -592,6 +627,15 @@ class ClientLeaseBillController extends PaymentController
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();
+
+        $logMessage = '使用 线下汇款 支付账单';
+        $this->get('sandbox_api.admin_status_log')->autoLog(
+            $this->getUserId(),
+            LeaseBill::STATUS_VERIFY,
+            $logMessage,
+            AdminStatusLog::OBJECT_LEASE_BILL,
+            $bill->getId()
+        );
 
         return new View();
     }

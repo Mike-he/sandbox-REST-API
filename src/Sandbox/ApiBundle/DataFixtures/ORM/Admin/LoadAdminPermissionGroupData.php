@@ -492,7 +492,7 @@ class LoadAdminPermissionGroupData extends AbstractFixture implements OrderedFix
         $permissionUser = $em
             ->getRepository('SandboxApiBundle:Admin\AdminPermission')
             ->findOneBy(array(
-                'key' => AdminPermission::KEY_SALES_BUILDING_USER,
+                'key' => AdminPermission::KEY_SALES_PLATFORM_CUSTOMER,
             ));
 
         $permissionInvoice = $em

@@ -26,22 +26,21 @@ class SalesCompanyProfileExpress
     /**
      * @var int
      *
+     * @ORM\Column(name="profile_id", type="integer", nullable=true)
+     */
+    private $profileId;
+
+    /**
+     * @var int
+     *
      * @ORM\Column(name="sales_company_id", type="integer")
      */
     private $salesCompanyId;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany")
-     * @ORM\JoinColumns({
-     *      @ORM\JoinColumn(name="sales_company_id", referencedColumnName="id", onDelete="CASCADE")
-     * })
-     */
-    private $salesCompany;
-
-    /**
      * @var string
      *
-     * @ORM\Column(name="recipient", type="string", length=255)
+     * @ORM\Column(name="recipient", type="string", length=255, nullable=true)
      *
      * @Serializer\Groups({"finance"})
      */
@@ -50,7 +49,7 @@ class SalesCompanyProfileExpress
     /**
      * @var string
      *
-     * @ORM\Column(name="phone", type="string", length=255)
+     * @ORM\Column(name="phone", type="string", length=255, nullable=true)
      *
      * @Serializer\Groups({"finance"})
      */
@@ -59,7 +58,7 @@ class SalesCompanyProfileExpress
     /**
      * @var string
      *
-     * @ORM\Column(name="address", type="string", length=255)
+     * @ORM\Column(name="address", type="string", length=255, nullable=true)
      *
      * @Serializer\Groups({"finance"})
      */
@@ -68,7 +67,7 @@ class SalesCompanyProfileExpress
     /**
      * @var string
      *
-     * @ORM\Column(name="zip_code", type="string", length=255)
+     * @ORM\Column(name="zip_code", type="string", length=255, nullable=true)
      *
      * @Serializer\Groups({"finance"})
      */
@@ -101,6 +100,22 @@ class SalesCompanyProfileExpress
     }
 
     /**
+     * @return int
+     */
+    public function getProfileId()
+    {
+        return $this->profileId;
+    }
+
+    /**
+     * @param int $profileId
+     */
+    public function setProfileId($profileId)
+    {
+        $this->profileId = $profileId;
+    }
+
+    /**
      * Set salesCompanyId.
      *
      * @param int $salesCompanyId
@@ -122,22 +137,6 @@ class SalesCompanyProfileExpress
     public function getSalesCompanyId()
     {
         return $this->salesCompanyId;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getSalesCompany()
-    {
-        return $this->salesCompany;
-    }
-
-    /**
-     * @param mixed $salesCompany
-     */
-    public function setSalesCompany($salesCompany)
-    {
-        $this->salesCompany = $salesCompany;
     }
 
     /**

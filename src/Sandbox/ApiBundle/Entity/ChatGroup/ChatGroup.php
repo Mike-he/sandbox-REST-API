@@ -16,8 +16,8 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class ChatGroup
 {
-    const XMPP_SERVICE = 'conference';
-    const XMPP_CUSTOMER_SERVICE = 'customerservice';
+    const CUSTOMER_SERVICE = 'customer';
+    const GROUP_SERVICE = 'group';
 
     /**
      * @var int
@@ -108,6 +108,14 @@ class ChatGroup
      * @Serializer\Groups({"chatgroup"})
      */
     private $buildingAvatar;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="gid", type="integer", nullable=true)
+     * @Serializer\Groups({"chatgroup"})
+     */
+    private $gid;
 
     /**
      * Get id.
@@ -304,5 +312,21 @@ class ChatGroup
     public function setBuildingAvatar($buildingAvatar)
     {
         $this->buildingAvatar = $buildingAvatar;
+    }
+
+    /**
+     * @return int
+     */
+    public function getGid()
+    {
+        return $this->gid;
+    }
+
+    /**
+     * @param int $gid
+     */
+    public function setGid($gid)
+    {
+        $this->gid = $gid;
     }
 }

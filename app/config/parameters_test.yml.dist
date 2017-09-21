@@ -1,10 +1,12 @@
 parameters:
     database_driver: pdo_mysql
-    database_host: test_db
     database_port: '3306'
-    database_name: sandbox_rest_db
-    database_user: sandbox
-    database_password: sandbox
+
+    database_host: 139.224.210.135
+    database_name: sandbox_rest_test_db
+    database_user: root
+    database_password: root
+
     mailer_transport: smtp
     mailer_host: 127.0.0.1
     mailer_user: null
@@ -45,6 +47,8 @@ parameters:
     openfire_plugin_file_server: /plugins/fileServer/fileservice
     sms_api_url: http://yunpian.com/v1/sms/send.json
     sms_api_key: 21c29536f85636a862306aa6f8ffdf74
+    sms_v2_api_url: https://sms.yunpian.com/v2/sms/batch_send.json
+    sms_marketing_api_key: c9332ec598c7dda0bbe42a7e799c0c8a
     email_from_address: notification@sandbox3.cn
     email_from_name: 展想创合
     sandbox_auth_key: sandbox_auth_test

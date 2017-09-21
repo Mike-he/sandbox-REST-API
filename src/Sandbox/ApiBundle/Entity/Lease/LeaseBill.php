@@ -24,6 +24,7 @@ class LeaseBill
     const ORDER_METHOD_BACKEND = 'backend';
     const ORDER_METHOD_AUTO = 'auto';
 
+    const CHANNEL_SANDBOX = 'sandbox';
     const CHANNEL_ACCOUNT = 'account';
     const CHANNEL_ALIPAY = 'alipay';
     const CHANNEL_UNIONPAY = 'upacp';
@@ -227,6 +228,15 @@ class LeaseBill
     /**
      * @var int
      *
+     * @ORM\Column(name="customer_id", type="integer", nullable=true)
+     *
+     * @Serializer\Groups({"main","client","lease_bill"})
+     */
+    private $customerId;
+
+    /**
+     * @var int
+     *
      * @ORM\Column(name="payment_user_id", type="integer", nullable=true)
      *
      * @Serializer\Groups({"main","client","lease_bill"})
@@ -290,6 +300,13 @@ class LeaseBill
      * @Serializer\Groups({"main","client","lease_bill"})
      */
     private $invoiced = false;
+
+    /**
+     * @var string
+     *
+     * @Serializer\Groups({"main","client","lease_bill"})
+     */
+    private $category;
 
     /**
      * @return int
@@ -721,5 +738,37 @@ class LeaseBill
     public function setInvoiced($invoiced)
     {
         $this->invoiced = $invoiced;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCustomerId()
+    {
+        return $this->customerId;
+    }
+
+    /**
+     * @param int $customerId
+     */
+    public function setCustomerId($customerId)
+    {
+        $this->customerId = $customerId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCategory()
+    {
+        return $this->category;
+    }
+
+    /**
+     * @param string $category
+     */
+    public function setCategory($category)
+    {
+        $this->category = $category;
     }
 }

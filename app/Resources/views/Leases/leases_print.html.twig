@@ -108,7 +108,7 @@
                 padding: 5px;
             }
             .contract-b-con .contract-block .block-line {
-                padding: 15px 0;
+                padding: 10px 0;
                 overflow: hidden;
             }
             .contract-b-con .contract-block .block-line .line-left {
@@ -403,6 +403,35 @@
             <div class="contract-block">
                 <div class="block-top">
                     <div class="f-left top-left">
+                        空间信息
+                    </div>
+                </div>
+                <div class="block-bot">
+                    <div class="block-line">
+                        <div class="f-left line-left">项目名称 :</div>
+                        <div class="f-left line-right">{{ building ? building.name }}</div>
+                    </div>
+                    <div class="block-line">
+                        <div class="f-left line-left">项目地址 :</div>
+                        <div class="f-left line-right">{{ building ? building.address }}</div>
+                    </div>
+                    <div class="block-line">
+                        <div class="f-left line-left">房屋名称 :</div>
+                        <div class="f-left line-right">{{ product ? product.room.name }}</div>
+                    </div>
+                    <div class="block-line">
+                        <div class="f-left line-left">房屋面积 :</div>
+                        <div class="f-left line-right">{{ product ? product.room.area }} m²</div>
+                    </div>
+                    <div class="block-line">
+                        <div class="f-left line-left">房屋最大容纳人数 :</div>
+                        <div class="f-left line-right">{{ product ? product.room.allowedPeople }} 人</div>
+                    </div>
+                </div>
+            </div>
+            <div class="contract-block">
+                <div class="block-top">
+                    <div class="f-left top-left">
                         出租方信息
                     </div>
                 </div>
@@ -437,90 +466,38 @@
                 </div>
                 <div class="block-bot">
                     <div class="block-line">
-                        <div class="f-left line-left">承租方名称 :</div>
-                        <div class="f-left line-right">{{ lease.lesseeName }}</div>
+                        <div class="f-left line-left">承租方类型 :</div>
+                        <div class="f-left line-right">{{ lease.lesseeType == 'personal' ? '个人承租' : '企业承租'  }}</div>
                     </div>
+                    {% if lease.lesseeType ==  'enterprise' %}
+                        <div class="block-line">
+                            <div class="f-left line-left">承租企业:</div>
+                            <div class="f-left line-right">{{ enterprise.name }}</div>
+                        </div>
+                    {% endif %}
                     <div class="block-line">
-                        <div class="f-left line-left">承租方地址 :</div>
-                        <div class="f-left line-right">{{ lease.lesseeAddress }}</div>
-                    </div>
-                    <div class="block-line">
-                        <div class="f-left line-left">承租方联系人 :</div>
-                        <div class="f-left line-right">{{ lease.lesseeContact }}</div>
-                    </div>
-                    <div class="block-line">
-                        <div class="f-left line-left">承租方电话 :</div>
-                        <div class="f-left line-right">{{ lease.lesseePhone }}</div>
-                    </div>
-                    <div class="block-line">
-                        <div class="f-left line-left">承租方邮箱 :</div>
-                        <div class="f-left line-right">{{ lease.lesseeEmail }}</div>
-                    </div>
-                    <div class="block-line">
-                        <div class="f-left line-left">合同负责人:</div>
+                        <div class="f-left line-left">承租联系人:</div>
                         <div class="f-left line-right">
                             <div class="u-box">
-                                <img src="{{ supervisorAvatarUrl }}" class="u-ava">
-                                <div class="u-nick">{{ supervisor.name }}</div>
+                                <img src="{{ customer.avatar ? customer.avatar : 'https://property.sandbox3.cn/img/head.png' }}" class="u-ava">
+                                <div class="u-nick">{{ customer.name }}</div>
                                 <div class="u-info">
-                                    <span>{{ supervisor.email }}</span>
-                                    <span>{{ supervisor.phone }}</span>
+                                    <span>{{ customer.email }}</span>
+                                    <span>{{ customer.phone }}</span>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="block-line">
-                        <div class="f-left line-left">付款人 :</div>
-                        <div class="f-left line-right">
-                            <div class="u-box">
-                                <img src="{{ draweeAvatarUrl }}" class="u-ava">
-                                <div class="u-nick">{{ drawee.name }}</div>
-                                <div class="u-info">
-                                    <span>{{ drawee.email }}</span>
-                                    <span>{{ drawee.phone }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="contract-block">
-                <div class="block-top">
-                    <div class="f-left top-left">
-                        租赁标地
-                    </div>
-                </div>
-                <div class="block-bot">
-                    <div class="block-line">
-                        <div class="f-left line-left">项目名称 :</div>
-                        <div class="f-left line-right">{{ lease.product.room.building.name }}</div>
-                    </div>
-                    <div class="block-line">
-                        <div class="f-left line-left">项目地址 :</div>
-                        <div class="f-left line-right">{{ lease.product.room.building.address }}</div>
-                    </div>
-                    <div class="block-line">
-                        <div class="f-left line-left">房屋名称 :</div>
-                        <div class="f-left line-right">{{ lease.product.room.name }}</div>
-                    </div>
-                    <div class="block-line">
-                        <div class="f-left line-left">房屋面积 :</div>
-                        <div class="f-left line-right">{{ lease.product.room.area }} m²</div>
-                    </div>
-                    <div class="block-line">
-                        <div class="f-left line-left">房屋最大容纳人数 :</div>
-                        <div class="f-left line-right">{{ lease.product.room.allowedPeople }} 人</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="contract-b-con mt200">
+    <div class="contract-b-con">
         <div class="long-wrapper nobt">
             <div class="contract-block">
                 <div class="block-top">
                     <div class="f-left top-left">
-                        商务条款
+                        租赁信息
                     </div>
                 </div>
                 <div class="block-bot">
@@ -548,15 +525,15 @@
                         <div class="f-left line-left">租金包含 :</div>
                         <div class="f-left line-right">
                             {% for t in lease.leaseRentTypes %}
-                                {{ t.name }};
+                                {{ t.type == 'rent' ? t.name ~ ';' }}
                             {% endfor %}
                         </div>
                     </div>
                     <div class="block-line">
-                        <div class="f-left line-left">租金不包含 :</div>
+                        <div class="f-left line-left">税金包含 :</div>
                         <div class="f-left line-right">
-                            {% for et in excludeTypes %}
-                                {{ et.name }};
+                            {% for t in lease.leaseRentTypes %}
+                                {{ t.type == 'tax' ? t.name ~ ';' }}
                             {% endfor %}
                         </div>
                     </div>

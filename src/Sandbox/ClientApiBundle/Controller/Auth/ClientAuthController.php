@@ -47,7 +47,9 @@ class ClientAuthController extends AuthController
         Request $request
     ) {
         $myUserId = $this->getUserId();
-        $myUser = $this->getRepo('User\User')->find($myUserId);
+        $myUser = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\User')
+            ->find($myUserId);
 
         if ($myUser->isBanned()) {
             throw new UnauthorizedHttpException(null, self::UNAUTHED_API_CALL);
@@ -56,6 +58,8 @@ class ClientAuthController extends AuthController
         $view = new View();
         $view->setData(array(
             'id' => $myUserId,
+            'phone' => $myUser->getPhone(),
+            'email' => $myUser->getEmail(),
         ));
 
         return $view;
@@ -90,6 +94,40 @@ class ClientAuthController extends AuthController
 
         $view = new View($userToken);
         $view->setSerializationContext(SerializationContext::create()->setGroups(array('main')));
+
+        return $view;
+    }
+
+    /**
+     * DES Encrypt Password.
+     *
+     * @Route("/password")
+     * @Method({"GET"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getClientAuthPasswordAction(
+        Request $request
+    ) {
+        $myUserId = $this->getUserId();
+        $myUser = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\User')
+            ->find($myUserId);
+
+        if ($myUser->isBanned()) {
+            throw new UnauthorizedHttpException(null, self::UNAUTHED_API_CALL);
+        }
+
+        $plain = $myUser->getPassword();
+        $encrypt = $this->get('sandbox_api.des_encrypt')->encrypt($plain);
+
+        $view = new View();
+        $view->setData(array(
+            'xmpp_username' => $myUser->getXmppUsername(),
+            'password' => $encrypt,
+        ));
 
         return $view;
     }

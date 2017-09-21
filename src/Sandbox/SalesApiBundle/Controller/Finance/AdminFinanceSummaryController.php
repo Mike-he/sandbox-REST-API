@@ -13,7 +13,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations;
-use Symfony\Component\HttpKernel\Exception\PreconditionFailedHttpException;
 
 /**
  * Admin Finance Summary Controller.
@@ -285,136 +284,6 @@ class AdminFinanceSummaryController extends PaymentController
     }
 
     /**
-     * @Annotations\QueryParam(
-     *    name="summary_id",
-     *    array=false,
-     *    default=null,
-     *    nullable=false,
-     *    strict=true,
-     *    description="summary id"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="language",
-     *    default="zh",
-     *    nullable=true,
-     *    requirements="(zh|en)",
-     *    strict=true,
-     *    description="export language"
-     * )
-     *
-     * @Method({"GET"})
-     * @Route("/finance/summary/export")
-     *
-     * @return View
-     */
-    public function getFinanceSummaryExportAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher
-    ) {
-        //authenticate with web browser cookie
-        $admin = $this->authenticateAdminCookie();
-        $adminId = $admin->getId();
-        $token = $_COOKIE[self::ADMIN_COOKIE_NAME];
-
-        $userToken = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserToken')
-            ->findOneBy([
-                'userId' => $adminId,
-                'token' => $token,
-            ]);
-        $this->throwNotFoundIfNull($userToken, self::NOT_FOUND_MESSAGE);
-
-        $adminPlatform = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Admin\AdminPlatform')
-            ->findOneBy(array(
-                'userId' => $adminId,
-                'clientId' => $userToken->getClientId(),
-            ));
-        if (is_null($adminPlatform)) {
-            throw new PreconditionFailedHttpException(self::PRECONDITION_NOT_SET);
-        }
-
-        $companyId = $adminPlatform->getSalesCompanyId();
-
-        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
-            $adminId,
-            [
-                ['key' => AdminPermission::KEY_SALES_PLATFORM_FINANCIAL_SUMMARY],
-            ],
-            AdminPermission::OP_LEVEL_VIEW,
-            $adminPlatform->getPlatform(),
-            $companyId
-        );
-
-        $company = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
-            ->findOneBy([
-                'id' => $companyId,
-                'banned' => false,
-            ]);
-        $this->throwNotFoundIfNull($company, self::NOT_FOUND_MESSAGE);
-
-        $language = $paramFetcher->get('language');
-        $id = $paramFetcher->get('summary_id');
-
-        $summary = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Finance\FinanceSummary')
-            ->findOneBy([
-                'id' => $id,
-                'companyId' => $companyId,
-            ]);
-        $this->throwNotFoundIfNull($summary, self::NOT_FOUND_MESSAGE);
-
-        $lastDate = $summary->getSummaryDate();
-        $firstDate = clone $lastDate;
-        $firstDate->modify('first day of this month');
-        $firstDate->setTime(0, 0, 0);
-
-        // event orders
-        $events = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Event\EventOrder')
-            ->getEventOrderSummary(
-                $firstDate,
-                $lastDate,
-                $companyId
-            );
-
-        $shortOrders = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->getCompletedOrderSummary(
-                $firstDate,
-                $lastDate,
-                $companyId
-            );
-
-        $longBills = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
-            ->findBillsByDates(
-                $firstDate,
-                $lastDate,
-                $companyId
-            );
-
-        $membershipOrders = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:MembershipCard\MembershipOrder')
-            ->getMembershipOrdersByDate(
-                $firstDate,
-                $lastDate,
-                $companyId
-            );
-
-        return $this->getFinanceSummaryExport(
-            $firstDate,
-            $language,
-            $events,
-            $shortOrders,
-            $longBills,
-            $membershipOrders
-        );
-    }
-
-    /**
      * @param $salesCompanyId
      * @param $start
      * @param $end
@@ -457,7 +326,7 @@ class AdminFinanceSummaryController extends PaymentController
             $serviceBill = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Finance\FinanceLongRentServiceBill')
                 ->findOneBy([
-                    'bill' => $longBill,
+                    'orderNumber' => $longBill->getSerialNumber(),
                 ]);
             if (!is_null($serviceBill)) {
                 $serviceAmount += $serviceBill->getAmount();

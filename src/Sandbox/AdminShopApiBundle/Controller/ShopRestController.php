@@ -4,7 +4,6 @@ namespace Sandbox\AdminShopApiBundle\Controller;
 
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesUser;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 use Sandbox\ApiBundle\Entity\Shop\Shop;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrderProduct;
@@ -153,24 +152,10 @@ class ShopRestController extends PaymentController
         // check shop user record
         $companyId = $shop->getBuilding()->getCompanyId();
 
-        $shopUser = $this->getRepo('SalesAdmin\SalesUser')->findOneBy(array(
-            'userId' => $userId,
-            'shopId' => $shop->getId(),
-        ));
-
-        if (is_null($shopUser)) {
-            $shopUser = new SalesUser();
-
-            $shopUser->setUserId($userId);
-            $shopUser->setCompanyId($companyId);
-            $shopUser->setBuildingId($shop->getBuildingId());
-        }
-
-        $shopUser->setIsShopOrdered(true);
-        $shopUser->setShopId($shop->getId());
-        $shopUser->setModificationDate(new \DateTime('now'));
-
-        $em->persist($shopUser);
+        $this->get('sandbox_api.sales_customer')->createCustomer(
+            $userId,
+            $companyId
+        );
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace Sandbox\ClientApiBundle\Controller\ThirdParty;
 
+use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sandbox\ApiBundle\Entity\ThirdParty\WeChat;
@@ -52,11 +53,43 @@ class ClientThirdPartyWeChatController extends ClientThirdPartyController
         // get WeChat bind to me
         $weChat = $this->getRepo('ThirdParty\WeChat')->findOneByUser($user);
         if (is_null($weChat)) {
-            $this->throwNotFoundIfNull($weChat, self::NOT_FOUND_MESSAGE);
+            return new View();
         }
 
         $result = $this->getWeChatSnsUserInfo($weChat);
 
         return new View($result);
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/info")
+     * @Method({"DELETE"})
+     *
+     * @return View
+     */
+    public function deleteWeChatInfoAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $userId = $this->getUserId();
+
+        // get WeChat bind to me
+        $weChat = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:ThirdParty\WeChat')
+            ->findBy(array(
+                'userId' => $userId,
+            ));
+
+        $em = $this->getDoctrine()->getManager();
+        foreach ($weChat as $item) {
+            $em->remove($item);
+        }
+
+        $em->flush();
+
+        return new View();
     }
 }

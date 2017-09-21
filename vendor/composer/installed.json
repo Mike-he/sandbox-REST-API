@@ -3787,56 +3787,6 @@
         ]
     },
     {
-        "name": "symfony/icu",
-        "version": "v1.0.1",
-        "version_normalized": "1.0.1.0",
-        "target-dir": "Symfony/Component/Icu",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/symfony/icu.git",
-            "reference": "fdba214b1e087c149843bde976263c53ac10c975"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://packagist.phpcomposer.com/files/symfony/icu/fdba214b1e087c149843bde976263c53ac10c975.zip",
-            "reference": "fdba214b1e087c149843bde976263c53ac10c975",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3.3",
-            "symfony/intl": "~2.3"
-        },
-        "time": "2013-10-04T09:12:07+00:00",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "psr-0": {
-                "Symfony\\Component\\Icu\\": ""
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "MIT"
-        ],
-        "authors": [
-            {
-                "name": "Symfony Community",
-                "homepage": "http://symfony.com/contributors"
-            },
-            {
-                "name": "Bernhard Schussek",
-                "email": "bschussek@gmail.com"
-            }
-        ],
-        "description": "Contains an excerpt of the ICU data and classes to load it.",
-        "homepage": "http://symfony.com",
-        "keywords": [
-            "icu",
-            "intl"
-        ],
-        "abandoned": "symfony/intl"
-    },
-    {
         "name": "friendsofsymfony/elastica-bundle",
         "version": "v3.2.1",
         "version_normalized": "3.2.1.0",
@@ -6494,39 +6444,30 @@
         ]
     },
     {
-        "name": "jean553/symfony-openfire-bundle",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
-        "target-dir": "jean553/OpenfireBundle",
+        "name": "jiguang/jmessage",
+        "version": "1.1.3",
+        "version_normalized": "1.1.3.0",
         "source": {
             "type": "git",
-            "url": "https://github.com/jean553/symfony-openfire-bundle.git",
-            "reference": "c18c9d456af8efd6294080e106a57fc7674f4217"
+            "url": "https://github.com/jpush/jmessage-api-php-client.git",
+            "reference": "5114d698439f534f580aa2380c53e3e6a709c23b"
         },
         "dist": {
             "type": "zip",
-            "url": "https://files.phpcomposer.com/files/jean553/symfony-openfire-bundle/c18c9d456af8efd6294080e106a57fc7674f4217.zip",
-            "reference": "c18c9d456af8efd6294080e106a57fc7674f4217",
+            "url": "https://files.phpcomposer.com/files/jpush/jmessage-api-php-client/5114d698439f534f580aa2380c53e3e6a709c23b.zip",
+            "reference": "5114d698439f534f580aa2380c53e3e6a709c23b",
             "shasum": ""
         },
         "require": {
-            "guzzlehttp/guzzle": "~5.0",
-            "php": ">=5.3.2"
+            "ext-curl": "*",
+            "php": ">=5.4"
         },
-        "require-dev": {
-            "phpunit/phpunit": "~4.4",
-            "symfony/config": "~2.5",
-            "symfony/dependency-injection": "~2.5",
-            "symfony/http-kernel": "~2.5",
-            "symfony/validator": "~2.5",
-            "symfony/yaml": "~2.5"
-        },
-        "time": "2016-03-29T03:48:29+00:00",
-        "type": "symfony-bundle",
-        "installation-source": "source",
+        "time": "2017-07-31T07:04:26+00:00",
+        "type": "library",
+        "installation-source": "dist",
         "autoload": {
-            "psr-0": {
-                "jean553\\OpenfireBundle": ""
+            "psr-4": {
+                "JMessage\\": "src/JMessage/"
             }
         },
         "notification-url": "https://packagist.org/downloads/",
@@ -6535,16 +6476,137 @@
         ],
         "authors": [
             {
-                "name": "Jean LELIEVRE",
-                "email": "Jean.LELIEVRE@supinfo.com",
-                "role": "Developer"
+                "name": "JiGuang",
+                "email": "support@jpush.cn",
+                "homepage": "https://www.jiguang.cn"
             }
         ],
-        "description": "Openfire server management for Symfony 2 applications",
-        "homepage": "https://github.com/jean553/symfony-openfire-bundle",
+        "description": "JMessage's officially supported PHP client library for accessing JMessage APIs.",
+        "homepage": "https://github.com/jpush/jmessage-api-php-client",
         "keywords": [
-            "openfire",
-            "symfony"
+            "api client",
+            "jiguang",
+            "jmessage"
         ]
+    },
+    {
+        "name": "symfony/intl",
+        "version": "v3.3.8",
+        "version_normalized": "3.3.8.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/symfony/intl.git",
+            "reference": "431a020d3e7061e3d9c90e2279ba47ee44962820"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://files.phpcomposer.com/files/symfony/intl/431a020d3e7061e3d9c90e2279ba47ee44962820.zip",
+            "reference": "431a020d3e7061e3d9c90e2279ba47ee44962820",
+            "shasum": ""
+        },
+        "require": {
+            "php": "^5.5.9|>=7.0.8",
+            "symfony/polyfill-intl-icu": "~1.0"
+        },
+        "require-dev": {
+            "symfony/filesystem": "~2.8|~3.0"
+        },
+        "suggest": {
+            "ext-intl": "to use the component with locales other than \"en\""
+        },
+        "time": "2017-08-27T14:52:21+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "3.3-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Symfony\\Component\\Intl\\": ""
+            },
+            "classmap": [
+                "Resources/stubs"
+            ],
+            "exclude-from-classmap": [
+                "/Tests/"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Bernhard Schussek",
+                "email": "bschussek@gmail.com"
+            },
+            {
+                "name": "Eriksen Costa",
+                "email": "eriksen.costa@infranology.com.br"
+            },
+            {
+                "name": "Igor Wiedler",
+                "email": "igor@wiedler.ch"
+            },
+            {
+                "name": "Symfony Community",
+                "homepage": "https://symfony.com/contributors"
+            }
+        ],
+        "description": "A PHP replacement layer for the C intl extension that includes additional data from the ICU library.",
+        "homepage": "https://symfony.com",
+        "keywords": [
+            "i18n",
+            "icu",
+            "internationalization",
+            "intl",
+            "l10n",
+            "localization"
+        ]
+    },
+    {
+        "name": "aliyuncs/oss-sdk-php",
+        "version": "v2.2.4",
+        "version_normalized": "2.2.4.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/aliyun/aliyun-oss-php-sdk.git",
+            "reference": "0b9b85b6c5c38cfc4ef3b0205a5a62d1e36acf2e"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://files.phpcomposer.com/files/aliyun/aliyun-oss-php-sdk/0b9b85b6c5c38cfc4ef3b0205a5a62d1e36acf2e.zip",
+            "reference": "0b9b85b6c5c38cfc4ef3b0205a5a62d1e36acf2e",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~4.0",
+            "satooshi/php-coveralls": "~1.0"
+        },
+        "time": "2017-04-25T09:15:12+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "OSS\\": "src/OSS"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Aliyuncs",
+                "homepage": "http://www.aliyun.com"
+            }
+        ],
+        "description": "Aliyun OSS SDK for PHP",
+        "homepage": "http://www.aliyun.com/product/oss/"
     }
 ]

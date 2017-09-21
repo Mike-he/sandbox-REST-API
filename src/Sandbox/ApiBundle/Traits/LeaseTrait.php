@@ -2,10 +2,14 @@
 
 namespace Sandbox\ApiBundle\Traits;
 
+use Doctrine\ORM\EntityManager;
 use Sandbox\ApiBundle\Constants\LeaseConstants;
+use Sandbox\ApiBundle\Entity\Admin\AdminStatusLog;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
+use Sandbox\ApiBundle\Entity\Lease\LeaseRentTypes;
 use Sandbox\ApiBundle\Entity\Log\Log;
+use Sandbox\ApiBundle\Service\AdminStatusLogService;
 
 /**
  * Log Trait.
@@ -158,59 +162,82 @@ trait LeaseTrait
     }
 
     /**
-     * @param $userId
-     *
-     * @return string
-     */
-    private function generateAvatarUrl(
-        $userId
-    ) {
-        $dir = '/data/openfire/image';
-        $avatar = $dir.'/person/'.$userId.'/avatar_small.jpg';
-
-        if (!file_exists($avatar)) {
-            $avatar = 'https://property.sandbox3.cn/img/head.png';
-        }
-
-        return $avatar;
-    }
-
-    /**
-     * @param $lease
+     * @param Lease $lease
      * @param $date
      */
     private function autoPushBills(
         $lease,
         $date
     ) {
+        /** @var EntityManager $em */
         $em = $this->getContainer()->get('doctrine')->getManager();
 
         $bills = $em->getRepository('SandboxApiBundle:Lease\LeaseBill')
             ->getNeedAutoPushBills($lease, $date);
 
+        $customer = $em->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->find($lease->getLesseeCustomer());
+
+        $useId = $customer ? $customer->getUserId() : '';
+
+        /** @var AdminStatusLogService $statusLogService */
+        $statusLogService = $this->getContainer()->get('sandbox_api.admin_status_log');
+
+        $logMessage = '自动推送账单';
         foreach ($bills as $bill) {
+            /* @var LeaseBill $bill */
             $bill->setStatus(LeaseBill::STATUS_UNPAID);
             $bill->setRevisedAmount($bill->getAmount());
             $bill->setOrderMethod(LeaseBill::ORDER_METHOD_AUTO);
             $bill->setSendDate(new \DateTime());
-
             $em->persist($bill);
+
+            $statusLogService->addLog(
+                    1,
+                    LeaseBill::STATUS_UNPAID,
+                    $logMessage,
+                    AdminStatusLog::OBJECT_LEASE_BILL,
+                    $bill->getId()
+                );
+
             $em->flush();
 
-            $billsAmount = 1;
-            $leaseId = $lease->getId();
-            $urlParam = 'ptype=billsList&status=unpaid&leasesId='.$leaseId;
-            $contentArray = $this->generateLeaseContentArray($urlParam);
-            // send Jpush notification
-            $this->generateJpushNotification(
-                [
-                    $lease->getDraweeId(),
-                ],
-                LeaseConstants::LEASE_BILL_UNPAID_MESSAGE_PART1,
-                LeaseConstants::LEASE_BILL_UNPAID_MESSAGE_PART2,
-                $contentArray,
-                ' '.$billsAmount.' '
-            );
+            if ($useId) {
+                $billsAmount = 1;
+                $leaseId = $lease->getId();
+                $urlParam = 'ptype=billsList&status=unpaid&leasesId='.$leaseId;
+                $contentArray = $this->generateLeaseContentArray($urlParam);
+                // send Jpush notification
+                $this->generateJpushNotification(
+                    [
+                        $useId,
+                    ],
+                    LeaseConstants::LEASE_BILL_UNPAID_MESSAGE_PART1,
+                    LeaseConstants::LEASE_BILL_UNPAID_MESSAGE_PART2,
+                    $contentArray,
+                    ' '.$billsAmount.' '
+                );
+            }
         }
+    }
+
+    /**
+     * @param Lease $lease
+     *
+     * @return bool
+     */
+    private function checkBillShouldInvoiced(
+        $lease
+    ) {
+        $result = false;
+
+        $rentTypes = $lease->getLeaseRentTypes();
+        foreach ($rentTypes as $rentType) {
+            if ($rentType->getType() == LeaseRentTypes::RENT_TYPE_TAX) {
+                $result = true;
+            }
+        }
+
+        return $result;
     }
 }

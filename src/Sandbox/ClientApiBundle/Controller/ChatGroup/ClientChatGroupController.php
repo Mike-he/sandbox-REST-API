@@ -72,6 +72,7 @@ class ClientChatGroupController extends ChatGroupController
 
         $chatGroup = new ChatGroup();
         $chatGroup->setCreator($myUser);
+        $chatGroup->setTag(ChatGroup::GROUP_SERVICE);
 
         // add member
         $chatGroupName = $name;
@@ -130,14 +131,17 @@ class ClientChatGroupController extends ChatGroupController
         // save to db
         $em->flush();
 
-        // create chat group in Openfire
-        $this->createXmppChatGroup($chatGroup);
+        $gid = $this->createXmppChatGroup($chatGroup);
+        $chatGroup->setGid($gid);
+
+        $em->flush();
 
         // response
         $view = new View();
         $view->setData(array(
             'id' => $chatGroup->getId(),
             'name' => $chatGroupName,
+            'gid' => $gid,
         ));
 
         return $view;
@@ -202,7 +206,7 @@ class ClientChatGroupController extends ChatGroupController
             return new View();
         }
 
-        if ($chatGroup->getTag() != ChatGroup::XMPP_CUSTOMER_SERVICE) {
+        if ($chatGroup->getTag() != ChatGroup::CUSTOMER_SERVICE) {
             // set group name
             if (is_null($chatGroup->getName()) || $chatGroup->getName()) {
                 $chatGroupName = $this->constructGroupChatName(
@@ -235,16 +239,16 @@ class ClientChatGroupController extends ChatGroupController
      * Retrieve everything a given chat group.
      *
      * @param Request $request the request object
-     * @param int     $id
+     * @param int     $gid
      *
-     * @Route("/chatgroups/{id}/all")
+     * @Route("/chatgroups/{gid}/all")
      * @Method({"GET"})
      *
      * @return View
      */
     public function getChatGroupAllAction(
         Request $request,
-        $id
+        $gid
     ) {
         $myUserId = $this->getUserId();
         $myUser = $this->getRepo('User\User')->find($myUserId);
@@ -255,11 +259,16 @@ class ClientChatGroupController extends ChatGroupController
         }
 
         // get chatGroup
-        $chatGroup = $this->getRepo('ChatGroup\ChatGroup')->find($id);
+        $chatGroup = $this->getRepo('ChatGroup\ChatGroup')->findOneBy(array('gid' => $gid));
         $this->throwNotFoundIfNull($chatGroup, self::NOT_FOUND_MESSAGE);
 
         // get chat group and members array for response
-        $chatGroupArray = $this->getRepo('ChatGroup\ChatGroup')->getChatGroup($id, $myUserId);
+        $chatGroupArray = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:ChatGroup\ChatGroup')
+            ->getChatGroup(
+                $chatGroup->getId(),
+                $myUserId
+            );
 
         $members = $this->getRepo('ChatGroup\ChatGroupMember')->findByChatGroup($chatGroup);
         if (!is_null($members) && !empty($members)) {
@@ -288,16 +297,16 @@ class ClientChatGroupController extends ChatGroupController
      * Modify a given chat group.
      *
      * @param Request $request
-     * @param int     $id
+     * @param int     $gid
      *
-     * @Route("/chatgroups/{id}")
+     * @Route("/chatgroups/{gid}")
      * @Method({"PATCH"})
      *
      * @return View
      */
     public function patchChatGroupAction(
         Request $request,
-        $id
+        $gid
     ) {
         $myUserId = $this->getUserId();
         $myUser = $this->getRepo('User\User')->find($myUserId);
@@ -308,17 +317,10 @@ class ClientChatGroupController extends ChatGroupController
         }
 
         // get chatGroup
-        $chatGroup = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:ChatGroup\ChatGroup')
-            ->find($id);
+        $chatGroup = $this->getRepo('ChatGroup\ChatGroup')->findOneBy(array('gid' => $gid));
         $this->throwNotFoundIfNull($chatGroup, self::NOT_FOUND_MESSAGE);
 
         $userId = $chatGroup->getCreatorId();
-
-        $tag = $chatGroup->getTag();
-        if (!is_null($tag)) {
-            throw new AccessDeniedHttpException();
-        }
 
         // bind data
         $chatGroupJson = $this->container->get('serializer')->serialize($chatGroup, 'json');
@@ -336,7 +338,6 @@ class ClientChatGroupController extends ChatGroupController
         $em = $this->getDoctrine()->getManager();
         $em->flush();
 
-        // update chat group in Openfire
         $this->updateXmppChatGroup($chatGroup);
 
         return new View();
@@ -346,16 +347,16 @@ class ClientChatGroupController extends ChatGroupController
      * Remove / quit a given chat group.
      *
      * @param Request $request the request object
-     * @param int     $id
+     * @param int     $gid
      *
-     * @Route("/chatgroups/{id}")
+     * @Route("/chatgroups/{gid}")
      * @Method({"DELETE"})
      *
      * @return View
      */
     public function deleteChatGroupAction(
         Request $request,
-        $id
+        $gid
     ) {
         $myUserId = $this->getUserId();
         $myUser = $this->getRepo('User\User')->find($myUserId);
@@ -366,14 +367,9 @@ class ClientChatGroupController extends ChatGroupController
         }
 
         // get chatGroup
-        $chatGroup = $this->getRepo('ChatGroup\ChatGroup')->find($id);
+        $chatGroup = $this->getRepo('ChatGroup\ChatGroup')->findOneBy(array('gid' => $gid));
         if (is_null($chatGroup)) {
             return new View();
-        }
-
-        $tag = $chatGroup->getTag();
-        if (!is_null($tag)) {
-            throw new AccessDeniedHttpException();
         }
 
         // only chat group creator is allowed to remove it
@@ -381,97 +377,12 @@ class ClientChatGroupController extends ChatGroupController
             throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
         }
 
-        // update chat group in Openfire
-        $this->deleteXmppChatGroup($chatGroup);
+        $this->deleteXmppChatGroup($gid);
 
         // remove from db
         $em = $this->getDoctrine()->getManager();
         $em->remove($chatGroup);
         $em->flush();
-
-        return new View();
-    }
-
-    /**
-     * Mute a chat group.
-     *
-     * @param Request $request the request object
-     * @param int     $id
-     *
-     * @Route("/chatgroups/{id}/mute")
-     * @Method({"POST"})
-     *
-     * @return View
-     */
-    public function muteChatGroupAction(
-        Request $request,
-        $id
-    ) {
-        $this->handleChatGroupMute($id, true);
-    }
-
-    /**
-     * Unmute a chat group.
-     *
-     * @param Request $request the request object
-     * @param int     $id
-     *
-     * @Route("/chatgroups/{id}/mute")
-     * @Method({"DELETE"})
-     *
-     * @return View
-     */
-    public function unmuteChatGroupAction(
-        Request $request,
-        $id
-    ) {
-        $this->handleChatGroupMute($id, false);
-    }
-
-    /**
-     * @param int  $id
-     * @param bool $mute
-     *
-     * @return View
-     */
-    private function handleChatGroupMute(
-        $id,
-        $mute
-    ) {
-        $myUserId = $this->getUserId();
-        $myUser = $this->getRepo('User\User')->find($myUserId);
-
-        // check banned
-        if ($myUser->isBanned()) {
-            return new View();
-        }
-
-        // get chatGroup
-        $chatGroup = $this->getRepo('ChatGroup\ChatGroup')->find($id);
-        if (is_null($chatGroup)) {
-            return new View();
-        }
-
-        // get chat group member
-        $chatGroupMember = $this->getRepo('ChatGroup\ChatGroupMember')
-            ->findOneBy(
-                array(
-                    'chatGroup' => $chatGroup,
-                    'user' => $myUser,
-                )
-            );
-        if (is_null($chatGroup)) {
-            return new View();
-        }
-
-        $chatGroupMember->setMute($mute);
-
-        // remove from db
-        $em = $this->getDoctrine()->getManager();
-        $em->flush();
-
-        // set chat config in Openfire
-        $this->handleXmppChatGroupMute($chatGroup, $myUser, $mute);
 
         return new View();
     }

@@ -66,6 +66,7 @@ class AdminPermission
     const KEY_OFFICIAL_PLATFORM_TRANSFER_CONFIRM = 'platform.transfer_confirm';
     const KEY_OFFICIAL_PLATFORM_SALES_MONITORING = 'platform.sales_monitoring';
     const KEY_OFFICIAL_PLATFORM_MEMBERSHIP_CARD_ORDER = 'platform.membership_card_order';
+    const KEY_OFFICIAL_PLATFORM_BEAN = 'platform.bean';
 
     const KEY_SALES_PLATFORM_DASHBOARD = 'sales.platform.dashboard';
     const KEY_SALES_PLATFORM_ADMIN = 'sales.platform.admin';
@@ -73,7 +74,6 @@ class AdminPermission
     const KEY_SALES_PLATFORM_INVOICE = 'sales.platform.invoice';
     const KEY_SALES_PLATFORM_EVENT = 'sales.platform.event';
     const KEY_SALES_PLATFORM_EVENT_ORDER = 'sales.platform.event_order';
-    const KEY_SALES_PLATFORM_LONG_TERM_SERVICE_BILLS = 'sales.platform.long_term_service_bills';
     const KEY_SALES_PLATFORM_MONTHLY_BILLS = 'sales.platform.monthly_bills';
     const KEY_SALES_PLATFORM_FINANCIAL_SUMMARY = 'sales.platform.financial_summary';
     const KEY_SALES_PLATFORM_WITHDRAWAL = 'sales.platform.withdrawal';
@@ -82,18 +82,26 @@ class AdminPermission
     const KEY_SALES_PLATFORM_MEMBERSHIP_CARD = 'sales.platform.membership_card';
     const KEY_SALES_PLATFORM_MEMBERSHIP_CARD_ORDER = 'sales.platform.membership_card_order';
     const KEY_SALES_PLATFORM_MEMBERSHIP_CARD_PRODUCT = 'sales.platform.membership_card_product';
+    const KEY_SALES_BUILDING_LEASE_CLUE = 'sales.building.lease_clue';
+    const KEY_SALES_BUILDING_LEASE_OFFER = 'sales.building.lease_offer';
+    const KEY_SALES_BUILDING_LEASE_BILL = 'sales.building.bill';
+    const KEY_SALES_PLATFORM_ENTERPRISE_CUSTOMER = 'sales.platform.enterprise_customer';
+    const KEY_SALES_PLATFORM_USER_GROUP = 'sales.platform.user_group';
     const KEY_SALES_BUILDING_PRICE = 'sales.building.price';
     const KEY_SALES_BUILDING_ORDER = 'sales.building.order';
     const KEY_SALES_BUILDING_ORDER_RESERVE = 'sales.building.order.reserve';
     const KEY_SALES_BUILDING_ORDER_PREORDER = 'sales.building.order.preorder';
     const KEY_SALES_BUILDING_BUILDING = 'sales.building.building';
-    const KEY_SALES_BUILDING_USER = 'sales.building.user';
+    const KEY_SALES_PLATFORM_CUSTOMER = 'sales.platform.customer';
     const KEY_SALES_BUILDING_ROOM = 'sales.building.room';
     const KEY_SALES_BUILDING_PRODUCT = 'sales.building.product';
     const KEY_SALES_BUILDING_ACCESS = 'sales.building.access';
     const KEY_SALES_BUILDING_SPACE = 'sales.building.space';
     const KEY_SALES_BUILDING_LONG_TERM_LEASE = 'sales.building.long_term_lease';
     const KEY_SALES_BUILDING_LONG_TERM_APPOINTMENT = 'sales.building.long_term_appointment';
+    const KEY_SALES_BUILDING_CASHIER = 'sales.building.cashier';
+    const KEY_SALES_PLATFORM_REPORT_DOWNLOAD = 'sales.platform.report_download';
+    const KEY_SALES_PLATFORM_REQUEST_INVOICE = 'sales.platform.request_invoice';
 
     const KEY_SHOP_PLATFORM_DASHBOARD = 'shop.platform.dashboard';
     const KEY_SHOP_PLATFORM_ADMIN = 'shop.platform.admin';

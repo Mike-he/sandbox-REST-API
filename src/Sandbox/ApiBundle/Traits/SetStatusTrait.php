@@ -3,8 +3,10 @@
 namespace Sandbox\ApiBundle\Traits;
 
 use Sandbox\ApiBundle\Entity\Event\EventOrder;
+use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentServiceBill;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Parameter\Parameter;
+use Sandbox\ApiBundle\Entity\User\UserBeanFlow;
 
 /**
  * Consume Trait.
@@ -19,6 +21,7 @@ use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 trait SetStatusTrait
 {
     use ConsumeTrait;
+    use FinanceTrait;
 
     /**
      * @param ProductOrder $order
@@ -29,26 +32,59 @@ trait SetStatusTrait
         $order->setStatus(ProductOrder::STATUS_COMPLETED);
         $order->setModificationDate(new \DateTime('now'));
 
-        //update user bean
-        $this->getContainer()->get('sandbox_api.bean')->postBeanChange(
-            $order->getUserId(),
-            $order->getDiscountPrice(),
-            $order->getOrderNumber(),
-            Parameter::KEY_BEAN_PRODUCT_ORDER
-        );
+        $type = $order->getType();
+        $payChannel = $order->getPayChannel();
 
-        //update invitee bean
-        $user = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:User\User')
-            ->find($order->getUserId());
+        if ($payChannel != ProductOrder::CHANNEL_SALES_OFFLINE) {
+            if ($type == ProductOrder::PREORDER_TYPE) {
+                $parameter = Parameter::KEY_BEAN_PRODUCT_ORDER_PREORDER;
 
-        if ($user->getInviterId()) {
-            $this->getContainer()->get('sandbox_api.bean')->postBeanChange(
-                $user->getInviterId(),
-                $order->getDiscountPrice(),
-                $order->getOrderNumber(),
-                Parameter::KEY_BEAN_INVITEE_PRODUCT_ORDER
-            );
+                $this->generateLongRentServiceFee(
+                    $order->getOrderNumber(),
+                    $order->getProduct()->getRoom()->getBuilding()->getCompanyId(),
+                    $order->getDiscountPrice(),
+                    $order->getPayChannel(),
+                    FinanceLongRentServiceBill::TYPE_BILL_POUNDAGE
+                );
+            } else {
+                $parameter = Parameter::KEY_BEAN_PRODUCT_ORDER;
+            }
+
+            if ($order->getCustomerId()) {
+                $customer = $this->getContainer()->get('doctrine')
+                    ->getRepository('SandboxApiBundle:User\UserCustomer')
+                    ->find($order->getCustomerId());
+
+                $userId = $customer ? $customer->getUserId() : null;
+            } else {
+                $userId = $order->getUserId();
+            }
+
+            if ($userId) {
+                //update user bean
+                $amount = $this->getContainer()->get('sandbox_api.bean')->postBeanChange(
+                    $userId,
+                    $order->getDiscountPrice(),
+                    $order->getOrderNumber(),
+                    $parameter
+                );
+
+                //update invitee bean
+                $user = $this->getContainer()->get('doctrine')
+                    ->getRepository('SandboxApiBundle:User\User')
+                    ->find($userId);
+
+                if ($user->getInviterId()) {
+                    $this->getContainer()->get('sandbox_api.bean')->postBeanChange(
+                        $user->getInviterId(),
+                        $order->getDiscountPrice(),
+                        $order->getOrderNumber(),
+                        Parameter::KEY_BEAN_INVITEE_PRODUCT_ORDER,
+                        UserBeanFlow::TYPE_ADD,
+                        $amount
+                    );
+                }
+            }
         }
     }
 

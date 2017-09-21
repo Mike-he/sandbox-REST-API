@@ -70,13 +70,15 @@ class ChatGroupRepository extends EntityRepository
      * @param int    $companyId
      * @param int    $userId
      * @param string $search
+     * @param string $tag
      *
      * @return array
      */
     public function getAdminChatGroups(
         $companyId,
         $userId,
-        $search
+        $search,
+        $tag
     ) {
         $query = $this->createQueryBuilder('g')
             ->select('
@@ -86,7 +88,8 @@ class ChatGroupRepository extends EntityRepository
                 g.buildingId,
                 g.creatorId,
                 up.name as creator_name,
-                u.xmppUsername as creator_xmppUsername
+                u.xmppUsername as creator_xmppUsername,
+                g.gid
             ')
             ->leftJoin('SandboxApiBundle:ChatGroup\ChatGroupMember', 'm', 'WITH', 'g.id = m.chatGroup')
             ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'u.id = g.creatorId')
@@ -96,14 +99,20 @@ class ChatGroupRepository extends EntityRepository
             ->andWhere('u.email LIKE :search OR u.phone LIKE :search OR up.name LIKE :search')
             ->setParameter('companyId', $companyId)
             ->setParameter('search', "%$search%")
-            ->setParameter('userId', $userId)
-            ->orderBy('g.creationDate', 'DESC');
+            ->setParameter('userId', $userId);
+
+        if ($tag) {
+            $query = $query->andWhere('g.tag = :tag')
+                ->setParameter('tag', $tag);
+        }
+
+        $query->orderBy('g.creationDate', 'DESC');
 
         return $query->getQuery()->getResult();
     }
 
     /**
-     * @param $id
+     * @param $gid
      * @param $companyId
      * @param $userId
      *
@@ -112,7 +121,7 @@ class ChatGroupRepository extends EntityRepository
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
     public function getAdminChatGroupById(
-        $id,
+        $gid,
         $companyId,
         $userId
     ) {
@@ -123,16 +132,18 @@ class ChatGroupRepository extends EntityRepository
                 g.tag,
                 g.buildingId,
                 g.creatorId,
+                g.gid,
+                u.xmppUsername as creator_xmppUsername,
                 up.name as creator_name
             ')
             ->leftJoin('SandboxApiBundle:ChatGroup\ChatGroupMember', 'm', 'WITH', 'g.id = m.chatGroup')
             ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'u.id = g.creatorId')
             ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'u.id = up.userId')
-            ->where('g.id = :id')
+            ->where('g.gid = :gid')
             ->andWhere('g.companyId = :companyId')
             ->andWhere('m.user = :userId')
             ->setParameter('companyId', $companyId)
-            ->setParameter('id', $id)
+            ->setParameter('gid', $gid)
             ->setParameter('userId', $userId);
 
         return $query->getQuery()->getOneOrNullResult();

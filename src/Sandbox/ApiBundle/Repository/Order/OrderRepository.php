@@ -9,7 +9,6 @@ use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
-use Symfony\Component\Validator\Constraints\DateTime;
 
 class OrderRepository extends EntityRepository
 {
@@ -18,6 +17,7 @@ class OrderRepository extends EntityRepository
 
     /**
      * @param $userId
+     * @param $customerIds
      * @param $limit
      * @param $offset
      *
@@ -25,12 +25,14 @@ class OrderRepository extends EntityRepository
      */
     public function getUserAllOrders(
         $userId,
+        $customerIds,
         $limit,
         $offset
     ) {
         $query = $this->createQueryBuilder('o')
-            ->where('o.userId = :userId')
+            ->where('o.userId = :userId OR o.customerId in (:customerIds)')
             ->setParameter('userId', $userId)
+            ->setParameter('customerIds', $customerIds)
             ->orderBy('o.modificationDate', 'DESC')
             ->setMaxResults($limit)
             ->setFirstResult($offset)
@@ -41,6 +43,7 @@ class OrderRepository extends EntityRepository
 
     /**
      * @param $userId
+     * @param $customerIds
      * @param $limit
      * @param $offset
      *
@@ -48,6 +51,7 @@ class OrderRepository extends EntityRepository
      */
     public function getUserIncompleteOrders(
         $userId,
+        $customerIds,
         $limit,
         $offset
     ) {
@@ -58,8 +62,9 @@ class OrderRepository extends EntityRepository
                     o.status = \'unpaid\' OR
                     (o.status = \'completed\' and o.endDate >= :now)
                 ')
-            ->andWhere('o.userId = :userId')
+            ->andWhere('o.userId = :userId OR o.customerId in (:customerIds)')
             ->setParameter('userId', $userId)
+            ->setParameter('customerIds', $customerIds)
             ->setParameter('now', $now)
             ->orderBy('o.modificationDate', 'DESC')
             ->setMaxResults($limit)
@@ -71,6 +76,7 @@ class OrderRepository extends EntityRepository
 
     /**
      * @param $userId
+     * @param $customerIds
      * @param $limit
      * @param $offset
      *
@@ -78,13 +84,15 @@ class OrderRepository extends EntityRepository
      */
     public function getUserPendingOrders(
         $userId,
+        $customerIds,
         $limit,
         $offset
     ) {
         $query = $this->createQueryBuilder('o')
             ->where('o.status = \'paid\' OR o.status = \'unpaid\'')
-            ->andWhere('o.userId = :userId')
+            ->andWhere('o.userId = :userId OR o.customerId in (:customerIds)')
             ->setParameter('userId', $userId)
+            ->setParameter('customerIds', $customerIds)
             ->orderBy('o.modificationDate', 'DESC')
             ->setMaxResults($limit)
             ->setFirstResult($offset)
@@ -95,6 +103,7 @@ class OrderRepository extends EntityRepository
 
     /**
      * @param $userId
+     * @param $customerIds
      * @param $limit
      * @param $offset
      *
@@ -102,6 +111,7 @@ class OrderRepository extends EntityRepository
      */
     public function getUserCompletedOrders(
         $userId,
+        $customerIds,
         $limit,
         $offset
     ) {
@@ -116,8 +126,9 @@ class OrderRepository extends EntityRepository
                     o.refunded = :refunded
                 )    
             ')
-            ->andWhere('o.userId = :userId')
+            ->andWhere('o.userId = :userId OR o.customerId in (:customerIds)')
             ->setParameter('userId', $userId)
+            ->setParameter('customerIds', $customerIds)
             ->setParameter('needToRefund', false)
             ->setParameter('refunded', false)
             ->setParameter('offline', ProductOrder::CHANNEL_OFFLINE)
@@ -131,6 +142,7 @@ class OrderRepository extends EntityRepository
 
     /**
      * @param $userId
+     * @param $customerIds
      * @param $limit
      * @param $offset
      *
@@ -138,6 +150,7 @@ class OrderRepository extends EntityRepository
      */
     public function getUserRefundOrders(
         $userId,
+        $customerIds,
         $limit,
         $offset
     ) {
@@ -146,8 +159,9 @@ class OrderRepository extends EntityRepository
                 (o.needToRefund = :needToRefund OR
                 o.refunded = :refunded)
             ')
-            ->andWhere('o.userId = :userId')
+            ->andWhere('o.userId = :userId OR o.customerId in (:customerIds)')
             ->setParameter('userId', $userId)
+            ->setParameter('customerIds', $customerIds)
             ->setParameter('needToRefund', true)
             ->setParameter('refunded', true)
             ->orderBy('o.modificationDate', 'DESC')
@@ -753,16 +767,84 @@ class OrderRepository extends EntityRepository
 
     /**
      * get unpaid preorder product orders.
+     *
+     * @param $myBuildingIds
+     * @param $buildingId
+     * @param $type
+     * @param $startDate
+     * @param $endDate
+     * @param $keyword
+     * @param $keywordSearch
+     *
+     * @return array
      */
-    public function getUnpaidPreOrders()
-    {
+    public function getUnpaidPreOrders(
+        $myBuildingIds,
+        $buildingId,
+        $type,
+        $startDate,
+        $endDate,
+        $keyword,
+        $keywordSearch
+    ) {
         $query = $this->createQueryBuilder('o')
-            ->where('o.status = \'unpaid\'')
+            ->leftJoin('o.product', 'p')
+            ->leftJoin('p.room', 'r')
+            ->where('o.status = :status')
             ->andWhere('o.type = :preorder')
+            ->andWhere('r.buildingId in (:buildings)')
+            ->setParameter('status', ProductOrder::STATUS_UNPAID)
             ->setParameter('preorder', ProductOrder::PREORDER_TYPE)
-            ->getQuery();
+            ->setParameter('buildings', $myBuildingIds);
 
-        return $query->getResult();
+        if ($buildingId) {
+            $query->andWhere('r.buildingId = :building')
+                ->setParameter('building', $buildingId);
+        }
+
+        if ($type) {
+            $query->andWhere('r.type = :type')
+                ->setParameter('type', $type);
+        }
+
+        if ($startDate) {
+            $startDate = new \DateTime($startDate);
+
+            $query->andWhere('o.creationDate >= :startDate')
+                ->setParameter('startDate', $startDate);
+        }
+
+        if ($endDate) {
+            $endDate = new \DateTime($endDate);
+            $endDate->setTime(23, 59, 59);
+
+            $query->andWhere('o.creationDate <= :endDate')
+                ->setParameter('endDate', $endDate);
+        }
+
+        if ($keyword && $keywordSearch) {
+            switch ($keyword) {
+                case 'phone':
+                    $query->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'o.customerId = uc.id')
+                        ->andWhere('uc.phone LIKE :search');
+                    break;
+                case 'customer':
+                    $query->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'o.customerId = uc.id')
+                        ->andWhere('uc.name LIKE :search');
+                    break;
+                case 'order':
+                    $query->andWhere('o.orderNumber LIKE :search');
+                    break;
+                default:
+                    return array();
+            }
+
+            $query->setParameter('search', '%'.$keywordSearch.'%');
+        }
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
     }
 
     public function getRenewOrder(
@@ -960,6 +1042,7 @@ class OrderRepository extends EntityRepository
      * @param $endDate
      * @param $userId
      * @param $orderId
+     * @param $customerId
      *
      * @return array
      */
@@ -968,7 +1051,8 @@ class OrderRepository extends EntityRepository
         $startDate,
         $endDate,
         $userId = null,
-        $orderId = null
+        $orderId = null,
+        $customerId = null
     ) {
         $query = $this->createQueryBuilder('o')
             ->where('o.productId = :productId')
@@ -992,6 +1076,11 @@ class OrderRepository extends EntityRepository
         if (!is_null($orderId)) {
             $query = $query->andWhere('o.id != :orderId')
                 ->setParameter('orderId', $orderId);
+        }
+
+        if (!is_null($customerId)) {
+            $query = $query->andWhere('o.customerId = :customerId')
+                ->setParameter('customerId', $customerId);
         }
 
         return $query->getQuery()->getResult();
@@ -1884,7 +1973,7 @@ class OrderRepository extends EntityRepository
             ->leftJoin('o.product', 'p')
             ->leftJoin('p.room', 'r')
             ->leftJoin('SandboxApiBundle:Order\ProductOrderRecord', 'por', 'WITH', 'por.orderId = o.id')
-            ->leftJoin('SandboxApiBundle:User\UserView', 'u', 'WITH', 'u.id = o.userId')
+            ->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.id = o.customerId')
             ->where('
                     (
                         (o.status != :unpaid) AND 
@@ -1897,7 +1986,15 @@ class OrderRepository extends EntityRepository
 
         // filter by payment channel
         if (!is_null($channel) && !empty($channel)) {
-            $query->andWhere('o.payChannel in (:channel)')
+            if (in_array('sandbox', $channel)) {
+                $channel[] = ProductOrder::CHANNEL_ACCOUNT;
+                $channel[] = ProductOrder::CHANNEL_ALIPAY;
+                $channel[] = ProductOrder::CHANNEL_UNIONPAY;
+                $channel[] = ProductOrder::CHANNEL_WECHAT;
+                $channel[] = ProductOrder::CHANNEL_WECHAT_PUB;
+            }
+            $query->leftJoin('SandboxApiBundle:Finance\FinanceReceivables', 'fr', 'WITH', 'o.orderNumber = fr.orderNumber')
+                ->andWhere('o.payChannel in (:channel) or fr.payChannel in (:channel)')
                 ->setParameter('channel', $channel);
         }
 
@@ -2005,17 +2102,11 @@ class OrderRepository extends EntityRepository
                 case 'number':
                     $query->andWhere('o.orderNumber LIKE :search');
                     break;
-                case 'room':
-                    $query->andWhere('r.name LIKE :search');
-                    break;
-                case 'user':
-                    $query->andWhere('u.name LIKE :search');
-                    break;
                 case 'phone':
-                    $query->andWhere('u.phone LIKE :search');
+                    $query->andWhere('uc.phone LIKE :search');
                     break;
-                case 'email':
-                    $query->andWhere('u.email LIKE :search');
+                case 'name':
+                    $query->andWhere('uc.name LIKE :search');
                     break;
                 default:
                     $query->andWhere('o.orderNumber LIKE :search');
@@ -2114,7 +2205,7 @@ class OrderRepository extends EntityRepository
             ->leftJoin('o.product', 'p')
             ->leftJoin('p.room', 'r')
             ->leftJoin('SandboxApiBundle:Order\ProductOrderRecord', 'por', 'WITH', 'por.orderId = o.id')
-            ->leftJoin('SandboxApiBundle:User\UserView', 'u', 'WITH', 'u.id = o.userId')
+            ->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.id = o.customerId')
             ->where('
                     (
                         (o.status != :unpaid) AND 
@@ -2127,7 +2218,17 @@ class OrderRepository extends EntityRepository
 
         // filter by payment channel
         if (!is_null($channel) && !empty($channel)) {
-            $query->andWhere('o.payChannel in (:channel)')
+            if (in_array('sandbox', $channel)) {
+                $channel[] = array(
+                    ProductOrder::CHANNEL_ACCOUNT,
+                    ProductOrder::CHANNEL_ALIPAY,
+                    ProductOrder::CHANNEL_UNIONPAY,
+                    ProductOrder::CHANNEL_WECHAT,
+                    ProductOrder::CHANNEL_WECHAT_PUB,
+                );
+            }
+            $query->leftJoin('SandboxApiBundle:Finance\FinanceReceivables', 'fr', 'WITH', 'o.orderNumber = fr.orderNumber')
+                ->andWhere('o.payChannel in (:channel) or fr.payChannel in (:channel)')
                 ->setParameter('channel', $channel);
         }
 
@@ -2235,18 +2336,11 @@ class OrderRepository extends EntityRepository
                 case 'number':
                     $query->andWhere('o.orderNumber LIKE :search');
                     break;
-                case 'room':
-                    $query->andWhere('r.name LIKE :search');
-                    break;
-                case 'user':
-                    $query->andWhere('u.name LIKE :search');
-                    break;
                 case 'phone':
-                    $query->andWhere('u.phone LIKE :search');
+                    $query->andWhere('uc.phone LIKE :search');
                     break;
-                case 'email':
-                    $query->andWhere('u.email LIKE :search');
-                    break;
+                case 'name':
+                    $query->andWhere('uc.name LIKE :search');
                 default:
                     $query->andWhere('o.orderNumber LIKE :search');
             }
@@ -3309,6 +3403,31 @@ class OrderRepository extends EntityRepository
         return  $query->getQuery()->getResult();
     }
 
+    public function sumCompletedPreorder(
+        $startDate,
+        $endDate,
+        $companyId
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
+            ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'r.buildingId = b.id')
+            ->select('sum(o.discountPrice)')
+            ->where('o.status = :completed')
+            ->andWhere('o.startDate >= :start')
+            ->andWhere('o.startDate <= :end')
+            ->andWhere('b.company = :companyId')
+            ->andWhere('o.type = :type')
+            ->setParameter('completed', ProductOrder::STATUS_COMPLETED)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate)
+            ->setParameter('companyId', $companyId)
+            ->setParameter('type', ProductOrder::PREORDER_TYPE)
+        ;
+
+        return  $query->getQuery()->getSingleScalarResult();
+    }
+
     /**
      * @param $startDate
      * @param $endDate
@@ -3334,23 +3453,37 @@ class OrderRepository extends EntityRepository
     /**
      * @param $startDate
      * @param $endDate
-     * @param null $companyId
+     * @param null  $companyId
+     * @param array $orderTypes
      *
-     * @return mixed
+     * @return array
      */
     public function getCompletedOrderSummary(
         $startDate,
         $endDate,
-        $companyId = null
+        $companyId = null,
+        $orderTypes = array()
     ) {
         $query = $this->createQueryBuilder('o')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'o.productId = p.id')
             ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'p.roomId = r.id')
             ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'r.buildingId = b.id')
-            ->where('o.status = :completed')
+            ->where('
+                    o.status = :completed  OR
+                    (
+                        o.status = :cancelled AND 
+                        (o.needToRefund = :needToRefund OR
+                        o.refunded = :refunded
+                        )
+                        
+                    )    
+                ')
             ->andWhere('o.startDate >= :start')
             ->andWhere('o.startDate <= :end')
             ->setParameter('completed', ProductOrder::STATUS_COMPLETED)
+            ->setParameter('cancelled', ProductOrder::STATUS_CANCELLED)
+            ->setParameter('needToRefund', true)
+            ->setParameter('refunded', true)
             ->setParameter('start', $startDate)
             ->setParameter('end', $endDate);
 
@@ -3358,6 +3491,13 @@ class OrderRepository extends EntityRepository
             $query->andWhere('b.company = :companyId')
                 ->setParameter('companyId', $companyId);
         }
+
+        if (!empty($orderTypes)) {
+            $query->andWhere('o.type in (:type)')
+                ->setParameter('type', $orderTypes);
+        }
+
+        $query->orderBy('o.creationDate', 'DESC');
 
         return  $query->getQuery()->getResult();
     }
@@ -4317,13 +4457,16 @@ class OrderRepository extends EntityRepository
     }
 
     public function sumPendingEvaluationOrder(
-        $userId
+        $userId,
+        $startDate
     ) {
         $query = $this->createQueryBuilder('o')
             ->select('SUM(o.discountPrice)')
             ->where('o.status = :completed')
             ->andWhere('o.userId = :userId')
             ->andWhere('o.hasEvaluated = false')
+            ->andWhere('o.endDate >= :startDate')
+            ->setParameter('startDate', $startDate)
             ->setParameter('completed', ProductOrder::STATUS_COMPLETED)
             ->setParameter('userId', $userId);
 
@@ -4371,5 +4514,38 @@ class OrderRepository extends EntityRepository
         $result = $query->getQuery()->getSingleScalarResult();
 
         return (int) $result;
+    }
+
+    public function getPreOrders(
+        $companyId,
+        $startDate,
+        $endDate
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->select('o.orderNumber as order_number')
+            ->leftJoin('o.product','p')
+            ->leftJoin('p.room', 'r')
+            ->leftJoin('r.building', 'b')
+            ->andWhere('o.type = :preorder')
+            ->setParameter('preorder', ProductOrder::PREORDER_TYPE);
+
+        if ($startDate) {
+            $query->andWhere('o.creationDate >= :startDate')
+                ->setParameter('startDate', $startDate);
+        }
+
+        if ($endDate) {
+            $query->andWhere('o.creationDate <= :endDate')
+                ->setParameter('endDate', $endDate);
+        }
+
+        if (!is_null($companyId)) {
+            $query->andWhere('b.company = :companyId')
+                ->setParameter('companyId', $companyId);
+        }
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
     }
 }

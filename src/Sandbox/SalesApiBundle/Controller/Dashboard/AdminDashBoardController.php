@@ -4,6 +4,7 @@ namespace Sandbox\SalesApiBundle\Controller\Dashboard;
 
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
+use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sandbox\ApiBundle\Entity\Room\Room;
@@ -221,8 +222,6 @@ class AdminDashBoardController extends SalesRestController
         $orderList = $this->handleOrders($orders);
 
         $status = array(
-            Lease::LEASE_STATUS_CONFIRMED,
-            Lease::LEASE_STATUS_RECONFIRMING,
             Lease::LEASE_STATUS_PERFORMING,
             Lease::LEASE_STATUS_END,
             Lease::LEASE_STATUS_MATURED,
@@ -289,6 +288,18 @@ class AdminDashBoardController extends SalesRestController
                 'unit_price' => $productLeasingSet->getUnitPrice(),
                 'amount' => $productLeasingSet->getAmount(),
             );
+        }
+
+        if ($roomType == Room::TYPE_OFFICE) {
+            $productRentSet = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\ProductRentSet')
+                ->findOneBy(array('product' => $product['id'], 'status' => true));
+            if ($productRentSet) {
+                $product['rent_set'] = array(
+                    'base_price' => $productRentSet->getBasePrice(),
+                    'unit_price' => $productRentSet->getUnitPrice(),
+                );
+            }
         }
 
         $result = array(
@@ -359,7 +370,7 @@ class AdminDashBoardController extends SalesRestController
     }
 
     /**
-     * @param $orders
+     * @param ProductOrder $orders
      *
      * @return array
      */
@@ -368,6 +379,7 @@ class AdminDashBoardController extends SalesRestController
     ) {
         $result = array();
         foreach ($orders as $order) {
+            /** @var ProductOrder $order */
             $invitedPeoples = $order->getInvitedPeople();
             $invited = array();
             foreach ($invitedPeoples as $invitedPeople) {
@@ -387,6 +399,7 @@ class AdminDashBoardController extends SalesRestController
                 'type' => $order->getType(),
                 'status' => $order->getStatus(),
                 'pay_channel' => $order->getPayChannel(),
+                'customer_id' => $order->getCustomerId(),
             );
         }
 
@@ -403,6 +416,7 @@ class AdminDashBoardController extends SalesRestController
     ) {
         $result = array();
         foreach ($orders as $order) {
+            /** @var ProductOrder $order */
             $invitedPeoples = $order->getInvitedPeople();
             $invited = array();
             foreach ($invitedPeoples as $invitedPeople) {
@@ -431,6 +445,7 @@ class AdminDashBoardController extends SalesRestController
                     'type' => $order->getType(),
                     'status' => $order->getStatus(),
                     'pay_channel' => $order->getPayChannel(),
+                    'customer_id' => $order->getCustomerId(),
                 );
             }
         }
@@ -439,7 +454,7 @@ class AdminDashBoardController extends SalesRestController
     }
 
     /**
-     * @param $leases
+     * @param Lease $leases
      *
      * @return array
      */
@@ -448,11 +463,12 @@ class AdminDashBoardController extends SalesRestController
     ) {
         $result = array();
         foreach ($leases as $lease) {
+            /** @var Lease $lease */
             $result[] = array(
                 'lease_id' => $lease->getId(),
                 'start_date' => $lease->getStartDate(),
                 'end_date' => $lease->getEndDate(),
-                'user' => $lease->getSupervisorId(),
+                'customer_id' => $lease->getLesseeCustomer(),
                 'invited_people' => $lease->degenerateInvitedPeople(),
                 'status' => $lease->getStatus(),
             );

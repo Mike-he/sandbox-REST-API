@@ -27,8 +27,7 @@ class FinanceShortRentInvoiceRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('i')
             ->select('COUNT(i)')
-            ->where('i.companyId = :companyId')
-            ->setParameter('companyId', $salesCompanyId);
+            ->where('1=1');
 
         $query = $this->queryForShortRentInvoiceList(
             $query,
@@ -36,7 +35,8 @@ class FinanceShortRentInvoiceRepository extends EntityRepository
             $createEnd,
             $amountStart,
             $amountEnd,
-            $status
+            $status,
+            $salesCompanyId
         );
 
         return $query->getQuery()->getSingleScalarResult();
@@ -65,8 +65,7 @@ class FinanceShortRentInvoiceRepository extends EntityRepository
         $offset
     ) {
         $query = $this->createQueryBuilder('i')
-            ->where('i.companyId = :companyId')
-            ->setParameter('companyId', $salesCompanyId);
+            ->where('1=1');
 
         $query = $this->queryForShortRentInvoiceList(
             $query,
@@ -74,7 +73,8 @@ class FinanceShortRentInvoiceRepository extends EntityRepository
             $createEnd,
             $amountStart,
             $amountEnd,
-            $status
+            $status,
+            $salesCompanyId
         );
 
         $query->orderBy('i.creationDate', 'DESC')
@@ -130,6 +130,7 @@ class FinanceShortRentInvoiceRepository extends EntityRepository
      * @param $amountStart
      * @param $amountEnd
      * @param $status
+     * @param $salesCompanyId
      *
      * @return mixed
      */
@@ -139,8 +140,14 @@ class FinanceShortRentInvoiceRepository extends EntityRepository
         $createEnd,
         $amountStart,
         $amountEnd,
-        $status
+        $status,
+        $salesCompanyId
     ) {
+        if ($salesCompanyId) {
+            $query->andWhere('i.companyId = :companyId')
+                ->setParameter('companyId', $salesCompanyId);
+        }
+
         if (!is_null($createStart) &&
             !empty($createStart) &&
             !is_null($createEnd) &&
@@ -174,5 +181,21 @@ class FinanceShortRentInvoiceRepository extends EntityRepository
         }
 
         return $query;
+    }
+
+    /**
+     * @param $status
+     *
+     * @return mixed
+     */
+    public function countPendingShortRentInvoices(
+        $status
+    ) {
+        $query = $this->createQueryBuilder('i')
+            ->select('COUNT(i.id)')
+            ->where('i.status = :status')
+            ->setParameter('status', $status);
+
+        return $query->getQuery()->getSingleScalarResult();
     }
 }

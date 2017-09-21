@@ -175,7 +175,7 @@ class AdminUsersController extends DoorController
                     'key' => AdminPermission::KEY_SALES_BUILDING_SPACE,
                 ),
                 array(
-                    'key' => AdminPermission::KEY_SALES_BUILDING_USER,
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_CUSTOMER,
                 ),
                 array(
                     'key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT,
@@ -275,10 +275,6 @@ class AdminUsersController extends DoorController
 
         // hide phone code
         foreach ($users as $user) {
-            if (!is_null($user->getPhone())) {
-                $hidePhone = substr_replace($user->getPhone(), '****', 3, 4);
-                $user->setPhone($hidePhone);
-            }
             $groups = $this->getGroupsByUser(
                 $user->getId(),
                 $salesCompanyId
@@ -385,7 +381,7 @@ class AdminUsersController extends DoorController
                     'key' => AdminPermission::KEY_SALES_BUILDING_SPACE,
                 ),
                 array(
-                    'key' => AdminPermission::KEY_SALES_BUILDING_USER,
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_CUSTOMER,
                 ),
                 array(
                     'key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT,
@@ -469,7 +465,7 @@ class AdminUsersController extends DoorController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $ids = empty($paramFetcher->get('id')) ? null : $paramFetcher->get('id');
+        $ids = $paramFetcher->get('id');
         $search = $paramFetcher->get('query');
 
         $users = $this->getDoctrine()
@@ -493,19 +489,7 @@ class AdminUsersController extends DoorController
                 $search
             );
 
-        $response = array();
-
-        // hide phone code
-        foreach ($users as $user) {
-            if (!is_null($user->getPhone())) {
-                $hidePhone = substr_replace($user->getPhone(), '****', 3, 4);
-                $user->setPhone($hidePhone);
-            }
-
-            array_push($response, $user);
-        }
-
-        return new View($response);
+        return new View($users);
     }
 
     /**
@@ -540,7 +524,7 @@ class AdminUsersController extends DoorController
                     'key' => AdminPermission::KEY_SALES_BUILDING_SPACE,
                 ),
                 array(
-                    'key' => AdminPermission::KEY_SALES_BUILDING_USER,
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_CUSTOMER,
                 ),
                 array(
                     'key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT,
@@ -654,7 +638,7 @@ class AdminUsersController extends DoorController
                 $this->getAdminId(),
                 array(
                     array(
-                        'key' => AdminPermission::KEY_SALES_BUILDING_USER,
+                        'key' => AdminPermission::KEY_SALES_PLATFORM_CUSTOMER,
                     ),
                 ),
                 AdminPermission::OP_LEVEL_EDIT
@@ -721,7 +705,7 @@ class AdminUsersController extends DoorController
             $this->getAdminId(),
             array(
                 array(
-                    'key' => AdminPermission::KEY_SALES_BUILDING_USER,
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_CUSTOMER,
                 ),
             ),
             AdminPermission::OP_LEVEL_EDIT
@@ -871,7 +855,11 @@ class AdminUsersController extends DoorController
             try {
                 $profile = $this->getRepo('User\UserProfile')->findOneByUser($user);
 
-                $this->updateXmppUser($user->getXmppUsername(), null, $profile->getName());
+                $this->get('sandbox_api.jmessage')
+                    ->updateNickname(
+                        $user->getXmppUsername(),
+                        $profile->getName()
+                    );
             } catch (\Exception $e) {
                 error_log('Sync user went wrong. User ID: '.$user->getId());
                 continue;
@@ -933,7 +921,7 @@ class AdminUsersController extends DoorController
         $buildingIds = $this->getMySalesBuildingIds(
             $adminId,
             array(
-                AdminPermission::KEY_SALES_BUILDING_USER,
+                AdminPermission::KEY_SALES_PLATFORM_CUSTOMER,
             ),
             AdminPermission::OP_LEVEL_VIEW
         );

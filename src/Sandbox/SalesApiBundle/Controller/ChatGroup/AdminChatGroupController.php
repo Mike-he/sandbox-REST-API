@@ -7,7 +7,6 @@ use Sandbox\ApiBundle\Controller\ChatGroup\ChatGroupController;
 use Sandbox\ApiBundle\Entity\ChatGroup\ChatGroup;
 use Sandbox\ApiBundle\Entity\ChatGroup\ChatGroupMember;
 use Sandbox\ApiBundle\Form\ChatGroup\ChatGroupType;
-use Sandbox\ApiBundle\Traits\OpenfireApi;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -27,7 +26,35 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  */
 class AdminChatGroupController extends ChatGroupController
 {
-    use OpenfireApi;
+    /**
+     * @param Request $request the request object
+     *
+     * @Annotations\QueryParam(
+     *    name="media_id",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="search by tag"
+     * )
+     *
+     * @Route("/chatgroups/media")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getMediaAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $mediaId = $paramFetcher->get('media_id');
+
+        $media = $this->get('sandbox_api.jmessage')->getMedia($mediaId);
+
+        $result = $media['body'];
+
+        return new View($result);
+    }
 
     /**
      * Retrieve all other service members by sales company.
@@ -143,6 +170,15 @@ class AdminChatGroupController extends ChatGroupController
      *    description="search by name, phone and email"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="tag",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="search by tag"
+     * )
+     *
      * @Route("/chatgroups")
      * @Method({"GET"})
      *
@@ -164,6 +200,7 @@ class AdminChatGroupController extends ChatGroupController
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $companyId = $adminPlatform['sales_company_id'];
         $search = $paramFetcher->get('search');
+        $tag = $paramFetcher->get('tag');
 
         // get my chat groups
         $chatGroups = $this->getDoctrine()
@@ -171,7 +208,8 @@ class AdminChatGroupController extends ChatGroupController
             ->getAdminChatGroups(
                 $companyId,
                 $userId,
-                $search
+                $search,
+                $tag
             );
 
         // response
@@ -182,16 +220,16 @@ class AdminChatGroupController extends ChatGroupController
      * Retrieve a given chat group.
      *
      * @param Request $request the request object
-     * @param int     $id
+     * @param string     $gid
      *
-     * @Route("/chatgroups/{id}")
+     * @Route("/chatgroups/{gid}")
      * @Method({"GET"})
      *
      * @return View
      */
     public function getChatGroupAction(
         Request $request,
-        $id
+        $gid
     ) {
         $userId = $this->getUserId();
         $user = $this->getDoctrine()
@@ -209,7 +247,7 @@ class AdminChatGroupController extends ChatGroupController
         $chatGroup = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:ChatGroup\ChatGroup')
             ->getAdminChatGroupById(
-                $id,
+                $gid,
                 $companyId,
                 $userId
             );
@@ -239,6 +277,8 @@ class AdminChatGroupController extends ChatGroupController
     public function createChatGroupAction(
         Request $request
     ) {
+        $em = $this->getDoctrine()->getManager();
+
         $userId = $this->getUserId();
         $user = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\User')
@@ -269,11 +309,6 @@ class AdminChatGroupController extends ChatGroupController
 
         // find user as creator
         $creatorId = $chatGroup->getCreatorId();
-
-        if ($userId == $creatorId) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
-
         $creator = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\User')
             ->findOneBy([
@@ -301,18 +336,26 @@ class AdminChatGroupController extends ChatGroupController
                 'tag' => $chatGroup->getTag(),
             ]);
         if (!is_null($existGroup)) {
+            $gid = $existGroup->getGid();
+            if (!$gid) {
+                $gid = $this->createXmppChatGroup($existGroup);
+
+                $existGroup->setGid($gid);
+                $em->flush();
+            }
+
             return new View([
                     'id' => $existGroup->getId(),
                     'name' => $existGroup->getName(),
+                    'gid' => $gid,
                 ]);
         }
 
         // set new chat group
         $chatGroup->setCompanyId($companyId);
         $chatGroup->setCreator($creator);
-        $chatGroup->setName($building->getName());
+        $chatGroup->setName($building->getName().'客服');
 
-        $em = $this->getDoctrine()->getManager();
         $em->persist($chatGroup);
 
         // set members
@@ -323,7 +366,7 @@ class AdminChatGroupController extends ChatGroupController
                 'tag' => $chatGroup->getTag(),
             ]);
 
-        $finalMembers = [$creator];
+        $finalMembers = [];
         foreach ($members as $member) {
             $user = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:User\User')
@@ -331,11 +374,8 @@ class AdminChatGroupController extends ChatGroupController
                     'id' => $member->getUserId(),
                     'banned' => false,
                 ]);
+            
             if (is_null($user)) {
-                continue;
-            }
-
-            if ($member->getUserId() == $creatorId) {
                 continue;
             }
 
@@ -353,11 +393,10 @@ class AdminChatGroupController extends ChatGroupController
 
         $em->flush();
 
-        // create chat group in Openfire
-        $this->createXmppChatGroup(
-            $chatGroup,
-            $chatGroup->getTag()
-        );
+        $gid = $this->createXmppChatGroup($chatGroup);
+
+        $chatGroup->setGid($gid);
+        $em->flush();
 
         // response
         $view = new View();
@@ -365,6 +404,7 @@ class AdminChatGroupController extends ChatGroupController
         $view->setData(array(
             'id' => $chatGroup->getId(),
             'name' => $chatGroup->getName(),
+            'gid' => $gid,
         ));
 
         return $view;
@@ -422,59 +462,5 @@ class AdminChatGroupController extends ChatGroupController
 
         // response
         return new View($myServices);
-    }
-
-    /**
-     * Get History Message.
-     *
-     * @param Request $request the request object
-     *
-     * @Annotations\QueryParam(
-     *    name="fromJID",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    strict=true,
-     *    description=""
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="toJID",
-     *    array=false,
-     *    default=null,
-     *    nullable=false,
-     *    strict=true,
-     *    description=""
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="type",
-     *    array=false,
-     *    default="group",
-     *    nullable=true,
-     *    strict=true,
-     *    description=""
-     * )
-     *
-     * @Route("/chatgroups/service/history/message")
-     * @Method({"GET"})
-     *
-     * @return View
-     */
-    public function getHistoryMessageAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher
-    ) {
-        $fromJID = $paramFetcher->get('fromJID');
-        $toJID = $paramFetcher->get('toJID');
-        $type = $paramFetcher->get('type');
-
-        $fromJID = $fromJID ? '"'.$fromJID.'"' : null;
-        $toJID = '"'.$toJID.'"';
-        $type = '"'.$type.'"';
-
-        $message = $this->getHistoryMessage($fromJID, $toJID, $type);
-
-        return new View($message);
     }
 }

@@ -234,10 +234,7 @@ class AdminFinanceLongRentBillController extends SandboxRestController
 
         if (!is_null($wallet)) {
             $billAmount = $wallet->getBillAmount();
-            $withdrawAmount = $wallet->getWithdrawableAmount();
-
             $wallet->setBillAmount($billAmount - $bill->getAmount());
-            $wallet->setWithdrawableAmount($withdrawAmount + $bill->getAmount());
         }
 
         $em = $this->getDoctrine()->getManager();

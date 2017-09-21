@@ -889,7 +889,11 @@ class AdminUsersController extends DoorController
             try {
                 $profile = $this->getRepo('User\UserProfile')->findOneByUser($user);
 
-                $this->updateXmppUser($user->getXmppUsername(), null, $profile->getName());
+                $this->get('sandbox_api.jmessage')
+                    ->updateNickname(
+                        $user->getXmppUsername(),
+                        $profile->getName()
+                    );
             } catch (\Exception $e) {
                 error_log('Sync user went wrong. User ID: '.$user->getId());
                 continue;
@@ -957,6 +961,14 @@ class AdminUsersController extends DoorController
      *    description="Filter by id"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="xmpp_username",
+     *    array=true,
+     *    default=null,
+     *    strict=true,
+     *    description="xmppUsername"
+     * )
+     *
      * @Route("/open/users")
      * @Method({"GET"})
      *
@@ -967,8 +979,21 @@ class AdminUsersController extends DoorController
         ParamFetcherInterface $paramFetcher
     ) {
         $ids = $paramFetcher->get('id');
+        $xmppUsers = $paramFetcher->get('xmpp_username');
 
-        return $this->getUsersByIds($ids);
+        $users = array();
+        if (!empty($ids)) {
+            $users = $this->getRepo('User\UserView')->getUsersByIds($ids);
+        }
+
+        if (!empty($xmppUsers)) {
+            $users = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\User')
+                ->getUsersByXmppUsername($xmppUsers);
+        }
+
+        // set view
+        return new View($users);
     }
 
     /**

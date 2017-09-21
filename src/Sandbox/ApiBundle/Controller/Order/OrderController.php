@@ -13,8 +13,6 @@ use Sandbox\ApiBundle\Entity\Order\ProductOrderRecord;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\Room\RoomTypeUnit;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesUser;
 use Sandbox\ApiBundle\Traits\ProductOrderNotification;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
@@ -123,10 +121,8 @@ class OrderController extends PaymentController
                 $language
             );
 
-            // set leasing name
-            $leasingTime = $order->getStartDate()->format('Y-m-d H:i:s')
-                .' - '
-                .$order->getEndDate()->format('Y-m-d H:i:s');
+            $startTime = $order->getStartDate()->format('Y-m-d H:i:s');
+            $endTime = $order->getEndDate()->format('Y-m-d H:i:s');
 
             $userId = $order->getUserId();
             $user = $this->getRepo('User\User')->find($userId);
@@ -201,7 +197,8 @@ class OrderController extends PaymentController
                 ProductOrderExport::DISCOUNT_PRICE => $price,
                 ProductOrderExport::REFUND_AMOUNT => $refund,
                 ProductOrderExport::ACTUAL_AMOUNT => $actualAmount,
-                ProductOrderExport::LEASING_TIME => $leasingTime,
+                ProductOrderExport::START_TIME => $startTime,
+                ProductOrderExport::END_TIME => $endTime,
                 ProductOrderExport::ORDER_TIME => $order->getCreationDate()->format('Y-m-d H:i:s'),
                 ProductOrderExport::PAYMENT_TIME => $order->getPaymentDate()->format('Y-m-d H:i:s'),
                 ProductOrderExport::ORDER_STATUS => $status,
@@ -228,7 +225,8 @@ class OrderController extends PaymentController
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_DISCOUNT_PRICE, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_REFUND_AMOUNT, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ACTUAL_AMOUNT, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_LEASING_TIME, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_START_TIME, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_END_TIME, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_TIME, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_PAYMENT_TIME, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_STATUS, array(), null, $language),
@@ -333,8 +331,12 @@ class OrderController extends PaymentController
      * @param $startDate
      * @param $endDate
      * @param $userId
+     * @param $seatId
+     * @param $customerId
      *
-     * @return View|ProductOrderCheck
+     * @return null|ProductOrderCheck
+     *
+     * @throws \Exception
      */
     protected function orderDuplicationCheck(
         $em,
@@ -344,7 +346,8 @@ class OrderController extends PaymentController
         $startDate,
         $endDate,
         $userId,
-        $seatId
+        $seatId,
+        $customerId
     ) {
         $orderCheck = null;
         try {
@@ -426,7 +429,9 @@ class OrderController extends PaymentController
                             $productId,
                             $startDate,
                             $endDate,
-                            $userId
+                            $userId,
+                            null,
+                            $customerId
                         );
 
                     if (!empty($orders)) {
@@ -637,12 +642,13 @@ class OrderController extends PaymentController
     }
 
     /**
-     * @param $order
+     * @param ProductOrder $order
      * @param $product
      * @param $startDate
      * @param $endDate
      * @param $user
      * @param $orderCheck
+     * @param $timeUnit
      */
     protected function setOrderFields(
         $order,
@@ -650,7 +656,9 @@ class OrderController extends PaymentController
         $startDate,
         $endDate,
         $user,
-        $orderCheck
+        $orderCheck,
+        $timeUnit,
+        $basePrice
     ) {
         $orderNumber = $this->getOrderNumberForProductOrder(
             ProductOrder::LETTER_HEAD,
@@ -663,6 +671,8 @@ class OrderController extends PaymentController
         $order->setEndDate($endDate);
         $order->setUser($user);
         $order->setLocation('location');
+        $order->setUnitPrice($timeUnit);
+        $order->setBasePrice($basePrice);
     }
 
     /**
@@ -977,7 +987,7 @@ class OrderController extends PaymentController
 
     /**
      * @param $em
-     * @param $order
+     * @param ProductOrder $order
      * @param $product
      * @param $productId
      * @param $now
@@ -986,6 +996,7 @@ class OrderController extends PaymentController
      * @param $user
      * @param $type
      * @param $timeUnit
+     * @param $basePrice
      *
      * @return array
      */
@@ -999,7 +1010,8 @@ class OrderController extends PaymentController
         $endDate,
         $user,
         $type,
-        $timeUnit = null
+        $timeUnit,
+        $basePrice
     ) {
         // check booking dates
         $error = $this->checkIfRoomOpen(
@@ -1017,6 +1029,8 @@ class OrderController extends PaymentController
 
         // check for duplicate orders
         $allowedPeople = $product->getRoom()->getAllowedPeople();
+
+        $userId = $user ? $user->getId() : null;
         $orderCheck = $this->orderDuplicationCheck(
             $em,
             $type,
@@ -1024,8 +1038,9 @@ class OrderController extends PaymentController
             $productId,
             $startDate,
             $endDate,
-            $user->getId(),
-            $order->getSeatId()
+            $userId,
+            $order->getSeatId(),
+            $order->getCustomerId()
         );
 
         // set product order
@@ -1035,7 +1050,9 @@ class OrderController extends PaymentController
             $startDate,
             $endDate,
             $user,
-            $orderCheck
+            $orderCheck,
+            $timeUnit,
+            $basePrice
         );
 
         $em->remove($orderCheck);
@@ -1073,7 +1090,7 @@ class OrderController extends PaymentController
     /**
      * @param $em
      * @param $salesUserId
-     * @param $product
+     * @param Product $product
      */
     protected function setSalesUser(
         $em,
@@ -1082,25 +1099,13 @@ class OrderController extends PaymentController
     ) {
         // check sales user record
         $companyId = $product->getRoom()->getBuilding()->getCompanyId();
-        $buildingId = $product->getRoom()->getBuildingId();
 
-        $salesUser = $this->getRepo('SalesAdmin\SalesUser')->findOneBy(array(
-            'userId' => $salesUserId,
-            'buildingId' => $buildingId,
-        ));
+        $customerId = $this->get('sandbox_api.sales_customer')->createCustomer(
+            $salesUserId,
+            $companyId
+        );
 
-        if (is_null($salesUser)) {
-            $salesUser = new SalesUser();
-
-            $salesUser->setUserId($salesUserId);
-            $salesUser->setCompanyId($companyId);
-            $salesUser->setBuildingId($buildingId);
-        }
-
-        $salesUser->setIsOrdered(true);
-        $salesUser->setModificationDate(new \DateTime('now'));
-
-        $em->persist($salesUser);
+        return $customerId;
     }
 
     /**
@@ -1111,25 +1116,7 @@ class OrderController extends PaymentController
         $product,
         $order
     ) {
-        $type = $product->getRoom()->getType();
-        $salesCompany = $product->getRoom()->getBuilding()->getCompany();
-        $salesCompanyInfo = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
-            ->findOneBy(array(
-                'tradeTypes' => $type,
-                'company' => $salesCompany,
-            ));
-
-        if (is_null($salesCompanyInfo)) {
-            return;
-        }
-
-        $drawer = $salesCompanyInfo->getDrawer();
-        if ($drawer == SalesCompanyServiceInfos::DRAWER_SANDBOX) {
-            return;
-        }
-
-        $order->setSalesInvoice(true);
+        $order->setSalesInvoice(false);
 
         return;
     }

@@ -6,6 +6,7 @@ use Doctrine\ORM\EntityRepository;
 use Sandbox\ApiBundle\Entity\Event\Event;
 use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Sandbox\ApiBundle\Entity\Event\EventRegistration;
+use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 
 class EventOrderRepository extends EntityRepository
 {
@@ -278,6 +279,13 @@ class EventOrderRepository extends EntityRepository
         }
 
         if (!is_null($channel) && !empty($channel)) {
+            if (in_array('sandbox', $channel)) {
+                $channel[] = ProductOrder::CHANNEL_ACCOUNT;
+                $channel[] = ProductOrder::CHANNEL_ALIPAY;
+                $channel[] = ProductOrder::CHANNEL_UNIONPAY;
+                $channel[] = ProductOrder::CHANNEL_WECHAT;
+                $channel[] = ProductOrder::CHANNEL_WECHAT_PUB;
+            }
             $query->andWhere('eo.payChannel in (:channel)')
                 ->setParameter('channel', $channel);
         }

@@ -102,11 +102,7 @@ class ClientBuddyController extends BuddyController
             ));
 
             if (!is_null($otherBuddy)) {
-                // get globals
-                $twig = $this->container->get('twig');
-                $globals = $twig->getGlobals();
-
-                $jid = $user->getXmppUsername().'@'.$globals['xmpp_domain'];
+                $jid = $user->getXmppUsername();
                 $profile->setJid($jid);
             }
         } else {
@@ -156,10 +152,7 @@ class ClientBuddyController extends BuddyController
         if (is_null($buddies) || empty($buddies)) {
             return new View(array());
         }
-
-        // get globals
-        $twig = $this->container->get('twig');
-        $globals = $twig->getGlobals();
+        
 
         $myBuddies = array();
 
@@ -182,7 +175,7 @@ class ClientBuddyController extends BuddyController
                     ));
 
                     if (!is_null($otherBuddy)) {
-                        $jid = $user->getXmppUsername().'@'.$globals['xmpp_domain'];
+                        $jid = $user->getXmppUsername();
                         $profile->setJid($jid);
                     }
                 }
@@ -256,16 +249,6 @@ class ClientBuddyController extends BuddyController
             }
 
             $em->flush();
-
-            $fromUser = $this->getRepo('User\User')->find($userId);
-            $recvUser = $this->getRepo('User\User')->find($buddy->getBuddyId());
-
-            // send buddy notification by xmpp
-            $this->sendXmppBuddyNotification(
-                $fromUser,
-                $recvUser,
-                'remove'
-            );
         }
 
         return new View();

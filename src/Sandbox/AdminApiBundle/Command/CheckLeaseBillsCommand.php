@@ -72,7 +72,6 @@ class CheckLeaseBillsCommand extends ContainerAwareCommand
 
         // Auto Push lease Bills
         $status = array(
-            Lease::LEASE_STATUS_CONFIRMED,
             Lease::LEASE_STATUS_PERFORMING,
             Lease::LEASE_STATUS_MATURED,
         );

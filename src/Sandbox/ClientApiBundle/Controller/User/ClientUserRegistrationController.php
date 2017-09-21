@@ -7,6 +7,7 @@ use Sandbox\ApiBundle\Entity\Buddy\Buddy;
 use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Sandbox\ApiBundle\Entity\ThirdParty\WeChat;
 use Sandbox\ApiBundle\Entity\User\User;
+use Sandbox\ApiBundle\Entity\User\UserBeanFlow;
 use Sandbox\ApiBundle\Entity\User\UserClient;
 use Sandbox\ApiBundle\Entity\User\UserPhoneCode;
 use Sandbox\ApiBundle\Entity\User\UserProfile;
@@ -308,11 +309,43 @@ class ClientUserRegistrationController extends UserRegistrationController
             ));
         }
 
+        // sync crm customer users
+        $this->syncCustomerUserIds($user);
+
         // response
         $view = new View($responseArray);
         $view->setSerializationContext(SerializationContext::create()->setGroups(array('login')));
 
         return $view;
+    }
+
+    /**
+     * @param User $user
+     */
+    private function syncCustomerUserIds(
+        $user
+    ) {
+        $customers = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->findBy(array('phone' => $user->getPhone()));
+
+        $customerIds = [];
+        foreach ($customers as $customer) {
+            array_push($customerIds, $customer->getId());
+        }
+
+        $api = $this->container->getParameter('crm_api_url');
+        $api .= '/sales/admin/invoice_customer_sync';
+        $ch = curl_init($api);
+        $this->callAPI(
+            $ch,
+            'POST',
+            null,
+            json_encode(array(
+                'customer_ids' => $customerIds,
+                'user_id' => $user->getId(),
+            ))
+        );
     }
 
     /**
@@ -424,7 +457,7 @@ class ClientUserRegistrationController extends UserRegistrationController
 
         if ($isRegistration) {
             //update user bean
-            $this->get('sandbox_api.bean')->postBeanChange(
+            $amount = $this->get('sandbox_api.bean')->postBeanChange(
                 $user->getId(),
                 0,
                 null,
@@ -437,7 +470,9 @@ class ClientUserRegistrationController extends UserRegistrationController
                     $inviter->getId(),
                     0,
                     null,
-                    Parameter::KEY_BEAN_SUCCESS_INVITATION
+                    Parameter::KEY_BEAN_SUCCESS_INVITATION,
+                    UserBeanFlow::TYPE_ADD,
+                    $amount
                 );
             }
         }

@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Form\Event;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
@@ -22,30 +23,13 @@ class EventPutType extends AbstractType
             ->add('city_id')
             ->add('address')
             ->add('limit_number')
-            ->add(
-                'registration_start_date',
-                'date',
-                array(
-                    'widget' => 'single_text',
-                ))
-            ->add(
-                'registration_end_date',
-                'date',
-                array(
-                    'widget' => 'single_text',
-                ))
+            ->add('registration_start_date')
+            ->add('registration_end_date')
             ->add('forms')
             ->add('publish_company')
             ->add('isCharge')
             ->add('price')
-            ->add(
-                'submit',
-                null,
-                array(
-                    'mapped' => false,
-                )
-            )
-        ;
+            ->add('submit', null, ['mapped' => false]);
     }
 
     /**

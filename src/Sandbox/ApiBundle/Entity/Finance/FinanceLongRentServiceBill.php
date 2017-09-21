@@ -15,6 +15,7 @@ use JMS\Serializer\Annotation as Serializer;
 class FinanceLongRentServiceBill
 {
     const TYPE_BILL_SERVICE_FEE = 'service_fee';
+    const TYPE_BILL_POUNDAGE = 'poundage';
 
     const SERVICE_FEE_LETTER_HEAD = 'SR';
 
@@ -59,10 +60,19 @@ class FinanceLongRentServiceBill
     /**
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Lease\LeaseBill")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="bill_id", referencedColumnName="id", onDelete="CASCADE")
+     *   @ORM\JoinColumn(name="bill_id", referencedColumnName="id", onDelete="SET NULL")
      * })
      */
     private $bill;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="order_number", type="string", length=64)
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $orderNumber;
 
     /**
      * @var int
@@ -100,6 +110,13 @@ class FinanceLongRentServiceBill
      * @Serializer\Groups({"main"})
      */
     private $modificationDate;
+
+    /**
+     * @var string
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $leaseSerialNumber;
 
     /**
      * @return int
@@ -238,19 +255,34 @@ class FinanceLongRentServiceBill
     }
 
     /**
-     * @Serializer\VirtualProperty
-     * @Serializer\SerializedName("bill")
-     * @Serializer\Groups({"main"})
+     * @return string
      */
-    public function degenerateBill()
+    public function getOrderNumber()
     {
-        return [
-            'id' => $this->bill->getId(),
-            'serial_number' => $this->bill->getSerialNumber(),
-            'lease' => [
-                'id' => $this->bill->getLease()->getId(),
-                'serial_number' => $this->bill->getLease()->getSerialNumber(),
-            ],
-        ];
+        return $this->orderNumber;
+    }
+
+    /**
+     * @param string $orderNumber
+     */
+    public function setOrderNumber($orderNumber)
+    {
+        $this->orderNumber = $orderNumber;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLeaseSerialNumber()
+    {
+        return $this->leaseSerialNumber;
+    }
+
+    /**
+     * @param string $leaseSerialNumber
+     */
+    public function setLeaseSerialNumber($leaseSerialNumber)
+    {
+        $this->leaseSerialNumber = $leaseSerialNumber;
     }
 }

@@ -51,11 +51,19 @@ class ClientMembershipOrderController extends PaymentController
             ->find($specificationId);
         $this->throwNotFoundIfNull($specification, self::NOT_FOUND_MESSAGE);
 
+        /** @var MembershipCard $card */
         $card = $specification->getCard();
         $price = $specification->getPrice();
         $unit = $specification->getUnitPrice();
         $validPeriod = $specification->getValidPeriod();
         $accessNo = $card->getAccessNo();
+
+        //create Customer User
+        $this->get('sandbox_api.sales_customer')
+            ->createCustomer(
+                $userId,
+                $card->getCompanyId()
+            );
 
         // get start date
         $startDate = $this->getLastMembershipOrderEndDate($userId, $card);
@@ -103,10 +111,7 @@ class ClientMembershipOrderController extends PaymentController
                 ));
 
             if (!is_null($serviceInfo)) {
-                if ($serviceInfo->getDrawer() == SalesCompanyServiceInfos::COLLECTION_METHOD_SANDBOX) {
-                    $order->setSalesInvoice(false);
-                }
-
+                $order->setSalesInvoice(false);
                 $order->setServiceFee($serviceInfo->getServiceFee());
             }
 
@@ -142,10 +147,7 @@ class ClientMembershipOrderController extends PaymentController
                 );
 
             $this->addUserDoorAccess(
-                $accessNo,
                 array($userId),
-                $order->getStartDate(),
-                $order->getEndDate(),
                 $doorBuildingIds
             );
 

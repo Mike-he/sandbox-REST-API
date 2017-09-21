@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Service;
 
 use Sandbox\ApiBundle\Entity\Lease\Lease;
+use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -51,15 +52,26 @@ class OrderService
         $result = array();
 
         foreach ($orders as $order) {
-            $user = array($order->getUserId());
+            /** @var ProductOrder $order */
+            $customerId = $order->getCustomerId();
+            $customer = $this->container->get('doctrine')
+                ->getRepository('SandboxApiBundle:User\UserCustomer')
+                ->find($customerId);
+
+            $userId = $customer ? $customer->getUserId() : null;
+
+            $user = [];
+            if ($userId) {
+                $user[] = $userId;
+            }
+
             $inviteds = $order->getInvitedPeople();
-            $invitedPeople = array();
             foreach ($inviteds as $invited) {
-                $invitedPeople[] = $invited->getUserId();
+                $user[] = $invited->getUserId();
             }
 
             $result[] = array(
-                'user' => array_merge($user, $invitedPeople),
+                'user' => $user,
                 'start' => $order->getStartDate(),
                 'end' => $order->getEndDate(),
                 'building' => $order->getProduct()->getRoom()->getBuildingId(),
@@ -97,17 +109,28 @@ class OrderService
 
         $result = array();
         foreach ($leases as $lease) {
-            $user = array($lease->getSupervisorId());
+            /** @var Lease $lease */
+            $customerId = $lease->getLesseeCustomer();
+
+            $customer = $this->container->get('doctrine')
+                ->getRepository('SandboxApiBundle:User\UserCustomer')
+                ->find($customerId);
+
+            $userId = $customer ? $customer->getUserId() : null;
+
+            $user = [];
+            if ($userId) {
+                $user[] = $userId;
+            }
 
             $inviteds = $lease->getInvitedPeopleIds();
 
-            $invitedPeople = array();
             foreach ($inviteds as $invited) {
-                $invitedPeople[] = $invited;
+                $user[] = $invited;
             }
 
             $result[] = array(
-                'user' => array_merge($user, $invitedPeople),
+                'user' => $user,
                 'start' => $lease->getStartDate(),
                 'end' => $lease->getEndDate(),
                 'building' => $lease->getProduct()->getRoom()->getBuildingId(),

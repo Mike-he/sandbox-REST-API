@@ -3,8 +3,10 @@
 namespace Sandbox\ApiBundle\Form\SalesAdmin;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 class SalesFinanceProfileAccountPostType extends AbstractType
 {
@@ -15,10 +17,28 @@ class SalesFinanceProfileAccountPostType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('sales_company_name')
+            ->add('sales_company_name',
+                TextType::class,
+                array(
+                    'constraints' => array(
+                        new NotBlank(),
+                    ),
+                ))
             ->add('business_scope')
-            ->add('bank_account_name')
-            ->add('bank_account_number');
+            ->add('bank_account_name',
+                TextType::class,
+                array(
+                    'constraints' => array(
+                        new NotBlank(),
+                    ),
+                ))
+            ->add('bank_account_number',
+                TextType::class,
+                array(
+                    'constraints' => array(
+                        new NotBlank(),
+                    ),
+                ));
     }
 
     /**

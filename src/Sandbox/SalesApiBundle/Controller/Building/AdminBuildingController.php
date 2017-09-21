@@ -56,6 +56,64 @@ class AdminBuildingController extends LocationController
     const ROOM_FLOOR_BAK = '.bak';
 
     /**
+     * Get Room Buildings.
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     *
+     * @Annotations\QueryParam(
+     *    name="query",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    description="query key word"
+     * )
+     *
+     * @Route("/buildings/search")
+     * @Method({"GET"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function findAdminBuildingsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        // filters
+        $query = $paramFetcher->get('query');
+
+        // get my buildings list
+        $buildingIds = $this->getMySalesBuildingIds(
+            $this->getAdminId(),
+            array(
+                AdminPermission::KEY_SALES_PLATFORM_BUILDING,
+                AdminPermission::KEY_SALES_BUILDING_BUILDING,
+            )
+        );
+
+        $buildings = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+            ->getMySalesBuildings(
+                $query,
+                $buildingIds
+            );
+
+        $result = array();
+        foreach ($buildings as $building) {
+            $result[] = array(
+                'id' => $building->getId(),
+                'name' => $building->getName(),
+                'avatar' => $building->getAvatar(),
+                'address' => $building->getAddress(),
+            );
+        }
+
+        return new View($result);
+    }
+
+    /**
      * @Route("/buildings/{id}/room/attachment")
      * @Method({"POST"})
      *
@@ -302,29 +360,21 @@ class AdminBuildingController extends LocationController
         Request $request,
         $id
     ) {
-        // check user permission
-        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
-            $this->getAdminId(),
-            [
-                [
-                    'key' => AdminPermission::KEY_SALES_BUILDING_SPACE,
-                    'building_id' => $id,
-                ],
-                [
-                    'key' => AdminPermission::KEY_SALES_BUILDING_BUILDING,
-                    'building_id' => $id,
-                ],
-                ['key' => AdminPermission::KEY_SALES_PLATFORM_BUILDING],
-            ],
-            AdminPermission::OP_LEVEL_VIEW
-        );
-
         // get a building
         $building = $this->getRepo('Room\RoomBuilding')->findOneBy(array(
             'id' => $id,
             'isDeleted' => false,
         ));
         $this->throwNotFoundIfNull($building, self::NOT_FOUND_MESSAGE);
+
+        // check user permission
+        $companyId = $building->getCompanyId();
+        $this->get('sandbox_api.admin_permission_check_service')
+            ->checkHasPosition(
+                $this->getAdminId(),
+                AdminPermission::PERMISSION_PLATFORM_SALES,
+                $companyId
+            );
 
         // set more information
         $this->setRoomBuildingMoreInformation($building, $request);
@@ -1134,26 +1184,28 @@ class AdminBuildingController extends LocationController
                 $em->persist($newGroupMember);
 
                 $groupId = $chatGroup->getId();
-
-                if (!array_key_exists($groupId, $addGroups)) {
-                    $addGroups = [
-                        "$groupId" => [$user],
-                    ];
-                } else {
-                    array_push($addGroups["$groupId"], $user);
-                }
+                $addGroups[$groupId][] = $user->getId();
             }
         }
 
         $em->flush();
 
-        foreach ($addGroups as $key => $vals) {
+        foreach ($addGroups as $key => $users) {
             $group = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:ChatGroup\ChatGroup')
                 ->find($key);
 
+            $membersIds = [];
+            foreach ($users as $userId) {
+                $salesAdmin = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
+                    ->findOneBy(array('userId' => $userId));
+                if ($salesAdmin) {
+                    $membersIds[] = $salesAdmin->getXmppUsername();
+                }
+            }
             // call openfire
-            $this->addXmppChatGroupMember($group, $vals);
+            $this->addXmppChatGroupMember($group, $membersIds);
         }
     }
 
@@ -1192,10 +1244,6 @@ class AdminBuildingController extends LocationController
 
             //remove member from chat group
             foreach ($chatGroups as $chatGroup) {
-                if ($userId == $chatGroup->getCreatorId()) {
-                    continue;
-                }
-
                 $groupMember = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:ChatGroup\ChatGroupMember')
                     ->findOneBy([
@@ -1213,26 +1261,29 @@ class AdminBuildingController extends LocationController
                 $em->remove($groupMember);
 
                 $groupId = $chatGroup->getId();
-
-                if (!array_key_exists($groupId, $removeGroups)) {
-                    $removeGroups = [
-                        "$groupId" => [$groupMember->getUser()],
-                    ];
-                } else {
-                    array_push($removeGroups["$groupId"], $groupMember->getUser());
-                }
+                $removeGroups[$groupId][] = $groupMember->getUser()->getId();
             }
         }
 
         $em->flush();
 
-        foreach ($removeGroups as $key => $vals) {
+        foreach ($removeGroups as $key => $users) {
             $group = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:ChatGroup\ChatGroup')
                 ->find($key);
 
+            $membersIds = [];
+            foreach ($users as $userId) {
+                $salesAdmin = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
+                    ->findOneBy(array('userId' => $userId));
+                if ($salesAdmin) {
+                    $membersIds[] = $salesAdmin->getXmppUsername();
+                }
+            }
+
             // call openfire
-            $this->deleteXmppChatGroupMember($group, $vals);
+            $this->deleteXmppChatGroupMember($group, $membersIds);
         }
     }
 

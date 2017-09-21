@@ -16,6 +16,9 @@ class AdminRemark
     const OBJECT_LEASE_BILL = 'lease_bill';
     const OBJECT_PRODUCT_ORDER = 'product_order';
     const OBJECT_TOP_UP_ORDER = 'top_up_order';
+    const OBJECT_LEASE_CLUE = 'lease_clue';
+    const OBJECT_LEASE_OFFER = 'lease_offer';
+    const OBJECT_LEASE = 'lease';
 
     /**
      * @var int
@@ -82,6 +85,13 @@ class AdminRemark
      * @ORM\Column(name="objectId", type="string", length=64)
      */
     private $objectId;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="is_auto", type="boolean")
+     */
+    private $isAuto = false;
 
     /**
      * Get id.
@@ -283,5 +293,21 @@ class AdminRemark
     public function getObjectId()
     {
         return $this->objectId;
+    }
+
+    /**
+     * @return int
+     */
+    public function getisAuto()
+    {
+        return $this->isAuto;
+    }
+
+    /**
+     * @param int $isAuto
+     */
+    public function setIsAuto($isAuto)
+    {
+        $this->isAuto = $isAuto;
     }
 }

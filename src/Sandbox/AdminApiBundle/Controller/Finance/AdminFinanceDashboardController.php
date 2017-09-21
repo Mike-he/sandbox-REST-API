@@ -6,7 +6,7 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use Sandbox\AdminApiBundle\Controller\AdminRestController;
 use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentBill;
-use Sandbox\ApiBundle\Entity\Finance\FinanceShortRentInvoiceApplication;
+use Sandbox\ApiBundle\Entity\Finance\FinanceShortRentInvoice;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyWithdrawals;
 use Sandbox\ApiBundle\Entity\Finance\FinanceDashboard;
 use Sandbox\ApiBundle\Traits\FinanceOfficialExportTraits;
@@ -180,6 +180,7 @@ class AdminFinanceDashboardController extends AdminRestController
             ->getTimePeriods(
                 FinanceDashboard::TYPE_CASH_FLOW
             );
+        $financeCashFlowDashboardTimePeriods = array_reverse($financeCashFlowDashboardTimePeriods);
 
         $response = array();
         foreach ($financeCashFlowDashboardTimePeriods as $period) {
@@ -248,6 +249,7 @@ class AdminFinanceDashboardController extends AdminRestController
             ->getTimePeriods(
                 FinanceDashboard::TYPE_BALANCE_FLOW
             );
+        $financeBalanceFlowDashboardTimePeriods = array_reverse($financeBalanceFlowDashboardTimePeriods);
 
         $response = array();
         foreach ($financeBalanceFlowDashboardTimePeriods as $period) {
@@ -295,10 +297,10 @@ class AdminFinanceDashboardController extends AdminRestController
                 FinanceLongRentBill::STATUS_PENDING
             );
 
-        $shortRentInvoiceApplicationsCount = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Finance\FinanceShortRentInvoiceApplication')
-            ->countPendingShortRentInvoiceApplications(
-                FinanceShortRentInvoiceApplication::STATUS_PENDING
+        $shortRentInvoicesCount = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Finance\FinanceShortRentInvoice')
+            ->countPendingShortRentInvoices(
+                FinanceShortRentInvoice::STATUS_INCOMPLETE
             );
 
         $companyWithdrawalsCount = $this->getDoctrine()
@@ -321,7 +323,7 @@ class AdminFinanceDashboardController extends AdminRestController
 
         $response = array(
             'long_rent_bills_count' => (int) $longRentBillsCount,
-            'short_rent_invoice_applications_count' => (int) $shortRentInvoiceApplicationsCount,
+            'short_rent_invoice_applications_count' => (int) $shortRentInvoicesCount,
             'sales_company_withdrawals_count' => (int) $companyWithdrawalsCount,
             'need_to_refund_orders_count' => (int) $needToRefundedOrdersCount,
             'transfer_comfirm_count' => (int) $transferConfirmCount,

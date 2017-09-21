@@ -173,6 +173,8 @@ class UserProfileController extends SandboxRestController
             }
         }
 
+        $profile->setXmppUsername($user->getXmppUsername());
+
         // set view
         $view = new View($profile);
         $view->setSerializationContext(
@@ -204,10 +206,6 @@ class UserProfileController extends SandboxRestController
             return $viewGroup;
         }
 
-        // get globals
-        $twig = $this->container->get('twig');
-        $globals = $twig->getGlobals();
-
         // save visitor record
         $this->saveUserProfileVisitor(
             $myUser,
@@ -232,7 +230,7 @@ class UserProfileController extends SandboxRestController
             ));
 
             if (!is_null($otherBuddy)) {
-                $jid = $requestUser->getXmppUsername().'@'.$globals['xmpp_domain'];
+                $jid = $requestUser->getXmppUsername();
                 $profile->setJid($jid);
             }
         } else {

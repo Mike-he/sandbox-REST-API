@@ -1,0 +1,501 @@
+{% extends 'base.html.twig' %}
+    {% block title %}Sandbox Lease Clues{% endblock %}
+    {% block stylesheets %}
+        <style>
+            *{
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            .contract-b-con {
+                padding: 20px;
+            }
+            .mt200{
+                margin-top: 200px;
+            }
+            .contract-b-con .long-wrapper {
+                border: 1px solid #D9D9DA;
+                background-color: #ECECED;
+            }
+            .contract-b-con .long-wrapper.nobt{
+                border-top: none;
+            }
+            .contract-b-con .contract-tit {
+                height: 40px;
+                padding-left: 36px;
+                line-height: 40px;
+                background-color: #F3F3F3;
+            }
+            .contract-b-con .contract-tit .tit-op {
+                float: right;
+                margin-right: 5px;
+            }
+            .contract-b-con .contract-tit .tit-op .n-icon {
+                cursor: pointer;
+            }
+            .contract-b-con .contract-tit .tit-op .op-item {
+                position: relative;
+                display: inline-block;
+                margin: 0 5px;
+            }
+            .contract-b-con .contract-tit .tit-op .op-item .b-tip {
+                top: 30px;
+                left: -80px;
+                width: 100px;
+                font-size: 12px;
+                color: #B6B6B3;
+            }
+            .contract-b-con .contract-tit .tit-op .op-item:hover .b-tip {
+                display: block;
+            }
+            .contract-b-con .contract-block {
+                margin-bottom: 10px;
+                padding: 0 10px 20px 10px;
+                border-top: 1px solid #D9D9DA;
+                border-bottom: 1px solid #D9D9DA;
+                font-size: 12px;
+                background-color: #fff;
+            }
+            .contract-b-con .contract-block:last-child {
+                margin: 0;
+                border-bottom: none;
+            }
+            .contract-b-con .contract-block .add-bill {
+                margin-left: 20px;
+                padding: 10px 0;
+                color: #3399CC;
+            }
+            .contract-b-con .contract-block .add-bill span {
+                cursor: pointer;
+            }
+            .contract-b-con .contract-block .f-left {
+                float: left;
+            }
+            .contract-b-con .contract-block .block-top {
+                padding: 20px 0;
+            }
+            .contract-b-con .contract-block .block-top:before,
+            .contract-b-con .contract-block .block-top:after {
+                content: " ";
+                display: table;
+            }
+            .contract-b-con .contract-block .block-top:after {
+                clear: both;
+            }
+            .contract-b-con .contract-block .block-top .top-left {
+                width: 14%;
+                padding-left: 25px;
+                font-size: 13px;
+                font-weight: bold;
+            }
+            .contract-b-con .contract-block .block-top .top-left .r-star {
+                display: inline-block;
+                margin: 0 3px;
+                font-size: 14px;
+                color: #FF0000;
+            }
+            .contract-b-con .contract-block .block-top .line-right {
+                width: 86%;
+                padding-left: 65px;
+                line-height: 28px;
+            }
+            .contract-b-con .contract-block .block-top .line-right .right-text {
+                width: 540px;
+                height: 110px;
+                border: 1px solid #DDDDDD;
+                outline: none;
+                resize: none;
+                padding: 5px;
+            }
+            .contract-b-con .contract-block .block-line {
+                padding: 15px 0;
+                overflow: hidden;
+            }
+            .contract-b-con .contract-block .block-line .line-left {
+                width: 14%;
+                text-align: right;
+            }
+            .contract-b-con .contract-block .block-line .line-right {
+                width: 86%;
+                padding-left: 65px;
+            }
+            .contract-b-con .contract-block .block-line .line-right .link-txt {
+                margin: 0 5px;
+                color: #3399CC;
+                cursor: pointer;
+            }
+            .contract-b-con .contract-block .block-line .line-right .link-txt:hover {
+                text-decoration: underline;
+            }
+            .contract-b-con .contract-block .block-line .line-right .right-input {
+                width: 325px;
+                height: 30px;
+                border: 1px solid #DDDDDD;
+                border-radius: 2px;
+                padding: 0 10px;
+            }
+            .contract-b-con .contract-block .block-line .line-right .right-input.small {
+                width: 136px;
+            }
+            .contract-b-con .contract-block .block-line .line-right .rent-cat {
+                line-height: 30px;
+                overflow: hidden;
+            }
+            .contract-b-con .contract-block .block-line .line-right .rent-cat .rent-item {
+                float: left;
+                margin-right: 20px;
+            }
+            .contract-b-con .contract-block .block-line .line-right .rent-cat .rent-item .check {
+                display: inline-block;
+                width: 12px;
+                height: 12px;
+                vertical-align: middle;
+                margin-top: -2px;
+                margin-right: 10px;
+                border: 1px solid #C9C9C9;
+                cursor: pointer;
+            }
+            .contract-b-con .contract-block .block-line .line-right .rent-cat .rent-item .grey-f {
+                color: #BBBBBC;
+            }
+            .contract-b-con .contract-block .block-line .line-right .rent-cat .rent-item.on .check {
+                background-color: #D13766;
+            }
+            .contract-b-con .contract-block .block-line .grey-t {
+                color: #B1AEB1;
+            }
+            .contract-b-con .contract-block.edit-type .block-line {
+                padding: 10px 0;
+            }
+            .contract-b-con .contract-block.edit-type .block-line .line-left {
+                line-height: 30px;
+            }
+            .contract-b-con .contract-block.edit-type .dia-add-user {
+                width: 325px;
+            }
+            .contract-b-con .contract-block.edit-type .date_input {
+                width: 136px;
+                height: 30px;
+            }
+            .contract-b-con .contract-block.edit-type .date_input input {
+                width: 106px !important;
+                height: 28px !important;
+            }
+            .contract-b-con .contract-block.edit-type .bill-list {
+                border-top: none;
+            }
+            .contract-b-con .contract-block.edit-type .bill-list .title {
+                background: none;
+            }
+            .contract-b-con .contract-block.edit-type .bill-list .title .bill-item {
+                border-top: 1px solid #C9C9C9;
+                background-color: #E0EFF4;
+            }
+            .contract-b-con .contract-block.edit-type .bill-list .bill-line .bill-item:last-child {
+                border: none;
+                background-color: #fff;
+            }
+            .contract-b-con .contract-block.edit-type .bill-list .per9 {
+                padding-left: 15px;
+                text-align: left;
+            }
+            .u-box {
+                display: inline-block;
+                position: relative;
+                width: 268px;
+                padding: 5px 10px 5px 60px;
+                border: 1px solid #D7D7D7;
+                border-radius: 2px;
+                background-color: #fff;
+                cursor: pointer;
+            }
+            .u-box.just-show {
+                width: auto;
+                min-width: 220px;
+                cursor: default;
+            }
+            .u-box.just-show:hover {
+                background-color: #fff;
+            }
+            .u-box.just-show .u-nick {
+                color: #000;
+            }
+            .u-box:hover {
+                background-color: #F5F5F5;
+            }
+            .u-box .u-ava {
+                position: absolute;
+                top: 5px;
+                left: 10px;
+                width: 38px;
+                height: 38px;
+                border-radius: 50%;
+            }
+            .u-box .u-nick {
+                line-height: 20px;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                overflow: hidden;
+            }
+            .u-box .u-info {
+                line-height: 18px;
+                color: #B6B6B3;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                overflow: hidden;
+            }
+            .u-box .u-info span {
+                margin-right: 5px;
+            }
+            .n-icon {
+                display: inline-block;
+                width: 14px;
+                height: 14px;
+                vertical-align: middle;
+                margin-top: -2px;
+                background-image: url('https://testproperty.sandbox3.cn/img/n-sprite.png');
+                background-repeat: no-repeat;
+            }
+            .n-icon.ic-clo {
+                background-position: -115px -4px;
+            }
+            .n-icon.ic-mod {
+                width: 22px;
+                height: 16px;
+                background-position: -177px -4px;
+                cursor: pointer;
+            }
+            .n-icon.ic-print {
+                width: 20px;
+                height: 24px;
+                background-position: -308px 0px;
+                cursor: pointer;
+            }
+            .bill-list {
+                margin: 0 20px;
+                border-left: 1px solid #C9C9C9;
+                border-top: 1px solid #C9C9C9;
+            }
+            .bill-list .bill-line {
+                text-align: center;
+                line-height: 32px;
+            }
+            .bill-list .bill-line:before,
+            .bill-list .bill-line:after {
+                content: " ";
+                display: table;
+            }
+            .bill-list .bill-line:after {
+                clear: both;
+            }
+            .bill-list .bill-line.title {
+                font-weight: bold;
+                background-color: #E0EFF4;
+            }
+            .bill-list .bill-line.paid {
+                color: #AEAEAE;
+            }
+            .bill-list .bill-line.paid .per22 span {
+                cursor: pointer;
+            }
+            .bill-list .bill-line.paid .per22 span:hover {
+                color: #3399CC;
+                text-decoration: underline;
+            }
+            .bill-list .bill-item {
+                position: relative;
+                float: left;
+                height: 32px;
+                border-bottom: 1px solid #C9C9C9;
+                border-right: 1px solid #C9C9C9;
+            }
+            .bill-list .bill-item.per22 {
+                width: 22%;
+            }
+            .bill-list .bill-item.per12 {
+                width: 15%;
+            }
+            .bill-list .bill-item.per31 {
+                width: 31%;
+            }
+            .bill-list .bill-item.per33 {
+                width: 33%;
+            }
+            .bill-list .bill-item.per9 {
+                width: 9%;
+            }
+            .bill-list .bill-item.disabled {
+                position: relative;
+                color: #AEAEAE;
+            }
+            .bill-list .bill-item.disabled .b-tip {
+                top: 34px;
+                right: 4px;
+            }
+            .bill-list .bill-item.disabled:hover .b-tip {
+                display: block;
+            }
+            .bill-list .bill-item .b-check {
+                position: absolute;
+                top: 10px;
+                left: 10px;
+                width: 12px;
+                height: 12px;
+                border: 1px solid #C9C9C9;
+            }
+            .bill-list .bill-item .b-check.disabled {
+                pointer-events: none;
+                border-color: #DEDEDE;
+            }
+            .bill-list .bill-item input {
+                width: 90%;
+                height: 28px;
+                margin: 0 auto;
+                margin-top: 2px;
+            }
+            .bill-list .bill-item input.num-input {
+                height: 27px;
+            }
+            .bill-list .link-txt {
+                color: #3399CC;
+                cursor: pointer;
+            }
+            .bill-list .link-txt:hover {
+                text-decoration: underline;
+            }
+            .bill-bot {
+                margin: 0 20px;
+            }
+            .bill-bot .long-btn {
+                margin: 15px 0;
+            }
+            .bill-bot .bill-b-tip {
+                font-size: 12px;
+                color: #BBACA6;
+            }
+            .b-tip {
+                position: absolute;
+                display: none;
+                z-index: 10;
+                width: 210px;
+                padding: 10px;
+                line-height: 20px;
+                background-color: #fff;
+                border: 1px solid #C9C9C9;
+                border-radius: 4px;
+                box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.2);
+            }
+            .b-tip .tip-t {
+                font-weight: bold;
+            }
+            .b-tip .t-name {
+                font-style: italic;
+                margin-right: 10px;
+            }
+        </style>
+    {% endblock %}
+{% block body %}
+    <div class="contract-b-con">
+        <div class="long-wrapper">
+            <div class="contract-tit">
+                <span>租赁线索内容</span>
+            </div>
+            <div class="contract-block">
+                <div class="block-top">
+                    <div class="f-left top-left">
+                        空间信息
+                    </div>
+                </div>
+                <div class="block-bot">
+                    <div class="block-line">
+                        <div class="f-left line-left">项目名称 :</div>
+                        <div class="f-left line-right">{{ building ? building.name }}</div>
+                    </div>
+                    <div class="block-line">
+                        <div class="f-left line-left">项目地址 :</div>
+                        <div class="f-left line-right">{{ building ? building.address }}</div>
+                    </div>
+                    <div class="block-line">
+                        <div class="f-left line-left">房屋名称 :</div>
+                        <div class="f-left line-right">{{ product ? product.room.name }}</div>
+                    </div>
+                    <div class="block-line">
+                        <div class="f-left line-left">房屋面积 :</div>
+                        <div class="f-left line-right">{{ product ? product.room.area }} m²</div>
+                    </div>
+                    <div class="block-line">
+                        <div class="f-left line-left">房屋最大容纳人数 :</div>
+                        <div class="f-left line-right">{{ product ? product.room.allowedPeople }} 人</div>
+                    </div>
+                </div>
+            </div>
+            <div class="contract-block">
+                <div class="block-top">
+                    <div class="f-left top-left">
+                        承租方信息
+                    </div>
+                </div>
+                <div class="block-bot">
+                    <div class="block-line">
+                        <div class="f-left line-left">承租方名称 :</div>
+                        <div class="f-left line-right">{{ clue.lesseeName }}</div>
+                    </div>
+                    <div class="block-line">
+                        <div class="f-left line-left">承租方地址 :</div>
+                        <div class="f-left line-right">{{ clue.lesseeAddress }}</div>
+                    </div>
+                    <div class="block-line">
+                        <div class="f-left line-left">承租联系人:</div>
+                        <div class="f-left line-right">
+                            <div class="u-box">
+                                <img src="{{ customer.avatar ? customer.avatar : 'https://property.sandbox3.cn/img/head.png' }}" class="u-ava">
+                                <div class="u-nick">{{ customer.name }}</div>
+                                <div class="u-info">
+                                    <span>{{ customer.email }}</span>
+                                    <span>{{ customer.phone }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="block-line">
+                        <div class="f-left line-left">承租方电话 :</div>
+                        <div class="f-left line-right">{{ clue.lesseePhone }}</div>
+                    </div>
+                    <div class="block-line">
+                        <div class="f-left line-left">承租方邮箱 :</div>
+                        <div class="f-left line-right">{{ clue.lesseeEmail }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="contract-b-con">
+        <div class="long-wrapper nobt">
+            <div class="contract-block">
+                <div class="block-top">
+                    <div class="f-left top-left">
+                        租赁信息
+                    </div>
+                </div>
+                <div class="block-bot">
+                    <div class="block-line">
+                        <div class="f-left line-left">起租日 :</div>
+                        <div class="f-left line-right">{{ clue.startDate|date('Y-m-d') }} 至 {{ clue.endDate|date('Y-m-d') }}</div>
+                    </div>
+                    <div class="block-line">
+                        <div class="f-left line-left">租赁周期 :</div>
+                        <div class="f-left line-right">{{ clue.cycle }} 个月</div>
+                    </div>
+                    <div class="block-line">
+                        <div class="f-left line-left">月租金 :</div>
+                        <div class="f-left line-right">{{ clue.monthlyRent|number_format(2, '.', ',') }} 元/月</div>
+                    </div>
+                    <div class="block-line">
+                        <div class="f-left line-left">租赁人数 :</div>
+                        <div class="f-left line-right">{{ clue.number }} 人</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

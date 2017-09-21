@@ -360,31 +360,13 @@ class AdminProductController extends ProductController
         $buildingId = $product->getRoom()->getBuildingId();
 
         // check user permission
-        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
-            $this->getAdminId(),
-            array(
-                array(
-                    'key' => AdminPermission::KEY_SALES_BUILDING_SPACE,
-                    'building_id' => $buildingId,
-                ),
-                array(
-                    'key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT,
-                    'building_id' => $buildingId,
-                ),
-                array(
-                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_PREORDER,
-                    'building_id' => $buildingId,
-                ),
-                array(
-                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_RESERVE,
-                    'building_id' => $buildingId,
-                ),
-                array(
-                    'key' => AdminPermission::KEY_SALES_PLATFORM_DASHBOARD,
-                ),
-            ),
-            AdminPermission::OP_LEVEL_VIEW
-        );
+        $companyId = $product->getRoom()->getBuilding()->getCompanyId();
+        $this->get('sandbox_api.admin_permission_check_service')
+            ->checkHasPosition(
+                $this->getAdminId(),
+                AdminPermission::PERMISSION_PLATFORM_SALES,
+                $companyId
+            );
 
         $favorite = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserFavorite')
@@ -492,6 +474,7 @@ class AdminProductController extends ProductController
         }
 
         $startDate = $form['start_date']->getData();
+        $startDate = new \DateTime($startDate);
         $startDate->setTime(00, 00, 00);
         $now = new \DateTime('now');
 
@@ -605,6 +588,7 @@ class AdminProductController extends ProductController
         );
 
         $startDate = $form['start_date']->getData();
+        $startDate = new \DateTime($startDate);
         $startDate->setTime(00, 00, 00);
 
         $product->setRoom($room);
@@ -979,7 +963,7 @@ class AdminProductController extends ProductController
         $productRentSet->setEarliestRentDate($earliestRendDate);
         $productRentSet->setDeposit($rentSet['deposit']);
         $productRentSet->setRentalInfo($rentSet['rental_info']);
-        $productRentSet->setFilename($rentSet['filename']);
+//        $productRentSet->setFilename($rentSet['filename']);
         $productRentSet->setStatus(1);
         $em->persist($productRentSet);
     }

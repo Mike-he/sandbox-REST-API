@@ -288,7 +288,7 @@ trait LogsTrait
 
         return $this->transferToJsonWithViewGroup(
             $lease,
-            'main'
+            'log'
         );
     }
 

@@ -652,17 +652,20 @@ class SandboxRestController extends FOSRestController
      * @param int    $userId
      * @param string $amount
      * @param string $tradeId
+     * @param bool   $invoiced
      *
      * @return string|null
      */
     protected function postConsumeBalance(
         $userId,
         $amount,
-        $tradeId
+        $tradeId,
+        $invoiced = true
     ) {
         $json = $this->createJsonForConsume(
             $tradeId,
-            $amount
+            $amount,
+            $invoiced
         );
         $auth = $this->authAuthMd5($json);
 
@@ -695,9 +698,8 @@ class SandboxRestController extends FOSRestController
 
     /**
      * @param $userId
-     * @param $data
-     *
-     * @return string|null
+     * @param $productId
+     * @param $tradeId
      */
     protected function postAccountUpgrade(
         $userId,
@@ -735,9 +737,9 @@ class SandboxRestController extends FOSRestController
     }
 
     /**
-     * @param Request $request
+     * @param $json
      *
-     * @return mixed
+     * @return string
      */
     protected function authAuthMd5(
         $json
@@ -753,7 +755,13 @@ class SandboxRestController extends FOSRestController
     }
 
     /**
-     * @return mixed
+     * @param $orderNumber
+     * @param $amount
+     * @param $payType
+     * @param $paidAmount
+     * @param null $type
+     *
+     * @return string
      */
     protected function createJsonForCharge(
         $orderNumber,
@@ -776,15 +784,21 @@ class SandboxRestController extends FOSRestController
     }
 
     /**
-     * @return mixed
+     * @param $orderNumber
+     * @param $amount
+     * @param $invoiced
+     *
+     * @return string
      */
     protected function createJsonForConsume(
         $orderNumber,
-        $amount
+        $amount,
+        $invoiced
     ) {
         $content = [
             'amount' => $amount,
             'trade_id' => $orderNumber,
+            'invoiced' => $invoiced,
         ];
 
         return json_encode($content);
@@ -874,9 +888,15 @@ class SandboxRestController extends FOSRestController
     }
 
     /**
-     * @param $auth
+     * @param $ruleId
+     * @param $productId
+     * @param $period
+     * @param $startDate
+     * @param $endDate
+     * @param $isRenew
+     * @param null $auth
      *
-     * @return string|null
+     * @return mixed|void
      */
     protected function getDiscountPriceForOrder(
         $ruleId,
@@ -1072,20 +1092,6 @@ class SandboxRestController extends FOSRestController
         $mailer->send($message);
     }
 
-    //--------------------for user default value--------------------//
-    /**
-     * @param $username
-     *
-     * @return string
-     */
-    protected function constructXmppJid(
-        $username
-    ) {
-        $twig = $this->container->get('twig');
-        $globals = $twig->getGlobals();
-
-        return $username.'@'.$globals['xmpp_domain'];
-    }
 
     //--------------------generate default verification code and token--------------------//
     /**
@@ -1320,30 +1326,10 @@ class SandboxRestController extends FOSRestController
         $username = strval(2000000 + $registrationId);
         $password = $user->getPassword();
 
-        $service = $this->get('openfire.service');
+        $service = $this->get('sandbox_api.jmessage');
         $service->createUser($username, $password);
 
         return $username;
-    }
-
-    /**
-     * @param string $username
-     * @param string $password
-     * @param string $name
-     * @param string $fullJID
-     *
-     * @return bool
-     */
-    protected function updateXmppUser(
-        $username,
-        $password = null,
-        $name = null,
-        $fullJID = null
-    ) {
-        $service = $this->get('openfire.service');
-        $service->editUser($username, $password, $name);
-
-        return true;
     }
 
     /**
@@ -1977,7 +1963,6 @@ class SandboxRestController extends FOSRestController
 
         $now = new \DateTime('now');
         $card = $door->getCard();
-        $accessNo = $card->getAccessNo();
 
         // add user to user_group
         $em = $this->getDoctrine()->getManager();
@@ -1994,10 +1979,7 @@ class SandboxRestController extends FOSRestController
         // add user to door access
         if ($now >= $startDate) {
             $this->addUserDoorAccess(
-                $accessNo,
                 $userIds,
-                $startDate,
-                $endDate,
                 array($buildingId)
             );
         }

@@ -2,6 +2,7 @@
 
 namespace Sandbox\ClientApiBundle\Controller\ThirdParty;
 
+use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sandbox\ApiBundle\Entity\ThirdParty\WeChat;
@@ -67,11 +68,18 @@ class ClientThirdPartyOAuthController extends ClientThirdPartyController
         // for third party oauth login,
         // currently, we are supporting WeChat
         $weChat = null;
+
         $user = null;
+        if ($this->isAuthProvided()) {
+            $userId = $this->getUserId();
+            $user = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\User')
+                ->find($userId);
+        }
 
         if (!is_null($weChatData)) {
             // do oauth with WeChat API with code
-            $weChat = $this->authenticateWithWeChat($weChatData);
+            $weChat = $this->authenticateWithWeChat($weChatData, $user);
 
             if (is_null($weChat)) {
                 throw new UnauthorizedHttpException(self::UNAUTHED_API_CALL);
@@ -80,7 +88,10 @@ class ClientThirdPartyOAuthController extends ClientThirdPartyController
             $user = $weChat->getUser();
         }
 
-        $responseArray = $this->handleClientUserLogin($request, $user, $login, $weChat);
+        $responseArray = [];
+        if (!$this->isAuthProvided()) {
+            $responseArray = $this->handleClientUserLogin($request, $user, $login, $weChat);
+        }
 
         // set weChat user data
         $responseArray = array_merge($responseArray, array(
@@ -95,12 +106,23 @@ class ClientThirdPartyOAuthController extends ClientThirdPartyController
     }
 
     /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     */
+    public function createMyWeChatBindAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+    }
+
+    /**
      * @param ThirdPartyOAuthWeChatData $weChatData
      *
      * @return WeChat
      */
     private function authenticateWithWeChat(
-        $weChatData
+        $weChatData,
+        $user
     ) {
         $code = $weChatData->getCode();
         $from = $weChatData->isFrom();
@@ -115,6 +137,10 @@ class ClientThirdPartyOAuthController extends ClientThirdPartyController
 
         // call WeChat API to get access token
         $result = $this->getWeChatAuthInfoByCode($code, $from);
+
+        if (!isset($result['unionid'])) {
+            return null;
+        }
 
         // get WeChat by openId
         $unionId = $result['unionid'];
@@ -149,14 +175,18 @@ class ClientThirdPartyOAuthController extends ClientThirdPartyController
             $weChat->setUnionId($unionId);
 
             // bind wechat login with current account
-            $currentAccount = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:ThirdParty\WeChat')
-                ->findOneBy(array(
-                    'unionid' => $unionId,
-                ));
+            if ($user) {
+                $weChat->setUser($user);
+            } else {
+                $currentAccount = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:ThirdParty\WeChat')
+                    ->findOneBy(array(
+                        'unionid' => $unionId,
+                    ));
 
-            if (!is_null($currentAccount)) {
-                $weChat->setUser($currentAccount->getUser());
+                if (!is_null($currentAccount)) {
+                    $weChat->setUser($currentAccount->getUser());
+                }
             }
         }
 

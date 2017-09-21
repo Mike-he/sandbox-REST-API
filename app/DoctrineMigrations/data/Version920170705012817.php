@@ -22,7 +22,6 @@ class Version920170705012817 extends AbstractMigration implements ContainerAware
     public function up(Schema $schema)
     {
         // this up() migration is auto-generated, please modify it to your needs
-
     }
 
     public function postUp(Schema $schema)
@@ -33,21 +32,21 @@ class Version920170705012817 extends AbstractMigration implements ContainerAware
 
         $roomCities = $em->getRepository('SandboxApiBundle:Room\RoomCity')->findBy(array('level' => 4));
 
-        foreach ($roomCities as $city) {
-            $parentCity = $em->getRepository('SandboxApiBundle:Room\RoomCity')->find($city->getParentId());
+//        foreach ($roomCities as $city) {
+//            $parentCity = $em->getRepository('SandboxApiBundle:Room\RoomCity')->find($city->getParentId());
 
-            $locationString = $parentCity->getName().$city->getName();
+//            $locationString = $parentCity->getName().$city->getName();
 
-            $ch = curl_init("http://api.map.baidu.com/geocoder/v2/?address=$locationString&output=json&ak=79a033f9382689a99c57e1eb846e6f4f");
-            $re = $this->callAPI($ch, 'GET');
-            $reArray = json_decode($re, true);
+//            $ch = curl_init("http://api.map.baidu.com/geocoder/v2/?address=$locationString&output=json&ak=79a033f9382689a99c57e1eb846e6f4f");
+//            $re = $this->callAPI($ch, 'GET');
+//            $reArray = json_decode($re, true);
 
-            $lng = $reArray['result']['location']['lng'];
-            $lat = $reArray['result']['location']['lat'];
+//            $lng = $reArray['result']['location']['lng'];
+//            $lat = $reArray['result']['location']['lat'];
 
-            $city->setLng($lng);
-            $city->setLat($lat);
-        }
+//            $city->setLng($lng);
+//            $city->setLat($lat);
+//        }
 
         $em->flush();
     }
@@ -58,6 +57,5 @@ class Version920170705012817 extends AbstractMigration implements ContainerAware
     public function down(Schema $schema)
     {
         // this down() migration is auto-generated, please modify it to your needs
-
     }
 }

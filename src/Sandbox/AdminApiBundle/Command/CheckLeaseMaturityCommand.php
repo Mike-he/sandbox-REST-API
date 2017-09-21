@@ -2,6 +2,7 @@
 
 namespace Sandbox\AdminApiBundle\Command;
 
+use Sandbox\ApiBundle\Entity\Admin\AdminStatusLog;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
@@ -33,6 +34,17 @@ class CheckLeaseMaturityCommand extends ContainerAwareCommand
 
             if ($yesterday == $endDate) {
                 $lease->setStatus(Lease::LEASE_STATUS_MATURED);
+
+                $logMessage = '合同已到期';
+                $this->getContainer()
+                    ->get('sandbox_api.admin_status_log')
+                    ->autoLog(
+                        1,
+                        Lease::LEASE_STATUS_MATURED,
+                        $logMessage,
+                        AdminStatusLog::OBJECT_LEASE,
+                        $lease->getId()
+                    );
             }
         }
         $em->flush();

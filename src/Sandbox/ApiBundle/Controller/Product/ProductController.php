@@ -6,7 +6,6 @@ use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\Room\RoomTypeTags;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use FOS\RestBundle\View\View;
 use JMS\Serializer\SerializationContext;
@@ -303,22 +302,6 @@ class ProductController extends SalesRestController
 
             $product->setBasePrice($productRentSet->getBasePrice());
             $product->setUnitPrice($unitPrice);
-        }
-
-        // set collection method
-        if ($type == Room::TYPE_OFFICE && !is_null($productRentSet)) {
-            $company = $room->getBuilding()->getCompany();
-            $service = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
-                ->findOneBy(array(
-                    'company' => $company,
-                    'tradeTypes' => SalesCompanyServiceInfos::TRADE_TYPE_LONGTERM,
-                    'status' => true,
-                ));
-
-            if ($service) {
-                $product->setCollectionMethod($service->getCollectionMethod());
-            }
         }
 
         return $product;

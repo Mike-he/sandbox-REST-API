@@ -173,27 +173,29 @@ trait SendNotification
         $jsonData,
         $broadcast = false
     ) {
-        try {
-            // get globals
-            $globals = $this->getContainer()
-                            ->get('twig')
-                            ->getGlobals();
+        return;
+//        try {
+//            return;
 
-            // openfire API URL
-            $apiURL = $globals['openfire_innet_url'].
-                $globals['openfire_plugin_sandbox'].
-                $globals['openfire_plugin_sandbox_notification'];
+//            $globals = $this->getContainer()
+//                            ->get('twig')
+//                            ->getGlobals();
 
-            if ($broadcast) {
-                $apiURL = $apiURL.$globals['openfire_plugin_sandbox_notification_broadcast'];
-            }
+//            // openfire API URL
+//            $apiURL = $globals['openfire_innet_url'].
+//                $globals['openfire_plugin_sandbox'].
+//                $globals['openfire_plugin_sandbox_notification'];
 
-            // call OpenFire API
-            $ch = curl_init($apiURL);
-            $this->callAPI($ch, 'POST', null, $jsonData);
-        } catch (Exception $e) {
-            error_log('Send XMPP notification went wrong.');
-        }
+//            if ($broadcast) {
+//                $apiURL = $apiURL.$globals['openfire_plugin_sandbox_notification_broadcast'];
+//            }
+
+//            // call OpenFire API
+//            $ch = curl_init($apiURL);
+//            $this->callAPI($ch, 'POST', null, $jsonData);
+//        } catch (Exception $e) {
+//            error_log('Send XMPP notification went wrong.');
+//        }
     }
 
     /**
@@ -291,9 +293,13 @@ trait SendNotification
         try {
             $apiURL = 'https://api.jpush.cn/v3/push';
 
+            $appKey = $this->getContainer()->getParameter('jpush_key');
+            $masterSecret = $this->getContainer()->getParameter('jpush_secret');
+
+            $auth = base64_encode($appKey.':'.$masterSecret);
             // call JPush API
             $ch = curl_init($apiURL);
-            $headers[] = 'Authorization: Basic MjA4ODI1MmFmYTUzY2MxNjkzMDJmNGQwOjk5ZThkZDNlZDlmZGNiMTZlYjExMWVkOQ==';
+            $headers[] = 'Authorization: Basic '.$auth;
 
             $this->callAPI(
                 $ch,

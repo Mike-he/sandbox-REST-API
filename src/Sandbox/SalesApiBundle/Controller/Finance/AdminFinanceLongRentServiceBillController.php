@@ -4,7 +4,6 @@ namespace Sandbox\SalesApiBundle\Controller\Finance;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
-use Knp\Component\Pager\Paginator;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Symfony\Component\HttpFoundation\Request;
@@ -133,6 +132,9 @@ class AdminFinanceLongRentServiceBillController extends SalesRestController
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
 
+        $limit = $pageLimit;
+        $offset = ($pageIndex - 1) * $pageLimit;
+
         $serviceBills = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Finance\FinanceLongRentServiceBill')
             ->findServiceBillList(
@@ -143,24 +145,46 @@ class AdminFinanceLongRentServiceBillController extends SalesRestController
                 $createStart,
                 $createEnd,
                 $amountStart,
+                $amountEnd,
+                $limit,
+                $offset
+            );
+
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Finance\FinanceLongRentServiceBill')
+            ->countServiceBillList(
+                $salesCompanyId,
+                $type,
+                $keyword,
+                $keywordSearch,
+                $createStart,
+                $createEnd,
+                $amountStart,
                 $amountEnd
             );
 
-        $bills = $this->get('serializer')->serialize(
-            $serviceBills,
-            'json',
-            SerializationContext::create()->setGroups(['main'])
-        );
-        $serviceBills = json_decode($bills, true);
+        foreach ($serviceBills as $serviceBill) {
+            $bill = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+                ->findOneBy(array('serialNumber' => $serviceBill->getOrderNumber()));
 
-        $paginator = new Paginator();
-        $pagination = $paginator->paginate(
-            $serviceBills,
-            $pageIndex,
-            $pageLimit
+            if ($bill) {
+                $serviceBill->setLeaseSerialNumber($bill->getLease()->getSerialNumber());
+            }
+        }
+
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['main']));
+        $view->setData(
+            array(
+                'current_page_number' => $pageIndex,
+                'num_items_per_page' => (int) $pageLimit,
+                'items' => $serviceBills,
+                'total_count' => (int) $count,
+            )
         );
 
-        return new View($pagination);
+        return $view;
     }
 
     /**
@@ -175,7 +199,7 @@ class AdminFinanceLongRentServiceBillController extends SalesRestController
             $adminId,
             array(
                 array(
-                    'key' => AdminPermission::KEY_SALES_PLATFORM_LONG_TERM_SERVICE_BILLS,
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_REQUEST_INVOICE,
                 ),
             ),
             $level

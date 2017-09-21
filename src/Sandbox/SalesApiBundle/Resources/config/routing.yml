@@ -100,18 +100,6 @@ sandbox_admin_api_space:
     type:     annotation
     prefix:   /admin/space
 
-# Admin Lease /sales/admin/leases
-sandbox_admin_api_lease:
-    resource: "@SandboxSalesApiBundle/Controller/Lease/AdminLeaseController.php"
-    type:     annotation
-    prefix:   /admin
-
-# Admin Lease Bill /sales/admin/leases/bills
-sandbox_admin_api_lease_bill:
-    resource: "@SandboxSalesApiBundle/Controller/Lease/AdminLeaseBillController.php"
-    type:     annotation
-    prefix:   /admin
-
 # Admin Product Appointments /sales/admin/products/appointments
 sandbox_sales_admin_products_appointments:
     resource: "@SandboxSalesApiBundle/Controller/Product/AdminProductAppointmentController.php"
@@ -184,14 +172,56 @@ sandbox_sales_admin_api_user_group:
     type:     annotation
     prefix:   /admin
 
-# User info
-sandbox_sales_admin_api_user_info:
-    resource: "@SandboxSalesApiBundle/Controller/User/AdminUserInfoController.php"
-    type:     annotation
-    prefix:   /admin
-
 # admin remarks
 sandbox_sales_admin_api_admin_remarks:
     resource: "@SandboxSalesApiBundle/Controller/Admin/AdminRemarkController.php"
+    type:     annotation
+    prefix:   /admin
+
+# admin user customer
+sandbox_sales_admin_api_user_customer:
+    resource: "@SandboxSalesApiBundle/Controller/Customer/AdminCustomerController.php"
+    type:     annotation
+    prefix:   /admin
+
+# Admin Lease
+sandbox_sales_admin_lease_api:
+    resource: "@SandboxSalesApiBundle/Resources/config/lease/routing.yml"
+    type: rest
+    prefix: /admin
+
+# Admin Customer Import
+sandbox_sales_admin_customer_import_api:
+    resource: "@SandboxSalesApiBundle/Controller/Customer/AdminCustomerImportController.php"
+    type:     annotation
+    prefix:   /admin
+
+# Admin generic list
+sandbox_sales_admin_api_generic_list:
+    resource: "@SandboxSalesApiBundle/Controller/GenericList/AdminGenericListController.php"
+    type:     annotation
+    prefix:   /admin
+
+# Admin Enterprise Customer
+sandbox_sales_admin_api_enterprise_customer:
+    resource: "@SandboxSalesApiBundle/Controller/Customer/AdminEnterpriseCustomerController.php"
+    type:     annotation
+    prefix:   /admin
+
+# Admin pdf /sales/admin/pdf
+sandbox_admin_api_lease_pdf:
+    resource: "@SandboxSalesApiBundle/Controller/Pdf/AdminPdfController.php"
+    type:     annotation
+    prefix:   /admin
+
+# Admin pdf /sales/admin/status/log
+sandbox_admin_api_admin_status_log:
+    resource: "@SandboxSalesApiBundle/Controller/Admin/AdminStatusLogController.php"
+    type:     annotation
+    prefix:   /admin
+
+# Admin Reservation  /sales/admin/reservation
+sandbox_admin_api_reservation:
+    resource: "@SandboxSalesApiBundle/Controller/Reservation/AdminReservationController.php"
     type:     annotation
     prefix:   /admin

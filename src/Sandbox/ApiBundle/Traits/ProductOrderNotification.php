@@ -83,23 +83,7 @@ trait ProductOrderNotification
                 $bodyEn = $firstEn.$city.$building.$room.$secondEn;
 
                 $result = $this->compareVersionForJpush($receivers);
-                $receivers = $result['users'];
                 $jpushReceivers = $result['jpush_users'];
-
-                if (!empty($receivers)) {
-                    // get notification data
-                    $data = $this->getProductOrderNotificationJsonData(
-                        $order->getId(),
-                        $order->getOrderNumber(),
-                        $fromUserId,
-                        $receivers,
-                        $action,
-                        $bodyZh,
-                        $bodyEn
-                    );
-
-                    $jsonData = json_encode(array($data));
-                }
 
                 if (!empty($jpushReceivers)) {
                     $this->setDataAndJPushNotification(
@@ -113,9 +97,24 @@ trait ProductOrderNotification
                     );
                 }
             } else {
-                $dataArray = [];
                 foreach ($orders as $order) {
-                    $userArray = [$order->getUserId()];
+                    if ($order->getUser()) {
+                        $userArray = [$order->getUserId()];
+                    } elseif ($order->getCustomerId()) {
+                        $customer = $this->getContainer()
+                            ->get('doctrine')
+                            ->getRepository('SandboxApiBundle:User\UserCustomer')
+                            ->find($order->getCustomerId());
+
+                        $userId = $customer ? $customer->getUserId() : null;
+
+                        if ($userId) {
+                            $userArray = [$userId];
+                        } else {
+                            continue;
+                        }
+                    }
+
                     $result = $this->compareVersionForJpush($userArray);
                     $jpushReceivers = $result['jpush_users'];
 
@@ -129,104 +128,12 @@ trait ProductOrderNotification
                             $firstZh,
                             $firstEn
                         );
-                    } else {
-                        $data = $this->getProductOrderNotificationJsonData(
-                            $order->getId(),
-                            $order->getOrderNumber(),
-                            $fromUserId,
-                            $userArray,
-                            $action,
-                            $firstZh,
-                            $firstEn
-                        );
-
-                        array_push($dataArray, $data);
-                        $jsonData = json_encode($dataArray);
                     }
                 }
-            }
-
-            // send xmpp notification
-            if (!is_null($jsonData)) {
-                $this->sendXmppNotification($jsonData, false);
             }
         } catch (Exception $e) {
             error_log('Send message notification went wrong!');
         }
-    }
-
-    /**
-     * @param int    $orderId
-     * @param string $orderNumber
-     * @param int    $fromUserId
-     * @param array  $receivers
-     * @param string $action
-     * @param string $bodyZh
-     * @param string $bodyEn
-     *
-     * @return mixed
-     */
-    private function getProductOrderNotificationJsonData(
-        $orderId,
-        $orderNumber,
-        $fromUserId,
-        $receivers,
-        $action,
-        $bodyZh,
-        $bodyEn
-    ) {
-        $globals = $this->getContainer()
-                        ->get('twig')
-                        ->getGlobals();
-
-        $domainURL = $globals['xmpp_domain'];
-
-        $fromUser = null;
-        if (!is_null($fromUserId)) {
-            $fromUser = $this->getContainer()
-                             ->get('doctrine')
-                             ->getRepository(BundleConstants::BUNDLE.':'.'User\User')
-                             ->find($fromUserId);
-        }
-
-        // get receivers array
-        $receiversArray = [];
-        foreach ($receivers as $receiverId) {
-            $recevUser = $this->getContainer()
-                              ->get('doctrine')
-                              ->getRepository(BundleConstants::BUNDLE.':'.'User\User')
-                              ->find($receiverId);
-
-            array_push($receiversArray, ['jid' => $recevUser->getXmppUsername().'@'.$domainURL]);
-        }
-
-        $apns = $this->setApnsJsonDataArray($bodyZh, $bodyEn);
-
-        // get content array
-        $contentArray = $this->getDefaultContentArray(
-            ProductOrder::ACTION_TYPE,
-            $action,
-            $fromUser,
-            $apns
-        );
-
-        // get order array
-        $contentArray['order'] = $this->getOrderArray($orderId, $orderNumber);
-
-        $jid = User::XMPP_SERVICE.'@'.$domainURL;
-        // get message from service account
-        $messageArray = [
-            'type' => 'chat',
-            'from' => $jid,
-            'body' => $bodyZh,
-        ];
-
-        return $this->getNotificationJsonData(
-            $receiversArray,
-            $contentArray,
-            $messageArray,
-            $apns
-        );
     }
 
     /**

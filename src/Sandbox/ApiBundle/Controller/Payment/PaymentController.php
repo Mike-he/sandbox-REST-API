@@ -3,11 +3,14 @@
 namespace Sandbox\ApiBundle\Controller\Payment;
 
 use FOS\RestBundle\View\View;
-use Proxies\__CG__\Sandbox\ApiBundle\Entity\Room\Room;
+use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Constants\BundleConstants;
 use Sandbox\ApiBundle\Constants\DoorAccessConstants;
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Sandbox\ApiBundle\Controller\Door\DoorController;
+use Sandbox\ApiBundle\Entity\Admin\AdminStatusLog;
+use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentServiceBill;
+use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\MembershipCard\MembershipCard;
 use Sandbox\ApiBundle\Entity\MembershipCard\MembershipOrder;
@@ -25,7 +28,10 @@ use Pingpp\Error\Base;
 use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
+use Sandbox\ApiBundle\Entity\User\UserBeanFlow;
 use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
+use Sandbox\ApiBundle\Traits\FinanceTrait;
+use Sandbox\ApiBundle\Traits\LeaseTrait;
 use Sandbox\ApiBundle\Traits\YunPianSms;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Sandbox\ApiBundle\Traits\StringUtil;
@@ -53,6 +59,8 @@ class PaymentController extends DoorController
     use DoorAccessTrait;
     use ProductOrderNotification;
     use YunPianSms;
+    use LeaseTrait;
+    use FinanceTrait;
 
     const TOPUP_ORDER_LETTER_HEAD = 'T';
     const STATUS_PAID = 'paid';
@@ -1143,6 +1151,20 @@ class PaymentController extends DoorController
         // send order email
         $this->sendOrderEmail($order);
 
+        if ($order->getCustomerId()) {
+            $customer = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserCustomer')
+                ->find($order->getCustomerId());
+
+            $userId = $customer ? $customer->getUserId() : null;
+        } else {
+            $userId = $order->getUserId();
+        }
+
+        if (is_null($userId)) {
+            return;
+        }
+
         $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
         $building = $this->getRepo('Room\RoomBuilding')->find($buildingId);
         if (is_null($building)) {
@@ -1158,7 +1180,7 @@ class PaymentController extends DoorController
         $buildingId = $order->getProduct()->getRoom()->getBuilding()->getId();
         $this->setDoorAccessForMembershipCard(
             $buildingId,
-            array($order->getUserId()),
+            array($userId),
             $order->getStartDate(),
             $order->getEndDate(),
             $order->getOrderNumber(),
@@ -1171,7 +1193,6 @@ class PaymentController extends DoorController
             return;
         }
 
-        $userId = $order->getUserId();
         $this->storeDoorAccess(
             $em,
             $order->getId(),
@@ -1307,7 +1328,6 @@ class PaymentController extends DoorController
         $card = $specification->getCard();
         $validPeriod = $specification->getValidPeriod();
         $unit = $specification->getUnitPrice();
-        $accessNo = $card->getAccessNo();
 
         $startDate = $this->getLastMembershipOrderEndDate($userId, $card);
         $endDate = clone $startDate;
@@ -1335,10 +1355,7 @@ class PaymentController extends DoorController
             ));
 
         if (!is_null($serviceInfo)) {
-            if ($serviceInfo->getDrawer() == SalesCompanyServiceInfos::COLLECTION_METHOD_SANDBOX) {
-                $order->setSalesInvoice(false);
-            }
-
+            $order->setSalesInvoice(false);
             $order->setServiceFee($serviceInfo->getServiceFee());
         }
 
@@ -1372,10 +1389,7 @@ class PaymentController extends DoorController
             );
 
         $this->addUserDoorAccess(
-            $accessNo,
             array($userId),
-            $startDate,
-            $endDate,
             $doorBuildingIds
         );
 
@@ -1650,8 +1664,24 @@ class PaymentController extends DoorController
             $roomType = $this->get('translator')->trans('room.type.'.$order->getProduct()->getRoom()->getType());
             $unitPrice = $this->get('translator')->trans('room.unit.'.$productInfo['order']['unit_price']);
 
-            $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($order->getUserId());
-            $user = $userProfile->getUser();
+            $customer = null;
+            $user = null;
+            $userProfile = null;
+            if ($order->getCustomerId()) {
+                $customer = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:User\UserCustomer')
+                    ->find($order->getCustomerId());
+            } else {
+                $userProfile = $this->getRepo('User\UserProfile')->findOneByUserId($order->getUserId());
+                $user = $userProfile->getUser();
+            }
+
+            $user = array(
+                'id' => '',
+                'name' => $customer ? $customer->getName() : $userProfile->getName(),
+                'phone' => $customer ? $customer->getPhone() : $user->getPhone(),
+                'email' => $customer ? $customer->getEmail() : $user->getEmail(),
+            );
 
             // send email
             if (!is_null($building->getEmail())) {
@@ -1666,7 +1696,6 @@ class PaymentController extends DoorController
                             'product_info' => $productInfo,
                             'status' => $status,
                             'user' => $user,
-                            'user_profile' => $userProfile,
                             'pay_channel' => $payChannel,
                             'room_type' => $roomType,
                             'unit_price' => $unitPrice,
@@ -1677,9 +1706,9 @@ class PaymentController extends DoorController
 
             // send sms
             if (!is_null($building->getOrderRemindPhones())) {
+                $phoneInfo = $user['phone'] ? $user['phone'] : $user['email'];
+                $username = $user['name'].'('.$phoneInfo.')';
                 $orderRoom = $order->getProduct()->getRoom();
-                $phoneInfo = $user->getPhone() ? $user->getPhone() : $user->getEmail();
-                $username = $userProfile->getName().'('.$phoneInfo.')';
                 $time_action = $order->getCreationDate()->format('Y/m/d H:i');
                 $orderNumber = $order->getOrderNumber();
                 $product = $orderRoom->getCity()->getName().','.$orderRoom->getBuilding()->getName().','.$orderRoom->getNumber().','.$this->formatString($orderRoom->getName());
@@ -1702,13 +1731,15 @@ class PaymentController extends DoorController
      * @param $orderNumber
      * @param $channel
      * @param $userId
+     * @param $price
      *
      * @return null|object|LeaseBill
      */
     public function setLeaseBillStatus(
         $orderNumber,
         $channel,
-        $userId
+        $userId,
+        $price
     ) {
         $bill = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
@@ -1720,38 +1751,76 @@ class PaymentController extends DoorController
             );
         $this->throwNotFoundIfNull($bill, self::NOT_FOUND_MESSAGE);
 
-        $drawee = $bill->getLease()->getDrawee()->getId();
+        $invoiced = $this->checkBillShouldInvoiced($bill->getLease());
+
+//        $drawee = $bill->getLease()->getDrawee()->getId();
+
+        /** @var Lease $lease */
+        $lease = $bill->getLease();
+
+        $customer = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->find($lease->getLesseeCustomer());
 
         $bill->setPaymentUserId($userId);
         $bill->setStatus(LeaseBill::STATUS_PAID);
         $bill->setPaymentDate(new \DateTime());
         $bill->setPayChannel($channel);
-        $bill->setDrawee($drawee);
+        $bill->setDrawee($customer->getUserId());
+        $bill->setCustomerId($customer->getId());
 
-        //update user bean
-        $this->get('sandbox_api.bean')->postBeanChange(
-            $drawee,
-            $bill->getRevisedAmount(),
+        if (!$invoiced) {
+            $bill->setInvoiced(true);
+        }
+
+        $this->generateLongRentServiceFee(
             $orderNumber,
-            Parameter::KEY_BEAN_PAY_BILL
+            $bill->getLease()->getCompanyId(),
+            $price,
+            $channel,
+            FinanceLongRentServiceBill::TYPE_BILL_POUNDAGE
         );
 
-        //update invitee bean
-        $user = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\User')
-            ->find($drawee);
-
-        if ($user->getInviterId()) {
-            $this->get('sandbox_api.bean')->postBeanChange(
-                $user->getInviterId(),
-                $bill->getRevisedAmount(),
+        if ($customer->getUserId()) {
+            //update user bean
+            $amount = $this->get('sandbox_api.bean')->postBeanChange(
+                $customer->getUserId(),
+                $price,
                 $orderNumber,
-                Parameter::KEY_BEAN_INVITEE_PAY_BILL
+                Parameter::KEY_BEAN_PAY_BILL
             );
+
+            //update invitee bean
+            $user = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\User')
+                ->find($customer->getUserId());
+
+            if ($user->getInviterId()) {
+                $this->get('sandbox_api.bean')->postBeanChange(
+                    $user->getInviterId(),
+                    $price,
+                    $orderNumber,
+                    Parameter::KEY_BEAN_INVITEE_PAY_BILL,
+                    UserBeanFlow::TYPE_ADD,
+                    $amount
+                );
+            }
         }
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();
+
+        $payment = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Payment\Payment')
+            ->findOneBy(array('channel' => $channel));
+        $logMessage = '使用 '.$payment->getName().' 支付账单';
+        $this->get('sandbox_api.admin_status_log')->autoLog(
+            $userId,
+            LeaseBill::STATUS_PAID,
+            $logMessage,
+            AdminStatusLog::OBJECT_LEASE_BILL,
+            $bill->getId()
+        );
 
         return $bill;
     }

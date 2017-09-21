@@ -15,14 +15,15 @@ class ProductType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('room_id', 'integer')
-            ->add('description', 'text')
-            ->add('visible_user_id', 'integer')
+            ->add('room_id')
+            ->add('description')
+            ->add('visible_user_id')
             ->add('private')
             ->add('renewable')
             ->add('visible')
-            ->add('start_date', 'date', array(
-                    'widget' => 'single_text',
+            ->add('start_date',
+                null,
+                array(
                     'mapped' => false,
                 )
             )
