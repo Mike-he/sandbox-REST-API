@@ -41,7 +41,7 @@ class JmessageService
     private $group;
 
     /**
-     * @var Resource
+     * @var resource
      */
     private $resource;
 
@@ -73,7 +73,7 @@ class JmessageService
         $password,
         $nickname = null
     ) {
-        $this->user->register($username, $password,$nickname);
+        $this->user->register($username, $password, $nickname);
     }
 
     public function updatePassword(

@@ -678,7 +678,7 @@ class AdminExportService
                 'type' => $orderType,
                 'description' => $orderType,
                 'room_type' => $productType,
-                'pay_channel' => $paymentChannel
+                'pay_channel' => $paymentChannel,
             );
 
             $body = array();
