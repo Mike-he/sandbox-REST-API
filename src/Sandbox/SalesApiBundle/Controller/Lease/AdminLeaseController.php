@@ -1321,6 +1321,10 @@ class AdminLeaseController extends SalesRestController
         $bills,
         $lease
     ) {
+        if (empty($bills['add']) && empty($bills['edit']) && empty($bills['remove'])) {
+            return;
+        }
+
         $amount = 0;
         if (!empty($bills['add'])) {
             $addAmount = $this->addBills($bills['add'], $lease);
