@@ -114,7 +114,7 @@ parameters:
     duiba_app_secret: 3ynCsWqXzcErULFvSEojLH94pnxb
     duiba_app_env: sta
 
-    jpush_apns_option: true
+    jpush_apns_option: false
     jpush_key: 053c3281736d2c34b51e58be
     jpush_secret: 7772afddf154443ab12fa13d
 
