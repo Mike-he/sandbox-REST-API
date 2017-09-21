@@ -91,7 +91,6 @@ parameters:
     door_api_delete_emp: RoomOrderDelEmp=
     door_api_order_no: OrderNo=
 
-    jpush_apns_option: false
     customer_service_phone: xxx-xxx
     client_version_ios: 2.0.5
     client_version_android: 2.0.5
@@ -115,6 +114,7 @@ parameters:
     duiba_app_secret: 3ynCsWqXzcErULFvSEojLH94pnxb
     duiba_app_env: sta
 
+    jpush_apns_option: true
     jpush_key: 053c3281736d2c34b51e58be
     jpush_secret: 7772afddf154443ab12fa13d
 

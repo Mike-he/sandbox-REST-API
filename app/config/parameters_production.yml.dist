@@ -94,7 +94,7 @@ parameters:
     foreign_credit_refund_fee_multiplier: 0
     rest_api_local_url: localhost.api.rest
     top_level_domain: sandbox3.cn
-    jpush_apns_option: true
+
 
     image_url: https://image.sandbox3.cn
     rest_file_server_url: https://rest.sandbox3.cn/plugins/fileServer/fileservice
@@ -108,6 +108,7 @@ parameters:
     duiba_app_secret: z3jDWM6BXhyEryGpZVpVdEczsUE
     duiba_app_env: pro
 
+    jpush_apns_option: true
     jpush_key: 2088252afa53cc169302f4d0
     jpush_secret: 99e8dd3ed9fdcb16eb111ed9
 
