@@ -193,17 +193,22 @@ class LeaseRepository extends EntityRepository
             !empty($keywordSearch)
         ) {
             switch ($keyword) {
-                case ProductAppointment::KEYWORD_APPLICANT:
-                    $query->andWhere('l.lesseeName LIKE :keywordSearch');
+                case 'customer_phone':
+                    $query->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'l.lesseeCustomer = uc.id')
+                        ->andWhere('uc.phone LIKE :keywordSearch');
                     break;
-                case ProductAppointment::KEYWORD_ROOM:
+                case 'customer_name':
+                    $query->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'l.lesseeCustomer = uc.id')
+                        ->andWhere('uc.name LIKE :keywordSearch');
+                    break;
+                case 'room_name':
                     $query->andWhere('r.name LIKE :keywordSearch');
                     break;
-                case ProductAppointment::KEYWORD_NUMBER:
+                case 'number':
                     $query->andWhere('l.serialNumber LIKE :keywordSearch');
                     break;
                 default:
-                    return array();
+                    return $query;
             }
 
             $query->setParameter('keywordSearch', "%$keywordSearch%");

@@ -70,7 +70,7 @@ class LeaseClueRepository extends EntityRepository
                         ->andWhere('r.name LIKE :keywordSearch');
                     break;
                 default:
-                    return array();
+                    return $query;
             }
 
             $query->setParameter('keywordSearch', "%$keywordSearch%");
@@ -197,7 +197,7 @@ class LeaseClueRepository extends EntityRepository
                         ->andWhere('r.name LIKE :keywordSearch');
                     break;
                 default:
-                    return array();
+                    return $query;
             }
 
             $query->setParameter('keywordSearch', "%$keywordSearch%");
