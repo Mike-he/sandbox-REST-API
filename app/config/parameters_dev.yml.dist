@@ -1,10 +1,10 @@
 parameters:
     database_driver: pdo_mysql
-    database_host: sandbox_db
+    database_host: rdsuz7cpk5r23ytx02t0.mysql.rds.aliyuncs.com
     database_port: '3306'
     database_name: sandbox_rest_db
-    database_user: sandbox
-    database_password: sandbox
+    database_user: develop_root
+    database_password: go_beta_123
 
     #database_host_slave1:     192.168.0.10
     #database_port_slave1:     3306
@@ -51,7 +51,7 @@ parameters:
     sandbox_auth_key: sandbox_auth_test
     food_api_url: http://testfood.sandbox3.cn
     food_api_payment_callback: /index.php?route=payment/sandbox_wechat/callback
-    crm_api_url: http://devcrm.sandbox3.cn
+    crm_api_url: crmserver
     crm_api_client_user_account_authentication: /client/user/account/authentication
     crm_api_client_user_account_vip: /client/user/account/vip
     crm_api_admin_user_account_vip: /admin/useraccounts/{userId}/vip
