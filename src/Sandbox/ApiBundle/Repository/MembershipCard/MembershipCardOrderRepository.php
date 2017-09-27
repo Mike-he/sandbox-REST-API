@@ -186,7 +186,7 @@ class MembershipCardOrderRepository extends EntityRepository
                 case 'end_date':
                     $query->orderBy('mo.endDate', $direction);
                     break;
-                case 'price':
+                case 'discount_price':
                     $query->orderBy('mo.price', $direction);
                     break;
                 case 'creation_date':

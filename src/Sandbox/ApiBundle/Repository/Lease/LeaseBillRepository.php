@@ -708,6 +708,7 @@ class LeaseBillRepository extends EntityRepository
                     break;
                 case 'send_date':
                     $query->orderBy('lb.sendDate', $direction);
+                    break;
                 default:
                     $query->orderBy('lb.sendDate', 'DESC');
                     break;

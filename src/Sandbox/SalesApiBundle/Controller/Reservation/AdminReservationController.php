@@ -142,6 +142,19 @@ class AdminReservationController extends SalesRestController
      *    nullable=true
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="sort_column",
+     *    default=null,
+     *    nullable=true,
+     *    description="sort column"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="direction",
+     *    default=null,
+     *    nullable=true,
+     *    description="sort direction"
+     * )
      *
      * @Route("/reservation/list")
      * @Method({"GET"})
@@ -167,6 +180,10 @@ class AdminReservationController extends SalesRestController
         $buildingId = $paramFetcher->get('building');
         $limit = $pageLimit;
         $offset = ($pageIndex - 1) * $pageLimit;
+
+        //sort
+        $sortColumn = $paramFetcher->get('sort_column');
+        $direction = $paramFetcher->get('direction');
 
         $productIds = array();
         if ($buildingId) {
@@ -194,7 +211,9 @@ class AdminReservationController extends SalesRestController
                 $grabStart,
                 $grabEnd,
                 $limit,
-                $offset
+                $offset,
+                $sortColumn,
+                $direction
             );
 
         $count = $this->getDoctrine()
@@ -216,6 +235,22 @@ class AdminReservationController extends SalesRestController
         $result = [];
         foreach ($reservations as $k=>$reservation) {
             $result[$k] = $this->getProductInfo($reservation);
+        }
+
+        if($sortColumn == 'price'){
+            $price = [];
+            foreach ($result as $k => $v) {
+                if(array_key_exists('leasing',$v['product'])){
+                    $price[] = $v['product']['leasing']['base_price'];
+                }else{
+                    $price[] = $v['product']['rent']['rent_price'];
+                }
+            }
+            if($direction == 'asc'){
+                array_multisort($price, SORT_ASC, $result);
+            }elseif ($direction == 'desc'){
+                array_multisort($price, SORT_DESC, $result);
+            }
         }
 
         $view = new View();
