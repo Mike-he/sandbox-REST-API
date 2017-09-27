@@ -148,6 +148,9 @@ class LeaseClueRepository extends EntityRepository
                 case 'creation_date':
                     $query->orderBy('lc.creationDate', $direction);
                     break;
+                case 'total_rent':
+                    $query->orderBy('((lc.cycle) * (lc.monthlyRent))', $direction);
+                    break;
                 default:
                     $query->orderBy('lc.id', 'DESC');
             }
