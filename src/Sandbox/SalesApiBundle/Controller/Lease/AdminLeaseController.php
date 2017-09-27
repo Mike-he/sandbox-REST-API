@@ -238,6 +238,21 @@ class AdminLeaseController extends SalesRestController
      *    description="Filter by building id"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="sort_column",
+     *    default=null,
+     *    nullable=true,
+     *    description="sort column"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="direction",
+     *    default=null,
+     *    nullable=true,
+     *    description="sort direction"
+     * )
+     *
+     *
      * @return View
      */
     public function getLeasesAction(
@@ -283,6 +298,10 @@ class AdminLeaseController extends SalesRestController
         $userId = $paramFetcher->get('user');
         $buildingId = $paramFetcher->get('building');
 
+        //sort
+        $sortColumn = $paramFetcher->get('sort_column');
+        $direction = $paramFetcher->get('direction');
+
         //get my buildings list
         $myBuildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
@@ -310,7 +329,9 @@ class AdminLeaseController extends SalesRestController
                 $roomId,
                 $limit,
                 $offset,
-                $userId
+                $userId,
+                $sortColumn,
+                $direction
             );
 
         $count = $this->getDoctrine()

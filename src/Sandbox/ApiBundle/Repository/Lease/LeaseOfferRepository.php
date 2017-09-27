@@ -20,6 +20,8 @@ class LeaseOfferRepository extends EntityRepository
      * @param $endDate
      * @param $limit
      * @param $offset
+     * @param $sortColumn
+     * @param $direction
      *
      * @return array|\Doctrine\ORM\QueryBuilder
      */
@@ -35,7 +37,9 @@ class LeaseOfferRepository extends EntityRepository
         $startDate,
         $endDate,
         $limit = null,
-        $offset = null
+        $offset = null,
+        $sortColumn = null,
+        $direction = null
     ) {
         $query = $this->createQueryBuilder('lo')
             ->where('lo.buildingId in (:buildingIds)')
@@ -125,7 +129,32 @@ class LeaseOfferRepository extends EntityRepository
                 ->setParameter('endDate', $endDate);
         }
 
-        $query->orderBy('lo.id', 'DESC');
+        if(!is_null($sortColumn) && !is_null($direction)) {
+            $direction = strtoupper($direction);
+
+            switch ($sortColumn) {
+                case 'start_date':
+                    $query->orderBy('lo.startDate', $direction);
+                    break;
+                case 'end_date':
+                    $query->orderBy('lo.endDate', $direction);
+                    break;
+                case 'monthly_rent':
+                    $query->orderBy('lo.monthlyRent', $direction);
+                    break;
+                case 'deposit':
+                    $query->orderBy('lo.deposit', $direction);
+                    break;
+                case 'creation_date':
+                    $query->orderBy('lo.creationDate', $direction);
+                    break;
+                case 'total_rent':
+                    $query->orderBy('lo.totalRent', $direction);
+                    break;
+                default:
+                    $query->orderBy('lo.id', 'DESC');
+            }
+        }
 
         if (!is_null($limit) && !is_null($offset)) {
             $query->setMaxResults($limit)

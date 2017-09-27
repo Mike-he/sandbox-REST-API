@@ -18,6 +18,8 @@ class LeaseClueRepository extends EntityRepository
      * @param $rentFilter
      * @param $startDate
      * @param $endDate
+     * @param $sortColumn
+     * @param $direction
      * @param $limit
      * @param $offset
      *
@@ -35,7 +37,9 @@ class LeaseClueRepository extends EntityRepository
         $startDate,
         $endDate,
         $limit = null,
-        $offset = null
+        $offset = null,
+        $sortColumn = null,
+        $direction = null
     ) {
         $query = $this->createQueryBuilder('lc')
             ->where('lc.buildingId in (:buildingIds)')
@@ -125,7 +129,29 @@ class LeaseClueRepository extends EntityRepository
                 ->setParameter('endDate', $endDate);
         }
 
-        $query->orderBy('lc.id', 'DESC');
+        if(!is_null($sortColumn) && !is_null($direction)) {
+            $direction = strtoupper($direction);
+
+            switch ($sortColumn) {
+                case 'start_date':
+                    $query->orderBy('lc.startDate', $direction);
+                    break;
+                case 'cycle':
+                    $query->orderBy('lc.cycle', $direction);
+                    break;
+                case 'monthly_rent':
+                    $query->orderBy('lc.monthlyRent', $direction);
+                    break;
+                case 'number':
+                    $query->orderBy('lc.number', $direction);
+                    break;
+                case 'creation_date':
+                    $query->orderBy('lc.creationDate', $direction);
+                    break;
+                default:
+                    $query->orderBy('lc.id', 'DESC');
+            }
+        }
 
         if (!is_null($limit) && !is_null($offset)) {
             $query->setMaxResults($limit)

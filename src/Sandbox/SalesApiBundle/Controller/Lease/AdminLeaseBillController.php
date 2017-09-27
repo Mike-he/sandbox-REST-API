@@ -141,6 +141,20 @@ class AdminLeaseBillController extends SalesRestController
      *    description="Filter by building id"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="sort_column",
+     *    default=null,
+     *    nullable=true,
+     *    description="sort column"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="direction",
+     *    default=null,
+     *    nullable=true,
+     *    description="sort direction"
+     * )
+     *
      * @Route("/lease/bills")
      * @Method({"GET"})
      *
@@ -173,6 +187,10 @@ class AdminLeaseBillController extends SalesRestController
         $status = $paramFetcher->get('status');
         $building = $paramFetcher->get('building');
 
+        //sort
+        $sortColumn = $paramFetcher->get('sort_column');
+        $direction = $paramFetcher->get('direction');
+
         $myBuildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
             array(
@@ -203,7 +221,9 @@ class AdminLeaseBillController extends SalesRestController
                 $payEndDate,
                 $leaseStatus,
                 $limit,
-                $offset
+                $offset,
+                $sortColumn,
+                $direction
             );
 
         $count = $this->getDoctrine()

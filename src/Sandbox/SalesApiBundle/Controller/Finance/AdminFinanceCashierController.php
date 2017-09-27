@@ -113,6 +113,20 @@ class AdminFinanceCashierController extends SalesRestController
      *    description="page number "
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="sort_column",
+     *    default=null,
+     *    nullable=true,
+     *    description="sort column"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="direction",
+     *    default=null,
+     *    nullable=true,
+     *    description="sort direction"
+     * )
+     *
      * @Route("/finance/cashier")
      * @Method({"GET"})
      *
@@ -144,6 +158,10 @@ class AdminFinanceCashierController extends SalesRestController
         $keyword = $paramFetcher->get('keyword');
         $keywordSearch = $paramFetcher->get('keyword_search');
 
+        //sort
+        $sortColumn = $paramFetcher->get('sort_column');
+        $direction = $paramFetcher->get('direction');
+
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
 
@@ -168,7 +186,9 @@ class AdminFinanceCashierController extends SalesRestController
                 $startDate,
                 $endDate,
                 $keyword,
-                $keywordSearch
+                $keywordSearch,
+                $sortColumn,
+                $direction
             );
 
         $bills = $this->getDoctrine()
@@ -180,7 +200,9 @@ class AdminFinanceCashierController extends SalesRestController
                 $startDate,
                 $endDate,
                 $keyword,
-                $keywordSearch
+                $keywordSearch,
+                $sortColumn,
+                $direction
             );
 
         $cashierOrders = array();

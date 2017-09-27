@@ -884,6 +884,20 @@ class AdminOrderController extends OrderController
      *    description="Filter by building id"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="sort_column",
+     *    default=null,
+     *    nullable=true,
+     *    description="sort column"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="direction",
+     *    default=null,
+     *    nullable=true,
+     *    description="sort direction"
+     * )
+     *
      * @Route("/orders")
      * @Method({"GET"})
      *
@@ -932,6 +946,10 @@ class AdminOrderController extends OrderController
         $userId = $paramFetcher->get('user');
         $buildingId = $paramFetcher->get('building');
 
+        //sort
+        $sortColumn = $paramFetcher->get('sort_column');
+        $direction = $paramFetcher->get('direction');
+
         $limit = $pageLimit;
         $offset = ($pageIndex - 1) * $pageLimit;
 
@@ -966,7 +984,9 @@ class AdminOrderController extends OrderController
                 $status,
                 $roomId,
                 $limit,
-                $offset
+                $offset,
+                $sortColumn,
+                $direction
             );
 
         $count = $this->getDoctrine()

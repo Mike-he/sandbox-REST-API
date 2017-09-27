@@ -131,6 +131,20 @@ class AdminEventOrderController extends SalesRestController
      *    description="Filter by user id"
      * )
      *
+     *  @Annotations\QueryParam(
+     *    name="sort_column",
+     *    default=null,
+     *    nullable=true,
+     *    description="sort column"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="direction",
+     *    default=null,
+     *    nullable=true,
+     *    description="sort direction"
+     * )
+     *
      * @Route("/events/orders")
      * @Method({"GET"})
      *
@@ -159,6 +173,10 @@ class AdminEventOrderController extends SalesRestController
         $createEnd = $paramFetcher->get('create_end');
         $userId = $paramFetcher->get('user');
 
+        //sort
+        $sortColumn = $paramFetcher->get('sort_column');
+        $direction = $paramFetcher->get('direction');
+
         $orders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Event\EventOrder')
             ->getEventOrdersForSalesAdmin(
@@ -173,7 +191,9 @@ class AdminEventOrderController extends SalesRestController
                 $createStart,
                 $createEnd,
                 $this->getSalesCompanyId(),
-                $userId
+                $userId,
+                $sortColumn,
+                $direction
             );
 
         // set event dates
