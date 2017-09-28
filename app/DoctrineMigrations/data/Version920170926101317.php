@@ -33,7 +33,7 @@ class Version920170926101317 extends AbstractMigration implements ContainerAware
         $em = $this->container->get('doctrine.orm.entity_manager');
 
         $columns = array('start_date','cycle','monthly_rent','number','creation_date','total_rent','end_date','deposit','amount',
-            'send_date','revised_amount','price','discount_price','base_price','event_start_date','payment_date','application_time','view_time','grab_date');
+            'send_date','revised_amount','price','discount_price','base_price','event_start_date','payment_date','application_time','view_time','grab_date','ID');
         $query = $em->getRepository('SandboxApiBundle:GenericList\GenericList')
                         ->createQueryBuilder('g')
                         ->where('g.column IN (:columns)')
