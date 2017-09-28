@@ -247,7 +247,8 @@ class EventOrderRepository extends EntityRepository
      * @param $createEnd
      * @param $salesCompanyId
      * @param $userId
-     *
+     * @param $sortColumn
+     * @param $direction
      * @return array
      */
     public function getEventOrdersForSalesAdmin(
@@ -262,7 +263,9 @@ class EventOrderRepository extends EntityRepository
         $createStart,
         $createEnd,
         $salesCompanyId,
-        $userId = null
+        $userId = null,
+        $sortColumn = null,
+        $direction = null
     ) {
         $query = $this->createQueryBuilder('eo')
             ->leftJoin('SandboxApiBundle:Event\Event', 'e', 'WITH', 'e.id = eo.eventId')
@@ -368,8 +371,29 @@ class EventOrderRepository extends EntityRepository
                 ->setParameter('userId', $userId);
         }
 
+        if(!is_null($sortColumn) && !is_null($direction)){
+            $direction = strtoupper($direction);
+            switch ($sortColumn){
+                case 'event_start_date':
+                    $query->orderBy('e.eventStartDate',$direction);
+                    break;
+                case 'price':
+                    $query->orderBy('eo.price', $direction);
+                    break;
+                case 'creation_date':
+                    $query->orderBy('eo.creationDate', $direction);
+                    break;
+                case 'payment_date':
+                    $query->orderBy('eo.paymentDate', $direction);
+                    break;
+                default:
+                    $query->orderBy('eo.creationDate', 'DESC');
+                    break;
+            }
+        }
+
         // order by
-        $query->orderBy('eo.creationDate', 'DESC');
+        // $query->orderBy('eo.creationDate', 'DESC');
 
         return $query->getQuery()->getResult();
     }

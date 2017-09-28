@@ -60,6 +60,8 @@ class MembershipCardOrderRepository extends EntityRepository
      * @param $companyId
      * @param null $cardId
      * @param null $userId
+     * @param $sortColumn
+     * @param $direction
      *
      * @return array
      */
@@ -75,7 +77,9 @@ class MembershipCardOrderRepository extends EntityRepository
         $offset,
         $companyId,
         $cardId = null,
-        $userId = null
+        $userId = null,
+        $sortColumn = null,
+        $direction = null
     ) {
         $query = $this->createQueryBuilder('mo')
             ->select('DISTINCT mo')
@@ -172,7 +176,27 @@ class MembershipCardOrderRepository extends EntityRepository
                 ->setParameter('userId', $userId);
         }
 
-        $query->orderBy('mo.creationDate', 'DESC');
+        if(!is_null($sortColumn) && !is_null($direction)) {
+            $direction = strtoupper($direction);
+
+            switch ($sortColumn) {
+                case 'start_date':
+                    $query->orderBy('mo.startDate', $direction);
+                    break;
+                case 'end_date':
+                    $query->orderBy('mo.endDate', $direction);
+                    break;
+                case 'discount_price':
+                    $query->orderBy('mo.price', $direction);
+                    break;
+                case 'creation_date':
+                    $query->orderBy('mo.creationDate', $direction);
+                    break;
+                default:
+                    $query->orderBy('mo.creationDate', 'DESC');
+                    break;
+            }
+        }
 
         if (!is_null($limit) && !is_null($offset)) {
             $query->setMaxResults($limit)

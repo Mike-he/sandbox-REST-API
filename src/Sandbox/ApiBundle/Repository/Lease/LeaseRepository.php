@@ -83,6 +83,8 @@ class LeaseRepository extends EntityRepository
      * @param $limit
      * @param $offset
      * @param $userId
+     * @param $sortColumn,
+     * @param $direction,
      *
      * @return array
      */
@@ -101,12 +103,13 @@ class LeaseRepository extends EntityRepository
         $roomId,
         $limit = null,
         $offset = null,
-        $userId = null
+        $userId = null,
+        $sortColumn = null,
+        $direction = null
     ) {
         $query = $this->createQueryBuilder('l')
             ->leftJoin('l.product', 'p')
-            ->leftJoin('p.room', 'r')
-            ->orderBy('l.id', 'DESC');
+            ->leftJoin('p.room', 'r');
 
         $query = $this->generateQueryForLeases(
             $query,
@@ -122,7 +125,9 @@ class LeaseRepository extends EntityRepository
             $endDate,
             $companyId,
             $roomId,
-            $userId
+            $userId,
+            $sortColumn,
+            $direction
         );
 
         if (!is_null($limit) && !is_null($offset)) {
@@ -148,6 +153,8 @@ class LeaseRepository extends EntityRepository
      * @param $companyId
      * @param $roomId
      * @param $userId
+     * @param $sortColumn,
+     * @param $direction
      *
      * @return $query
      */
@@ -165,7 +172,9 @@ class LeaseRepository extends EntityRepository
         $endDate,
         $companyId,
         $roomId,
-        $userId = null
+        $userId = null,
+        $sortColumn = null,
+        $direction = null
     ) {
         if (!is_null($myBuildingIds) && !empty($myBuildingIds)) {
             $query->andWhere('r.buildingId IN (:buildingIds)')
@@ -282,6 +291,34 @@ class LeaseRepository extends EntityRepository
 
             $query->setParameter('startDate', $startDate)
                 ->setParameter('endDate', $endDate);
+        }
+
+        if(!is_null($sortColumn) && !is_null($direction)) {
+            $direction = strtoupper($direction);
+
+            switch ($sortColumn) {
+                case 'start_date':
+                    $query->orderBy('l.startDate', $direction);
+                    break;
+                case 'end_date':
+                    $query->orderBy('l.endDate', $direction);
+                    break;
+                case 'monthly_rent':
+                    $query->orderBy('l.monthlyRent', $direction);
+                    break;
+                case 'deposit':
+                    $query->orderBy('l.deposit', $direction);
+                    break;
+                case 'creation_date':
+                    $query->orderBy('l.creationDate', $direction);
+                    break;
+                case 'total_rent':
+                    $query->orderBy('l.totalRent', $direction);
+                    break;
+                default:
+                    $query->orderBy('lo.id', 'DESC');
+                    break;
+            }
         }
 
 //        if (!is_null($userId)) {

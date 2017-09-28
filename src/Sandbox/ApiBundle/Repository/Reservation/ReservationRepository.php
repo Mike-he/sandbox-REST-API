@@ -37,6 +37,8 @@ class ReservationRepository extends EntityRepository
      * @param $grabEnd
      * @param null $limit
      * @param null $offset
+     * @param $sortColumn
+     * @param $direction
      * @return array
      */
     public function findBySearch(
@@ -53,7 +55,9 @@ class ReservationRepository extends EntityRepository
         $grabStart,
         $grabEnd,
         $limit = null,
-        $offset = null
+        $offset = null,
+        $sortColumn = null,
+        $direction = null
     ) {
         $query = $this->createQueryBuilder('re')
             ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'up.userId = re.userId')
@@ -144,7 +148,23 @@ class ReservationRepository extends EntityRepository
                 ->setParameter('productIds', $productIds);
         }
 
-        $query->orderBy('re.creationDate', 'DESC');
+        if(!is_null($sortColumn) && !is_null($direction)){
+            switch ($sortColumn){
+                case 'view_time':
+                    $query->orderBy('re.viewTime', $direction);
+                    break;
+                case 'creation_date':
+                    $query->orderBy('re.creationDate', $direction);
+                    break;
+                case 'grab_date':
+                    $query->orderBy('re.grabDate', $direction);
+                    break;
+                default:
+                    $query->orderBy('re.creationDate', 'DESC');
+                    break;
+            }
+        }
+
         $query->setMaxResults($limit)
             ->setFirstResult($offset);
 

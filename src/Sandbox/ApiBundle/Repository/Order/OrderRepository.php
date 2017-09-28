@@ -775,6 +775,8 @@ class OrderRepository extends EntityRepository
      * @param $endDate
      * @param $keyword
      * @param $keywordSearch
+     * @param $sortColumn
+     * @param $direction
      *
      * @return array
      */
@@ -785,7 +787,9 @@ class OrderRepository extends EntityRepository
         $startDate,
         $endDate,
         $keyword,
-        $keywordSearch
+        $keywordSearch,
+        $sortColumn = null,
+        $direction = null
     ) {
         $query = $this->createQueryBuilder('o')
             ->leftJoin('o.product', 'p')
@@ -840,6 +844,34 @@ class OrderRepository extends EntityRepository
             }
 
             $query->setParameter('search', '%'.$keywordSearch.'%');
+        }
+
+        if(!is_null($sortColumn) && !is_null($direction)){
+            $direction = strtoupper($direction);
+
+            switch($sortColumn){
+                case 'amount':
+                    $query->orderBy('o.price', $direction);
+                    break;
+                case 'revised_amount':
+                    $query->orderBy('o.discountPrice', $direction);
+                    break;
+                case 'send_date':
+                    $query->orderBy('o.creationDate', $direction);
+                    break;
+                case 'base_price':
+                    $query->orderBy('o.basePrice', $direction);
+                    break;
+                case 'start_date':
+                    $query->orderBy('o.startDate', $direction);
+                    break;
+                case 'end_date':
+                    $query->orderBy('o.endDate', $direction);
+                    break;
+                default:
+                    $query->orderBy('o.creationDate', $direction);
+                    break;
+            }
         }
 
         $result = $query->getQuery()->getResult();
@@ -1943,6 +1975,8 @@ class OrderRepository extends EntityRepository
      * @param $room
      * @param $limit
      * @param $offset
+     * @param  $sortColumn,
+     * @param $direction
      *
      * @return array
      */
@@ -1967,7 +2001,9 @@ class OrderRepository extends EntityRepository
         $status,
         $room,
         $limit = null,
-        $offset = null
+        $offset = null,
+        $sortColumn = null,
+        $direction = null
     ) {
         $query = $this->createQueryBuilder('o')
             ->leftJoin('o.product', 'p')
@@ -2146,7 +2182,45 @@ class OrderRepository extends EntityRepository
             }
         }
 
-        $query->orderBy('o.creationDate', 'DESC');
+        if(!is_null($sortColumn) && !is_null($direction)) {
+            $direction = strtoupper($direction);
+
+            switch ($sortColumn) {
+                case 'base_price':
+                    $query->orderBy('o.basePrice', $direction);
+                    break;
+                case 'start_date':
+                    $query->orderBy('o.startDate', $direction);
+                    break;
+                case 'end_date':
+                    $query->orderBy('o.endDate', $direction);
+                    break;
+                case 'price':
+                    $query->orderBy('o.price', $direction);
+                    break;
+                case 'discount_price':
+                    $query->orderBy('o.discountPrice', $direction);
+                    break;
+                case 'creation_date':
+                    $query->orderBy('o.creationDate', $direction);
+                    break;
+                default:
+                    $query->orderBy('o.creationDate', 'DESC');
+                    break;
+            }
+        }
+
+        if(!is_null($sortColumn) && !is_null($direction)){
+            $direction = strtoupper($direction);
+            $arr = explode('_',$sortColumn);
+            for($i=1;$i<count($arr);$i++){
+                $arr[$i] = ucfirst($arr[$i]);
+            }
+            $sort = implode($arr);
+            $query->orderBy('o.'.$sort, $direction);
+        }else{
+            $query->orderBy('o.creationDate', 'DESC');
+        }
 
         $query->setMaxResults($limit)
             ->setFirstResult($offset);
