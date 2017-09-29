@@ -192,6 +192,9 @@ class MembershipCardOrderRepository extends EntityRepository
                 case 'creation_date':
                     $query->orderBy('mo.creationDate', $direction);
                     break;
+                case 'price':
+                    $query->orderBy('mo.price', $direction);
+                    break;
                 default:
                     $query->orderBy('mo.creationDate', 'DESC');
                     break;
