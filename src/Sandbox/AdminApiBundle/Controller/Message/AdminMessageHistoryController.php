@@ -24,7 +24,7 @@ class AdminMessageHistoryController extends AdminMessagePushController
      *     name="xmpp_username",
      *     array=false,
      *     nullable=true,
-     *     default="service"
+     *     default="service",
      *     strict=true
      * )
      *
