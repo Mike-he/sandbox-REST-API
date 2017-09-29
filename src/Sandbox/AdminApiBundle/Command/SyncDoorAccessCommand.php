@@ -28,8 +28,8 @@ class SyncDoorAccessCommand extends ContainerAwareCommand
     {
         $arguments = $input->getArguments();
         $userId = $arguments['userId'];
-        $roomId = $arguments['room'];
-        $orderId = $arguments['order'];
+        $roomId = $arguments['roomId'];
+        $orderId = $arguments['orderId'];
         $type = $arguments['type'];
 
         /** @var EntityManager $em */
