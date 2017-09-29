@@ -10,7 +10,7 @@ RUN apt-get install -y vim cron wget nginx php5-fpm php5-mysql php5-curl php5-co
   && rm -fr /var/lib/apt/lists/*
 
 # Copy startup script
-COPY data/*.sh /root
+COPY data/*.sh /root/
 RUN chown root:root /root/entrypoint.sh \
  && chmod +x /root/entrypoint.sh \
  && chown root:root /root/health_check.sh \
