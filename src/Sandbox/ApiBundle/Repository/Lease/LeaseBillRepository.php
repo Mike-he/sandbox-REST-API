@@ -849,9 +849,6 @@ class LeaseBillRepository extends EntityRepository
      * @param $endDate
      * @param $keyword
      * @param $keywordSearch
-     * @param $sortColumn
-     * @param $direction
-     *
      * @return array
      */
     public function getUnpaidBills(
@@ -861,9 +858,7 @@ class LeaseBillRepository extends EntityRepository
         $startDate,
         $endDate,
         $keyword,
-        $keywordSearch,
-        $sortColumn = null,
-        $direction = null
+        $keywordSearch
     ) {
         $query = $this->createQueryBuilder('lb')
             ->leftJoin('lb.lease', 'l')
@@ -922,33 +917,7 @@ class LeaseBillRepository extends EntityRepository
             $query->setParameter('search', '%'.$keywordSearch.'%');
         }
 
-        if(!is_null($sortColumn) && !is_null($direction)) {
-            $direction = strtoupper($direction);
-
-            switch ($sortColumn) {
-                case 'start_date':
-                    $query->orderBy('lb.startDate', $direction);
-                    break;
-                case 'end_date':
-                    $query->orderBy('lb.endDate', $direction);
-                    break;
-                case 'base_price':
-                    $query->orderBy('lb.amount', $direction);
-                    break;
-                case 'amount':
-                    $query->orderBy('lb.amount',$direction);
-                    break;
-                case 'revised_amount':
-                    $query->orderBy('lb.revisedAmount', $direction);
-                    break;
-                case 'send_date':
-                    $query->orderBy('lb.sendDate', $direction);
-                    break;
-                default:
-                    $query->orderBy('lb.sendDate', 'DESC');
-                    break;
-            }
-        }
+        $query->orderBy('lb.sendDate', 'DESC');
 
         $result = $query->getQuery()->getResult();
 
