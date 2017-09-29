@@ -186,9 +186,7 @@ class AdminFinanceCashierController extends SalesRestController
                 $startDate,
                 $endDate,
                 $keyword,
-                $keywordSearch,
-                $sortColumn,
-                $direction
+                $keywordSearch
             );
 
         $bills = $this->getDoctrine()
@@ -200,9 +198,7 @@ class AdminFinanceCashierController extends SalesRestController
                 $startDate,
                 $endDate,
                 $keyword,
-                $keywordSearch,
-                $sortColumn,
-                $direction
+                $keywordSearch
             );
 
         $cashierOrders = array();
@@ -233,6 +229,10 @@ class AdminFinanceCashierController extends SalesRestController
                 }
 
                 $result = array_merge($cashierOrders, $cashierBills);
+        }
+
+        if(!is_null($sortColumn) && !is_null($direction)){
+            $result = $this->sortLists($result, $sortColumn, $direction);
         }
 
         $count = count($result);
@@ -584,5 +584,35 @@ class AdminFinanceCashierController extends SalesRestController
         );
 
         return $result;
+    }
+
+    /**
+     * @param $lists
+     * @param $sortColumn
+     * @param $direction
+     * @return mixed
+     */
+    private function sortLists(
+        $lists,
+        $sortColumn,
+        $direction
+    ) {
+        $arr = [];
+        foreach( $lists as $list){
+            $arr[] = $list[$sortColumn];
+        }
+
+        switch ($direction){
+            case 'asc':
+                array_multisort($arr,SORT_ASC,$lists);
+                break;
+            case 'desc':
+                array_multisort($arr,SORT_DESC,$lists);
+                break;
+            default:
+                break;
+        }
+
+        return $lists;
     }
 }
