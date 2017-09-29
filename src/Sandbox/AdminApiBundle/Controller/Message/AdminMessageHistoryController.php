@@ -23,7 +23,8 @@ class AdminMessageHistoryController extends AdminMessagePushController
      * @Annotations\QueryParam(
      *     name="xmpp_username",
      *     array=false,
-     *     nullable=false,
+     *     nullable=true,
+     *     default="service"
      *     strict=true
      * )
      *
@@ -37,7 +38,6 @@ class AdminMessageHistoryController extends AdminMessagePushController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-//        $this->checkAdminMessagePermission(AdminPermission::OP_LEVEL_VIEW);
 
         $xmppUsername = $paramFetcher->get('xmpp_username');
 
