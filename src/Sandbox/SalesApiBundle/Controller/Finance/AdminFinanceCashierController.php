@@ -599,7 +599,11 @@ class AdminFinanceCashierController extends SalesRestController
     ) {
         $arr = [];
         foreach( $lists as $list){
-            $arr[] = $list[$sortColumn];
+            if ($sortColumn == 'base_price'){
+                $arr[] = intval($list[$sortColumn]);
+            }else{
+                $arr[] = $list[$sortColumn];
+            }
         }
 
         switch ($direction){
