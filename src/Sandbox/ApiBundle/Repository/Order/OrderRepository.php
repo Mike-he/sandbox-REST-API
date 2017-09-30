@@ -775,9 +775,6 @@ class OrderRepository extends EntityRepository
      * @param $endDate
      * @param $keyword
      * @param $keywordSearch
-     * @param $sortColumn
-     * @param $direction
-     *
      * @return array
      */
     public function getUnpaidPreOrders(
@@ -787,9 +784,7 @@ class OrderRepository extends EntityRepository
         $startDate,
         $endDate,
         $keyword,
-        $keywordSearch,
-        $sortColumn = null,
-        $direction = null
+        $keywordSearch
     ) {
         $query = $this->createQueryBuilder('o')
             ->leftJoin('o.product', 'p')
@@ -846,33 +841,7 @@ class OrderRepository extends EntityRepository
             $query->setParameter('search', '%'.$keywordSearch.'%');
         }
 
-        if(!is_null($sortColumn) && !is_null($direction)){
-            $direction = strtoupper($direction);
-
-            switch($sortColumn){
-                case 'amount':
-                    $query->orderBy('o.price', $direction);
-                    break;
-                case 'revised_amount':
-                    $query->orderBy('o.discountPrice', $direction);
-                    break;
-                case 'send_date':
-                    $query->orderBy('o.creationDate', $direction);
-                    break;
-                case 'base_price':
-                    $query->orderBy('o.basePrice', $direction);
-                    break;
-                case 'start_date':
-                    $query->orderBy('o.startDate', $direction);
-                    break;
-                case 'end_date':
-                    $query->orderBy('o.endDate', $direction);
-                    break;
-                default:
-                    $query->orderBy('o.creationDate', $direction);
-                    break;
-            }
-        }
+        $query->orderBy('o.creationDate', 'DESC');
 
         $result = $query->getQuery()->getResult();
 
