@@ -4,10 +4,10 @@ parameters:
     database_port: '3306'
 
     # production data
-    database_name: staging_rest_api_db_pro
+    #database_name: staging_rest_api_db_pro
 
     # staging data
-    #database_name: staging_rest_api_db
+    database_name: staging_rest_api_db
 
     database_user: staging_rest
     database_password: S3deb0x_2016
