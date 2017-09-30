@@ -43,6 +43,10 @@ class Version920170926101317 extends AbstractMigration implements ContainerAware
 
         foreach($genericlists as $genericlist){
             $genericlist->setSort(true);
+            $object = $genericlist->getObject();
+            if($object == 'reservation'){
+                $genericlist->setSort(false);
+            }
         }
 
         $em->flush();
