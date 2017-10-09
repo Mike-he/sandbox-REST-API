@@ -3,6 +3,8 @@
 namespace Sandbox\AdminApiBundle\Command;
 
 use Doctrine\ORM\EntityManager;
+use Sandbox\ApiBundle\Entity\Product\Product;
+use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
@@ -19,7 +21,6 @@ class SyncDoorAccessCommand extends ContainerAwareCommand
         $this->setName('sandbox:api-bundle:sync:DoorAccess')
             ->setDescription('Sync user card and room order in door access')
             ->addArgument('userId', InputArgument::REQUIRED, 'user ID')
-            ->addArgument('roomId', InputArgument::REQUIRED, 'room ID')
             ->addArgument('orderId', InputArgument::REQUIRED, 'order ID')
             ->addArgument('type', InputArgument::REQUIRED, 'type: order or lease');
     }
@@ -28,7 +29,6 @@ class SyncDoorAccessCommand extends ContainerAwareCommand
     {
         $arguments = $input->getArguments();
         $userId = $arguments['userId'];
-        $roomId = $arguments['roomId'];
         $orderId = $arguments['orderId'];
         $type = $arguments['type'];
 
@@ -44,21 +44,25 @@ class SyncDoorAccessCommand extends ContainerAwareCommand
             $accessNo = $order->getId();
             $start = $order->getStartDate();
             $end = $order->getEndDate();
+
+            $product = $order->getProduct();
         } elseif ($type == 'lease') {
             $lease = $em->getRepository('SandboxApiBundle:Lease\Lease')->find($orderId);
 
             $start = $lease->getStartDate();
             $end = $lease->getEndDate();
             $accessNo = $lease->getAccessNo();
+
+            $product = $lease->getProduct();
         }
+
+        /** @var Product $product */
+        $room = $product->getRoom();
 
         $roomDoors = $em
             ->getRepository('SandboxApiBundle:Room\RoomDoors')
-            ->findBy(['room' => $roomId]);
+            ->findBy(['room' => $room]);
 
-        $room = $em->getRepository('SandboxApiBundle:Room\Room')->find($roomId);
-
-        /** @var RoomBuilding $building */
         $building = $room->getBuilding();
 
         $base = $building->getServer();
