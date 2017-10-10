@@ -39,7 +39,7 @@ parameters:
     food_api_url: http://food.sandbox3.cn
     food_api_payment_callback: /index.php?route=payment/sandbox_wechat/callback
 
-    crm_api_url: http://localhost.api.crm
+    crm_api_url: crmserver
     crm_api_client_user_account_authentication: /client/user/account/authentication
     crm_api_client_user_account_vip: /client/user/account/vip
     crm_api_admin_user_account_vip: /admin/useraccounts/{userId}/vip
