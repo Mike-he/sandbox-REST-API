@@ -106,13 +106,13 @@ parameters:
 
     duiba_app_key: XUPB5iAdCbHnc6C8fcmpB8fcxLu
     duiba_app_secret: 3ynCsWqXzcErULFvSEojLH94pnxb
-    duiba_app_env: sta
+    duiba_app_env: demo
 
     jpush_apns_option: false
-    jpush_key: 053c3281736d2c34b51e58be
-    jpush_secret: 7772afddf154443ab12fa13d
+    jpush_key: 045f0c31a94a441c5280fcbb
+    jpush_secret: 4d45889d29b5ffd3ad2e6f0f
 
     oss_access_key_id: LTAIlrwRyGc3PpVH
     oss_access_key_secret: mxnsEPGC4OgwOLTqB3HX6YMB34wUqh
     oss_endpoint: oss-cn-shanghai-internal.aliyuncs.com
-    oss_bucket: sandbox3-staging-image
+    oss_bucket: sandbox3-demo-image
