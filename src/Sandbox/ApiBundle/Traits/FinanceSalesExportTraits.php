@@ -1278,6 +1278,7 @@ trait FinanceSalesExportTraits
 
         $headers = [
             '社区',
+            '空间名',
             '类型',
             '账单号',
             '合同号',
@@ -1364,6 +1365,7 @@ trait FinanceSalesExportTraits
 
             $body = array(
                 'building_name' => $building->getName(),
+                'room_name' => $room->getName(),
                 'order_type' => '长租账单',
                 'serial_number' => $bill->getSerialNumber(),
                 'lease_serial_number' => $lease->getSerialNumber(),
