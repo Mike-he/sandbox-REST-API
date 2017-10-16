@@ -36,7 +36,7 @@ class AppKernel extends Kernel
             new Stof\DoctrineExtensionsBundle\StofDoctrineExtensionsBundle(),
             new Knp\Bundle\SnappyBundle\KnpSnappyBundle(),
 //            new Snc\RedisBundle\SncRedisBundle(),
-            new Landlord\ClientApiBundle\LandlordClientApiBundle(),
+            new Sandbox\ClientPropertyApiBundle\SandboxClientPropertyApiBundle(),
         );
 
         if (in_array($this->getEnvironment(), array('dev', 'test'))) {

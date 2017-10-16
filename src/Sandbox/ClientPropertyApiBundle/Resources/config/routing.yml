@@ -1,0 +1,3 @@
+sandbox_client_property_api_homepage:
+    path:     /hello/{name}
+    defaults: { _controller: SandboxClientPropertyApiBundle:Default:index }

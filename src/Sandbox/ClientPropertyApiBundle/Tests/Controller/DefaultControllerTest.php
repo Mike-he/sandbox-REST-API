@@ -1,6 +1,6 @@
 <?php
 
-namespace Landlord\ClientApiBundle\Tests\Controller;
+namespace Sandbox\ClientPropertyApiBundle\Tests\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
