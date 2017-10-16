@@ -1,0 +1,7 @@
+parameters:
+#    landlord_client_api.example.class: Landlord\ClientApiBundle\Example
+
+services:
+#    landlord_client_api.example:
+#        class: %landlord_client_api.example.class%
+#        arguments: [@service_id, "plain_value", %parameter%]
