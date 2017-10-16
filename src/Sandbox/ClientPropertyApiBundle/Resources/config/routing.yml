@@ -1,3 +1,6 @@
-sandbox_client_property_api_homepage:
-    path:     /hello/{name}
-    defaults: { _controller: SandboxClientPropertyApiBundle:Default:index }
+sandbox_client_property_api_dashboard:
+    resource: "@SandboxClientPropertyApiBundle/Controller/Dashboard/ClientDashBoardController.php"
+    type:     annotation
+    prefix:   /
+
+
