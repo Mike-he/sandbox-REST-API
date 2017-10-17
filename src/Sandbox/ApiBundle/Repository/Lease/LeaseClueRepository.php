@@ -33,9 +33,9 @@ class LeaseClueRepository extends EntityRepository
         $keywordSearch,
         $createStart,
         $createEnd,
-        $rentFilter,
-        $startDate,
-        $endDate,
+        $rentFilter = null,
+        $startDate = null,
+        $endDate = null,
         $limit = null,
         $offset = null,
         $sortColumn = null,
@@ -81,17 +81,11 @@ class LeaseClueRepository extends EntityRepository
         }
 
         if ($createStart) {
-            $createStart = new \DateTime($createStart);
-            $createStart->setTime(0, 0, 0);
-
             $query->andWhere('lc.creationDate >= :createStart')
                 ->setParameter('createStart', $createStart);
         }
 
         if ($createEnd) {
-            $createEnd = new \DateTime($createEnd);
-            $createEnd->setTime(23, 59, 59);
-
             $query->andWhere('lc.creationDate <= :createEnd')
                 ->setParameter('createEnd', $createEnd);
         }
@@ -173,12 +167,12 @@ class LeaseClueRepository extends EntityRepository
      * @param $keyword
      * @param $keywordSearch
      * @param $createStart
+     * @param $createEnd
      * @param $rentFilter
      * @param $startDate
      * @param $endDate
-     * @param $createEnd
      *
-     * @return \Doctrine\ORM\QueryBuilder|mixed
+     * @return int
      */
     public function countClues(
         $myBuildingIds,
@@ -187,10 +181,10 @@ class LeaseClueRepository extends EntityRepository
         $keyword,
         $keywordSearch,
         $createStart,
-        $rentFilter,
-        $startDate,
-        $endDate,
-        $createEnd
+        $createEnd,
+        $rentFilter = null,
+        $startDate = null,
+        $endDate = null
     ) {
         $query = $this->createQueryBuilder('lc')
             ->select('count(lc.id)')
@@ -233,17 +227,11 @@ class LeaseClueRepository extends EntityRepository
         }
 
         if ($createStart) {
-            $createStart = new \DateTime($createStart);
-            $createStart->setTime(0, 0, 0);
-
             $query->andWhere('lc.creationDate >= :createStart')
                 ->setParameter('createStart', $createStart);
         }
 
         if ($createEnd) {
-            $createEnd = new \DateTime($createEnd);
-            $createEnd->setTime(23, 59, 59);
-
             $query->andWhere('lc.creationDate <= :createEnd')
                 ->setParameter('createEnd', $createEnd);
         }
@@ -283,6 +271,6 @@ class LeaseClueRepository extends EntityRepository
 
         $result = $query->getQuery()->getSingleScalarResult();
 
-        return $result;
+        return (int) $result;
     }
 }

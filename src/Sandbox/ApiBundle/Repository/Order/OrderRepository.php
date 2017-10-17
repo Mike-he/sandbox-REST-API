@@ -4597,24 +4597,92 @@ class OrderRepository extends EntityRepository
     /**
      * @param $myBuildingIds
      * @param $status
+     * @param null $startDate
+     * @param null $endDate
      *
      * @return int
      */
     public function countOrders(
         $myBuildingIds,
-        $status
+        $status,
+        $startDate = null,
+        $endDate = null
     ) {
         $query = $this->createQueryBuilder('o')
             ->select('count(o.id)')
             ->leftJoin('o.product', 'p')
             ->leftJoin('p.room', 'r')
-            ->where('o.status = :status')
-            ->andWhere('r.buildingId in (:buildings)')
-            ->setParameter('status', $status)
+            ->where('r.buildingId in (:buildings)')
             ->setParameter('buildings', $myBuildingIds);
+
+        if ($status) {
+            $query->andWhere('o.status = :status')
+                ->setParameter('status', $status);
+        }
+
+        if ($startDate) {
+            $query->andWhere('o.creationDate >= :startDate')
+                ->setParameter('startDate', $startDate);
+        }
+
+        if ($endDate) {
+            $query->andWhere('o.creationDate <= :endDate')
+                ->setParameter('endDate', $endDate);
+        }
 
         $result = $query->getQuery()->getSingleScalarResult();
 
         return (int) $result;
+    }
+
+    /**
+     * @param $myBuildingIds
+     * @param $status
+     * @param null $startDate
+     * @param null $endDate
+     * @param null $limit
+     * @param null $offset
+     *
+     * @return array
+     */
+    public function getOrderLists(
+        $myBuildingIds,
+        $status,
+        $startDate = null,
+        $endDate = null,
+        $limit = null,
+        $offset = null
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->leftJoin('o.product', 'p')
+            ->leftJoin('p.room', 'r')
+            ->where('r.buildingId in (:buildings)')
+            ->setParameter('buildings', $myBuildingIds);
+
+        if ($status) {
+            $query->andWhere('o.status = :status')
+                ->setParameter('status', $status);
+        }
+
+        if ($startDate) {
+            $query->andWhere('o.creationDate >= :startDate')
+                ->setParameter('startDate', $startDate);
+        }
+
+        if ($endDate) {
+            $query->andWhere('o.creationDate <= :endDate')
+                ->setParameter('endDate', $endDate);
+        }
+
+        $query->orderBy('o.startDate', 'DESC');
+
+        if (!is_null($limit) && !is_null($offset)) {
+            $query->setMaxResults($limit)
+                ->setFirstResult($offset);
+        }
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
     }
 }

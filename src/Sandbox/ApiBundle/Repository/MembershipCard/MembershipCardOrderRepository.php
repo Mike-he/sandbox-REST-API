@@ -470,4 +470,63 @@ class MembershipCardOrderRepository extends EntityRepository
 
         return (int) $result;
     }
+
+    public function getOrdersByPropertyClient(
+        $companyId,
+        $startDate,
+        $endDate,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('mo')
+            ->leftJoin('mo.card','c')
+            ->where('c.companyId = :companyId')
+            ->setParameter('companyId', $companyId);
+
+        if ($startDate) {
+            $query->andwhere('mo.paymentDate >= :startDate')
+                ->setParameter('startDate', $startDate);
+        }
+
+        if ($endDate) {
+            $query->andWhere('mo.paymentDate <= :endDate')
+                ->setParameter('endDate', $endDate);
+        }
+
+        $query->orderBy('mo.id', 'DESC');
+
+
+        if (!is_null($limit) && !is_null($offset)) {
+            $query->setMaxResults($limit)
+                ->setFirstResult($offset);
+        }
+
+        return $query->getQuery()->getResult();
+    }
+
+    public function countOrdersByPropertyClient(
+        $companyId,
+        $startDate,
+        $endDate
+    ) {
+        $query = $this->createQueryBuilder('mo')
+            ->select('count(mo.id)')
+            ->leftJoin('mo.card','c')
+            ->where('c.companyId = :companyId')
+            ->setParameter('companyId', $companyId);
+
+        if ($startDate) {
+            $query->andwhere('mo.paymentDate >= :startDate')
+                ->setParameter('startDate', $startDate);
+        }
+
+        if ($endDate) {
+            $query->andWhere('mo.paymentDate <= :endDate')
+                ->setParameter('endDate', $endDate);
+        }
+
+        $result =  $query->getQuery()->getSingleScalarResult();
+
+        return (int) $result;
+    }
 }

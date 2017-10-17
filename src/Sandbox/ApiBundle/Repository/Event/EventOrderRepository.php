@@ -249,6 +249,7 @@ class EventOrderRepository extends EntityRepository
      * @param $userId
      * @param $sortColumn
      * @param $direction
+     *
      * @return array
      */
     public function getEventOrdersForSalesAdmin(
@@ -371,11 +372,11 @@ class EventOrderRepository extends EntityRepository
                 ->setParameter('userId', $userId);
         }
 
-        if(!is_null($sortColumn) && !is_null($direction)){
+        if (!is_null($sortColumn) && !is_null($direction)) {
             $direction = strtoupper($direction);
-            switch ($sortColumn){
+            switch ($sortColumn) {
                 case 'event_start_date':
-                    $query->orderBy('e.eventStartDate',$direction);
+                    $query->orderBy('e.eventStartDate', $direction);
                     break;
                 case 'price':
                     $query->orderBy('eo.price', $direction);
@@ -568,6 +569,90 @@ class EventOrderRepository extends EntityRepository
             ->setParameter('completed', EventOrder::STATUS_COMPLETED)
             ->setParameter('userId', $userId)
             ->setParameter('now', $now);
+
+        $result = $query->getQuery()->getSingleScalarResult();
+
+        return (int) $result;
+    }
+
+    /**
+     * @param $createStart
+     * @param $createEnd
+     * @param $salesCompanyId
+     * @param $limit
+     * @param $offset
+     *
+     * @return array
+     */
+    public function getEventOrdersForPropertyClient(
+        $createStart,
+        $createEnd,
+        $salesCompanyId,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('eo')
+            ->leftJoin('SandboxApiBundle:Event\Event', 'e', 'WITH', 'e.id = eo.eventId')
+            ->where('eo.status != :unpaid')
+            ->andWhere('eo.paymentDate IS NOT NULL')
+            ->andWhere('e.salesCompanyId = :salesCompanyId')
+            ->setParameter('unpaid', EventOrder::STATUS_UNPAID)
+            ->setParameter('salesCompanyId', $salesCompanyId);
+
+        // filter by order start point
+        if (!is_null($createStart)) {
+            $query->andWhere('eo.creationDate >= :createStart')
+                    ->setParameter('createStart', $createStart);
+        }
+
+        // filter by order end point
+        if (!is_null($createEnd)) {
+            $query->andWhere('eo.creationDate <= :createEnd')
+                    ->setParameter('createEnd', $createEnd);
+        }
+
+        $query->orderBy('eo.creationDate', 'DESC');
+
+        if (!is_null($limit) && !is_null($offset)) {
+            $query->setMaxResults($limit)
+                ->setFirstResult($offset);
+        }
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $createStart
+     * @param $createEnd
+     * @param $salesCompanyId
+     *
+     * @return int
+     */
+    public function countEventOrdersForPropertyClient(
+        $createStart,
+        $createEnd,
+        $salesCompanyId
+    ) {
+        $query = $this->createQueryBuilder('eo')
+            ->select('count(eo.id)')
+            ->leftJoin('SandboxApiBundle:Event\Event', 'e', 'WITH', 'e.id = eo.eventId')
+            ->where('eo.status != :unpaid')
+            ->andWhere('eo.paymentDate IS NOT NULL')
+            ->andWhere('e.salesCompanyId = :salesCompanyId')
+            ->setParameter('unpaid', EventOrder::STATUS_UNPAID)
+            ->setParameter('salesCompanyId', $salesCompanyId);
+
+        // filter by order start point
+        if (!is_null($createStart)) {
+            $query->andWhere('eo.creationDate >= :createStart')
+                ->setParameter('createStart', $createStart);
+        }
+
+        // filter by order end point
+        if (!is_null($createEnd)) {
+            $query->andWhere('eo.creationDate <= :createEnd')
+                ->setParameter('createEnd', $createEnd);
+        }
 
         $result = $query->getQuery()->getSingleScalarResult();
 
