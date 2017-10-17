@@ -190,6 +190,11 @@ security:
             security: false
             methods: [GET]
 
+        client_admin_register:
+            pattern: ^/client/admin_register/check_code
+            security: false
+            methods: [POST]
+
         main:
             pattern: ^/
             anonymous: true
@@ -197,6 +202,7 @@ security:
             stateless:  true
 
     access_control:
+        - { path: ^/client/admin_register, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [POST] }
         - { path: ^/sales/admin/export/orders, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET]}
         - { path: ^/sales/admin/finance/export, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET]}
         - { path: ^/sales/admin/lease/export, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET]}

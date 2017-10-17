@@ -46,6 +46,7 @@ class UserCheckCode
      * Type Of code.
      * 0. Check code for admin login.
      * 1. Check code for user payment check api.
+     * 2. Check code for client admin register.
      *
      * @var int
      *
