@@ -416,3 +416,9 @@ sandbox_client_api_reservation:
     resource: "@SandboxClientApiBundle/Controller/Reservation/ClientReservationController.php"
     type:     annotation
     prefix:   /
+
+#Admin Register
+sandbox_client_api_admin_register:
+    resource: "@SandboxClientApiBundle/Controller/Admin/ClientAdministratorRegisterController.php"
+    type:     annotation
+    prefix:   /
