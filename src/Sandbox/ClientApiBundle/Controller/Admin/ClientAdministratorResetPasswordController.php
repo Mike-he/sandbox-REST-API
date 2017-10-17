@@ -8,7 +8,6 @@ use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdmin;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\User\UserCheckCode;
 use Sandbox\ApiBundle\Entity\User\UserPhoneCode;
-use Sandbox\ApiBundle\Entity\User\UserProfile;
 use Sandbox\ApiBundle\Traits\YunPianSms;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -19,12 +18,12 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 /**
  * Class ClientAdministratorRegisterController.
  */
-class ClientAdministratorRegisterController extends SandboxRestController
+class ClientAdministratorResetPasswordController extends SandboxRestController
 {
     use YunPianSms;
 
     /**
-     * @Route("/admin_register/check_code")
+     * @Route("/admin_reset/check_code")
      * @Method({"POST"})
      *
      * @return View
@@ -49,10 +48,10 @@ class ClientAdministratorRegisterController extends SandboxRestController
                 'phone' => $phone,
             ]);
 
-        if (!is_null($salesAdmin)) {
+        if (is_null($salesAdmin)) {
             return new View([
                 'error_code' => '400001',
-                'error_message' => '该手机号码已注册',
+                'error_message' => '账号不存在',
             ]);
         }
 
@@ -60,17 +59,14 @@ class ClientAdministratorRegisterController extends SandboxRestController
 
         $this->sendSMSNotification($userCheckCode);
 
-        $view = new View();
-        $view->setStatusCode('201');
-
-        return $view;
+        return new View();
     }
 
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
-     * @Route("/admin_register/verify")
+     * @Route("/admin_reset/verify")
      * @Method({"POST"})
      *
      * @return View
@@ -95,7 +91,7 @@ class ClientAdministratorRegisterController extends SandboxRestController
                 'phoneCode' => $phoneCode,
                 'phone' => $phone,
                 'code' => $code,
-                'type' => '2',
+                'type' => '3',
             ]);
 
         if (is_null($userCheckCode)) {
@@ -120,82 +116,24 @@ class ClientAdministratorRegisterController extends SandboxRestController
 
         $password = $data['password'];
 
-        $user = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\User')
+        $admin = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
             ->findOneBy([
                 'phoneCode' => $phoneCode,
                 'phone' => $phone,
             ]);
 
+        if (is_null($admin)) {
+            return new View();
+        }
+
         $em = $this->getDoctrine()->getManager();
 
-        if (is_null($user) && !is_null($password)) {
-            $xmppUsername = strval(3000000 + $userCheckCode->getId());
+        $admin->setPassword($password);
 
-            $user = new User();
-            $user->setPassword($password);
-            $user->setPhoneCode($phoneCode);
-            $user->setPhone($phone);
-            $user->setXmppUsername($xmppUsername);
-            $em->persist($user);
+        $em->flush();
 
-            // create default profile
-            $profile = new UserProfile();
-            $profile->setName('');
-            $profile->setUser($user);
-            $em->persist($profile);
-
-            // add service account to buddy list
-            $this->addBuddyToUser(array($user));
-
-            // post user account to internal api
-            $this->postUserAccount($user->getId());
-
-            $this->get('sandbox_api.jmessage')
-                ->createUser(
-                    $user->getXmppUsername(),
-                    $user->getPassword(),
-                    ''
-                );
-
-            $em->flush();
-        }
-
-        $userId = $user->getId();
-
-        $salesAdmin = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
-            ->findOneBy(array('userId' => $userId));
-
-        if (!$salesAdmin) {
-            $salesAdmin = new SalesAdmin();
-            $salesAdmin->setPhone($user->getPhone());
-            $salesAdmin->setPhoneCode($user->getPhoneCode());
-            $salesAdmin->setXmppUsername('admin_'.$user->getXmppUsername());
-            $salesAdmin->setPassword($user->getPassword());
-            $salesAdmin->setUserId($user->getId());
-
-            $em->persist($salesAdmin);
-            $em->flush();
-
-            $profile = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:User\UserProfile')
-                ->findOneBy(array('userId' => $userId));
-
-            $nickname = $profile ? $profile->getName() : null;
-
-            $this->get('sandbox_api.jmessage')
-                ->createUser(
-                    $salesAdmin->getXmppUsername(),
-                    $salesAdmin->getPassword(),
-                    $nickname
-                );
-        }
-
-        $view = new View();
-        $view->setStatusCode('201');
-
-        return $view;
+        return new View();
     }
 
     /**
@@ -217,7 +155,7 @@ class ClientAdministratorRegisterController extends SandboxRestController
                 array(
                     'phoneCode' => $phoneCode,
                     'phone' => $phone,
-                    'type' => 2,
+                    'type' => 3,
                 )
             );
 
@@ -226,7 +164,7 @@ class ClientAdministratorRegisterController extends SandboxRestController
             $userCheckCode = new UserCheckCode();
             $userCheckCode->setPhone($phone);
             $userCheckCode->setPhoneCode($phoneCode);
-            $userCheckCode->setType(2);
+            $userCheckCode->setType(3);
         }
 
         // if the date time is expired, update code and creation date
