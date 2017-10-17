@@ -129,7 +129,7 @@ class LeaseOfferRepository extends EntityRepository
                 ->setParameter('endDate', $endDate);
         }
 
-        if(!is_null($sortColumn) && !is_null($direction)) {
+        if (!is_null($sortColumn) && !is_null($direction)) {
             $direction = strtoupper($direction);
 
             switch ($sortColumn) {

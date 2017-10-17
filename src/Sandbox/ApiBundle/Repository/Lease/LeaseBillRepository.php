@@ -153,7 +153,7 @@ class LeaseBillRepository extends EntityRepository
                     ')
             ->setParameter('customerIds', $customerIds);
 
-        if ($type == 'all') {
+        if ('all' == $type) {
             $query->andWhere('lb.status != :status')
                 ->setParameter('status', LeaseBill::STATUS_PENDING);
         } else {
@@ -285,7 +285,7 @@ class LeaseBillRepository extends EntityRepository
         }
 
         if (!is_null($status)) {
-            if ($status == LeaseBillOfflineTransfer::STATUS_RETURNED || $status == LeaseBillOfflineTransfer::STATUS_PENDING) {
+            if (LeaseBillOfflineTransfer::STATUS_RETURNED == $status || LeaseBillOfflineTransfer::STATUS_PENDING == $status) {
                 $query->andWhere('t.transferStatus = :status');
             } else {
                 $query->andWhere('lb.status in (:status)');
@@ -687,7 +687,7 @@ class LeaseBillRepository extends EntityRepository
                 ->setParameter('payEndDate', $payEndDate);
         }
 
-        if(!is_null($sortColumn) && !is_null($direction)) {
+        if (!is_null($sortColumn) && !is_null($direction)) {
             $direction = strtoupper($direction);
 
             switch ($sortColumn) {
@@ -771,7 +771,7 @@ class LeaseBillRepository extends EntityRepository
                 ->setParameter('status', $status);
         }
 
-        if (!empty($channels)) {
+        if (!empty($channels) || !is_null($channels)) {
             if (in_array('sandbox', $channels)) {
                 $channels[] = ProductOrder::CHANNEL_ACCOUNT;
                 $channels[] = ProductOrder::CHANNEL_ALIPAY;
@@ -838,7 +838,7 @@ class LeaseBillRepository extends EntityRepository
 
         $result = $query->getQuery()->getSingleScalarResult();
 
-        return $result;
+        return (int) $result;
     }
 
     /**
@@ -849,6 +849,7 @@ class LeaseBillRepository extends EntityRepository
      * @param $endDate
      * @param $keyword
      * @param $keywordSearch
+     *
      * @return array
      */
     public function getUnpaidBills(
@@ -984,5 +985,49 @@ class LeaseBillRepository extends EntityRepository
         $result = $query->getQuery()->getResult();
 
         return $result;
+    }
+
+    /**
+     * @param $leaseStatus
+     * @param $myBuildingIds
+     * @param $status
+     * @param null $startDate
+     * @param null $endDate
+     *
+     * @return int
+     */
+    public function countBillsForClientProperty(
+        $leaseStatus,
+        $myBuildingIds,
+        $status,
+        $startDate = null,
+        $endDate = null
+    ) {
+        $query = $this->createQueryBuilder('lb')
+            ->select('count(lb.id)')
+            ->leftJoin('lb.lease', 'l')
+            ->where('l.status in (:leaseStatus)')
+            ->andWhere('l.buildingId in (:buildingIds)')
+            ->setParameter('leaseStatus', $leaseStatus)
+            ->setParameter('buildingIds', $myBuildingIds);
+
+        if ($status) {
+            $query->andWhere('lb.status = :status')
+                ->setParameter('status', $status);
+        }
+
+        if (!is_null($startDate)) {
+            $query->andWhere('lb.startDate >= :startDate')
+                ->setParameter('startDate', $startDate);
+        }
+
+        if (!is_null($endDate)) {
+            $query->andWhere('lb.startDate <= :endDate')
+                ->setParameter('endDate', $endDate);
+        }
+
+        $result = $query->getQuery()->getSingleScalarResult();
+
+        return (int) $result;
     }
 }

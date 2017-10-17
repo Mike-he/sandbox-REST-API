@@ -775,6 +775,7 @@ class OrderRepository extends EntityRepository
      * @param $endDate
      * @param $keyword
      * @param $keywordSearch
+     *
      * @return array
      */
     public function getUnpaidPreOrders(
@@ -1413,14 +1414,14 @@ class OrderRepository extends EntityRepository
         }
 
         // refund status filter
-        if ($refundStatus == ProductOrder::REFUNDED_STATUS) {
+        if (ProductOrder::REFUNDED_STATUS == $refundStatus) {
             $query->andWhere('o.refunded = TRUE')
                 ->orderBy('o.modificationDate', 'DESC');
-        } elseif ($refundStatus == ProductOrder::NEED_TO_REFUND) {
+        } elseif (ProductOrder::NEED_TO_REFUND == $refundStatus) {
             $query->andWhere('o.refunded = FALSE')
                 ->andWhere('o.needToRefund = TRUE')
                 ->orderBy('o.modificationDate', 'ASC');
-        } elseif ($refundStatus == ProductOrder::ALL_REFUND) {
+        } elseif (ProductOrder::ALL_REFUND == $refundStatus) {
             $query->andWhere('(o.refunded = TRUE OR o.needToRefund = TRUE)')
                 ->orderBy('o.modificationDate', 'DESC');
         } else {
@@ -1695,12 +1696,12 @@ class OrderRepository extends EntityRepository
         }
 
         // refund status filter
-        if ($refundStatus == ProductOrder::REFUNDED_STATUS) {
+        if (ProductOrder::REFUNDED_STATUS == $refundStatus) {
             $query->andWhere('o.refunded = TRUE');
-        } elseif ($refundStatus == ProductOrder::NEED_TO_REFUND) {
+        } elseif (ProductOrder::NEED_TO_REFUND == $refundStatus) {
             $query->andWhere('o.refunded = FALSE')
                 ->andWhere('o.needToRefund = TRUE');
-        } elseif ($refundStatus == ProductOrder::ALL_REFUND) {
+        } elseif (ProductOrder::ALL_REFUND == $refundStatus) {
             $query->andWhere('(o.refunded = TRUE OR o.needToRefund = TRUE)');
         }
 
@@ -2151,7 +2152,7 @@ class OrderRepository extends EntityRepository
             }
         }
 
-        if(!is_null($sortColumn) && !is_null($direction)) {
+        if (!is_null($sortColumn) && !is_null($direction)) {
             $direction = strtoupper($direction);
 
             switch ($sortColumn) {
@@ -2179,15 +2180,15 @@ class OrderRepository extends EntityRepository
             }
         }
 
-        if(!is_null($sortColumn) && !is_null($direction)){
+        if (!is_null($sortColumn) && !is_null($direction)) {
             $direction = strtoupper($direction);
-            $arr = explode('_',$sortColumn);
-            for($i=1;$i<count($arr);$i++){
+            $arr = explode('_', $sortColumn);
+            for ($i = 1; $i < count($arr); ++$i) {
                 $arr[$i] = ucfirst($arr[$i]);
             }
             $sort = implode($arr);
             $query->orderBy('o.'.$sort, $direction);
-        }else{
+        } else {
             $query->orderBy('o.creationDate', 'DESC');
         }
 
@@ -2384,6 +2385,7 @@ class OrderRepository extends EntityRepository
                     break;
                 case 'name':
                     $query->andWhere('uc.name LIKE :search');
+                    // no break
                 default:
                     $query->andWhere('o.orderNumber LIKE :search');
             }
@@ -2471,20 +2473,20 @@ class OrderRepository extends EntityRepository
                 ->setParameter('buildingIds', $myBuildingIds);
         }
 
-            //filter by payStart
-            if (!is_null($payStart)) {
-                $payStart = new \DateTime($payStart);
-                $query->andWhere('o.paymentDate >= :payStart')
+        //filter by payStart
+        if (!is_null($payStart)) {
+            $payStart = new \DateTime($payStart);
+            $query->andWhere('o.paymentDate >= :payStart')
                     ->setParameter('payStart', $payStart);
-            }
+        }
 
-            //filter by payEnd
-            if (!is_null($payEnd)) {
-                $payEnd = new \DateTime($payEnd);
-                $payEnd->setTime(23, 59, 59);
-                $query->andWhere('o.paymentDate <= :payEnd')
+        //filter by payEnd
+        if (!is_null($payEnd)) {
+            $payEnd = new \DateTime($payEnd);
+            $payEnd->setTime(23, 59, 59);
+            $query->andWhere('o.paymentDate <= :payEnd')
                     ->setParameter('payEnd', $payEnd);
-            }
+        }
 
         $query->orderBy('o.creationDate', 'DESC');
 
@@ -3068,7 +3070,7 @@ class OrderRepository extends EntityRepository
             ->setParameter('payChannel', $channel)
             ->setParameter('status', $status);
 
-        if ($status == ProductOrder::STATUS_COMPLETED) {
+        if (ProductOrder::STATUS_COMPLETED == $status) {
             $query->andWhere('o.startDate >= :start')
                     ->andWhere('o.startDate <= :end');
         } else {
@@ -4566,7 +4568,7 @@ class OrderRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('o')
             ->select('o.orderNumber as order_number')
-            ->leftJoin('o.product','p')
+            ->leftJoin('o.product', 'p')
             ->leftJoin('p.room', 'r')
             ->leftJoin('r.building', 'b')
             ->andWhere('o.type = :preorder')
@@ -4590,5 +4592,29 @@ class OrderRepository extends EntityRepository
         $result = $query->getQuery()->getResult();
 
         return $result;
+    }
+
+    /**
+     * @param $myBuildingIds
+     * @param $status
+     *
+     * @return int
+     */
+    public function countOrders(
+        $myBuildingIds,
+        $status
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->select('count(o.id)')
+            ->leftJoin('o.product', 'p')
+            ->leftJoin('p.room', 'r')
+            ->where('o.status = :status')
+            ->andWhere('r.buildingId in (:buildings)')
+            ->setParameter('status', $status)
+            ->setParameter('buildings', $myBuildingIds);
+
+        $result = $query->getQuery()->getSingleScalarResult();
+
+        return (int) $result;
     }
 }

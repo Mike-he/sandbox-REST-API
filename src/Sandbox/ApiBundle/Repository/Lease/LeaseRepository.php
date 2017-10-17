@@ -226,9 +226,9 @@ class LeaseRepository extends EntityRepository
         if (!is_null($createRange) && !empty($createRange)) {
             $now = new \DateTime();
 
-            if ($createRange == ProductAppointment::RANGE_LAST_WEEK) {
+            if (ProductAppointment::RANGE_LAST_WEEK == $createRange) {
                 $last = $now->modify('-1 week');
-            } elseif ($createRange == ProductAppointment::RANGE_LAST_MONTH) {
+            } elseif (ProductAppointment::RANGE_LAST_MONTH == $createRange) {
                 $last = $now->modify('-1 month');
             } else {
                 $last = $now;
@@ -293,7 +293,7 @@ class LeaseRepository extends EntityRepository
                 ->setParameter('endDate', $endDate);
         }
 
-        if(!is_null($sortColumn) && !is_null($direction)) {
+        if (!is_null($sortColumn) && !is_null($direction)) {
             $direction = strtoupper($direction);
 
             switch ($sortColumn) {
@@ -484,6 +484,36 @@ class LeaseRepository extends EntityRepository
             ->setParameter('status', $status)
             ->setParameter('userId', $userId)
             ->setParameter('now', $now);
+
+        $result = $query->getQuery()->getSingleScalarResult();
+
+        return (int) $result;
+    }
+
+    /**
+     * @param $myBuildingIds
+     * @param $status
+     * @param $startDate
+     * @param $endDate
+     *
+     * @return int
+     */
+    public function countExpiringContract(
+        $myBuildingIds,
+        $status,
+        $startDate,
+        $endDate
+    ) {
+        $query = $this->createQueryBuilder('l')
+            ->select('count(l.id)')
+            ->where('l.status = :status')
+            ->andWhere('l.buildingId in (:buildingIds)')
+            ->andWhere('l.endDate >= :startDate')
+            ->andWhere('l.endDate <= :endDate')
+            ->setParameter('status', $status)
+            ->setParameter('buildingIds', $myBuildingIds)
+            ->setParameter('startDate', $startDate)
+            ->setParameter('endDate', $endDate);
 
         $result = $query->getQuery()->getSingleScalarResult();
 
