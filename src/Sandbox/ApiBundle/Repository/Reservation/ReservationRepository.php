@@ -363,14 +363,14 @@ class ReservationRepository extends EntityRepository
         $status,
         $grabStart,
         $grabEnd
-    ) {
+    )
+    {
         $query = $this->createQueryBuilder('re')
             ->select('COUNT(re)')
             ->where('re.companyId = :companyId')
             ->andWhere('re.adminId = :adminId')
             ->setParameter('adminId', $adminId)
-            ->setParameter('companyId', $salesCompanyId)
-        ;
+            ->setParameter('companyId', $salesCompanyId);
 
         if (!is_null($grabStart) || !empty($grabStart)) {
             $query->andWhere('re.grabDate >= :grabStart')
@@ -379,7 +379,7 @@ class ReservationRepository extends EntityRepository
 
         if (!is_null($grabEnd) || !empty($grabEnd)) {
             $query->andWhere('re.grabDate <= :grabEnd')
-                    ->setParameter('grabEnd', $grabEnd);
+                ->setParameter('grabEnd', $grabEnd);
         }
 
         if (!is_null($status)) {
@@ -389,6 +389,20 @@ class ReservationRepository extends EntityRepository
 
         $result = $query->getQuery()->getSingleScalarResult();
 
-        return (int) $result;
+        return (int)$result;
+    }
+
+    /*
+     * @param $adminId
+     * @return array
+     */
+    public function getMyGrabedLists($adminId)
+    {
+        $query = $this->createQueryBuilder('re')
+            ->where('re.adminId = :userId')
+            ->setParameter('adminId',$adminId)
+            ->orderBy('re.grabDate','DESC');
+
+        return $query->getQuery()->getResult();
     }
 }
