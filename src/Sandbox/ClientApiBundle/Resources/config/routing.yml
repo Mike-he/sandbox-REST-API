@@ -422,3 +422,9 @@ sandbox_client_api_admin_register:
     resource: "@SandboxClientApiBundle/Controller/Admin/ClientAdministratorRegisterController.php"
     type:     annotation
     prefix:   /
+
+#Admin Password Reset
+sandbox_client_api_admin_reset:
+    resource: "@SandboxClientApiBundle/Controller/Admin/ClientAdministratorResetPasswordController.php"
+    type:     annotation
+    prefix:   /
