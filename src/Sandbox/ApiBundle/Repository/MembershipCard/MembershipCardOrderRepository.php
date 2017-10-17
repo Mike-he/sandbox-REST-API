@@ -470,4 +470,20 @@ class MembershipCardOrderRepository extends EntityRepository
 
         return (int) $result;
     }
+
+    /**
+     * @param $userId
+     * @return mixed
+     */
+    public function countCustomerAllMembershipOrders
+    (
+        $userId
+    ){
+        $query = $this->createQueryBuilder('mo')
+            ->select('count(mo.id)')
+            ->where('mo.userId = :userId')
+            ->setParameter('userId',$userId);
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
 }

@@ -4603,7 +4603,8 @@ class OrderRepository extends EntityRepository
     public function countOrders(
         $myBuildingIds,
         $status
-    ) {
+    )
+    {
         $query = $this->createQueryBuilder('o')
             ->select('count(o.id)')
             ->leftJoin('o.product', 'p')
@@ -4615,6 +4616,21 @@ class OrderRepository extends EntityRepository
 
         $result = $query->getQuery()->getSingleScalarResult();
 
-        return (int) $result;
+        return (int)$result;
+    }
+
+    /*
+     * @param $userId
+     * @return mixed
+     */
+    public function countCustomerAllProductOrders(
+        $userId
+    ){
+        $query = $this->createQueryBuilder('o')
+            ->select('count(o.id)')
+            ->where('o.userId = :userId')
+            ->setParameter('customerId',$userId);
+
+        return $query->getQuery()->getSingleScalarResult();
     }
 }

@@ -128,6 +128,78 @@ class CustomerController extends SalesRestController
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
+     * @Route("/customers/{id}")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getCustomerAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
+        $customer = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->findOneBy(array(
+                'id' => $id,
+                'companyId' => $salesCompanyId,
+            ));
+        $this->throwNotFoundIfNull($customer, self::NOT_FOUND_MESSAGE);
+
+        $this->generateCustomer($customer);
+
+        $userId = $customer->getUserId();
+        if ($userId) {
+            $user = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\User')
+                ->find($userId);
+
+            $customer->setCardNo($user->getCardNo());
+        }
+
+        return new View($customer);
+    }
+
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/customers/{id}")
+     * @Method({"PATCH"})
+     *
+     * @return View
+     */
+    public function patchCustomerAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        $customer = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->find($id);
+        $this->throwNotFoundIfNull($customer, self::NOT_FOUND_MESSAGE);
+
+        $customerJson = $this->container->get('serializer')->serialize($customer, 'json');
+        $patch = new Patch($customerJson, $request->getContent());
+        $customerJson = $patch->apply();
+
+        $form = $this->createForm(new UserCustomerPatchType(), $customer);
+        $form->submit(json_decode($customerJson, true));
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        return new View();
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
      * @Route("/customers")
      * @Method({"POST"})
      *
@@ -299,76 +371,6 @@ class CustomerController extends SalesRestController
         ));
     }
 
-    /**
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
-     *
-     * @Route("/customers/{id}")
-     * @Method({"PATCH"})
-     *
-     * @return View
-     */
-    public function patchCustomerAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher,
-        $id
-    ) {
-        $customer = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserCustomer')
-            ->find($id);
-        $this->throwNotFoundIfNull($customer, self::NOT_FOUND_MESSAGE);
-
-        $customerJson = $this->container->get('serializer')->serialize($customer, 'json');
-        $patch = new Patch($customerJson, $request->getContent());
-        $customerJson = $patch->apply();
-
-        $form = $this->createForm(new UserCustomerPatchType(), $customer);
-        $form->submit(json_decode($customerJson, true));
-
-        $em = $this->getDoctrine()->getManager();
-        $em->flush();
-
-        return new View();
-    }
-
-    /**
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
-     *
-     * @Route("/customers/{id}")
-     * @Method({"GET"})
-     *
-     * @return View
-     */
-    public function getCustomerAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher,
-        $id
-    ) {
-        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
-        $salesCompanyId = $adminPlatform['sales_company_id'];
-
-        $customer = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserCustomer')
-            ->findOneBy(array(
-                'id' => $id,
-                'companyId' => $salesCompanyId,
-            ));
-        $this->throwNotFoundIfNull($customer, self::NOT_FOUND_MESSAGE);
-
-        $this->generateCustomer($customer);
-
-        $userId = $customer->getUserId();
-        if ($userId) {
-            $user = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:User\User')
-                ->find($userId);
-
-            $customer->setCardNo($user->getCardNo());
-        }
-
-        return new View($customer);
-    }
 
     /**
      * @param $customer
@@ -405,5 +407,51 @@ class CustomerController extends SalesRestController
         }
 
         $customer->setGroups($customerGroupArray);
+    }
+
+    /**
+     * @param $userId
+     * @Route("/customer/{$customerId}/orders/number")
+     * @return View
+     */
+    public function getCustomerAllOrdersNumAction
+    (
+        $userId
+    ){
+        $productOrdersCount = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->countCustomerAllProductOrders($userId);
+
+        $eventOrdersCount = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventOrder')
+            ->countCustomerAllEventOrders($userId);
+
+        $membershipOrdersCount = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:MembershipCard\MembershipOrder')
+            ->countCustomerAllMembershipOrders($userId);
+
+        $user = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->findBy(array('userId'=>$userId));
+        $customerId = $user->getCustomerId();
+        $billsCount = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->countCustomerAllLeaseBills($customerId);
+
+        $leaseCount = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\Lease')
+            ->countCustomerAllLeases($customerId);
+
+        $view = new View();
+        $view->setData(
+            array(
+                'productOrdersCount'=>$productOrdersCount,
+                'eventOrdersCount'=>$eventOrdersCount,
+                'membershipOrdersCount'=>$membershipOrdersCount,
+                'leaseBillCount' =>$billsCount,
+                'leaseCount' => $leaseCount
+            )
+        );
+
+        return $view;
     }
 }
