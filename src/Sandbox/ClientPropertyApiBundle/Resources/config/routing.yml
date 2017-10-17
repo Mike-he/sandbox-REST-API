@@ -3,4 +3,17 @@ sandbox_client_property_api_dashboard:
     type:     annotation
     prefix:   /
 
+sandbox_client_property_api_reservation:
+    resource: "@SandboxClientPropertyApiBundle/Controller/Reservation/ClientReservationController.php"
+    type:     annotation
+    prefix:   /
+
+sandbox_client_property_api_customer:
+    resource: "@SandboxClientPropertyApiBundle/Controller/Customer/ClientCustomerController.php"
+    type:     annotation
+    prefix:   /
+sandbox_client_property_api_enterprise_customer:
+    resource: "@SandboxClientPropertyApiBundle/Controller/Customer/ClientEnterpriseCustomerController.php"
+    type:     annotation
+    prefix:   /
 

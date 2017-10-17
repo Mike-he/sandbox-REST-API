@@ -546,8 +546,8 @@ class MembershipCardOrderRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('mo')
             ->select('count(mo.id)')
-            ->where('mo.userId = :userId')
-            ->setParameter('userId', $userId);
+            ->where('mo.user = :userId')
+            ->setParameter('userId',$userId);
 
         return $query->getQuery()->getSingleScalarResult();
     }

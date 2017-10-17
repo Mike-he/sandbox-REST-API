@@ -1045,4 +1045,21 @@ class LeaseBillRepository extends EntityRepository
 
         return $query->getQuery()->getSingleScalarResult();
     }
+
+    /**
+     * @param $enterprise
+     * @return mixed
+     */
+    public function countEnterprisseCustomerLeaseBill(
+        $enterprise
+    ){
+        $query = $this->createQueryBuilder('lb')
+            ->select('count(lb.id)')
+            ->leftJoin('lb.lease','l')
+            ->where('l.lesseeEnterprise = :enterprise')
+            ->setParameter('enterprise',$enterprise);
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
+
 }

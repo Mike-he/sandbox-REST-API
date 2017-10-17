@@ -392,15 +392,20 @@ class ReservationRepository extends EntityRepository
         return (int)$result;
     }
 
-    /*
+    /**
      * @param $adminId
+     * @param $companyId
      * @return array
      */
-    public function getMyGrabedLists($adminId)
-    {
+    public function getMyGrabedLists(
+        $adminId,
+        $companyId
+    ) {
         $query = $this->createQueryBuilder('re')
-            ->where('re.adminId = :userId')
+            ->where('re.adminId = :adminId')
             ->setParameter('adminId',$adminId)
+            ->andWhere('re.companyId = :companyId')
+            ->setParameter('companyId',$companyId)
             ->orderBy('re.grabDate','DESC');
 
         return $query->getQuery()->getResult();

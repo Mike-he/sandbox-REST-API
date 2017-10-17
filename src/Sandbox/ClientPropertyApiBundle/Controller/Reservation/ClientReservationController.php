@@ -1,6 +1,6 @@
 <?php
 
-namespace Sandbox\SalesApiBundle\Controller\Reservation;
+namespace Sandbox\ClientPropertyApiBundle\Controller\Reservation;
 
 use Sandbox\ApiBundle\Entity\Room\RoomTypeTags;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
@@ -14,7 +14,7 @@ use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\View\View;
 use Knp\Component\Pager\Paginator;
 
-class ReservationController extends SalesRestController
+class ClientReservationController extends SalesRestController
 {
     /**
      * @Route("/reservation/{reservationId}")
@@ -156,7 +156,7 @@ class ReservationController extends SalesRestController
      *    description="sort direction"
      * )
      *
-     * @Route("/reservation/list")
+     * @Route("/reservation/lists")
      * @Method({"GET"})
      * @return mixed
      */
@@ -381,6 +381,7 @@ class ReservationController extends SalesRestController
     /**
      * @param Request $request
      * @Route("/my/grabed/lists")
+     * @Method("GET")
      * @return View
      */
     public function myGrabedListsAction
@@ -388,11 +389,15 @@ class ReservationController extends SalesRestController
         Request $request
     ){
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
-        $adminId = $adminPlatform['user_id'];
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+        $adminId = $this->getAdminId();
 
         $reservations = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Reservation\Reservation')
-            ->getMyGrabedLists($adminId);
+            ->getMyGrabedLists(
+                $adminId,
+                $salesCompanyId
+            );
 
         $result = [];
         foreach ($reservations as $k=>$reservation) {

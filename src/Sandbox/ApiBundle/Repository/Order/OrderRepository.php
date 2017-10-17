@@ -4645,7 +4645,7 @@ class OrderRepository extends EntityRepository
         $query = $this->createQueryBuilder('o')
             ->select('count(o.id)')
             ->where('o.userId = :userId')
-            ->setParameter('customerId', $userId);
+            ->setParameter('userId',$userId);
 
         return $query->getQuery()->getSingleScalarResult();
     }

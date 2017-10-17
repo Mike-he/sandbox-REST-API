@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-class CustomerController extends SalesRestController
+class ClientCustomerController extends SalesRestController
 {
     const ERROR_CUSTOMER_EXIST_CODE = 400001;
     const ERROR_CUSTOMER_EXIST_MESSAGE = 'Customer exist';
@@ -128,7 +128,7 @@ class CustomerController extends SalesRestController
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
-     * @Route("/customers/{id}")
+     * @Route("/customer/{id}")
      * @Method({"GET"})
      *
      * @return View
@@ -167,7 +167,6 @@ class CustomerController extends SalesRestController
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
-     *
      * @Route("/customers/{id}")
      * @Method({"PATCH"})
      *
@@ -199,7 +198,6 @@ class CustomerController extends SalesRestController
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
-     *
      * @Route("/customers")
      * @Method({"POST"})
      *
@@ -261,118 +259,6 @@ class CustomerController extends SalesRestController
     }
 
     /**
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
-     * @param int                   $id
-     *
-     * @Route("/customers/{id}/phone")
-     * @Method({"POST"})
-     *
-     * @return View
-     */
-    public function switchCustomersPhoneAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher,
-        $id
-    ) {
-        $customer = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserCustomer')
-            ->findOneBy([
-                'id' => $id,
-                'isAutoCreated' => false,
-            ]);
-        $this->throwNotFoundIfNull($customer, self::NOT_FOUND_MESSAGE);
-
-        $customerId = $customer->getId();
-
-        $data = json_decode($request->getContent(), true);
-        $phoneCode = $data['phone_code'];
-        $phone = $data['phone'];
-
-        if (!$phoneCode || !$phone) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
-
-        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
-        $salesCompanyId = $adminPlatform['sales_company_id'];
-
-        $em = $this->getDoctrine()->getManager();
-
-        $customerOrigin = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserCustomer')
-            ->findOneBy(array(
-                'phoneCode' => $phoneCode,
-                'phone' => $phone,
-                'companyId' => $salesCompanyId,
-            ));
-        if ($customerOrigin) {
-            $customerNewId = $customerOrigin->getId();
-        } else {
-            $user = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:User\User')
-                ->findOneBy(array(
-                    'phoneCode' => $phoneCode,
-                    'phone' => $phone,
-                ));
-
-            $userId = $user ? $user->getId() : null;
-            $customerId = $customer->getId();
-            $customerNew = new UserCustomer();
-            $customerNew->setPhoneCode($phoneCode);
-            $customerNew->setPhone($phone);
-            $customerNew->setUserId($userId);
-            $customerNew->setCompanyId($salesCompanyId);
-            $customerNew->setName($customer->getName());
-            $customerNew->setSex($customer->getSex());
-            $customerNew->setAvatar($customer->getAvatar());
-            $customerNew->setBirthday($customer->getBirthday());
-            $customerNew->setEmail($customer->getEmail());
-            $customerNew->setNationality($customer->getNationality());
-            $customerNew->setIdType($customer->getIdType());
-            $customerNew->setIdNumber($customer->getIdNumber());
-            $customerNew->setCompanyName($customer->getCompanyName());
-            $customerNew->setPosition($customer->getPosition());
-            $em->persist($customerNew);
-            $em->flush();
-
-            $customerNewId = $customerNew->getId();
-        }
-
-        // update bills & leases & backend push orders
-        $bills = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
-            ->findBy(['customerId' => $customerId]);
-
-        foreach ($bills as $bill) {
-            $bill->setCustomerId($customerNewId);
-        }
-
-        $leases = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Lease\Lease')
-            ->findBy(['lesseeCustomer' => $customerId]);
-        foreach ($leases as $lease) {
-            $lease->setLesseeCustomer($customerNewId);
-        }
-
-        $pushOrders = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->findBy([
-                'customerId' => $customerId,
-                'type' => [ProductOrder::PREORDER_TYPE, ProductOrder::OFFICIAL_PREORDER_TYPE],
-            ]);
-        foreach ($pushOrders as $order) {
-            $order->setCustomerId($customerNewId);
-        }
-
-        $em->flush();
-
-        return new View(array(
-            'id' => $customerNewId,
-        ));
-    }
-
-
-    /**
      * @param $customer
      */
     private function generateCustomer(
@@ -410,12 +296,17 @@ class CustomerController extends SalesRestController
     }
 
     /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
      * @param $userId
-     * @Route("/customer/{$customerId}/orders/number")
+     * @Route("/customer/{userId}/orders/number")
+     * @Method({"GET"})
      * @return View
      */
     public function getCustomerAllOrdersNumAction
     (
+        Request $request,
+        ParamFetcherInterface  $paramFetcher,
         $userId
     ){
         $productOrdersCount = $this->getDoctrine()
@@ -431,8 +322,9 @@ class CustomerController extends SalesRestController
             ->countCustomerAllMembershipOrders($userId);
 
         $user = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserCustomer')
-            ->findBy(array('userId'=>$userId));
-        $customerId = $user->getCustomerId();
+            ->findOneBy(array('userId'=>$userId));
+
+        $customerId = $user->getId();
         $billsCount = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
             ->countCustomerAllLeaseBills($customerId);
@@ -447,7 +339,7 @@ class CustomerController extends SalesRestController
                 'productOrdersCount'=>$productOrdersCount,
                 'eventOrdersCount'=>$eventOrdersCount,
                 'membershipOrdersCount'=>$membershipOrdersCount,
-                'leaseBillCount' =>$billsCount,
+                'billCount' =>$billsCount,
                 'leaseCount' => $leaseCount
             )
         );
