@@ -658,4 +658,20 @@ class EventOrderRepository extends EntityRepository
 
         return (int) $result;
     }
+
+    /**
+     * @param $userId
+     *
+     * @return mixed
+     */
+    public function countCustomerAllEventOrders(
+        $userId
+    ) {
+        $query = $this->createqueryBUilder('eo')
+            ->select('count(eo.id)')
+            ->where('eo.userId = :userId')
+            ->setParameter('userId', $userId);
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
 }

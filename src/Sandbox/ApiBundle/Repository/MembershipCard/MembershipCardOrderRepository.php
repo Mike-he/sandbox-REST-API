@@ -176,7 +176,7 @@ class MembershipCardOrderRepository extends EntityRepository
                 ->setParameter('userId', $userId);
         }
 
-        if(!is_null($sortColumn) && !is_null($direction)) {
+        if (!is_null($sortColumn) && !is_null($direction)) {
             $direction = strtoupper($direction);
 
             switch ($sortColumn) {
@@ -479,7 +479,7 @@ class MembershipCardOrderRepository extends EntityRepository
         $offset
     ) {
         $query = $this->createQueryBuilder('mo')
-            ->leftJoin('mo.card','c')
+            ->leftJoin('mo.card', 'c')
             ->where('c.companyId = :companyId')
             ->setParameter('companyId', $companyId);
 
@@ -495,7 +495,6 @@ class MembershipCardOrderRepository extends EntityRepository
 
         $query->orderBy('mo.id', 'DESC');
 
-
         if (!is_null($limit) && !is_null($offset)) {
             $query->setMaxResults($limit)
                 ->setFirstResult($offset);
@@ -504,6 +503,13 @@ class MembershipCardOrderRepository extends EntityRepository
         return $query->getQuery()->getResult();
     }
 
+    /**
+     * @param $companyId
+     * @param $startDate
+     * @param $endDate
+     *
+     * @return int
+     */
     public function countOrdersByPropertyClient(
         $companyId,
         $startDate,
@@ -511,7 +517,7 @@ class MembershipCardOrderRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('mo')
             ->select('count(mo.id)')
-            ->leftJoin('mo.card','c')
+            ->leftJoin('mo.card', 'c')
             ->where('c.companyId = :companyId')
             ->setParameter('companyId', $companyId);
 
@@ -525,8 +531,24 @@ class MembershipCardOrderRepository extends EntityRepository
                 ->setParameter('endDate', $endDate);
         }
 
-        $result =  $query->getQuery()->getSingleScalarResult();
+        $result = $query->getQuery()->getSingleScalarResult();
 
         return (int) $result;
+    }
+
+    /**
+     * @param $userId
+     *
+     * @return mixed
+     */
+    public function countCustomerAllMembershipOrders(
+        $userId
+    ) {
+        $query = $this->createQueryBuilder('mo')
+            ->select('count(mo.id)')
+            ->where('mo.userId = :userId')
+            ->setParameter('userId', $userId);
+
+        return $query->getQuery()->getSingleScalarResult();
     }
 }

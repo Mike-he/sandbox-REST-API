@@ -1030,4 +1030,19 @@ class LeaseBillRepository extends EntityRepository
 
         return (int) $result;
     }
+
+    /*
+     * @param $customerId
+     * @return mixed
+     */
+    public function countCustomerAllLeaseBills(
+        $customerId
+    ){
+        $query = $this->createQueryBuilder('lb')
+            ->select('count(lb.id)')
+            ->where('lb.customerId = :customerId')
+            ->setParameter('customerId',$customerId);
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
 }

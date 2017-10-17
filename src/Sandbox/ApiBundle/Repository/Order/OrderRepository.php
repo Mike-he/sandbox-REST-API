@@ -4636,6 +4636,21 @@ class OrderRepository extends EntityRepository
     }
 
     /**
+     * @param $userId
+     * @return mixed
+     */
+    public function countCustomerAllProductOrders(
+        $userId
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->select('count(o.id)')
+            ->where('o.userId = :userId')
+            ->setParameter('customerId', $userId);
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
+
+    /**
      * @param $myBuildingIds
      * @param $status
      * @param null $startDate
