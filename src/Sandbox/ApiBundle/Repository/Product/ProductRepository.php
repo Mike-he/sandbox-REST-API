@@ -2232,13 +2232,13 @@ class ProductRepository extends EntityRepository
             ->setParameter('buildingIds', $myBuildingIds);
 
         // filter by type
-        if (!is_null($type)) {
-            $query->andWhere('r.type = :type')
+        if (!is_null($type) || !empty($type)) {
+            $query->andWhere('r.type in (:type)')
                 ->setParameter('type', $type);
         }
 
-        if (!is_null($building)) {
-            $query->andWhere('r.building = :building')
+        if (!is_null($building) || !empty($building)) {
+            $query->andWhere('r.building in (:building)')
                 ->setParameter('building', $building);
         }
 

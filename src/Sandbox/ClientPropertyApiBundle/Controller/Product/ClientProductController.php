@@ -31,14 +31,17 @@ class ClientProductController extends ProductController
      *
      * @Annotations\QueryParam(
      *    name="building",
+     *    array=true,
      *    default=null,
      *    nullable=true,
-     *    description="building id"
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by building id"
      * )
      *
      * @Annotations\QueryParam(
      *    name="type",
-     *    array=false,
+     *    array=true,
      *    default=null,
      *    nullable=true,
      *    strict=true,
