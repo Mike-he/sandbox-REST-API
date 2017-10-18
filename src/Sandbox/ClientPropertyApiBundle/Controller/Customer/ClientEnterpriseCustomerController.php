@@ -18,10 +18,31 @@ use FOS\RestBundle\Controller\Annotations;
 class ClientEnterpriseCustomerController extends SalesRestController
 {
     /**
-     * @param Request $request
+     * @param Request   $request
      * @param ParamFetcherInterface $paramFetcher
-     * @Route("/enterprise/customers")
-     * @Method("{GET}")
+     *
+     * @Annotations\QueryParam(
+     *     name="pageIndex",
+     *     default=1,
+     *     nullable=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="pageLimit",
+     *     default=20,
+     *     nullable=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="search",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
+     * @Route("/enterprise_customers")
+     * @Method({"GET"})
+     *
      * @return View
      */
     public function getEnterpriseCustomersAction(
@@ -68,7 +89,7 @@ class ClientEnterpriseCustomerController extends SalesRestController
      * @param Request $request
      * @param ParamFetcherInterface $paramFetcher
      * @param $id
-     * @Route("/enterprise/customer/{id}")
+     * @Route("/enterprise_customer/{id}")
      * @Method({"GET"})
      * @return View
      */
@@ -104,7 +125,7 @@ class ClientEnterpriseCustomerController extends SalesRestController
      * @param Request $request
      * @param ParamFetcherInterface $paramFetcher
      * @param $id
-     * @Route("/enterprise/{id}/lease_and_bill/count")
+     * @Route("/enterprise_customer/{id}/lease_and_bill/count")
      * @return View
      */
     public function getEnterPriseCusomerLeasesAndBillsCountAction(
