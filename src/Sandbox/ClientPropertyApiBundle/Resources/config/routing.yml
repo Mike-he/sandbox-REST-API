@@ -3,4 +3,7 @@ sandbox_client_property_api_dashboard:
     type:     annotation
     prefix:   /
 
-
+sandbox_client_property_api_product:
+    resource: "@SandboxClientPropertyApiBundle/Controller/Product/ClientProductController.php"
+    type:     annotation
+    prefix:   /
