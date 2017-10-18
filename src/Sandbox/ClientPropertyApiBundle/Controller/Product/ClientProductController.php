@@ -254,6 +254,20 @@ class ClientProductController extends ProductController
         $form = $this->createForm(new ProductPatchVisibleType(), $product);
         $form->submit(json_decode($productJson, true));
 
+        $rentDate = $form['earliest_rent_date']->getData();
+
+        if (!is_null($rentDate) && !empty($rentDate)) {
+            $rentDate->setTime(0, 0, 0);
+
+            $productRentSet = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\ProductRentSet')
+                ->findOneBy(array('product' => $product));
+
+            if ($productRentSet) {
+                $productRentSet->setEarliestRentDate($rentDate);
+            }
+        }
+
         $em = $this->getDoctrine()->getManager();
         $em->flush();
     }
