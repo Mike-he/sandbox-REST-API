@@ -2212,4 +2212,44 @@ class ProductRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    public function getProductsForPropertyClient(
+        $myBuildingIds,
+        $type,
+        $building,
+        $limit,
+        $offset
+    ) {
+
+        $query = $this->createQueryBuilder('p')
+            ->leftJoin('p.room','r')
+            ->leftJoin('r.building','b')
+            ->leftJoin('SandboxApiBundle:Product\ProductRentSet', 'prs', 'WITH', 'prs.product = p.id')
+            ->leftJoin('SandboxApiBundle:Product\ProductLeasingSet', 'ls', 'WITH', 'ls.product = p.id')
+            ->where('p.isDeleted = FALSE')
+            ->andWhere('prs.id is  NOT NULL or ls.id is NOT NULL')
+            ->andWhere('r.buildingId in (:buildingIds)')
+            ->setParameter('buildingIds', $myBuildingIds);
+
+        // filter by type
+        if (!is_null($type)) {
+            $query->andWhere('r.type = :type')
+                ->setParameter('type', $type);
+        }
+
+        if (!is_null($building)) {
+            $query->andWhere('r.building = :building')
+                ->setParameter('building', $building);
+        }
+
+        $query->orderBy('b.name', 'asc')
+            ->addOrderBy('r.name','asc');
+
+        $query->setMaxResults($limit)
+            ->setFirstResult($offset);
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
 }
