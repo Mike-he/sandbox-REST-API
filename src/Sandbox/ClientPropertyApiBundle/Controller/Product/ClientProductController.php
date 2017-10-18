@@ -2,6 +2,7 @@
 
 namespace Sandbox\ClientPropertyApiBundle\Controller\Product;
 
+use Rs\Json\Patch;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Controller\Product\ProductController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
@@ -10,6 +11,7 @@ use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\User\UserFavorite;
+use Sandbox\ApiBundle\Form\Product\ProductPatchVisibleType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -216,6 +218,44 @@ class ClientProductController extends ProductController
         $view->setData($product);
 
         return $view;
+    }
+
+    /**
+     * Update a product.
+     *
+     * @param Request $request the request object
+     * @param int     $id
+     *
+     *
+     * @Route("/products/{id}")
+     * @Method({"PATCH"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function patchProductAction(
+        Request $request,
+        $id
+    ) {
+        $product = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\Product')
+            ->findOneBy([
+                'id' => $id,
+                'isDeleted' => false,
+            ]);
+        $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
+
+        // bind data
+        $productJson = $this->container->get('serializer')->serialize($product, 'json');
+        $patch = new Patch($productJson, $request->getContent());
+        $productJson = $patch->apply();
+
+        $form = $this->createForm(new ProductPatchVisibleType(), $product);
+        $form->submit(json_decode($productJson, true));
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
     }
 
     /**

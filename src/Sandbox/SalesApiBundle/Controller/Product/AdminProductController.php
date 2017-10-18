@@ -746,8 +746,6 @@ class AdminProductController extends ProductController
             );
         }
 
-        $product->setModificationDate(new \DateTime('now'));
-
         $em = $this->getDoctrine()->getManager();
         $em->flush();
 
