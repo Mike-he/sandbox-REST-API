@@ -623,6 +623,37 @@ class AdminAdminsController extends SandboxRestController
     }
 
     /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *     name="phone",
+     *     array=false,
+     *     nullable=false,
+     *     strict=true
+     * )
+     *
+     * @Route("/admins/search")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function searchAdminsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $phone = $paramFetcher->get('phone');
+
+        $admins = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
+            ->searchAdmins(
+                $phone
+            );
+
+        return new View($admins);
+    }
+
+    /**
      * @param $key
      * @param $platform
      * @param $companyId
