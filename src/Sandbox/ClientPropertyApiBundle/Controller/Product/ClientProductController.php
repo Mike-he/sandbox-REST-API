@@ -395,10 +395,10 @@ class ClientProductController extends ProductController
         if (Room::TYPE_OFFICE == $roomType) {
             $productRentSet = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Product\ProductRentSet')
-                ->findOneBy(array('product' => $product['id'], 'status' => true));
+                ->findOneBy(array('product' => $productId, 'status' => true));
             if ($productRentSet) {
                 $productDetail['rent_set'] = array(
-                    'base_price' => $productRentSet->getBasePrice(),
+                    'base_price' => (float) $productRentSet->getBasePrice(),
                     'unit_price' => $productRentSet->getUnitPrice(),
                 );
             }
