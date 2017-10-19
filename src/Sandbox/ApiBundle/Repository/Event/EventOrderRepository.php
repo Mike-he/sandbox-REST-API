@@ -237,6 +237,8 @@ class EventOrderRepository extends EntityRepository
     /**
      * @param $city
      * @param array $channel
+     * @param array $status
+     * @param array $eventStatus
      * @param $keyword
      * @param $keywordSearch
      * @param $payDate
@@ -257,6 +259,8 @@ class EventOrderRepository extends EntityRepository
     public function getEventOrdersForSalesAdmin(
         $city,
         $channel,
+        $status,
+        $eventStatus,
         $keyword,
         $keywordSearch,
         $payDate,
@@ -298,17 +302,37 @@ class EventOrderRepository extends EntityRepository
                 ->setParameter('channel', $channel);
         }
 
+        if (!is_null($status) && !empty($status)) {
+            $query->andWhere('eo.status in (:status)')
+                ->setParameter('status', $status);
+        }
+
+        if (!is_null($eventStatus) && !empty($eventStatus)) {
+            $query->andWhere('e.status in (:eventStatus)')
+                ->setParameter('eventStatus', $eventStatus);
+        }
+
         if (!is_null($keyword) && !is_null($keywordSearch)) {
             switch ($keyword) {
+                case 'all':
+                    $query ->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.id = eo.customerId')
+                            ->andWhere('
+                                eo.orderNumber LIKE :search OR
+                                e.name LIKE :search OR
+                                uc.name LIKE :search OR
+                                uc.phone LIKE :search
+                            ');
+                    break;
                 case 'number':
-                    $query->andWhere('eo.orderNumber LIKE :search')
-                        ->setParameter('search', '%'.$keywordSearch.'%');
+                    $query->andWhere('eo.orderNumber LIKE :search');
                     break;
                 case 'event':
-                    $query->andWhere('e.name LIKE :search')
-                        ->setParameter('search', '%'.$keywordSearch.'%');
+                    $query->andWhere('e.name LIKE :search');
                     break;
+                default:
+                    $query->andWhere('eo.orderNumber LIKE :search');
             }
+            $query->setParameter('search', '%'.$keywordSearch.'%');
         }
 
         //filter by payDate

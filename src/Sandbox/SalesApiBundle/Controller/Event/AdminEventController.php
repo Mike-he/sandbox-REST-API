@@ -890,9 +890,11 @@ class AdminEventController extends SalesRestController
         if ($submit) {
             $event->setVisible(true);
             $event->setIsSaved(false);
+            $event->setStatus(Event::STATUS_PREHEATING);
         } else {
             $event->setVisible(false);
             $event->setIsSaved(true);
+            $event->setStatus(Event::STATUS_SAVED);
         }
 
         // no verify if price is set

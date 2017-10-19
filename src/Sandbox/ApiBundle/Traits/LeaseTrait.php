@@ -19,7 +19,7 @@ use Sandbox\ApiBundle\Service\AdminStatusLogService;
  * @author   Mike He <mike.he@sandbox3.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 trait LeaseTrait
 {
@@ -233,7 +233,7 @@ trait LeaseTrait
 
         $rentTypes = $lease->getLeaseRentTypes();
         foreach ($rentTypes as $rentType) {
-            if ($rentType->getType() == LeaseRentTypes::RENT_TYPE_TAX) {
+            if (LeaseRentTypes::RENT_TYPE_TAX == $rentType->getType()) {
                 $result = true;
             }
         }

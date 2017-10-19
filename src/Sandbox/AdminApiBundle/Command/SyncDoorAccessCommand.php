@@ -5,7 +5,6 @@ namespace Sandbox\AdminApiBundle\Command;
 use Doctrine\ORM\EntityManager;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Entity\Room\Room;
-use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -38,7 +37,7 @@ class SyncDoorAccessCommand extends ContainerAwareCommand
         $user = $em->getRepository('SandboxApiBundle:User\User')->find($userId);
         $cardNo = $user->getCardNo();
 
-        if ($type == 'order') {
+        if ('order' == $type) {
             $order = $em->getRepository('SandboxApiBundle:Order\ProductOrder')->find($orderId);
 
             $accessNo = $order->getId();
@@ -46,7 +45,7 @@ class SyncDoorAccessCommand extends ContainerAwareCommand
             $end = $order->getEndDate();
 
             $product = $order->getProduct();
-        } elseif ($type == 'lease') {
+        } elseif ('lease' == $type) {
             $lease = $em->getRepository('SandboxApiBundle:Lease\Lease')->find($orderId);
 
             $start = $lease->getStartDate();

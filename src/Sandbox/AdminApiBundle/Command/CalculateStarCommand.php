@@ -76,9 +76,9 @@ class CalculateStarCommand extends ContainerAwareCommand
             }
 
             if ($officialStar && ($buildingStarCount + $orderStarCount) >= 10) {
-                if ($buildingStarCount == 0) {
+                if (0 == $buildingStarCount) {
                     $evaluationStar = ($officialStar->getTotalStar() + $orderStar) * 0.5;
-                } elseif ($orderStarCount == 0) {
+                } elseif (0 == $orderStarCount) {
                     $evaluationStar = ($officialStar->getTotalStar() + $buildingStar) * 0.5;
                 } else {
                     $evaluationStar = $officialStar->getTotalStar() * 0.5 + $buildingStar * 0.1 + $orderStar * 0.4;

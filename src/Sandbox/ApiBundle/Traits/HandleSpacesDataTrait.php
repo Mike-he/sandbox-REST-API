@@ -14,7 +14,7 @@ use Sandbox\ApiBundle\Entity\User\UserFavorite;
  * @author   Albert Feng <albert.f@sandbox3.cn>
  * @license  http://www.Sandbox3.cn/ Proprietary
  *
- * @link     http://www.Sandbox3.cn/
+ * @see     http://www.Sandbox3.cn/
  */
 trait HandleSpacesDataTrait
 {
@@ -48,7 +48,7 @@ trait HandleSpacesDataTrait
 
             $space['product'] = [];
             if (!is_null($product)) {
-                if ($space['type'] == Room::TYPE_DESK) {
+                if (Room::TYPE_DESK == $space['type']) {
                     $seats = $this->getDoctrine()
                         ->getRepository('SandboxApiBundle:Room\RoomFixed')
                         ->findBy(array(

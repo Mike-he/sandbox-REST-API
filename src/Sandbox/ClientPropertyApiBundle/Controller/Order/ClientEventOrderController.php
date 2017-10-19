@@ -19,13 +19,6 @@ class ClientEventOrderController extends SalesRestController
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
-     * @Annotations\QueryParam(
-     *    name="channel",
-     *    default=null,
-     *    nullable=true,
-     *    array=true,
-     *    description="payment channel"
-     * )
      *
      * @Annotations\QueryParam(
      *    name="keyword",
@@ -39,6 +32,33 @@ class ClientEventOrderController extends SalesRestController
      *    default=null,
      *    nullable=true,
      *    description="search query"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="channel",
+     *    array=true,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="payment channel"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="status",
+     *    array=true,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Order Status"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="event_status",
+     *    array=true,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Event Status"
      * )
      *
      * @Annotations\QueryParam(
@@ -99,28 +119,19 @@ class ClientEventOrderController extends SalesRestController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="user",
-     *    array=false,
+     *    name="keyword",
      *    default=null,
      *    nullable=true,
-     *    requirements="\d+",
-     *    strict=true,
-     *    description="Filter by user id"
-     * )
-     *
-     *  @Annotations\QueryParam(
-     *    name="sort_column",
-     *    default=null,
-     *    nullable=true,
-     *    description="sort column"
+     *    description="search query"
      * )
      *
      * @Annotations\QueryParam(
-     *    name="direction",
+     *    name="keyword_search",
      *    default=null,
      *    nullable=true,
-     *    description="sort direction"
+     *    description="search query"
      * )
+     *
      *
      *
      * @Annotations\QueryParam(
@@ -152,16 +163,24 @@ class ClientEventOrderController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $channel = $paramFetcher->get('channel');
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $companyId = $adminPlatform['sales_company_id'];
+
         $keyword = $paramFetcher->get('keyword');
         $keywordSearch = $paramFetcher->get('keyword_search');
+
+        $channel = $paramFetcher->get('channel');
+        $status = $paramFetcher->get('status');
+        $eventStatus = $paramFetcher->get('event_status');
+
         $payDate = $paramFetcher->get('pay_date');
         $payStart = $paramFetcher->get('pay_start');
         $payEnd = $paramFetcher->get('pay_end');
+
         $createDateRange = $paramFetcher->get('create_date_range');
         $createStart = $paramFetcher->get('create_start');
         $createEnd = $paramFetcher->get('create_end');
-        $userId = $paramFetcher->get('user');
+
 
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
@@ -174,6 +193,8 @@ class ClientEventOrderController extends SalesRestController
             ->getEventOrdersForSalesAdmin(
                 null,
                 $channel,
+                $status,
+                $eventStatus,
                 $keyword,
                 $keywordSearch,
                 $payDate,
@@ -182,15 +203,15 @@ class ClientEventOrderController extends SalesRestController
                 $createDateRange,
                 $createStart,
                 $createEnd,
-                $this->getSalesCompanyId(),
-                $userId,
+                $companyId,
+                null,
                 $limit,
                 $offset,
                 $sortColumn,
                 $direction
             );
 
-        $status = [
+        $orderStatus = [
             EventOrder::STATUS_UNPAID => '未付款',
             EventOrder::STATUS_PAID => '已付款',
             EventOrder::STATUS_COMPLETED => '已完成',
@@ -200,7 +221,7 @@ class ClientEventOrderController extends SalesRestController
         // set event dates
         $orderLists = [];
         foreach ($orders as $order) {
-            $orderLists[] = $this->handleOrderData($order, $status);
+            $orderLists[] = $this->handleOrderData($order, $orderStatus);
         }
 
         $view = new View();
@@ -219,12 +240,9 @@ class ClientEventOrderController extends SalesRestController
         $order,
         $status
     ) {
-        $imageUrl = $this->getParameter('image_url');
-
-        $userId = $order->getUserId();
-        $userProfile = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserProfile')
-            ->findOneBy(array('user' => $userId));
+        $customer = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->find($order->getCustomerId());
 
         /** @var Event $event */
         $event = $order->getEvent();
@@ -244,10 +262,10 @@ class ClientEventOrderController extends SalesRestController
             'address' => $event->getAddress(),
             'price' => (float) $order->getPrice(),
             'pay_channel' => $order->getPayChannel() ? '创合钱包支付' : '',
-            'user' => array(
-                'id' => $userId,
-                'name' => $userProfile ? $userProfile->getName() : '',
-                'avatar' => $imageUrl.'/person/'.$userId.'/avatar_small.jpg',
+            'customer' => array(
+                'id' => $order->getCustomerId(),
+                'name' => $customer ? $customer->getName() : '',
+                'avatar' => $customer ? $customer->getAvatar() : '',
             ),
             'attachment' => $eventAttachment ? $eventAttachment->getContent() : '',
         );

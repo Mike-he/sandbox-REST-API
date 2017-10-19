@@ -3,6 +3,8 @@
 namespace Sandbox\AdminApiBundle\Command;
 
 //use Sandbox\ApiBundle\Traits\CurlUtil;
+use Doctrine\ORM\EntityManager;
+use Sandbox\ApiBundle\Entity\Event\Event;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Traits\SetStatusTrait;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
@@ -23,24 +25,25 @@ class CheckStatusCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->checkProductOrders();
-
+        /** @var EntityManager $em */
         $em = $this->getContainer()->get('doctrine')->getManager();
+
+        $this->checkProductOrders();
         $em->flush();
 
-        $this->setInvoiceForProductOrders();
+        $this->setInvoiceForProductOrders($em);
 
-        $this->checkEventOrders();
-
+        $this->checkEventOrders($em);
         $em->flush();
     }
 
-    private function setInvoiceForProductOrders()
+    /**
+     * @param EntityManager $em
+     */
+    private function setInvoiceForProductOrders($em)
     {
         // get paid product order and set status completed
-        $orders = $this->getContainer()
-            ->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+        $orders = $em->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->getInvoiceOrders();
 
         foreach ($orders as $order) {
@@ -50,19 +53,18 @@ class CheckStatusCommand extends ContainerAwareCommand
 
     /**
      * check and set status for product order.
+     *
+     * @param EntityManager $em
      */
-    private function checkProductOrders()
-    {
+    private function checkProductOrders(
+        $em
+    ) {
         // set product order status cancelled
-        $this->getContainer()
-            ->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+        $em->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->setStatusCancelled();
 
         // set room product status visible false
-        $this->getContainer()
-            ->get('doctrine')
-            ->getRepository('SandboxApiBundle:Product\Product')
+        $em->getRepository('SandboxApiBundle:Product\Product')
             ->setVisibleFalse();
 
         // get unpaid preorder product orders
@@ -82,9 +84,7 @@ class CheckStatusCommand extends ContainerAwareCommand
 //        }
 
         // get paid product order and set status completed
-        $orders = $this->getContainer()
-            ->get('doctrine')
-            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+        $orders = $em->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->getStatusPaid();
 
         foreach ($orders as $order) {
@@ -130,28 +130,40 @@ class CheckStatusCommand extends ContainerAwareCommand
 
     /**
      * check and set status for event orders.
+     *
+     * @param EntityManager $em
      */
-    private function checkEventOrders()
-    {
+    private function checkEventOrders(
+        $em
+    ) {
         // set event order status cancelled & delete event registrations
-        $this->getContainer()
-            ->get('doctrine')
-            ->getRepository('SandboxApiBundle:Event\EventRegistration')
+        $em->getRepository('SandboxApiBundle:Event\EventRegistration')
             ->deleteEventRegistrations();
 
-        $this->getContainer()
-            ->get('doctrine')
-            ->getRepository('SandboxApiBundle:Event\EventOrder')
+        $em->getRepository('SandboxApiBundle:Event\EventOrder')
             ->setStatusCancelled();
 
         // set event order status completed
-        $orders = $this->getContainer()
-            ->get('doctrine')
-            ->getRepository('SandboxApiBundle:Event\EventOrder')
+        $orders = $em->getRepository('SandboxApiBundle:Event\EventOrder')
             ->getStatusCompleted();
 
         foreach ($orders as $order) {
             $this->setEventOrderStatusCompleted($order);
+        }
+
+        $eventStatus = [
+            Event::STATUS_PREHEATING,
+            Event::STATUS_REGISTERING,
+            Event::STATUS_ONGOING,
+        ];
+        $events = $em->getRepository('SandboxApiBundle:Event\Event')
+            ->findBy(array(
+                'isSaved' => false,
+                'status' => $eventStatus,
+            ));
+
+        foreach ($events as $event) {
+            $this->setEventStatus($event);
         }
     }
 

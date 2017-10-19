@@ -67,9 +67,10 @@ class ClientOrderController extends OrderController
      *
      * @Annotations\QueryParam(
      *    name="channel",
+     *    array=true,
      *    default=null,
      *    nullable=true,
-     *    array=true,
+     *    strict=true,
      *    description="payment channel"
      * )
      *

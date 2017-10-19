@@ -51,11 +51,11 @@ class CheckDoorAccessCommand extends ContainerAwareCommand
                 $range = $globals['door_api_sync_time_range'];
 
                 $response = $this->getLastSyncTime($server);
-                if ($response !== false) {
+                if (false !== $response) {
                     $minutesDiff = $this->getDiffInMinutes($response, $now);
                 }
 
-                if ($minutesDiff > $range || $response === false) {
+                if ($minutesDiff > $range || false === $response) {
                     $cityName = $building->getCity()->getName();
                     $buildingName = $building->getName();
 

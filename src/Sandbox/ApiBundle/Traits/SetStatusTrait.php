@@ -2,6 +2,7 @@
 
 namespace Sandbox\ApiBundle\Traits;
 
+use Sandbox\ApiBundle\Entity\Event\Event;
 use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentServiceBill;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
@@ -126,6 +127,47 @@ trait SetStatusTrait
                 $price,
                 $order->getOrderNumber()
             );
+        }
+    }
+
+    /**
+     * @param Event $event
+     */
+    protected function setEventStatus(
+        $event
+    ) {
+        $now = new \DateTime();
+
+        $registrationStartDate = $event->getRegistrationStartDate();
+        $registrationEndDate = $event->getRegistrationEndDate();
+
+        $eventStartDate = $event->getEventStartDate();
+        $eventEndDate = $event->getEventEndDate();
+
+        $status = $event->getStatus();
+
+        if ($now >= $registrationStartDate &&
+            $now <= $registrationEndDate &&
+            $status != Event::STATUS_REGISTERING)
+        {
+            $event->setStatus(Event::STATUS_REGISTERING);
+        }
+        elseif ($now > $registrationEndDate &&
+            $now < $eventStartDate &&
+            $status != Event::STATUS_WAITING
+        ) {
+            $event->setStatus(Event::STATUS_WAITING);
+        }
+        elseif ($now >= $eventStartDate &&
+            $now <= $eventEndDate &&
+            $status != Event::STATUS_ONGOING
+        ) {
+            $event->setStatus(Event::STATUS_ONGOING);
+        }
+        elseif ($now > $eventEndDate &&
+            $status != Event::STATUS_END
+        ) {
+            $event->setStatus(Event::STATUS_END);
         }
     }
 }

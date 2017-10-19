@@ -67,9 +67,9 @@ trait FoodNotification
         $jid = User::XMPP_SERVICE.'@'.$domainURL;
 
         $body = null;
-        if ($action == AdminFoodNotificationController::FOOD_STATUS_COMPLETED) {
+        if (AdminFoodNotificationController::FOOD_STATUS_COMPLETED == $action) {
             $body = AdminFoodNotificationController::FOOD_ORDER_COMPLETED_MESSAGE;
-        } elseif ($action == AdminFoodNotificationController::FOOD_STATUS_CANCELLED) {
+        } elseif (AdminFoodNotificationController::FOOD_STATUS_CANCELLED == $action) {
             $body = AdminFoodNotificationController::FOOD_ORDER_CANCELLED_MESSAGE;
         }
 

@@ -182,6 +182,8 @@ class AdminEventOrderController extends SalesRestController
             ->getEventOrdersForSalesAdmin(
                 null,
                 $channel,
+                null,
+                null,
                 $keyword,
                 $keywordSearch,
                 $payDate,
@@ -383,6 +385,8 @@ class AdminEventOrderController extends SalesRestController
             ->getEventOrdersForSalesAdmin(
                 null,
                 $channel,
+                null,
+                null,
                 $keyword,
                 $keywordSearch,
                 $payDate,
