@@ -22,3 +22,8 @@ sandbox_client_property_api_product:
     type:     annotation
     prefix:   /
 
+sandbox_client_property_api_order:
+    resource: "@SandboxClientPropertyApiBundle/Controller/Order/ClientOrderController.php"
+    type:     annotation
+    prefix:   /
+
