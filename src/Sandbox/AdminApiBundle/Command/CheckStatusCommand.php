@@ -28,7 +28,7 @@ class CheckStatusCommand extends ContainerAwareCommand
         /** @var EntityManager $em */
         $em = $this->getContainer()->get('doctrine')->getManager();
 
-        $this->checkProductOrders();
+        $this->checkProductOrders($em);
         $em->flush();
 
         $this->setInvoiceForProductOrders($em);
