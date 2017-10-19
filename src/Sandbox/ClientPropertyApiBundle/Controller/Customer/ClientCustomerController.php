@@ -139,7 +139,7 @@ class ClientCustomerController extends SalesRestController
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
-     * @Route("/customers")
+     * @Route("/customer")
      * @Method({"POST"})
      *
      * @return View
