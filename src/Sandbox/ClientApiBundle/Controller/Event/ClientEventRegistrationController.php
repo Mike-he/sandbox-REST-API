@@ -28,7 +28,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  * @author   Mike He <mike.he@easylinks.com.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 class ClientEventRegistrationController extends EventController
 {
@@ -327,7 +327,7 @@ class ClientEventRegistrationController extends EventController
             $formType = $eventForm->getType();
             $formId = $eventForm->getId();
 
-            if ($formType == EventForm::TYPE_PHONE) {
+            if (EventForm::TYPE_PHONE == $formType) {
                 if (!is_numeric($userInput)) {
                     return $this->customErrorView(
                         400,
@@ -335,7 +335,7 @@ class ClientEventRegistrationController extends EventController
                         self::ERROR_INVALID_PHONE_MESSAGE
                     );
                 }
-            } elseif ($formType == EventForm::TYPE_EMAIL) {
+            } elseif (EventForm::TYPE_EMAIL == $formType) {
                 if (!filter_var($userInput, FILTER_VALIDATE_EMAIL)) {
                     return $this->customErrorView(
                         400,
@@ -343,7 +343,7 @@ class ClientEventRegistrationController extends EventController
                         self::ERROR_INVALID_EMAIL_MESSAGE
                     );
                 }
-            } elseif ($formType == EventForm::TYPE_RADIO) {
+            } elseif (EventForm::TYPE_RADIO == $formType) {
                 $formOption = $this->getRepo('Event\EventFormOption')->findOneBy(array(
                     'id' => (int) $userInput,
                     'formId' => $formId,
@@ -355,7 +355,7 @@ class ClientEventRegistrationController extends EventController
                         self::ERROR_INVALID_RADIO_MESSAGE
                     );
                 }
-            } elseif ($formType == EventForm::TYPE_CHECKBOX) {
+            } elseif (EventForm::TYPE_CHECKBOX == $formType) {
                 $delimiter = ',';
                 $ids = explode($delimiter, $userInput);
 
@@ -397,7 +397,7 @@ class ClientEventRegistrationController extends EventController
         $event
     ) {
         $limitNumber = $event->getLimitNumber();
-        if ($limitNumber == 0) {
+        if (0 == $limitNumber) {
             return false;
         }
 

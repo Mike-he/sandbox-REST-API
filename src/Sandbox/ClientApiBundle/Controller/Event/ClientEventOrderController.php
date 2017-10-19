@@ -28,7 +28,7 @@ use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
  * @author   Mike He <mike.he@easylinks.com.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 class ClientEventOrderController extends PaymentController
 {
@@ -241,6 +241,7 @@ class ClientEventOrderController extends PaymentController
             ->find($id);
         $this->throwNotFoundIfNull($event, self::NOT_FOUND_MESSAGE);
 
+        $customerId = null;
         if ($event->getSalesCompanyId()) {
             $customerId = $this->get('sandbox_api.sales_customer')->createCustomer(
                 $userId,
@@ -283,8 +284,12 @@ class ClientEventOrderController extends PaymentController
         $order->setPrice($event->getPrice());
         $order->setOrderNumber($orderNumber);
 
+        if ($event->getSalesCompanyId()) {
+            $order->setCustomerId($customerId);
+        }
+
         // set status
-        if ($order->getPrice() == 0) {
+        if (0 == $order->getPrice()) {
             $order->setStatus(EventOrder::STATUS_PAID);
         } else {
             $order->setStatus(EventOrder::STATUS_UNPAID);
@@ -338,7 +343,7 @@ class ClientEventOrderController extends PaymentController
         $minutes = 0;
         $seconds = 0;
 
-        if ($status == 'unpaid') {
+        if ('unpaid' == $status) {
             $creationDate = $order->getCreationDate();
             $remainingTime = $now->diff($creationDate);
             $minutes = $remainingTime->i;
@@ -409,12 +414,12 @@ class ClientEventOrderController extends PaymentController
         $smsCode = '';
         $openId = null;
 
-        if ($channel === self::PAYMENT_CHANNEL_ACCOUNT) {
+        if (self::PAYMENT_CHANNEL_ACCOUNT === $channel) {
             return $this->payByAccount(
                 $order,
                 $channel
             );
-        } elseif ($channel == ProductOrder::CHANNEL_WECHAT_PUB) {
+        } elseif (ProductOrder::CHANNEL_WECHAT_PUB == $channel) {
             $wechat = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:ThirdParty\WeChat')
                 ->findOneBy(
@@ -517,8 +522,8 @@ class ClientEventOrderController extends PaymentController
             $now > $registrationEnd ||
             !$event->isCharge() ||
             is_null($event->getPrice()) ||
-            $event->isDeleted() == true ||
-            $event->isVisible() == false
+            true == $event->isDeleted() ||
+            false == $event->isVisible()
         ) {
             $error->setCode(self::EVENT_NOT_AVAILABLE_CODE);
             $error->setMessage(self::EVENT_NOT_AVAILABLE_MESSAGE);
@@ -541,7 +546,7 @@ class ClientEventOrderController extends PaymentController
             $userId
         );
 
-        if (!is_null($order) && $order->getStatus() != EventOrder::STATUS_CANCELLED) {
+        if (!is_null($order) && EventOrder::STATUS_CANCELLED != $order->getStatus()) {
             $error->setCode(self::EVENT_ORDER_EXIST_CODE);
             $error->setMessage(self::EVENT_ORDER_EXIST_MESSAGE);
         }
