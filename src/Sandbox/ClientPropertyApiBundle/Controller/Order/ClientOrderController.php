@@ -7,7 +7,7 @@ use Rs\Json\Patch;
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Sandbox\ApiBundle\Controller\Order\OrderController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Sandbox\ApiBundle\Entity\Log\Log;
+use Sandbox\ApiBundle\Entity\Order\OrderOfflineTransfer;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Form\Order\OrderReserveType;
@@ -437,12 +437,14 @@ class ClientOrderController extends OrderController
     /**
      * Reserve order.
      *
+     * @param Request $request
+     *
      * @Route("/orders/reserve")
      * @Method({"POST"})
      *
-     * @param Request $request
-     *
      * @return View
+     *
+     * @throws \Exception
      */
     public function reserveRoomAction(
         Request $request
@@ -472,23 +474,6 @@ class ClientOrderController extends OrderController
 
             $productId = $order->getProductId();
             $product = $this->getRepo('Product\Product')->find($productId);
-            $buildingId = $product->getRoom()->getBuildingId();
-
-            // check user permission
-            $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
-                $this->getAdminId(),
-                array(
-                    array(
-                        'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_RESERVE,
-                        'building_id' => $buildingId,
-                    ),
-                    array(
-                        'key' => AdminPermission::KEY_SALES_BUILDING_SPACE,
-                        'building_id' => $buildingId,
-                    ),
-                ),
-                AdminPermission::OP_LEVEL_EDIT
-            );
 
             $startDate = new \DateTime($order->getStartDate());
 
@@ -561,13 +546,6 @@ class ClientOrderController extends OrderController
 
             $em->flush();
 
-            $this->generateAdminLogs(array(
-                'logModule' => Log::MODULE_ORDER_RESERVE,
-                'logAction' => Log::ACTION_CREATE,
-                'logObjectKey' => Log::OBJECT_ROOM_ORDER,
-                'logObjectId' => $order->getId(),
-            ));
-
             $view = new View();
             $view->setData(
                 ['order_id' => $order->getId()]
@@ -587,12 +565,14 @@ class ClientOrderController extends OrderController
     /**
      * pre-order room.
      *
+     * @param Request $request
+     *
      * @Route("/orders/preorder")
      * @Method({"POST"})
      *
-     * @param Request $request
-     *
      * @return View
+     *
+     * @throws \Exception
      */
     public function preorderRoomAction(
         Request $request
@@ -652,23 +632,6 @@ class ClientOrderController extends OrderController
             $product = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Product\Product')
                 ->find($productId);
-            $buildingId = $product->getRoom()->getBuildingId();
-
-            // check user permission
-            $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
-                $adminId,
-                array(
-                    array(
-                        'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_PREORDER,
-                        'building_id' => $buildingId,
-                    ),
-                    array(
-                        'key' => AdminPermission::KEY_SALES_BUILDING_SPACE,
-                        'building_id' => $buildingId,
-                    ),
-                ),
-                AdminPermission::OP_LEVEL_EDIT
-            );
 
             $startDate = new \DateTime($order->getStartDate());
 
@@ -827,13 +790,6 @@ class ClientOrderController extends OrderController
                 ProductOrderMessage::ORDER_PREORDER_MESSAGE
             );
 
-            $this->generateAdminLogs(array(
-                'logModule' => Log::MODULE_ORDER_PREORDER,
-                'logAction' => Log::ACTION_CREATE,
-                'logObjectKey' => Log::OBJECT_ROOM_ORDER,
-                'logObjectId' => $order->getId(),
-            ));
-
             $view = new View();
             $view->setData(
                 ['order_id' => $order->getId()]
@@ -847,6 +803,86 @@ class ClientOrderController extends OrderController
             }
 
             throw $exception;
+        }
+    }
+
+    /**
+     * @param ProductOrder $orders
+     * @param $now
+     * @param $em
+     */
+    private function rejectOrdersAction(
+        $orders,
+        $now,
+        $em
+    ) {
+        foreach ($orders as $rejectedOrder) {
+            /** @var ProductOrder $rejectedOrder */
+            $status = $rejectedOrder->getStatus();
+            $channel = $rejectedOrder->getPayChannel();
+            $userId = $rejectedOrder->getUserId();
+            $price = $rejectedOrder->getDiscountPrice();
+
+            if (ProductOrder::CHANNEL_OFFLINE == $channel && ProductOrder::STATUS_UNPAID == $status) {
+                $existTransfer = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Order\OrderOfflineTransfer')
+                    ->findOneByOrderId($rejectedOrder->getId());
+                $this->throwNotFoundIfNull($existTransfer, self::NOT_FOUND_MESSAGE);
+
+                $transferStatus = $existTransfer->getTransferStatus();
+                if (OrderOfflineTransfer::STATUS_UNPAID == $transferStatus) {
+                    $rejectedOrder->setStatus(ProductOrder::STATUS_CANCELLED);
+                    $rejectedOrder->setCancelledDate(new \DateTime());
+                    $rejectedOrder->setModificationDate(new \DateTime());
+                } else {
+                    $existTransfer->setTransferStatus(OrderOfflineTransfer::STATUS_VERIFY);
+                }
+            } else {
+                $rejectedOrder->setStatus(ProductOrder::STATUS_CANCELLED);
+                $rejectedOrder->setCancelledDate($now);
+                $rejectedOrder->setModificationDate($now);
+                $rejectedOrder->setCancelByUser(true);
+
+                if ($price > 0) {
+                    $rejectedOrder->setNeedToRefund(true);
+
+                    if (ProductOrder::CHANNEL_ACCOUNT == $channel) {
+                        $balance = $this->postBalanceChange(
+                            $userId,
+                            $price,
+                            $rejectedOrder->getOrderNumber(),
+                            self::PAYMENT_CHANNEL_ACCOUNT,
+                            0,
+                            self::ORDER_REFUND
+                        );
+
+                        $rejectedOrder->setRefundProcessed(true);
+                        $rejectedOrder->setRefundProcessedDate($now);
+
+                        if (!is_null($balance)) {
+                            $rejectedOrder->setRefunded(true);
+                            $rejectedOrder->setNeedToRefund(false);
+                        }
+                    }
+
+                    if (ProductOrder::STATUS_UNPAID == $status) {
+                        $rejectedOrder->setNeedToRefund(false);
+                    }
+                }
+            }
+        }
+        $em->flush();
+
+        if (!empty($orders)) {
+            // send message
+            $this->sendXmppProductOrderNotification(
+                null,
+                null,
+                ProductOrder::ACTION_REJECTED,
+                null,
+                $orders,
+                ProductOrderMessage::OFFICE_REJECTED_MESSAGE
+            );
         }
     }
 }
