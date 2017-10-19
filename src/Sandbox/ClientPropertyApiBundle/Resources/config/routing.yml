@@ -27,3 +27,7 @@ sandbox_client_property_api_order:
     type:     annotation
     prefix:   /
 
+sandox_client_property_api_user:
+    resource: "@SandboxClientPropertyApiBundle/Controller/User/UserProfilesController.php"
+    type:     annotation
+    prefix:   /
