@@ -247,6 +247,8 @@ class EventOrderRepository extends EntityRepository
      * @param $createEnd
      * @param $salesCompanyId
      * @param $userId
+     * @param $limit
+     * @param $offset
      * @param $sortColumn
      * @param $direction
      *
@@ -265,6 +267,8 @@ class EventOrderRepository extends EntityRepository
         $createEnd,
         $salesCompanyId,
         $userId = null,
+        $limit = null,
+        $offset = null,
         $sortColumn = null,
         $direction = null
     ) {
@@ -373,30 +377,164 @@ class EventOrderRepository extends EntityRepository
         }
 
         if (!is_null($sortColumn) && !is_null($direction)) {
+            $sortArray = [
+                'event_start_date' => 'e.eventStartDate',
+                'price' => 'eo.price',
+                'creation_date' => 'eo.creationDate',
+                'payment_date' => 'eo.paymentDate',
+            ];
             $direction = strtoupper($direction);
-            switch ($sortColumn) {
-                case 'event_start_date':
-                    $query->orderBy('e.eventStartDate', $direction);
+            $query->orderBy($sortArray[$sortColumn], $direction);
+        } else {
+            $query->orderBy('eo.creationDate', 'DESC');
+        }
+
+        if (!is_null($limit) && !is_null($offset)) {
+            $query->setMaxResults($limit)
+                ->setFirstResult($offset);
+        }
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $city
+     * @param $channel
+     * @param $keyword
+     * @param $keywordSearch
+     * @param $payDate
+     * @param $payStart
+     * @param $payEnd
+     * @param $createDateRange
+     * @param $createStart
+     * @param $createEnd
+     * @param $salesCompanyId
+     * @param null $userId
+     *
+     * @return mixed
+     */
+    public function countEventOrdersForSalesAdmin(
+        $city,
+        $channel,
+        $keyword,
+        $keywordSearch,
+        $payDate,
+        $payStart,
+        $payEnd,
+        $createDateRange,
+        $createStart,
+        $createEnd,
+        $salesCompanyId,
+        $userId = null
+    ) {
+        $query = $this->createQueryBuilder('eo')
+            ->select('count(eo.id)')
+            ->leftJoin('SandboxApiBundle:Event\Event', 'e', 'WITH', 'e.id = eo.eventId')
+            ->where('eo.status != :unpaid')
+            ->andWhere('eo.paymentDate IS NOT NULL')
+            ->andWhere('e.salesCompanyId = :salesCompanyId')
+            ->setParameter('unpaid', EventOrder::STATUS_UNPAID)
+            ->setParameter('salesCompanyId', $salesCompanyId);
+
+        // filter by city
+        if (!is_null($city)) {
+            $query->andWhere('e.city = :city');
+            $query->setParameter('city', $city);
+        }
+
+        if (!is_null($channel) && !empty($channel)) {
+            if (in_array('sandbox', $channel)) {
+                $channel[] = ProductOrder::CHANNEL_ACCOUNT;
+                $channel[] = ProductOrder::CHANNEL_ALIPAY;
+                $channel[] = ProductOrder::CHANNEL_UNIONPAY;
+                $channel[] = ProductOrder::CHANNEL_WECHAT;
+                $channel[] = ProductOrder::CHANNEL_WECHAT_PUB;
+            }
+            $query->andWhere('eo.payChannel in (:channel)')
+                ->setParameter('channel', $channel);
+        }
+
+        if (!is_null($keyword) && !is_null($keywordSearch)) {
+            switch ($keyword) {
+                case 'number':
+                    $query->andWhere('eo.orderNumber LIKE :search')
+                        ->setParameter('search', '%'.$keywordSearch.'%');
                     break;
-                case 'price':
-                    $query->orderBy('eo.price', $direction);
-                    break;
-                case 'creation_date':
-                    $query->orderBy('eo.creationDate', $direction);
-                    break;
-                case 'payment_date':
-                    $query->orderBy('eo.paymentDate', $direction);
-                    break;
-                default:
-                    $query->orderBy('eo.creationDate', 'DESC');
+                case 'event':
+                    $query->andWhere('e.name LIKE :search')
+                        ->setParameter('search', '%'.$keywordSearch.'%');
                     break;
             }
         }
 
-        // order by
-        // $query->orderBy('eo.creationDate', 'DESC');
+        //filter by payDate
+        if (!is_null($payDate)) {
+            $payDateStart = new \DateTime($payDate);
+            $payDateEnd = new \DateTime($payDate);
+            $payDateEnd->setTime(23, 59, 59);
 
-        return $query->getQuery()->getResult();
+            $query->andWhere('eo.paymentDate >= :payStart')
+                ->andWhere('eo.paymentDate <= :payEnd')
+                ->setParameter('payStart', $payDateStart)
+                ->setParameter('payEnd', $payDateEnd);
+        } else {
+            //filter by payStart
+            if (!is_null($payStart)) {
+                $payStart = new \DateTime($payStart);
+                $query->andWhere('eo.paymentDate >= :payStart')
+                    ->setParameter('payStart', $payStart);
+            }
+
+            //filter by payEnd
+            if (!is_null($payEnd)) {
+                $payEnd = new \DateTime($payEnd);
+                $payEnd->setTime(23, 59, 59);
+                $query->andWhere('eo.paymentDate <= :payEnd')
+                    ->setParameter('payEnd', $payEnd);
+            }
+        }
+
+        if (!is_null($createDateRange)) {
+            $now = new \DateTime();
+            switch ($createDateRange) {
+                case 'last_week':
+                    $lastDate = $now->sub(new \DateInterval('P7D'));
+                    break;
+                case 'last_month':
+                    $lastDate = $now->sub(new \DateInterval('P1M'));
+                    break;
+                default:
+                    $lastDate = new \DateTime();
+            }
+            $query->andWhere('e.eventEndDate >= :createStart')
+                ->setParameter('createStart', $lastDate);
+        } else {
+            // filter by order start point
+            if (!is_null($createStart)) {
+                $createStart = new \DateTime($createStart);
+                $createStart->setTime(00, 00, 00);
+                $query->andWhere('e.eventEndDate >= :createStart')
+                    ->setParameter('createStart', $createStart);
+            }
+
+            // filter by order end point
+            if (!is_null($createEnd)) {
+                $createEnd = new \DateTime($createEnd);
+                $createEnd->setTime(23, 59, 59);
+                $query->andWhere('e.eventStartDate <= :createEnd')
+                    ->setParameter('createEnd', $createEnd);
+            }
+        }
+
+        // filter by user
+        if (!is_null($userId)) {
+            $query->andWhere('eo.userId = :userId')
+                ->setParameter('userId', $userId);
+        }
+
+        $result = $query->getQuery()->getSingleScalarResult();
+
+        return $result;
     }
 
     /**

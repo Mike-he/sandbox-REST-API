@@ -4,8 +4,6 @@ namespace Sandbox\SalesApiBundle\Controller\Event;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
-use Knp\Component\Pager\Paginator;
-use Sandbox\ApiBundle\Constants\EventOrderExport;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\GenericList\GenericList;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
@@ -14,7 +12,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\Controller\Annotations;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
-use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 class AdminEventOrderController extends SalesRestController
 {
@@ -160,8 +157,6 @@ class AdminEventOrderController extends SalesRestController
             AdminPermission::OP_LEVEL_VIEW
         );
 
-        $pageLimit = $paramFetcher->get('pageLimit');
-        $pageIndex = $paramFetcher->get('pageIndex');
         $channel = $paramFetcher->get('channel');
         $keyword = $paramFetcher->get('keyword');
         $keywordSearch = $paramFetcher->get('keyword_search');
@@ -176,6 +171,11 @@ class AdminEventOrderController extends SalesRestController
         //sort
         $sortColumn = $paramFetcher->get('sort_column');
         $direction = $paramFetcher->get('direction');
+
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+        $limit = $pageLimit;
+        $offset = ($pageIndex - 1) * $pageLimit;
 
         $orders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Event\EventOrder')
@@ -192,8 +192,27 @@ class AdminEventOrderController extends SalesRestController
                 $createEnd,
                 $this->getSalesCompanyId(),
                 $userId,
+                $limit,
+                $offset,
                 $sortColumn,
                 $direction
+            );
+
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventOrder')
+            ->countEventOrdersForSalesAdmin(
+                null,
+                $channel,
+                $keyword,
+                $keywordSearch,
+                $payDate,
+                $payStart,
+                $payEnd,
+                $createDateRange,
+                $createStart,
+                $createEnd,
+                $this->getSalesCompanyId(),
+                $userId
             );
 
         // set event dates
@@ -210,22 +229,20 @@ class AdminEventOrderController extends SalesRestController
             $event->setAttachments($attachments);
         }
 
-        $orders = $this->get('serializer')->serialize(
-            $orders,
-            'json',
-            SerializationContext::create()->setGroups(['client_event'])
-        );
-        $orders = json_decode($orders, true);
-
-        $paginator = new Paginator();
-        $pagination = $paginator->paginate(
-            $orders,
-            $pageIndex,
-            $pageLimit
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['client_event']));
+        $view->setData(
+            array(
+                'current_page_number' => $pageIndex,
+                'num_items_per_page' => (int) $pageLimit,
+                'items' => $orders,
+                'total_count' => (int) $count,
+            )
         );
 
-        return new View($pagination);
+        return $view;
     }
+
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
