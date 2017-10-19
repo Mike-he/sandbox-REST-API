@@ -147,6 +147,15 @@ class EventOrder
     private $serviceFee = 0;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="customer_id", type="integer", nullable=true)
+     *
+     * @Serializer\Groups({"main", "client_event"})
+     */
+    private $customerId;
+
+    /**
      * @var array
      *
      * @Serializer\Groups({"main", "admin_event"})
@@ -481,5 +490,21 @@ class EventOrder
     public function setRegistration($registration)
     {
         $this->registration = $registration;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCustomerId()
+    {
+        return $this->customerId;
+    }
+
+    /**
+     * @param int $customerId
+     */
+    public function setCustomerId($customerId)
+    {
+        $this->customerId = $customerId;
     }
 }
