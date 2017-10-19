@@ -403,4 +403,23 @@ class AdminPositionUserBindingRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param $positionIds
+     *
+     * @return array
+     */
+    public function getUserIdsByPosition(
+        $positionIds
+    ) {
+        $query = $this->createQueryBuilder('pu')
+            ->select('DISTINCT pu.userId')
+            ->where('pu.positionId IN (:positionIds)')
+            ->setParameter('positionIds', $positionIds);
+
+        $userIds = $query->getQuery()->getResult();
+        $userIds = array_map('current', $userIds);
+
+        return $userIds;
+    }
 }
