@@ -8,7 +8,7 @@ use Doctrine\DBAL\Schema\Schema;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-class Version20171018094041 extends AbstractMigration
+class Version20171019050828 extends AbstractMigration
 {
     /**
      * @param Schema $schema
@@ -18,7 +18,7 @@ class Version20171018094041 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE sales_admin_profiles DROP admin_id, CHANGE avatar avatar VARCHAR(255) DEFAULT NULL, CHANGE gender gender VARCHAR(32) DEFAULT NULL, CHANGE nickname nickname VARCHAR(255) DEFAULT NULL, CHANGE email email VARCHAR(255) DEFAULT NULL');
+        $this->addSql('CREATE TABLE sales_admin_profiles (id INT AUTO_INCREMENT NOT NULL, user_id INT NOT NULL, sales_company_id INT NOT NULL, avatar VARCHAR(255) DEFAULT NULL, gender VARCHAR(32) DEFAULT NULL, nickname VARCHAR(255) DEFAULT NULL, email VARCHAR(255) DEFAULT NULL, creation_date DATETIME NOT NULL, modification_date DATETIME NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB');
     }
 
     /**
@@ -29,6 +29,6 @@ class Version20171018094041 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE sales_admin_profiles ADD admin_id INT NOT NULL, CHANGE avatar avatar VARCHAR(255) NOT NULL, CHANGE gender gender VARCHAR(32) NOT NULL, CHANGE nickname nickname VARCHAR(255) NOT NULL, CHANGE email email VARCHAR(255) NOT NULL');
+        $this->addSql('DROP TABLE sales_admin_profiles');
     }
 }
