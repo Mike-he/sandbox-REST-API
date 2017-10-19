@@ -17,16 +17,20 @@ use Knp\Component\Pager\Paginator;
 class ClientReservationController extends SalesRestController
 {
     /**
-     * @Route("/reservation/{reservationId}")
      * @param Request $request
-     * @return mixed
-     * @Method({"PATCH"})
+     * @param ParamFetcherInterface $paramFetcher
+     * @param $id
+     * @Route("/reservation/{id}")
+     * @return View
      */
-    public function grabReservationAction(Request $request, $reservationId)
-    {
+    public function grabReservationAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+            $id
+    ) {
         $adminId = $this->getAdminId();
         $reservation = $this->getDoctrine()->getRepository('SandboxApiBundle:Reservation\Reservation')->findOneBy(array(
-            'id'=> $reservationId,
+            'id'=> $id,
             'status'=>Reservation::UNGRABED
         ));
 
@@ -142,7 +146,7 @@ class ClientReservationController extends SalesRestController
         $now = new \DateTime();
 
         if($now > $viewTime){
-            $status = '已过期';
+            $status = 'expired';
         }
 
         $data = [];
