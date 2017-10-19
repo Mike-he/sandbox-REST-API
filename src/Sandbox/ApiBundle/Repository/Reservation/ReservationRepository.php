@@ -410,4 +410,19 @@ class ReservationRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param $companyId
+     * @return array
+     */
+    public function clientgetReservationLists(
+        $companyId
+    ) {
+        $query = $this->createQueryBuilder('re')
+            ->where('re.companyId = :companyId')
+            ->setParameter('companyId',$companyId)
+            ->orderBy('re.creationDate','DESC');
+
+        return $query->getQuery()->getResult();
+    }
 }

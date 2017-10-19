@@ -22,18 +22,6 @@ class ClientEnterpriseCustomerController extends SalesRestController
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
-     *     name="pageIndex",
-     *     default=1,
-     *     nullable=true
-     * )
-     *
-     * @Annotations\QueryParam(
-     *     name="pageLimit",
-     *     default=20,
-     *     nullable=true
-     * )
-     *
-     * @Annotations\QueryParam(
      *    name="search",
      *    default=null,
      *    nullable=true,
@@ -49,8 +37,6 @@ class ClientEnterpriseCustomerController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $pageIndex = $paramFetcher->get('pageIndex');
-        $pageLimit = $paramFetcher->get('pageLimit');
         $keyword = 'name';
         $keywordSearch = $paramFetcher->get('search');
 
@@ -59,30 +45,18 @@ class ClientEnterpriseCustomerController extends SalesRestController
 
         $enterpriseCustomers = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\EnterpriseCustomer')
-            ->searchSalesEnterpriseCustomers(
+            ->getClientSalesEnterpriseCustomers(
                 $salesCompanyId,
                 $keyword,
                 $keywordSearch
             );
 
-        foreach ($enterpriseCustomers as $enterpriseCustomer) {
-            $contacts = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:User\EnterpriseCustomerContacts')
-                ->findBy(array(
-                    'enterpriseCustomerId' => $enterpriseCustomer->getId(),
-                ));
+       $count = count($enterpriseCustomers);
+        return new View([
+            "item" => $enterpriseCustomers,
+            'total_count' => $count,
 
-            $enterpriseCustomer->setContacts($contacts);
-        }
-
-        $paginator = new Paginator();
-        $response = $paginator->paginate(
-            $enterpriseCustomers,
-            $pageIndex,
-            $pageLimit
-        );
-
-        return new View($response);
+        ]);
     }
 
     /**
@@ -222,5 +196,99 @@ class ClientEnterpriseCustomerController extends SalesRestController
         $em->flush();
 
         return new View();
+    }
+
+    /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     * @param $id
+     *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many admins to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number "
+     * )
+     *
+     * @Route("/enterprise_customer/{id}/leases")
+     * @Method({"GET"})
+     * @return View
+     */
+    public function getEnterPriseCustomerleasesAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ){
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+        $offset = $pageLimit*($pageIndex-1);
+
+        $lease = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\Lease')
+            ->findBy(array('lesseeEnterprise'=>$id),array('creationDate'=>'DESC'), $pageLimit, $offset);
+
+        return new View($lease);
+    }
+
+    /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     * @param $id
+     *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many admins to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number "
+     * )
+     *
+     * @Route("/enterprise_customer/{id}/bills")
+     * @Method({"GET"})
+     * @return View
+     */
+    public function getEnterPriseCustomerleaseBillsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ){
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+        $offset = $pageLimit*($pageIndex-1);
+
+        $bills = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->getClientEnterpriseCustomerLeaseBills(
+                $id,
+                $pageLimit,
+                $offset
+            );
+
+        return new View($bills);
     }
 }

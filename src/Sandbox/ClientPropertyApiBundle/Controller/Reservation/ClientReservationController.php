@@ -17,16 +17,20 @@ use Knp\Component\Pager\Paginator;
 class ClientReservationController extends SalesRestController
 {
     /**
-     * @Route("/reservation/{reservationId}")
      * @param Request $request
-     * @return mixed
-     * @Method({"PATCH"})
+     * @param ParamFetcherInterface $paramFetcher
+     * @param $id
+     * @Route("/reservation/{id}")
+     * @return View
      */
-    public function grabReservationAction(Request $request, $reservationId)
-    {
+    public function grabReservationAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+            $id
+    ) {
         $adminId = $this->getAdminId();
         $reservation = $this->getDoctrine()->getRepository('SandboxApiBundle:Reservation\Reservation')->findOneBy(array(
-            'id'=> $reservationId,
+            'id'=> $id,
             'status'=>Reservation::UNGRABED
         ));
 
@@ -61,101 +65,6 @@ class ClientReservationController extends SalesRestController
      *
      * @param Request $request the request object
      * @param ParamFetcherInterface $paramFetcher
-     *
-     * @Annotations\QueryParam(
-     *     name="pageIndex",
-     *     default=1,
-     *     nullable=true
-     * )
-     *
-     * @Annotations\QueryParam(
-     *     name="pageLimit",
-     *     default=20,
-     *     nullable=true
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="keyword",
-     *    default=null,
-     *    nullable=true,
-     *    description="userName,userPhone,contectName,contectPhone,adminName,adminPhone"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="keyword_search",
-     *    default=null,
-     *    nullable=true,
-     *    description="search query"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="create_start",
-     *    default=null,
-     *    nullable=true,
-     *    description="create start date"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="create_end",
-     *    default=null,
-     *    nullable=true,
-     *    description="create end date"
-     * )
-     *
-     * * @Annotations\QueryParam(
-     *    name="view_start",
-     *    default=null,
-     *    nullable=true,
-     *    description="create start date"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="view_end",
-     *    default=null,
-     *    nullable=true,
-     *    description="create end date"
-     * )
-     *
-     * * @Annotations\QueryParam(
-     *    name="grab_start",
-     *    default=null,
-     *    nullable=true,
-     *    description="create start date"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="grab_end",
-     *    default=null,
-     *    nullable=true,
-     *    description="create end date"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="status",
-     *    default=null,
-     *    nullable=true
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="building",
-     *    default=null,
-     *    nullable=true
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="sort_column",
-     *    default=null,
-     *    nullable=true,
-     *    description="sort column"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="direction",
-     *    default=null,
-     *    nullable=true,
-     *    description="sort direction"
-     * )
-     *
      * @Route("/reservation/lists")
      * @Method({"GET"})
      * @return mixed
@@ -166,70 +75,11 @@ class ClientReservationController extends SalesRestController
     ) {
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
-        $pageIndex = $paramFetcher->get('pageIndex');
-        $pageLimit = $paramFetcher->get('pageLimit');
-        $keyword = $paramFetcher->get('keyword');
-        $keywordSearch = $paramFetcher->get('keyword_search');
-        $viewStart = $paramFetcher->get('view_start');
-        $viewEnd = $paramFetcher->get('view_end');
-        $createStart = $paramFetcher->get('create_start');
-        $createEnd = $paramFetcher->get('create_end');
-        $grabStart = $paramFetcher->get('grab_start');
-        $grabEnd = $paramFetcher->get('grab_end');
-        $status = $paramFetcher->get('status');
-        $buildingId = $paramFetcher->get('building');
-        $limit = $pageLimit;
-        $offset = ($pageIndex - 1) * $pageLimit;
-
-        //sort
-        $sortColumn = $paramFetcher->get('sort_column');
-        $direction = $paramFetcher->get('direction');
-
-        $productIds = array();
-        if ($buildingId) {
-            $products = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Product\Product')
-                ->findProductIdsByCompanyAndBuilding($salesCompanyId, $buildingId);
-            foreach ($products as $product) {
-                $productIds[] = $product['id'];
-            }
-        }
 
         $reservations = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Reservation\Reservation')
-            ->findBySearch(
-                $salesCompanyId,
-                $buildingId,
-                $keyword,
-                $keywordSearch,
-                $productIds,
-                $status,
-                $viewStart,
-                $viewEnd,
-                $createStart,
-                $createEnd,
-                $grabStart,
-                $grabEnd,
-                $limit,
-                $offset,
-                $sortColumn,
-                $direction
-            );
-
-        $count = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Reservation\Reservation')
-            ->getCountBySearch(
-                $salesCompanyId,
-                $keyword,
-                $keywordSearch,
-                $productIds,
-                $status,
-                $viewStart,
-                $viewEnd,
-                $createStart,
-                $createEnd,
-                $grabStart,
-                $grabEnd
+            ->clientgetReservationLists(
+                $salesCompanyId
             );
 
         $result = [];
@@ -237,27 +87,11 @@ class ClientReservationController extends SalesRestController
             $result[$k] = $this->getProductInfo($reservation);
         }
 
-        if($sortColumn == 'price'){
-            $price = [];
-            foreach ($result as $k => $v) {
-                if(array_key_exists('leasing',$v['product'])){
-                    $price[] = $v['product']['leasing']['base_price'];
-                }else{
-                    $price[] = $v['product']['rent']['rent_price'];
-                }
-            }
-            if($direction == 'asc'){
-                array_multisort($price, SORT_ASC, $result);
-            }elseif ($direction == 'desc'){
-                array_multisort($price, SORT_DESC, $result);
-            }
-        }
+        $count = count($result);
 
         $view = new View();
         $view->setData(
             array(
-                'current_page_number' => $pageIndex,
-                'num_items_per_page' => (int)$pageLimit,
                 'items' => $result,
                 'total_count' => (int)$count,
             )
@@ -307,11 +141,12 @@ class ClientReservationController extends SalesRestController
      */
     private function getProductInfo($reservation)
     {
-        $viewTime = $reservation->getViewTime();
+        $viewTime =  new \DateTime($reservation->getViewTime());
         $status = $reservation->getStatus();
         $now = new \DateTime();
+
         if($now > $viewTime){
-            $status = '已过期';
+            $status = 'expired';
         }
 
         $data = [];

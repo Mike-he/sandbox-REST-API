@@ -5,6 +5,7 @@ namespace Sandbox\ClientPropertyApiBundle\Controller\Customer;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
+use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\User\UserCustomer;
 use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
@@ -28,39 +29,10 @@ class ClientCustomerController extends SalesRestController
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
-     *    name="pageLimit",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    requirements="\d+",
-     *    strict=true,
-     *    description="How many admins to return "
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="pageIndex",
-     *    array=false,
-     *    default="1",
-     *    nullable=true,
-     *    requirements="\d+",
-     *    strict=true,
-     *    description="page number "
-     * )
-     *
-     * @Annotations\QueryParam(
-     *     name="query",
+     *     name="search",
      *     array=false,
      *     default=null,
      *     nullable=true,
-     *     strict=true
-     * )
-     *
-     * @Annotations\QueryParam(
-     *     name="group_id",
-     *     array=false,
-     *     default=null,
-     *     nullable=true,
-     *     requirements="\d+",
      *     strict=true
      * )
      *
@@ -73,54 +45,23 @@ class ClientCustomerController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $pageLimit = $paramFetcher->get('pageLimit');
-        $pageIndex = $paramFetcher->get('pageIndex');
-        $offset = ($pageIndex - 1) * $pageLimit;
-
-        $query = $paramFetcher->get('query');
-        $groupId = $paramFetcher->get('group_id');
+        $search = $paramFetcher->get('search');
 
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
-        if (is_null($pageLimit) || is_null($pageIndex)) {
-            $customers = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:User\UserCustomer')
-                ->getSalesAdminCustomers(
-                    $salesCompanyId,
-                    $query,
-                    $groupId
-                );
-
-            return new View($customers);
-        }
-
         $customers = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserCustomer')
-            ->getSalesAdminCustomers(
+            ->getClientSalesAdminCustomers(
                 $salesCompanyId,
-                $query,
-                $groupId,
-                $pageLimit,
-                $offset
+                $search
             );
 
-        foreach ($customers as $customer) {
-            $this->generateCustomer($customer);
-        }
-
-        $count = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserCustomer')
-            ->countSalesAdminCustomers(
-                $salesCompanyId,
-                $query,
-                $groupId
-            );
+        $count = count($customers);
 
         return new View([
             'items' => $customers,
             'total_count' => $count,
-            'current_page_number' => $pageIndex,
         ]);
     }
 
@@ -298,8 +239,8 @@ class ClientCustomerController extends SalesRestController
     /**
      * @param Request $request
      * @param ParamFetcherInterface $paramFetcher
-     * @param $userId
-     * @Route("/customer/{userId}/orders/number")
+     * @param $id
+     * @Route("/customer/{id}/orders/number")
      * @Method({"GET"})
      * @return View
      */
@@ -307,8 +248,12 @@ class ClientCustomerController extends SalesRestController
     (
         Request $request,
         ParamFetcherInterface  $paramFetcher,
-        $userId
+        $id
     ){
+        $customer = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->find($id);
+        $userId = $customer->getUserId();
+
         $productOrdersCount = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->countCustomerAllProductOrders($userId);
@@ -324,14 +269,13 @@ class ClientCustomerController extends SalesRestController
         $user = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserCustomer')
             ->findOneBy(array('userId'=>$userId));
 
-        $customerId = $user->getId();
         $billsCount = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
-            ->countCustomerAllLeaseBills($customerId);
+            ->countCustomerAllLeaseBills($id);
 
         $leaseCount = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\Lease')
-            ->countCustomerAllLeases($customerId);
+            ->countCustomerAllLeases($id);
 
         $view = new View();
         $view->setData(
@@ -346,4 +290,240 @@ class ClientCustomerController extends SalesRestController
 
         return $view;
     }
+
+    /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many admins to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number "
+     * )
+     *
+     * @param $id
+     * @Route("/customer/{id}/product_orders")
+     * @Method({"GET"})
+     * @return View
+     */
+    public function getCustomerProductOrdersAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+
+        $customer = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->find($id);
+        $userId = $customer->getUserId();
+        $offset = $pageLimit*($pageIndex-1);
+
+        $productOrders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->findBy(array('userId'=>$userId),array('creationDate'=>'DESC'), $pageLimit, $offset);
+
+        return new View($productOrders);
+    }
+
+    /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many admins to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number "
+     * )
+     *
+     * @param $id
+     * @Route("/customer/{id}/event_orders")
+     * @Method({"GET"})
+     * @return View
+     */
+    public function getCustomerEventOrdersAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+
+        $customer = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->find($id);
+        $userId = $customer->getUserId();
+        $offset = $pageLimit*($pageIndex-1);
+
+        $eventOrders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventOrder')
+            ->findBy(array('userId'=>$userId),array('creationDate'=>'DESC'), $pageLimit, $offset);
+
+        return new View($eventOrders);
+    }
+
+    /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many admins to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number "
+     * )
+     *
+     * @param $id
+     * @Route("/customer/{id}/membership_orders")
+     * @Method({"GET"})
+     * @return View
+     */
+    public function getCustomerMembershipOrdersAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+
+        $customer = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->find($id);
+        $userId = $customer->getUserId();
+        $offset = $pageLimit*($pageIndex-1);
+
+        $MembershipOrders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:MembershipCard\MembershipOrder')
+            ->findBy(array('userId'=>$userId),array('creationDate'=>'DESC'), $pageLimit, $offset);
+
+        return new View($MembershipOrders);
+    }
+
+    /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many admins to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number "
+     * )
+     *
+     * @param $id
+     * @Route("/customer/{id}/lease_bills")
+     * @return View
+     */
+    public function getCustomerLeaseBillsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+        $offset = $pageLimit*($pageIndex-1);
+
+        $bills = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->findBy(array('customerId'=>$id),array('sendDate'=>'DESC'), $pageLimit, $offset);
+
+        return new View($bills);
+    }
+
+    /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many admins to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number "
+     * )
+     *
+     * @param $id
+     * @Route("/customer/{id}/leases")
+     * @return View
+     */
+    public function getCustomerLeasesAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+        $offset = $pageLimit*($pageIndex-1);
+
+        $leases = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\Lease')
+            ->findBy(array('customerId'=>$id),array('creationDate'=>'DESC'), $pageLimit, $offset);
+
+        return new View($leases);
+    }
+
 }
