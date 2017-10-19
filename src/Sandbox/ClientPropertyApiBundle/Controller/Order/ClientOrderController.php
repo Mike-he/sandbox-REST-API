@@ -3,6 +3,7 @@
 namespace Sandbox\ClientPropertyApiBundle\Controller\Order;
 
 use JMS\Serializer\SerializationContext;
+use Rs\Json\Patch;
 use Sandbox\ApiBundle\Constants\ProductOrderMessage;
 use Sandbox\ApiBundle\Controller\Order\OrderController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
@@ -10,11 +11,11 @@ use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Form\Order\OrderReserveType;
+use Sandbox\ApiBundle\Form\Order\PreOrderPriceType;
 use Sandbox\ApiBundle\Form\Order\PreOrderType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
@@ -288,6 +289,9 @@ class ClientOrderController extends OrderController
 
     /**
      * @param ProductOrder $order
+     * @param $receivableTypes
+     * @param $orderType
+     * @param $status
      *
      * @return array
      */
@@ -356,22 +360,13 @@ class ClientOrderController extends OrderController
     }
 
     /**
-     * Get member order renter info.
+     * Get order  info.
      *
      * @param Request $request
      * @param int     $id
      *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     200 = "Returned when successful"
-     *  }
-     * )
-     *
      * @Route("/orders/{id}")
      * @Method({"GET"})
-     *
-     * @throws \Exception
      *
      * @return View
      */
@@ -382,35 +377,6 @@ class ClientOrderController extends OrderController
         $order = $this->getRepo('Order\ProductOrder')->find($id);
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
 
-        $buildingId = $order->getProduct()->getRoom()->getBuildingId();
-
-        // check user permission
-        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
-            $this->getAdminId(),
-            array(
-                array(
-                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER,
-                    'building_id' => $buildingId,
-                ),
-                array(
-                    'key' => AdminPermission::KEY_SALES_PLATFORM_CUSTOMER,
-                    'building_id' => $buildingId,
-                ),
-                array(
-                    'key' => AdminPermission::KEY_SALES_PLATFORM_INVOICE,
-                ),
-                array(
-                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_PREORDER,
-                    'building_id' => $buildingId,
-                ),
-                array(
-                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_RESERVE,
-                    'building_id' => $buildingId,
-                ),
-            ),
-            AdminPermission::OP_LEVEL_VIEW
-        );
-
         $view = new View();
         $view->setSerializationContext(
             SerializationContext::create()->setGroups(['admin_detail'])
@@ -418,6 +384,54 @@ class ClientOrderController extends OrderController
         $view->setData($order);
 
         return $view;
+    }
+
+    /**
+     * @Route("/orders/{id}/preorder")
+     * @Method({"PATCH"})
+     *
+     * @param Request $request
+     * @param $id
+     *
+     * @return View
+     */
+    public function patchPreOrderPriceAction(
+        Request $request,
+        $id
+    ) {
+        $order = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->findOneBy([
+                'id' => $id,
+                'status' => ProductOrder::STATUS_UNPAID,
+                'type' => ProductOrder::PREORDER_TYPE,
+            ]);
+        $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
+
+        // bind data
+        $orderJson = $this->container->get('serializer')->serialize($order, 'json');
+        $patch = new Patch($orderJson, $request->getContent());
+        $orderJson = $patch->apply();
+
+        $form = $this->createForm(new PreOrderPriceType(), $order);
+        $form->submit(json_decode($orderJson, true));
+
+        $order->setEditAdminId($this->getAdminId());
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        // send message
+        $this->sendXmppProductOrderNotification(
+            null,
+            null,
+            ProductOrder::ACTION_CHANGE_PRICE,
+            null,
+            [$order],
+            ProductOrderMessage::ORDER_CHANGE_PRICE_MESSAGE
+        );
+
+        return new View();
     }
 
     /**
