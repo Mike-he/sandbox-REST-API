@@ -155,13 +155,19 @@ class ClientMembershipCardOrderController extends SalesRestController
         $order
     ) {
         $card = $order->getCard();
+        $userId = $order->getUser();
 
         $customer = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserCustomer')
             ->findOneBy(array(
-                'userId' => $order->getUser(),
+                'userId' => $userId,
                 'companyId' => $card->getCompanyId(),
             ));
+
+        $cardStatus = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:MembershipCard\MembershipOrder')
+            ->getMyValidClientMembershipCards($userId, $card->getId());
+
 
         $result = array(
             'id' => $order->getId(),
@@ -174,7 +180,7 @@ class ClientMembershipCardOrderController extends SalesRestController
             'price' => $order->getPrice(),
             'pay_channel' => $order->getPayChannel() ? '创合钱包支付' : '',
             'status' => '已付款',
-            'card_status' => '',
+            'card_status' => $cardStatus ? 'using' : 'expired',
             'customer' => array(
                 'id' => $customer ? $customer->getId() : '',
                 'name' => $customer ? $customer->getName() : '',

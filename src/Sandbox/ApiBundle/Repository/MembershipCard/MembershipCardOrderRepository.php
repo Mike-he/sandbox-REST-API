@@ -355,11 +355,13 @@ class MembershipCardOrderRepository extends EntityRepository
 
     /**
      * @param $userId
+     * @param null $cardId
      *
      * @return array
      */
     public function getMyValidClientMembershipCards(
-        $userId
+        $userId,
+        $cardId = null
     ) {
         $query = $this->createQueryBuilder('mo')
             ->select('DISTINCT(mo.card)')
@@ -368,6 +370,11 @@ class MembershipCardOrderRepository extends EntityRepository
             ->andWhere('mo.endDate >= :now')
             ->setParameter('userId', $userId)
             ->setParameter('now', new \DateTime('now'));
+
+        if ($cardId) {
+            $query->andWhere('mo.card = :cardId')
+                ->setParameter('cardId', $cardId);
+        }
 
         $result = $query->getQuery()->getScalarResult();
         $result = array_map('current', $result);
@@ -378,6 +385,7 @@ class MembershipCardOrderRepository extends EntityRepository
     /**
      * @param $userId
      * @param $card
+     * @param $date
      *
      * @return array
      */
