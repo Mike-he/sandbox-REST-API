@@ -21,6 +21,7 @@ class ClientReservationController extends SalesRestController
      * @param ParamFetcherInterface $paramFetcher
      * @param $id
      * @Route("/reservation/{id}")
+     * @Method({"PATCH"})
      * @return View
      */
     public function grabReservationAction(
@@ -60,14 +61,11 @@ class ClientReservationController extends SalesRestController
     }
 
     /**
-     *
-     * Reservation.
-     *
-     * @param Request $request the request object
+     * @param Request $request
      * @param ParamFetcherInterface $paramFetcher
      * @Route("/reservation/lists")
      * @Method({"GET"})
-     * @return mixed
+     * @return View
      */
     public function getReservationAction(
         Request $request,
