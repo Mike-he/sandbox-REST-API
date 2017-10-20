@@ -583,6 +583,8 @@ class ClientDashBoardController extends SandboxRestController
             'order_type' => $orderType[$order->getType()],
             'pay_channel' => $payChannel,
             'status' => $status[$order->getStatus()],
+            'price' => (float) $order->getPrice(),
+            'discount_price' => (float) $order->getDiscountPrice(),
         );
 
         return $result;

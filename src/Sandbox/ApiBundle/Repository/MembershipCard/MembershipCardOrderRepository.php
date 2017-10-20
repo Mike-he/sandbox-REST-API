@@ -106,6 +106,15 @@ class MembershipCardOrderRepository extends EntityRepository
 
         if (!is_null($keyword) && !is_null($keywordSearch)) {
             switch ($keyword) {
+                case 'all':
+                    $query->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.userId = mo.user')
+                            ->andWhere('
+                                mo.orderNumber LIKE :search OR
+                                c.name LIKE :search OR
+                                uc.name LIKE :search OR
+                                uc.phone LIKE :search
+                            ');
+                    break;
                 case 'number':
                     $query->andWhere('mo.orderNumber LIKE :search');
                     break;
@@ -132,9 +141,9 @@ class MembershipCardOrderRepository extends EntityRepository
                 ->setParameter('companyId', $companyId);
         }
 
-        if (!is_null($buildingId)) {
+        if (!is_null($buildingId) && !empty($buildingId)) {
             $query->leftJoin('SandboxApiBundle:User\UserGroupDoors', 'd', 'WITH', 'd.card = c.id')
-                ->andWhere('d.building = :buildingId')
+                ->andWhere('d.building in (:buildingId)')
                 ->setParameter('buildingId', $buildingId);
         }
 
@@ -150,14 +159,13 @@ class MembershipCardOrderRepository extends EntityRepository
                 default:
                     $lastDate = new \DateTime();
             }
-            $query->andWhere('mo.creationDate >= :createStart')
+            $query->andWhere('mo.paymentDate >= :createStart')
                 ->setParameter('createStart', $lastDate);
         } else {
             // filter by order start point
             if (!is_null($createStart)) {
                 $createStart = new \DateTime($createStart);
-                $createStart->setTime(00, 00, 00);
-                $query->andWhere('mo.creationDate >= :createStart')
+                $query->andWhere('mo.paymentDate >= :createStart')
                     ->setParameter('createStart', $createStart);
             }
 
@@ -165,7 +173,7 @@ class MembershipCardOrderRepository extends EntityRepository
             if (!is_null($createEnd)) {
                 $createEnd = new \DateTime($createEnd);
                 $createEnd->setTime(23, 59, 59);
-                $query->andWhere('mo.creationDate <= :createEnd')
+                $query->andWhere('mo.paymentDate <= :createEnd')
                     ->setParameter('createEnd', $createEnd);
             }
         }
@@ -177,28 +185,17 @@ class MembershipCardOrderRepository extends EntityRepository
         }
 
         if (!is_null($sortColumn) && !is_null($direction)) {
+            $sortArray = [
+                'start_date' => 'mo.startDate',
+                'end_date' => 'mo.endDate',
+                'discount_price' => 'mo.price',
+                'creation_date' => 'mo.creationDate',
+                'price' => 'mo.price',
+            ];
             $direction = strtoupper($direction);
-
-            switch ($sortColumn) {
-                case 'start_date':
-                    $query->orderBy('mo.startDate', $direction);
-                    break;
-                case 'end_date':
-                    $query->orderBy('mo.endDate', $direction);
-                    break;
-                case 'discount_price':
-                    $query->orderBy('mo.price', $direction);
-                    break;
-                case 'creation_date':
-                    $query->orderBy('mo.creationDate', $direction);
-                    break;
-                case 'price':
-                    $query->orderBy('mo.price', $direction);
-                    break;
-                default:
-                    $query->orderBy('mo.creationDate', 'DESC');
-                    break;
-            }
+            $query->orderBy($sortArray[$sortColumn], $direction);
+        } else {
+            $query->orderBy('mo.creationDate', 'DESC');
         }
 
         if (!is_null($limit) && !is_null($offset)) {
@@ -547,7 +544,7 @@ class MembershipCardOrderRepository extends EntityRepository
         $query = $this->createQueryBuilder('mo')
             ->select('count(mo.id)')
             ->where('mo.user = :userId')
-            ->setParameter('userId',$userId);
+            ->setParameter('userId', $userId);
 
         return $query->getQuery()->getSingleScalarResult();
     }
