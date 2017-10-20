@@ -204,23 +204,23 @@ class ClientEnterpriseCustomerController extends SalesRestController
      * @param $id
      *
      * @Annotations\QueryParam(
-     *    name="pageLimit",
+     *    name="limit",
      *    array=false,
      *    default="10",
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
-     *    description="How many admins to return "
+     *    description="limit for the page"
      * )
      *
      * @Annotations\QueryParam(
-     *    name="pageIndex",
+     *    name="offset",
      *    array=false,
-     *    default="1",
+     *    default="0",
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
-     *    description="page number "
+     *    description="start of the page"
      * )
      *
      * @Route("/enterprise_customer/{id}/leases")
@@ -232,13 +232,12 @@ class ClientEnterpriseCustomerController extends SalesRestController
         ParamFetcherInterface $paramFetcher,
         $id
     ){
-        $pageLimit = $paramFetcher->get('pageLimit');
-        $pageIndex = $paramFetcher->get('pageIndex');
-        $offset = $pageLimit*($pageIndex-1);
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
 
         $lease = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\Lease')
-            ->findBy(array('lesseeEnterprise'=>$id),array('creationDate'=>'DESC'), $pageLimit, $offset);
+            ->findBy(array('lesseeEnterprise'=>$id),array('creationDate'=>'DESC'), $limit, $offset);
 
         return new View($lease);
     }
@@ -249,23 +248,23 @@ class ClientEnterpriseCustomerController extends SalesRestController
      * @param $id
      *
      * @Annotations\QueryParam(
-     *    name="pageLimit",
+     *    name="limit",
      *    array=false,
      *    default="10",
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
-     *    description="How many admins to return "
+     *    description="limit for the page"
      * )
      *
      * @Annotations\QueryParam(
-     *    name="pageIndex",
+     *    name="offset",
      *    array=false,
-     *    default="1",
+     *    default="0",
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
-     *    description="page number "
+     *    description="start of the page"
      * )
      *
      * @Route("/enterprise_customer/{id}/bills")
@@ -277,15 +276,14 @@ class ClientEnterpriseCustomerController extends SalesRestController
         ParamFetcherInterface $paramFetcher,
         $id
     ){
-        $pageLimit = $paramFetcher->get('pageLimit');
-        $pageIndex = $paramFetcher->get('pageIndex');
-        $offset = $pageLimit*($pageIndex-1);
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
 
         $bills = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
             ->getClientEnterpriseCustomerLeaseBills(
                 $id,
-                $pageLimit,
+                $limit,
                 $offset
             );
 

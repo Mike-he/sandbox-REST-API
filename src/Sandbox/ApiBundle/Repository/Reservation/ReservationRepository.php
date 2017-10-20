@@ -395,11 +395,15 @@ class ReservationRepository extends EntityRepository
     /**
      * @param $adminId
      * @param $companyId
+     * @param $limit
+     * @param $offset
      * @return array
      */
     public function getMyGrabedLists(
         $adminId,
-        $companyId
+        $companyId,
+        $limit,
+        $offset
     ) {
         $query = $this->createQueryBuilder('re')
             ->where('re.adminId = :adminId')
@@ -407,6 +411,9 @@ class ReservationRepository extends EntityRepository
             ->andWhere('re.companyId = :companyId')
             ->setParameter('companyId',$companyId)
             ->orderBy('re.grabDate','DESC');
+
+        $query->setMaxResults($limit)
+            ->setFirstResult($offset);
 
         return $query->getQuery()->getResult();
     }
@@ -431,20 +438,5 @@ class ReservationRepository extends EntityRepository
             ->setFirstResult($offset);
 
         return $query->getQuery()->getResult();
-    }
-
-    /**
-     * @param $companyId
-     * @return array
-     */
-    public function clientgetReservationListsCount(
-        $companyId
-    ) {
-        $query = $this->createQueryBuilder('re')
-            ->select('count(re.id)')
-            ->where('re.companyId = :companyId')
-            ->setParameter('companyId',$companyId);
-
-        return $query->getQuery()->getSingleScalarResult();
     }
 }

@@ -296,23 +296,23 @@ class ClientCustomerController extends SalesRestController
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
-     *    name="pageLimit",
+     *    name="limit",
      *    array=false,
      *    default="10",
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
-     *    description="How many admins to return "
+     *    description="limit for the page"
      * )
      *
      * @Annotations\QueryParam(
-     *    name="pageIndex",
+     *    name="offset",
      *    array=false,
-     *    default="1",
+     *    default="0",
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
-     *    description="page number "
+     *    description="start of the page"
      * )
      *
      * @param $id
@@ -325,17 +325,16 @@ class ClientCustomerController extends SalesRestController
         ParamFetcherInterface $paramFetcher,
         $id
     ) {
-        $pageLimit = $paramFetcher->get('pageLimit');
-        $pageIndex = $paramFetcher->get('pageIndex');
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
 
         $customer = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserCustomer')
             ->find($id);
         $userId = $customer->getUserId();
-        $offset = $pageLimit*($pageIndex-1);
 
         $productOrders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->findBy(array('userId'=>$userId),array('creationDate'=>'DESC'), $pageLimit, $offset);
+            ->findBy(array('userId'=>$userId),array('creationDate'=>'DESC'), $limit, $offset);
 
         return new View($productOrders);
     }
@@ -345,23 +344,23 @@ class ClientCustomerController extends SalesRestController
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
-     *    name="pageLimit",
+     *    name="limit",
      *    array=false,
      *    default="10",
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
-     *    description="How many admins to return "
+     *    description="limit for the page"
      * )
      *
      * @Annotations\QueryParam(
-     *    name="pageIndex",
+     *    name="offset",
      *    array=false,
-     *    default="1",
+     *    default="0",
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
-     *    description="page number "
+     *    description="start of the page"
      * )
      *
      * @param $id
@@ -374,17 +373,16 @@ class ClientCustomerController extends SalesRestController
         ParamFetcherInterface $paramFetcher,
         $id
     ) {
-        $pageLimit = $paramFetcher->get('pageLimit');
-        $pageIndex = $paramFetcher->get('pageIndex');
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
 
         $customer = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserCustomer')
             ->find($id);
         $userId = $customer->getUserId();
-        $offset = $pageLimit*($pageIndex-1);
 
         $eventOrders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Event\EventOrder')
-            ->findBy(array('userId'=>$userId),array('creationDate'=>'DESC'), $pageLimit, $offset);
+            ->findBy(array('userId'=>$userId),array('creationDate'=>'DESC'), $limit, $offset);
 
         return new View($eventOrders);
     }
@@ -394,23 +392,23 @@ class ClientCustomerController extends SalesRestController
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
-     *    name="pageLimit",
+     *    name="limit",
      *    array=false,
      *    default="10",
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
-     *    description="How many admins to return "
+     *    description="limit for the page"
      * )
      *
      * @Annotations\QueryParam(
-     *    name="pageIndex",
+     *    name="offset",
      *    array=false,
-     *    default="1",
+     *    default="0",
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
-     *    description="page number "
+     *    description="start of the page"
      * )
      *
      * @param $id
@@ -423,17 +421,16 @@ class ClientCustomerController extends SalesRestController
         ParamFetcherInterface $paramFetcher,
         $id
     ) {
-        $pageLimit = $paramFetcher->get('pageLimit');
-        $pageIndex = $paramFetcher->get('pageIndex');
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
 
         $customer = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserCustomer')
             ->find($id);
         $userId = $customer->getUserId();
-        $offset = $pageLimit*($pageIndex-1);
 
         $MembershipOrders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:MembershipCard\MembershipOrder')
-            ->findBy(array('userId'=>$userId),array('creationDate'=>'DESC'), $pageLimit, $offset);
+            ->findBy(array('userId'=>$userId),array('creationDate'=>'DESC'), $limit, $offset);
 
         return new View($MembershipOrders);
     }
@@ -443,23 +440,23 @@ class ClientCustomerController extends SalesRestController
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
-     *    name="pageLimit",
+     *    name="limit",
      *    array=false,
      *    default="10",
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
-     *    description="How many admins to return "
+     *    description="limit for the page"
      * )
      *
      * @Annotations\QueryParam(
-     *    name="pageIndex",
+     *    name="offset",
      *    array=false,
-     *    default="1",
+     *    default="0",
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
-     *    description="page number "
+     *    description="start of the page"
      * )
      *
      * @param $id
@@ -471,13 +468,12 @@ class ClientCustomerController extends SalesRestController
         ParamFetcherInterface $paramFetcher,
         $id
     ) {
-        $pageLimit = $paramFetcher->get('pageLimit');
-        $pageIndex = $paramFetcher->get('pageIndex');
-        $offset = $pageLimit*($pageIndex-1);
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
 
         $bills = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
-            ->findBy(array('customerId'=>$id),array('sendDate'=>'DESC'), $pageLimit, $offset);
+            ->findBy(array('customerId'=>$id),array('sendDate'=>'DESC'), $limit, $offset);
 
         return new View($bills);
     }
@@ -487,23 +483,23 @@ class ClientCustomerController extends SalesRestController
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
-     *    name="pageLimit",
+     *    name="limit",
      *    array=false,
      *    default="10",
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
-     *    description="How many admins to return "
+     *    description="limit for the page"
      * )
      *
      * @Annotations\QueryParam(
-     *    name="pageIndex",
+     *    name="offset",
      *    array=false,
-     *    default="1",
+     *    default="0",
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
-     *    description="page number "
+     *    description="start of the page"
      * )
      *
      * @param $id
@@ -515,13 +511,12 @@ class ClientCustomerController extends SalesRestController
         ParamFetcherInterface $paramFetcher,
         $id
     ) {
-        $pageLimit = $paramFetcher->get('pageLimit');
-        $pageIndex = $paramFetcher->get('pageIndex');
-        $offset = $pageLimit*($pageIndex-1);
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
 
         $leases = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\Lease')
-            ->findBy(array('customerId'=>$id),array('creationDate'=>'DESC'), $pageLimit, $offset);
+            ->findBy(array('customerId'=>$id),array('creationDate'=>'DESC'), $limit, $offset);
 
         return new View($leases);
     }

@@ -65,23 +65,23 @@ class ClientReservationController extends SalesRestController
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
-     *    name="pageLimit",
+     *    name="limit",
      *    array=false,
      *    default="10",
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
-     *    description="How many admins to return "
+     *    description="limit for the page"
      * )
      *
      * @Annotations\QueryParam(
-     *    name="pageIndex",
+     *    name="offset",
      *    array=false,
-     *    default="1",
+     *    default="0",
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
-     *    description="page number "
+     *    description="start of the page"
      * )
      *
      * @Route("/reservation/lists")
@@ -95,14 +95,14 @@ class ClientReservationController extends SalesRestController
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
-        $pageIndex = $paramFetcher->get('pageIndex');
-        $pageLimit = $paramFetcher->get('pageLimit');
-        $offset = $pageLimit*($pageIndex-1);
+        $offset = $paramFetcher->get('offset');
+        $limit = $paramFetcher->get('limit');
+
         $reservations = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Reservation\Reservation')
             ->clientgetReservationLists(
                 $salesCompanyId,
-                $pageLimit,
+                $limit,
                 $offset
             );
 
@@ -111,17 +111,10 @@ class ClientReservationController extends SalesRestController
             $result[$k] = $this->getProductInfo($reservation);
         }
 
-        $count = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Reservation\Reservation')
-            ->clientgetReservationListsCount(
-                $salesCompanyId
-            );
-
         $view = new View();
         $view->setData(
             array(
-                'items' => $result,
-                'total_count' => (int)$count,
+                'items' => $result
             )
         );
 
@@ -246,23 +239,51 @@ class ClientReservationController extends SalesRestController
 
     /**
      * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
      * @Route("/my/grabed/lists")
+     *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit for the page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="offset",
+     *    array=false,
+     *    default="0",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="start of the page"
+     * )
+     *
      * @Method("GET")
      * @return View
      */
     public function myGrabedListsAction
     (
-        Request $request
+        Request $request,
+        ParamFetcherInterface $paramFetcher
     ){
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
         $adminId = $this->getAdminId();
 
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
+
         $reservations = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Reservation\Reservation')
             ->getMyGrabedLists(
                 $adminId,
-                $salesCompanyId
+                $salesCompanyId,
+                $limit,
+                $offset
             );
 
         $result = [];
@@ -270,13 +291,10 @@ class ClientReservationController extends SalesRestController
             $result[$k] = $this->getProductInfo($reservation);
         }
 
-        $count = count($result);
-
         $view = new View();
         $view->setData(
             array(
-                'items'=>$result,
-                'total_count'=>$count
+                'items'=>$result
             )
         );
 
