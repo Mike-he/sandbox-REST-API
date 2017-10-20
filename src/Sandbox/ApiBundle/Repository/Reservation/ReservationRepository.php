@@ -413,16 +413,38 @@ class ReservationRepository extends EntityRepository
 
     /**
      * @param $companyId
+     * @param $pageLimit
+     * @param $offset
      * @return array
      */
     public function clientgetReservationLists(
-        $companyId
+        $companyId,
+        $pageLimit,
+        $offset
     ) {
         $query = $this->createQueryBuilder('re')
             ->where('re.companyId = :companyId')
             ->setParameter('companyId',$companyId)
             ->orderBy('re.creationDate','DESC');
 
+        $query->setMaxResults($pageLimit)
+            ->setFirstResult($offset);
+
         return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $companyId
+     * @return array
+     */
+    public function clientgetReservationListsCount(
+        $companyId
+    ) {
+        $query = $this->createQueryBuilder('re')
+            ->select('count(re.id)')
+            ->where('re.companyId = :companyId')
+            ->setParameter('companyId',$companyId);
+
+        return $query->getQuery()->getSingleScalarResult();
     }
 }

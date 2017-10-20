@@ -63,6 +63,27 @@ class ClientReservationController extends SalesRestController
     /**
      * @param Request $request
      * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many admins to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number "
+     * )
+     *
      * @Route("/reservation/lists")
      * @Method({"GET"})
      * @return View
@@ -74,10 +95,15 @@ class ClientReservationController extends SalesRestController
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
+        $pageIndex = $paramFetcher->get('pageIndex');
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $offset = $pageLimit*($pageIndex-1);
         $reservations = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Reservation\Reservation')
             ->clientgetReservationLists(
-                $salesCompanyId
+                $salesCompanyId,
+                $pageLimit,
+                $offset
             );
 
         $result = [];
@@ -85,7 +111,11 @@ class ClientReservationController extends SalesRestController
             $result[$k] = $this->getProductInfo($reservation);
         }
 
-        $count = count($result);
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Reservation\Reservation')
+            ->clientgetReservationListsCount(
+                $salesCompanyId
+            );
 
         $view = new View();
         $view->setData(
