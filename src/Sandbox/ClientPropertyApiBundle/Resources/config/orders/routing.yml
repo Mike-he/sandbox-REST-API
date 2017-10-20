@@ -3,7 +3,6 @@ sandbox_client_property_api_orders_product:
     type:     annotation
     prefix:   /
 
-
 sandbox_client_property_api_orders_event:
     resource: "@SandboxClientPropertyApiBundle/Controller/Order/ClientEventOrderController.php"
     type:     annotation

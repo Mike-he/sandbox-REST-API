@@ -18,7 +18,6 @@ class Version20171019114417 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE product_order ADD CONSTRAINT FK_5475E8C464B64DCC FOREIGN KEY (userId) REFERENCES user (id) ON DELETE SET NULL');
         $this->addSql('ALTER TABLE event ADD status VARCHAR(64) NOT NULL');
     }
 
@@ -31,6 +30,5 @@ class Version20171019114417 extends AbstractMigration
         $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
         $this->addSql('ALTER TABLE event DROP status');
-        $this->addSql('ALTER TABLE product_order DROP FOREIGN KEY FK_5475E8C464B64DCC');
     }
 }
