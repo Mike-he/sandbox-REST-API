@@ -289,4 +289,49 @@ class ClientEnterpriseCustomerController extends SalesRestController
 
         return new View($bills);
     }
+
+    /**
+     * @param EnterpriseCustomer $enterpriseCustomer
+     */
+    private function handleContacts(
+        $enterpriseCustomer
+    ) {
+        $contacts = $enterpriseCustomer->getContacts();
+
+        if (is_null($contacts)) {
+            return;
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $enterpriseCustomerId = $enterpriseCustomer->getId();
+
+        // remove old data
+        $oldContacts = $em->getRepository('SandboxApiBundle:User\EnterpriseCustomerContacts')
+            ->findBy(array(
+                'enterpriseCustomerId' => $enterpriseCustomerId,
+            ));
+        foreach ($oldContacts as $item) {
+            $em->remove($item);
+        }
+        $em->flush();
+
+        // add new data
+        foreach ($contacts as $contact) {
+            $contactObject = new EnterpriseCustomerContacts();
+
+            $form = $this->createForm(new EnterpriseCustomerContactType(), $contactObject);
+            $form->submit($contact);
+
+            if (!$form->isValid()) {
+                continue;
+            }
+
+            $contactObject->setEnterpriseCustomerId($enterpriseCustomerId);
+            $em->persist($contactObject);
+        }
+
+        $em->flush();
+
+        return;
+    }
 }

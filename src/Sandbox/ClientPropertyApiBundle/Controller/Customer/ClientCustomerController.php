@@ -430,7 +430,7 @@ class ClientCustomerController extends SalesRestController
 
         $MembershipOrders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:MembershipCard\MembershipOrder')
-            ->findBy(array('userId'=>$userId),array('creationDate'=>'DESC'), $limit, $offset);
+            ->findBy(array('user'=>$userId),array('creationDate'=>'DESC'), $limit, $offset);
 
         return new View($MembershipOrders);
     }
@@ -516,7 +516,7 @@ class ClientCustomerController extends SalesRestController
 
         $leases = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\Lease')
-            ->findBy(array('customerId'=>$id),array('creationDate'=>'DESC'), $limit, $offset);
+            ->findBy(array('lesseeCustomer'=>$id),array('creationDate'=>'DESC'), $limit, $offset);
 
         return new View($leases);
     }
