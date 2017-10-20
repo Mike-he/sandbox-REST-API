@@ -259,6 +259,7 @@ class ClientEventOrderController extends SalesRestController
             'event_name' => $event->getname(),
             'event_start_date' => $event->getEventStartDate(),
             'event_end_date' => $event->getEventEndDate(),
+            'event_status' => $event->getStatus(),
             'address' => $event->getAddress(),
             'price' => (float) $order->getPrice(),
             'pay_channel' => $order->getPayChannel() ? '创合钱包支付' : '',
