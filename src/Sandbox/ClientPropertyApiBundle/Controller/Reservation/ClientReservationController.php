@@ -61,12 +61,11 @@ class ClientReservationController extends SalesRestController
     }
 
     /**
-     *
-     * @param Request $request the request object
+     * @param Request $request
      * @param ParamFetcherInterface $paramFetcher
      * @Route("/reservation/lists")
      * @Method({"GET"})
-     * @return mixed
+     * @return View
      */
     public function getReservationAction(
         Request $request,
