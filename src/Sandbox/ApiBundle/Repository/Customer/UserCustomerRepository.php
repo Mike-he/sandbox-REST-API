@@ -230,7 +230,7 @@ class UserCustomerRepository extends EntityRepository
         $search
     ) {
         $query = $this->createQueryBuilder('c')
-                ->select('c.id, c.name, c.sex')
+                ->select('c.id, c.name, c.sex , c.phone, c.avatar')
                 ->where('c.companyId = :companyId')
                 ->andWhere('c.isDeleted = FALSE')
                 ->setParameter('companyId', $salesCompanyId);
