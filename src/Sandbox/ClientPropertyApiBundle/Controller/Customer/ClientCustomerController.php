@@ -521,4 +521,114 @@ class ClientCustomerController extends SalesRestController
         return new View($leases);
     }
 
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     * @param int                   $id
+     *
+     * @Route("/customers/{id}/phone")
+     * @Method({"POST"})
+     *
+     * @return View
+     */
+    public function switchCustomersPhoneAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        $customer = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->findOneBy([
+                'id' => $id,
+                'isAutoCreated' => false,
+            ]);
+        $this->throwNotFoundIfNull($customer, self::NOT_FOUND_MESSAGE);
+
+        $customerId = $customer->getId();
+
+        $data = json_decode($request->getContent(), true);
+        $phoneCode = $data['phone_code'];
+        $phone = $data['phone'];
+
+        if (!$phoneCode || !$phone) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
+        $em = $this->getDoctrine()->getManager();
+
+        $customerOrigin = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->findOneBy(array(
+                'phoneCode' => $phoneCode,
+                'phone' => $phone,
+                'companyId' => $salesCompanyId,
+            ));
+        if ($customerOrigin) {
+            $customerNewId = $customerOrigin->getId();
+        } else {
+            $user = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\User')
+                ->findOneBy(array(
+                    'phoneCode' => $phoneCode,
+                    'phone' => $phone,
+                ));
+
+            $userId = $user ? $user->getId() : null;
+            $customerId = $customer->getId();
+            $customerNew = new UserCustomer();
+            $customerNew->setPhoneCode($phoneCode);
+            $customerNew->setPhone($phone);
+            $customerNew->setUserId($userId);
+            $customerNew->setCompanyId($salesCompanyId);
+            $customerNew->setName($customer->getName());
+            $customerNew->setSex($customer->getSex());
+            $customerNew->setAvatar($customer->getAvatar());
+            $customerNew->setBirthday($customer->getBirthday());
+            $customerNew->setEmail($customer->getEmail());
+            $customerNew->setNationality($customer->getNationality());
+            $customerNew->setIdType($customer->getIdType());
+            $customerNew->setIdNumber($customer->getIdNumber());
+            $customerNew->setCompanyName($customer->getCompanyName());
+            $customerNew->setPosition($customer->getPosition());
+            $em->persist($customerNew);
+            $em->flush();
+
+            $customerNewId = $customerNew->getId();
+        }
+
+        // update bills & leases & backend push orders
+        $bills = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->findBy(['customerId' => $customerId]);
+
+        foreach ($bills as $bill) {
+            $bill->setCustomerId($customerNewId);
+        }
+
+        $leases = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\Lease')
+            ->findBy(['lesseeCustomer' => $customerId]);
+        foreach ($leases as $lease) {
+            $lease->setLesseeCustomer($customerNewId);
+        }
+
+        $pushOrders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->findBy([
+                'customerId' => $customerId,
+                'type' => [ProductOrder::PREORDER_TYPE, ProductOrder::OFFICIAL_PREORDER_TYPE],
+            ]);
+        foreach ($pushOrders as $order) {
+            $order->setCustomerId($customerNewId);
+        }
+
+        $em->flush();
+
+        return new View(array(
+            'id' => $customerNewId,
+        ));
+    }
 }
