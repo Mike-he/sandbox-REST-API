@@ -169,7 +169,10 @@ class ClientReservationController extends SalesRestController
      */
     private function getProductInfo($reservation)
     {
-        $viewTime =  new \DateTime($reservation->getViewTime());
+        $str = $reservation->getViewTime();
+        $str = str_replace('.','-',$str);
+
+        $viewTime =  new \DateTime($str);
         $status = $reservation->getStatus();
         $now = new \DateTime();
 
@@ -266,6 +269,7 @@ class ClientReservationController extends SalesRestController
         foreach ($reservations as $k=>$reservation) {
             $result[$k] = $this->getProductInfo($reservation);
         }
+
         $count = count($result);
 
         $view = new View();
