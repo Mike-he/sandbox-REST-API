@@ -132,8 +132,6 @@ class ClientEventOrderController extends SalesRestController
      *    description="search query"
      * )
      *
-     *
-     *
      * @Annotations\QueryParam(
      *    name="limit",
      *    array=false,
@@ -180,7 +178,6 @@ class ClientEventOrderController extends SalesRestController
         $createDateRange = $paramFetcher->get('create_date_range');
         $createStart = $paramFetcher->get('create_start');
         $createEnd = $paramFetcher->get('create_end');
-
 
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
