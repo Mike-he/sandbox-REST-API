@@ -62,11 +62,14 @@ class UserProfilesController extends SalesRestController
                     'salesCompanyId' => $company,
                 ]);
 
-            if (!is_null($profile)) {
-                $profile->setNickname($adminProfiles->getNickname());
-                $profile->setAvatar($adminProfiles->getAvatar());
-                $profile->setEmail($adminProfiles->getEmail());
+            if (is_null($profile)) {
+                $profile = new SalesAdminProfiles();
+                $em->persist($profile);
             }
+
+            $profile->setNickname($adminProfiles->getNickname());
+            $profile->setAvatar($adminProfiles->getAvatar());
+            $profile->setEmail($adminProfiles->getEmail());
         }
 
         $em->flush();
