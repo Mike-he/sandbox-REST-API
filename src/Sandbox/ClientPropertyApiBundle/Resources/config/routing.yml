@@ -1,3 +1,9 @@
+# Client Orders
+sandbox_client_property_api_order:
+    resource: "@SandboxClientPropertyApiBundle/Resources/config/orders/routing.yml"
+    type: rest
+    prefix: /orders
+
 sandbox_client_property_api_dashboard:
     resource: "@SandboxClientPropertyApiBundle/Controller/Dashboard/ClientDashBoardController.php"
     type:     annotation
@@ -19,17 +25,6 @@ sandbox_client_property_api_enterprise_customer:
 
 sandbox_client_property_api_product:
     resource: "@SandboxClientPropertyApiBundle/Controller/Product/ClientProductController.php"
-    type:     annotation
-    prefix:   /
-
-sandbox_client_property_api_order:
-    resource: "@SandboxClientPropertyApiBundle/Controller/Order/ClientOrderController.php"
-    type:     annotation
-    prefix:   /
-
-
-sandbox_client_property_api_order_event:
-    resource: "@SandboxClientPropertyApiBundle/Controller/Order/ClientEventOrderController.php"
     type:     annotation
     prefix:   /
 

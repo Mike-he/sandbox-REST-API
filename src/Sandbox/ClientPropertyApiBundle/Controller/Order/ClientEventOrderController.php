@@ -152,7 +152,7 @@ class ClientEventOrderController extends SalesRestController
      *    description="start of the page"
      * )
      *
-     * @Route("/events/orders")
+     * @Route("/events")
      * @Method({"GET"})
      *
      * @return View
@@ -275,7 +275,7 @@ class ClientEventOrderController extends SalesRestController
      * @param Request $request
      * @param $id
      *
-     * @Route("/events/orders/{id}")
+     * @Route("/events/{id}")
      * @Method({"GET"})
      *
      * @return View

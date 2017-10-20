@@ -181,7 +181,7 @@ class ClientOrderController extends OrderController
      *    description="start of the page"
      * )
      *
-     * @Route("/orders")
+     * @Route("/products")
      * @Method({"GET"})
      *
      * @return View
@@ -366,7 +366,7 @@ class ClientOrderController extends OrderController
      * @param Request $request
      * @param int     $id
      *
-     * @Route("/orders/{id}")
+     * @Route("/products/{id}")
      * @Method({"GET"})
      *
      * @return View
@@ -388,7 +388,7 @@ class ClientOrderController extends OrderController
     }
 
     /**
-     * @Route("/orders/{id}/preorder")
+     * @Route("/products/{id}/preorder")
      * @Method({"PATCH"})
      *
      * @param Request $request
@@ -440,7 +440,7 @@ class ClientOrderController extends OrderController
      *
      * @param Request $request
      *
-     * @Route("/orders/reserve")
+     * @Route("/products/reserve")
      * @Method({"POST"})
      *
      * @return View
@@ -568,7 +568,7 @@ class ClientOrderController extends OrderController
      *
      * @param Request $request
      *
-     * @Route("/orders/preorder")
+     * @Route("/products/preorder")
      * @Method({"POST"})
      *
      * @return View
