@@ -23,8 +23,15 @@ class ClientMembershipCardOrderController extends SalesRestController
      *    array=true,
      *    default=null,
      *    nullable=true,
-     *    array=true,
      *    description="payment channel"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="card_status",
+     *    array=true,
+     *    default=null,
+     *    nullable=true,
+     *    description="card status"
      * )
      *
      * @Annotations\QueryParam(
@@ -116,6 +123,20 @@ class ClientMembershipCardOrderController extends SalesRestController
         $createDateRange = $paramFetcher->get('create_date_range');
         $createStart = $paramFetcher->get('create_start');
         $createEnd = $paramFetcher->get('create_end');
+
+        $cardStatus = $paramFetcher->get('card_status');
+
+
+        $userIds = [];
+        if ($cardStatus) {
+
+            if ($cardStatus == ['using']) {
+                die('a');
+            } elseif($cardStatus == ['expired']) {
+                die('b');
+            }
+die('cc');
+        }
 
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');

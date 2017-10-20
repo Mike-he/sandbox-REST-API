@@ -356,23 +356,34 @@ class MembershipCardOrderRepository extends EntityRepository
     /**
      * @param $userId
      * @param null $cardId
+     * @param null $companyId
      *
      * @return array
      */
     public function getMyValidClientMembershipCards(
         $userId,
-        $cardId = null
+        $cardId = null,
+        $companyId = null
     ) {
         $query = $this->createQueryBuilder('mo')
             ->select('DISTINCT(mo.card)')
-            ->where('mo.user = :userId')
-            ->andWhere('mo.startDate <= :now')
+            ->where('mo.startDate <= :now')
             ->andWhere('mo.endDate >= :now')
-            ->setParameter('userId', $userId)
             ->setParameter('now', new \DateTime('now'));
+
+        if ($userId) {
+            $query->andWhere('mo.user = :userId')
+                ->setParameter('userId', $userId);
+        }
 
         if ($cardId) {
             $query->andWhere('mo.card = :cardId')
+                ->setParameter('cardId', $cardId);
+        }
+
+        if ($companyId) {
+            $query->leftJoin('mo.card', 'c')
+                ->andWhere('c.companyId = :$companyId')
                 ->setParameter('cardId', $cardId);
         }
 
