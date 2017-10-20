@@ -32,7 +32,7 @@ class SalesAdminProfiles
     /**
      * @var integer
      *
-     * @ORM\Column(name="sales_company_id", type="integer")
+     * @ORM\Column(name="sales_company_id", type="integer", nullable=true)
      */
     private $salesCompanyId;
 
