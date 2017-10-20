@@ -11,6 +11,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use FOS\RestBundle\Controller\Annotations;
 
 class AdminSalesCompanyApplyController extends SalesRestController
 {
@@ -52,6 +53,13 @@ class AdminSalesCompanyApplyController extends SalesRestController
      * @param Request $request
      * @param ParamFetcherInterface $paramFetcher
      *
+     * @Annotations\QueryParam(
+     *     name="status",
+     *     array=false,
+     *     nullable=false,
+     *     strict=true
+     * )
+     *
      * @Route("/company/applications")
      * @Method({"GET"})
      *
@@ -61,6 +69,35 @@ class AdminSalesCompanyApplyController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $status = $paramFetcher->get('status');
 
+        $salesCompanyApply = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyApply')
+            ->findBy([
+                'status' => $status,
+            ]);
+
+        return new View($salesCompanyApply);
+    }
+
+    /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/company/applications/{id}")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getSalesCompanyApplicationAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        $salesCompanyApply = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyApply')
+            ->find($id);
+
+        return new View($salesCompanyApply);
     }
 }
