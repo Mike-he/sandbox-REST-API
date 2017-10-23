@@ -1,6 +1,6 @@
 <?php
 
-namespace Sandbox\ClientApiBundle\Controller\Admin;
+namespace Sandbox\ClientPropertyApiBundle\Controller\Admin;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Controller\SandboxRestController;

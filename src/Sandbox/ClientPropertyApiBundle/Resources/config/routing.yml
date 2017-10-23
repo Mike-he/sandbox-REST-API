@@ -36,4 +36,10 @@ sandox_client_property_api_user:
 sandox_client_property_api_admin_logout:
     resource: "@SandboxClientPropertyApiBundle/Controller/Admin/ClientAdminLogoutController.php"
     type:     annotation
+        prefix:   /
+
+#Admin Password Reset
+sandbox_client_api_admin_reset:
+    resource: "@SandboxClientPropertyApiBundle/Controller/Admin/ClientAdministratorResetPasswordController.php"
+    type:     annotation
     prefix:   /
