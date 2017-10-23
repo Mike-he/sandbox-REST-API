@@ -124,19 +124,11 @@ class ClientMembershipCardOrderController extends SalesRestController
         $createStart = $paramFetcher->get('create_start');
         $createEnd = $paramFetcher->get('create_end');
 
+        /**
+         * @todo fixture by cardStatus
+         *
+         */
         $cardStatus = $paramFetcher->get('card_status');
-
-
-        $userIds = [];
-        if ($cardStatus) {
-
-            if ($cardStatus == ['using']) {
-                die('a');
-            } elseif($cardStatus == ['expired']) {
-                die('b');
-            }
-die('cc');
-        }
 
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
@@ -153,6 +145,7 @@ die('cc');
                 $createEnd,
                 $limit,
                 $offset,
+                $cardStatus,
                 $companyId
             );
 
@@ -188,7 +181,6 @@ die('cc');
         $cardStatus = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:MembershipCard\MembershipOrder')
             ->getMyValidClientMembershipCards($userId, $card->getId());
-
 
         $result = array(
             'id' => $order->getId(),

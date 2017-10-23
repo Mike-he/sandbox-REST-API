@@ -82,6 +82,7 @@ class AdminMembershipCardOrderController extends SalesRestController
                 $limit,
                 $offset,
                 null,
+                null,
                 $id
             );
 
@@ -273,6 +274,7 @@ class AdminMembershipCardOrderController extends SalesRestController
                 $createEnd,
                 $limit,
                 $offset,
+                null,
                 $companyId,
                 null,
                 $userId,
@@ -420,6 +422,7 @@ class AdminMembershipCardOrderController extends SalesRestController
                 $createDateRange,
                 $createStart,
                 $createEnd,
+                null,
                 null,
                 null,
                 $data['company_id']
