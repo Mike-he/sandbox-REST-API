@@ -305,9 +305,13 @@ class ClientOrderController extends OrderController
         $room = $order->getProduct()->getRoom();
         $building = $room->getBuilding();
 
-        $customer = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserCustomer')
-            ->find($order->getCustomerId());
+        if ($order->getCustomerId()) {
+            $customer = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserCustomer')
+                ->find($order->getCustomerId());
+        } else {
+            $customer = '';
+        }
 
         $attachment = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\RoomAttachmentBinding')
@@ -327,7 +331,9 @@ class ClientOrderController extends OrderController
                     ->findOneBy([
                         'orderNumber' => $order->getOrderNumber(),
                     ]);
-                $payChannel = $receivableTypes[$receivable->getPayChannel()];
+                if ($receivable) {
+                    $payChannel = $receivableTypes[$receivable->getPayChannel()];
+                }
             } else {
                 $payChannel = '创合钱包支付';
             }
@@ -352,8 +358,8 @@ class ClientOrderController extends OrderController
             'pay_channel' => $payChannel,
             'customer' => array(
                 'id' => $order->getCustomerId(),
-                'name' => $customer->getName(),
-                'avatar' => $customer->getAvatar(),
+                'name' => $customer ? $customer->getName() : '',
+                'avatar' => $customer ? $customer->getAvatar() : '',
             ),
         );
 
