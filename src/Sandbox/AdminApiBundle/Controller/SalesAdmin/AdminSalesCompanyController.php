@@ -489,7 +489,9 @@ class AdminSalesCompanyController extends SandboxRestController
         // check user permission
         $this->checkSalesAdminPermission(AdminPermission::OP_LEVEL_EDIT);
 
-        $salesCompany = $this->getSalesCompanyRepo()->find($id);
+        $salesCompany = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
+            ->find($id);
         $this->throwNotFoundIfNull($salesCompany, CustomErrorMessagesConstants::ERROR_SALES_COMPANY_NOT_FOUND_MESSAGE);
 
         $em = $this->getDoctrine()->getManager();
@@ -515,6 +517,23 @@ class AdminSalesCompanyController extends SandboxRestController
             $coffeeAdmins = $salesCompany->getCoffeeAdmins();
             $servicesInfos = $salesCompany->getServices();
             $excludePermissions = $salesCompany->getExcludePermissions();
+
+            $isOnlineSales = $salesCompany->isOnlineSales();
+            if (!$isOnlineSales) {
+                $buildings = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                    ->findBy(['companyId' => $id]);
+
+                foreach ($buildings as $building) {
+                    $products = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:Product\Product')
+                        ->getSalesProductsByBuilding($building);
+
+                    foreach ($products as $product) {
+                        $product->setVisible(false);
+                    }
+                }
+            }
 
             // update admins
             $this->updateAdmins(
@@ -793,7 +812,6 @@ class AdminSalesCompanyController extends SandboxRestController
         $buildingStatus,
         $shopOnline
     ) {
-
         // set buildings visible and status
         $buildings = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')->findByCompanyId($companyId);
 

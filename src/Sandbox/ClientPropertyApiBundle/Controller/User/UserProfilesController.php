@@ -108,6 +108,15 @@ class UserProfilesController extends SalesRestController
                 'salesCompanyId' => $companyId,
             ]);
 
+        if (is_null($profile)) {
+            $profile = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
+                ->findOneBy([
+                    'userId' => $userId,
+                    'salesCompanyId' => null,
+                ]);
+        }
+
         return new View($profile);
     }
 }
