@@ -3,7 +3,9 @@
 namespace Sandbox\AdminApiBundle\Controller\SalesAdmin;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
+use Rs\Json\Patch;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyApply;
+use Sandbox\ApiBundle\Form\SalesAdmin\SalesCompanyApplyPatchType;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesCompanyApplyPostType;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -99,5 +101,41 @@ class AdminSalesCompanyApplyController extends SalesRestController
             ->find($id);
 
         return new View($salesCompanyApply);
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     * @param int                   $id
+     *
+     * @Route("/company/applications/{id}")
+     * @Method({"PATCH"})
+     *
+     * @return View
+     */
+    public function patchSalesCompanyApplicationAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        $salesCompanyApply = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyApply')
+            ->findOneBy([
+                'id' => $id,
+                'status' => SalesCompanyApply::STATUS_PENDING,
+            ]);
+        $this->throwNotFoundIfNull($salesCompanyApply, self::NOT_FOUND_MESSAGE);
+
+        $salesCompanyApplyJson = $this->container->get('serializer')->serialize($salesCompanyApply, 'json');
+        $patch = new Patch($salesCompanyApplyJson, $request->getContent());
+        $salesCompanyApplyJson = $patch->apply();
+
+        $form = $this->createForm(new SalesCompanyApplyPatchType(), $salesCompanyApply);
+        $form->submit(json_decode($salesCompanyApplyJson, true));
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        return new View();
     }
 }

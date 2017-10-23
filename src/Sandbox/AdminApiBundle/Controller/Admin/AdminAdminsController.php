@@ -650,7 +650,29 @@ class AdminAdminsController extends SandboxRestController
                 $phone
             );
 
-        return new View($admins);
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
+        $response = [];
+        foreach ($admins as $admin) {
+            $userId = $admin['user_id'];
+
+            $adminProfile = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
+                ->findOneBy([
+                    'userId' => $userId,
+                    'salesCompanyId' => $salesCompanyId,
+                ]);
+
+            if ($adminProfile) {
+                $admin['avatar'] = $adminProfile->getAvatar();
+                $admin['nickname'] = $adminProfile->getNickname();
+            }
+
+            array_push($response, $admin);
+        }
+
+        return new View($response);
     }
 
     /**
