@@ -33,3 +33,7 @@ sandox_client_property_api_user:
     type:     annotation
     prefix:   /
 
+sandox_client_property_api_admin_logout:
+    resource: "@SandboxClientPropertyApiBundle/Controller/Admin/ClientAdminLogoutController.php"
+    type:     annotation
+    prefix:   /
