@@ -35,7 +35,7 @@ class ClientAdministratorRegisterController extends SandboxRestController
     ) {
         $data = json_decode($request->getContent(), true);
 
-        if (!isset($data['phone_code']) || !isset($data['phone'])) {
+        if (!isset($data['phone_code']) || !isset($data['phone']) || is_null($data['phone_code']) || empty($data['phone_code'])) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
