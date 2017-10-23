@@ -51,6 +51,8 @@ class EnterpriseCustomerContacts
      */
     private $creationDate;
 
+    private $userCustomer;
+
     /**
      * Get id.
      *
@@ -155,5 +157,28 @@ class EnterpriseCustomerContacts
     public function getCreationDate()
     {
         return $this->creationDate;
+    }
+
+    /**
+     * Set userCustomer.
+     *
+     * @param $userCustomer
+     * @return EnterpriseCustomerContacts
+     */
+    public function setUserCustomer($userCustomer)
+    {
+        $this->userCustomer = $userCustomer;
+
+        return $this;
+    }
+
+    /**
+     * Get userCustomer.
+     *
+     * @return mixed
+     */
+    public function getUserCustomer()
+    {
+        return $this->userCustomer;
     }
 }

@@ -90,6 +90,14 @@ class ClientEnterpriseCustomerController extends SalesRestController
                 'enterpriseCustomerId' => $enterpriseCustomer->getId(),
             ));
 
+        foreach($contacts as $contact){
+            $contactCustomer = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserCustomer')
+                ->find($contact->getCustomerId());
+
+            $contact->setUserCustomer($contactCustomer);
+        }
+
         $enterpriseCustomer->setContacts($contacts);
 
         return new View($enterpriseCustomer);
