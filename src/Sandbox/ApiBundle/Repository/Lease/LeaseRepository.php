@@ -503,8 +503,7 @@ class LeaseRepository extends EntityRepository
         $status,
         $startDate,
         $endDate
-    )
-    {
+    ) {
         $query = $this->createQueryBuilder('l')
             ->select('count(l.id)')
             ->where('l.status = :status')
@@ -518,7 +517,7 @@ class LeaseRepository extends EntityRepository
 
         $result = $query->getQuery()->getSingleScalarResult();
 
-        return (int)$result;
+        return (int) $result;
     }
 
     /*
@@ -527,28 +526,28 @@ class LeaseRepository extends EntityRepository
      */
     public function countCustomerAllLeases(
         $customerId
-    ){
+    ) {
         $query = $this->createQueryBuilder('l')
             ->select('count(l.id)')
             ->where('l.lesseeCustomer = :customerId')
-            ->setParameter('customerId',$customerId);
+            ->setParameter('customerId', $customerId);
 
         return $query->getQuery()->getSingleScalarResult();
     }
 
     /**
      * @param $enterprise
+     *
      * @return mixed
      */
-    public function countEnterpriseCustomerLease
-    (
+    public function countEnterpriseCustomerLease(
         $enterprise
-    ){
-            $query = $this->createQueryBuilder('l')
+    ) {
+        $query = $this->createQueryBuilder('l')
                 ->select('count(l.id)')
                 ->where('l.lesseeEnterprise = :enterprise')
-                ->setParameter('enterprise',$enterprise);
+                ->setParameter('enterprise', $enterprise);
 
-            return $query->getQuery()->getSingleScalarResult();
+        return $query->getQuery()->getSingleScalarResult();
     }
 }

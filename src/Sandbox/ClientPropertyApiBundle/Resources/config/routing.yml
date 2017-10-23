@@ -4,6 +4,12 @@ sandbox_client_property_api_order:
     type: rest
     prefix: /orders
 
+# Client Orders
+sandbox_client_property_api_lease:
+    resource: "@SandboxClientPropertyApiBundle/Resources/config/lease/routing.yml"
+    type: rest
+    prefix: /lease
+
 sandbox_client_property_api_dashboard:
     resource: "@SandboxClientPropertyApiBundle/Controller/Dashboard/ClientDashBoardController.php"
     type:     annotation

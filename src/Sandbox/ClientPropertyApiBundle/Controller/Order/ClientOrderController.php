@@ -159,8 +159,6 @@ class ClientOrderController extends OrderController
      *    description="Filter by product id"
      * )
      *
-     *
-     *
      * @Annotations\QueryParam(
      *    name="limit",
      *    array=false,
