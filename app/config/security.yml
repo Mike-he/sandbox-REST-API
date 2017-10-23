@@ -196,7 +196,7 @@ security:
             methods: [POST]
 
         client_admin_register:
-            pattern: ^/client/admin_reset
+            pattern: ^/property/client/admin_reset
             security: false
             methods: [POST]
 
@@ -207,7 +207,7 @@ security:
             stateless:  true
 
     access_control:
-        - { path: ^/client/admin_reset, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [POST] }
+        - { path: ^/property/client/admin_reset, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [POST] }
         - { path: ^/client/admin_register, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [POST] }
         - { path: ^/sales/admin/export/orders, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET]}
         - { path: ^/sales/admin/finance/export, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET]}
