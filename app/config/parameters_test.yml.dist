@@ -117,6 +117,7 @@ parameters:
     orders_url: http://devorders.sandbox3.cn
     coffee_url: http://devcoffee.sandbox3.cn
     invoice_url: http://devinvoice.sandbox3.cn
+    property_client_url: '{{domain}}'
 
     openfire_url: http://devxmpp.sandbox3.cn/plugins/restapi/v1
     openfire_secret: TKv28StIabbAw49o
