@@ -406,3 +406,14 @@ lease:
   order_method:
       backend: Backend
       auto: Auto
+
+client_property:
+  menu:
+    dashboard: 控制台
+    space: 空间管理
+    message: 客户消息
+    apply: 看房预约
+    trade: 交易管理
+    lease: 合同租赁
+    customer: 客户关系
+    setting: 设置
