@@ -356,6 +356,8 @@ class ClientOrderController extends OrderController
             'discount_price' => (float) $order->getDiscountPrice(),
             'order_type' => $orderType[$order->getType()],
             'pay_channel' => $payChannel,
+            'base_price' => $order->getBasePrice(),
+            'unit_price' => $order->getUnitPrice(),
             'customer' => array(
                 'id' => $order->getCustomerId(),
                 'name' => $customer ? $customer->getName() : '',
