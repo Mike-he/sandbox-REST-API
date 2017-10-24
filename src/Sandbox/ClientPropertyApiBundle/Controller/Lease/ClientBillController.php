@@ -273,10 +273,10 @@ class ClientBillController extends SalesRestController
             $room = $product->getRoom();
             $building = $room->getBuilding();
 
-            if ($bill->getCustomerId()) {
+            if ($lease->getLesseeCustomer()) {
                 $customer = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:User\UserCustomer')
-                    ->find($bill->getCustomerId());
+                    ->find($lease->getLesseeCustomer());
             } else {
                 $customer = '';
             }
@@ -321,7 +321,7 @@ class ClientBillController extends SalesRestController
                 'status' => $billStatus[$bill->getStatus()],
                 'pay_channel' => $payChannel,
                 'customer' => array(
-                    'id' => $bill->getCustomerId(),
+                    'id' => $lease->getLesseeCustomer(),
                     'name' => $customer ? $customer->getName() : '',
                     'avatar' => $customer ? $customer->getAvatar() : '',
                 ),
