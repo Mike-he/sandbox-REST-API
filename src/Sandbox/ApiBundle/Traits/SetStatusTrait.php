@@ -17,7 +17,7 @@ use Sandbox\ApiBundle\Entity\User\UserBeanFlow;
  * @author   Leo Xu <leox@gobeta.com.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 trait SetStatusTrait
 {
@@ -36,8 +36,8 @@ trait SetStatusTrait
         $type = $order->getType();
         $payChannel = $order->getPayChannel();
 
-        if ($payChannel != ProductOrder::CHANNEL_SALES_OFFLINE) {
-            if ($type == ProductOrder::PREORDER_TYPE) {
+        if (ProductOrder::CHANNEL_SALES_OFFLINE != $payChannel) {
+            if (ProductOrder::PREORDER_TYPE == $type) {
                 $parameter = Parameter::KEY_BEAN_PRODUCT_ORDER_PREORDER;
 
                 $this->generateLongRentServiceFee(
@@ -148,24 +148,20 @@ trait SetStatusTrait
 
         if ($now >= $registrationStartDate &&
             $now <= $registrationEndDate &&
-            $status != Event::STATUS_REGISTERING)
-        {
+            Event::STATUS_REGISTERING != $status) {
             $event->setStatus(Event::STATUS_REGISTERING);
-        }
-        elseif ($now > $registrationEndDate &&
+        } elseif ($now > $registrationEndDate &&
             $now < $eventStartDate &&
-            $status != Event::STATUS_WAITING
+            Event::STATUS_WAITING != $status
         ) {
             $event->setStatus(Event::STATUS_WAITING);
-        }
-        elseif ($now >= $eventStartDate &&
+        } elseif ($now >= $eventStartDate &&
             $now <= $eventEndDate &&
-            $status != Event::STATUS_ONGOING
+            Event::STATUS_ONGOING != $status
         ) {
             $event->setStatus(Event::STATUS_ONGOING);
-        }
-        elseif ($now > $eventEndDate &&
-            $status != Event::STATUS_END
+        } elseif ($now > $eventEndDate &&
+            Event::STATUS_END != $status
         ) {
             $event->setStatus(Event::STATUS_END);
         }

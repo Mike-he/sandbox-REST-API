@@ -4,7 +4,6 @@ namespace Sandbox\SalesApiBundle\Controller\Lease;
 
 use Knp\Component\Pager\Paginator;
 use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
-use Sandbox\ApiBundle\Constants\LeaseConstants;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminStatusLog;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
@@ -659,7 +658,11 @@ class AdminLeaseBillController extends SalesRestController
         );
 
         if (!in_array($oldStatus, $status)) {
-            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILL_STATUS_NOT_CORRECT_MESSAGE);
+            return $this->customErrorView(
+                400,
+                CustomErrorMessagesConstants::ERROR_STATUS_NOT_CORRECT_CODE,
+                CustomErrorMessagesConstants::ERROR_STATUS_NOT_CORRECT_MESSAGE
+            );
         }
 
         $billJson = $this->container->get('serializer')->serialize($bill, 'json');
@@ -668,8 +671,14 @@ class AdminLeaseBillController extends SalesRestController
         $form = $this->createForm(new LeaseBillPatchType(), $bill);
         $form->submit(json_decode($billJson, true));
 
-        if ($bill->getStatus() != LeaseBill::STATUS_UNPAID) {
-            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILLS_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE);
+        if (LeaseBill::STATUS_UNPAID != $bill->getStatus()) {
+            if (LeaseBill::STATUS_UNPAID != $bill->getStatus()) {
+                return $this->customErrorView(
+                    400,
+                    CustomErrorMessagesConstants::ERROR_PAYLOAD_FORMAT_NOT_CORRECT_CODE,
+                    CustomErrorMessagesConstants::ERROR_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE
+                );
+            }
         }
 
         if (is_null($bill->getRevisedAmount())) {
@@ -680,22 +689,24 @@ class AdminLeaseBillController extends SalesRestController
         $bill->setSender($this->getUserId());
         $bill->setSalesInvoice(true);
 
-        if ($oldStatus == LeaseBill::STATUS_PENDING) {
-            $this->pushBillMessage($bill);
-        }
-
         $em = $this->getDoctrine()->getManager();
         $em->persist($bill);
         $em->flush();
 
-        $logMessage = '推送账单';
-        $this->get('sandbox_api.admin_status_log')->autoLog(
-            $this->getAdminId(),
-            LeaseBill::STATUS_UNPAID,
-            $logMessage,
-            AdminStatusLog::OBJECT_LEASE_BILL,
-            $id
-        );
+        if (LeaseBill::STATUS_PENDING == $oldStatus &&
+            LeaseBill::STATUS_UNPAID == $bill->getStatus()
+        ) {
+            $this->pushBillMessage($bill);
+
+            $logMessage = '推送账单';
+            $this->get('sandbox_api.admin_status_log')->autoLog(
+                $this->getAdminId(),
+                LeaseBill::STATUS_UNPAID,
+                $logMessage,
+                AdminStatusLog::OBJECT_LEASE_BILL,
+                $id
+            );
+        }
 
         // generate log
         $this->generateAdminLogs(array(
@@ -830,7 +841,7 @@ class AdminLeaseBillController extends SalesRestController
             if (isset($payload['revised_amount']) && !is_null($payload['revised_amount'])) {
                 $bill->setRevisedAmount($payload['revised_amount']);
                 if (is_null($payload['revision_note'])) {
-                    throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILLS_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE);
+                    throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE);
                 }
                 $bill->setRevisionNote($payload['revision_note']);
             } else {
@@ -855,44 +866,6 @@ class AdminLeaseBillController extends SalesRestController
                 'logObjectKey' => Log::OBJECT_LEASE_BILL,
                 'logObjectId' => $bill->getId(),
             ));
-        }
-    }
-
-    /**
-     * @param LeaseBill $bill
-     */
-    private function pushBillMessage(
-        $bill
-    ) {
-        /** @var Lease $lease */
-        $lease = $bill->getLease();
-        $leaseId = $lease->getId();
-
-        $billsAmount = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
-            ->countBills(
-                $leaseId,
-                null,
-                LeaseBill::STATUS_UNPAID
-            );
-
-        $userId = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserCustomer')
-            ->getUserIdByCustomerId($lease->getLesseeCustomer());
-
-        if ($userId) {
-            $urlParam = 'ptype=billsList&status=unpaid&leasesId='.$leaseId;
-            $contentArray = $this->generateLeaseContentArray($urlParam);
-            // send Jpush notification
-            $this->generateJpushNotification(
-                [
-                    $userId,
-                ],
-                LeaseConstants::LEASE_BILL_UNPAID_MESSAGE_PART1,
-                LeaseConstants::LEASE_BILL_UNPAID_MESSAGE_PART2,
-                $contentArray,
-                ' '.$billsAmount.' '
-            );
         }
     }
 

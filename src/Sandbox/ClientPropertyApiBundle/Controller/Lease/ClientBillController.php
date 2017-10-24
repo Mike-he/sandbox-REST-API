@@ -2,10 +2,13 @@
 
 namespace Sandbox\ClientPropertyApiBundle\Controller\Lease;
 
+use Rs\Json\Patch;
 use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Admin\AdminStatusLog;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Product\Product;
+use Sandbox\ApiBundle\Form\Lease\LeaseBillPatchType;
 use Sandbox\ApiBundle\Traits\FinanceTrait;
 use Sandbox\ApiBundle\Traits\LeaseTrait;
 use Sandbox\ApiBundle\Traits\SendNotification;
@@ -270,10 +273,10 @@ class ClientBillController extends SalesRestController
             $room = $product->getRoom();
             $building = $room->getBuilding();
 
-            if ($bill->getCustomerId()) {
+            if ($lease->getLesseeCustomer()) {
                 $customer = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:User\UserCustomer')
-                    ->find($bill->getCustomerId());
+                    ->find($lease->getLesseeCustomer());
             } else {
                 $customer = '';
             }
@@ -318,7 +321,7 @@ class ClientBillController extends SalesRestController
                 'status' => $billStatus[$bill->getStatus()],
                 'pay_channel' => $payChannel,
                 'customer' => array(
-                    'id' => $bill->getCustomerId(),
+                    'id' => $lease->getLesseeCustomer(),
                     'name' => $customer ? $customer->getName() : '',
                     'avatar' => $customer ? $customer->getAvatar() : '',
                 ),
@@ -356,5 +359,87 @@ class ClientBillController extends SalesRestController
         $view->setData($bill);
 
         return $view;
+    }
+
+    /**
+     * Update Bill.
+     *
+     * @param Request $request the request object
+     * @param int     $id
+     *
+     * @Route("/bills/{id}")
+     * @Method({"PATCH"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function patchBillAction(
+        Request $request,
+        $id
+    ) {
+        $bill = $this->getDoctrine()->getRepository("SandboxApiBundle:Lease\LeaseBill")->find($id);
+        $this->throwNotFoundIfNull($bill, self::NOT_FOUND_MESSAGE);
+
+        $adminId = $this->getAdminId();
+
+        $oldStatus = $bill->getStatus();
+
+        $status = array(
+            LeaseBill::STATUS_PENDING,
+            LeaseBill::STATUS_UNPAID,
+        );
+
+        if (!in_array($oldStatus, $status)) {
+            return $this->customErrorView(
+                400,
+                CustomErrorMessagesConstants::ERROR_STATUS_NOT_CORRECT_CODE,
+                CustomErrorMessagesConstants::ERROR_STATUS_NOT_CORRECT_MESSAGE
+            );
+        }
+
+        $billJson = $this->container->get('serializer')->serialize($bill, 'json');
+        $patch = new Patch($billJson, $request->getContent());
+        $billJson = $patch->apply();
+        $form = $this->createForm(new LeaseBillPatchType(), $bill);
+        $form->submit(json_decode($billJson, true));
+
+        if (LeaseBill::STATUS_UNPAID != $bill->getStatus()) {
+            return $this->customErrorView(
+                400,
+                CustomErrorMessagesConstants::ERROR_PAYLOAD_FORMAT_NOT_CORRECT_CODE,
+                CustomErrorMessagesConstants::ERROR_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE
+            );
+        }
+
+        if (is_null($bill->getRevisedAmount())) {
+            $bill->setRevisedAmount($bill->getAmount());
+        }
+        $bill->setReviser($adminId);
+        $bill->setSendDate(new \DateTime());
+        $bill->setSender($adminId);
+        $bill->setSalesInvoice(true);
+
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($bill);
+        $em->flush();
+
+        if (LeaseBill::STATUS_PENDING == $oldStatus &&
+            LeaseBill::STATUS_UNPAID == $bill->getStatus()
+        ) {
+            $this->pushBillMessage($bill);
+
+            $logMessage = '推送账单';
+            $this->get('sandbox_api.admin_status_log')->autoLog(
+                $adminId,
+                $bill->getStatus(),
+                $logMessage,
+                AdminStatusLog::OBJECT_LEASE_BILL,
+                $id
+            );
+        }
+
+        return new View();
     }
 }

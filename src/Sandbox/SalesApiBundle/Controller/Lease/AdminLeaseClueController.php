@@ -369,7 +369,7 @@ class AdminLeaseClueController extends SalesRestController
 
         $em->flush();
 
-        if ($newStatus == LeaseClue::LEASE_CLUE_STATUS_CLOSED) {
+        if (LeaseClue::LEASE_CLUE_STATUS_CLOSED == $newStatus) {
             $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
             $salesCompanyId = $adminPlatform['sales_company_id'];
             $platform = $adminPlatform['platform'];
@@ -413,7 +413,7 @@ class AdminLeaseClueController extends SalesRestController
         $platform = $adminPlatform['platform'];
 
         $status = $clue->getStatus();
-        if ($status != LeaseClue::LEASE_CLUE_STATUS_CLUE) {
+        if (LeaseClue::LEASE_CLUE_STATUS_CLUE != $status) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
@@ -447,7 +447,7 @@ class AdminLeaseClueController extends SalesRestController
             $clue->setEndDate(new \DateTime($endDate));
         }
 
-        if ($method == 'POST') {
+        if ('POST' == $method) {
             $serialNumber = $this->generateSerialNumber(LeaseClue::LEASE_CLUE_LETTER_HEAD);
             $clue->setSerialNumber($serialNumber);
             $clue->setCompanyId($salesCompanyId);
@@ -469,7 +469,7 @@ class AdminLeaseClueController extends SalesRestController
             $clue->getId()
         );
 
-        if ($method == 'POST') {
+        if ('POST' == $method) {
             $logMessage = '创建线索';
             $this->get('sandbox_api.admin_status_log')->autoLog(
                 $this->getAdminId(),

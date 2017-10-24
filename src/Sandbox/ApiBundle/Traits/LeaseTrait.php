@@ -240,4 +240,45 @@ trait LeaseTrait
 
         return $result;
     }
+
+    /**
+     * Push the billing message to the user.
+     *
+     * @param LeaseBill $bill
+     */
+    private function pushBillMessage(
+        $bill
+    ) {
+        /** @var Lease $lease */
+        $lease = $bill->getLease();
+        $leaseId = $lease->getId();
+
+        /** @var EntityManager $em */
+        $em = $this->getContainer()->get('doctrine')->getManager();
+
+        $billsAmount = $em->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->countBills(
+                $leaseId,
+                null,
+                LeaseBill::STATUS_UNPAID
+            );
+
+        $userId = $em->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->getUserIdByCustomerId($lease->getLesseeCustomer());
+
+        if ($userId) {
+            $urlParam = 'ptype=billsList&status=unpaid&leasesId='.$leaseId;
+            $contentArray = $this->generateLeaseContentArray($urlParam);
+            // send Jpush notification
+            $this->generateJpushNotification(
+                [
+                    $userId,
+                ],
+                LeaseConstants::LEASE_BILL_UNPAID_MESSAGE_PART1,
+                LeaseConstants::LEASE_BILL_UNPAID_MESSAGE_PART2,
+                $contentArray,
+                ' '.$billsAmount.' '
+            );
+        }
+    }
 }
