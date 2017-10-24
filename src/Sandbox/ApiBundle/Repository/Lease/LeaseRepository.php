@@ -577,6 +577,7 @@ class LeaseRepository extends EntityRepository
         $keywordSearch,
         $createStart,
         $createEnd,
+        $rentFilter,
         $startDate,
         $endDate,
         $source
@@ -662,7 +663,8 @@ class LeaseRepository extends EntityRepository
                     ->setParameter('createEnd', $createEnd);
         }
 
-        if (!is_null($startDate) && !empty($startDate) &&
+        if (!is_null($rentFilter) && !empty($rentFilter) &&
+            !is_null($startDate) && !empty($startDate) &&
             !is_null($endDate) && !empty($endDate)
         ) {
             $startDate = new \DateTime($startDate);
@@ -671,14 +673,28 @@ class LeaseRepository extends EntityRepository
             $endDate = new \DateTime($endDate);
             $endDate->setTime(23, 59, 59);
 
-            $query->andWhere(
-                '(
-                    (l.startDate <= :startDate AND l.endDate > :startDate) OR
-                    (l.startDate < :endDate AND l.endDate >= :endDate) OR
-                    (l.startDate >= :startDate AND l.endDate <= :endDate)
-                )'
-            )
-                ->setParameter('startDate', $startDate)
+            switch ($rentFilter) {
+                case 'rent_start':
+                    $query->andWhere('l.startDate >= :startDate')
+                        ->andWhere('l.startDate <= :endDate');
+                    break;
+                case 'rent_range':
+                    $query->andWhere(
+                        '(
+                            (l.startDate <= :startDate AND l.endDate > :startDate) OR
+                            (l.startDate < :endDate AND l.endDate >= :endDate) OR
+                            (l.startDate >= :startDate AND l.endDate <= :endDate)
+                        )'
+                    );
+                    break;
+                case 'rent_end':
+                    $query->andWhere('l.endDate >= :startDate')
+                        ->andWhere('l.endDate <= :endDate');
+                    break;
+                default;
+            }
+
+            $query->setParameter('startDate', $startDate)
                 ->setParameter('endDate', $endDate);
         }
 
