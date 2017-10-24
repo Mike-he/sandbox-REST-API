@@ -141,7 +141,7 @@ class ClientProductController extends ProductController
      *
      * @return View
      */
-    public function getOfficeRoomUsageAction(
+    public function getRoomUsageAction(
         Request $request,
         ParamFetcherInterface $paramFetcher,
         $id
@@ -501,6 +501,7 @@ class ClientProductController extends ProductController
                 'status' => $order->getStatus(),
                 'pay_channel' => $order->getPayChannel(),
                 'customer_id' => $order->getCustomerId(),
+                'unit_price' => $order->getUnitPrice(),
             );
         }
 
@@ -548,6 +549,7 @@ class ClientProductController extends ProductController
                     'status' => $order->getStatus(),
                     'pay_channel' => $order->getPayChannel(),
                     'customer_id' => $order->getCustomerId(),
+                    'unit_price' => $order->getUnitPrice(),
                 );
             }
         }
