@@ -551,6 +551,22 @@ class LeaseRepository extends EntityRepository
         return $query->getQuery()->getSingleScalarResult();
     }
 
+    /**
+     * @param $myBuildingIds
+     * @param $buildingId
+     * @param $productId
+     * @param $status
+     * @param $lesseeType
+     * @param $keyword
+     * @param $keywordSearch
+     * @param $createStart
+     * @param $createEnd
+     * @param $startDate
+     * @param $endDate
+     * @param $source
+     *
+     * @return array
+     */
     public function findLeasesForPropertyClient(
         $myBuildingIds,
         $buildingId,
@@ -562,7 +578,8 @@ class LeaseRepository extends EntityRepository
         $createStart,
         $createEnd,
         $startDate,
-        $endDate
+        $endDate,
+        $source
     ) {
         $query = $this->createQueryBuilder('l')
             ->select('l.id')
@@ -589,10 +606,25 @@ class LeaseRepository extends EntityRepository
                 ->setParameter('lesseeType', $lesseeType);
         }
 
-        if (!is_null($keyword) &&
-            !empty($keyword) &&
-            !is_null($keywordSearch) &&
-            !empty($keywordSearch)
+        if (!is_null($source) && !empty($source)) {
+            switch ($source) {
+                case 'clue':
+                    $query->andWhere('l.LeaseClueId is not null');
+                    break;
+                case 'offer':
+                    $query->andWhere('l.LeaseClueId is null')
+                        ->andWhere('l.LeaseOfferId is not null');
+                    break;
+                case 'created':
+                    $query->andWhere('l.LeaseClueId is null')
+                        ->andWhere('l.LeaseOfferId is null');
+                    break;
+                default:
+            }
+        }
+
+        if (!is_null($keyword) && !empty($keyword) &&
+            !is_null($keywordSearch) && !empty($keywordSearch)
         ) {
             switch ($keyword) {
                 case 'all':

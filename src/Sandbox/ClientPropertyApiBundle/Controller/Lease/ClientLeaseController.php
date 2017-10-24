@@ -154,6 +154,15 @@ class ClientLeaseController extends SalesRestController
      *    description="Filter by product id"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="source",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter by lease source"
+     * )
      *
      * @Annotations\QueryParam(
      *    name="limit",
@@ -189,6 +198,7 @@ class ClientLeaseController extends SalesRestController
 
         $status = $paramFetcher->get('status');
         $lesseeType = $paramFetcher->get('lessee_type');
+        $source = $paramFetcher->get('source');
 
         // search keyword and query
         $keyword = $paramFetcher->get('keyword');
@@ -242,7 +252,8 @@ class ClientLeaseController extends SalesRestController
                     $createStart,
                     $createEnd,
                     $startDate,
-                    $endDate
+                    $endDate,
+                    $source
                 );
 
             $ids = array_merge($ids, $leaseIds);
