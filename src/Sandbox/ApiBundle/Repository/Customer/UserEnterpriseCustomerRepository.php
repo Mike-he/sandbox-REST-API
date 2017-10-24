@@ -106,19 +106,22 @@ class UserEnterpriseCustomerRepository extends EntityRepository
 
     /**
      * @param $salesCompanyId
-     * @param $keyword
      * @param $search
      * @return array
      */
     public function getClientSalesEnterpriseCustomers(
         $salesCompanyId,
-        $keyword,
         $search
     ) {
         $query = $this->createQueryBuilder('ec')
             ->select('ec.id, ec.name')
             ->where('ec.companyId = :companyId')
             ->setParameter('companyId',$salesCompanyId);
+
+        if(!is_null($search)){
+            $query->andWhere('ec.name LIKE :search')
+                ->setParameter('search','%'.$search.'%');
+        }
 
         return $query->getQuery()->getResult();
     }

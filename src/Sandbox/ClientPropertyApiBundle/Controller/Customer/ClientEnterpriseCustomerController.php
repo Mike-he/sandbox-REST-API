@@ -22,7 +22,7 @@ class ClientEnterpriseCustomerController extends SalesRestController
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
-     *    name="search",
+     *    name="name",
      *    default=null,
      *    nullable=true,
      *    description="search query"
@@ -38,7 +38,7 @@ class ClientEnterpriseCustomerController extends SalesRestController
         ParamFetcherInterface $paramFetcher
     ) {
         $keyword = 'name';
-        $keywordSearch = $paramFetcher->get('search');
+        $search = $paramFetcher->get('name');
 
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
@@ -47,8 +47,7 @@ class ClientEnterpriseCustomerController extends SalesRestController
             ->getRepository('SandboxApiBundle:User\EnterpriseCustomer')
             ->getClientSalesEnterpriseCustomers(
                 $salesCompanyId,
-                $keyword,
-                $keywordSearch
+                $search
             );
 
        $count = count($enterpriseCustomers);
