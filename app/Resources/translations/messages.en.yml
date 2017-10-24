@@ -406,6 +406,13 @@ lease:
   order_method:
       backend: Backend
       auto: Auto
+  status:
+      drafting: drafting
+      performing: performing
+      terminated: terminated
+      matured: matured
+      end: end
+      closed: closed
 
 client_property:
   menu:

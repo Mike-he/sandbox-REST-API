@@ -316,7 +316,7 @@ class LeaseRepository extends EntityRepository
                     $query->orderBy('l.totalRent', $direction);
                     break;
                 default:
-                    $query->orderBy('lo.id', 'DESC');
+                    $query->orderBy('l.id', 'DESC');
                     break;
             }
         }
@@ -549,5 +549,112 @@ class LeaseRepository extends EntityRepository
                 ->setParameter('enterprise', $enterprise);
 
         return $query->getQuery()->getSingleScalarResult();
+    }
+
+    public function findLeasesForPropertyClient(
+        $myBuildingIds,
+        $buildingId,
+        $productId,
+        $status,
+        $lesseeType,
+        $keyword,
+        $keywordSearch,
+        $createStart,
+        $createEnd,
+        $startDate,
+        $endDate
+    ) {
+        $query = $this->createQueryBuilder('l')
+            ->select('l.id')
+            ->where('l.buildingId IN (:buildingIds)')
+            ->setParameter('buildingIds', $myBuildingIds);
+
+        if (!is_null($buildingId) && !empty($buildingId)) {
+            $query->andWhere('l.buildingId in (:building)')
+                ->setParameter('building', $buildingId);
+        }
+
+        if ($productId) {
+            $query->andWhere('l.product = :product')
+                ->setParameter('product', $productId);
+        }
+
+        if ($status) {
+            $query->andWhere('l.status = :status')
+                ->setParameter('status', $status);
+        }
+
+        if (!is_null($lesseeType) && !empty($lesseeType)) {
+            $query->andWhere('l.lesseeType in (:lesseeType)')
+                ->setParameter('lesseeType', $lesseeType);
+        }
+
+        if (!is_null($keyword) &&
+            !empty($keyword) &&
+            !is_null($keywordSearch) &&
+            !empty($keywordSearch)
+        ) {
+            switch ($keyword) {
+                case 'all':
+                    $query
+                        ->leftJoin('l.product', 'p')
+                        ->leftJoin('p.room', 'r')
+                        ->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'l.lesseeCustomer = uc.id')
+                        ->andWhere('
+                            l.serialNumber LIKE :keywordSearch OR
+                            r.name  LIKE :keywordSearch OR
+                            uc.name LIKE :keywordSearch OR
+                            uc.phone LIKE :keywordSearch
+                        ');
+                    break;
+                default:
+                    $query->andWhere('l.serialNumber LIKE :keywordSearch');
+            }
+
+            $query->setParameter('keywordSearch', "%$keywordSearch%");
+        }
+
+        if (!is_null($createStart) && !empty($createStart)) {
+            $createStart = new \DateTime($createStart);
+            $createStart->setTime(0, 0, 0);
+
+            $query->andWhere('l.creationDate >= :createStart')
+                    ->setParameter('createStart', $createStart);
+        }
+
+        if (!is_null($createEnd) && !empty($createEnd)) {
+            $createEnd = new \DateTime($createEnd);
+            $createEnd->setTime(23, 59, 59);
+
+            $query->andWhere('l.creationDate <= :createEnd')
+                    ->setParameter('createEnd', $createEnd);
+        }
+
+        if (!is_null($startDate) && !empty($startDate) &&
+            !is_null($endDate) && !empty($endDate)
+        ) {
+            $startDate = new \DateTime($startDate);
+            $startDate->setTime(0, 0, 0);
+
+            $endDate = new \DateTime($endDate);
+            $endDate->setTime(23, 59, 59);
+
+            $query->andWhere(
+                '(
+                    (l.startDate <= :startDate AND l.endDate > :startDate) OR
+                    (l.startDate < :endDate AND l.endDate >= :endDate) OR
+                    (l.startDate >= :startDate AND l.endDate <= :endDate)
+                )'
+            )
+                ->setParameter('startDate', $startDate)
+                ->setParameter('endDate', $endDate);
+        }
+
+        $query->orderBy('l.creationDate', 'DESC');
+
+        $result = $query->getQuery()->getResult();
+        $result = array_map('current', $result);
+
+        return $result;
     }
 }

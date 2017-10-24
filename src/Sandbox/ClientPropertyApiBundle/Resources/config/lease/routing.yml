@@ -7,3 +7,8 @@ sandbox_client_property_api_lease_bills:
     resource: "@SandboxClientPropertyApiBundle/Controller/Lease/ClientBillController.php"
     type:     annotation
     prefix:   /
+
+sandbox_client_property_api_lease_leases:
+    resource: "@SandboxClientPropertyApiBundle/Controller/Lease/ClientLeaseController.php"
+    type:     annotation
+    prefix:   /

@@ -273,13 +273,9 @@ class ClientBillController extends SalesRestController
             $room = $product->getRoom();
             $building = $room->getBuilding();
 
-            if ($lease->getLesseeCustomer()) {
-                $customer = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:User\UserCustomer')
-                    ->find($lease->getLesseeCustomer());
-            } else {
-                $customer = '';
-            }
+            $customer = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserCustomer')
+                ->find($lease->getLesseeCustomer());
 
             $attachment = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Room\RoomAttachmentBinding')
@@ -419,7 +415,6 @@ class ClientBillController extends SalesRestController
         $bill->setSendDate(new \DateTime());
         $bill->setSender($adminId);
         $bill->setSalesInvoice(true);
-
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($bill);

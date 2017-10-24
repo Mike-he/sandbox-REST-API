@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Service;
 
 use Sandbox\ApiBundle\Constants\EventOrderExport;
+use Sandbox\ApiBundle\Constants\LeaseConstants;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Event\Event;
@@ -354,15 +355,6 @@ class AdminExportService
         $lists,
         $language
     ) {
-        $status = array(
-            Lease::LEASE_STATUS_DRAFTING => '未生效',
-            Lease::LEASE_STATUS_PERFORMING => '履行中',
-            Lease::LEASE_STATUS_TERMINATED => '已终止',
-            Lease::LEASE_STATUS_MATURED => '已到期',
-            Lease::LEASE_STATUS_END => '已结束',
-            Lease::LEASE_STATUS_CLOSED => '已作废',
-        );
-
         $excelBody = array();
         foreach ($leases as $lease) {
             /** @var Lease $lease */
@@ -408,6 +400,9 @@ class AdminExportService
                     LeaseBill::TYPE_OTHER
                 );
 
+            $status = $status = $this->container->get('translator')
+                ->trans(LeaseConstants::TRANS_LEASE_STATUS.$lease->getStatus());
+
             $leaseList = array(
                 'serial_number' => $lease->getSerialNumber(),
                 'room_name' => $roomData['room_name'],
@@ -421,7 +416,7 @@ class AdminExportService
                 'deposit' => $lease->getDeposit() ? $lease->getDeposit().'元' : '',
                 'lease_rent_types' => $taxTypes,
                 'creation_date' => $lease->getCreationDate()->format('Y-m-d H:i:s'),
-                'status' => $status[$lease->getStatus()],
+                'status' => $status,
                 'total_rent' => $lease->getTotalRent(),
                 'lease_bill' => $leaseBillsCount,
                 'other_bill' => $otherBillsCount,
