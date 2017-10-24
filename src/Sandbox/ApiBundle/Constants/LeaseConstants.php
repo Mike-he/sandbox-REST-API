@@ -23,5 +23,6 @@ class LeaseConstants
     const LEASE_BILL_TRANSFER_RETURNED_MESSAGE = 'lease.push_message.lease_bill_transfer_returned';
 
     const TRANS_LEASE_BILL_ORDER_METHOD = 'lease.order_method.';
-    const TRANS_LEASE_STATUS = 'lease.status.';
+    const TRANS_LEASE_STATUS = 'lease.lease_status.';
+    const TRANS_LEASE_CLUE_STATUS = 'lease.clue_status.';
 }

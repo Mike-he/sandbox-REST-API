@@ -406,12 +406,17 @@ lease:
   order_method:
       backend: Backend
       auto: Auto
-  status:
+  lease_status:
       drafting: drafting
       performing: performing
       terminated: terminated
       matured: matured
       end: end
+      closed: closed
+  clue_status:
+      clue: clue
+      offer: offer
+      contract: contract
       closed: closed
 
 client_property:

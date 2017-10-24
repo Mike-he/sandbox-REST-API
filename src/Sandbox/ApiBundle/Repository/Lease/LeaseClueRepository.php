@@ -273,4 +273,106 @@ class LeaseClueRepository extends EntityRepository
 
         return (int) $result;
     }
+
+    /**
+     * @param $myBuildingIds
+     * @param $buildingId
+     * @param $status
+     * @param $keyword
+     * @param $keywordSearch
+     * @param $startDate
+     * @param $endDate
+     * @param $source
+     * @param $cycleStart
+     * @param $cycleEnd
+     *
+     * @return array
+     */
+    public function findCluesForPropertyClient(
+        $myBuildingIds,
+        $buildingId,
+        $status,
+        $keyword,
+        $keywordSearch,
+        $startDate,
+        $endDate,
+        $source,
+        $cycleStart,
+        $cycleEnd
+    ) {
+        $query = $this->createQueryBuilder('lc')
+            ->select('lc.id')
+            ->where('lc.buildingId in (:buildingIds)')
+            ->setParameter('buildingIds', $myBuildingIds);
+
+        if (!is_null($buildingId) && !empty($buildingId)) {
+            $query->andWhere('lc.buildingId in (:building)')
+                ->setParameter('building', $buildingId);
+        }
+
+        if ($status) {
+            $query->andWhere('lc.status = :status')
+                ->setParameter('status', $status);
+        }
+
+        if ($source) {
+            if ('appointment' == $source) {
+                $query->andWhere('lc.productAppointmentId is not null');
+            } elseif ('created' == $source) {
+                $query->andWhere('lc.productAppointmentId is null');
+            }
+        }
+
+        if ($keyword && $keywordSearch) {
+            switch ($keyword) {
+                case 'all':
+                    $query->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'lc.lesseeCustomer = uc.id')
+                        ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'lc.productId = p.id')
+                        ->leftJoin('p.room', 'r')
+                        ->andWhere('
+                            lc.serialNumber LIKE :keywordSearch OR
+                            uc.phone LIKE :keywordSearch OR 
+                            uc.name LIKE :keywordSearch OR
+                            r.name LIKE :keywordSearch
+                        ');
+                    break;
+                default:
+                    $query->andWhere('lc.serialNumber LIKE :keywordSearch');
+            }
+
+            $query->setParameter('keywordSearch', "%$keywordSearch%");
+        }
+
+        if ($startDate) {
+            $startDate = new \DateTime($startDate);
+
+            $query->andWhere('lc.startDate >= :startDate')
+                ->setParameter('startDate', $startDate);
+        }
+
+        if ($endDate) {
+            $endDate = new \DateTime($endDate);
+            $endDate->setTime(23, 59, 59);
+
+            $query->andWhere('lc.startDate <= :endDate')
+                ->setParameter('endDate', $endDate);
+        }
+
+        if ($cycleStart) {
+            $query->andWhere('lc.cycle >= :cycleStart')
+                ->setParameter('cycleStart', $cycleStart);
+        }
+
+        if ($cycleEnd) {
+            $query->andWhere('lc.cycle <= :cycleEnd')
+                ->setParameter('cycleEnd', $cycleEnd);
+        }
+
+        $query->orderBy('lc.creationDate', 'DESC');
+
+        $result = $query->getQuery()->getResult();
+        $result = array_map('current', $result);
+
+        return $result;
+    }
 }

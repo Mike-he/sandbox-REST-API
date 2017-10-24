@@ -29,13 +29,8 @@ class AdminRoomTypeController extends SalesRestController
         ParamFetcherInterface $paramFetcher
     ) {
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
-        $platform = $adminPlatform['platform'];
-
-        if ($platform != AdminPermission::PERMISSION_PLATFORM_SALES) {
-            throw new AccessDeniedHttpException(self::NOT_ALLOWED_MESSAGE);
-        }
-
         $salesCompanyId = $adminPlatform['sales_company_id'];
+
         $salesInfos = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
             ->findBy(array(

@@ -48,7 +48,7 @@ class ClientLeaseController extends SalesRestController
         $this->throwNotFoundIfNull($lease, CustomErrorMessagesConstants::ERROR_LEASE_NOT_FOUND_MESSAGE);
 
         $this->setLeaseAttributions($lease);
-        
+
         $view = new View();
         $view->setSerializationContext(
             SerializationContext::create()->setGroups(['main'])

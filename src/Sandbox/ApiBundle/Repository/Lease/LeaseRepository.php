@@ -561,6 +561,7 @@ class LeaseRepository extends EntityRepository
      * @param $keywordSearch
      * @param $createStart
      * @param $createEnd
+     * @param $rentFilter
      * @param $startDate
      * @param $endDate
      * @param $source
@@ -691,7 +692,7 @@ class LeaseRepository extends EntityRepository
                     $query->andWhere('l.endDate >= :startDate')
                         ->andWhere('l.endDate <= :endDate');
                     break;
-                default;
+                default:
             }
 
             $query->setParameter('startDate', $startDate)
