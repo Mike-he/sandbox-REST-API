@@ -371,7 +371,7 @@ class AdminLeaseOfferController extends SalesRestController
 
         $em->flush();
 
-        if ($newStatus == LeaseOffer::LEASE_OFFER_STATUS_CLOSED) {
+        if (LeaseOffer::LEASE_OFFER_STATUS_CLOSED == $newStatus) {
             $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
             $salesCompanyId = $adminPlatform['sales_company_id'];
             $platform = $adminPlatform['platform'];
@@ -425,7 +425,7 @@ class AdminLeaseOfferController extends SalesRestController
             $this->throwNotFoundIfNull($customer, self::NOT_FOUND_MESSAGE);
         }
 
-        if ($offer->getLesseeType() == LeaseOffer::LEASE_OFFER_LESSEE_TYPE_ENTERPRISE) {
+        if (LeaseOffer::LEASE_OFFER_LESSEE_TYPE_ENTERPRISE == $offer->getLesseeType()) {
             $enterpriseId = $offer->getLesseeEnterprise();
             if (is_null($enterpriseId)) {
                 throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
@@ -476,7 +476,7 @@ class AdminLeaseOfferController extends SalesRestController
             $offer->setEndDate($endDate);
         }
 
-        if ($method == 'POST') {
+        if ('POST' == $method) {
             $serialNumber = $this->generateSerialNumber(LeaseOffer::LEASE_OFFER_LETTER_HEAD);
             $offer->setSerialNumber($serialNumber);
             $offer->setCompanyId($salesCompanyId);
@@ -510,7 +510,7 @@ class AdminLeaseOfferController extends SalesRestController
             $offer->getId()
         );
 
-        if ($method == 'POST') {
+        if ('POST' == $method) {
             if ($leaseClueId) {
                 $leaseClue = $em->getRepository('SandboxApiBundle:Lease\LeaseClue')->find($leaseClueId);
                 $leaseClue->setStatus(LeaseClue::LEASE_CLUE_STATUS_OFFER);
