@@ -405,6 +405,13 @@ lease:
   order_method:
     backend: 后台推送
     auto: 自动推送
+  status:
+    drafting: 未生效
+    performing: 履行中
+    terminated: 已终止
+    matured: 已到期
+    end: 已结束
+    closed: 已关闭
 
 client_property:
   menu:

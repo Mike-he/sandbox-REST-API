@@ -29,22 +29,23 @@ trait LeaseTrait
     private function setLeaseAttributions(
         $lease
     ) {
+        /** @var EntityManager $em */
+        $em = $this->getContainer()->get('doctrine')->getManager();
+
         $bills = $this->getLeaseBillRepo()->findBy(array(
             'lease' => $lease,
             'type' => LeaseBill::TYPE_LEASE,
         ));
         $lease->setBills($bills);
 
-        $totalLeaseBills = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+        $totalLeaseBills = $em->getRepository('SandboxApiBundle:Lease\LeaseBill')
             ->countBills(
                 $lease,
                 LeaseBill::TYPE_LEASE
             );
         $lease->setTotalLeaseBillsAmount($totalLeaseBills);
 
-        $pushedLeaseBills = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+        $pushedLeaseBills = $em->getRepository('SandboxApiBundle:Lease\LeaseBill')
             ->countBills(
                 $lease,
                 LeaseBill::TYPE_LEASE,
@@ -56,22 +57,23 @@ trait LeaseTrait
             );
         $lease->setPushedLeaseBillsAmount($pushedLeaseBills);
 
-        $otherBills = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+        $otherBills = $em->getRepository('SandboxApiBundle:Lease\LeaseBill')
             ->countBills(
                 $lease,
                 LeaseBill::TYPE_OTHER
             );
         $lease->setOtherBillsAmount($otherBills);
 
-        $pendingLeaseBill = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+        $pushedLeaseBillFee = $em->getRepository('SandboxApiBundle:Lease\LeaseBill')
             ->sumBillsFees(
                 $lease,
-                LeaseBill::STATUS_PENDING
+                [
+                    LeaseBill::STATUS_UNPAID,
+                    LeaseBill::STATUS_PAID,
+                ]
             );
-        $pendingLeaseBill = is_null($pendingLeaseBill) ? 0 : $pendingLeaseBill;
-        $lease->setPushedLeaseBillsFees($pendingLeaseBill);
+
+        $lease->setPushedLeaseBillsFees($pushedLeaseBillFee);
     }
 
     /**
@@ -239,5 +241,46 @@ trait LeaseTrait
         }
 
         return $result;
+    }
+
+    /**
+     * Push the billing message to the user.
+     *
+     * @param LeaseBill $bill
+     */
+    private function pushBillMessage(
+        $bill
+    ) {
+        /** @var Lease $lease */
+        $lease = $bill->getLease();
+        $leaseId = $lease->getId();
+
+        /** @var EntityManager $em */
+        $em = $this->getContainer()->get('doctrine')->getManager();
+
+        $billsAmount = $em->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->countBills(
+                $leaseId,
+                null,
+                LeaseBill::STATUS_UNPAID
+            );
+
+        $userId = $em->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->getUserIdByCustomerId($lease->getLesseeCustomer());
+
+        if ($userId) {
+            $urlParam = 'ptype=billsList&status=unpaid&leasesId='.$leaseId;
+            $contentArray = $this->generateLeaseContentArray($urlParam);
+            // send Jpush notification
+            $this->generateJpushNotification(
+                [
+                    $userId,
+                ],
+                LeaseConstants::LEASE_BILL_UNPAID_MESSAGE_PART1,
+                LeaseConstants::LEASE_BILL_UNPAID_MESSAGE_PART2,
+                $contentArray,
+                ' '.$billsAmount.' '
+            );
+        }
     }
 }

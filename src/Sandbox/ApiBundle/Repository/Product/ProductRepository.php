@@ -2220,7 +2220,6 @@ class ProductRepository extends EntityRepository
         $limit,
         $offset
     ) {
-
         $query = $this->createQueryBuilder('p')
             ->leftJoin('p.room','r')
             ->leftJoin('r.building','b')
@@ -2232,12 +2231,12 @@ class ProductRepository extends EntityRepository
             ->setParameter('buildingIds', $myBuildingIds);
 
         // filter by type
-        if (!is_null($type) || !empty($type)) {
+        if (!is_null($type) && !empty($type)) {
             $query->andWhere('r.type in (:type)')
                 ->setParameter('type', $type);
         }
 
-        if (!is_null($building) || !empty($building)) {
+        if (!is_null($building) && !empty($building)) {
             $query->andWhere('r.building in (:building)')
                 ->setParameter('building', $building);
         }

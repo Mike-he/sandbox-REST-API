@@ -43,7 +43,7 @@ class AdminLeaseController extends SalesRestController
     use LeaseTrait;
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -252,7 +252,6 @@ class AdminLeaseController extends SalesRestController
      *    description="sort direction"
      * )
      *
-     *
      * @return View
      */
     public function getLeasesAction(
@@ -439,7 +438,7 @@ class AdminLeaseController extends SalesRestController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
-        if ($payload['status'] == Lease::LEASE_STATUS_DRAFTING) {
+        if (Lease::LEASE_STATUS_DRAFTING == $payload['status']) {
             $form = $this->createForm(
                 new LeaseType(),
                 $lease,
@@ -517,8 +516,12 @@ class AdminLeaseController extends SalesRestController
         $now = new \DateTime('now');
         switch ($newStatus) {
             case Lease::LEASE_STATUS_PERFORMING:
-                if ($status != Lease::LEASE_STATUS_DRAFTING) {
-                    throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE);
+                if (Lease::LEASE_STATUS_DRAFTING != $status) {
+                    return $this->customErrorView(
+                        400,
+                        CustomErrorMessagesConstants::ERROR_STATUS_NOT_CORRECT_CODE,
+                        CustomErrorMessagesConstants::ERROR_STATUS_NOT_CORRECT_MESSAGE
+                    );
                 }
                 $lease->setConfirmingDate($now);
 
@@ -541,8 +544,12 @@ class AdminLeaseController extends SalesRestController
                 $logMessage = '生效合同';
                 break;
             case Lease::LEASE_STATUS_CLOSED:
-                if ($status != Lease::LEASE_STATUS_DRAFTING) {
-                    throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE);
+                if (Lease::LEASE_STATUS_DRAFTING != $status) {
+                    return $this->customErrorView(
+                        400,
+                        CustomErrorMessagesConstants::ERROR_STATUS_NOT_CORRECT_CODE,
+                        CustomErrorMessagesConstants::ERROR_STATUS_NOT_CORRECT_MESSAGE
+                    );
                 }
 
                 if ($userId) {
@@ -563,10 +570,14 @@ class AdminLeaseController extends SalesRestController
                 break;
             case Lease::LEASE_STATUS_END:
                 if (
-                    $status != Lease::LEASE_STATUS_MATURED &&
-                    $status != Lease::LEASE_STATUS_PERFORMING
+                    Lease::LEASE_STATUS_MATURED != $status &&
+                    Lease::LEASE_STATUS_PERFORMING != $status
                 ) {
-                    throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE);
+                    return $this->customErrorView(
+                        400,
+                        CustomErrorMessagesConstants::ERROR_STATUS_NOT_CORRECT_CODE,
+                        CustomErrorMessagesConstants::ERROR_STATUS_NOT_CORRECT_MESSAGE
+                    );
                 }
 
                 $unpaidBills = $this->getDoctrine()
@@ -645,7 +656,11 @@ class AdminLeaseController extends SalesRestController
                     }
                 break;
             default:
-                throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE);
+                return $this->customErrorView(
+                    400,
+                    CustomErrorMessagesConstants::ERROR_STATUS_NOT_CORRECT_CODE,
+                    CustomErrorMessagesConstants::ERROR_STATUS_NOT_CORRECT_MESSAGE
+                );
         }
 
         $lease->setStatus($newStatus);
@@ -782,7 +797,7 @@ class AdminLeaseController extends SalesRestController
         $lease->setSerialNumber($this->generateLeaseSerialNumber());
         $lease->setCompanyId($salesCompanyId);
 
-        if ($lease->getStatus() == Lease::LEASE_STATUS_PERFORMING) {
+        if (Lease::LEASE_STATUS_PERFORMING == $lease->getStatus()) {
             $lease->setConfirmingDate(new \DateTime('now'));
 
             // set product invisible and can't be appointed
@@ -901,7 +916,7 @@ class AdminLeaseController extends SalesRestController
             }
         }
 
-        if ($lease->getStatus() == Lease::LEASE_STATUS_PERFORMING) {
+        if (Lease::LEASE_STATUS_PERFORMING == $lease->getStatus()) {
             $userId = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:User\UserCustomer')
                 ->getUserIdByCustomerId($lease->getLesseeCustomer());
@@ -987,7 +1002,7 @@ class AdminLeaseController extends SalesRestController
 
         switch ($oldStatus) {
             case Lease::LEASE_STATUS_DRAFTING:
-                if ($lease->getStatus() == Lease::LEASE_STATUS_PERFORMING) {
+                if (Lease::LEASE_STATUS_PERFORMING == $lease->getStatus()) {
                     $lease->setConfirmingDate(new \DateTime('now'));
                 }
 
@@ -997,7 +1012,11 @@ class AdminLeaseController extends SalesRestController
 
                 break;
             default:
-                throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE);
+                return $this->customErrorView(
+                    400,
+                    CustomErrorMessagesConstants::ERROR_STATUS_NOT_CORRECT_CODE,
+                    CustomErrorMessagesConstants::ERROR_STATUS_NOT_CORRECT_MESSAGE
+                );
         }
 
         $this->handleLeaseRentTypesPut($leaseRentTypeIds, $lease);
@@ -1015,8 +1034,8 @@ class AdminLeaseController extends SalesRestController
             $lease->getId()
         );
 
-        if ($oldStatus == Lease::LEASE_STATUS_DRAFTING &&
-            $lease->getStatus() == Lease::LEASE_STATUS_PERFORMING
+        if (Lease::LEASE_STATUS_DRAFTING == $oldStatus &&
+            Lease::LEASE_STATUS_PERFORMING == $lease->getStatus()
         ) {
             $logMessage = '生效合同';
             $this->get('sandbox_api.admin_status_log')->autoLog(
@@ -1046,8 +1065,8 @@ class AdminLeaseController extends SalesRestController
             }
         }
 
-        if ($oldStatus == Lease::LEASE_STATUS_PERFORMING &&
-            $lease->getStatus() == Lease::LEASE_STATUS_PERFORMING
+        if (Lease::LEASE_STATUS_PERFORMING == $oldStatus &&
+            Lease::LEASE_STATUS_PERFORMING == $lease->getStatus()
         ) {
             if ($oldLesseeCustomer != $lease->getLesseeCustomer() ||
                 $oldStartDate != $lease->getStartDate() ||
@@ -1140,9 +1159,9 @@ class AdminLeaseController extends SalesRestController
                     []
                 );
 
-                // set room access
-                if (!empty($userArray)) {
-                    $this->callSetRoomOrderCommand(
+            // set room access
+            if (!empty($userArray)) {
+                $this->callSetRoomOrderCommand(
                         $base,
                         $userArray,
                         $roomDoors,
@@ -1150,7 +1169,7 @@ class AdminLeaseController extends SalesRestController
                         $lease->getStartDate(),
                         $lease->getEndDate()
                     );
-                }
+            }
         }
 
         $this->setDoorAccessForMembershipCard(
@@ -1242,10 +1261,14 @@ class AdminLeaseController extends SalesRestController
         $em = $this->getDoctrine()->getManager();
 
         if (
-            $lease->getStatus() != Lease::LEASE_STATUS_PERFORMING &&
-            $lease->getStatus() != Lease::LEASE_STATUS_DRAFTING
+            Lease::LEASE_STATUS_PERFORMING != $lease->getStatus() &&
+            Lease::LEASE_STATUS_DRAFTING != $lease->getStatus()
         ) {
-            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE);
+            return $this->customErrorView(
+                400,
+                CustomErrorMessagesConstants::ERROR_STATUS_NOT_CORRECT_CODE,
+                CustomErrorMessagesConstants::ERROR_STATUS_NOT_CORRECT_MESSAGE
+            );
         }
 
         $customerId = $lease->getLesseeCustomer();
@@ -1256,7 +1279,7 @@ class AdminLeaseController extends SalesRestController
             $this->throwNotFoundIfNull($customer, self::NOT_FOUND_MESSAGE);
         }
 
-        if ($lease->getLesseeType() == Lease::LEASE_LESSEE_TYPE_ENTERPRISE) {
+        if (Lease::LEASE_LESSEE_TYPE_ENTERPRISE == $lease->getLesseeType()) {
             $enterpriseId = $lease->getLesseeEnterprise();
             if (is_null($enterpriseId)) {
                 throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
@@ -1365,7 +1388,7 @@ class AdminLeaseController extends SalesRestController
             $amount = $amount - $removeAmount;
         }
 
-        if ($lease->getStatus() !== Lease::LEASE_STATUS_DRAFTING && $amount <= 0) {
+        if (Lease::LEASE_STATUS_DRAFTING !== $lease->getStatus() && $amount <= 0) {
             throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_KEEP_AT_LEAST_ONE_BILL_MESSAGE);
         }
     }
@@ -1383,7 +1406,7 @@ class AdminLeaseController extends SalesRestController
         $em = $this->getDoctrine()->getManager();
         $addAmount = 0;
         foreach ($addBills as $addBill) {
-            if ($lease->getStatus() !== Lease::LEASE_STATUS_DRAFTING) {
+            if (Lease::LEASE_STATUS_DRAFTING !== $lease->getStatus()) {
                 $this->checkLeaseBillAttributesIsValid($addBill);
             }
 
@@ -1428,10 +1451,10 @@ class AdminLeaseController extends SalesRestController
         $editAmount = 0;
         foreach ($editBills as $editBill) {
             if (empty($editBill['id'])) {
-                throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILLS_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE);
+                throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE);
             }
 
-            if ($lease->getStatus() !== Lease::LEASE_STATUS_DRAFTING) {
+            if (Lease::LEASE_STATUS_DRAFTING !== $lease->getStatus()) {
                 $this->checkLeaseBillAttributesIsValid($editBill);
             }
 
@@ -1439,7 +1462,7 @@ class AdminLeaseController extends SalesRestController
             $this->throwNotFoundIfNull($bill, CustomErrorMessagesConstants::ERROR_BILL_NOT_FOUND_MESSAGE);
 
             // only pending bills could be edited
-            if ($bill->getStatus() == LeaseBill::STATUS_PENDING) {
+            if (LeaseBill::STATUS_PENDING == $bill->getStatus()) {
                 if ($editBill['start_date']) {
                     $startDate = new \DateTime($editBill['start_date']);
                     $bill->setStartDate($startDate);
@@ -1501,14 +1524,14 @@ class AdminLeaseController extends SalesRestController
             !key_exists('description', $billAttributes) ||
             !key_exists('start_date', $billAttributes) ||
             !key_exists('end_date', $billAttributes) ||
-            (gettype($billAttributes['amount']) != 'double' && gettype($billAttributes['amount']) != 'integer') ||
+            ('double' != gettype($billAttributes['amount']) && 'integer' != gettype($billAttributes['amount'])) ||
             is_null($billAttributes['amount']) ||
             !filter_var($billAttributes['name'], FILTER_DEFAULT) ||
             !filter_var($billAttributes['description'], FILTER_DEFAULT) ||
             !preg_match('/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/', $billAttributes['start_date']) ||
             !preg_match('/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/', $billAttributes['end_date'])
         ) {
-            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILLS_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE);
+            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE);
         }
     }
 
