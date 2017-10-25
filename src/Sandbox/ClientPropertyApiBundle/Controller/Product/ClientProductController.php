@@ -417,7 +417,8 @@ class ClientProductController extends ProductController
         }
 
         $productDetail['id'] = $productId;
-
+        $productDetail['room_type'] = $roomType;
+        
         if (Room::TYPE_DESK == $roomType) {
             $seats = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Room\RoomFixed')
