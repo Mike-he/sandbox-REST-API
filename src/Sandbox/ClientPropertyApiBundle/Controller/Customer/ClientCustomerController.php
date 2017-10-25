@@ -52,7 +52,7 @@ class ClientCustomerController extends SalesRestController
 
         $customers = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserCustomer')
-            ->getClientSalesAdminCustomers(
+            ->searchSalesCustomers(
                 $salesCompanyId,
                 $search
             );

@@ -222,32 +222,4 @@ class UserCustomerRepository extends EntityRepository
 
         return $result;
     }
-
-    /**
-     * @param $salesCompanyId
-     * @param $search
-     * @return array
-     */
-    public function getClientSalesAdminCustomers(
-        $salesCompanyId,
-        $search
-    ) {
-        $query = $this->createQueryBuilder('c')
-                ->select('c.id, c.name, c.sex , c.phone, c.avatar')
-                ->where('c.companyId = :companyId')
-                ->andWhere('c.isDeleted = FALSE')
-                ->setParameter('companyId', $salesCompanyId);
-
-        if ($search) {
-            $query->andWhere('(
-                c.name LIKE :search OR
-                c.phone LIKE :search
-            )')
-                ->setParameter('search', '%'.$search.'%');
-        }
-
-        $query->orderBy('c.id', 'DESC');
-
-        return $query->getQuery()->getResult();
-    }
 }
