@@ -13,6 +13,7 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class EventOrder
 {
+    const CLIENT_STATUS_PENDING = 'pending';
     const CLIENT_STATUS_IN_PROCESS = 'in_process';
     const CLIENT_STATUS_PASSED = 'passed';
 

@@ -578,7 +578,7 @@ class EventOrderRepository extends EntityRepository
         $search
     ) {
         $query = $this->createQueryBuilder('eo')
-            ->leftJoin('SandboxApiBundle:Event\Event', 'e', 'WITH', 'eo.eventId = e.id')
+            ->leftJoin('eo.event','e')
             ->leftJoin('SandboxApiBundle:Event\EventRegistration', 'er', 'WITH', 'er.eventId = e.id')
             ->where('eo.userId = :userId')
             ->andWhere('er.userId = :userId')
@@ -586,10 +586,12 @@ class EventOrderRepository extends EntityRepository
             ->setMaxResults($limit)
             ->setParameter('userId', $userId);
 
+        $now = new \DateTime();
+
         // filter by status
         if (!is_null($status)) {
             switch ($status) {
-                case EventOrder::CLIENT_STATUS_IN_PROCESS:
+                case EventOrder::CLIENT_STATUS_PENDING:
                     $query->andWhere('
                             (
                                 eo.status = :unpaid OR
@@ -601,18 +603,26 @@ class EventOrderRepository extends EntityRepository
                         ->setParameter('userId', $userId)
                         ->setParameter('pending', EventRegistration::STATUS_PENDING);
                     break;
-                case EventOrder::CLIENT_STATUS_PASSED:
+                case EventOrder::CLIENT_STATUS_IN_PROCESS:
                     $query->andWhere('
                             (
+                                eo.status = :unpaid OR
+                                (e.verify = TRUE AND er.status = :pending AND eo.status = :paid)
                                 (e.verify = TRUE AND (er.status = :accepted OR er.status = :rejected)) OR 
                                 (e.verify = FAlSE AND (eo.status = :paid OR eo.status = :completed))
                             )
                         ')
+                        ->andWhere('e.eventEndDate >= :now')
+                        ->setParameter('now', $now)
                         ->setParameter('rejected', EventRegistration::STATUS_REJECTED)
                         ->setParameter('paid', EventOrder::STATUS_PAID)
                         ->setParameter('userId', $userId)
                         ->setParameter('accepted', EventRegistration::STATUS_ACCEPTED)
                         ->setParameter('completed', EventOrder::STATUS_COMPLETED);
+                    break;
+                case EventOrder::CLIENT_STATUS_PASSED:
+                    $query->andWhere('e.eventEndDate < :now')
+                        ->setParameter('now', $now);
                     break;
                 default:
                     break;
