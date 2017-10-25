@@ -417,6 +417,10 @@ lease:
     offer: 已转为报价
     contract: 已转为合同
     closed: 已关闭
+  offer_status:
+    offer: 报价中
+    contract: 已转为合同
+    closed: 已关闭
 
 client_property:
   menu:

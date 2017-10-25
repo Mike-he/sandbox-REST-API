@@ -404,20 +404,25 @@ lease:
     lease_bill_unpaid_second: bill(s) is(are) waiting for payment. Click to view details.
     lease_bill_transfer_returned: A remittance receipt has been returned, click to view.
   order_method:
-      backend: Backend
-      auto: Auto
+    backend: Backend
+    auto: Auto
   lease_status:
-      drafting: drafting
-      performing: performing
-      terminated: terminated
-      matured: matured
-      end: end
-      closed: closed
+    drafting: drafting
+    performing: performing
+    terminated: terminated
+    matured: matured
+    end: end
+    closed: closed
   clue_status:
-      clue: clue
-      offer: offer
-      contract: contract
-      closed: closed
+    clue: clue
+    offer: offer
+    contract: contract
+    closed: closed
+  offer_status:
+    offer: offer
+    contract: contract
+    closed: closed
+
 
 client_property:
   menu:

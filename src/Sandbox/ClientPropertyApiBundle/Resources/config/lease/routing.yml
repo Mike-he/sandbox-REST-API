@@ -17,3 +17,8 @@ sandbox_client_property_api_lease_clues:
     resource: "@SandboxClientPropertyApiBundle/Controller/Lease/ClientClueController.php"
     type:     annotation
     prefix:   /
+
+sandbox_client_property_api_lease_offers:
+    resource: "@SandboxClientPropertyApiBundle/Controller/Lease/ClientOfferController.php"
+    type:     annotation
+    prefix:   /
