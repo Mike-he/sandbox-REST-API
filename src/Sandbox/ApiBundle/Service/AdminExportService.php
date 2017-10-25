@@ -15,6 +15,7 @@ use Sandbox\ApiBundle\Entity\Lease\LeaseClue;
 use Sandbox\ApiBundle\Entity\Lease\LeaseOffer;
 use Sandbox\ApiBundle\Entity\Lease\LeaseRentTypes;
 use Sandbox\ApiBundle\Entity\MembershipCard\MembershipOrder;
+use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class AdminExportService
@@ -547,7 +548,7 @@ class AdminExportService
     }
 
     /**
-     * @param $orders
+     * @param ProductOrder $orders
      * @param $lists
      * @param $language
      *
@@ -560,6 +561,8 @@ class AdminExportService
     ) {
         $excelBody = array();
         foreach ($orders as $order) {
+            /** @var ProductOrder $order */
+
             $productInfo = json_decode($order->getProductInfo(), true);
 
             // set product type
@@ -628,13 +631,8 @@ class AdminExportService
             $startTime = $order->getStartDate()->format('Y-m-d H:i:s');
             $endTime = $order->getEndDate()->format('Y-m-d H:i:s');
 
-            $orderType = $order->getType();
-            if (is_null($orderType) || empty($orderType)) {
-                $orderType = 'user';
-            }
-
             $orderType = $this->container->get('translator')->trans(
-                ProductOrderExport::TRANS_PRODUCT_ORDER_TYPE.$orderType,
+                ProductOrderExport::TRANS_PRODUCT_ORDER_TYPE.$order->getType(),
                 array(),
                 null,
                 $language

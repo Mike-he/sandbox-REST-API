@@ -171,7 +171,7 @@ trait FinanceOfficialExportTraits
         $commission = null;
 
         $orderType = $orderType = $this->get('translator')->trans(
-            ProductOrderExport::TRANS_PRODUCT_ORDER_TYPE.'user',
+            ProductOrderExport::TRANS_PRODUCT_ORDER_TYPE.'own',
             array(),
             null,
             $language
@@ -300,6 +300,7 @@ trait FinanceOfficialExportTraits
         $commission = null;
 
         foreach ($shortOrders as $order) {
+            /** @var ProductOrder $order */
             $productId = $order->getProductId();
             $product = $this->getDoctrine()->getRepository('SandboxApiBundle:Product\Product')->find($productId);
             $building = $product->getRoom()->getBuilding();
@@ -396,13 +397,9 @@ trait FinanceOfficialExportTraits
                 }
             }
 
-            $type = $order->getType();
-            if (is_null($type) || empty($type)) {
-                $type = 'user';
-            }
 
             $orderType = $this->get('translator')->trans(
-                ProductOrderExport::TRANS_PRODUCT_ORDER_TYPE.$type,
+                ProductOrderExport::TRANS_PRODUCT_ORDER_TYPE.$order->getType(),
                 array(),
                 null,
                 $language
@@ -652,7 +649,7 @@ trait FinanceOfficialExportTraits
             );
 
             $orderType = $this->get('translator')->trans(
-                ProductOrderExport::TRANS_PRODUCT_ORDER_TYPE.'user',
+                ProductOrderExport::TRANS_PRODUCT_ORDER_TYPE.'own',
                 array(),
                 null,
                 $language
@@ -874,7 +871,7 @@ trait FinanceOfficialExportTraits
             }
 
             $orderType = $this->get('translator')->trans(
-                ProductOrderExport::TRANS_PRODUCT_ORDER_TYPE.'user',
+                ProductOrderExport::TRANS_PRODUCT_ORDER_TYPE.'own',
                 array(),
                 null,
                 $language

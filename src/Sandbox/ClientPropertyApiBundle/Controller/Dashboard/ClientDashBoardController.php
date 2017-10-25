@@ -363,26 +363,11 @@ class ClientDashBoardController extends SandboxRestController
             'sales_remit' => '线下汇款',
         ];
 
-        $orderType = [
-            ProductOrder::OWN_TYPE => '用户自主下单',
-            ProductOrder::OFFICIAL_PREORDER_TYPE => '官方推单',
-            ProductOrder::PREORDER_TYPE => '销售方推单',
-        ];
-
-        $status = [
-            ProductOrder::STATUS_UNPAID => '未付款',
-            ProductOrder::STATUS_PAID => '已付款',
-            ProductOrder::STATUS_COMPLETED => '已完成',
-            ProductOrder::STATUS_CANCELLED => '已取消',
-        ];
-
         $orderData = [];
         foreach ($orders as $order) {
             $orderData[] = $this->handleProductOrderData(
                 $order,
-                $receivableTypes,
-                $orderType,
-                $status
+                $receivableTypes
             );
         }
 
@@ -429,16 +414,9 @@ class ClientDashBoardController extends SandboxRestController
                 $companyId
             );
 
-        $status = [
-            ProductOrder::STATUS_UNPAID => '未付款',
-            ProductOrder::STATUS_PAID => '已付款',
-            ProductOrder::STATUS_COMPLETED => '已完成',
-            ProductOrder::STATUS_CANCELLED => '已取消',
-        ];
-
         $orderData = [];
         foreach ($orders as $order) {
-            $orderData[] = $this->handleEventOrderData($order, $status);
+            $orderData[] = $this->handleEventOrderData($order);
         }
 
         $result = array(
@@ -534,16 +512,12 @@ class ClientDashBoardController extends SandboxRestController
     /**
      * @param ProductOrder $order
      * @param $receivableTypes
-     * @param $orderType
-     * @param $status
      *
      * @return array
      */
     private function handleProductOrderData(
         $order,
-        $receivableTypes,
-        $orderType,
-        $status
+        $receivableTypes
     ) {
         $em = $this->getDoctrine()->getManager();
 
@@ -572,6 +546,9 @@ class ClientDashBoardController extends SandboxRestController
             }
         }
 
+        $orderType = $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_TYPE.$order->getType());
+        $status = $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_STATUS.$order->getStatus());
+
         $result = array(
             'id' => $order->getId(),
             'room_name' => $room->getName(),
@@ -580,9 +557,9 @@ class ClientDashBoardController extends SandboxRestController
             'start_date' => $order->getStartDate(),
             'end_date' => $order->getEndDate(),
             'room_type' => $roomType,
-            'order_type' => $orderType[$order->getType()],
+            'order_type' => $orderType,
             'pay_channel' => $payChannel,
-            'status' => $status[$order->getStatus()],
+            'status' => $status,
             'price' => (float) $order->getPrice(),
             'discount_price' => (float) $order->getDiscountPrice(),
         );
@@ -592,13 +569,11 @@ class ClientDashBoardController extends SandboxRestController
 
     /**
      * @param EventOrder $order
-     * @param $status
      *
      * @return array
      */
     private function handleEventOrderData(
-        $order,
-        $status
+        $order
     ) {
         /** @var Event $event */
         $event = $order->getEvent();
@@ -606,6 +581,8 @@ class ClientDashBoardController extends SandboxRestController
         $eventAttachment = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Event\EventAttachment')
             ->findOneBy(array('eventId' => $event->getId()));
+
+        $status = $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_STATUS.$order->getStatus());
 
         $result = array(
             'id' => $order->getId(),
@@ -615,7 +592,7 @@ class ClientDashBoardController extends SandboxRestController
             'event_status' => $event->getStatus(),
             'address' => $event->getAddress(),
             'price' => (float) $event->getPrice(),
-            'status' => $status[$order->getStatus()],
+            'status' => $status,
             'pay_channel' => $order->getPayChannel() ? '创合钱包支付' : '',
             'attachment' => $eventAttachment ? $eventAttachment->getContent() : '',
         );

@@ -87,9 +87,10 @@ product_order:
     account: 退回余额
     origin: 原路返回
   order_type:
-    user: 用户下单
-    preorder: 后台预定
-    reserve: 后台预留
+    own: 用户自主下单
+    official_preorder: 官方推单
+    preorder: 销售方推单
+    reserve: 内部占用
   export_header:
     commission: 佣金
     order_category: 订单类型

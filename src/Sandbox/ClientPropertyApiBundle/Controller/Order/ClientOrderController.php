@@ -257,26 +257,11 @@ class ClientOrderController extends OrderController
             'sales_remit' => '线下汇款',
         ];
 
-        $orderType = [
-            ProductOrder::OWN_TYPE => '用户自主下单',
-            ProductOrder::OFFICIAL_PREORDER_TYPE => '官方推单',
-            ProductOrder::PREORDER_TYPE => '销售方推单',
-        ];
-
-        $status = [
-            ProductOrder::STATUS_UNPAID => '未付款',
-            ProductOrder::STATUS_PAID => '已付款',
-            ProductOrder::STATUS_COMPLETED => '已完成',
-            ProductOrder::STATUS_CANCELLED => '已取消',
-        ];
-
         $orderLists = [];
         foreach ($orders as $order) {
             $orderLists[] = $this->handleOrderData(
                 $order,
-                $receivableTypes,
-                $orderType,
-                $status
+                $receivableTypes
             );
         }
 
@@ -289,16 +274,13 @@ class ClientOrderController extends OrderController
     /**
      * @param ProductOrder $order
      * @param $receivableTypes
-     * @param $orderType
      * @param $status
      *
      * @return array
      */
     private function handleOrderData(
         $order,
-        $receivableTypes,
-        $orderType,
-        $status
+        $receivableTypes
     ) {
         $room = $order->getProduct()->getRoom();
         $building = $room->getBuilding();
@@ -338,12 +320,14 @@ class ClientOrderController extends OrderController
         }
 
         $roomType = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$room->getType());
+        $orderType = $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_TYPE.$order->getType());
+        $status = $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_STATUS.$order->getStatus());
 
         $result = array(
             'id' => $order->getId(),
             'order_number' => $order->getOrderNumber(),
             'creation_date' => $order->getCreationDate(),
-            'status' => $status[$order->getStatus()],
+            'status' => $status,
             'start_date' => $order->getStartDate(),
             'end_date' => $order->getEndDate(),
             'room_attachment' => $roomAttachment,
@@ -352,7 +336,7 @@ class ClientOrderController extends OrderController
             'building_name' => $building->getName(),
             'price' => (float) $order->getPrice(),
             'discount_price' => (float) $order->getDiscountPrice(),
-            'order_type' => $orderType[$order->getType()],
+            'order_type' => $orderType,
             'pay_channel' => $payChannel,
             'base_price' => $order->getBasePrice(),
             'unit_price' => $order->getUnitPrice(),

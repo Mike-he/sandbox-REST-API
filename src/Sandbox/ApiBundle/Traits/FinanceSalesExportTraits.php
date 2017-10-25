@@ -324,7 +324,7 @@ trait FinanceSalesExportTraits
         $commission = null;
 
         $orderType = $orderType = $this->get('translator')->trans(
-            ProductOrderExport::TRANS_PRODUCT_ORDER_TYPE.'user',
+            ProductOrderExport::TRANS_PRODUCT_ORDER_TYPE.'own',
             array(),
             null,
             $language
@@ -444,11 +444,6 @@ trait FinanceSalesExportTraits
         /** @var EntityManager $em */
         $em = $this->getContainer()->get('doctrine')->getManager();
 
-        $orderType = [
-            ProductOrder::OWN_TYPE => '用户自主下单',
-            ProductOrder::OFFICIAL_PREORDER_TYPE => '官方推单',
-            ProductOrder::PREORDER_TYPE => '销售方推单',
-        ];
 
         $receivableTypes = [
             'sales_wx' => '微信',
@@ -457,11 +452,6 @@ trait FinanceSalesExportTraits
             'sales_others' => '其他',
             'sales_pos' => 'POS机',
             'sales_remit' => '线下汇款',
-        ];
-
-        $status = [
-            ProductOrder::STATUS_CANCELLED => '已取消',
-            ProductOrder::STATUS_COMPLETED => '已完成',
         ];
 
         $shortBody = [];
@@ -530,6 +520,9 @@ trait FinanceSalesExportTraits
                 $paymentDate = '';
             }
 
+            $orderType = $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_TYPE.$order->getType());
+            $status = $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_STATUS.$order->getStatus());
+
             $body = array(
                 'building_name' => $building->getName(),
                 'order_type' => '秒租订单',
@@ -537,7 +530,7 @@ trait FinanceSalesExportTraits
                 'room_name' => $room->getName(),
                 'room_type' => $roomType,
                 'customer' => $customer ? $customer->getName() : '',
-                'order_method' => $orderType[$order->getType()],
+                'order_method' => $orderType,
                 'payment_method' => $paymentMethod,
                 'pay_channel' => $payChannel,
                 'base_price' => $order->getBasePrice(),
@@ -551,7 +544,7 @@ trait FinanceSalesExportTraits
                 'end_date' => $order->getEndDate()->format('Y-m-d H:i:s'),
                 'creation_date' => $order->getCreationDate()->format('Y-m-d H:i:s'),
                 'payment_date' => $paymentDate,
-                'status' => $status[$order->getStatus()],
+                'status' => $status,
                 'refundTo' => $refundTo,
                 'customer_phone' => $customer ? $customer->getPhone() : '',
                 'customer_email' => $customer ? $customer->getEmail() : '',
@@ -1082,13 +1075,6 @@ trait FinanceSalesExportTraits
             $payChannels[$payment->getChannel()] = $payment->getName();
         }
 
-        $orderStatus = [
-          ProductOrder::STATUS_COMPLETED => '已完成',
-          ProductOrder::STATUS_CANCELLED => '已取消',
-          ProductOrder::STATUS_PAID => '已付款',
-          ProductOrder::STATUS_UNPAID => '未付款',
-        ];
-
         $billStatus = [
           LeaseBill::STATUS_UNPAID => '未付款',
           LeaseBill::STATUS_PAID => '已完成',
@@ -1142,7 +1128,7 @@ trait FinanceSalesExportTraits
 
                     $paymentDate = $order->getPaymentDate() ? $order->getPaymentDate()->format('Y-m-d H:i:s') : '';
 
-                    $status = $orderStatus[$order->getStatus()];
+                    $status = $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_STATUS.$order->getStatus());
 
                     break;
                 case LeaseBill::LEASE_BILL_LETTER_HEAD:
