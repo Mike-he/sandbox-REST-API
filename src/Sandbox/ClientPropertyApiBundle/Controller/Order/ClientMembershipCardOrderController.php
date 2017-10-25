@@ -194,6 +194,7 @@ class ClientMembershipCardOrderController extends SalesRestController
             'pay_channel' => $order->getPayChannel() ? '创合钱包支付' : '',
             'status' => '已付款',
             'card_status' => $cardStatus ? 'using' : 'expired',
+            'background' => $card->getBackground(),
             'customer' => array(
                 'id' => $customer ? $customer->getId() : '',
                 'name' => $customer ? $customer->getName() : '',
