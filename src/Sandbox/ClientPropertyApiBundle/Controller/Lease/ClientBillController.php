@@ -350,6 +350,16 @@ class ClientBillController extends SalesRestController
         $bill = $this->getDoctrine()->getRepository("SandboxApiBundle:Lease\LeaseBill")->find($id);
         $this->throwNotFoundIfNull($bill, CustomErrorMessagesConstants::ERROR_BILL_NOT_FOUND_MESSAGE);
 
+        /** @var Lease $lease */
+        $lease = $bill->getLease();
+        /** @var Product $product */
+        $product = $lease->getProduct();
+        $rentSet = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Product\ProductRentSet')
+            ->findOneBy(array('product'=>$product));
+
+        $product->setRentSet($rentSet);
+
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['lease_bill']));
         $view->setData($bill);
