@@ -8,7 +8,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
-use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 
 class ClientAuthController extends AuthController
 {
@@ -16,13 +15,6 @@ class ClientAuthController extends AuthController
      * Token auth.
      *
      * @param Request $request the request object
-     *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     200 = "Returned when successful"
-     *  }
-     * )
      *
      * @Route("/auth/companies")
      * @Method({"GET"})
