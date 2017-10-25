@@ -54,3 +54,8 @@ sandbox_client_property_api_auth:
     resource: "@SandboxClientPropertyApiBundle/Controller/Auth/ClientAuthController.php"
     type:     annotation
     prefix:   /
+
+sandbox_client_property_api_building:
+    resource: "@SandboxClientPropertyApiBundle/Controller/Building/ClientBuildingController.php"
+    type:     annotation
+    prefix:   /

@@ -210,10 +210,8 @@ class RoomBuildingRepository extends EntityRepository
         $visible = null,
         $excludeIds = null
     ) {
-        $buildingsQuery = $this->createQueryBuilder('rb');
-
-        // filter by building delete
-        $buildingsQuery->where('rb.isDeleted = FALSE');
+        $buildingsQuery = $this->createQueryBuilder('rb')
+            ->where('rb.isDeleted = FALSE');
 
         // query by city id
         if (!is_null($cityId)) {
