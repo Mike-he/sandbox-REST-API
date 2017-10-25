@@ -49,3 +49,8 @@ sandbox_client_api_admin_reset:
     resource: "@SandboxClientPropertyApiBundle/Controller/Admin/ClientAdministratorResetPasswordController.php"
     type:     annotation
     prefix:   /
+
+sandbox_client_property_api_auth:
+    resource: "@SandboxClientPropertyApiBundle/Controller/Auth/ClientAuthController.php"
+    type:     annotation
+    prefix:   /

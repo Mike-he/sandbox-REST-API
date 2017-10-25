@@ -25,7 +25,7 @@ class AdminPositionRepository extends EntityRepository
             ->andWhere('p.platform = :platform')
             ->setParameter('platform', $platform);
 
-        if ($platform != AdminPosition::PLATFORM_OFFICIAL) {
+        if (AdminPosition::PLATFORM_OFFICIAL != $platform) {
             if (is_null($companyId) || empty($companyId)) {
                 return array();
             }
@@ -72,7 +72,7 @@ class AdminPositionRepository extends EntityRepository
                 ->setParameter('isSuperAdmin', $isSuperAdmin);
         }
 
-        if ($platform != AdminPosition::PLATFORM_OFFICIAL) {
+        if (AdminPosition::PLATFORM_OFFICIAL != $platform) {
             if (is_null($companyId) || empty($companyId)) {
                 return array();
             }
@@ -106,7 +106,7 @@ class AdminPositionRepository extends EntityRepository
         // operator and order direction
         $operator = '>';
         $direction = 'ASC';
-        if ($action == Position::ACTION_DOWN) {
+        if (Position::ACTION_DOWN == $action) {
             $operator = '<';
             $direction = 'DESC';
         }

@@ -132,7 +132,7 @@ class AdminPositionUserBindingRepository extends EntityRepository
             ->setParameter('platform', $platform)
             ->setParameter('isSuperAdmin', $isSuperAdmin);
 
-        if (!is_null($salesCompanyId) && $platform != AdminPosition::PLATFORM_OFFICIAL) {
+        if (!is_null($salesCompanyId) && AdminPosition::PLATFORM_OFFICIAL != $platform) {
             $query->andWhere('p.salesCompanyId = :salesCompanyId')
                 ->setParameter('salesCompanyId', $salesCompanyId);
         }
@@ -301,7 +301,7 @@ class AdminPositionUserBindingRepository extends EntityRepository
             ->where('pb.userId = :user')
             ->setParameter('user', $user);
 
-        if ($platform == AdminPosition::PLATFORM_OFFICIAL) {
+        if (AdminPosition::PLATFORM_OFFICIAL == $platform) {
             $query->andWhere('p.platform = :platform')
                 ->setParameter('platform', $platform);
         } else {
@@ -421,5 +421,29 @@ class AdminPositionUserBindingRepository extends EntityRepository
         $userIds = array_map('current', $userIds);
 
         return $userIds;
+    }
+
+    public function findCompanyByAdmin(
+        $admin,
+        $platform
+    ) {
+        $query = $this->createQueryBuilder('pb')
+            ->select('
+                p.salesCompanyId as id, 
+                c.name as name, 
+                c.banned as banned
+            ')
+            ->leftJoin('pb.position', 'p')
+            ->leftJoin('p.salesCompany', 'c')
+            ->andWhere('pb.userId = :admin')
+            ->andWhere('p.platform = :platform')
+            ->setParameter('admin', $admin)
+            ->setParameter('platform', $platform);
+
+        $query->groupBy('p.salesCompanyId');
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
     }
 }
