@@ -24,7 +24,7 @@ class ClientAuthController extends AuthController
      *  }
      * )
      *
-     * @Route("/auth/company")
+     * @Route("/auth/companies")
      * @Method({"GET"})
      *
      * @return View
