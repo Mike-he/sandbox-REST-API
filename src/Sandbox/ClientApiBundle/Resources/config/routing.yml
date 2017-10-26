@@ -306,12 +306,6 @@ sandbox_client_user_customer:
     type:     annotation
     prefix:   /user
 
-# Profile Center /profile/myorders
-sandbox_client_api_user_profile_my_orders:
-    resource: "@SandboxClientApiBundle/Controller/User/ClientUserProfileMyOrdersController.php"
-    type:     annotation
-    prefix:   /user
-
 # Advertising /advertising
 sandbox_client_api_advertising:
     resource: "@SandboxClientApiBundle/Controller/Advertising/ClientAdvertisingController.php"
