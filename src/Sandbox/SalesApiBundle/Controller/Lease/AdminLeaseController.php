@@ -58,7 +58,7 @@ class AdminLeaseController extends SalesRestController
      *     name="search",
      *     array=false,
      *     default=null,
-     *     nullable=false,
+     *     nullable=true,
      *     strict=true
      * )
      *
