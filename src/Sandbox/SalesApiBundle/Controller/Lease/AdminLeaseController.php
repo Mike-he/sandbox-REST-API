@@ -54,6 +54,14 @@ class AdminLeaseController extends SalesRestController
      *     strict=true
      * )
      *
+     * @Annotations\QueryParam(
+     *     name="search",
+     *     array=false,
+     *     default=null,
+     *     nullable=false,
+     *     strict=true
+     * )
+     *
      * @Route("/leases/valid_products")
      * @Method({"GET"})
      *
