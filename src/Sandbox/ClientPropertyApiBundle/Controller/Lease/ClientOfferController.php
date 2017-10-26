@@ -316,6 +316,15 @@ class ClientOfferController extends SalesRestController
 
             $productData = array(
                 'id' => $offer->getProductId(),
+                'rent_set' => [
+                    'id' => $rentSet->getId(),
+                    'base_price' => (float) $rentSet->getBasePrice(),
+                    'unit_price' => $rentSet->getUnitPrice(),
+                    'earliest_rent_date' => $rentSet->getEarliestRentDate(),
+                    'deposit' => $rentSet->getDeposit(),
+                    'rental_info' => $rentSet->getRentalInfo(),
+                    'status' => $rentSet->isStatus(),
+                ],
                 'room' => array(
                     'id' => $room->getId(),
                     'name' => $room->getName(),
@@ -324,15 +333,6 @@ class ClientOfferController extends SalesRestController
                     'type_tag_description' => $typeTagDescription,
                     'allowed_people' => $room->getAllowedPeople(),
                     'area' => $room->getArea(),
-                    'rent_set' => [
-                        'id' => $rentSet->getId(),
-                        'base_price' => (float) $rentSet->getBasePrice(),
-                        'unit_price' => $rentSet->getUnitPrice(),
-                        'earliest_rent_date' => $rentSet->getEarliestRentDate(),
-                        'deposit' => $rentSet->getDeposit(),
-                        'rental_info' => $rentSet->getRentalInfo(),
-                        'status' => $rentSet->isStatus(),
-                    ],
                 ),
             );
             $offer->setProduct($productData);
