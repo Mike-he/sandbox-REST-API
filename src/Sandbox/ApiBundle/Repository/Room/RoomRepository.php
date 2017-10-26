@@ -849,37 +849,4 @@ class RoomRepository extends EntityRepository
 
         return $result;
     }
-
-    public function getProductRoomsForPropertyClient(
-        $companyId,
-        $buildingId,
-        $search
-    ) {
-        $query = $this->createQueryBuilder('r')
-            ->select('
-                r.id,
-                r.name,
-                b.name as building_name
-            ')
-            ->leftJoin('r.building', 'b')
-            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'r.id = p.roomId')
-            ->where('r.isDeleted = FALSE')
-            ->andWhere('p.visible = TRUE')
-            ->andWhere('b.company = :company')
-            ->setParameter('company', $companyId);
-
-        if ($buildingId) {
-            $query->andWhere('b.id = :building')
-                ->setParameter('building', $buildingId);
-        }
-
-        if ($search) {
-            $query->andWhere('r.name LIKE :search')
-               ->setParameter('search', '%'.$search.'%');
-        }
-
-        $query->orderBy('r.id', 'DESC');
-
-        return $query->getQuery()->getResult();
-    }
 }

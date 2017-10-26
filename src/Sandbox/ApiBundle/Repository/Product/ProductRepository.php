@@ -2185,11 +2185,13 @@ class ProductRepository extends EntityRepository
 
     /**
      * @param $buildingId
+     * @param $search
      *
      * @return array
      */
     public function searchLeasesProducts(
-        $buildingId
+        $buildingId,
+        $search
     ) {
         $query = $this->createQueryBuilder('p')
             ->select('
@@ -2209,6 +2211,12 @@ class ProductRepository extends EntityRepository
             $query->andWhere('r.buildingId = :buildingId')
                 ->setParameter('buildingId', $buildingId);
         }
+
+        if (!is_null($search)) {
+            $query->andWhere('r.name LIKE :search')
+                ->setParameter('search', '%'.$search.'%');
+        }
+
 
         return $query->getQuery()->getResult();
     }

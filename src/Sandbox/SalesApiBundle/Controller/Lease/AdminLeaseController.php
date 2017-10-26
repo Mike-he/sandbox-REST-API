@@ -64,10 +64,11 @@ class AdminLeaseController extends SalesRestController
         ParamFetcherInterface $paramFetcher
     ) {
         $buildingId = $paramFetcher->get('building');
+        $search = $paramFetcher->get('search');
 
         $products = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Product\Product')
-            ->searchLeasesProducts($buildingId);
+            ->searchLeasesProducts($buildingId, $search);
 
         foreach ($products as &$product) {
             $attachment = $this->getDoctrine()
