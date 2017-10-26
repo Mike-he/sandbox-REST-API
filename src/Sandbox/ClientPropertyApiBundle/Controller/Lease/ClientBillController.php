@@ -356,7 +356,7 @@ class ClientBillController extends SalesRestController
         $product = $lease->getProduct();
         $rentSet = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Product\ProductRentSet')
-            ->findOneBy(array('product'=>$product));
+            ->findOneBy(array('product' => $product));
 
         $product->setRentSet($rentSet);
 
