@@ -337,7 +337,7 @@ class ClientOfferController extends SalesRestController
                     'type_tag_description' => $typeTagDescription,
                     'allowed_people' => $room->getAllowedPeople(),
                     'area' => $room->getArea(),
-                    'attachment' => $attachment
+                    'attachment' => $attachment,
                 ),
             );
             $offer->setProduct($productData);

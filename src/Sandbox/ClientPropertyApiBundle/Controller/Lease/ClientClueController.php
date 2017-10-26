@@ -404,13 +404,35 @@ class ClientClueController extends SalesRestController
             $room = $product->getRoom();
 
             $typeTagDescription = $this->get('translator')->trans(RoomTypeTags::TRANS_PREFIX.$room->getTypeTag());
+
+            $rentSet = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\ProductRentSet')
+                ->findOneBy(array('product' => $product));
+
+            $attachment = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomAttachmentBinding')
+                ->findAttachmentsByRoom($room->getId());
+
             $productData = array(
                 'id' => $clue->getProductId(),
+                'rent_set' => [
+                    'id' => $rentSet->getId(),
+                    'base_price' => (float) $rentSet->getBasePrice(),
+                    'unit_price' => $rentSet->getUnitPrice(),
+                    'earliest_rent_date' => $rentSet->getEarliestRentDate(),
+                    'deposit' => $rentSet->getDeposit(),
+                    'rental_info' => $rentSet->getRentalInfo(),
+                    'status' => $rentSet->isStatus(),
+                ],
                 'room' => array(
                     'id' => $room->getId(),
                     'name' => $room->getName(),
+                    'type' => $room->getType(),
                     'type_tag' => $room->getTypeTag(),
                     'type_tag_description' => $typeTagDescription,
+                    'allowed_people' => $room->getAllowedPeople(),
+                    'area' => $room->getArea(),
+                    'attachment' => $attachment,
                 ),
             );
             $clue->setProduct($productData);
