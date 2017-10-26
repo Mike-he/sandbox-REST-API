@@ -314,6 +314,10 @@ class ClientOfferController extends SalesRestController
                 ->getRepository('SandboxApiBundle:Product\ProductRentSet')
                 ->findOneBy(array('product' => $product));
 
+            $attachment = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomAttachmentBinding')
+                ->findAttachmentsByRoom($room->getId());
+
             $productData = array(
                 'id' => $offer->getProductId(),
                 'rent_set' => [
@@ -333,6 +337,7 @@ class ClientOfferController extends SalesRestController
                     'type_tag_description' => $typeTagDescription,
                     'allowed_people' => $room->getAllowedPeople(),
                     'area' => $room->getArea(),
+                    'attachment' => $attachment
                 ),
             );
             $offer->setProduct($productData);
