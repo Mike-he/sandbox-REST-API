@@ -9,6 +9,7 @@ use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseRentTypes;
 use Sandbox\ApiBundle\Entity\Log\Log;
+use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Service\AdminStatusLogService;
 
 /**
@@ -74,6 +75,13 @@ trait LeaseTrait
             );
 
         $lease->setPushedLeaseBillsFees($pushedLeaseBillFee);
+
+        /** @var Product $product */
+        $product = $lease->getProduct();
+        $rentSet = $em->getRepository('SandboxApiBundle:Product\ProductRentSet')
+            ->findOneBy(array('product'=>$product));
+
+        $product->setRentSet($rentSet);
     }
 
     /**
