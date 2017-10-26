@@ -2246,7 +2246,7 @@ class OrderRepository extends EntityRepository
         $room
     ) {
         $query = $this->createQueryBuilder('o')
-            ->count('o.id')
+            ->select('count(o.id)')
             ->leftJoin('o.product', 'p')
             ->leftJoin('p.room', 'r')
             ->leftJoin('SandboxApiBundle:Order\ProductOrderRecord', 'por', 'WITH', 'por.orderId = o.id')
