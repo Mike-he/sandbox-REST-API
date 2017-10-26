@@ -37,13 +37,6 @@ class FinanceSalesWallet
     private $billAmount = 0;
 
     /**
-     * @var float
-     *
-     * @ORM\Column(name="short_rent_invoice_amount", type="float")
-     */
-    private $shortRentInvoiceAmount = 0;
-
-    /**
      * @var \DateTime
      *
      * @Gedmo\Timestampable(on="create")
@@ -145,30 +138,6 @@ class FinanceSalesWallet
     public function getBillAmount()
     {
         return $this->billAmount;
-    }
-
-    /**
-     * Set shortRentInvoiceAmount.
-     *
-     * @param float $shortRentInvoiceAmount
-     *
-     * @return FinanceSalesWallet
-     */
-    public function setShortRentInvoiceAmount($shortRentInvoiceAmount)
-    {
-        $this->shortRentInvoiceAmount = $shortRentInvoiceAmount;
-
-        return $this;
-    }
-
-    /**
-     * Get shortRentInvoiceAmount.
-     *
-     * @return float
-     */
-    public function getShortRentInvoiceAmount()
-    {
-        return $this->shortRentInvoiceAmount;
     }
 
     /**
