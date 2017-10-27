@@ -27,14 +27,6 @@ class ClientMembershipCardOrderController extends SalesRestController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="card_status",
-     *    array=true,
-     *    default=null,
-     *    nullable=true,
-     *    description="card status"
-     * )
-     *
-     * @Annotations\QueryParam(
      *    name="keyword",
      *    default=null,
      *    nullable=true,
@@ -124,12 +116,6 @@ class ClientMembershipCardOrderController extends SalesRestController
         $createStart = $paramFetcher->get('create_start');
         $createEnd = $paramFetcher->get('create_end');
 
-        /**
-         * @todo fixture by cardStatus
-         *
-         */
-        $cardStatus = $paramFetcher->get('card_status');
-
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
 
@@ -145,7 +131,6 @@ class ClientMembershipCardOrderController extends SalesRestController
                 $createEnd,
                 $limit,
                 $offset,
-                $cardStatus,
                 $companyId
             );
 
@@ -178,10 +163,6 @@ class ClientMembershipCardOrderController extends SalesRestController
                 'companyId' => $card->getCompanyId(),
             ));
 
-        $cardStatus = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:MembershipCard\MembershipOrder')
-            ->getMyValidClientMembershipCards($userId, $card->getId());
-
         $result = array(
             'id' => $order->getId(),
             'order_number' => $order->getOrderNumber(),
@@ -193,7 +174,6 @@ class ClientMembershipCardOrderController extends SalesRestController
             'price' => $order->getPrice(),
             'pay_channel' => $order->getPayChannel() ? '创合钱包支付' : '',
             'status' => '已付款',
-            'card_status' => $cardStatus ? 'using' : 'expired',
             'background' => $card->getBackground(),
             'customer' => array(
                 'id' => $customer ? $customer->getId() : '',

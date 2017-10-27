@@ -57,7 +57,6 @@ class MembershipCardOrderRepository extends EntityRepository
      * @param $createEnd
      * @param $limit
      * @param $offset
-     * @param $cardStatus
      * @param $companyId
      * @param null $cardId
      * @param null $userId
@@ -76,7 +75,6 @@ class MembershipCardOrderRepository extends EntityRepository
         $createEnd,
         $limit,
         $offset,
-        $cardStatus,
         $companyId,
         $cardId = null,
         $userId = null,
@@ -184,12 +182,6 @@ class MembershipCardOrderRepository extends EntityRepository
         if (!is_null($userId) && !empty($userId)) {
             $query->andWhere('mo.user = :userId')
                 ->setParameter('userId', $userId);
-        }
-
-        if (!is_null($cardStatus) && !empty($cardStatus)) {
-            if ($cardStatus == ['using']) {
-            } elseif ($cardStatus == ['expired']) {
-            }
         }
 
         if (!is_null($sortColumn) && !is_null($direction)) {

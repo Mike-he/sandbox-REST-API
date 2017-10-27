@@ -162,7 +162,6 @@ class AdminMembershipCardOrderController extends SandboxRestController
                 $createEnd,
                 $limit,
                 $offset,
-                null,
                 $companyId,
                 null,
                 $userId
@@ -345,7 +344,6 @@ class AdminMembershipCardOrderController extends SandboxRestController
                 $createDateRange,
                 $createStart,
                 $createEnd,
-                null,
                 null,
                 null,
                 $companyId
