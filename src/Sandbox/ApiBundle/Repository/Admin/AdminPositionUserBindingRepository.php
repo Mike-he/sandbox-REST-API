@@ -446,4 +446,33 @@ class AdminPositionUserBindingRepository extends EntityRepository
 
         return $result;
     }
+
+
+    public function checkHasPermission(
+        $userId,
+        $permissions,
+        $platform,
+        $salesCompanyId = null
+    ) {
+        $query = $this->createQueryBuilder('pb')
+            ->select('count(pb.id)')
+            ->leftJoin('pb.position', 'p')
+            ->leftJoin('SandboxApiBundle:Admin\AdminPositionPermissionMap', 'pm', 'WITH', 'pm.positionId = pb.positionId')
+            ->leftJoin('pm.permission', 'permission')
+            ->where('pb.userId = :userId')
+            ->andWhere('p.platform = :platform')
+            ->andWhere('permission.key in (:permission)')
+            ->setParameter('userId', $userId)
+            ->setParameter('platform', $platform)
+            ->setParameter('permission', $permissions);
+
+        if (!is_null($salesCompanyId) && AdminPosition::PLATFORM_OFFICIAL != $platform) {
+            $query->andWhere('p.salesCompanyId = :salesCompanyId')
+                ->setParameter('salesCompanyId', $salesCompanyId);
+        }
+
+        $query->getQuery()->getSingleScalarResult();
+
+        return $query;
+    }
 }

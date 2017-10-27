@@ -307,7 +307,7 @@ class AdminExportService
             $leaseRentTypes = $offer->getLeaseRentTypes();
             $taxTypes = array();
             foreach ($leaseRentTypes as $leaseRentType) {
-                if ($leaseRentType->getType() == LeaseRentTypes::RENT_TYPE_TAX) {
+                if (LeaseRentTypes::RENT_TYPE_TAX == $leaseRentType->getType()) {
                     $taxTypes[] = $leaseRentType->getName();
                 }
             }
@@ -320,7 +320,7 @@ class AdminExportService
                 'serial_number' => $offer->getSerialNumber(),
                 'room_name' => $roomData['room_name'],
                 'room_type_tag' => $roomData['room_type_tag'],
-                'lessee_type' => $offer->getLesseeType() == LeaseOffer::LEASE_OFFER_LESSEE_TYPE_PERSONAL ? '个人承租' : '企业承租',
+                'lessee_type' => LeaseOffer::LEASE_OFFER_LESSEE_TYPE_PERSONAL == $offer->getLesseeType() ? '个人承租' : '企业承租',
                 'lessee_enterprise' => $enterpriseName,
                 'lessee_customer' => $customer->getName(),
                 'start_date' => $startDate,
@@ -378,7 +378,7 @@ class AdminExportService
             $leaseRentTypes = $lease->getLeaseRentTypes();
             $taxTypes = array();
             foreach ($leaseRentTypes as $leaseRentType) {
-                if ($leaseRentType->getType() == LeaseRentTypes::RENT_TYPE_TAX) {
+                if (LeaseRentTypes::RENT_TYPE_TAX == $leaseRentType->getType()) {
                     $taxTypes[] = $leaseRentType->getName();
                 }
             }
@@ -408,7 +408,7 @@ class AdminExportService
                 'serial_number' => $lease->getSerialNumber(),
                 'room_name' => $roomData['room_name'],
                 'room_type_tag' => $roomData['room_type_tag'],
-                'lessee_type' => $lease->getLesseeType() == Lease::LEASE_LESSEE_TYPE_PERSONAL ? '个人承租' : '企业承租',
+                'lessee_type' => Lease::LEASE_LESSEE_TYPE_PERSONAL == $lease->getLesseeType() ? '个人承租' : '企业承租',
                 'lessee_enterprise' => $enterpriseName,
                 'lessee_customer' => $customer ? $customer->getName() : '',
                 'start_date' => $startDate,
@@ -483,7 +483,7 @@ class AdminExportService
             $invoice = false;
             $leaseRentTypes = $bill->getLease()->getLeaseRentTypes();
             foreach ($leaseRentTypes as $leaseRentType) {
-                if ($leaseRentType->getType() == LeaseRentTypes::RENT_TYPE_TAX) {
+                if (LeaseRentTypes::RENT_TYPE_TAX == $leaseRentType->getType()) {
                     $invoice = true;
                 }
             }
@@ -499,7 +499,7 @@ class AdminExportService
                 'start_date' => $startDate,
                 'end_date' => $endDate,
                 'drawee' => $drawee,
-                'order_method' => $bill->getOrderMethod() == LeaseBill::ORDER_METHOD_BACKEND ? '后台推送' : '自动推送',
+                'order_method' => LeaseBill::ORDER_METHOD_BACKEND == $bill->getOrderMethod() ? '后台推送' : '自动推送',
                 'pay_channel' => $bill->getPayChannel() ? $payChannel[$bill->getPayChannel()] : '',
                 'send_date' => $bill->getSendDate() ? $bill->getSendDate()->format('Y-m-d H:i:s') : '',
                 'status' => $status[$bill->getStatus()],
@@ -534,8 +534,8 @@ class AdminExportService
         foreach ($crashiers as $crashier) {
             $body = array();
             foreach ($lists as $key => $value) {
-                if ($key == 'status') {
-                    $body[] = $value == 'unpaid' ? '未付款' : '已付款';
+                if ('status' == $key) {
+                    $body[] = 'unpaid' == $value ? '未付款' : '已付款';
                 } else {
                     $body[] = $crashier[$key];
                 }
@@ -562,7 +562,6 @@ class AdminExportService
         $excelBody = array();
         foreach ($orders as $order) {
             /** @var ProductOrder $order */
-
             $productInfo = json_decode($order->getProductInfo(), true);
 
             // set product type

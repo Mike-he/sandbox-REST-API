@@ -85,20 +85,49 @@ class ClientDashBoardController extends SandboxRestController
         $endDate = new \DateTime();
         $endDate->setTime(23, 59, 59);
 
-        $leaseClue = $this->getTodayLeaseClue($startDate, $endDate);
+        $adminId = $this->getAdminId();
 
-        $productOrders = $this->getTodayProductOrders($startDate, $endDate);
+        $result = array();
 
-        $eventOrders = $this->getTodayEventOrders($startDate, $endDate);
-
-        $membershipCardOrder = $this->getTodayMembershipCardOrders($startDate, $endDate);
-
-        $result = array(
-            'lease_clue' => $leaseClue,
-            'product_order' => $productOrders,
-            'event_order' => $eventOrders,
-            'membership_card_order' => $membershipCardOrder,
+        $cluePermission = $this->get('sandbox_api.admin_permission_check_service')->checkAdminHasPermissions(
+            $adminId,
+            [AdminPermission::KEY_SALES_BUILDING_LEASE_CLUE]
         );
+
+        if ($cluePermission) {
+            $leaseClue = $this->getTodayLeaseClue($startDate, $endDate);
+            $result['lease_clue'] = $leaseClue;
+        }
+
+        $orderPermission = $this->get('sandbox_api.admin_permission_check_service')->checkAdminHasPermissions(
+            $adminId,
+            [AdminPermission::KEY_SALES_BUILDING_ORDER]
+        );
+
+        if ($orderPermission) {
+            $productOrders = $this->getTodayProductOrders($startDate, $endDate);
+            $result['product_order'] = $productOrders;
+        }
+
+        $eventPermission = $this->get('sandbox_api.admin_permission_check_service')->checkAdminHasPermissions(
+            $adminId,
+            [AdminPermission::KEY_SALES_PLATFORM_EVENT_ORDER]
+        );
+
+        if ($eventPermission) {
+            $eventOrders = $this->getTodayEventOrders($startDate, $endDate);
+            $result['event_order'] = $eventOrders;
+        }
+
+        $cardPermission = $this->get('sandbox_api.admin_permission_check_service')->checkAdminHasPermissions(
+            $adminId,
+            [AdminPermission::KEY_SALES_PLATFORM_MEMBERSHIP_CARD_ORDER]
+        );
+
+        if ($cardPermission) {
+            $membershipCardOrder = $this->getTodayMembershipCardOrders($startDate, $endDate);
+            $result['membership_card_order'] = $membershipCardOrder;
+        }
 
         $view = new View();
         $view->setData($result);
