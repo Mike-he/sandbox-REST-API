@@ -471,8 +471,8 @@ class AdminPositionUserBindingRepository extends EntityRepository
                 ->setParameter('salesCompanyId', $salesCompanyId);
         }
 
-        $query = $query->getQuery()->getSingleScalarResult();
+        $result = $query->getQuery()->getSingleScalarResult();
 
-        return $query;
+        return $result;
     }
 }
