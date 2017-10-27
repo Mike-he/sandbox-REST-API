@@ -17,9 +17,12 @@ use Knp\Component\Pager\Paginator;
 class ClientReservationController extends SalesRestController
 {
     /**
+     * ClientReservation
+     *
      * @param Request $request
      * @param ParamFetcherInterface $paramFetcher
      * @param $id
+     *
      * @Route("/reservation/{id}")
      * @Method({"PATCH"})
      * @return View
@@ -57,7 +60,6 @@ class ClientReservationController extends SalesRestController
         );
 
         return $view;
-
     }
 
     /**
@@ -122,14 +124,17 @@ class ClientReservationController extends SalesRestController
     }
 
     /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/reservation/ungrabed/list")
      * @Method({"GET"})
-     * @param Request $request
      * @return View
      */
-    public function getUngrabedReservationAction(Request $request)
-    {
+    public function getUngrabedReservationAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
@@ -153,7 +158,6 @@ class ClientReservationController extends SalesRestController
         );
 
         return $view;
-
     }
 
     /**
@@ -240,7 +244,6 @@ class ClientReservationController extends SalesRestController
     /**
      * @param Request $request
      * @param ParamFetcherInterface $paramFetcher
-     * @Route("/my/grabed/lists")
      *
      * @Annotations\QueryParam(
      *    name="limit",
@@ -262,6 +265,7 @@ class ClientReservationController extends SalesRestController
      *    description="start of the page"
      * )
      *
+     * @Route("/my/grabed/lists")
      * @Method("GET")
      * @return View
      */
