@@ -115,6 +115,12 @@ class Version820171027174810 extends AbstractMigration implements ContainerAware
         $gruopMap7->setGroup($tradeGroup2);
         $gruopMap7->setPermission($projectPermission);
 
+        $customerPermission = $em->getRepository('SandboxApiBundle:Admin\AdminPermission')
+            ->findOneBy(array(
+                'key' => AdminPermission::KEY_SALES_PLATFORM_CUSTOMER
+            ));
+        $customerPermission->setLevel('global');
+
         $em->persist($InternalOccupancyPermission);
         $em->persist($pushOrderPermission);
         $em->persist($logPermission);
