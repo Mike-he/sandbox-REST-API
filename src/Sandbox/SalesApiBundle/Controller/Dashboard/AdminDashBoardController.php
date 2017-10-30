@@ -4,6 +4,7 @@ namespace Sandbox\SalesApiBundle\Controller\Dashboard;
 
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
+use Sandbox\ApiBundle\Entity\Lease\LeaseClue;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
@@ -21,6 +22,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 class AdminDashBoardController extends SalesRestController
 {
     const TYPE_MEMBERSHIP_CARD = 'membership_card';
+
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
@@ -241,7 +243,7 @@ class AdminDashBoardController extends SalesRestController
 
         $orderList = array_merge($orderList, $leaseList);
 
-        if ($roomType == Room::TYPE_DESK && $product['type_tag'] == 'hot_desk') {
+        if (Room::TYPE_DESK == $roomType && 'hot_desk' == $product['type_tag']) {
             $orders = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Order\ProductOrder')
                 ->getRoomUsersUsage(
@@ -259,7 +261,7 @@ class AdminDashBoardController extends SalesRestController
 
         $product['attachment'] = $attachment;
 
-        if ($product['room_type'] == Room::TYPE_DESK) {
+        if (Room::TYPE_DESK == $product['room_type']) {
             $seats = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Room\RoomFixed')
                 ->findBy(array(
@@ -290,7 +292,7 @@ class AdminDashBoardController extends SalesRestController
             );
         }
 
-        if ($roomType == Room::TYPE_OFFICE) {
+        if (Room::TYPE_OFFICE == $roomType) {
             $productRentSet = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Product\ProductRentSet')
                 ->findOneBy(array('product' => $product['id'], 'status' => true));
@@ -463,7 +465,7 @@ class AdminDashBoardController extends SalesRestController
     ) {
         $result = array();
         foreach ($leases as $lease) {
-            /** @var Lease $lease */
+            /* @var Lease $lease */
             $result[] = array(
                 'lease_id' => $lease->getId(),
                 'start_date' => $lease->getStartDate(),
@@ -490,5 +492,461 @@ class AdminDashBoardController extends SalesRestController
             ],
             $opLevel
         );
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/dashboard/today/events")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getTodayEventsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $startDate = new \DateTime();
+        $startDate->setTime(0, 0, 0);
+
+        $endDate = new \DateTime();
+        $endDate->setTime(23, 59, 59);
+
+        $adminId = $this->getAdminId();
+
+        $result = array();
+
+        $cluePermission = $this->get('sandbox_api.admin_permission_check_service')->checkAdminHasPermissions(
+            $adminId,
+            [AdminPermission::KEY_SALES_BUILDING_LEASE_CLUE]
+        );
+
+        if ($cluePermission) {
+            $leaseClue = $this->getTodayLeaseClue($startDate, $endDate);
+            $result['lease_clue'] = $leaseClue;
+        }
+
+        $orderPermission = $this->get('sandbox_api.admin_permission_check_service')->checkAdminHasPermissions(
+            $adminId,
+            [AdminPermission::KEY_SALES_BUILDING_ORDER]
+        );
+
+        if ($orderPermission) {
+            $productOrders = $this->getTodayProductOrders($startDate, $endDate);
+            $result['product_order'] = $productOrders;
+        }
+
+        $eventPermission = $this->get('sandbox_api.admin_permission_check_service')->checkAdminHasPermissions(
+            $adminId,
+            [AdminPermission::KEY_SALES_PLATFORM_EVENT_ORDER]
+        );
+
+        if ($eventPermission) {
+            $eventOrders = $this->getTodayEventOrders($startDate, $endDate);
+            $result['event_order'] = $eventOrders;
+        }
+
+        $cardPermission = $this->get('sandbox_api.admin_permission_check_service')->checkAdminHasPermissions(
+            $adminId,
+            [AdminPermission::KEY_SALES_PLATFORM_MEMBERSHIP_CARD_ORDER]
+        );
+
+        if ($cardPermission) {
+            $membershipCardOrder = $this->getTodayMembershipCardOrders($startDate, $endDate);
+            $result['membership_card_order'] = $membershipCardOrder;
+        }
+
+        $view = new View();
+        $view->setData($result);
+
+        return $view;
+    }
+
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @param int $limit
+     * @param int $offset
+     *
+     * @return array
+     */
+    private function getTodayLeaseClue(
+        $startDate,
+        $endDate,
+        $limit = 3,
+        $offset = 0
+    ) {
+        $myBuildingIds = $this->get('sandbox_api.admin_permission_check_service')
+            ->getMySalesBuildingIds(
+                $this->getAdminId(),
+                array(
+                    AdminPermission::KEY_SALES_BUILDING_LEASE_CLUE,
+                )
+            );
+
+        $clueLists = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseClue')
+            ->findClues(
+                $myBuildingIds,
+                null,
+                null,
+                null,
+                null,
+                $startDate,
+                $endDate,
+                null,
+                null,
+                null,
+                $limit,
+                $offset
+            );
+
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseClue')
+            ->countClues(
+                $myBuildingIds,
+                null,
+                null,
+                null,
+                null,
+                $startDate,
+                $endDate
+            );
+
+        $clueData = [];
+        foreach ($clueLists as $clueList) {
+            $clueData[] = $this->handleClueData($clueList);
+        }
+
+        $result = array(
+            'lists' => $clueData,
+            'count' => $count,
+        );
+
+        return  $result;
+    }
+
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @param int $limit
+     * @param int $offset
+     *
+     * @return array
+     */
+    private function getTodayProductOrders(
+        $startDate,
+        $endDate,
+        $limit = 3,
+        $offset = 0
+    ) {
+        $em = $this->getDoctrine()->getManager();
+
+        $myBuildingIds = $this->get('sandbox_api.admin_permission_check_service')
+            ->getMySalesBuildingIds(
+                $this->getAdminId(),
+                array(
+                    AdminPermission::KEY_SALES_BUILDING_ORDER,
+                )
+            );
+
+        $orders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getOrderLists(
+                $myBuildingIds,
+                null,
+                $startDate,
+                $endDate,
+                $limit,
+                $offset
+            );
+
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->countOrders(
+                $myBuildingIds,
+                null,
+                $startDate,
+                $endDate
+            );
+
+        $receivableTypes = [
+            'sales_wx' => '微信',
+            'sales_alipay' => '支付宝支付',
+            'sales_cash' => '现金',
+            'sales_others' => '其他',
+            'sales_pos' => 'POS机',
+            'sales_remit' => '线下汇款',
+        ];
+
+        $orderData = [];
+        foreach ($orders as $order) {
+            $orderData[] = $this->handleProductOrderData(
+                $order,
+                $receivableTypes
+            );
+        }
+
+        $result = array(
+            'lists' => $orderData,
+            'count' => $count,
+        );
+
+        return  $result;
+    }
+
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @param int $limit
+     * @param int $offset
+     *
+     * @return array
+     */
+    private function getTodayEventOrders(
+        $startDate,
+        $endDate,
+        $limit = 3,
+        $offset = 0
+    ) {
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $companyId = $adminPlatform['sales_company_id'];
+
+        $orders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventOrder')
+            ->getEventOrdersForPropertyClient(
+                $startDate,
+                $endDate,
+                $companyId,
+                $limit,
+                $offset
+            );
+
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventOrder')
+            ->countEventOrdersForPropertyClient(
+                $startDate,
+                $endDate,
+                $companyId
+            );
+
+        $orderData = [];
+        foreach ($orders as $order) {
+            $orderData[] = $this->handleEventOrderData($order);
+        }
+
+        $result = array(
+            'lists' => $orderData,
+            'count' => $count,
+        );
+
+        return  $result;
+    }
+
+    private function getTodayMembershipCardOrders(
+        $startDate,
+        $endDate,
+        $limit = 3,
+        $offset = 0
+    ) {
+        $platform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $companyId = $platform['sales_company_id'];
+
+        $orders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:MembershipCard\MembershipOrder')
+            ->getOrdersByPropertyClient(
+                $companyId,
+                $startDate,
+                $endDate,
+                $limit,
+                $offset
+            );
+
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:MembershipCard\MembershipOrder')
+            ->countOrdersByPropertyClient(
+                $companyId,
+                $startDate,
+                $endDate
+            );
+
+        $orderData = [];
+        foreach ($orders as $order) {
+            $orderData[] = $this->handleMembershipCardOrderData($order);
+        }
+
+        $result = array(
+            'lists' => $orderData,
+            'count' => $count,
+        );
+
+        return  $result;
+    }
+
+    /**
+     * @param LeaseClue $clue
+     *
+     * @return array
+     */
+    private function handleClueData(
+        $clue
+    ) {
+        $em = $this->getDoctrine()->getManager();
+
+        $buildingId = $clue->getBuildingId();
+        $building = $em->getRepository('SandboxApiBundle:Room\RoomBuilding')->find($buildingId);
+
+        $productId = $clue->getProductId();
+        $product = $em->getRepository('SandboxApiBundle:Product\Product')->find($productId);
+        /** @var Room $room */
+        $room = $product->getRoom();
+
+        $roomAttachmentBinding = $em->getRepository('SandboxApiBundle:Room\RoomAttachmentBinding')
+            ->findOneBy(array('room' => $room->getId()));
+
+        $roomAttachment = $roomAttachmentBinding ? $roomAttachmentBinding->getAttachmentId()->getContent() : null;
+
+        if ($clue->getProductAppointmentId()) {
+            $source = '客户申请';
+        } else {
+            $source = '管理员创建';
+        }
+
+        $result = array(
+            'id' => $clue->getId(),
+            'serial_number' => $clue->getSerialNumber(),
+            'lessee_customer' => $clue->getLesseeCustomer(),
+            'lessee_address' => $clue->getLesseeAddress(),
+            'lessee_email' => $clue->getLesseeEmail(),
+            'lessee_name' => $clue->getLesseeName(),
+            'lessee_phone' => $clue->getLesseePhone(),
+            'room_name' => $room->getName(),
+            'attachment' => $roomAttachment,
+            'building_name' => $building->getName(),
+            'start_date' => $clue->getStartDate(),
+            'cycle' => $clue->getCycle(),
+            'source' => $source,
+            'monthly_rent' => (float) $clue->getMonthlyRent(),
+            'number' => $clue->getNumber(),
+        );
+
+        return $result;
+    }
+
+    /**
+     * @param ProductOrder $order
+     * @param $receivableTypes
+     *
+     * @return array
+     */
+    private function handleProductOrderData(
+        $order,
+        $receivableTypes
+    ) {
+        $em = $this->getDoctrine()->getManager();
+
+        $product = $order->getProduct();
+        /** @var Room $room */
+        $room = $product->getRoom();
+        $building = $room->getBuilding();
+
+        $roomAttachmentBinding = $em->getRepository('SandboxApiBundle:Room\RoomAttachmentBinding')
+            ->findOneBy(array('room' => $room->getId()));
+
+        $roomAttachment = $roomAttachmentBinding ? $roomAttachmentBinding->getAttachmentId()->getContent() : null;
+
+        $roomType = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$room->getType());
+
+        $payChannel = '';
+        if ($order->getPayChannel()) {
+            if (ProductOrder::CHANNEL_SALES_OFFLINE == $order->getPayChannel()) {
+                $receivable = $em->getRepository('SandboxApiBundle:Finance\FinanceReceivables')
+                    ->findOneBy([
+                        'orderNumber' => $order->getOrderNumber(),
+                    ]);
+                $payChannel = $receivableTypes[$receivable->getPayChannel()];
+            } else {
+                $payChannel = '创合钱包支付';
+            }
+        }
+
+        $orderType = $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_TYPE.$order->getType());
+        $status = $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_STATUS.$order->getStatus());
+
+        $result = array(
+            'id' => $order->getId(),
+            'room_name' => $room->getName(),
+            'attachment' => $roomAttachment,
+            'building_name' => $building->getName(),
+            'start_date' => $order->getStartDate(),
+            'end_date' => $order->getEndDate(),
+            'room_type' => $roomType,
+            'order_type' => $orderType,
+            'pay_channel' => $payChannel,
+            'status' => $status,
+            'price' => (float) $order->getPrice(),
+            'discount_price' => (float) $order->getDiscountPrice(),
+        );
+
+        return $result;
+    }
+
+    /**
+     * @param EventOrder $order
+     *
+     * @return array
+     */
+    private function handleEventOrderData(
+        $order
+    ) {
+        /** @var Event $event */
+        $event = $order->getEvent();
+
+        $eventAttachment = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventAttachment')
+            ->findOneBy(array('eventId' => $event->getId()));
+
+        $status = $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_STATUS.$order->getStatus());
+
+        $result = array(
+            'id' => $order->getId(),
+            'event_name' => $event->getName(),
+            'event_start_date' => $event->getEventStartDate(),
+            'event_end_date' => $event->getEventEndDate(),
+            'event_status' => $event->getStatus(),
+            'address' => $event->getAddress(),
+            'price' => (float) $event->getPrice(),
+            'status' => $status,
+            'pay_channel' => $order->getPayChannel() ? '创合钱包支付' : '',
+            'attachment' => $eventAttachment ? $eventAttachment->getContent() : '',
+        );
+
+        return $result;
+    }
+
+    /**
+     * @param MembershipOrder $order
+     *
+     * @return array
+     */
+    private function handleMembershipCardOrderData(
+        $order
+    ) {
+        $card = $order->getCard();
+
+        $result = array(
+            'id' => $order->getId(),
+            'name' => $card->getName(),
+            'background' => $card->getBackground(),
+            'specification' => $order->getSpecification(),
+            'start_date' => $order->getStartDate(),
+            'end_date' => $order->getEndDate(),
+            'price' => (float) $order->getPrice(),
+            'status' => '已付款',
+            'pay_channel' => '创合钱包支付',
+        );
+
+        return $result;
     }
 }
