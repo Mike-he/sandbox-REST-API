@@ -35,7 +35,7 @@ class Version820171027150107 extends AbstractMigration implements ContainerAware
             ));
 
         $orderPermission = $em->getRepository('SandboxApiBundle:Admin\AdminPermission')
-            ->findBy(array(
+            ->findOneBy(array(
                 'key'=> AdminPermission::KEY_SALES_BUILDING_ORDER
             ));
         $groupMap1 = new AdminPermissionGroupMap();
@@ -43,7 +43,7 @@ class Version820171027150107 extends AbstractMigration implements ContainerAware
         $groupMap1->setPermission($orderPermission);
 
         $billPermission = $em->getRepository('SandboxApiBundle:Admin\AdminPermission')
-            ->findBy(array(
+            ->findOneBy(array(
                 'key'=> AdminPermission::KEY_SALES_BUILDING_LEASE_BILL
             ));
         $groupMap2 = new AdminPermissionGroupMap();
@@ -51,7 +51,7 @@ class Version820171027150107 extends AbstractMigration implements ContainerAware
         $groupMap2->setPermission($billPermission);
 
         $leasePermission = $em->getRepository('SandboxApiBundle:Admin\AdminPermission')
-            ->findBy(array(
+            ->findOneBy(array(
                 'key'=> AdminPermission::KEY_SALES_BUILDING_LONG_TERM_LEASE
             ));
         $groupMap3 = new AdminPermissionGroupMap();
@@ -59,7 +59,7 @@ class Version820171027150107 extends AbstractMigration implements ContainerAware
         $groupMap3->setPermission($leasePermission);
 
         $cluePermission = $em->getRepository('SandboxApiBundle:Admin\AdminPermission')
-            ->findBy(array(
+            ->findOneBy(array(
                 'key'=> AdminPermission::KEY_SALES_BUILDING_LEASE_CLUE
             ));
         $groupMap4 = new AdminPermissionGroupMap();
@@ -67,7 +67,7 @@ class Version820171027150107 extends AbstractMigration implements ContainerAware
         $groupMap4->setPermission($cluePermission);
 
         $eventOrderPermission = $em->getRepository('SandboxApiBundle:Admin\AdminPermission')
-            ->findBy(array(
+            ->findOneBy(array(
                 'key'=> AdminPermission::KEY_SALES_PLATFORM_EVENT_ORDER
             ));
         $groupMap5 = new AdminPermissionGroupMap();
@@ -75,7 +75,7 @@ class Version820171027150107 extends AbstractMigration implements ContainerAware
         $groupMap5->setPermission($eventOrderPermission);
 
         $membershipOrderPermission = $em->getRepository('SandboxApiBundle:Admin\AdminPermission')
-            ->findBy(array(
+            ->findOneBy(array(
                 'key'=> AdminPermission::KEY_SALES_PLATFORM_MEMBERSHIP_CARD_ORDER
             ));
         $groupMap6 = new AdminPermissionGroupMap();

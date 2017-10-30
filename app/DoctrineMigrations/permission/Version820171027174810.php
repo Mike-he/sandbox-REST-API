@@ -54,14 +54,8 @@ class Version820171027174810 extends AbstractMigration implements ContainerAware
         $pushOrderPermission->setOpLevelSelect('2');
         $pushOrderPermission->setMaxOpLevel('2');
 
-        $tradeGroup2 = $em->getRepository('SandboxApiBundle:Admin\AdminPermissionGroups')
-            ->findOneBy(array(
-                'groupKey' => 'space',
-                'platform' => 'sales',
-            ));
-
         $gruopMap2 = new AdminPermissionGroupMap();
-        $gruopMap2->setGroup($tradeGroup2);
+        $gruopMap2->setGroup($tradeGroup1);
         $gruopMap2->setPermission($pushOrderPermission);
 
         $logPermission = new AdminPermission();
@@ -72,33 +66,66 @@ class Version820171027174810 extends AbstractMigration implements ContainerAware
         $logPermission->setOpLevelSelect('1');
         $logPermission->setMaxOpLevel('1');
 
-        $tradeGroup3 = $em->getRepository('SandboxApiBundle:Admin\AdminPermissionGroups')
+        $tradeGroup2 = $em->getRepository('SandboxApiBundle:Admin\AdminPermissionGroups')
             ->findOneBy(array(
                 'groupKey' => 'setting',
                 'platform' => 'sales',
             ));
 
         $gruopMap3 = new AdminPermissionGroupMap();
-        $gruopMap3->setGroup($tradeGroup3);
-        $gruopMap3->setPermission($pushOrderPermission);
+        $gruopMap3->setGroup($tradeGroup2);
+        $gruopMap3->setPermission($logPermission);
 
-        $projectAddPermission = new AdminPermission();
-        $projectAddPermission->setKey(AdminPermission::KEY_SALES_PLATFORM_PROJECT_ADD);
-        $projectAddPermission->setName('管理员日志权限');
-        $projectAddPermission->setLevel('global');
-        $projectAddPermission->setPlatform('sales');
-        $projectAddPermission->setOpLevelSelect('1');
-        $projectAddPermission->setMaxOpLevel('1');
-
-        $tradeGroup3 = $em->getRepository('SandboxApiBundle:Admin\AdminPermissionGroups')
+        $projectAddPermission = $em->getRepository('SandboxApiBundle:Admin\AdminPermission')
             ->findOneBy(array(
-                'groupKey' => 'setting',
-                'platform' => 'sales',
+                'key' => AdminPermission::KEY_SALES_PLATFORM_BUILDING
             ));
 
-        $gruopMap3 = new AdminPermissionGroupMap();
-        $gruopMap3->setGroup($tradeGroup3);
-        $gruopMap3->setPermission($pushOrderPermission);
+        $projectAddPermission->setName('项目新增');
+
+        $gruopMap4 = new AdminPermissionGroupMap();
+        $gruopMap4->setGroup($tradeGroup2);
+        $gruopMap4->setPermission($projectAddPermission);
+
+        $membershipPermission = $em->getRepository('SandboxApiBundle:Admin\AdminPermission')
+            ->findOneBy(array(
+                'key' => AdminPermission::KEY_SALES_PLATFORM_MEMBERSHIP_CARD
+            ));
+
+        $gruopMap5 = new AdminPermissionGroupMap();
+        $gruopMap5->setGroup($tradeGroup2);
+        $gruopMap5->setPermission($membershipPermission);
+
+        $spacePermission = $em->getRepository('SandboxApiBundle:Admin\AdminPermission')
+            ->findOneBy(array(
+                'key' => AdminPermission::KEY_SALES_BUILDING_ROOM
+            ));
+
+        $gruopMap6 = new AdminPermissionGroupMap();
+        $gruopMap6->setGroup($tradeGroup2);
+        $gruopMap6->setPermission($spacePermission);
+
+        $projectPermission = $em->getRepository('SandboxApiBundle:Admin\AdminPermission')
+            ->findOneBy(array(
+                'key' => AdminPermission::KEY_SALES_BUILDING_BUILDING
+            ));
+        $projectPermission->setName('项目权限');
+
+        $gruopMap7 = new AdminPermissionGroupMap();
+        $gruopMap7->setGroup($tradeGroup2);
+        $gruopMap7->setPermission($projectPermission);
+
+        $em->persist($InternalOccupancyPermission);
+        $em->persist($pushOrderPermission);
+        $em->persist($logPermission);
+
+        $em->persist($gruopMap1);
+        $em->persist($gruopMap2);
+        $em->persist($gruopMap3);
+        $em->persist($gruopMap4);
+        $em->persist($gruopMap5);
+        $em->persist($gruopMap6);
+        $em->persist($gruopMap7);
 
         $em->flush();
     }
