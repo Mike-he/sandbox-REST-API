@@ -271,6 +271,8 @@ swiftmailer:
     host:      'smtp.mxhichina.com'
     username:  'notification@sandbox3.cn'
     password:  'Sandhill2290'
+    port: 465
+    encryption: ssl
 
 knp_paginator:
     page_range: 5                      # default page range used in pagination control
