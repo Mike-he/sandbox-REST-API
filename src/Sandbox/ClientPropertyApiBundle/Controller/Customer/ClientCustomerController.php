@@ -266,9 +266,6 @@ class ClientCustomerController extends SalesRestController
             ->getRepository('SandboxApiBundle:MembershipCard\MembershipOrder')
             ->countCustomerAllMembershipOrders($userId);
 
-        $user = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserCustomer')
-            ->findOneBy(array('userId'=>$userId));
-
         $billsCount = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
             ->countCustomerAllLeaseBills($id);

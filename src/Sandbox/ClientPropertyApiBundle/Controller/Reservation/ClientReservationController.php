@@ -102,8 +102,12 @@ class ClientReservationController extends SalesRestController
 
         $reservations = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Reservation\Reservation')
-            ->clientgetReservationLists(
-                $salesCompanyId,
+            ->findBy(array(
+                    'companyId'=>$salesCompanyId
+                ),
+                array(
+                    'creationDate'=>'DESC'
+                ),
                 $limit,
                 $offset
             );
@@ -283,9 +287,13 @@ class ClientReservationController extends SalesRestController
 
         $reservations = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Reservation\Reservation')
-            ->getMyGrabedLists(
-                $adminId,
-                $salesCompanyId,
+            ->findBy(array(
+                    'adminId'=>$adminId,
+                    'companyId'=>$salesCompanyId
+                ),
+                array(
+                    'grabDate'=>'DESC'
+                ),
                 $limit,
                 $offset
             );
