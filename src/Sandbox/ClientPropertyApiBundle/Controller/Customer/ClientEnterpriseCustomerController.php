@@ -37,7 +37,6 @@ class ClientEnterpriseCustomerController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $keyword = 'name';
         $search = $paramFetcher->get('name');
 
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
