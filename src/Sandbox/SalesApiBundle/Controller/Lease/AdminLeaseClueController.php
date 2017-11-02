@@ -503,6 +503,10 @@ class AdminLeaseClueController extends SalesRestController
             /** @var Room $room */
             $room = $product->getRoom();
 
+            $attachment = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomAttachmentBinding')
+                ->findAttachmentsByRoom($room->getId(), 1);
+
             $typeTagDescription = $this->get('translator')->trans(RoomTypeTags::TRANS_PREFIX.$room->getTypeTag());
             $productData = array(
                 'id' => $clue->getProductId(),
@@ -511,6 +515,7 @@ class AdminLeaseClueController extends SalesRestController
                     'name' => $room->getName(),
                     'type_tag' => $room->getTypeTag(),
                     'type_tag_description' => $typeTagDescription,
+                    'attachment' => $attachment,
                 ),
             );
             $clue->setProduct($productData);
