@@ -113,7 +113,8 @@ parameters:
     orders_url: http://devorders.sandbox3.cn
     coffee_url: http://devcoffee.sandbox3.cn
     invoice_url: http://devinvoice.sandbox3.cn
-    property_client_url: '{{domain}}'
+    property_client_apply_url: http://devvsales.sandbox3.cn
+    property_client_customer_url: http://devasales.sandbox3.cn
 
     duiba_app_key: 2rc4ZQm9csJapqvKnx92AKsNdLRr
     duiba_app_secret: AfdCJZ6T4vHboHkuVSkwWUwMRra

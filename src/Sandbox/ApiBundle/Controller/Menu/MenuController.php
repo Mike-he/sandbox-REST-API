@@ -75,7 +75,8 @@ class MenuController extends SandboxRestController
     const URL_MOBILE = '{{mobile}}';
     const URL_ORDERS = '{{orders}}';
     const URL_INVOICE = '{{invoice}}';
-    const URL_PROPERTY_CLIENT = '{{property-client}}';
+    const URL_PROPERTY_CLIENT_APPLY = '{{property-client-apply}}';
+    const URL_PROPERTY_CLIENT_CUSTOMER= '{{property-client-customer}}';
 
     /**
      * @param Request               $request
@@ -237,8 +238,11 @@ class MenuController extends SandboxRestController
         $urlInvoice = $this->container->getParameter('invoice_url');
         $menuJson = preg_replace('/'.self::URL_INVOICE.'/', "$urlInvoice", $menuJson);
 
-        $propertyClientUrl = $this->container->getParameter('property_client_url');
-        $menuJson = preg_replace('/'.self::URL_PROPERTY_CLIENT.'/', "$propertyClientUrl", $menuJson);
+        $propertyClientApplyUrl = $this->container->getParameter('property_client_apply_url');
+        $menuJson = preg_replace('/'.self::URL_PROPERTY_CLIENT_APPLY.'/', "$propertyClientApplyUrl", $menuJson);
+
+        $propertyClientCustomerUrl = $this->container->getParameter('property_client_customer_url');
+        $menuJson = preg_replace('/'.self::URL_PROPERTY_CLIENT_CUSTOMER.'/', "$propertyClientCustomerUrl", $menuJson);
 
         // return view
         $view = new View();
