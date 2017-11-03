@@ -109,7 +109,8 @@ parameters:
     orders_url: https://testorders.sandbox3.cn
     coffee_url: https://testcoffee.sandbox3.cn
     invoice_url: https://testinvoice.sandbox3.cn
-    property_client_url: '{{domain}}'
+    property_client_apply_url: https://testvsales.sandbox3.cn
+    property_client_customer_url: https://testasales.sandbox3.cn
 
     duiba_app_key: XUPB5iAdCbHnc6C8fcmpB8fcxLu
     duiba_app_secret: 3ynCsWqXzcErULFvSEojLH94pnxb
