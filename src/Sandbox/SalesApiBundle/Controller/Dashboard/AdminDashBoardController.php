@@ -2,7 +2,7 @@
 
 namespace Sandbox\SalesApiBundle\Controller\Dashboard;
 
-use Sandbox\ApiBundle\Constants\ProductOrderExport;
+use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Lease\LeaseClue;
@@ -672,25 +672,15 @@ class AdminDashBoardController extends SalesRestController
                 $endDate
             );
 
-        $receivableTypes = [
-            'sales_wx' => '微信',
-            'sales_alipay' => '支付宝支付',
-            'sales_cash' => '现金',
-            'sales_others' => '其他',
-            'sales_pos' => 'POS机',
-            'sales_remit' => '线下汇款',
-        ];
-
-        $orderData = [];
-        foreach ($orders as $order) {
-            $orderData[] = $this->handleProductOrderData(
-                $order,
-                $receivableTypes
-            );
-        }
+        $orders = $this->get('serializer')->serialize(
+            $orders,
+            'json',
+            SerializationContext::create()->setGroups(['admin_detail'])
+        );
+        $orders = json_decode($orders, true);
 
         $result = array(
-            'lists' => $orderData,
+            'lists' => $orders,
             'count' => $count,
         );
 
@@ -731,14 +721,15 @@ class AdminDashBoardController extends SalesRestController
                 $endDate,
                 $companyId
             );
-
-        $orderData = [];
-        foreach ($orders as $order) {
-            $orderData[] = $this->handleEventOrderData($order);
-        }
+        $orders = $this->get('serializer')->serialize(
+            $orders,
+            'json',
+            SerializationContext::create()->setGroups(['client_event'])
+        );
+        $orders = json_decode($orders, true);
 
         $result = array(
-            'lists' => $orderData,
+            'lists' => $orders,
             'count' => $count,
         );
 
@@ -772,13 +763,8 @@ class AdminDashBoardController extends SalesRestController
                 $endDate
             );
 
-        $orderData = [];
-        foreach ($orders as $order) {
-            $orderData[] = $this->handleMembershipCardOrderData($order);
-        }
-
         $result = array(
-            'lists' => $orderData,
+            'lists' => $orders,
             'count' => $count,
         );
 
@@ -830,122 +816,6 @@ class AdminDashBoardController extends SalesRestController
             'source' => $source,
             'monthly_rent' => (float) $clue->getMonthlyRent(),
             'number' => $clue->getNumber(),
-        );
-
-        return $result;
-    }
-
-    /**
-     * @param ProductOrder $order
-     * @param $receivableTypes
-     *
-     * @return array
-     */
-    private function handleProductOrderData(
-        $order,
-        $receivableTypes
-    ) {
-        $em = $this->getDoctrine()->getManager();
-
-        $product = $order->getProduct();
-        /** @var Room $room */
-        $room = $product->getRoom();
-        $building = $room->getBuilding();
-
-        $roomAttachmentBinding = $em->getRepository('SandboxApiBundle:Room\RoomAttachmentBinding')
-            ->findOneBy(array('room' => $room->getId()));
-
-        $roomAttachment = $roomAttachmentBinding ? $roomAttachmentBinding->getAttachmentId()->getContent() : null;
-
-        $roomType = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$room->getType());
-
-        $payChannel = '';
-        if ($order->getPayChannel()) {
-            if (ProductOrder::CHANNEL_SALES_OFFLINE == $order->getPayChannel()) {
-                $receivable = $em->getRepository('SandboxApiBundle:Finance\FinanceReceivables')
-                    ->findOneBy([
-                        'orderNumber' => $order->getOrderNumber(),
-                    ]);
-                $payChannel = $receivableTypes[$receivable->getPayChannel()];
-            } else {
-                $payChannel = '创合钱包支付';
-            }
-        }
-
-        $orderType = $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_TYPE.$order->getType());
-        $status = $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_STATUS.$order->getStatus());
-
-        $result = array(
-            'id' => $order->getId(),
-            'room_name' => $room->getName(),
-            'attachment' => $roomAttachment,
-            'building_name' => $building->getName(),
-            'start_date' => $order->getStartDate(),
-            'end_date' => $order->getEndDate(),
-            'room_type' => $roomType,
-            'order_type' => $orderType,
-            'pay_channel' => $payChannel,
-            'status' => $status,
-            'price' => (float) $order->getPrice(),
-            'discount_price' => (float) $order->getDiscountPrice(),
-        );
-
-        return $result;
-    }
-
-    /**
-     * @param EventOrder $order
-     *
-     * @return array
-     */
-    private function handleEventOrderData(
-        $order
-    ) {
-        /** @var Event $event */
-        $event = $order->getEvent();
-
-        $eventAttachment = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Event\EventAttachment')
-            ->findOneBy(array('eventId' => $event->getId()));
-
-        $status = $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_STATUS.$order->getStatus());
-
-        $result = array(
-            'id' => $order->getId(),
-            'event_name' => $event->getName(),
-            'event_start_date' => $event->getEventStartDate(),
-            'event_end_date' => $event->getEventEndDate(),
-            'event_status' => $event->getStatus(),
-            'address' => $event->getAddress(),
-            'price' => (float) $event->getPrice(),
-            'status' => $status,
-            'pay_channel' => $order->getPayChannel() ? '创合钱包支付' : '',
-            'attachment' => $eventAttachment ? $eventAttachment->getContent() : '',
-        );
-
-        return $result;
-    }
-
-    /**
-     * @param MembershipOrder $order
-     *
-     * @return array
-     */
-    private function handleMembershipCardOrderData(
-        $order
-    ) {
-        $card = $order->getCard();
-
-        $result = array(
-            'id' => $order->getId(),
-            'name' => $card->getName(),
-            'background' => $card->getBackground(),
-            'specification' => $order->getSpecification(),
-            'start_date' => $order->getStartDate(),
-            'end_date' => $order->getEndDate(),
-            'price' => (float) $order->getPrice(),
-            'status' => '已付款',
-            'pay_channel' => '创合钱包支付',
         );
 
         return $result;
