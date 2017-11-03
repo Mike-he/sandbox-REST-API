@@ -293,17 +293,24 @@ class ReservationRepository extends EntityRepository
 
     /**
      * @param $salesCompanyId
-     *
+     * @param null $time
      * @return array
      */
-    public function findCompanyUngrabedReservation($salesCompanyId)
-    {
+    public function findCompanyUngrabedReservation(
+        $salesCompanyId,
+        $time=null
+    ) {
         $query = $this->createQueryBuilder('re')
             ->where('re.status = :status')
             ->andWhere('re.companyId = :companyId')
             ->setParameter('status', Reservation::UNGRABED)
-            ->setParameter('companyId', $salesCompanyId)
-            ->orderBy('re.creationDate', 'ASC');
+            ->setParameter('companyId', $salesCompanyId);
+
+        if(!is_null($time)){
+            $query->andWhere('re.viewTime > :viewTime')
+                ->setParameter('viewTime',$time);
+        }
+            $query->orderBy('re.creationDate', 'ASC');
 
         return $query->getQuery()->getResult();
     }
@@ -419,7 +426,7 @@ class ReservationRepository extends EntityRepository
             ->setParameter('grabEnd', $grabEnd)
             ->setParameter('status', $status);
 
-        $query->orderBy('re.grabDate','DESC');
+        $query->orderBy('re.viewTime','ASC');
 
         return $result = $query->getQuery()->getResult();
     }
