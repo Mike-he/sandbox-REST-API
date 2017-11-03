@@ -131,6 +131,26 @@ class ClientReservationController extends SalesRestController
      * @param Request $request
      * @param ParamFetcherInterface $paramFetcher
      *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit for the page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="offset",
+     *    array=false,
+     *    default="0",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="start of the page"
+     * )
+     *
      * @Route("/reservation/ungrabed/list")
      * @Method({"GET"})
      * @return View
@@ -142,12 +162,17 @@ class ClientReservationController extends SalesRestController
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
+        $offset = $paramFetcher->get('offset');
+        $limit = $paramFetcher->get('limit');
+
         $now = new \DateTime();
         $reservations = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Reservation\Reservation')
             ->findCompanyUngrabedReservation(
                 $salesCompanyId,
-                $now
+                $now,
+                $limit,
+                $offset
             );
 
         $result = [];
@@ -321,6 +346,26 @@ class ClientReservationController extends SalesRestController
      * @param Request $request
      * @param ParamFetcherInterface $paramFetcher
      *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit for the page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="offset",
+     *    array=false,
+     *    default="0",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="start of the page"
+     * )
+     *
      * @Route("/my/latest/grabed/lists")
      * @Method({"GET"})
      * @return View
@@ -333,6 +378,9 @@ class ClientReservationController extends SalesRestController
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
         $adminId = $this->getAdminId();
+
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
 
         $grabStart = new \DateTime();
         $interval = new \DateInterval('P15D');
@@ -347,7 +395,9 @@ class ClientReservationController extends SalesRestController
                 $adminId,
                 $grabStart,
                 $grabEnd,
-                Reservation::GRABED
+                Reservation::GRABED,
+                $limit,
+                $offset
             );
 
         $result = [];

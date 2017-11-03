@@ -294,11 +294,15 @@ class ReservationRepository extends EntityRepository
     /**
      * @param $salesCompanyId
      * @param null $time
+     * @param $limit
+     * @param $offset
      * @return array
      */
     public function findCompanyUngrabedReservation(
         $salesCompanyId,
-        $time=null
+        $time=null,
+        $limit=null,
+        $offset=null
     ) {
         $query = $this->createQueryBuilder('re')
             ->where('re.status = :status')
@@ -307,10 +311,15 @@ class ReservationRepository extends EntityRepository
             ->setParameter('companyId', $salesCompanyId);
 
         if(!is_null($time)){
-            $query->andWhere('re.viewTime > :viewTime')
+            $query->andWhere('re.viewTime >= :viewTime')
                 ->setParameter('viewTime',$time);
         }
-            $query->orderBy('re.creationDate', 'ASC');
+            $query->orderBy('re.viewTime', 'ASC');
+
+        if(!is_null($limit) && !is_null($offset)){
+            $query->setFirstResult($offset)
+                ->setMaxResults($limit);
+        }
 
         return $query->getQuery()->getResult();
     }
@@ -402,9 +411,11 @@ class ReservationRepository extends EntityRepository
     /**
      * @param $salesCompanyId
      * @param $adminId
-     * @param $status
      * @param $grabStart
      * @param $grabEnd
+     * @param $status
+     * @param $limit
+     * @param $offset
      * @return array
      */
     public function getMylatestGradedLists(
@@ -412,7 +423,9 @@ class ReservationRepository extends EntityRepository
         $adminId,
         $grabStart,
         $grabEnd,
-        $status
+        $status,
+        $limit,
+        $offset
     ){
         $query = $this->createQueryBuilder('re')
             ->where('re.companyId = :companyId')
@@ -427,6 +440,9 @@ class ReservationRepository extends EntityRepository
             ->setParameter('status', $status);
 
         $query->orderBy('re.viewTime','ASC');
+
+        $query->setFirstResult($offset)
+            ->setMaxResults($limit);
 
         return $result = $query->getQuery()->getResult();
     }
