@@ -312,4 +312,52 @@ class ClientReservationController extends SalesRestController
 
         return $view;
     }
+
+    /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/my/latest/grabed/lists")
+     * @Method({"GET"})
+     * @return View
+     */
+    public function myLatestGrabedListAction
+    (
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ){
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+        $adminId = $this->getAdminId();
+
+        $grabStart = new \DateTime();
+        $interval = new \DateInterval('P15D');
+        $grabStart = $grabStart->sub($interval);
+
+        $grabEnd = new \DateTime();
+
+        $reservations = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Reservation\Reservation')
+            ->getMylatestGradedLists(
+                $salesCompanyId,
+                $adminId,
+                $grabStart,
+                $grabEnd,
+                Reservation::GRABED
+            );
+
+        $result = [];
+        foreach ($reservations as $k=>$reservation) {
+            $result[$k] = $this->getProductInfo($reservation);
+        }
+
+        $view = new View();
+        $view->setData(
+            array(
+                'items'=>$result
+            )
+        );
+
+        return $view;
+    }
 }

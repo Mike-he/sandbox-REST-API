@@ -391,4 +391,36 @@ class ReservationRepository extends EntityRepository
 
         return (int)$result;
     }
+
+    /**
+     * @param $salesCompanyId
+     * @param $adminId
+     * @param $status
+     * @param $grabStart
+     * @param $grabEnd
+     * @return array
+     */
+    public function getMylatestGradedLists(
+        $salesCompanyId,
+        $adminId,
+        $grabStart,
+        $grabEnd,
+        $status
+    ){
+        $query = $this->createQueryBuilder('re')
+            ->where('re.companyId = :companyId')
+            ->andWhere('re.adminId = :adminId')
+            ->andWhere('re.grabDate >= :grabStart')
+            ->andWhere('re.grabDate <= :grabEnd')
+            ->andWhere('re.status = :status')
+            ->setParameter('adminId', $adminId)
+            ->setParameter('companyId', $salesCompanyId)
+            ->setParameter('grabStart', $grabStart)
+            ->setParameter('grabEnd', $grabEnd)
+            ->setParameter('status', $status);
+
+        $query->orderBy('re.grabDate','DESC');
+
+        return $result = $query->getQuery()->getResult();
+    }
 }
