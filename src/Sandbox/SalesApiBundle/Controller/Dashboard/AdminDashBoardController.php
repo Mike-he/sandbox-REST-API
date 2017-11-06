@@ -4,6 +4,7 @@ namespace Sandbox\SalesApiBundle\Controller\Dashboard;
 
 use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Event\Event;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Lease\LeaseClue;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
@@ -721,6 +722,23 @@ class AdminDashBoardController extends SalesRestController
                 $endDate,
                 $companyId
             );
+
+        foreach ($orders as $order) {
+            /** @var Event $event */
+            $event = $order->getEvent();
+            $dates = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Event\EventDate')
+                ->findByEvent($event);
+            $event->setDates($dates);
+
+            $attachments = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Event\EventAttachment')
+                ->findBy(array(
+                    'event' => $event,
+                ));
+            $event->setAttachments($attachments);
+        }
+
         $orders = $this->get('serializer')->serialize(
             $orders,
             'json',
