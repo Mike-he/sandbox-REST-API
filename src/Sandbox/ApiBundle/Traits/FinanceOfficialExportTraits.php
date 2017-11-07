@@ -171,7 +171,7 @@ trait FinanceOfficialExportTraits
         $commission = null;
 
         $orderType = $orderType = $this->get('translator')->trans(
-            ProductOrderExport::TRANS_PRODUCT_ORDER_TYPE.'user',
+            ProductOrderExport::TRANS_PRODUCT_ORDER_TYPE.'own',
             array(),
             null,
             $language
@@ -309,7 +309,10 @@ trait FinanceOfficialExportTraits
 
             $orderNumber = $order->getOrderNumber();
 
-            $productInfo = json_decode($order->getProductInfo(), true);
+            $productInfoObject = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Order\ProductOrderInfo')
+                ->findOneBy(['order' => $order]);
+            $productInfo = json_decode($productInfoObject->getProductInfo(), true);
             $productName = $productInfo['room']['city']['name'].
                 $productInfo['room']['building']['name'].
                 $productInfo['room']['number'];
@@ -337,10 +340,10 @@ trait FinanceOfficialExportTraits
 
             $userId = $order->getUserId();
 
-            $basePrice = $productInfo['base_price'];
+            $basePrice = $order->getBasePrice();
 
             $unit = $this->get('translator')->trans(
-                ProductOrderExport::TRANS_ROOM_UNIT.$productInfo['unit_price'],
+                ProductOrderExport::TRANS_ROOM_UNIT.$order->getUnitPrice(),
                 array(),
                 null,
                 $language
@@ -494,7 +497,7 @@ trait FinanceOfficialExportTraits
 
             $collection = $companyName;
 
-            $userId = $lease->getSupervisor()->getId();
+            $userId = $lease->getLesseeCustomer();
 
             $basePrice = $product->getBasePrice();
 
@@ -652,7 +655,7 @@ trait FinanceOfficialExportTraits
             );
 
             $orderType = $this->get('translator')->trans(
-                ProductOrderExport::TRANS_PRODUCT_ORDER_TYPE.'user',
+                ProductOrderExport::TRANS_PRODUCT_ORDER_TYPE.'own',
                 array(),
                 null,
                 $language
@@ -680,6 +683,8 @@ trait FinanceOfficialExportTraits
                 }
             }
 
+            $creationDate = $shopOrder->getCreationDate()->format('Y-m-d H:i:s');
+
             $body = $this->getExportBody(
                 $companyName,
                 $collection,
@@ -698,6 +703,7 @@ trait FinanceOfficialExportTraits
                 null,
                 null,
                 null,
+                $creationDate,
                 $payDate,
                 $status,
                 $refundChannel,
@@ -776,6 +782,7 @@ trait FinanceOfficialExportTraits
                 null,
                 null,
                 $paymentChannel,
+                null,
                 null
             );
 
@@ -874,7 +881,7 @@ trait FinanceOfficialExportTraits
             }
 
             $orderType = $this->get('translator')->trans(
-                ProductOrderExport::TRANS_PRODUCT_ORDER_TYPE.'user',
+                ProductOrderExport::TRANS_PRODUCT_ORDER_TYPE.'own',
                 array(),
                 null,
                 $language
@@ -900,6 +907,7 @@ trait FinanceOfficialExportTraits
                 $creationDate,
                 $payDate,
                 $status,
+                null,
                 null,
                 $paymentChannel,
                 $orderType
