@@ -87,7 +87,8 @@ product_order:
     account: Back To Account
     origin: Back To PayChannel
   order_type:
-    user: Client User
+    own: Client User
+    official_preorder: Official Pre-Order
     preorder: Pre-Order
     reserve: Reserve
   export_header:
