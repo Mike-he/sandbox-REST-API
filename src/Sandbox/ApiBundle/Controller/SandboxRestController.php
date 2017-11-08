@@ -65,7 +65,7 @@ class SandboxRestController extends FOSRestController
 
     const SANDBOX_CLIENT_LOGIN_HEADER = 'http_sandboxclientauthorization';
 
-    const ADMIN_COOKIE_NAME = 'sandbox_admin_token';
+    const ADMIN_COOKIE_NAME = 'sandbox_admin_token_123';
 
     const HASH_ALGO_SHA256 = 'sha256';
 
