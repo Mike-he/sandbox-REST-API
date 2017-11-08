@@ -41,6 +41,8 @@ fi
 # Clean all caches for sandbox_app
 php app/console cache:clear --env=prod
 
+touch app/logs/prod.log
+
 chmod o+rwx app/cache -R
 chmod o+rwx app/logs -R
 
@@ -57,4 +59,4 @@ fi
 /etc/init.d/nginx start 
 
 # Keep container alive
-tail -f /var/log/nginx/access.log /var/log/nginx/error.log
+tail -f /var/www/sandbox-REST-API/app/logs/prod.log
