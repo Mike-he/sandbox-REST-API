@@ -219,7 +219,7 @@ class AdminLeaseController extends SalesRestController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="user",
+     *    name="customer",
      *    array=false,
      *    default=null,
      *    nullable=true,
@@ -280,7 +280,7 @@ class AdminLeaseController extends SalesRestController
         $startDate = $paramFetcher->get('start_date');
         $endDate = $paramFetcher->get('end_date');
 
-        $userId = $paramFetcher->get('user');
+        $customerId = $paramFetcher->get('customer');
         $buildingId = $paramFetcher->get('building');
 
         //get my buildings list
@@ -310,7 +310,7 @@ class AdminLeaseController extends SalesRestController
                 $roomId,
                 $limit,
                 $offset,
-                $userId
+                $customerId
             );
 
         $count = $this->getDoctrine()
@@ -328,7 +328,7 @@ class AdminLeaseController extends SalesRestController
                 $endDate,
                 $salesCompanyId,
                 $roomId,
-                $userId
+                $customerId
             );
 
         foreach ($leases as $lease) {
