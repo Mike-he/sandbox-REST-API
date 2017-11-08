@@ -2,6 +2,7 @@
 
 namespace Sandbox\AdminApiBundle\Controller\Admin;
 
+use FOS\RestBundle\View\View;
 use Sandbox\ApiBundle\Controller\Admin\AdminLogoutController;
 use Sandbox\ApiBundle\Entity\Admin\Admin;
 use Symfony\Component\HttpFoundation\Request;
@@ -51,5 +52,9 @@ class AdminUserLogoutController extends AdminLogoutController
             $adminId,
             $clientId
         );
+
+        setrawcookie(self::ADMIN_COOKIE_NAME, '', null, '/', $this->getParameter('top_level_domain'));
+
+        return new View();
     }
 }

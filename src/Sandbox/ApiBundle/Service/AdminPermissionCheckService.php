@@ -13,7 +13,7 @@ use Symfony\Component\HttpKernel\Exception\PreconditionFailedHttpException;
 class AdminPermissionCheckService
 {
     const NOT_ALLOWED_MESSAGE = 'You are not allowed to perform this action';
-    const ADMIN_COOKIE_NAME = 'sandbox_admin_token_234';
+    const ADMIN_COOKIE_NAME = 'sandbox_admin_token';
     const PRECONDITION_NOT_SET = 'The precondition not set';
 
     private $container;
