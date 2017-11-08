@@ -319,6 +319,10 @@ class AdminLeaseController extends AdminRestController
             $buildingIds = array((int) $buildingId);
         }
 
+        $customerIds = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->getCustomerIdsByUserId($userId);
+
         $leases = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\Lease')
             ->findLeases(
@@ -336,7 +340,7 @@ class AdminLeaseController extends AdminRestController
                 $roomId,
                 $limit,
                 $offset,
-                $userId
+                $customerIds
             );
 
         $count = $this->getDoctrine()
@@ -354,7 +358,7 @@ class AdminLeaseController extends AdminRestController
                 $endDate,
                 $companyId,
                 $roomId,
-                $userId
+                $customerIds
             );
 
         foreach ($leases as $lease) {

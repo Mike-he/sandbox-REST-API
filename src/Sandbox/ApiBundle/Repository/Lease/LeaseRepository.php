@@ -22,7 +22,7 @@ class LeaseRepository extends EntityRepository
      * @param $endDate
      * @param $companyId
      * @param $roomId
-     * @param $userId
+     * @param $customerIds
      *
      * @return array
      */
@@ -39,7 +39,7 @@ class LeaseRepository extends EntityRepository
         $endDate,
         $companyId,
         $roomId,
-        $userId = null
+        $customerIds = null
     ) {
         $query = $this->createQueryBuilder('l')
             ->leftJoin('l.product', 'p')
@@ -61,7 +61,7 @@ class LeaseRepository extends EntityRepository
             $endDate,
             $companyId,
             $roomId,
-            $userId
+            $customerIds
         );
 
         return $query->getQuery()->getSingleScalarResult();
@@ -82,9 +82,10 @@ class LeaseRepository extends EntityRepository
      * @param $roomId
      * @param $limit
      * @param $offset
-     * @param $userId
+     * @param $customerIds
      * @param $sortColumn,
      * @param $direction,
+     * @param $customerIds
      *
      * @return array
      */
@@ -103,7 +104,7 @@ class LeaseRepository extends EntityRepository
         $roomId,
         $limit = null,
         $offset = null,
-        $userId = null,
+        $customerIds = null,
         $sortColumn = null,
         $direction = null
     ) {
@@ -125,7 +126,7 @@ class LeaseRepository extends EntityRepository
             $endDate,
             $companyId,
             $roomId,
-            $userId,
+            $customerIds,
             $sortColumn,
             $direction
         );
@@ -152,7 +153,7 @@ class LeaseRepository extends EntityRepository
      * @param $endDate
      * @param $companyId
      * @param $roomId
-     * @param $userId
+     * @param $customerIds
      * @param $sortColumn,
      * @param $direction
      *
@@ -172,7 +173,7 @@ class LeaseRepository extends EntityRepository
         $endDate,
         $companyId,
         $roomId,
-        $userId = null,
+        $customerIds = null,
         $sortColumn = null,
         $direction = null
     ) {
@@ -321,10 +322,10 @@ class LeaseRepository extends EntityRepository
             }
         }
 
-//        if (!is_null($userId)) {
-//            $query->andWhere('(l.supervisor = :userId OR l.drawee = :userId)')
-//                ->setParameter('userId', $userId);
-//        }
+        if (!is_null($customerIds) && !empty($customerIds)) {
+            $query->andWhere('l.lesseeCustomer IN (:customerIds)')
+                ->setParameter('customerIds', $customerIds);
+        }
 
         return $query;
     }
