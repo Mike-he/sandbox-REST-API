@@ -4,6 +4,7 @@ namespace Sandbox\ClientPropertyApiBundle\Controller\Lease;
 
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
+use Sandbox\ApiBundle\Constants\LeaseConstants;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminStatusLog;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
@@ -43,6 +44,14 @@ class ClientBillController extends SalesRestController
      *    default=null,
      *    nullable=true,
      *    description="payment channel"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="type",
+     *    array=true,
+     *    default=null,
+     *    nullable=true,
+     *    description="bill type"
      * )
      *
      * @Annotations\QueryParam(
@@ -162,6 +171,7 @@ class ClientBillController extends SalesRestController
         $offset = $paramFetcher->get('offset');
 
         $channels = $paramFetcher->get('channel');
+        $type = $paramFetcher->get('type');
         $keyword = $paramFetcher->get('keyword');
         $keywordSearch = $paramFetcher->get('keyword_search');
         $sendStart = $paramFetcher->get('send_start');
@@ -209,6 +219,7 @@ class ClientBillController extends SalesRestController
                     $product,
                     $statusSort,
                     $channels,
+                    $type,
                     $keyword,
                     $keywordSearch,
                     $sendStart,
@@ -230,14 +241,7 @@ class ClientBillController extends SalesRestController
             'sales_remit' => '线下汇款',
         ];
 
-        $billStatus = array(
-            LeaseBill::STATUS_PENDING => '未推送',
-            LeaseBill::STATUS_UNPAID => '未付款',
-            LeaseBill::STATUS_PAID => '已付款',
-            LeaseBill::STATUS_CANCELLED => '已取消',
-        );
-
-        $bills = $this->handleBillData($ids, $limit, $offset, $receivableTypes, $billStatus);
+        $bills = $this->handleBillData($ids, $limit, $offset, $receivableTypes);
 
         $view = new View();
 
@@ -250,8 +254,7 @@ class ClientBillController extends SalesRestController
         $billIds,
         $limit,
         $offset,
-        $receivableTypes,
-        $billStatus
+        $receivableTypes
     ) {
         $ids = array();
         for ($i = $offset; $i < $offset + $limit; ++$i) {
@@ -303,6 +306,9 @@ class ClientBillController extends SalesRestController
                 }
             }
 
+            $status = $this->get('translator')
+                ->trans(LeaseConstants::TRANS_LEASE_BILL_STATUS.$bill->getStatus());
+
             $result[] = [
                 'id' => $id,
                 'serial_number' => $bill->getSerialNumber(),
@@ -314,7 +320,7 @@ class ClientBillController extends SalesRestController
                 'end_date' => $bill->getEndDate(),
                 'amount' => (float) $bill->getAmount(),
                 'revised_amount' => (float) $bill->getRevisedAmount(),
-                'status' => $billStatus[$bill->getStatus()],
+                'status' => $status,
                 'pay_channel' => $payChannel,
                 'customer' => array(
                     'id' => $lease->getLesseeCustomer(),

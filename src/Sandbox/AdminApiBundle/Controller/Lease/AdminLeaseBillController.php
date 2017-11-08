@@ -4,6 +4,7 @@ namespace Sandbox\AdminApiBundle\Controller\Lease;
 
 use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
+use Sandbox\ApiBundle\Constants\LeaseConstants;
 use Sandbox\ApiBundle\Controller\Lease\LeaseController;
 use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
@@ -358,13 +359,6 @@ class AdminLeaseBillController extends LeaseController
         $phpExcelObject->getProperties()->setTitle('Sandbox Orders');
         $excelBody = array();
 
-        $status = array(
-            LeaseBill::STATUS_UNPAID => '未付款',
-            LeaseBill::STATUS_PAID => '已付款',
-            LeaseBill::STATUS_VERIFY => '待确认',
-            LeaseBill::STATUS_CANCELLED => '已取消',
-        );
-
         // set excel body
         foreach ($bills as $bill) {
             $room = $bill->getLease()->getProduct()->getRoom();
@@ -385,6 +379,9 @@ class AdminLeaseBillController extends LeaseController
                 $account = $user->getPhone() ? $user->getPhone() : $user->getEmail();
             }
 
+            $status = $this->get('translator')
+                ->trans(LeaseConstants::TRANS_LEASE_BILL_STATUS.$bill->getStatus());
+
             // set excel body
             $body = array(
                 'lease_serial_number' => $bill->getLease()->getSerialNumber(),
@@ -396,7 +393,7 @@ class AdminLeaseBillController extends LeaseController
                 'payment_date' => $bill->getPaymentDate() ? $bill->getPaymentDate()->format('Y-m-d H:i:s') : '',
                 'amount' => $bill->getAmount(),
                 'revised_amount' => $bill->getRevisedAmount() ? '￥'.$bill->getRevisedAmount() : '',
-                'status' => $status[$bill->getStatus()],
+                'status' => $status,
                 'pay_channel' => $bill->getPayChannel() ? $payChannel[$bill->getPayChannel()] : '',
                 'remark' => $bill->getRemark(),
                 'sales_invoice' => $bill->isSalesInvoice() ? $company->getName() : '创合开票',

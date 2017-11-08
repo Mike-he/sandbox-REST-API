@@ -1080,6 +1080,7 @@ class LeaseBillRepository extends EntityRepository
         $product,
         $status,
         $channels,
+        $type,
         $keyword,
         $keywordSearch,
         $sendStart,
@@ -1109,6 +1110,11 @@ class LeaseBillRepository extends EntityRepository
         if ($status) {
             $query->andWhere('lb.status = :status')
                 ->setParameter('status', $status);
+        }
+
+        if (!empty($type)) {
+            $query->andWhere('lb.type in (:type)')
+                ->setParameter('type', $type);
         }
 
         if (!empty($channels)) {
