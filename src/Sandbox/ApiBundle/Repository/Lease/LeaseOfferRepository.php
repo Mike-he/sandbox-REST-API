@@ -314,9 +314,9 @@ class LeaseOfferRepository extends EntityRepository
         }
 
         if ($source) {
-            if ($source == 'clue') {
+            if ('clue' == $source) {
                 $query->andWhere('lo.LeaseClueId is not null');
-            } elseif($source == 'created') {
+            } elseif ('created' == $source) {
                 $query->andWhere('lo.LeaseClueId is null');
             }
         }
