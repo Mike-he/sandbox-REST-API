@@ -36,6 +36,7 @@ class AppKernel extends Kernel
             new Stof\DoctrineExtensionsBundle\StofDoctrineExtensionsBundle(),
             new Knp\Bundle\SnappyBundle\KnpSnappyBundle(),
 //            new Snc\RedisBundle\SncRedisBundle(),
+            new Sandbox\ClientPropertyApiBundle\SandboxClientPropertyApiBundle(),
         );
 
         if (in_array($this->getEnvironment(), array('dev', 'test'))) {
@@ -55,21 +56,21 @@ class AppKernel extends Kernel
     }
 
     // for speedup Symfony2 on vagrant box
-//    public function getCacheDir()
-//    {
-//        if (in_array($this->environment, array('dev', 'test'))) {
-//            return '/dev/shm/sandbox-rest-api/cache/' .  $this->environment;
-//        }
-//
-//        return parent::getCacheDir();
-//    }
-//
-//    public function getLogDir()
-//    {
-//        if (in_array($this->environment, array('dev', 'test'))) {
-//            return '/dev/shm/sandbox-rest-api/logs';
-//        }
-//
-//        return parent::getLogDir();
-//    }
+    public function getCacheDir()
+    {
+        if (in_array($this->environment, array('dev', 'test'))) {
+            return '/dev/shm/sandbox-rest-api/cache/' .  $this->environment;
+        }
+
+        return parent::getCacheDir();
+    }
+
+    public function getLogDir()
+    {
+        if (in_array($this->environment, array('dev', 'test'))) {
+            return '/dev/shm/sandbox-rest-api/logs';
+        }
+
+        return parent::getLogDir();
+    }
 }

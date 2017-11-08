@@ -106,6 +106,15 @@ class MembershipCardOrderRepository extends EntityRepository
 
         if (!is_null($keyword) && !is_null($keywordSearch)) {
             switch ($keyword) {
+                case 'all':
+                    $query->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.userId = mo.user')
+                            ->andWhere('
+                                mo.orderNumber LIKE :search OR
+                                c.name LIKE :search OR
+                                uc.name LIKE :search OR
+                                uc.phone LIKE :search
+                            ');
+                    break;
                 case 'number':
                     $query->andWhere('mo.orderNumber LIKE :search');
                     break;
@@ -132,9 +141,9 @@ class MembershipCardOrderRepository extends EntityRepository
                 ->setParameter('companyId', $companyId);
         }
 
-        if (!is_null($buildingId)) {
+        if (!is_null($buildingId) && !empty($buildingId)) {
             $query->leftJoin('SandboxApiBundle:User\UserGroupDoors', 'd', 'WITH', 'd.card = c.id')
-                ->andWhere('d.building = :buildingId')
+                ->andWhere('d.building in (:buildingId)')
                 ->setParameter('buildingId', $buildingId);
         }
 
@@ -150,14 +159,13 @@ class MembershipCardOrderRepository extends EntityRepository
                 default:
                     $lastDate = new \DateTime();
             }
-            $query->andWhere('mo.creationDate >= :createStart')
+            $query->andWhere('mo.paymentDate >= :createStart')
                 ->setParameter('createStart', $lastDate);
         } else {
             // filter by order start point
             if (!is_null($createStart)) {
                 $createStart = new \DateTime($createStart);
-                $createStart->setTime(00, 00, 00);
-                $query->andWhere('mo.creationDate >= :createStart')
+                $query->andWhere('mo.paymentDate >= :createStart')
                     ->setParameter('createStart', $createStart);
             }
 
@@ -165,40 +173,29 @@ class MembershipCardOrderRepository extends EntityRepository
             if (!is_null($createEnd)) {
                 $createEnd = new \DateTime($createEnd);
                 $createEnd->setTime(23, 59, 59);
-                $query->andWhere('mo.creationDate <= :createEnd')
+                $query->andWhere('mo.paymentDate <= :createEnd')
                     ->setParameter('createEnd', $createEnd);
             }
         }
 
         // filter by userId
-        if (!is_null($userId)) {
+        if (!is_null($userId) && !empty($userId)) {
             $query->andWhere('mo.user = :userId')
                 ->setParameter('userId', $userId);
         }
 
-        if(!is_null($sortColumn) && !is_null($direction)) {
+        if (!is_null($sortColumn) && !is_null($direction)) {
+            $sortArray = [
+                'start_date' => 'mo.startDate',
+                'end_date' => 'mo.endDate',
+                'discount_price' => 'mo.price',
+                'creation_date' => 'mo.creationDate',
+                'price' => 'mo.price',
+            ];
             $direction = strtoupper($direction);
-
-            switch ($sortColumn) {
-                case 'start_date':
-                    $query->orderBy('mo.startDate', $direction);
-                    break;
-                case 'end_date':
-                    $query->orderBy('mo.endDate', $direction);
-                    break;
-                case 'discount_price':
-                    $query->orderBy('mo.price', $direction);
-                    break;
-                case 'creation_date':
-                    $query->orderBy('mo.creationDate', $direction);
-                    break;
-                case 'price':
-                    $query->orderBy('mo.price', $direction);
-                    break;
-                default:
-                    $query->orderBy('mo.creationDate', 'DESC');
-                    break;
-            }
+            $query->orderBy($sortArray[$sortColumn], $direction);
+        } else {
+            $query->orderBy('mo.creationDate', 'DESC');
         }
 
         if (!is_null($limit) && !is_null($offset)) {
@@ -358,19 +355,37 @@ class MembershipCardOrderRepository extends EntityRepository
 
     /**
      * @param $userId
+     * @param null $cardId
+     * @param null $companyId
      *
      * @return array
      */
     public function getMyValidClientMembershipCards(
-        $userId
+        $userId,
+        $cardId = null,
+        $companyId = null
     ) {
         $query = $this->createQueryBuilder('mo')
             ->select('DISTINCT(mo.card)')
-            ->where('mo.user = :userId')
-            ->andWhere('mo.startDate <= :now')
+            ->where('mo.startDate <= :now')
             ->andWhere('mo.endDate >= :now')
-            ->setParameter('userId', $userId)
             ->setParameter('now', new \DateTime('now'));
+
+        if ($userId) {
+            $query->andWhere('mo.user = :userId')
+                ->setParameter('userId', $userId);
+        }
+
+        if ($cardId) {
+            $query->andWhere('mo.card = :cardId')
+                ->setParameter('cardId', $cardId);
+        }
+
+        if ($companyId) {
+            $query->leftJoin('mo.card', 'c')
+                ->andWhere('c.companyId = :$companyId')
+                ->setParameter('cardId', $cardId);
+        }
 
         $result = $query->getQuery()->getScalarResult();
         $result = array_map('current', $result);
@@ -381,6 +396,7 @@ class MembershipCardOrderRepository extends EntityRepository
     /**
      * @param $userId
      * @param $card
+     * @param $date
      *
      * @return array
      */
@@ -469,5 +485,86 @@ class MembershipCardOrderRepository extends EntityRepository
         $result = $query->getQuery()->getSingleScalarResult();
 
         return (int) $result;
+    }
+
+    public function getOrdersByPropertyClient(
+        $companyId,
+        $startDate,
+        $endDate,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('mo')
+            ->leftJoin('mo.card', 'c')
+            ->where('c.companyId = :companyId')
+            ->setParameter('companyId', $companyId);
+
+        if ($startDate) {
+            $query->andwhere('mo.paymentDate >= :startDate')
+                ->setParameter('startDate', $startDate);
+        }
+
+        if ($endDate) {
+            $query->andWhere('mo.paymentDate <= :endDate')
+                ->setParameter('endDate', $endDate);
+        }
+
+        $query->orderBy('mo.id', 'DESC');
+
+        if (!is_null($limit) && !is_null($offset)) {
+            $query->setMaxResults($limit)
+                ->setFirstResult($offset);
+        }
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $companyId
+     * @param $startDate
+     * @param $endDate
+     *
+     * @return int
+     */
+    public function countOrdersByPropertyClient(
+        $companyId,
+        $startDate,
+        $endDate
+    ) {
+        $query = $this->createQueryBuilder('mo')
+            ->select('count(mo.id)')
+            ->leftJoin('mo.card', 'c')
+            ->where('c.companyId = :companyId')
+            ->setParameter('companyId', $companyId);
+
+        if ($startDate) {
+            $query->andwhere('mo.paymentDate >= :startDate')
+                ->setParameter('startDate', $startDate);
+        }
+
+        if ($endDate) {
+            $query->andWhere('mo.paymentDate <= :endDate')
+                ->setParameter('endDate', $endDate);
+        }
+
+        $result = $query->getQuery()->getSingleScalarResult();
+
+        return (int) $result;
+    }
+
+    /**
+     * @param $userId
+     *
+     * @return mixed
+     */
+    public function countCustomerAllMembershipOrders(
+        $userId
+    ) {
+        $query = $this->createQueryBuilder('mo')
+            ->select('count(mo.id)')
+            ->where('mo.user = :userId')
+            ->setParameter('userId', $userId);
+
+        return $query->getQuery()->getSingleScalarResult();
     }
 }

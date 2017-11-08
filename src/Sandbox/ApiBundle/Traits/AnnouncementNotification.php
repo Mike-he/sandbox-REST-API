@@ -13,7 +13,7 @@ use Sandbox\ApiBundle\Entity\Announcement\Announcement;
  * @author   Leo Xu <leox@gobeta.com.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 trait AnnouncementNotification
 {

@@ -1,0 +1,61 @@
+# Client Orders
+sandbox_client_property_api_order:
+    resource: "@SandboxClientPropertyApiBundle/Resources/config/orders/routing.yml"
+    type: rest
+    prefix: /orders
+
+# Client Orders
+sandbox_client_property_api_lease:
+    resource: "@SandboxClientPropertyApiBundle/Resources/config/lease/routing.yml"
+    type: rest
+    prefix: /lease
+
+sandbox_client_property_api_dashboard:
+    resource: "@SandboxClientPropertyApiBundle/Controller/Dashboard/ClientDashBoardController.php"
+    type:     annotation
+    prefix:   /
+
+sandbox_client_property_api_reservation:
+    resource: "@SandboxClientPropertyApiBundle/Controller/Reservation/ClientReservationController.php"
+    type:     annotation
+    prefix:   /
+
+sandbox_client_property_api_customer:
+    resource: "@SandboxClientPropertyApiBundle/Controller/Customer/ClientCustomerController.php"
+    type:     annotation
+    prefix:   /
+sandbox_client_property_api_enterprise_customer:
+    resource: "@SandboxClientPropertyApiBundle/Controller/Customer/ClientEnterpriseCustomerController.php"
+    type:     annotation
+    prefix:   /
+
+sandbox_client_property_api_product:
+    resource: "@SandboxClientPropertyApiBundle/Controller/Product/ClientProductController.php"
+    type:     annotation
+    prefix:   /
+
+sandox_client_property_api_user:
+    resource: "@SandboxClientPropertyApiBundle/Controller/User/UserProfilesController.php"
+    type:     annotation
+    prefix:   /
+
+sandox_client_property_api_admin_logout:
+    resource: "@SandboxClientPropertyApiBundle/Controller/Admin/ClientAdminLogoutController.php"
+    type:     annotation
+    prefix:   /
+
+#Admin Password Reset
+sandbox_client_api_admin_reset:
+    resource: "@SandboxClientPropertyApiBundle/Controller/Admin/ClientAdministratorResetPasswordController.php"
+    type:     annotation
+    prefix:   /
+
+sandbox_client_property_api_auth:
+    resource: "@SandboxClientPropertyApiBundle/Controller/Auth/ClientAuthController.php"
+    type:     annotation
+    prefix:   /
+
+sandbox_client_property_api_building:
+    resource: "@SandboxClientPropertyApiBundle/Controller/Building/ClientBuildingController.php"
+    type:     annotation
+    prefix:   /

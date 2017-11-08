@@ -300,6 +300,7 @@ trait FinanceOfficialExportTraits
         $commission = null;
 
         foreach ($shortOrders as $order) {
+            /** @var ProductOrder $order */
             $productId = $order->getProductId();
             $product = $this->getDoctrine()->getRepository('SandboxApiBundle:Product\Product')->find($productId);
             $building = $product->getRoom()->getBuilding();
@@ -333,7 +334,7 @@ trait FinanceOfficialExportTraits
                 ]);
             if (!is_null($companyServiceInfo)) {
                 $method = $companyServiceInfo->getCollectionMethod();
-                if ($method == SalesCompanyServiceInfos::COLLECTION_METHOD_SALES) {
+                if (SalesCompanyServiceInfos::COLLECTION_METHOD_SALES == $method) {
                     $collection = $companyName;
                 }
             }
@@ -383,7 +384,7 @@ trait FinanceOfficialExportTraits
                     $language
                 );
 
-                if ($order->getStatus() == ProductOrder::STATUS_CANCELLED) {
+                if (ProductOrder::STATUS_CANCELLED == $order->getStatus()) {
                     if (is_null($refundChannel)) {
                         $refundChannel = ProductOrder::REFUND_TO_ORIGIN;
                     } else {
@@ -399,13 +400,9 @@ trait FinanceOfficialExportTraits
                 }
             }
 
-            $type = $order->getType();
-            if (is_null($type) || empty($type)) {
-                $type = 'user';
-            }
 
             $orderType = $this->get('translator')->trans(
-                ProductOrderExport::TRANS_PRODUCT_ORDER_TYPE.$type,
+                ProductOrderExport::TRANS_PRODUCT_ORDER_TYPE.$order->getType(),
                 array(),
                 null,
                 $language
@@ -672,7 +669,7 @@ trait FinanceOfficialExportTraits
                     $language
                 );
 
-                if ($shopOrder->getStatus() == ShopOrder::STATUS_REFUNDED) {
+                if (ShopOrder::STATUS_REFUNDED == $shopOrder->getStatus()) {
                     $refundChannel = $refundChannel = ProductOrder::REFUND_TO_ORIGIN;
                     $refundChannel = $this->get('translator')->trans(
                         ProductOrderExport::TRANS_PRODUCT_ORDER_REFUND_TO.$refundChannel,

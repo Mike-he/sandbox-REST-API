@@ -623,6 +623,59 @@ class AdminAdminsController extends SandboxRestController
     }
 
     /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *     name="phone",
+     *     array=false,
+     *     nullable=false,
+     *     strict=true
+     * )
+     *
+     * @Route("/admins/search")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function searchAdminsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $phone = $paramFetcher->get('phone');
+
+        $admins = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
+            ->searchAdmins(
+                $phone
+            );
+
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
+        $response = [];
+        foreach ($admins as $admin) {
+            $userId = $admin['user_id'];
+
+            $adminProfile = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
+                ->findOneBy([
+                    'userId' => $userId,
+                    'salesCompanyId' => $salesCompanyId,
+                ]);
+
+            if ($adminProfile) {
+                $admin['avatar'] = $adminProfile->getAvatar();
+                $admin['nickname'] = $adminProfile->getNickname();
+            }
+
+            array_push($response, $admin);
+        }
+
+        return new View($response);
+    }
+
+    /**
      * @param $key
      * @param $platform
      * @param $companyId

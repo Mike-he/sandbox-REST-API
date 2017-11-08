@@ -1077,7 +1077,9 @@ class LocationController extends SalesRestController
         $buildings
     ) {
         foreach ($buildings as &$building) {
-            $building['distance'] = round($building['distance'], 3);
+            if (isset($building['distance'])) {
+                $building['distance'] = round($building['distance'], 3);
+            }
 
             $attachments = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Room\RoomBuildingAttachment')

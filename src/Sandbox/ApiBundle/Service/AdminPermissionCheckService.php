@@ -96,7 +96,7 @@ class AdminPermissionCheckService
                 $adminId
             );
 
-            if ($opLevel == AdminPermission::OP_LEVEL_VIEW && $hasSalesMonitoringPermission) {
+            if (AdminPermission::OP_LEVEL_VIEW == $opLevel && $hasSalesMonitoringPermission) {
                 return;
             }
 
@@ -248,7 +248,7 @@ class AdminPermissionCheckService
         $platform,
         $adminId = null
     ) {
-        if ($platform == AdminPermission::PERMISSION_PLATFORM_OFFICIAL) {
+        if (AdminPermission::PERMISSION_PLATFORM_OFFICIAL == $platform) {
             return false;
         }
 
@@ -565,5 +565,42 @@ class AdminPermissionCheckService
         }
 
         return $ids;
+    }
+
+    public function checkAdminHasPermissions(
+        $adminId,
+        $permissionKeys
+    ) {
+        $adminPlatform = $this->container->get('service_container')
+            ->get('sandbox_api.admin_platform')
+            ->getAdminPlatform();
+        $platform = $adminPlatform['platform'];
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
+        // super admin
+        $isSuperAdmin = $this->hasSuperAdminPosition(
+            $adminId,
+            $platform,
+            $salesCompanyId
+        );
+
+        if ($isSuperAdmin) {
+            return true;
+        } else {
+            $count = $this->doctrine
+                ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                ->checkHasPermission(
+                    $adminId,
+                    $permissionKeys,
+                    $platform,
+                    $salesCompanyId
+                );
+
+            if ($count > 0) {
+                return true;
+            } else {
+                return false;
+            }
+        }
     }
 }

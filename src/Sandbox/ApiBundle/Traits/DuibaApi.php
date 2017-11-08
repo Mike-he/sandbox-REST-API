@@ -21,6 +21,7 @@ trait DuibaApi
 
         return md5($string);
     }
+
     /*
     *  签名验证,通过签名验证的才能认为是合法的请求
     */
@@ -30,7 +31,7 @@ trait DuibaApi
         $newarray['appSecret'] = $appSecret;
         reset($array);
         while (list($key, $val) = each($array)) {
-            if ($key != 'sign') {
+            if ('sign' != $key) {
                 $newarray[$key] = $val;
             }
         }
@@ -41,6 +42,7 @@ trait DuibaApi
 
         return false;
     }
+
     /*
     *  生成自动登录地址
     *  通过此方法生成的地址，可以让用户免登录，进入积分兑换商城
@@ -55,6 +57,7 @@ trait DuibaApi
 
         return $url;
     }
+
     /*
     *  生成订单查询请求地址
     *  orderNum 和 bizId 二选一，不填的项目请使用空字符串
@@ -69,6 +72,7 @@ trait DuibaApi
 
         return $url;
     }
+
     /*
     *  兑换订单审核请求
     *  有些兑换请求可能需要进行审核，开发者可以通过此API接口来进行批量审核，也可以通过兑吧后台界面来进行审核处理
@@ -78,10 +82,10 @@ trait DuibaApi
         $url = 'http://www.duiba.com.cn/audit/apiAudit?';
         $timestamp = time() * 1000 .'';
         $array = array('appKey' => $appKey, 'appSecret' => $appSecret, 'timestamp' => $timestamp);
-        if ($passOrderNums != null && !empty($passOrderNums)) {
+        if (null != $passOrderNums && !empty($passOrderNums)) {
             $string = null;
             while (list($key, $val) = each($passOrderNums)) {
-                if ($string == null) {
+                if (null == $string) {
                     $string = $val;
                 } else {
                     $string = $string.','.$val;
@@ -89,10 +93,10 @@ trait DuibaApi
             }
             $array['passOrderNums'] = $string;
         }
-        if ($rejectOrderNums != null && !empty($rejectOrderNums)) {
+        if (null != $rejectOrderNums && !empty($rejectOrderNums)) {
             $string = null;
             while (list($key, $val) = each($rejectOrderNums)) {
-                if ($string == null) {
+                if (null == $string) {
                     $string = $val;
                 } else {
                     $string = $string.','.$val;
@@ -105,6 +109,7 @@ trait DuibaApi
 
         return $url;
     }
+
     /*
     *  积分消耗请求的解析方法
     *  当用户进行兑换时，兑吧会发起积分扣除请求，开发者收到请求后，可以通过此方法进行签名验证与解析，然后返回相应的格式
@@ -117,7 +122,7 @@ trait DuibaApi
         if ($request_array['appKey'] != $appKey) {
             throw new \Exception('appKey not match');
         }
-        if ($request_array['timestamp'] == null) {
+        if (null == $request_array['timestamp']) {
             throw new \Exception("timestamp can't be null");
         }
         $verify = $this->signVerify($appSecret, $request_array);
@@ -128,6 +133,7 @@ trait DuibaApi
 
         return $ret;
     }
+
     /*
     *  兑换订单的结果通知请求的解析方法
     *  当兑换订单成功时，兑吧会发送请求通知开发者，兑换订单的结果为成功或者失败，如果为失败，开发者需要将积分返还给用户
@@ -137,7 +143,7 @@ trait DuibaApi
         if ($request_array['appKey'] != $appKey) {
             throw new \Exception('appKey not match');
         }
-        if ($request_array['timestamp'] == null) {
+        if (null == $request_array['timestamp']) {
             throw new \Exception("timestamp can't be null");
         }
         $verify = $this->signVerify($appSecret, $request_array);

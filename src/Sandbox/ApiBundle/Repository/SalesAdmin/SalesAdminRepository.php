@@ -7,6 +7,27 @@ use Doctrine\ORM\EntityRepository;
 class SalesAdminRepository extends EntityRepository
 {
     /**
+     * @param $phone
+     *
+     * @return array
+     */
+    public function searchAdmins(
+        $phone
+    ) {
+        $query = $this->createQueryBuilder('a')
+            ->select('
+                a.userId as user_id,
+                a.phone
+            ')
+            ->where('a.phone LIKE :search')
+            ->setParameter('search', '%'.$phone.'%');
+
+        $query->orderBy('a.creationDate', 'DESC');
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
      * @param int    $typeId
      * @param bool   $banned
      * @param string $search

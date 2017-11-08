@@ -178,6 +178,12 @@ class AdminLeaseClueController extends SalesRestController
             )
         );
 
+        $createStart = new \DateTime($createStart);
+        $createStart->setTime(0, 0, 0);
+
+        $createEnd = new \DateTime($createEnd);
+        $createEnd->setTime(23, 59, 59);
+
         $clues = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseClue')
             ->findClues(
@@ -363,7 +369,7 @@ class AdminLeaseClueController extends SalesRestController
 
         $em->flush();
 
-        if ($newStatus == LeaseClue::LEASE_CLUE_STATUS_CLOSED) {
+        if (LeaseClue::LEASE_CLUE_STATUS_CLOSED == $newStatus) {
             $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
             $salesCompanyId = $adminPlatform['sales_company_id'];
             $platform = $adminPlatform['platform'];
@@ -407,7 +413,7 @@ class AdminLeaseClueController extends SalesRestController
         $platform = $adminPlatform['platform'];
 
         $status = $clue->getStatus();
-        if ($status != LeaseClue::LEASE_CLUE_STATUS_CLUE) {
+        if (LeaseClue::LEASE_CLUE_STATUS_CLUE != $status) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
@@ -441,7 +447,7 @@ class AdminLeaseClueController extends SalesRestController
             $clue->setEndDate(new \DateTime($endDate));
         }
 
-        if ($method == 'POST') {
+        if ('POST' == $method) {
             $serialNumber = $this->generateSerialNumber(LeaseClue::LEASE_CLUE_LETTER_HEAD);
             $clue->setSerialNumber($serialNumber);
             $clue->setCompanyId($salesCompanyId);
@@ -463,7 +469,7 @@ class AdminLeaseClueController extends SalesRestController
             $clue->getId()
         );
 
-        if ($method == 'POST') {
+        if ('POST' == $method) {
             $logMessage = '创建线索';
             $this->get('sandbox_api.admin_status_log')->autoLog(
                 $this->getAdminId(),
@@ -497,6 +503,10 @@ class AdminLeaseClueController extends SalesRestController
             /** @var Room $room */
             $room = $product->getRoom();
 
+            $attachment = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomAttachmentBinding')
+                ->findAttachmentsByRoom($room->getId(), 1);
+
             $typeTagDescription = $this->get('translator')->trans(RoomTypeTags::TRANS_PREFIX.$room->getTypeTag());
             $productData = array(
                 'id' => $clue->getProductId(),
@@ -505,6 +515,7 @@ class AdminLeaseClueController extends SalesRestController
                     'name' => $room->getName(),
                     'type_tag' => $room->getTypeTag(),
                     'type_tag_description' => $typeTagDescription,
+                    'attachment' => $attachment,
                 ),
             );
             $clue->setProduct($productData);

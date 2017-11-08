@@ -196,7 +196,11 @@ class ClientLeaseController extends SandboxRestController
         if ($status !== Lease::LEASE_STATUS_PERFORMING ||
             $now >= $endDate
         ) {
-            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE);
+            return $this->customErrorView(
+                400,
+                CustomErrorMessagesConstants::ERROR_STATUS_NOT_CORRECT_CODE,
+                CustomErrorMessagesConstants::ERROR_STATUS_NOT_CORRECT_MESSAGE
+            );
         }
 
         $people = json_decode($request->getContent(), true);

@@ -18,6 +18,7 @@ class Event
 
     const STATUS_PREHEATING = 'preheating';
     const STATUS_REGISTERING = 'registering';
+    const STATUS_WAITING = 'waiting';
     const STATUS_ONGOING = 'ongoing';
     const STATUS_END = 'end';
     const STATUS_SAVED = 'saved';
@@ -297,6 +298,20 @@ class Event
      * @Serializer\Groups({"main"})
      */
     private $modificationDate;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="status", type="string", length=64, nullable=false)
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event",
+     *      "client_event"
+     * })
+     *
+     */
+    private $status;
 
     /**
      * @var array
@@ -1094,5 +1109,21 @@ class Event
     public function setSalesCompany($salesCompany)
     {
         $this->salesCompany = $salesCompany;
+    }
+
+    /**
+     * @return string
+     */
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    /**
+     * @param string $status
+     */
+    public function setStatus($status)
+    {
+        $this->status = $status;
     }
 }

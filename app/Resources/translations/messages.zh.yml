@@ -406,3 +406,30 @@ lease:
   order_method:
     backend: 后台推送
     auto: 自动推送
+  lease_status:
+    drafting: 未生效
+    performing: 履行中
+    terminated: 已终止
+    matured: 已到期
+    end: 已结束
+    closed: 已关闭
+  clue_status:
+    clue: 新线索
+    offer: 已转为报价
+    contract: 已转为合同
+    closed: 已关闭
+  offer_status:
+    offer: 报价中
+    contract: 已转为合同
+    closed: 已关闭
+
+client_property:
+  menu:
+    dashboard: 控制台
+    space: 空间管理
+    message: 客户消息
+    apply: 看房预约
+    trade: 交易管理
+    lease: 合同租赁
+    customer: 客户关系
+    setting: 设置

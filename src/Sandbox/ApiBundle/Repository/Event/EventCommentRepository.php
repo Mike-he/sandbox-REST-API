@@ -12,7 +12,7 @@ use Doctrine\ORM\EntityRepository;
  * @author   Mike He
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 class EventCommentRepository extends EntityRepository
 {

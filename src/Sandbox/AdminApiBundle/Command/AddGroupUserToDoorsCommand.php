@@ -68,7 +68,7 @@ class AddGroupUserToDoorsCommand extends ContainerAwareCommand
                         $result = $this->getCardNoByUser($user);
                         if (
                             !is_null($result) && !empty($result) &&
-                            $result['status'] === DoorController::STATUS_AUTHED
+                            DoorController::STATUS_AUTHED === $result['status']
                         ) {
                             $this->setMembershipEmployeeCardForOneBuilding(
                                 $base,
@@ -110,7 +110,7 @@ class AddGroupUserToDoorsCommand extends ContainerAwareCommand
         );
 
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        if ($httpCode != self::HTTP_STATUS_OK) {
+        if (self::HTTP_STATUS_OK != $httpCode) {
             return;
         }
 
@@ -125,9 +125,9 @@ class AddGroupUserToDoorsCommand extends ContainerAwareCommand
         $headers = null,
         $data = null
     ) {
-        if ($method === 'POST') {
+        if ('POST' === $method) {
             curl_setopt($ch, CURLOPT_POST, 1);
-        } elseif ($method === 'PUT' || $method === 'DELETE') {
+        } elseif ('PUT' === $method || 'DELETE' === $method) {
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
         }
 

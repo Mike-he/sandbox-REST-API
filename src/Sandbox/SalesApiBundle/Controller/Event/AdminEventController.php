@@ -34,7 +34,7 @@ use Symfony\Component\Form\Form;
  * @author   Mike He <mike.he@easylinks.com.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 class AdminEventController extends SalesRestController
 {
@@ -816,7 +816,7 @@ class AdminEventController extends SalesRestController
         }
 
         if (
-            $event->getRegistrationMethod() == Event::REGISTRATION_METHOD_ONLINE
+            Event::REGISTRATION_METHOD_ONLINE == $event->getRegistrationMethod()
             && (!is_null($eventForms) || !empty($eventForms))
         ) {
             $eventFormsArray = $this->getRepo('Event\EventForm')->findByEvent($event);
@@ -890,13 +890,15 @@ class AdminEventController extends SalesRestController
         if ($submit) {
             $event->setVisible(true);
             $event->setIsSaved(false);
+            $event->setStatus(Event::STATUS_PREHEATING);
         } else {
             $event->setVisible(false);
             $event->setIsSaved(true);
+            $event->setStatus(Event::STATUS_SAVED);
         }
 
         // no verify if price is set
-        if (!is_null($event->getPrice()) && $event->getPrice() != 0) {
+        if (!is_null($event->getPrice()) && 0 != $event->getPrice()) {
             $event->setVerify(false);
         }
 
@@ -976,7 +978,7 @@ class AdminEventController extends SalesRestController
         $em = $this->getDoctrine()->getManager();
 
         if (
-            $event->getRegistrationMethod() == Event::REGISTRATION_METHOD_ONLINE
+            Event::REGISTRATION_METHOD_ONLINE == $event->getRegistrationMethod()
             && !is_null($forms)
             && !empty($forms)
         ) {

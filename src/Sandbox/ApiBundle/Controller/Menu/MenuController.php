@@ -59,6 +59,14 @@ class MenuController extends SandboxRestController
     const CLIENT_MENU_MY_CENTER = 'client.menu.my_center';
     const CLIENT_MENU_ADD_BUDDY = 'client.menu.add_buddy';
     const CLIENT_MENU_MY_QR = 'client.menu.my_qr';
+    const CLIENT_PROPERTY_MENU_DASHBOARD = 'client_property.menu.dashboard';
+    const CLIENT_PROPERTY_MENU_SPACE = 'client_property.menu.space';
+    const CLIENT_PROPERTY_MENU_MESSAGE = 'client_property.menu.message';
+    const CLIENT_PROPERTY_MENU_APPLY = 'client_property.menu.apply';
+    const CLIENT_PROPERTY_MENU_TRADE = 'client_property.menu.trade';
+    const CLIENT_PROPERTY_MENU_LEASE = 'client_property.menu.lease';
+    const CLIENT_PROPERTY_MENU_CUSTOMER = 'client_property.menu.customer';
+    const CLIENT_PROPERTY_MENU_SETTING = 'client_property.menu.setting';
     const ROOM_TYPE = 'room.type.';
 
     const URL_IMAGE = '{{image}}';
@@ -67,6 +75,8 @@ class MenuController extends SandboxRestController
     const URL_MOBILE = '{{mobile}}';
     const URL_ORDERS = '{{orders}}';
     const URL_INVOICE = '{{invoice}}';
+    const URL_PROPERTY_CLIENT_APPLY = '{{property-client-apply}}';
+    const URL_PROPERTY_CLIENT_CUSTOMER= '{{property-client-customer}}';
 
     /**
      * @param Request               $request
@@ -75,7 +85,6 @@ class MenuController extends SandboxRestController
      * @Annotations\QueryParam(
      *    name="component",
      *    nullable=false,
-     *    requirements="(client|admin)",
      *    strict=true,
      *    description="The value of component"
      * )
@@ -179,6 +188,14 @@ class MenuController extends SandboxRestController
             self::CLIENT_MENU_MY_CENTER,
             self::CLIENT_MENU_ADD_BUDDY,
             self::CLIENT_MENU_MY_QR,
+            self::CLIENT_PROPERTY_MENU_DASHBOARD,
+            self::CLIENT_PROPERTY_MENU_SPACE,
+            self::CLIENT_PROPERTY_MENU_MESSAGE,
+            self::CLIENT_PROPERTY_MENU_APPLY,
+            self::CLIENT_PROPERTY_MENU_TRADE,
+            self::CLIENT_PROPERTY_MENU_LEASE,
+            self::CLIENT_PROPERTY_MENU_CUSTOMER,
+            self::CLIENT_PROPERTY_MENU_SETTING,
         );
 
         // translate json
@@ -220,6 +237,12 @@ class MenuController extends SandboxRestController
 
         $urlInvoice = $this->container->getParameter('invoice_url');
         $menuJson = preg_replace('/'.self::URL_INVOICE.'/', "$urlInvoice", $menuJson);
+
+        $propertyClientApplyUrl = $this->container->getParameter('property_client_apply_url');
+        $menuJson = preg_replace('/'.self::URL_PROPERTY_CLIENT_APPLY.'/', "$propertyClientApplyUrl", $menuJson);
+
+        $propertyClientCustomerUrl = $this->container->getParameter('property_client_customer_url');
+        $menuJson = preg_replace('/'.self::URL_PROPERTY_CLIENT_CUSTOMER.'/', "$propertyClientCustomerUrl", $menuJson);
 
         // return view
         $view = new View();

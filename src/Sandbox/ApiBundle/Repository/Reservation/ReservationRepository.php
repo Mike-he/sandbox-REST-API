@@ -4,7 +4,6 @@ namespace Sandbox\ApiBundle\Repository\Reservation;
 
 use Doctrine\ORM\EntityRepository;
 use Sandbox\ApiBundle\Entity\Reservation\Reservation;
-use Sandbox\ApiBundle\Form\Reservation\ReservationType;
 
 class ReservationRepository extends EntityRepository
 {
@@ -39,6 +38,7 @@ class ReservationRepository extends EntityRepository
      * @param null $offset
      * @param $sortColumn
      * @param $direction
+     *
      * @return array
      */
     public function findBySearch(
@@ -93,44 +93,44 @@ class ReservationRepository extends EntityRepository
             $query->setParameter('search', '%'.$keywordSearch.'%');
         }
 
-        if(!is_null($viewStart)){
+        if (!is_null($viewStart)) {
             $viewStart = new \DateTime($viewStart);
             $viewStart->setTime(00, 00, 00);
             $query->andWhere('re.viewTime >= :viewStart')
                 ->setParameter('viewStart', $viewStart);
         }
 
-        if(!is_null($viewEnd)){
+        if (!is_null($viewEnd)) {
             $viewEnd = new \DateTime($viewEnd);
             $viewEnd->setTime(23, 59, 59);
             $query->andWhere('re.viewTime <= :viewEnd')
                 ->setParameter('viewEnd', $viewEnd);
         }
 
-        if(!is_null($createStart)){
+        if (!is_null($createStart)) {
             $createStart = new \DateTime($createStart);
             $createStart->setTime(00, 00, 00);
             $query->andWhere('re.creationDate >= :createStart')
                 ->setParameter('createStart', $createStart);
         }
 
-        if(!is_null($createEnd)){
+        if (!is_null($createEnd)) {
             $createEnd = new \DateTime($createEnd);
             $createEnd->setTime(23, 59, 59);
             $query->andWhere('re.creationDate <= :createEnd')
                 ->setParameter('createEnd', $createEnd);
         }
 
-        if(!is_null($grabStart) || !is_null($grabEnd)){
+        if (!is_null($grabStart) || !is_null($grabEnd)) {
             $query->andWhere('re.status = :status')
                 ->setParameter('status', 'grabbed');
-            if(!empty($grabStart)){
+            if (!empty($grabStart)) {
                 $grabStart = new \DateTime($grabStart);
                 $grabStart->setTime(00, 00, 00);
                 $query->andWhere('re.grabDate >= :grabStart')
                     ->setParameter('grabStart', $grabStart);
             }
-            if(!empty($grabEnd)){
+            if (!empty($grabEnd)) {
                 $grabEnd = new \DateTime($grabEnd);
                 $grabEnd->setTime(23, 59, 59);
                 $query->andWhere('re.grabDate <= :grabEnd')
@@ -143,13 +143,13 @@ class ReservationRepository extends EntityRepository
                 ->setParameter('status', $status);
         }
 
-        if(!is_null($buildingId)){
+        if (!is_null($buildingId)) {
             $query->andWhere('re.productId in (:productIds)')
                 ->setParameter('productIds', $productIds);
         }
 
-        if(!is_null($sortColumn) && !is_null($direction)){
-            switch ($sortColumn){
+        if (!is_null($sortColumn) && !is_null($direction)) {
+            switch ($sortColumn) {
                 case 'view_time':
                     $query->orderBy('re.viewTime', $direction);
                     break;
@@ -183,6 +183,7 @@ class ReservationRepository extends EntityRepository
      * @param $createEnd
      * @param $grabStart
      * @param $grabEnd
+     *
      * @return array
      */
     public function getCountBySearch(
@@ -232,44 +233,44 @@ class ReservationRepository extends EntityRepository
             $query->setParameter('search', '%'.$keywordSearch.'%');
         }
 
-        if(!is_null($viewStart)){
+        if (!is_null($viewStart)) {
             $viewStart = new \DateTime($viewStart);
             $viewStart->setTime(00, 00, 00);
             $query->andWhere('re.viewTime >= :viewStart')
                 ->setParameter('viewStart', $viewStart);
         }
 
-        if(!is_null($viewEnd)){
+        if (!is_null($viewEnd)) {
             $viewEnd = new \DateTime($viewEnd);
             $viewEnd->setTime(23, 59, 59);
             $query->andWhere('re.viewTime <= :viewEnd')
                 ->setParameter('viewEnd', $viewEnd);
         }
 
-        if(!is_null($createStart)){
+        if (!is_null($createStart)) {
             $createStart = new \DateTime($createStart);
             $createStart->setTime(00, 00, 00);
             $query->andWhere('re.creationDate >= :createStart')
                 ->setParameter('createStart', $createStart);
         }
 
-        if(!is_null($createEnd)){
+        if (!is_null($createEnd)) {
             $createEnd = new \DateTime($createEnd);
             $createEnd->setTime(23, 59, 59);
             $query->andWhere('re.creationDate <= :createEnd')
                 ->setParameter('createEnd', $createEnd);
         }
 
-        if(!is_null($grabStart) || !is_null($grabEnd)){
+        if (!is_null($grabStart) || !is_null($grabEnd)) {
             $query->andWhere('re.status = :status')
                 ->setParameter('status', 'grabbed');
-            if(!empty($grabStart)){
+            if (!empty($grabStart)) {
                 $grabStart = new \DateTime($grabStart);
                 $grabStart->setTime(00, 00, 00);
                 $query->andWhere('re.grabDate >= :grabStart')
                     ->setParameter('grabStart', $grabStart);
             }
-            if(!empty($grabEnd)){
+            if (!empty($grabEnd)) {
                 $grabEnd = new \DateTime($grabEnd);
                 $grabEnd->setTime(23, 59, 59);
                 $query->andWhere('re.grabDate <= :grabEnd')
@@ -282,34 +283,72 @@ class ReservationRepository extends EntityRepository
                 ->setParameter('status', $status);
         }
 
-        if(!empty($productIds)){
+        if (!empty($productIds)) {
             $query->andWhere('re.productId in (:productIds)')
                 ->setParameter('productIds', $productIds);
         }
 
         return $query->getQuery()->getSingleScalarResult();
     }
+
     /**
-     * @param  $salesCompanyId
+     * @param $salesCompanyId
+     * @param null $time
+     * @param $limit
+     * @param $offset
      * @return array
      */
-    public function findCompanyUngrabedReservation($salesCompanyId)
-    {
+    public function findCompanyUngrabedReservation(
+        $salesCompanyId,
+        $time=null,
+        $limit=null,
+        $offset=null
+    ) {
         $query = $this->createQueryBuilder('re')
             ->where('re.status = :status')
             ->andWhere('re.companyId = :companyId')
             ->setParameter('status', Reservation::UNGRABED)
-            ->setParameter('companyId', $salesCompanyId)
-            ->orderBy('re.creationDate', 'ASC');
+            ->setParameter('companyId', $salesCompanyId);
+
+        if(!is_null($time)){
+            $query->andWhere('re.viewTime >= :viewTime')
+                ->setParameter('viewTime',$time);
+        }
+            $query->orderBy('re.viewTime', 'ASC');
+
+        if(!is_null($limit) && !is_null($offset)){
+            $query->setFirstResult($offset)
+                ->setMaxResults($limit);
+        }
 
         return $query->getQuery()->getResult();
     }
 
+    /**
+     * @param $salesCompanyId
+     *
+     * @return int
+     */
+    public function countCompanyUngrabedReservation(
+        $salesCompanyId
+    ) {
+        $query = $this->createQueryBuilder('re')
+            ->select('COUNT(re)')
+            ->where('re.status = :status')
+            ->andWhere('re.companyId = :companyId')
+            ->setParameter('status', Reservation::UNGRABED)
+            ->setParameter('companyId', $salesCompanyId);
+
+        $result = $query->getQuery()->getSingleScalarResult();
+
+        return (int) $result;
+    }
 
     /**
      * @param $userId
      * @param $productId
      * @param $viewTime
+     *
      * @return array
      */
     public function getReservationFromSameUser($userId, $productId, $viewTime)
@@ -320,8 +359,91 @@ class ReservationRepository extends EntityRepository
             ->andWhere('re.viewTime = :viewTime')
             ->setParameter('userId', $userId)
             ->setParameter('productId', $productId)
-            ->setParameter('viewTime',$viewTime);
+            ->setParameter('viewTime', $viewTime);
 
         return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $salesCompanyId
+     * @param $adminId
+     * @param $status
+     * @param $grabStart
+     * @param $grabEnd
+     *
+     * @return int
+     */
+    public function countReservationByAdminId(
+        $salesCompanyId,
+        $adminId,
+        $status,
+        $grabStart,
+        $grabEnd
+    )
+    {
+        $query = $this->createQueryBuilder('re')
+            ->select('COUNT(re)')
+            ->where('re.companyId = :companyId')
+            ->andWhere('re.adminId = :adminId')
+            ->setParameter('adminId', $adminId)
+            ->setParameter('companyId', $salesCompanyId);
+
+        if (!is_null($grabStart) || !empty($grabStart)) {
+            $query->andWhere('re.grabDate >= :grabStart')
+                ->setParameter('grabStart', $grabStart);
+        }
+
+        if (!is_null($grabEnd) || !empty($grabEnd)) {
+            $query->andWhere('re.grabDate <= :grabEnd')
+                ->setParameter('grabEnd', $grabEnd);
+        }
+
+        if (!is_null($status)) {
+            $query->andWhere('re.status = :status')
+                ->setParameter('status', $status);
+        }
+
+        $result = $query->getQuery()->getSingleScalarResult();
+
+        return (int)$result;
+    }
+
+    /**
+     * @param $salesCompanyId
+     * @param $adminId
+     * @param $grabStart
+     * @param $grabEnd
+     * @param $status
+     * @param $limit
+     * @param $offset
+     * @return array
+     */
+    public function getMylatestGradedLists(
+        $salesCompanyId,
+        $adminId,
+        $grabStart,
+        $grabEnd,
+        $status,
+        $limit,
+        $offset
+    ){
+        $query = $this->createQueryBuilder('re')
+            ->where('re.companyId = :companyId')
+            ->andWhere('re.adminId = :adminId')
+            ->andWhere('re.grabDate >= :grabStart')
+            ->andWhere('re.grabDate <= :grabEnd')
+            ->andWhere('re.status = :status')
+            ->setParameter('adminId', $adminId)
+            ->setParameter('companyId', $salesCompanyId)
+            ->setParameter('grabStart', $grabStart)
+            ->setParameter('grabEnd', $grabEnd)
+            ->setParameter('status', $status);
+
+        $query->orderBy('re.viewTime','ASC');
+
+        $query->setFirstResult($offset)
+            ->setMaxResults($limit);
+
+        return $result = $query->getQuery()->getResult();
     }
 }

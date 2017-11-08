@@ -219,7 +219,10 @@ class Product
     /**
      * @var array
      *
-     * @Serializer\Groups({"main", "admin_room", "admin_detail", "client", "client_appointment_list", "client_appointment_detail"})
+     * @Serializer\Groups({"main", "admin_room", "admin_detail",
+     *     "client", "client_appointment_list", "client_appointment_detail",
+     *     "lease_bill"
+     * })
      */
     private $rentSet;
 

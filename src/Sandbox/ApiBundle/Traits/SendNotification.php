@@ -15,7 +15,7 @@ use Sandbox\ApiBundle\Entity\User\User;
  * @author   Leo Xu <leox@gobeta.com.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 trait SendNotification
 {
@@ -241,7 +241,7 @@ trait SendNotification
             ->getGlobals();
         $option = $globals['jpush_apns_option'];
 
-        if ($users == 'all') {
+        if ('all' == $users) {
             $audience = 'all';
         } else {
             $audience = [
@@ -345,7 +345,7 @@ trait SendNotification
                 }
 
                 $name = $client->getName();
-                if (is_null($name) || $name == 'SandBox Admin') {
+                if (is_null($name) || 'SandBox Admin' == $name) {
                     continue;
                 }
 
@@ -355,10 +355,10 @@ trait SendNotification
 
                     if ((int) $versionArray[0] < 2) {
                         continue;
-                    } elseif ((int) $versionArray[0] == 2) {
+                    } elseif (2 == (int) $versionArray[0]) {
                         if ((int) $versionArray[1] < 2) {
                             continue;
-                        } elseif ((int) $versionArray[1] == 2) {
+                        } elseif (2 == (int) $versionArray[1]) {
                             $versionNumber = preg_replace('/[^0-9]/', '', $versionArray[2]);
 
                             if ((int) $versionNumber < 9) {

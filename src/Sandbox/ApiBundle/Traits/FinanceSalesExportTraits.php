@@ -324,7 +324,7 @@ trait FinanceSalesExportTraits
         $commission = null;
 
         $orderType = $orderType = $this->get('translator')->trans(
-            ProductOrderExport::TRANS_PRODUCT_ORDER_TYPE.'user',
+            ProductOrderExport::TRANS_PRODUCT_ORDER_TYPE.'own',
             array(),
             null,
             $language
@@ -444,11 +444,6 @@ trait FinanceSalesExportTraits
         /** @var EntityManager $em */
         $em = $this->getContainer()->get('doctrine')->getManager();
 
-        $orderType = [
-            ProductOrder::OWN_TYPE => '用户自主下单',
-            ProductOrder::OFFICIAL_PREORDER_TYPE => '官方推单',
-            ProductOrder::PREORDER_TYPE => '销售方推单',
-        ];
 
         $receivableTypes = [
             'sales_wx' => '微信',
@@ -457,11 +452,6 @@ trait FinanceSalesExportTraits
             'sales_others' => '其他',
             'sales_pos' => 'POS机',
             'sales_remit' => '线下汇款',
-        ];
-
-        $status = [
-            ProductOrder::STATUS_CANCELLED => '已取消',
-            ProductOrder::STATUS_COMPLETED => '已完成',
         ];
 
         $shortBody = [];
@@ -495,7 +485,7 @@ trait FinanceSalesExportTraits
             $refundAmount = $order->getActualRefundAmount();
 
             $poundage = '';
-            if ($order->getType() == ProductOrder::PREORDER_TYPE) {
+            if (ProductOrder::PREORDER_TYPE == $order->getType()) {
                 $serviceBill = $em->getRepository('SandboxApiBundle:Finance\FinanceLongRentServiceBill')
                     ->findOneBy(array('orderNumber' => $order->getOrderNumber()));
 
@@ -504,7 +494,7 @@ trait FinanceSalesExportTraits
 
             $refundTo = null;
             if ($order->isRefunded()) {
-                if ($order->getRefundTo() == 'account') {
+                if ('account' == $order->getRefundTo()) {
                     $refundTo = '退款到余额';
                 } else {
                     $refundTo = '原路退回';
@@ -512,9 +502,9 @@ trait FinanceSalesExportTraits
             }
 
             if ($order->getPayChannel()) {
-                $paymentMethod = $order->getPayChannel() == ProductOrder::CHANNEL_SALES_OFFLINE ? '销售方收款' : '创合代收';
+                $paymentMethod = ProductOrder::CHANNEL_SALES_OFFLINE == $order->getPayChannel() ? '销售方收款' : '创合代收';
 
-                if ($order->getPayChannel() == ProductOrder::CHANNEL_SALES_OFFLINE) {
+                if (ProductOrder::CHANNEL_SALES_OFFLINE == $order->getPayChannel()) {
                     $receivable = $em->getRepository('SandboxApiBundle:Finance\FinanceReceivables')
                         ->findOneBy([
                             'orderNumber' => $order->getOrderNumber(),
@@ -530,6 +520,9 @@ trait FinanceSalesExportTraits
                 $paymentDate = '';
             }
 
+            $orderType = $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_TYPE.$order->getType());
+            $status = $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_STATUS.$order->getStatus());
+
             $body = array(
                 'building_name' => $building->getName(),
                 'order_type' => '秒租订单',
@@ -537,7 +530,7 @@ trait FinanceSalesExportTraits
                 'room_name' => $room->getName(),
                 'room_type' => $roomType,
                 'customer' => $customer ? $customer->getName() : '',
-                'order_method' => $orderType[$order->getType()],
+                'order_method' => $orderType,
                 'payment_method' => $paymentMethod,
                 'pay_channel' => $payChannel,
                 'base_price' => $order->getBasePrice(),
@@ -551,7 +544,7 @@ trait FinanceSalesExportTraits
                 'end_date' => $order->getEndDate()->format('Y-m-d H:i:s'),
                 'creation_date' => $order->getCreationDate()->format('Y-m-d H:i:s'),
                 'payment_date' => $paymentDate,
-                'status' => $status[$order->getStatus()],
+                'status' => $status,
                 'refundTo' => $refundTo,
                 'customer_phone' => $customer ? $customer->getPhone() : '',
                 'customer_email' => $customer ? $customer->getEmail() : '',
@@ -824,14 +817,14 @@ trait FinanceSalesExportTraits
                     $customerId = $order->getCustomerId();
 
                     if ($order->isRefunded()) {
-                        if ($order->getRefundTo() == 'account') {
+                        if ('account' == $order->getRefundTo()) {
                             $refundTo = '退款到余额';
                         } else {
                             $refundTo = '原路退回';
                         }
                     }
 
-                    $status = $order->getStatus() == ProductOrder::STATUS_COMPLETED ? '已完成' : '已取消';
+                    $status = ProductOrder::STATUS_COMPLETED == $order->getStatus() ? '已完成' : '已取消';
 
                     break;
                 case 'B':
@@ -878,7 +871,7 @@ trait FinanceSalesExportTraits
                 $language
             );
 
-            if ($payChannel == 'sales_offline') {
+            if ('sales_offline' == $payChannel) {
                 $payMethod = '销售方收款';
                 $receivables = $em->getRepository('SandboxApiBundle:Finance\FinanceReceivables')
                         ->findOneBy(array('orderNumber' => $orderNumber));
@@ -976,7 +969,7 @@ trait FinanceSalesExportTraits
         $excelBody = array();
         foreach ($flows as $flow) {
             $title = $flow->getTitle();
-            if ($title == FinanceSalesWalletFlow::WITHDRAW_AMOUNT) {
+            if (FinanceSalesWalletFlow::WITHDRAW_AMOUNT == $title) {
                 $enterAmount = '';
                 $outAmount = $flow->getChangeAmount();
             } else {
@@ -1082,13 +1075,6 @@ trait FinanceSalesExportTraits
             $payChannels[$payment->getChannel()] = $payment->getName();
         }
 
-        $orderStatus = [
-          ProductOrder::STATUS_COMPLETED => '已完成',
-          ProductOrder::STATUS_CANCELLED => '已取消',
-          ProductOrder::STATUS_PAID => '已付款',
-          ProductOrder::STATUS_UNPAID => '未付款',
-        ];
-
         $billStatus = [
           LeaseBill::STATUS_UNPAID => '未付款',
           LeaseBill::STATUS_PAID => '已完成',
@@ -1131,7 +1117,7 @@ trait FinanceSalesExportTraits
                     $endDate = $order->getEndDate()->format('Y-m-d H:i:s');
                     $creationDate = $order->getCreationDate()->format('Y-m-d H:i:s');
                     if ($order->isRefunded()) {
-                        if ($order->getRefundTo() == 'account') {
+                        if ('account' == $order->getRefundTo()) {
                             $refundTo = '退款到余额';
                         } else {
                             $refundTo = '原路退回';
@@ -1142,7 +1128,7 @@ trait FinanceSalesExportTraits
 
                     $paymentDate = $order->getPaymentDate() ? $order->getPaymentDate()->format('Y-m-d H:i:s') : '';
 
-                    $status = $orderStatus[$order->getStatus()];
+                    $status = $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_STATUS.$order->getStatus());
 
                     break;
                 case LeaseBill::LEASE_BILL_LETTER_HEAD:
@@ -1186,7 +1172,7 @@ trait FinanceSalesExportTraits
             $customer = $em->getRepository('SandboxApiBundle:User\UserCustomer')->find($customerId);
 
             if ($channel) {
-                if ($channel == ProductOrder::CHANNEL_SALES_OFFLINE) {
+                if (ProductOrder::CHANNEL_SALES_OFFLINE == $channel) {
                     $receivable = $em->getRepository('SandboxApiBundle:Finance\FinanceReceivables')
                         ->findOneBy([
                             'orderNumber' => $orderNumber,
@@ -1337,7 +1323,7 @@ trait FinanceSalesExportTraits
             $customerId = $bill->getCustomerId() ? $bill->getCustomerId() : $lease->getLesseeCustomer();
             $customer = $em->getRepository('SandboxApiBundle:User\UserCustomer')->find($customerId);
 
-            if ($bill->getStatus() == LeaseBill::STATUS_UNPAID) {
+            if (LeaseBill::STATUS_UNPAID == $bill->getStatus()) {
                 $status = '未付款';
                 $paymentMethod = '';
                 $payChannel = '';
@@ -1346,8 +1332,8 @@ trait FinanceSalesExportTraits
                 $settlementAmount = '';
             } else {
                 $status = '已付款';
-                $paymentMethod = $bill->getPayChannel() == ProductOrder::CHANNEL_SALES_OFFLINE ? '销售方收款' : '创合代收';
-                if ($bill->getPayChannel() == ProductOrder::CHANNEL_SALES_OFFLINE) {
+                $paymentMethod = ProductOrder::CHANNEL_SALES_OFFLINE == $bill->getPayChannel() ? '销售方收款' : '创合代收';
+                if (ProductOrder::CHANNEL_SALES_OFFLINE == $bill->getPayChannel()) {
                     $receivable = $em->getRepository('SandboxApiBundle:Finance\FinanceReceivables')
                         ->findOneBy([
                             'orderNumber' => $bill->getSerialNumber(),

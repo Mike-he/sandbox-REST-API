@@ -2185,11 +2185,13 @@ class ProductRepository extends EntityRepository
 
     /**
      * @param $buildingId
+     * @param $search
      *
      * @return array
      */
     public function searchLeasesProducts(
-        $buildingId
+        $buildingId,
+        $search
     ) {
         $query = $this->createQueryBuilder('p')
             ->select('
@@ -2210,6 +2212,51 @@ class ProductRepository extends EntityRepository
                 ->setParameter('buildingId', $buildingId);
         }
 
+        if (!is_null($search)) {
+            $query->andWhere('r.name LIKE :search')
+                ->setParameter('search', '%'.$search.'%');
+        }
+
+
         return $query->getQuery()->getResult();
+    }
+
+    public function getProductsForPropertyClient(
+        $myBuildingIds,
+        $type,
+        $building,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('p')
+            ->leftJoin('p.room','r')
+            ->leftJoin('r.building','b')
+            ->leftJoin('SandboxApiBundle:Product\ProductRentSet', 'prs', 'WITH', 'prs.product = p.id')
+            ->leftJoin('SandboxApiBundle:Product\ProductLeasingSet', 'ls', 'WITH', 'ls.product = p.id')
+            ->where('p.isDeleted = FALSE')
+            ->andWhere('prs.id is  NOT NULL or ls.id is NOT NULL')
+            ->andWhere('r.buildingId in (:buildingIds)')
+            ->setParameter('buildingIds', $myBuildingIds);
+
+        // filter by type
+        if (!is_null($type) && !empty($type)) {
+            $query->andWhere('r.type in (:type)')
+                ->setParameter('type', $type);
+        }
+
+        if (!is_null($building) && !empty($building)) {
+            $query->andWhere('r.building in (:building)')
+                ->setParameter('building', $building);
+        }
+
+        $query->orderBy('b.name', 'asc')
+            ->addOrderBy('r.name','asc');
+
+        $query->setMaxResults($limit)
+            ->setFirstResult($offset);
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
     }
 }

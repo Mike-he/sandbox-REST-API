@@ -12,7 +12,7 @@ use Sandbox\ApiBundle\Entity\Log\Log;
  * @author   Mike He <mike.he@sandbox3.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 trait HasAccessToEntityRepositoryTrait
 {

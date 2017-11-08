@@ -12,7 +12,7 @@ use Sandbox\ApiBundle\Constants\BundleConstants;
  * @author   Leo Xu <leox@gobeta.com.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 trait ConsumeTrait
 {
@@ -55,7 +55,7 @@ trait ConsumeTrait
             $json);
 
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        if ($httpCode != BundleConstants::HTTP_STATUS_OK) {
+        if (BundleConstants::HTTP_STATUS_OK != $httpCode) {
             return;
         }
 

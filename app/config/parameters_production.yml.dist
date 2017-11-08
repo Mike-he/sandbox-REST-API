@@ -103,6 +103,8 @@ parameters:
     orders_url: https://orders.sandbox3.cn
     coffee_url: https://coffee.sandbox3.cn
     invoice_url: https://invoice.sandbox3.cn
+    property_client_apply_url: https://vsales.sandbox3.cn
+    property_client_customer_url: http://asales.sandbox3.cn
 
     duiba_app_key: YSK9PSuahvtV6C3AQtZ85CJ2isw
     duiba_app_secret: z3jDWM6BXhyEryGpZVpVdEczsUE

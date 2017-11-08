@@ -11,10 +11,7 @@ RUN apt-get install -y vim cron wget nginx php5-fpm php5-mysql php5-curl php5-co
 
 # Copy startup script
 COPY data/*.sh /root/
-RUN chown root:root /root/entrypoint.sh \
- && chmod +x /root/entrypoint.sh \
- && chown root:root /root/health_check.sh \
- && chmod +x /root/health_check.sh
+RUN chown root:root /root/*.sh && chmod +x /root/*.sh
 
 # Copy code
 RUN mkdir /var/www/sandbox-REST-API

@@ -1,0 +1,7 @@
+parameters:
+#    sandbox_client_property_api.example.class: Sandbox\ClientPropertyApiBundle\Example
+
+services:
+#    sandbox_client_property_api.example:
+#        class: %sandbox_client_property_api.example.class%
+#        arguments: [@service_id, "plain_value", %parameter%]

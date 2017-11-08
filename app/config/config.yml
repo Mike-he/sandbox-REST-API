@@ -250,7 +250,7 @@ fos_rest:
             html: true
     format_listener:
         rules:
-            - { path: ^/, priorities: [ json, html, xml ], fallback_format: ~, prefer_extension: false }
+            - { path: ^/, priorities: [ json, xml ], fallback_format: ~, prefer_extension: false }
             - { path: '^/duiba', priorities: [ 'text/html', '*/*'], fallback_format: json, prefer_extension: false }
             - { path: '^/door', priorities: [ 'text/html', '*/*'], fallback_format: json, prefer_extension: false }
         media_type:

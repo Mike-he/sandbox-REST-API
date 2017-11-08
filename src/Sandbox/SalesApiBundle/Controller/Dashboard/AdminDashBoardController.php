@@ -2,8 +2,11 @@
 
 namespace Sandbox\SalesApiBundle\Controller\Dashboard;
 
+use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Event\Event;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
+use Sandbox\ApiBundle\Entity\Lease\LeaseClue;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
@@ -21,6 +24,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 class AdminDashBoardController extends SalesRestController
 {
     const TYPE_MEMBERSHIP_CARD = 'membership_card';
+
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
@@ -241,7 +245,7 @@ class AdminDashBoardController extends SalesRestController
 
         $orderList = array_merge($orderList, $leaseList);
 
-        if ($roomType == Room::TYPE_DESK && $product['type_tag'] == 'hot_desk') {
+        if (Room::TYPE_DESK == $roomType && 'hot_desk' == $product['type_tag']) {
             $orders = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Order\ProductOrder')
                 ->getRoomUsersUsage(
@@ -259,7 +263,7 @@ class AdminDashBoardController extends SalesRestController
 
         $product['attachment'] = $attachment;
 
-        if ($product['room_type'] == Room::TYPE_DESK) {
+        if (Room::TYPE_DESK == $product['room_type']) {
             $seats = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Room\RoomFixed')
                 ->findBy(array(
@@ -290,7 +294,7 @@ class AdminDashBoardController extends SalesRestController
             );
         }
 
-        if ($roomType == Room::TYPE_OFFICE) {
+        if (Room::TYPE_OFFICE == $roomType) {
             $productRentSet = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Product\ProductRentSet')
                 ->findOneBy(array('product' => $product['id'], 'status' => true));
@@ -463,7 +467,7 @@ class AdminDashBoardController extends SalesRestController
     ) {
         $result = array();
         foreach ($leases as $lease) {
-            /** @var Lease $lease */
+            /* @var Lease $lease */
             $result[] = array(
                 'lease_id' => $lease->getId(),
                 'start_date' => $lease->getStartDate(),
@@ -490,5 +494,348 @@ class AdminDashBoardController extends SalesRestController
             ],
             $opLevel
         );
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/dashboard/today/events")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getTodayEventsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $startDate = new \DateTime();
+        $startDate->setTime(0, 0, 0);
+
+        $endDate = new \DateTime();
+        $endDate->setTime(23, 59, 59);
+
+        $adminId = $this->getAdminId();
+
+        $result = array();
+
+        $cluePermission = $this->get('sandbox_api.admin_permission_check_service')->checkAdminHasPermissions(
+            $adminId,
+            [AdminPermission::KEY_SALES_BUILDING_LEASE_CLUE]
+        );
+
+        if ($cluePermission) {
+            $leaseClue = $this->getTodayLeaseClue($startDate, $endDate);
+            $result['lease_clue'] = $leaseClue;
+        }
+
+        $orderPermission = $this->get('sandbox_api.admin_permission_check_service')->checkAdminHasPermissions(
+            $adminId,
+            [AdminPermission::KEY_SALES_BUILDING_ORDER]
+        );
+
+        if ($orderPermission) {
+            $productOrders = $this->getTodayProductOrders($startDate, $endDate);
+            $result['product_order'] = $productOrders;
+        }
+
+        $eventPermission = $this->get('sandbox_api.admin_permission_check_service')->checkAdminHasPermissions(
+            $adminId,
+            [AdminPermission::KEY_SALES_PLATFORM_EVENT_ORDER]
+        );
+
+        if ($eventPermission) {
+            $eventOrders = $this->getTodayEventOrders($startDate, $endDate);
+            $result['event_order'] = $eventOrders;
+        }
+
+        $cardPermission = $this->get('sandbox_api.admin_permission_check_service')->checkAdminHasPermissions(
+            $adminId,
+            [AdminPermission::KEY_SALES_PLATFORM_MEMBERSHIP_CARD_ORDER]
+        );
+
+        if ($cardPermission) {
+            $membershipCardOrder = $this->getTodayMembershipCardOrders($startDate, $endDate);
+            $result['membership_card_order'] = $membershipCardOrder;
+        }
+
+        $view = new View();
+        $view->setData($result);
+
+        return $view;
+    }
+
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @param int $limit
+     * @param int $offset
+     *
+     * @return array
+     */
+    private function getTodayLeaseClue(
+        $startDate,
+        $endDate,
+        $limit = 3,
+        $offset = 0
+    ) {
+        $myBuildingIds = $this->get('sandbox_api.admin_permission_check_service')
+            ->getMySalesBuildingIds(
+                $this->getAdminId(),
+                array(
+                    AdminPermission::KEY_SALES_BUILDING_LEASE_CLUE,
+                )
+            );
+
+        $clueLists = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseClue')
+            ->findClues(
+                $myBuildingIds,
+                null,
+                null,
+                null,
+                null,
+                $startDate,
+                $endDate,
+                null,
+                null,
+                null,
+                $limit,
+                $offset
+            );
+
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseClue')
+            ->countClues(
+                $myBuildingIds,
+                null,
+                null,
+                null,
+                null,
+                $startDate,
+                $endDate
+            );
+
+        $clueData = [];
+        foreach ($clueLists as $clueList) {
+            $clueData[] = $this->handleClueData($clueList);
+        }
+
+        $result = array(
+            'lists' => $clueData,
+            'count' => $count,
+        );
+
+        return  $result;
+    }
+
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @param int $limit
+     * @param int $offset
+     *
+     * @return array
+     */
+    private function getTodayProductOrders(
+        $startDate,
+        $endDate,
+        $limit = 3,
+        $offset = 0
+    ) {
+        $em = $this->getDoctrine()->getManager();
+
+        $myBuildingIds = $this->get('sandbox_api.admin_permission_check_service')
+            ->getMySalesBuildingIds(
+                $this->getAdminId(),
+                array(
+                    AdminPermission::KEY_SALES_BUILDING_ORDER,
+                )
+            );
+
+        $orders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getOrderLists(
+                $myBuildingIds,
+                null,
+                $startDate,
+                $endDate,
+                $limit,
+                $offset
+            );
+
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->countOrders(
+                $myBuildingIds,
+                null,
+                $startDate,
+                $endDate
+            );
+
+        $orders = $this->get('serializer')->serialize(
+            $orders,
+            'json',
+            SerializationContext::create()->setGroups(['admin_detail'])
+        );
+        $orders = json_decode($orders, true);
+
+        $result = array(
+            'lists' => $orders,
+            'count' => $count,
+        );
+
+        return  $result;
+    }
+
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @param int $limit
+     * @param int $offset
+     *
+     * @return array
+     */
+    private function getTodayEventOrders(
+        $startDate,
+        $endDate,
+        $limit = 3,
+        $offset = 0
+    ) {
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $companyId = $adminPlatform['sales_company_id'];
+
+        $orders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventOrder')
+            ->getEventOrdersForPropertyClient(
+                $startDate,
+                $endDate,
+                $companyId,
+                $limit,
+                $offset
+            );
+
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventOrder')
+            ->countEventOrdersForPropertyClient(
+                $startDate,
+                $endDate,
+                $companyId
+            );
+
+        foreach ($orders as $order) {
+            /** @var Event $event */
+            $event = $order->getEvent();
+            $dates = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Event\EventDate')
+                ->findByEvent($event);
+            $event->setDates($dates);
+
+            $attachments = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Event\EventAttachment')
+                ->findBy(array(
+                    'event' => $event,
+                ));
+            $event->setAttachments($attachments);
+        }
+
+        $orders = $this->get('serializer')->serialize(
+            $orders,
+            'json',
+            SerializationContext::create()->setGroups(['client_event'])
+        );
+        $orders = json_decode($orders, true);
+
+        $result = array(
+            'lists' => $orders,
+            'count' => $count,
+        );
+
+        return  $result;
+    }
+
+    private function getTodayMembershipCardOrders(
+        $startDate,
+        $endDate,
+        $limit = 3,
+        $offset = 0
+    ) {
+        $platform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $companyId = $platform['sales_company_id'];
+
+        $orders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:MembershipCard\MembershipOrder')
+            ->getOrdersByPropertyClient(
+                $companyId,
+                $startDate,
+                $endDate,
+                $limit,
+                $offset
+            );
+
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:MembershipCard\MembershipOrder')
+            ->countOrdersByPropertyClient(
+                $companyId,
+                $startDate,
+                $endDate
+            );
+
+        $result = array(
+            'lists' => $orders,
+            'count' => $count,
+        );
+
+        return  $result;
+    }
+
+    /**
+     * @param LeaseClue $clue
+     *
+     * @return array
+     */
+    private function handleClueData(
+        $clue
+    ) {
+        $em = $this->getDoctrine()->getManager();
+
+        $buildingId = $clue->getBuildingId();
+        $building = $em->getRepository('SandboxApiBundle:Room\RoomBuilding')->find($buildingId);
+
+        $productId = $clue->getProductId();
+        $product = $em->getRepository('SandboxApiBundle:Product\Product')->find($productId);
+        /** @var Room $room */
+        $room = $product->getRoom();
+
+        $roomAttachmentBinding = $em->getRepository('SandboxApiBundle:Room\RoomAttachmentBinding')
+            ->findOneBy(array('room' => $room->getId()));
+
+        $roomAttachment = $roomAttachmentBinding ? $roomAttachmentBinding->getAttachmentId()->getContent() : null;
+
+        if ($clue->getProductAppointmentId()) {
+            $source = '客户申请';
+        } else {
+            $source = '管理员创建';
+        }
+
+        $result = array(
+            'id' => $clue->getId(),
+            'serial_number' => $clue->getSerialNumber(),
+            'lessee_customer' => $clue->getLesseeCustomer(),
+            'lessee_address' => $clue->getLesseeAddress(),
+            'lessee_email' => $clue->getLesseeEmail(),
+            'lessee_name' => $clue->getLesseeName(),
+            'lessee_phone' => $clue->getLesseePhone(),
+            'room_name' => $room->getName(),
+            'attachment' => $roomAttachment,
+            'building_name' => $building->getName(),
+            'start_date' => $clue->getStartDate(),
+            'cycle' => $clue->getCycle(),
+            'source' => $source,
+            'monthly_rent' => (float) $clue->getMonthlyRent(),
+            'number' => $clue->getNumber(),
+        );
+
+        return $result;
     }
 }

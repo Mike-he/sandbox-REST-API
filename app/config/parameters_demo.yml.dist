@@ -104,6 +104,7 @@ parameters:
     orders_url: https://demoorders.sandbox3.cn
     coffee_url: https://democoffee.sandbox3.cn
     invoice_url: https://demoinvoice.sandbox3.cn
+    property_client_url: '{{domain}}'
 
     duiba_app_key: XUPB5iAdCbHnc6C8fcmpB8fcxLu
     duiba_app_secret: 3ynCsWqXzcErULFvSEojLH94pnxb
