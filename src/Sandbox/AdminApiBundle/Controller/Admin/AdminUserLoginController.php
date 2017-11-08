@@ -218,7 +218,7 @@ class AdminUserLoginController extends AdminRestController
             );
 
             // set admin cookie
-            setrawcookie(self::ADMIN_COOKIE_NAME, $adminToken->getToken(), null, '/', $request->getHost());
+            setrawcookie(self::ADMIN_COOKIE_NAME, $adminToken->getToken(), null, '/', $this->getParameter('top_level_domain'));
 
             return $view->setData(
                 array(
