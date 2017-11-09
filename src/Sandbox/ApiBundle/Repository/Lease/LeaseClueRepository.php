@@ -125,29 +125,18 @@ class LeaseClueRepository extends EntityRepository
 
         if (!is_null($sortColumn) && !is_null($direction)) {
             $direction = strtoupper($direction);
+            $sortArray = array(
+                'start_date' => 'lc.startDate',
+                'cycle' => 'lc.cycle',
+                'monthly_rent' => 'lc.monthlyRent',
+                'number' => 'lc.number',
+                'creation_date' => 'lc.creationDate',
+                'total_rent' => '((lc.cycle) * (lc.monthlyRent))'
+            );
 
-            switch ($sortColumn) {
-                case 'start_date':
-                    $query->orderBy('lc.startDate', $direction);
-                    break;
-                case 'cycle':
-                    $query->orderBy('lc.cycle', $direction);
-                    break;
-                case 'monthly_rent':
-                    $query->orderBy('lc.monthlyRent', $direction);
-                    break;
-                case 'number':
-                    $query->orderBy('lc.number', $direction);
-                    break;
-                case 'creation_date':
-                    $query->orderBy('lc.creationDate', $direction);
-                    break;
-                case 'total_rent':
-                    $query->orderBy('((lc.cycle) * (lc.monthlyRent))', $direction);
-                    break;
-                default:
-                    $query->orderBy('lc.id', 'DESC');
-            }
+            $query->orderBy($sortArray[$sortColumn],$direction);
+        }else{
+            $query->orderBy('ls.creationDate','DESC');
         }
 
         if (!is_null($limit) && !is_null($offset)) {
