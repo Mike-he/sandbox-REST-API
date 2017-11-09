@@ -302,12 +302,12 @@ class LeaseRepository extends EntityRepository
                 'monthly_rent' => 'l.monthlyRent',
                 'deposit' => 'l.deposit',
                 'creation_date' => 'l.creationDate',
-                'total_rent' => 'l.totalRent'
+                'total_rent' => 'l.totalRent',
             );
 
-            $query->orderBy($sortArray[$sortColumn],$direction);
-        }else{
-            $query->orderBy('l.creationDate','DESC');
+            $query->orderBy($sortArray[$sortColumn], $direction);
+        } else {
+            $query->orderBy('l.creationDate', 'DESC');
         }
 
         if (!is_null($customerIds) && !empty($customerIds)) {
