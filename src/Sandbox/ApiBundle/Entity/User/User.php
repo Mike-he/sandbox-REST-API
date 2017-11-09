@@ -183,6 +183,12 @@ class User implements UserInterface
     private $inviterId;
 
     /**
+     * @var array
+     * @Serializer\Groups({"admin_view"})
+     */
+    private $adminProfile;
+
+    /**
      * Get id.
      *
      * @return int
@@ -621,5 +627,21 @@ class User implements UserInterface
     public function setInviterId($inviterId)
     {
         $this->inviterId = $inviterId;
+    }
+
+    /**
+     * @return array
+     */
+    public function getAdminProfile()
+    {
+        return $this->adminProfile;
+    }
+
+    /**
+     * @param array $adminProfile
+     */
+    public function setAdminProfile($adminProfile)
+    {
+        $this->adminProfile = $adminProfile;
     }
 }

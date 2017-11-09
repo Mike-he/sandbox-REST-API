@@ -301,6 +301,17 @@ class AdminSalesCompanyController extends SandboxRestController
                 ->getRepository('SandboxApiBundle:User\User')
                 ->find($admin->getUserId());
 
+            $adminProfile = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
+                ->findOneBy([
+                    'userId' => $admin->getUserId(),
+                    'salesCompanyId' => null,
+                ]);
+
+            $name = !is_null($adminProfile) ? $adminProfile->getNickname() : '';
+
+            $user->setAdminProfile(['name' => $name]);
+
             array_push($userArray, $user);
         }
 
@@ -326,6 +337,17 @@ class AdminSalesCompanyController extends SandboxRestController
             $coffeeUser = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:User\User')
                 ->find($coffeeAdmin->getUserId());
+
+            $adminProfile = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
+                ->findOneBy([
+                    'userId' => $coffeeAdmin->getUserId(),
+                    'salesCompanyId' => null,
+                ]);
+
+            $name = !is_null($adminProfile) ? $adminProfile->getNickname() : '';
+
+            $coffeeUser->setAdminProfile(['name' => $name]);
 
             array_push($coffeeUserArray, $coffeeUser);
         }
