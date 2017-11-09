@@ -136,7 +136,7 @@ class LeaseClueRepository extends EntityRepository
 
             $query->orderBy($sortArray[$sortColumn],$direction);
         }else{
-            $query->orderBy('ls.creationDate','DESC');
+            $query->orderBy('lc.creationDate','DESC');
         }
 
         if (!is_null($limit) && !is_null($offset)) {
