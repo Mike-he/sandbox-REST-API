@@ -422,6 +422,12 @@ lease:
     offer: 报价中
     contract: 已转为合同
     closed: 已关闭
+  bill_status:
+    pending: 未推送
+    unpaid: 未付款
+    paid: 已付款
+    cancelled: 已取消
+    verify: 待确认
 
 client_property:
   menu:

@@ -26,4 +26,5 @@ class LeaseConstants
     const TRANS_LEASE_STATUS = 'lease.lease_status.';
     const TRANS_LEASE_CLUE_STATUS = 'lease.clue_status.';
     const TRANS_LEASE_OFFER_STATUS = 'lease.offer_status.';
+    const TRANS_LEASE_BILL_STATUS = 'lease.bill_status.';
 }

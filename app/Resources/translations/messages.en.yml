@@ -423,6 +423,12 @@ lease:
     offer: offer
     contract: contract
     closed: closed
+  bill_status:
+    pending: pending
+    unpaid: unpaid
+    paid: paid
+    cancelled: cancelled
+    verify: verify
 
 
 client_property:

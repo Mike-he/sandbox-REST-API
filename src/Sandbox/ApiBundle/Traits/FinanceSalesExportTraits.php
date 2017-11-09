@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Traits;
 
 use Doctrine\ORM\EntityManager;
+use Sandbox\ApiBundle\Constants\LeaseConstants;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Constants\EventOrderExport;
 use Sandbox\ApiBundle\Entity\Event\EventOrder;
@@ -1075,11 +1076,6 @@ trait FinanceSalesExportTraits
             $payChannels[$payment->getChannel()] = $payment->getName();
         }
 
-        $billStatus = [
-          LeaseBill::STATUS_UNPAID => '未付款',
-          LeaseBill::STATUS_PAID => '已完成',
-        ];
-
         $excelBody = array();
         foreach ($orderNumbers as $orderNumber) {
             $orderNumber = $orderNumber['order_number'];
@@ -1128,7 +1124,8 @@ trait FinanceSalesExportTraits
 
                     $paymentDate = $order->getPaymentDate() ? $order->getPaymentDate()->format('Y-m-d H:i:s') : '';
 
-                    $status = $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_STATUS.$order->getStatus());
+                    $status = $this->get('translator')
+                        ->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_STATUS.$order->getStatus());
 
                     break;
                 case LeaseBill::LEASE_BILL_LETTER_HEAD:
@@ -1154,7 +1151,8 @@ trait FinanceSalesExportTraits
 
                     $paymentDate = $bill->getPaymentDate() ? $bill->getPaymentDate()->format('Y-m-d H:i:s') : '';
 
-                    $status = $billStatus[$bill->getStatus()];
+                    $status = $this->get('translator')
+                        ->trans(LeaseConstants::TRANS_LEASE_BILL_STATUS.$bill->getStatus());
 
                     break;
             }

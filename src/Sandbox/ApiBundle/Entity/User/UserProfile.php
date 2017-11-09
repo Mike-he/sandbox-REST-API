@@ -93,8 +93,7 @@ class UserProfile
      *      "verify",
      *      "client_event",
      *      "admin_event",
-     *      "client_evaluation",
-     *      "admin_view"
+     *      "client_evaluation"
      *  }
      * )
      */

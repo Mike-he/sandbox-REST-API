@@ -446,14 +446,6 @@ class AdminExportService
         $lists,
         $language
     ) {
-        $status = array(
-            LeaseBill::STATUS_PENDING => '未推送',
-            LeaseBill::STATUS_UNPAID => '未付款',
-            LeaseBill::STATUS_PAID => '已付款',
-            LeaseBill::STATUS_VERIFY => '待确认',
-            LeaseBill::STATUS_CANCELLED => '已取消',
-        );
-
         $excelBody = array();
 
         $payments = $this->doctrine->getRepository('SandboxApiBundle:Payment\Payment')->findAll();
@@ -488,6 +480,9 @@ class AdminExportService
                 }
             }
 
+            $status = $this->get('translator')
+                ->trans(LeaseConstants::TRANS_LEASE_BILL_STATUS.$bill->getStatus());
+
             $billList = array(
                 'serial_number' => $bill->getSerialNumber(),
                 'lease_serial_number' => $bill->getLease()->getSerialNumber(),
@@ -502,7 +497,7 @@ class AdminExportService
                 'order_method' => LeaseBill::ORDER_METHOD_BACKEND == $bill->getOrderMethod() ? '后台推送' : '自动推送',
                 'pay_channel' => $bill->getPayChannel() ? $payChannel[$bill->getPayChannel()] : '',
                 'send_date' => $bill->getSendDate() ? $bill->getSendDate()->format('Y-m-d H:i:s') : '',
-                'status' => $status[$bill->getStatus()],
+                'status' => $status,
                 'revised_amount' => $bill->getRevisedAmount() ? $bill->getRevisedAmount() : '',
                 'remark' => $bill->getRemark(),
             );
