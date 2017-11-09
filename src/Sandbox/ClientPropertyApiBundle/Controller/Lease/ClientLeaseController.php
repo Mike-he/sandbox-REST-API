@@ -110,13 +110,6 @@ class ClientLeaseController extends SalesRestController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="rent_filter",
-     *    default=null,
-     *    nullable=true,
-     *    description="rent time filter keywords"
-     * )
-     *
-     * @Annotations\QueryParam(
      *    name="start_date",
      *    default=null,
      *    nullable=true,
@@ -215,7 +208,6 @@ class ClientLeaseController extends SalesRestController
         $createEnd = $paramFetcher->get('create_end');
 
         // rent date filter
-        $rentFilter = $paramFetcher->get('rent_filter');
         $startDate = $paramFetcher->get('start_date');
         $endDate = $paramFetcher->get('end_date');
 
@@ -258,7 +250,6 @@ class ClientLeaseController extends SalesRestController
                     $keywordSearch,
                     $createStart,
                     $createEnd,
-                    $rentFilter,
                     $startDate,
                     $endDate,
                     $source
