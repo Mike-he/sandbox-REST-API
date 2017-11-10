@@ -260,6 +260,13 @@ class AdminAdminsController extends SandboxRestController
             );
             $bind = json_decode($bind, true);
 
+            $adminProfile = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
+                ->findOneBy([
+                    'userId' => $userId['userId'],
+                    'salesCompanyId' => $companyId,
+                ]);
+
             $result[] = array(
                 'user_id' => $userId['userId'],
                 'user' => $user,
@@ -268,6 +275,7 @@ class AdminAdminsController extends SandboxRestController
                 'building' => $buildingArr,
                 'shop' => $shopArr,
                 'bind' => $bind,
+                'admin_profile' => $adminProfile,
             );
         }
 
