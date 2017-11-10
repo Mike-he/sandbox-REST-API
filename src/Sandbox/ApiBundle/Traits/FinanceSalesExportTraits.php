@@ -940,6 +940,7 @@ trait FinanceSalesExportTraits
 
         // adding headers
         $filename = $filename.'.xls';
+        $filename = urlencode($filename);
 
         $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
         $response->headers->set('Pragma', 'public');
@@ -1014,6 +1015,7 @@ trait FinanceSalesExportTraits
         $response = $this->container->get('phpexcel')->createStreamedResponse($writer);
 
         $filename = $filename.'.xls';
+        $filename = urlencode($filename);
 
         $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
         $response->headers->set('Pragma', 'public');
@@ -1250,6 +1252,7 @@ trait FinanceSalesExportTraits
         $response = $this->container->get('phpexcel')->createStreamedResponse($writer);
 
         $filename = $filename.'.xls';
+        $filename = urlencode($filename);
 
         $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
         $response->headers->set('Pragma', 'public');
@@ -1415,6 +1418,7 @@ trait FinanceSalesExportTraits
 
         // adding headers
         $filename = $filename.'.xls';
+        $filename = urlencode($filename);
 
         $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
         $response->headers->set('Pragma', 'public');
