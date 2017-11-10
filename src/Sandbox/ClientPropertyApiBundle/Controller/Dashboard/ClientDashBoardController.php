@@ -353,8 +353,6 @@ class ClientDashBoardController extends SandboxRestController
         $limit = 3,
         $offset = 0
     ) {
-        $em = $this->getDoctrine()->getManager();
-
         $myBuildingIds = $this->get('sandbox_api.admin_permission_check_service')
             ->getMySalesBuildingIds(
                 $this->getAdminId(),

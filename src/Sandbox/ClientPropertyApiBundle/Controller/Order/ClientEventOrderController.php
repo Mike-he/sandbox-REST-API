@@ -190,7 +190,7 @@ class ClientEventOrderController extends SalesRestController
             $createEnd = new \DateTime($createEnd);
             $createEnd->setTime(23, 59, 59);
         }
-        
+
         $eventStart = $paramFetcher->get('event_start');
         $eventEnd = $paramFetcher->get('event_end');
 
