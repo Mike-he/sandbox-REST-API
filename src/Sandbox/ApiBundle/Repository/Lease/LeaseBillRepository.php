@@ -1018,8 +1018,9 @@ class LeaseBillRepository extends EntityRepository
         return (int) $result;
     }
 
-    /*
+    /**
      * @param $customerId
+     *
      * @return mixed
      */
     public function countCustomerAllLeaseBills(

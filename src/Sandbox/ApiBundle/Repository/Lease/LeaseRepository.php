@@ -296,30 +296,18 @@ class LeaseRepository extends EntityRepository
 
         if (!is_null($sortColumn) && !is_null($direction)) {
             $direction = strtoupper($direction);
+            $sortArray = array(
+                'start_date' => 'l.startDate',
+                'end_date' => 'l.endDate',
+                'monthly_rent' => 'l.monthlyRent',
+                'deposit' => 'l.deposit',
+                'creation_date' => 'l.creationDate',
+                'total_rent' => 'l.totalRent',
+            );
 
-            switch ($sortColumn) {
-                case 'start_date':
-                    $query->orderBy('l.startDate', $direction);
-                    break;
-                case 'end_date':
-                    $query->orderBy('l.endDate', $direction);
-                    break;
-                case 'monthly_rent':
-                    $query->orderBy('l.monthlyRent', $direction);
-                    break;
-                case 'deposit':
-                    $query->orderBy('l.deposit', $direction);
-                    break;
-                case 'creation_date':
-                    $query->orderBy('l.creationDate', $direction);
-                    break;
-                case 'total_rent':
-                    $query->orderBy('l.totalRent', $direction);
-                    break;
-                default:
-                    $query->orderBy('l.id', 'DESC');
-                    break;
-            }
+            $query->orderBy($sortArray[$sortColumn], $direction);
+        } else {
+            $query->orderBy('l.creationDate', 'DESC');
         }
 
         if (!is_null($customerIds) && !empty($customerIds)) {

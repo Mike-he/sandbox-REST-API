@@ -99,13 +99,22 @@ class AdminAuthController extends AuthController
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
             ->findOneBy(array('userId'=>$adminId));
 
+        $adminProfile = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
+            ->findOneBy([
+                'userId' => $adminId,
+                'salesCompanyId' => $salesCompanyId,
+            ]);
+
+        $name = !is_null($adminProfile) ? $adminProfile->getNickname() : '';
+
         // response
         return new View(
             array(
                 'permissions' => $this->remove_duplicate($permissions),
                 'admin' => [
                     'id' => $admin->getId(),
-                    'name' => $admin->getName(),
+                    'name' => $name,
                     'phone' => $admin->getPhone(),
                     'is_super_admin' => $condition,
                     'client_id' => $this->getUser()->getClientId(),
