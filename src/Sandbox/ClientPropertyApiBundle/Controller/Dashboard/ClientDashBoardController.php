@@ -276,16 +276,16 @@ class ClientDashBoardController extends SandboxRestController
     }
 
     /**
-     * @param $startDate
-     * @param $endDate
+     * @param $createStart
+     * @param $createEnd
      * @param int $limit
      * @param int $offset
      *
      * @return array
      */
     private function getTodayLeaseClue(
-        $startDate,
-        $endDate,
+        $createStart,
+        $createEnd,
         $limit = 3,
         $offset = 0
     ) {
@@ -305,8 +305,8 @@ class ClientDashBoardController extends SandboxRestController
                 null,
                 null,
                 null,
-                $startDate,
-                $endDate,
+                $createStart,
+                $createEnd,
                 null,
                 null,
                 null,
@@ -322,8 +322,8 @@ class ClientDashBoardController extends SandboxRestController
                 null,
                 null,
                 null,
-                $startDate,
-                $endDate
+                $createStart,
+                $createEnd
             );
 
         $clueData = [];
