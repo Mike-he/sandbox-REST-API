@@ -1075,6 +1075,26 @@ class LeaseBillRepository extends EntityRepository
         return $query->getQuery()->getResult();
     }
 
+    /**
+     * @param $myBuildingIds
+     * @param $building
+     * @param $product
+     * @param $status
+     * @param $channels
+     * @param $type
+     * @param $keyword
+     * @param $keywordSearch
+     * @param $sendStart
+     * @param $sendEnd
+     * @param $payStartDate
+     * @param $payEndDate
+     * @param $leaseStatus
+     * @param $rentFilter
+     * @param $startDate
+     * @param $endDate
+     *
+     * @return array
+     */
     public function findBillsForPropertyClient(
         $myBuildingIds,
         $building,
@@ -1088,7 +1108,10 @@ class LeaseBillRepository extends EntityRepository
         $sendEnd,
         $payStartDate,
         $payEndDate,
-        $leaseStatus
+        $leaseStatus,
+        $rentFilter,
+        $startDate,
+        $endDate
     ) {
         $query = $this->createQueryBuilder('lb')
             ->select('lb.id')
@@ -1190,6 +1213,41 @@ class LeaseBillRepository extends EntityRepository
             case LeaseBill::STATUS_CANCELLED:
                 $query->orderBy('lb.sendDate', 'DESC');
                 break;
+        }
+
+        if (!is_null($rentFilter) && !empty($rentFilter) &&
+            !is_null($startDate) && !empty($startDate) &&
+            !is_null($endDate) && !empty($endDate)
+        ) {
+            $startDate = new \DateTime($startDate);
+            $startDate->setTime(0, 0, 0);
+
+            $endDate = new \DateTime($endDate);
+            $endDate->setTime(23, 59, 59);
+
+            switch ($rentFilter) {
+                case 'rent_start':
+                    $query->andWhere('lb.startDate >= :startDate')
+                        ->andWhere('lb.startDate <= :endDate');
+                    break;
+                case 'rent_range':
+                    $query->andWhere(
+                        '(
+                            (lb.startDate <= :startDate AND lb.endDate > :startDate) OR
+                            (lb.startDate < :endDate AND lb.endDate >= :endDate) OR
+                            (lb.startDate >= :startDate AND lb.endDate <= :endDate)
+                        )'
+                    );
+                    break;
+                case 'rent_end':
+                    $query->andWhere('lb.endDate >= :startDate')
+                        ->andWhere('lb.endDate <= :endDate');
+                    break;
+                default:
+            }
+
+            $query->setParameter('startDate', $startDate)
+                ->setParameter('endDate', $endDate);
         }
 
         $result = $query->getQuery()->getResult();
