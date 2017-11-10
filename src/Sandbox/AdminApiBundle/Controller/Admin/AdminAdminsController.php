@@ -267,6 +267,15 @@ class AdminAdminsController extends SandboxRestController
                     'salesCompanyId' => $companyId,
                 ]);
 
+            if (is_null($adminProfile)) {
+                $adminProfile = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
+                    ->findOneBy([
+                        'userId' => $userId,
+                        'salesCompanyId' => null,
+                    ]);
+            }
+
             $result[] = array(
                 'user_id' => $userId['userId'],
                 'user' => $user,
@@ -671,6 +680,15 @@ class AdminAdminsController extends SandboxRestController
                     'userId' => $userId,
                     'salesCompanyId' => $salesCompanyId,
                 ]);
+
+            if (is_null($adminProfile)) {
+                $adminProfile = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
+                    ->findOneBy([
+                        'userId' => $userId,
+                        'salesCompanyId' => null,
+                    ]);
+            }
 
             if ($adminProfile) {
                 $admin['avatar'] = $adminProfile->getAvatar();

@@ -106,6 +106,15 @@ class AdminAuthController extends AuthController
                 'salesCompanyId' => $salesCompanyId,
             ]);
 
+        if (is_null($adminProfile)) {
+            $adminProfile = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
+                ->findOneBy([
+                    'userId' => $adminId,
+                    'salesCompanyId' => null,
+                ]);
+        }
+
         $name = !is_null($adminProfile) ? $adminProfile->getNickname() : '';
 
         // response
