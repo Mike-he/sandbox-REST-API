@@ -181,7 +181,11 @@ class ClientEventOrderController extends SalesRestController
         $payEnd = $paramFetcher->get('pay_end');
 
         $createStart = $paramFetcher->get('create_start');
+        $createStart = new \DateTime($createStart);
+
         $createEnd = $paramFetcher->get('create_end');
+        $createEnd = new \DateTime($createEnd);
+        $createEnd->setTime(23, 59, 59);
 
         $eventStart = $paramFetcher->get('event_start');
         $eventEnd = $paramFetcher->get('event_end');
