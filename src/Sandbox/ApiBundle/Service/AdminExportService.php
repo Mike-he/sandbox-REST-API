@@ -111,6 +111,7 @@ class AdminExportService
         $response = $this->container->get('phpexcel')->createStreamedResponse($writer);
 
         $filename = $fileName.'.xls';
+        $filename = urlencode($filename);
 
         $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
         $response->headers->set('Pragma', 'public');

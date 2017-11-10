@@ -137,12 +137,12 @@ class LeaseOfferRepository extends EntityRepository
                 'monthly_rent' => 'lo.monthlyRent',
                 'deposit' => 'lo.deposit',
                 'creation_date' => 'lo.creationDate',
-                'total_rent' => 'lo.creationDate'
+                'total_rent' => 'lo.creationDate',
             );
 
-            $query->orderBy($sortArray[$sortColumn],$direction);
-        }else{
-            $query->orderBy('lo.creationDate','DESC');
+            $query->orderBy($sortArray[$sortColumn], $direction);
+        } else {
+            $query->orderBy('lo.creationDate', 'DESC');
         }
 
         if (!is_null($limit) && !is_null($offset)) {

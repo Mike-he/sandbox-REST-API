@@ -131,12 +131,12 @@ class LeaseClueRepository extends EntityRepository
                 'monthly_rent' => 'lc.monthlyRent',
                 'number' => 'lc.number',
                 'creation_date' => 'lc.creationDate',
-                'total_rent' => '((lc.cycle) * (lc.monthlyRent))'
+                'total_rent' => '((lc.cycle) * (lc.monthlyRent))',
             );
 
-            $query->orderBy($sortArray[$sortColumn],$direction);
-        }else{
-            $query->orderBy('lc.creationDate','DESC');
+            $query->orderBy($sortArray[$sortColumn], $direction);
+        } else {
+            $query->orderBy('lc.creationDate', 'DESC');
         }
 
         if (!is_null($limit) && !is_null($offset)) {

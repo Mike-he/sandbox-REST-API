@@ -137,6 +137,27 @@ class ClientBillController extends SalesRestController
      * )
      *
      * @Annotations\QueryParam(
+     *    name="rent_filter",
+     *    default=null,
+     *    nullable=true,
+     *    description="rent time filter keywords"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="start_date",
+     *    default=null,
+     *    nullable=true,
+     *    description="appointment start date"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="end_date",
+     *    default=null,
+     *    nullable=true,
+     *    description="appointment end date"
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="limit",
      *    array=false,
      *    default="10",
@@ -182,6 +203,11 @@ class ClientBillController extends SalesRestController
         $building = $paramFetcher->get('building');
         $product = $paramFetcher->get('product');
 
+        // rent date filter
+        $rentFilter = $paramFetcher->get('rent_filter');
+        $startDate = $paramFetcher->get('start_date');
+        $endDate = $paramFetcher->get('end_date');
+
         $myBuildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
             array(
@@ -226,7 +252,10 @@ class ClientBillController extends SalesRestController
                     $sendEnd,
                     $payStartDate,
                     $payEndDate,
-                    $leaseStatus
+                    $leaseStatus,
+                    $rentFilter,
+                    $startDate,
+                    $endDate
                 );
 
             $ids = array_merge($ids, $billIds);

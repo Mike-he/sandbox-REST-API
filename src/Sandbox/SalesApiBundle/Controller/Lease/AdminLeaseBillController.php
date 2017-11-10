@@ -168,9 +168,6 @@ class AdminLeaseBillController extends SalesRestController
         // check user permission
         $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_VIEW);
 
-        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
-        $company = $adminPlatform['sales_company_id'];
-
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
         $offset = ($pageIndex - 1) * $pageLimit;
