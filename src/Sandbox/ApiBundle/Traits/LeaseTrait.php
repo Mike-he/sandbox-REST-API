@@ -58,6 +58,14 @@ trait LeaseTrait
             );
         $lease->setPushedLeaseBillsAmount($pushedLeaseBills);
 
+        $unpaidBills = $em->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->countBills(
+                $lease,
+                null,
+                LeaseBill::STATUS_UNPAID
+            );
+        $lease->setUnpaidLeaseBillsAmount($unpaidBills);
+
         $otherBills = $em->getRepository('SandboxApiBundle:Lease\LeaseBill')
             ->countBills(
                 $lease,
@@ -73,8 +81,16 @@ trait LeaseTrait
                     LeaseBill::STATUS_PAID,
                 ]
             );
-
         $lease->setPushedLeaseBillsFees($pushedLeaseBillFee);
+
+        $paidLeaseBillFee = $em->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->sumBillsFees(
+                $lease,
+                [
+                    LeaseBill::STATUS_PAID,
+                ]
+            );
+        $lease->setPaidLeaseBillsFees($paidLeaseBillFee);
 
         /** @var Product $product */
         $product = $lease->getProduct();

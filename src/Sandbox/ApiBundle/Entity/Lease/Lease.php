@@ -396,7 +396,7 @@ class Lease
 
     /**
      * @var int
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "lease_list"})
      */
     private $unpaidLeaseBillsAmount;
 
@@ -420,6 +420,13 @@ class Lease
      * @Serializer\Groups({"main","lease_list"})
      */
     private $pushedLeaseBillsFees;
+
+    /**
+     * @var float
+     *
+     * @Serializer\Groups({"main","lease_list"})
+     */
+    private $paidLeaseBillsFees;
 
     /**
      * @var string
@@ -1422,5 +1429,21 @@ class Lease
     public function setLesseeEnterpriseName($lesseeEnterpriseName)
     {
         $this->lesseeEnterpriseName = $lesseeEnterpriseName;
+    }
+
+    /**
+     * @return float
+     */
+    public function getPaidLeaseBillsFees()
+    {
+        return $this->paidLeaseBillsFees;
+    }
+
+    /**
+     * @param float $paidLeaseBillsFees
+     */
+    public function setPaidLeaseBillsFees($paidLeaseBillsFees)
+    {
+        $this->paidLeaseBillsFees = $paidLeaseBillsFees;
     }
 }
