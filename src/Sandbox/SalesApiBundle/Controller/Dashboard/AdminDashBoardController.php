@@ -711,6 +711,15 @@ class AdminDashBoardController extends SalesRestController
                 $startDate,
                 $endDate,
                 $companyId,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
                 $limit,
                 $offset
             );

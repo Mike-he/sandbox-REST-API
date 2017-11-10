@@ -431,6 +431,15 @@ class ClientDashBoardController extends SandboxRestController
                 $startDate,
                 $endDate,
                 $companyId,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
                 $limit,
                 $offset
             );

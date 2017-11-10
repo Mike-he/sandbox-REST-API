@@ -751,6 +751,15 @@ class EventOrderRepository extends EntityRepository
      * @param $createStart
      * @param $createEnd
      * @param $salesCompanyId
+     * @param $channel
+     * @param $status
+     * @param $eventStatus
+     * @param $keyword
+     * @param $keywordSearch
+     * @param $payStart
+     * @param $payEnd
+     * @param $eventStart
+     * @param $eventEnd
      * @param $limit
      * @param $offset
      *
@@ -760,6 +769,15 @@ class EventOrderRepository extends EntityRepository
         $createStart,
         $createEnd,
         $salesCompanyId,
+        $channel,
+        $status,
+        $eventStatus,
+        $keyword,
+        $keywordSearch,
+        $payStart,
+        $payEnd,
+        $eventStart,
+        $eventEnd,
         $limit,
         $offset
     ) {
@@ -770,6 +788,76 @@ class EventOrderRepository extends EntityRepository
             ->andWhere('e.salesCompanyId = :salesCompanyId')
             ->setParameter('unpaid', EventOrder::STATUS_UNPAID)
             ->setParameter('salesCompanyId', $salesCompanyId);
+
+
+        if (!is_null($channel) && !empty($channel)) {
+            if (in_array('sandbox', $channel)) {
+                $channel[] = ProductOrder::CHANNEL_ACCOUNT;
+                $channel[] = ProductOrder::CHANNEL_ALIPAY;
+                $channel[] = ProductOrder::CHANNEL_UNIONPAY;
+                $channel[] = ProductOrder::CHANNEL_WECHAT;
+                $channel[] = ProductOrder::CHANNEL_WECHAT_PUB;
+            }
+            $query->andWhere('eo.payChannel in (:channel)')
+                ->setParameter('channel', $channel);
+        }
+
+        if (!is_null($status) && !empty($status)) {
+            $query->andWhere('eo.status in (:status)')
+                ->setParameter('status', $status);
+        }
+
+        if (!is_null($eventStatus) && !empty($eventStatus)) {
+            $query->andWhere('e.status in (:eventStatus)')
+                ->setParameter('eventStatus', $eventStatus);
+        }
+
+        if (!is_null($keyword) && !is_null($keywordSearch)) {
+            switch ($keyword) {
+                case 'all':
+                    $query ->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.id = eo.customerId')
+                        ->andWhere('
+                                eo.orderNumber LIKE :search OR
+                                e.name LIKE :search OR
+                                uc.name LIKE :search OR
+                                uc.phone LIKE :search
+                            ');
+                    break;
+                default:
+                    $query->andWhere('eo.orderNumber LIKE :search');
+            }
+            $query->setParameter('search', '%'.$keywordSearch.'%');
+        }
+
+
+        //filter by payStart
+        if (!is_null($payStart)) {
+            $payStart = new \DateTime($payStart);
+            $query->andWhere('eo.paymentDate >= :payStart')
+                ->setParameter('payStart', $payStart);
+        }
+
+        //filter by payEnd
+        if (!is_null($payEnd)) {
+            $payEnd = new \DateTime($payEnd);
+            $payEnd->setTime(23, 59, 59);
+            $query->andWhere('eo.paymentDate <= :payEnd')
+                ->setParameter('payEnd', $payEnd);
+        }
+
+        if (!is_null($eventStart)) {
+            $eventStart = new \DateTime($eventStart);
+            $eventStart->setTime(00, 00, 00);
+            $query->andWhere('e.eventEndDate >= :eventStart')
+                ->setParameter('eventStart', $eventStart);
+        }
+
+        if (!is_null($eventEnd)) {
+            $eventEnd = new \DateTime($eventEnd);
+            $eventEnd->setTime(23, 59, 59);
+            $query->andWhere('e.eventStartDate <= :eventEnd')
+                ->setParameter('eventEnd', $eventEnd);
+        }
 
         // filter by order start point
         if (!is_null($createStart)) {
