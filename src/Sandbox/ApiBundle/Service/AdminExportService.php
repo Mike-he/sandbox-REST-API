@@ -55,35 +55,35 @@ class AdminExportService
         switch ($key) {
             case GenericList::OBJECT_LEASE_CLUE:
                 $excelBody = $this->getExcelClueData($data, $lists, $language);
-                $fileName = '线索'.$min.' - '.$max;
+                $fileName = '线索'.$min.'-'.$max;
                 break;
             case GenericList::OBJECT_LEASE_OFFER:
                 $excelBody = $this->getExcelOfferData($data, $lists, $language);
-                $fileName = '报价'.$min.' - '.$max;
+                $fileName = '报价'.$min.'-'.$max;
                 break;
             case GenericList::OBJECT_LEASE:
                 $excelBody = $this->getExcelLeaseData($data, $lists, $language);
-                $fileName = '合同'.$min.' - '.$max;
+                $fileName = '合同'.$min.'-'.$max;
                 break;
             case GenericList::OBJECT_LEASE_BILL:
                 $excelBody = $this->getExcelBillData($data, $lists, $language);
-                $fileName = '账单'.$min.' - '.$max;
+                $fileName = '账单'.$min.'-'.$max;
                 break;
             case GenericList::OBJECT_CASHIER:
                 $excelBody = $this->getExcelFinansherCrashier($data, $lists, $language);
-                $fileName = '收银台'.$min.' - '.$max;
+                $fileName = '收银台'.$min.'-'.$max;
                 break;
             case GenericList::OBJECT_PRODUCT_ORDER:
                 $excelBody = $this->getExcelProductOrder($data, $lists, $language);
-                $fileName = '空间订单'.$min.' - '.$max;
+                $fileName = '空间订单'.$min.'-'.$max;
                 break;
             case GenericList::OBJECT_MEMBERSHIP_ORDER:
                 $excelBody = $this->getExcelMembershipOrder($data, $lists, $language);
-                $fileName = '会员卡订单'.$min.' - '.$max;
+                $fileName = '会员卡订单'.$min.'-'.$max;
                 break;
             case GenericList::OBJECT_EVENT_ORDER:
                 $excelBody = $this->getExcelEventOrder($data, $lists, $language);
-                $fileName = '活动订单'.$min.' - '.$max;
+                $fileName = '活动订单'.$min.'-'.$max;
                 break;
             default:
                 $excelBody = array();
@@ -111,6 +111,7 @@ class AdminExportService
         $response = $this->container->get('phpexcel')->createStreamedResponse($writer);
 
         $filename = $fileName.'.xls';
+        $filename = urlencode($filename);
 
         $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
         $response->headers->set('Pragma', 'public');
