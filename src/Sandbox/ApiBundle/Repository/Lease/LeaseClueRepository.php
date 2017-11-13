@@ -287,7 +287,9 @@ class LeaseClueRepository extends EntityRepository
         $endDate,
         $source,
         $cycleStart,
-        $cycleEnd
+        $cycleEnd,
+        $createStart,
+        $createEnd
     ) {
         $query = $this->createQueryBuilder('lc')
             ->select('lc.id')
@@ -355,6 +357,21 @@ class LeaseClueRepository extends EntityRepository
         if ($cycleEnd) {
             $query->andWhere('lc.cycle <= :cycleEnd')
                 ->setParameter('cycleEnd', $cycleEnd);
+        }
+
+        if ($createStart) {
+            $createStart = new \DateTime($createStart);
+
+            $query->andWhere('lc.creationDate >= :createStart')
+                ->setParameter('createStart', $createStart);
+        }
+
+        if ($createEnd) {
+            $createEnd = new \DateTime($createEnd);
+            $createEnd->setTime(23, 59, 59);
+
+            $query->andWhere('lc.creationDate <= :createEnd')
+                ->setParameter('createEnd', $createEnd);
         }
 
         $query->orderBy('lc.creationDate', 'DESC');

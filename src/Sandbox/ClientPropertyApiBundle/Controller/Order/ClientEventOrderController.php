@@ -4,6 +4,7 @@ namespace Sandbox\ClientPropertyApiBundle\Controller\Order;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
+use Sandbox\ApiBundle\Constants\EventOrderExport;
 use Sandbox\ApiBundle\Entity\Event\Event;
 use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
@@ -61,15 +62,6 @@ class ClientEventOrderController extends SalesRestController
      *    description="Event Status"
      * )
      *
-     * @Annotations\QueryParam(
-     *    name="pay_date",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
-     *    strict=true,
-     *    description="filter for payment start. Must be YYYY-mm-dd"
-     * )
      *
      * @Annotations\QueryParam(
      *    name="pay_start",
@@ -91,12 +83,6 @@ class ClientEventOrderController extends SalesRestController
      *    description="filter for payment end. Must be YYYY-mm-dd"
      * )
      *
-     * @Annotations\QueryParam(
-     *    name="create_date_range",
-     *    default=null,
-     *    nullable=true,
-     *    description="create_date_range"
-     * )
      *
      * @Annotations\QueryParam(
      *    name="create_start",
@@ -110,6 +96,26 @@ class ClientEventOrderController extends SalesRestController
      *
      *  @Annotations\QueryParam(
      *    name="create_end",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="end date. Must be YYYY-mm-dd"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="event_start",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="start date. Must be YYYY-mm-dd"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="event_end",
      *    array=false,
      *    default=null,
      *    nullable=true,
@@ -171,54 +177,49 @@ class ClientEventOrderController extends SalesRestController
         $status = $paramFetcher->get('status');
         $eventStatus = $paramFetcher->get('event_status');
 
-        $payDate = $paramFetcher->get('pay_date');
         $payStart = $paramFetcher->get('pay_start');
         $payEnd = $paramFetcher->get('pay_end');
 
-        $createDateRange = $paramFetcher->get('create_date_range');
         $createStart = $paramFetcher->get('create_start');
+        if ($createStart) {
+            $createStart = new \DateTime($createStart);
+        }
+
         $createEnd = $paramFetcher->get('create_end');
+        if ($createEnd) {
+            $createEnd = new \DateTime($createEnd);
+            $createEnd->setTime(23, 59, 59);
+        }
+
+        $eventStart = $paramFetcher->get('event_start');
+        $eventEnd = $paramFetcher->get('event_end');
 
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
 
-        $sortColumn = 'payment_date';
-        $direction = 'DESC';
-
         $orders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Event\EventOrder')
-            ->getEventOrdersForSalesAdmin(
-                null,
+            ->getEventOrdersForPropertyClient(
+                $createStart,
+                $createEnd,
+                $companyId,
                 $channel,
                 $status,
                 $eventStatus,
                 $keyword,
                 $keywordSearch,
-                $payDate,
                 $payStart,
                 $payEnd,
-                $createDateRange,
-                $createStart,
-                $createEnd,
-                $companyId,
-                null,
+                $eventStart,
+                $eventEnd,
                 $limit,
-                $offset,
-                $sortColumn,
-                $direction
+                $offset
             );
-
-        $orderStatus = [
-            EventOrder::STATUS_UNPAID => '未付款',
-            EventOrder::STATUS_PAID => '已付款',
-            EventOrder::STATUS_COMPLETED => '已完成',
-            EventOrder::STATUS_CANCELLED => '已取消',
-        ];
 
         // set event dates
         $orderLists = [];
         foreach ($orders as $order) {
-            $orderLists[] = $this->handleOrderData($order, $orderStatus);
+            $orderLists[] = $this->handleOrderData($order);
         }
 
         $view = new View();
@@ -229,13 +230,11 @@ class ClientEventOrderController extends SalesRestController
 
     /**
      * @param EventOrder $order
-     * @param  $status
      *
      * @return array
      */
     private function handleOrderData(
-        $order,
-        $status
+        $order
     ) {
         $customer = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserCustomer')
@@ -248,11 +247,13 @@ class ClientEventOrderController extends SalesRestController
             ->getRepository('SandboxApiBundle:Event\EventAttachment')
             ->findOneBy(array('eventId' => $event->getId()));
 
+        $status = $this->get('translator')->trans(EventOrderExport::TRANS_EVENT_ORDER_STATUS.$order->getStatus());
+
         $result = array(
             'id' => $order->getId(),
             'order_number' => $order->getOrderNumber(),
             'creation_date' => $order->getCreationDate(),
-            'status' => $status[$order->getStatus()],
+            'status' => $status,
             'event_name' => $event->getname(),
             'event_start_date' => $event->getEventStartDate(),
             'event_end_date' => $event->getEventEndDate(),

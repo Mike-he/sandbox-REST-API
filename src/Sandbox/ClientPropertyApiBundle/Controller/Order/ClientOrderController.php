@@ -159,6 +159,26 @@ class ClientOrderController extends OrderController
      *    description="Filter by product id"
      * )
      *
+     *  @Annotations\QueryParam(
+     *    name="create_start",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="start date. Must be YYYY-mm-dd"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="create_end",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="end date. Must be YYYY-mm-dd"
+     * )
+     *
      * @Annotations\QueryParam(
      *    name="limit",
      *    array=false,
@@ -209,6 +229,9 @@ class ClientOrderController extends OrderController
         $payStart = $paramFetcher->get('pay_start');
         $payEnd = $paramFetcher->get('pay_end');
 
+        $createStart = $paramFetcher->get('create_start');
+        $createEnd = $paramFetcher->get('create_end');
+
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
 
@@ -238,8 +261,8 @@ class ClientOrderController extends OrderController
                 $keywordSearch,
                 $myBuildingIds,
                 null,
-                null,
-                null,
+                $createStart,
+                $createEnd,
                 $status,
                 $orderType,
                 $productId,
@@ -274,7 +297,6 @@ class ClientOrderController extends OrderController
     /**
      * @param ProductOrder $order
      * @param $receivableTypes
-     * @param $status
      *
      * @return array
      */
