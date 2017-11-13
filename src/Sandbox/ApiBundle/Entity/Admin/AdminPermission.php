@@ -105,6 +105,7 @@ class AdminPermission
     const KEY_SALES_BUILDING_INTERNAL_OCCUPANCY = 'sales.building.internal_occupancy';
     const KEY_SALES_BUILDING_PUSH_ORDER = 'sales.building.push_order';
     const KEY_SALES_PLATFORM_LOG = 'sales.platform.log';
+    const KEY_SALES_BUILDING_SETTING = 'sales.building.setting';
 
     const KEY_SHOP_PLATFORM_DASHBOARD = 'shop.platform.dashboard';
     const KEY_SHOP_PLATFORM_ADMIN = 'shop.platform.admin';
