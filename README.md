@@ -1,26 +1,23 @@
 # Sandbox REST API
 
-This project use composer to manage dependencies and symfony2 as the framework
+#### Install Docker APP
 
-All these API will require authentification with  Basic HTTP Auth
-with username = "token" and password = "id of client"
+> Download | [Docker Community Edition for Mac](https://store.docker.com/editions/community/docker-ce-desktop-mac)
 
-## Useful commands
-  * to start vagrant ENV `vagrant up` 
-  * to ssh into the virtual machine `vagrant ssh`
-  * to close vagrant ENV `vagrant halt`
+#### Run Container
 
-## Pre-requisites
+```bash
+docker run -it -d -v $(pwd):/var/www/sandbox-REST-API -p 10080:80 --name=rest-api --restart=always registry.cn-shanghai.aliyuncs.com/sandbox3/homestead:latest
+```
 
-* [VirtualBox](http://www.virtualbox.org/) for full machine virtualization
-* [Vagrant](http://www.vagrantup.com/) for automatic creation and provisioning of guest VMs
+#### Mysql Server
 
-## Build Local Environment
+```bash
+docker run -it -d -e MYSQL_ROOT_PASSWORD=root -p 13306:3306 --name=mysql --restart=always mysql:5.6
+```
 
-* run the command "bin/homestead make"
-* modify the file 'homestead.yml'
-* execute 'vagrant up' from project directory
+#### Check Container Ip Address
 
-## API Documentations
-
-[http://gitlab.sandbox3.cn/Sandbox/Sandbox-API-Docs](http://gitlab.sandbox3.cn/Sandbox/Sandbox-API-Docs)
+```bash
+docker inspect mysql | grep "IPAddress"
+```

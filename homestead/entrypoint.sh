@@ -5,6 +5,8 @@ if [ -z "$TZ" ]; then
 fi
 ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && echo "${TZ}" > /etc/timezone
 
+cd /var/www/sandbox-REST-API
+
 # Copy pdf bin
 cp data/pdf_bin/* /usr/bin/ && chmod +x /usr/bin/wkhtmltopdf
 
@@ -23,4 +25,4 @@ setfacl -R -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX app/cache app/logs /dev/shm
 /etc/init.d/nginx start 
 
 # Keep container alive
-tail -f /var/www/sandbox-REST-API/app/logs/dev.log
+tail -f /dev/null
