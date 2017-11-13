@@ -45,11 +45,13 @@ class Version820171113144700 extends AbstractMigration implements ContainerAware
         $gruopMap = new AdminPermissionGroupMap();
         $gruopMap->setGroup($tradeGroup1);
         $gruopMap->setPermission($buildingSettingPermission);
+        $em->persist($gruopMap);
 
         $group = new AdminPermissionGroups();
         $group->setGroupKey('usage');
         $group->setGroupName('空间管理');
         $group->setPlatform('sales');
+        $em->persist($group);
 
         $InternalOccupancyPermission = $em->getRepository('SandboxApiBundle:Admin\AdminPermission')
             ->findOneBy(array(
@@ -91,9 +93,7 @@ class Version820171113144700 extends AbstractMigration implements ContainerAware
         $gruopMap3->setGroup($group);
 
         $em->persist($buildingSettingPermission);
-        $em->persist($group);
-
-        $em->persist($gruopMap);
+        
         $em->persist($gruopMap1);
         $em->persist($gruopMap2);
         $em->persist($gruopMap3);
