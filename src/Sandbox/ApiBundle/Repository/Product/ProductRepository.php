@@ -2225,6 +2225,8 @@ class ProductRepository extends EntityRepository
         $myBuildingIds,
         $type,
         $building,
+        $keyword,
+        $keywordSearch,
         $limit,
         $offset
     ) {
@@ -2247,6 +2249,19 @@ class ProductRepository extends EntityRepository
         if (!is_null($building) && !empty($building)) {
             $query->andWhere('r.building in (:building)')
                 ->setParameter('building', $building);
+        }
+
+        if (!is_null($keyword) && !is_null($keywordSearch)) {
+            switch ($keyword) {
+                case 'all':
+                    $query->andWhere(
+                        'r.name LIKE :search 
+                            ');
+                    break;
+                default:
+                    $query->andWhere('r.name LIKE :search');
+            }
+            $query->setParameter('search', '%'.$keywordSearch.'%');
         }
 
         $query->orderBy('b.name', 'asc')
