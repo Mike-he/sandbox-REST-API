@@ -109,6 +109,20 @@ class ClientClueController extends SalesRestController
      * )
      *
      * @Annotations\QueryParam(
+     *    name="create_start",
+     *    default=null,
+     *    nullable=true,
+     *    description="create start date"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="create_end",
+     *    default=null,
+     *    nullable=true,
+     *    description="create end date"
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="limit",
      *    array=false,
      *    default="10",
@@ -157,6 +171,10 @@ class ClientClueController extends SalesRestController
         $cycleStart = $paramFetcher->get('cycle_start');
         $cycleEnd = $paramFetcher->get('cycle_end');
 
+        // creation date filter
+        $createStart = $paramFetcher->get('create_start');
+        $createEnd = $paramFetcher->get('create_end');
+
         //get my buildings list
         $myBuildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
@@ -191,7 +209,9 @@ class ClientClueController extends SalesRestController
                     $endDate,
                     $source,
                     $cycleStart,
-                    $cycleEnd
+                    $cycleEnd,
+                    $createStart,
+                    $createEnd
                 );
 
             $ids = array_merge($ids, $leaseIds);
