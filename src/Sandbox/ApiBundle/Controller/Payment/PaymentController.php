@@ -1318,7 +1318,7 @@ class PaymentController extends DoorController
                 'orderNumber' => $orderNumber,
             ));
         if (!is_null($checkOrder)) {
-            return;
+            return $checkOrder;
         }
 
         // save order
