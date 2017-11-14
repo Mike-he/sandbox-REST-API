@@ -401,7 +401,34 @@ class AdminAdminsController extends SandboxRestController
 
         $result = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserView')->searchUserInfo($diff, $search);
 
-        return new View($result);
+        $response = [];
+        foreach ($result as $item) {
+            $userId = $item->getId();
+
+            $adminProfile = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
+                ->findOneBy([
+                    'userId' => $userId['userId'],
+                    'salesCompanyId' => $companyId,
+                ]);
+
+            if (is_null($adminProfile)) {
+                $adminProfile = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
+                    ->findOneBy([
+                        'userId' => $userId,
+                        'salesCompanyId' => null,
+                    ]);
+            }
+
+            array_push($response, [
+                'user_id' => $userId,
+                'phone' => $item->getPhone(),
+                'admin_profile' => $adminProfile,
+            ]);
+        }
+
+        return new View($response);
     }
 
     /**
