@@ -22,7 +22,7 @@ class FileServerController extends SandboxRestController
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
-     * @Route("/fileserver/sts")
+     * @Route("/plugins/fileServer/fileservice/sts")
      * @Method({"GET"})
      *
      * @return View
