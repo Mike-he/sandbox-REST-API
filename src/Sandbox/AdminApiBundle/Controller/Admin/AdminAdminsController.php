@@ -271,7 +271,7 @@ class AdminAdminsController extends SandboxRestController
                 $adminProfile = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
                     ->findOneBy([
-                        'userId' => $userId,
+                        'userId' => $userId['userId'],
                         'salesCompanyId' => null,
                     ]);
             }
@@ -408,7 +408,7 @@ class AdminAdminsController extends SandboxRestController
             $adminProfile = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
                 ->findOneBy([
-                    'userId' => $userId['userId'],
+                    'userId' => $userId,
                     'salesCompanyId' => $companyId,
                 ]);
 

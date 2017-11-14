@@ -119,9 +119,3 @@ parameters:
     invoice_url: http://devinvoice.sandbox3.cn
     property_client_apply_url: http://devvsales.sandbox3.cn
     property_client_customer_url: http://devasales.sandbox3.cn
-
-    openfire_url: http://devxmpp.sandbox3.cn/plugins/restapi/v1
-    openfire_secret: TKv28StIabbAw49o
-    openfire_servicename: conference
-    openfire_servername: devxmpp.sandbox3.cn
-    openfire_service: 'jean553\OpenfireBundle\Services\OpenfireService'

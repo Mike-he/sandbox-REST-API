@@ -1,0 +1,9 @@
+{
+"AccessKeyID" : "LTAIlrwRyGc3PpVH",
+"AccessKeySecret" : "mxnsEPGC4OgwOLTqB3HX6YMB34wUqh",
+"RoleArn" : "acs:ram::1805038742091034:role/aliyunosstokengeneratorrole",
+"BucketName" : "sandbox3-dev-image",
+"Endpoint" : "oss-cn-shanghai-internal.aliyuncs.com",
+"TokenExpireTime" : "900",
+"PolicyFile": "policy/all_policy.txt"
+}
