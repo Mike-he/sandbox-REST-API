@@ -49,6 +49,20 @@ class ClientProductController extends ProductController
      * )
      *
      * @Annotations\QueryParam(
+     *    name="keyword",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="keyword_search",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="limit",
      *    array=false,
      *    default="10",
@@ -83,6 +97,10 @@ class ClientProductController extends ProductController
         // filters
         $buildingId = $paramFetcher->get('building');
         $type = $paramFetcher->get('type');
+
+        $keyword = $paramFetcher->get('keyword');
+        $keywordSearch = $paramFetcher->get('keyword_search');
+
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
 
@@ -104,6 +122,8 @@ class ClientProductController extends ProductController
                 $myBuildingIds,
                 $type,
                 $buildingId,
+                $keyword,
+                $keywordSearch,
                 $limit,
                 $offset
             );
