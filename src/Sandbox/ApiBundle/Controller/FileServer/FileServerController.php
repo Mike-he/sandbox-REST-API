@@ -11,13 +11,79 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use FOS\RestBundle\View\View;
 use OSS\OssClient;
-use Sandbox\ApiBundle\Constants\OssConstants;
+use Sts\Request\V20150401 as Sts;
 
 /**
  * Class FileServerController.
  */
 class FileServerController extends SandboxRestController
 {
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/fileserver/sts")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getStsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        require_once __DIR__.'/sts-server/aliyun-php-sdk-core/Config.php';
+
+        $accessKeyID = $this->container->getParameter('oss_access_key_id');
+        $accessKeySecret = $this->container->getParameter('oss_access_key_secret');
+        $roleArn = $this->container->getParameter('oss_role_arn');
+        $tokenExpire = 900;
+        $policy = $this->readFile(__DIR__.'/sts-server/policy/all_policy.txt');
+
+        $iClientProfile = \DefaultProfile::getProfile('cn-hangzhou', $accessKeyID, $accessKeySecret);
+        $client = new \DefaultAcsClient($iClientProfile);
+
+        $request = new Sts\AssumeRoleRequest();
+        $request->setRoleSessionName('client_name');
+        $request->setRoleArn($roleArn);
+        $request->setPolicy($policy);
+        $request->setDurationSeconds($tokenExpire);
+        $response = $client->doAction($request);
+
+        $rows = array();
+        $body = $response->getBody();
+        $content = json_decode($body);
+        $rows['status'] = $response->getStatus();
+        if (200 == $response->getStatus()) {
+            $rows['AccessKeyId'] = $content->Credentials->AccessKeyId;
+            $rows['AccessKeySecret'] = $content->Credentials->AccessKeySecret;
+            $rows['Expiration'] = $content->Credentials->Expiration;
+            $rows['SecurityToken'] = $content->Credentials->SecurityToken;
+        } else {
+            $rows['AccessKeyId'] = '';
+            $rows['AccessKeySecret'] = '';
+            $rows['Expiration'] = '';
+            $rows['SecurityToken'] = '';
+        }
+
+        return new View($rows);
+    }
+
+    private function readFile($fname)
+    {
+        $content = '';
+        if (!file_exists($fname)) {
+            echo "The file $fname does not exist\n";
+            exit(0);
+        }
+        $handle = fopen($fname, 'rb');
+        while (!feof($handle)) {
+            $content .= fread($handle, 10000);
+        }
+        fclose($handle);
+
+        return $content;
+    }
+
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
@@ -376,7 +442,7 @@ class FileServerController extends SandboxRestController
         $path = $this->getOssPath($target, $id);
         $fileid = $this->getName();
 
-        if ($type == 'base64') {
+        if ('base64' == $type) {
             $file = $request->get('public_b64');
             if (!preg_match('/(?<=\/)[^\/]+(?=\;)/', $file, $pregR)) {
                 throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
@@ -388,7 +454,7 @@ class FileServerController extends SandboxRestController
             preg_match('/(?<=base64,)[\S|\s]+/', $file, $streamForW);
             file_put_contents($newfile, base64_decode($streamForW[0]));
 
-            $download_link = $this->uploadImage( $ossClient, $newfile, $object, $path, $type);
+            $download_link = $this->uploadImage($ossClient, $newfile, $object, $path, $type);
             unlink($newfile);
         } else {
             $file = $request->files->get('file');
@@ -404,20 +470,19 @@ class FileServerController extends SandboxRestController
             $download_link = $this->uploadImage($ossClient, $file, $object, $path, $type);
         }
 
-        if ($type == 'avatar' || $type == 'background') {
-              $object = $path.'/'.$type.'.'.$file->guessExtension();
-              $this->ossThumbImage($ossClient, $object, $path, $type.'_small.jpg', 92, 92);
-              $this->ossThumbImage($ossClient, $object, $path, $type.'_medium.jpg', 192, 192);
-              $this->ossThumbImage($ossClient, $object, $path, $type.'_large.jpg', 400, 400);
+        if ('avatar' == $type || 'background' == $type) {
+            $object = $path.'/'.$type.'.'.$file->guessExtension();
+            $this->ossThumbImage($ossClient, $object, $path, $type.'_small.jpg', 92, 92);
+            $this->ossThumbImage($ossClient, $object, $path, $type.'_medium.jpg', 192, 192);
+            $this->ossThumbImage($ossClient, $object, $path, $type.'_large.jpg', 400, 400);
         }
 
-        if ($type == 'image') {
+        if ('image' == $type) {
             //$this->resizeImage($newfile, $newfile, 800, 800);
-            $this->ossResizeImage($ossClient, $object, $filename,800,800);
+            $this->ossResizeImage($ossClient, $object, $filename, 800, 800);
         }
 
         if (!is_null($preview_height) && !is_null($preview_width)) {
-
             $preview = $path.'/preview';
 
             $pre_link = $this->ossThumbImage($ossClient, $object, $preview, $filename, $preview_width, $preview_height);
@@ -568,7 +633,7 @@ class FileServerController extends SandboxRestController
         $sk = $this->getParameter('oss_access_key_secret');
         $endpoint = $this->getParameter('oss_endpoint');
 
-        return new OssClient($ak,$sk,$endpoint);
+        return new OssClient($ak, $sk, $endpoint);
     }
 
     /**
@@ -577,6 +642,7 @@ class FileServerController extends SandboxRestController
      * @param $object
      * @param $path
      * @param $type
+     *
      * @return string
      */
     private function uploadImage(
@@ -589,12 +655,13 @@ class FileServerController extends SandboxRestController
         $img_url = $this->getParameter('image_url');
         $bucket = $this->getParameter('oss_bucket');
 
-        if($type == 'avatar' || $type == 'background'){
+        if ('avatar' == $type || 'background' == $type) {
             $object = $path.'/'.$type.'.'.$file->guessExtension();
         }
-        $ossClient->uploadFile($bucket,  $object, $file);
+        $ossClient->uploadFile($bucket, $object, $file);
 
         $download_link = $img_url.'/'.$object;
+
         return $download_link;
     }
 
@@ -604,25 +671,27 @@ class FileServerController extends SandboxRestController
      * @param $newfile
      * @param $h
      * @param $w
+     *
      * @return string
      */
     private function ossThumbImage($ossClient, $object, $path, $newfile, $h, $w)
     {
         $img_url = $this->getParameter('image_url');
         $bucket = $this->getParameter('oss_bucket');
-        $hight = "h_".$h;
-        $width = "w_".$w;
+        $hight = 'h_'.$h;
+        $width = 'w_'.$w;
         $options = array(
             OssClient::OSS_FILE_DOWNLOAD => $newfile,
-            OssClient::OSS_PROCESS => "image/resize,m_fixed,$hight,$width");
+            OssClient::OSS_PROCESS => "image/resize,m_fixed,$hight,$width", );
 
         $ossClient->getObject($bucket, $object, $options);
 
         $thumb = $_SERVER['DOCUMENT_ROOT'].'/'.$newfile;
-        $ossClient->uploadFile($bucket,  $path.'/'.$newfile, $thumb);
+        $ossClient->uploadFile($bucket, $path.'/'.$newfile, $thumb);
         unlink($thumb);
 
         $link = $img_url.'/'.$path.'/'.$newfile;
+
         return $link;
     }
 
@@ -639,17 +708,17 @@ class FileServerController extends SandboxRestController
         $newfile,
         $h,
         $w
-    ){
+    ) {
         $bucket = $this->getParameter('oss_bucket');
-        $hight = "h_".$h;
-        $width = "w_".$w;
+        $hight = 'h_'.$h;
+        $width = 'w_'.$w;
         $options = array(
             OssClient::OSS_FILE_DOWNLOAD => $newfile,
-            OssClient::OSS_PROCESS => "image/resize,m_lfit,$hight,$width");
+            OssClient::OSS_PROCESS => "image/resize,m_lfit,$hight,$width", );
 
-        $ossClient->getObject($bucket,$object,$options);
+        $ossClient->getObject($bucket, $object, $options);
         $image = $_SERVER['DOCUMENT_ROOT'].'/'.$newfile;
-        $ossClient->uploadFile($bucket,  $object, $image);
+        $ossClient->uploadFile($bucket, $object, $image);
 
         unlink($image);
     }
