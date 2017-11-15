@@ -82,6 +82,11 @@ class SalesAdminProfiles
      */
     private $modificationDate;
 
+    /**
+     * @var string
+     */
+    private $phone;
+
 
     /**
      * Get id
@@ -261,5 +266,21 @@ class SalesAdminProfiles
     public function setModificationDate($modificationDate)
     {
         $this->modificationDate = $modificationDate;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPhone()
+    {
+        return $this->phone;
+    }
+
+    /**
+     * @param string $phone
+     */
+    public function setPhone($phone)
+    {
+        $this->phone = $phone;
     }
 }

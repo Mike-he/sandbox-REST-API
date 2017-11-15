@@ -276,6 +276,16 @@ class AdminAdminsController extends SandboxRestController
                     ]);
             }
 
+            if (!is_null($adminProfile)) {
+                $admin = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
+                    ->findOneBy(['userId' => $userId['userId']]);
+
+                if (!is_null($admin)) {
+                    $adminProfile->setPhone($admin->getPhone());
+                }
+            }
+
             $result[] = array(
                 'user_id' => $userId['userId'],
                 'user' => $user,
@@ -419,6 +429,16 @@ class AdminAdminsController extends SandboxRestController
                         'userId' => $userId,
                         'salesCompanyId' => null,
                     ]);
+            }
+
+            if (!is_null($adminProfile)) {
+                $admin = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
+                    ->findOneBy(['userId' => $userId['userId']]);
+
+                if (!is_null($admin)) {
+                    $adminProfile->setPhone($admin->getPhone());
+                }
             }
 
             array_push($response, [
