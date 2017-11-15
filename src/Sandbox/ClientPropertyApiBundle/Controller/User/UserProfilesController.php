@@ -64,7 +64,7 @@ class UserProfilesController extends SalesRestController
 
             if (is_null($profile)) {
                 $profile = new SalesAdminProfiles();
-                $em->persist($profile);
+                $profile->setUserId($userId);
             }
 
             $profile->setNickname($adminProfiles->getNickname());
@@ -72,6 +72,7 @@ class UserProfilesController extends SalesRestController
             $profile->setEmail($adminProfiles->getEmail());
         }
 
+        $em->persist($profile);
         $em->flush();
 
         return new View();
