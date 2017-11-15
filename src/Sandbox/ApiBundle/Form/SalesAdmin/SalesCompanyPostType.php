@@ -30,7 +30,9 @@ class SalesCompanyPostType extends AbstractType
             ->add('admins')
             ->add('coffee_admins')
             ->add('services')
-            ->add('exclude_permissions');
+            ->add('exclude_permissions')
+            ->add('application_id')
+        ;
     }
 
     /**
