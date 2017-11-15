@@ -447,7 +447,14 @@ class AdminPositionUserBindingRepository extends EntityRepository
         return $result;
     }
 
-
+    /**
+     * @param $userId
+     * @param $permissions
+     * @param $platform
+     * @param null $salesCompanyId
+     * @return mixed
+     *
+     */
     public function checkHasPermission(
         $userId,
         $permissions,
@@ -472,6 +479,19 @@ class AdminPositionUserBindingRepository extends EntityRepository
         }
 
         $result = $query->getQuery()->getSingleScalarResult();
+
+        return $result;
+    }
+
+    /**
+     * @return array
+     */
+    public function getDistinctUserIds() {
+        $query = $this->createQueryBuilder('pb')
+            ->select('DISTINCT pb.userId');
+
+        $result = $query->getQuery()->getResult();
+        $result = array_map('current', $result);
 
         return $result;
     }
