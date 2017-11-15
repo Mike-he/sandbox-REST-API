@@ -494,6 +494,67 @@ class AdminUsersController extends DoorController
                 $search
             );
 
+        return new View($users);
+    }
+
+    /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="id",
+     *    array=true,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="query",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     * )
+     *
+     * @Route("/open/admins")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getOpenAdminsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $ids = $paramFetcher->get('id');
+        $search = $paramFetcher->get('query');
+
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $platform = $adminPlatform['platform'];
+        $companyId = $adminPlatform['sales_company_id'];
+
+        $users = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserView')
+            ->searchUser(
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                $ids,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                $search
+            );
+
         $response = [];
         foreach ($users as $user) {
             $userId = $user->getId();
