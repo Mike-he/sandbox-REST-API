@@ -138,9 +138,17 @@ class AdminChatGroupController extends ChatGroupController
                     ]);
             }
 
+            $salesAdmin = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
+                ->findOneBy([
+                    'userId' => $item,
+                ]);
+
             $finalMembers[] = array(
-                'name' => $salesAdminProfile ? $salesAdminProfile->getNickname() : null,
+                'user_id' => $item,
+                'username' => $salesAdminProfile ? $salesAdminProfile->getNickname() : null,
                 'avatar' => $salesAdminProfile ? $salesAdminProfile->getAvatar() : null,
+                'xmpp_user' => $salesAdmin->getXmppUsername(),
             );
         }
 
