@@ -36,6 +36,7 @@ class Version820171113144700 extends AbstractMigration implements ContainerAware
         $buildingSettingPermission->setPlatform('sales');
         $buildingSettingPermission->setOpLevelSelect('2');
         $buildingSettingPermission->setMaxOpLevel('2');
+        $em->persist($buildingSettingPermission);
 
         $tradeGroup1 = $em->getRepository('SandboxApiBundle:Admin\AdminPermissionGroups')
             ->findOneBy(array(
