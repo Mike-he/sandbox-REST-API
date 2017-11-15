@@ -276,15 +276,10 @@ class AdminAdminsController extends SandboxRestController
                     ]);
             }
 
-            if (!is_null($adminProfile)) {
-                $admin = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
-                    ->findOneBy(['userId' => $userId['userId']]);
-
-                if (!is_null($admin)) {
-                    $adminProfile->setPhone($admin->getPhone());
-                }
-            }
+            $admin = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
+                ->findOneBy(['userId' => $userId['userId']]);
+            $adminPhone = is_null($admin) ? null : $admin->getPhone();
 
             $result[] = array(
                 'user_id' => $userId['userId'],
@@ -295,6 +290,9 @@ class AdminAdminsController extends SandboxRestController
                 'shop' => $shopArr,
                 'bind' => $bind,
                 'admin_profile' => $adminProfile,
+                'admin' => [
+                    'phone' => $adminPhone,
+                ],
             );
         }
 
@@ -431,20 +429,17 @@ class AdminAdminsController extends SandboxRestController
                     ]);
             }
 
-            if (!is_null($adminProfile)) {
-                $admin = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
-                    ->findOneBy(['userId' => $userId['userId']]);
-
-                if (!is_null($admin)) {
-                    $adminProfile->setPhone($admin->getPhone());
-                }
-            }
+            $admin = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
+                ->findOneBy(['userId' => $userId]);
+            $adminPhone = is_null($admin) ? null : $admin->getPhone();
 
             array_push($response, [
                 'user_id' => $userId,
-                'phone' => $item->getPhone(),
                 'admin_profile' => $adminProfile,
+                'admin' => [
+                    'phone' => $adminPhone,
+                ],
             ]);
         }
 
