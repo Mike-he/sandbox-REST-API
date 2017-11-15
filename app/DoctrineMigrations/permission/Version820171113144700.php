@@ -92,8 +92,6 @@ class Version820171113144700 extends AbstractMigration implements ContainerAware
             ));
         $gruopMap3->setGroup($group);
 
-        $em->persist($buildingSettingPermission);
-        
         $em->persist($gruopMap1);
         $em->persist($gruopMap2);
         $em->persist($gruopMap3);
