@@ -15,6 +15,7 @@ use Sandbox\ApiBundle\Entity\Finance\FinanceSalesWallet;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdmin;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany;
+use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyApply;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesCompanyPatchType;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesCompanyPostType;
@@ -477,6 +478,18 @@ class AdminSalesCompanyController extends SandboxRestController
         $wallet->setCompanyId($salesCompany->getId());
 
         $em->persist($wallet);
+
+        // delete sales company application
+        if (!is_null($salesCompany->getApplicationId())) {
+            $application = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyApply')
+                ->find($salesCompany->getApplicationId());
+
+            if (!is_null($application)) {
+                $application->setStatus(SalesCompanyApply::STATUS_CLOSED);
+            }
+        }
+
         $em->flush();
 
         $this->addDefaultPositionsForSales($salesCompany, $excludePermissions);

@@ -16,6 +16,7 @@ class SalesCompanyApply
     const STATUS_PENDING = 'pending';
     const STATUS_ACCEPTED = 'accepted';
     const STATUS_REFUSED = 'rejected';
+    const STATUS_CLOSED = 'closed';
 
     /**
      * @var integer

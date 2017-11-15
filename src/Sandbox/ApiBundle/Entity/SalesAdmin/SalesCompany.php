@@ -238,6 +238,11 @@ class SalesCompany
     private $modificationDate;
 
     /**
+     * @var int
+     */
+    private $applicationId;
+
+    /**
      * Get id.
      *
      * @return int
@@ -669,5 +674,21 @@ class SalesCompany
     public function setOnlineSales($onlineSales)
     {
         $this->onlineSales = $onlineSales;
+    }
+
+    /**
+     * @return int
+     */
+    public function getApplicationId()
+    {
+        return $this->applicationId;
+    }
+
+    /**
+     * @param int $applicationId
+     */
+    public function setApplicationId($applicationId)
+    {
+        $this->applicationId = $applicationId;
     }
 }
