@@ -36,6 +36,7 @@ class Version820171113144700 extends AbstractMigration implements ContainerAware
         $buildingSettingPermission->setPlatform('sales');
         $buildingSettingPermission->setOpLevelSelect('2');
         $buildingSettingPermission->setMaxOpLevel('2');
+        $em->persist($buildingSettingPermission);
 
         $tradeGroup1 = $em->getRepository('SandboxApiBundle:Admin\AdminPermissionGroups')
             ->findOneBy(array(
@@ -92,8 +93,6 @@ class Version820171113144700 extends AbstractMigration implements ContainerAware
             ));
         $gruopMap3->setGroup($group);
 
-        $em->persist($buildingSettingPermission);
-        
         $em->persist($gruopMap1);
         $em->persist($gruopMap2);
         $em->persist($gruopMap3);
