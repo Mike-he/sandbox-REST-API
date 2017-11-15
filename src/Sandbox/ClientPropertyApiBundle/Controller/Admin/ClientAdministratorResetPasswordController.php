@@ -131,14 +131,10 @@ class ClientAdministratorResetPasswordController extends SandboxRestController
 
         $admin->setPassword($password);
 
-        $user = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\User')
-            ->find($admin->getUserId());
-
         $this->get('sandbox_api.jmessage')
             ->updatePassword(
-                $user->getXmppUsername(),
-                $user->getPassword()
+                $admin->getXmppUsername(),
+                $admin->getPassword()
             );
 
         $em->flush();

@@ -129,9 +129,9 @@ class ClientAdministratorRegisterController extends SandboxRestController
 
         $em = $this->getDoctrine()->getManager();
 
-        if (is_null($user) && !is_null($password)) {
-            $xmppUsername = strval(3000000 + $userCheckCode->getId());
+        $xmppUsername = strval(3000000 + $userCheckCode->getId());
 
+        if (is_null($user) && !is_null($password)) {
             $user = new User();
             $user->setPassword($password);
             $user->setPhoneCode($phoneCode);
@@ -171,7 +171,7 @@ class ClientAdministratorRegisterController extends SandboxRestController
             $salesAdmin = new SalesAdmin();
             $salesAdmin->setPhone($user->getPhone());
             $salesAdmin->setPhoneCode($user->getPhoneCode());
-            $salesAdmin->setXmppUsername('admin_'.$user->getXmppUsername());
+            $salesAdmin->setXmppUsername('admin_' . $xmppUsername);
             $salesAdmin->setPassword($user->getPassword());
             $salesAdmin->setUserId($user->getId());
 
