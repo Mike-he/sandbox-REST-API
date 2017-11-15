@@ -39,8 +39,21 @@ class AdminUserProfilesController extends AdminRestController
         $userId = $this->getUserId();
         $em = $this->getDoctrine()->getManager();
 
+        $adminProfileOrigin = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
+            ->findOneBy([
+                'userId' => $userId,
+                'salesCompanyId' => null,
+            ]);
+
+        if (!is_null($adminProfileOrigin)) {
+            $adminProfile = $adminProfileOrigin;
+        }
+
         $adminProfile->setUserId($userId);
+
         $em->persist($adminProfile);
+
         $em->flush();
 
         return new View([
