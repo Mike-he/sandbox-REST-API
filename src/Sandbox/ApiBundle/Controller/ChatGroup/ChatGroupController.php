@@ -16,7 +16,7 @@ use Sandbox\ApiBundle\Traits\CurlUtil;
  * @author   Yimo Zhang <yimo.zhang@Sandbox.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 class ChatGroupController extends SandboxRestController
 {
@@ -74,7 +74,7 @@ class ChatGroupController extends SandboxRestController
             // new chat group member
             $chatGroupMember = new ChatGroupMember();
             $chatGroupMember->setChatGroup($chatGroup);
-            $chatGroupMember->setUser($newUser);
+            $chatGroupMember->setUser($newUser->getId());
             $chatGroupMember->setAddBy($myUser);
             $em->persist($chatGroupMember);
         }
@@ -106,18 +106,10 @@ class ChatGroupController extends SandboxRestController
         $ownerName = $chatGroup->getCreator()->getXmppUsername();
         $members = $this->getRepo('ChatGroup\ChatGroupMember')->findByChatGroup($chatGroup);
 
-        $membersIds = array();
+        $membersIds = [];
         foreach ($members as $member) {
             /* @var ChatGroupMember $member */
-            if ($chatGroup->getTag() == ChatGroup::CUSTOMER_SERVICE) {
-                $salesAdmin = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
-                    ->findOneBy(array('userId' => $member->getUser()->getId()));
-                if ($salesAdmin) {
-                    $salesMemberId = $salesAdmin->getXmppUsername();
-                    array_push($membersIds, $salesMemberId);
-                }
-            } else {
+            if (ChatGroup::GROUP_SERVICE == $chatGroup->getTag()) {
                 $memberId = $member->getUser()->getXmppUsername();
                 if ($memberId != $ownerName) {
                     array_push($membersIds, $memberId);
@@ -132,6 +124,10 @@ class ChatGroupController extends SandboxRestController
             $chatRoomDesc,
             $membersIds
         );
+
+        if (201 != $result['http_code']) {
+            // TODO: create Jmessage Group Error
+        }
 
         return $result['body']['gid'];
     }
@@ -182,15 +178,21 @@ class ChatGroupController extends SandboxRestController
     /**
      * @param ChatGroup $chatGroup
      * @param $memberIds
+     * @param $appKey
      */
     protected function addXmppChatGroupMember(
         $chatGroup,
-        $memberIds
+        $memberIds,
+        $appKey = null
     ) {
         $gid = $chatGroup->getGid();
 
         $service = $this->get('sandbox_api.jmessage');
-        $service->addGroupMembers($gid, $memberIds);
+        $result = $service->addGroupMembers($gid, $memberIds, $appKey);
+
+        if (204 != $result['http_code']) {
+            // TODO: create Jmessage Group Error
+        }
     }
 
     /**

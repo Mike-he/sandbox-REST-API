@@ -123,6 +123,8 @@ parameters:
     jpush_apns_option: false
     jpush_key: 24549eef0e5dfe83b1483586
     jpush_secret: 83aa0ae09df6f9e1a302cae0
+    jpush_property_key: 6edbdf8bd11a5cc27212a01b
+    jpush_property_secret: 0cd15d94296076c69bd9faa7
 
     oss_access_key_id: LTAIlrwRyGc3PpVH
     oss_access_key_secret: mxnsEPGC4OgwOLTqB3HX6YMB34wUqh
