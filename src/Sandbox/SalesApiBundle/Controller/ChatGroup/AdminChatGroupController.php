@@ -384,7 +384,7 @@ class AdminChatGroupController extends ChatGroupController
         foreach ($finalMembers as $finalMember) {
             $newMember = new ChatGroupMember();
             $newMember->setAddBy($creator);
-            $newMember->setUser($finalMember);
+            $newMember->setUser($finalMember->getId());
             $newMember->setChatGroup($chatGroup);
 
             $em->persist($newMember);
