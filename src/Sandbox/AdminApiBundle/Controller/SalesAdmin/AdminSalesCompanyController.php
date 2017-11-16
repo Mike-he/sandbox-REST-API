@@ -309,9 +309,13 @@ class AdminSalesCompanyController extends SandboxRestController
                     'salesCompanyId' => null,
                 ]);
 
+            $avatar = !is_null($adminProfile) ? $adminProfile->getAvatar() : '';
             $name = !is_null($adminProfile) ? $adminProfile->getNickname() : '';
 
-            $user->setAdminProfile(['name' => $name]);
+            $user->setAdminProfile([
+                'avatar' => $avatar,
+                'name' => $name,
+            ]);
 
             array_push($userArray, $user);
         }
