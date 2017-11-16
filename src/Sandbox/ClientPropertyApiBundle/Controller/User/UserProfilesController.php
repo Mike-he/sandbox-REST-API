@@ -88,7 +88,8 @@ class UserProfilesController extends SalesRestController
      * @Annotations\QueryParam(
      *     name="company",
      *     array=false,
-     *     nullable=false,
+     *     default=null,
+     *     nullable=true,
      *     strict=true
      * )
      *
