@@ -17,14 +17,7 @@ class SalesAdminProfilesPostType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('sales_company_id',
-                TextType::class,
-                array(
-                    'constraints' => array(
-                        new NotBlank(),
-                    ),
-                )
-            )
+            ->add('sales_company_id')
             ->add('avatar')
             ->add('gender')
             ->add('nickname')
