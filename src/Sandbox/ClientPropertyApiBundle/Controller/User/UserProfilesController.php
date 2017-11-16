@@ -52,6 +52,7 @@ class UserProfilesController extends SalesRestController
                 $profile->setNickname($adminProfiles->getNickname());
                 $profile->setAvatar($adminProfiles->getAvatar());
                 $profile->setEmail($adminProfiles->getEmail());
+                $profile->setGender($adminProfiles->getGender());
             }
         } else {
             // update one company
@@ -71,6 +72,7 @@ class UserProfilesController extends SalesRestController
             $profile->setNickname($adminProfiles->getNickname());
             $profile->setAvatar($adminProfiles->getAvatar());
             $profile->setEmail($adminProfiles->getEmail());
+            $profile->setGender($adminProfiles->getGender());
         }
 
         $em->persist($profile);
