@@ -1190,6 +1190,7 @@ class AdminBuildingController extends LocationController
 
         $em->flush();
 
+        $appKey = $this->getParameter('jpush_property_key');
         foreach ($addGroups as $key => $users) {
             $group = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:ChatGroup\ChatGroup')
@@ -1205,7 +1206,7 @@ class AdminBuildingController extends LocationController
                 }
             }
             // call openfire
-            $this->addXmppChatGroupMember($group, $membersIds);
+            $this->addXmppChatGroupMember($group, $membersIds, $appKey);
         }
     }
 
@@ -1267,6 +1268,7 @@ class AdminBuildingController extends LocationController
 
         $em->flush();
 
+        $appKey = $this->getParameter('jpush_property_key');
         foreach ($removeGroups as $key => $users) {
             $group = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:ChatGroup\ChatGroup')
@@ -1283,7 +1285,7 @@ class AdminBuildingController extends LocationController
             }
 
             // call openfire
-            $this->deleteXmppChatGroupMember($group, $membersIds);
+            $this->deleteXmppChatGroupMember($group, $membersIds, $appKey);
         }
     }
 

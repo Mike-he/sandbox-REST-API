@@ -201,7 +201,8 @@ class ChatGroupController extends SandboxRestController
      */
     protected function deleteXmppChatGroupMember(
         $chatGroup,
-        $memberIds
+        $memberIds,
+        $appKey = null
     ) {
         $gid = $chatGroup->getGid();
 

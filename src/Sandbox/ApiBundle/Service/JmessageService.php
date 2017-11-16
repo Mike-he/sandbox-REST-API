@@ -134,19 +134,26 @@ class JmessageService
         $appKey = null
     ) {
         if (is_null($appKey)) {
-            $respone = $this->group->addMembers($gid, $usernames);
+            $response = $this->group->addMembers($gid, $usernames);
         } else {
-            $respone = $this->member->add($gid, $appKey, $usernames);
+            $response = $this->member->add($gid, $appKey, $usernames);
         }
 
-        return $respone;
+        return $response;
     }
 
     public function deleteGroupMembers(
         $gid,
-        $usernames
+        $usernames,
+        $appKey = null
     ) {
-        $this->group->removeMembers($gid, $usernames);
+        if (is_null($appKey)) {
+            $response = $this->group->removeMembers($gid, $usernames);
+        } else {
+            $response = $this->member->remove($gid, $appKey, $usernames);
+        }
+
+        return $response;
     }
 
     public function getMedia(
