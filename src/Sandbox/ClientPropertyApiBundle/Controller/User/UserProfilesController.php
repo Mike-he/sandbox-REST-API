@@ -65,6 +65,7 @@ class UserProfilesController extends SalesRestController
             if (is_null($profile)) {
                 $profile = new SalesAdminProfiles();
                 $profile->setUserId($userId);
+                $profile->setSalesCompanyId($company);
             }
 
             $profile->setNickname($adminProfiles->getNickname());
