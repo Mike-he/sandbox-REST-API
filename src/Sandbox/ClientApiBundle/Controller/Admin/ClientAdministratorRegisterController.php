@@ -184,7 +184,7 @@ class ClientAdministratorRegisterController extends SandboxRestController
 
             $nickname = $profile ? $profile->getName() : null;
 
-            $this->get('sandbox_api.jmessage')
+            $this->get('sandbox_api.jmessage_property')
                 ->createUser(
                     $salesAdmin->getXmppUsername(),
                     $salesAdmin->getPassword(),
