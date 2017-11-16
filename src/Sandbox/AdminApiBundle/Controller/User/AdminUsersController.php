@@ -983,7 +983,9 @@ class AdminUsersController extends DoorController
 
         $users = array();
         if (!empty($ids)) {
-            $users = $this->getRepo('User\UserView')->getUsersByIds($ids);
+            $users = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserView')
+                ->getUsersByIds($ids);
         }
 
         if (!empty($xmppUsers)) {
@@ -994,6 +996,80 @@ class AdminUsersController extends DoorController
 
         // set view
         return new View($users);
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="id",
+     *    array=true,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="xmpp_username",
+     *    array=true,
+     *    default=null,
+     *    strict=true,
+     *    description="xmppUsername"
+     * )
+     *
+     * @Route("/open/admins")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getOpenAdminsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $ids = $paramFetcher->get('id');
+        $xmppUsers = $paramFetcher->get('xmpp_username');
+
+        $users = array();
+        if (!empty($ids)) {
+            $users = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserView')
+                ->getUsersByIds($ids);
+        }
+
+        if (!empty($xmppUsers)) {
+            $users = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\User')
+                ->getUsersByXmppUsername($xmppUsers);
+        }
+
+        $response = [];
+        foreach ($users as $user) {
+            $userId = $user['id'];
+
+            $adminProfile = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
+                ->findOneBy([
+                    'userId' => $userId,
+                    'salesCompanyId' => null,
+                ]);
+
+            $admin = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
+                ->findOneBy(['userId' => $userId]);
+            $adminPhone = is_null($admin) ? null : $admin->getPhone();
+
+            array_push($response, [
+                'user_id' => $userId,
+                'admin_profile' => $adminProfile,
+                'admin' => [
+                    'phone' => $adminPhone,
+                ],
+            ]);
+        }
+
+        return new View($response);
     }
 
     /**
