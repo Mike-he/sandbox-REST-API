@@ -48,10 +48,8 @@ class ChatGroupMember
     /**
      * @var User
      *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="userId", referencedColumnName="id", onDelete="CASCADE")
-     * })
+     * @ORM\Column(name="userId", type="integer")
+     *
      */
     private $user;
 
