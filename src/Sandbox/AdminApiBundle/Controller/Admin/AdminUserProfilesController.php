@@ -47,6 +47,9 @@ class AdminUserProfilesController extends AdminRestController
             ]);
 
         if (!is_null($adminProfileOrigin)) {
+            $adminProfileOrigin->setAvatar($adminProfile->getAvatar());
+            $adminProfileOrigin->setNickname($adminProfile->getNickname());
+
             $adminProfile = $adminProfileOrigin;
         }
 
