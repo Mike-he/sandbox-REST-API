@@ -131,3 +131,5 @@ parameters:
     oss_role_arn: acs:ram::1805038742091034:role/aliyunosstokengeneratorrole
     oss_endpoint: oss-cn-shanghai-internal.aliyuncs.com
     oss_bucket: sandbox3-dev-image
+
+    error_log_dir: /var/log/app/error.log
