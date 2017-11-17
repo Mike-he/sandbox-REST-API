@@ -54,7 +54,7 @@ class ClientAuthController extends AuthController
      *
      * @param Request $request the request object
      *
-     * @Route("/auth/me")
+     * @Route("/auth/password")
      * @Method({"GET"})
      *
      * @return View
@@ -72,7 +72,7 @@ class ClientAuthController extends AuthController
 
         return new View(array(
             'xmpp_username' => $salesAdmin->getXmppUsername(),
-            'xmpp_code' => $this->get('sandbox_api.des_encrypt')->encrypt($salesAdmin->getPassword()),
+            'password' => $this->get('sandbox_api.des_encrypt')->encrypt($salesAdmin->getPassword()),
         ));
     }
 }
