@@ -1262,7 +1262,7 @@ class AdminBuildingController extends LocationController
                 $em->remove($groupMember);
 
                 $groupId = $chatGroup->getId();
-                $removeGroups[$groupId][] = $groupMember->getUser()->getId();
+                $removeGroups[$groupId][] = $groupMember->getUser();
             }
         }
 
