@@ -48,4 +48,31 @@ class ClientAuthController extends AuthController
 
         return $view;
     }
+
+    /**
+     * Token auth.
+     *
+     * @param Request $request the request object
+     *
+     * @Route("/auth/me")
+     * @Method({"GET"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getAdminAuthMeAction(
+        Request $request
+    ) {
+        $adminId = $this->getAdminId();
+
+        $salesAdmin = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
+            ->findOneBy(array('userId' => $adminId));
+
+        return new View(array(
+            'xmpp_username' => $salesAdmin->getXmppUsername(),
+            'xmpp_code' => $this->get('sandbox_api.des_encrypt')->encrypt($salesAdmin->getPassword()),
+        ));
+    }
 }
