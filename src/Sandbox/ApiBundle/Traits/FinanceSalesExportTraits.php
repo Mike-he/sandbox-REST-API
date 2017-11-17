@@ -514,6 +514,7 @@ trait FinanceSalesExportTraits
 
             if ($order->getPayChannel()) {
                 $paymentMethod = $order->getPayChannel() == ProductOrder::CHANNEL_SALES_OFFLINE ? '销售方收款' : '创合代收';
+                $paymentDate = $order->getPaymentDate()->format('Y-m-d H:i:s');
 
                 if ($order->getPayChannel() == ProductOrder::CHANNEL_SALES_OFFLINE) {
                     $receivable = $em->getRepository('SandboxApiBundle:Finance\FinanceReceivables')
@@ -521,7 +522,6 @@ trait FinanceSalesExportTraits
                             'orderNumber' => $order->getOrderNumber(),
                         ]);
                     $payChannel = $receivableTypes[$receivable->getPayChannel()];
-                    $paymentDate = $order->getPaymentDate()->format('Y-m-d H:i:s');
                 } else {
                     $payChannel = $payChannels[$order->getPayChannel()];
                 }
