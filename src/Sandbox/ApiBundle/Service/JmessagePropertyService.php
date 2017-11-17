@@ -14,7 +14,7 @@ use JMessage\IM\Report;
 /**
  * Class JmessageService.
  */
-class JmessageServiceProperty
+class JmessagePropertyService
 {
     /**
      * @var mixed

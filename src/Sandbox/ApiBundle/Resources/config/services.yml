@@ -36,5 +36,5 @@ services:
         class: Sandbox\ApiBundle\Service\DESencryptService
         arguments: ['@service_container']
     sandbox_api.jmessage_property:
-        class: Sandbox\ApiBundle\Service\JmessageServiceProperty
+        class: Sandbox\ApiBundle\Service\JmessagePropertyService
         arguments: ['@service_container']
