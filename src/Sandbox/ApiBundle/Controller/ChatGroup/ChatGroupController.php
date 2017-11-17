@@ -198,6 +198,7 @@ class ChatGroupController extends SandboxRestController
     /**
      * @param ChatGroup $chatGroup
      * @param $memberIds
+     * @param null $appKey
      */
     protected function deleteXmppChatGroupMember(
         $chatGroup,
@@ -207,6 +208,6 @@ class ChatGroupController extends SandboxRestController
         $gid = $chatGroup->getGid();
 
         $service = $this->get('sandbox_api.jmessage');
-        $service->deleteGroupMembers($gid, $memberIds);
+        $service->deleteGroupMembers($gid, $memberIds, $appKey);
     }
 }
