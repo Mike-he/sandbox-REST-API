@@ -172,7 +172,7 @@ class ClientAdministratorRegisterController extends SandboxRestController
             $salesAdmin->setPhone($user->getPhone());
             $salesAdmin->setPhoneCode($user->getPhoneCode());
             $salesAdmin->setXmppUsername('admin_' . $xmppUsername);
-            $salesAdmin->setPassword($user->getPassword());
+            $salesAdmin->setPassword($password);
             $salesAdmin->setUserId($user->getId());
 
             $em->persist($salesAdmin);
