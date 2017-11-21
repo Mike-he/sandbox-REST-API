@@ -93,17 +93,20 @@ parameters:
     union_refund_fee_multiplier: 0
     wechat_refund_fee_multiplier: 0
     foreign_credit_refund_fee_multiplier: 0
-    rest_api_local_url: restserver
 
+    rest_api_local_url: restserver
+    top_level_domain: sandbox3.cn
+    rest_file_server_url: https://demorest.sandbox3.cn/plugins/fileServer/fileservice
 
     image_url: https://demoimage.sandbox3.cn
-    rest_file_server_url: https://demorest.sandbox3.cn/plugins/fileServer/fileservice
+
     mobile_url: https://demom.sandbox3.cn
     room_mobile_url: https://demomobile.sandbox3.cn
-    top_level_domain: sandbox3.cn
     orders_url: https://demoorders.sandbox3.cn
     coffee_url: https://democoffee.sandbox3.cn
     invoice_url: https://demoinvoice.sandbox3.cn
+    property_client_apply_url: https://demovsales.sandbox3.cn
+    property_client_customer_url: https://demoasales.sandbox3.cn
     property_client_url: '{{domain}}'
 
     duiba_app_key: XUPB5iAdCbHnc6C8fcmpB8fcxLu
@@ -113,6 +116,8 @@ parameters:
     jpush_apns_option: false
     jpush_key: 045f0c31a94a441c5280fcbb
     jpush_secret: 4d45889d29b5ffd3ad2e6f0f
+    jpush_property_key: 3268761577655fb17e18dfdd
+    jpush_property_secret: 13b076250cf564570c767bf2
 
     oss_access_key_id: LTAIlrwRyGc3PpVH
     oss_access_key_secret: mxnsEPGC4OgwOLTqB3HX6YMB34wUqh

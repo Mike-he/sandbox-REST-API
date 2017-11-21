@@ -99,13 +99,14 @@ parameters:
     union_refund_fee_multiplier: 0
     wechat_refund_fee_multiplier: 0
     foreign_credit_refund_fee_multiplier: 0
+
     rest_api_local_url: restserver
+    top_level_domain: sandbox3.cn
+    rest_file_server_url: https://testrest.sandbox3.cn/plugins/fileServer/fileservice
 
     image_url: https://testimage.sandbox3.cn
-    rest_file_server_url: https://testrest.sandbox3.cn/plugins/fileServer/fileservice
     mobile_url: https://testm.sandbox3.cn
     room_mobile_url: https://testmobile.sandbox3.cn
-    top_level_domain: sandbox3.cn
     orders_url: https://testorders.sandbox3.cn
     coffee_url: https://testcoffee.sandbox3.cn
     invoice_url: https://testinvoice.sandbox3.cn
