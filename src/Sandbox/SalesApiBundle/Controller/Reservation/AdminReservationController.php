@@ -278,9 +278,13 @@ class AdminReservationController extends SalesRestController
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
+        $now = new \DateTime();
         $reservations = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Reservation\Reservation')
-            ->findCompanyUngrabedReservation($salesCompanyId);
+            ->findCompanyUngrabedReservation(
+                $salesCompanyId,
+                $now
+            );
 
         $result = [];
         foreach ($reservations as $k=>$reservation) {

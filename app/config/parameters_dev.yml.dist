@@ -103,13 +103,13 @@ parameters:
     union_refund_fee_multiplier: 0
     wechat_refund_fee_multiplier: 0
     foreign_credit_refund_fee_multiplier: 0
-    rest_api_local_url: localhost.api.rest
+
+    top_level_domain: sandbox3.cn
+    rest_file_server_url: http://devrest.sandbox3.cn/plugins/fileServer/fileservice
 
     image_url: http://devimage.sandbox3.cn
-    rest_file_server_url: http://devrest.sandbox3.cn/plugins/fileServer/fileservice
     mobile_url: http://devm.sandbox3.cn
     room_mobile_url: http://devmobile.sandbox3.cn
-    top_level_domain: sandbox3.cn
     orders_url: http://devorders.sandbox3.cn
     coffee_url: http://devcoffee.sandbox3.cn
     invoice_url: http://devinvoice.sandbox3.cn

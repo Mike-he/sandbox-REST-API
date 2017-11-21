@@ -41,9 +41,13 @@ class ClientDashBoardController extends SandboxRestController
 
         $myLatestReservation = $this->countMyLatestReservation($companyId, $adminId);
 
+        $now = new \DateTime();
         $waitingReservation = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Reservation\Reservation')
-            ->countCompanyUngrabedReservation($companyId);
+            ->countCompanyUngrabedReservation(
+                $companyId,
+                $now
+            );
 
         $unpaidOrders = $this->countUnpaidOrders($adminId);
 

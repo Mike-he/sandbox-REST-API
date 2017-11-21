@@ -92,12 +92,11 @@ parameters:
     union_refund_fee_multiplier: 0
     wechat_refund_fee_multiplier: 0
     foreign_credit_refund_fee_multiplier: 0
-    rest_api_local_url: localhost.api.rest
-    top_level_domain: sandbox3.cn
 
+    top_level_domain: sandbox3.cn
+    rest_file_server_url: https://rest.sandbox3.cn/plugins/fileServer/fileservice
 
     image_url: https://image.sandbox3.cn
-    rest_file_server_url: https://rest.sandbox3.cn/plugins/fileServer/fileservice
     mobile_url: https://m.sandbox3.cn
     room_mobile_url: https://mobile.sandbox3.cn
     orders_url: https://orders.sandbox3.cn
@@ -113,6 +112,8 @@ parameters:
     jpush_apns_option: true
     jpush_key: 2088252afa53cc169302f4d0
     jpush_secret: 99e8dd3ed9fdcb16eb111ed9
+    jpush_property_key: d7dc994c2ccb7d7465cec161
+    jpush_property_secret: 352701f39f503b04f99a5d74
 
     oss_access_key_id: LTAIlrwRyGc3PpVH
     oss_access_key_secret: mxnsEPGC4OgwOLTqB3HX6YMB34wUqh

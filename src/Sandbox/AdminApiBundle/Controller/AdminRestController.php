@@ -99,9 +99,9 @@ class AdminRestController extends SandboxRestController
         }
 
         // check admin is existed
-        $adminPositionUser = $this->getRepo('Admin\AdminPositionUserBinding')->findOneBy(array(
-            'userId' => $admin->getUserId(),
-        ));
+        $adminPositionUser = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
+            ->findOneBy(['userId' => $admin->getUserId()]);
 
         if (is_null($adminPositionUser)) {
             $error->setCode(self::ERROR_CURRENT_USER_IS_NOT_AN_ADMIN_CODE);
