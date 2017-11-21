@@ -147,14 +147,14 @@ class ClientBillController extends SalesRestController
      *    name="start_date",
      *    default=null,
      *    nullable=true,
-     *    description="appointment start date"
+     *    description="bill start date"
      * )
      *
      * @Annotations\QueryParam(
      *    name="end_date",
      *    default=null,
      *    nullable=true,
-     *    description="appointment end date"
+     *    description="bill end date"
      * )
      *
      * @Annotations\QueryParam(
