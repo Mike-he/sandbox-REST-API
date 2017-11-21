@@ -94,12 +94,10 @@ parameters:
     wechat_refund_fee_multiplier: 0
     foreign_credit_refund_fee_multiplier: 0
 
-    rest_api_local_url: restserver
     top_level_domain: sandbox3.cn
     rest_file_server_url: https://demorest.sandbox3.cn/plugins/fileServer/fileservice
 
     image_url: https://demoimage.sandbox3.cn
-
     mobile_url: https://demom.sandbox3.cn
     room_mobile_url: https://demomobile.sandbox3.cn
     orders_url: https://demoorders.sandbox3.cn
