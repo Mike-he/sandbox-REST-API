@@ -227,6 +227,13 @@ class ClientReservationController extends SalesRestController
         $data['grabDate'] = $reservation->getGrabDate();
         $data['companyId'] = $reservation->getCompanyId();
 
+        $customer = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->findOneBy(array('userId'=>$data['userId'],'companyId'=>$data['companyId']));
+        if(!is_null($customer)){
+            $data['customerId'] = $customer->getId();
+        }
+
         $productId = $reservation->getProductId();
         $product = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Product\Product')
