@@ -141,6 +141,27 @@ class AdminLeaseBillController extends SalesRestController
      * )
      *
      * @Annotations\QueryParam(
+     *    name="rent_filter",
+     *    default=null,
+     *    nullable=true,
+     *    description="rent time filter keywords"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="start_date",
+     *    default=null,
+     *    nullable=true,
+     *    description="bill start date"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="end_date",
+     *    default=null,
+     *    nullable=true,
+     *    description="bill end date"
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="sort_column",
      *    default=null,
      *    nullable=true,
@@ -183,6 +204,10 @@ class AdminLeaseBillController extends SalesRestController
         $status = $paramFetcher->get('status');
         $building = $paramFetcher->get('building');
 
+        $rentFilter = $paramFetcher->get('rent_filter');
+        $startDate = $paramFetcher->get('start_date');
+        $endDate = $paramFetcher->get('end_date');
+
         //sort
         $sortColumn = $paramFetcher->get('sort_column');
         $direction = $paramFetcher->get('direction');
@@ -216,6 +241,9 @@ class AdminLeaseBillController extends SalesRestController
                 $payStartDate,
                 $payEndDate,
                 $leaseStatus,
+                $rentFilter,
+                $startDate,
+                $endDate,
                 $limit,
                 $offset,
                 $sortColumn,
@@ -235,7 +263,10 @@ class AdminLeaseBillController extends SalesRestController
                 $sendEnd,
                 $payStartDate,
                 $payEndDate,
-                $leaseStatus
+                $leaseStatus,
+                $rentFilter,
+                $startDate,
+                $endDate
             );
 
         $bills = $this->get('serializer')->serialize(

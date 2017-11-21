@@ -28,6 +28,30 @@ class ParameterController extends SandboxRestController
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
+     *
+     * @Route("/parameter/all")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getAllParameterAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $parameter = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Parameter\Parameter')
+            ->findAll();
+
+        $view = new View();
+        $view->setData($parameter);
+
+        return $view;
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
      * @Annotations\QueryParam(
      *    name="key",
      *    nullable=false,
