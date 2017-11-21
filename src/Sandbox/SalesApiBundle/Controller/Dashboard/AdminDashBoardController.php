@@ -790,6 +790,19 @@ class AdminDashBoardController extends SalesRestController
                 $endDate
             );
 
+        foreach ($orders as $order) {
+            $card = $order->getCard();
+
+            $doorBuildingIds = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserGroupDoors')
+                ->getBuildingIdsByGroup(
+                    null,
+                    $card->getId()
+                );
+
+            $order->setBuilding($doorBuildingIds);
+        }
+
         $result = array(
             'lists' => $orders,
             'count' => $count,
@@ -843,6 +856,7 @@ class AdminDashBoardController extends SalesRestController
             'source' => $source,
             'monthly_rent' => (float) $clue->getMonthlyRent(),
             'number' => $clue->getNumber(),
+            'building_id' => $clue->getBuilding(),
         );
 
         return $result;

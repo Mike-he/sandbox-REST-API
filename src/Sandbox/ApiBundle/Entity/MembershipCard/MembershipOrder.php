@@ -150,6 +150,11 @@ class MembershipOrder
     private $userInfo;
 
     /**
+     * @var array
+     */
+    private $building;
+
+    /**
      * @return array
      */
     public function getUserInfo()
@@ -429,5 +434,21 @@ class MembershipOrder
     public function setModificationDate($modificationDate)
     {
         $this->modificationDate = $modificationDate;
+    }
+
+    /**
+     * @return array
+     */
+    public function getBuilding()
+    {
+        return $this->building;
+    }
+
+    /**
+     * @param array $building
+     */
+    public function setBuilding($building)
+    {
+        $this->building = $building;
     }
 }
