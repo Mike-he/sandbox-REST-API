@@ -326,18 +326,23 @@ class ReservationRepository extends EntityRepository
 
     /**
      * @param $salesCompanyId
+     * @param $time
      *
      * @return int
      */
     public function countCompanyUngrabedReservation(
-        $salesCompanyId
+        $salesCompanyId,
+        $time
     ) {
         $query = $this->createQueryBuilder('re')
             ->select('COUNT(re)')
             ->where('re.status = :status')
             ->andWhere('re.companyId = :companyId')
+            ->andWhere('re.viewTime >= :viewTime')
             ->setParameter('status', Reservation::UNGRABED)
-            ->setParameter('companyId', $salesCompanyId);
+            ->setParameter('companyId', $salesCompanyId)
+            ->setParameter('viewTime', $time)
+        ;
 
         $result = $query->getQuery()->getSingleScalarResult();
 
