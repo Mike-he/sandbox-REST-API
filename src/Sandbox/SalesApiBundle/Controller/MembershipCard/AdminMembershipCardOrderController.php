@@ -302,6 +302,16 @@ class AdminMembershipCardOrderController extends SalesRestController
             if (!is_null($profile)) {
                 $order->setUserInfo(['username' => $profile->getName()]);
             }
+
+            $card = $order->getCard();
+            $doorBuildingIds = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserGroupDoors')
+                ->getBuildingIdsByGroup(
+                    null,
+                    $card->getId()
+                );
+
+            $order->setBuilding($doorBuildingIds);
         }
 
         $view = new View();
