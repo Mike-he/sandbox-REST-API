@@ -571,8 +571,6 @@ class ClientDashBoardController extends SandboxRestController
 
         $roomAttachment = $roomAttachmentBinding ? $roomAttachmentBinding->getAttachmentId()->getContent() : null;
 
-        $roomType = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$room->getType());
-
         $payChannel = '';
         if ($order->getPayChannel()) {
             if (ProductOrder::CHANNEL_SALES_OFFLINE == $order->getPayChannel()) {
@@ -586,6 +584,7 @@ class ClientDashBoardController extends SandboxRestController
             }
         }
 
+        $roomType = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$room->getType());
         $orderType = $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_TYPE.$order->getType());
         $status = $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_STATUS.$order->getStatus());
 
@@ -596,7 +595,8 @@ class ClientDashBoardController extends SandboxRestController
             'building_name' => $building->getName(),
             'start_date' => $order->getStartDate(),
             'end_date' => $order->getEndDate(),
-            'room_type' => $roomType,
+            'room_type_description' => $roomType,
+            'room_type' => $room->getType(),
             'order_type' => $orderType,
             'pay_channel' => $payChannel,
             'status' => $status,
