@@ -119,6 +119,27 @@ class AdminEventOrderController extends SalesRestController
      * )
      *
      * @Annotations\QueryParam(
+     *    name="order_create_start",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="start date. Must be YYYY-mm-dd"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="order_create_end",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="end date. Must be YYYY-mm-dd"
+     * )
+     *
+     *
+     * @Annotations\QueryParam(
      *    name="user",
      *    array=false,
      *    default=null,
@@ -167,6 +188,8 @@ class AdminEventOrderController extends SalesRestController
         $createStart = $paramFetcher->get('create_start');
         $createEnd = $paramFetcher->get('create_end');
         $userId = $paramFetcher->get('user');
+        $orderCreateStart = $paramFetcher->get('order_create_start');
+        $orderCreateEnd = $paramFetcher->get('order_create_end');
 
         //sort
         $sortColumn = $paramFetcher->get('sort_column');
@@ -192,6 +215,8 @@ class AdminEventOrderController extends SalesRestController
                 $createDateRange,
                 $createStart,
                 $createEnd,
+                $orderCreateStart,
+                $orderCreateEnd,
                 $this->getSalesCompanyId(),
                 $userId,
                 $limit,
@@ -213,6 +238,8 @@ class AdminEventOrderController extends SalesRestController
                 $createDateRange,
                 $createStart,
                 $createEnd,
+                $orderCreateStart,
+                $orderCreateEnd,
                 $this->getSalesCompanyId(),
                 $userId
             );
@@ -395,6 +422,8 @@ class AdminEventOrderController extends SalesRestController
                 $createDateRange,
                 $createStart,
                 $createEnd,
+                null,
+                null,
                 $companyId
             );
 
