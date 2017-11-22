@@ -159,7 +159,7 @@ class Lease
      *
      * @ORM\Column(name="start_date", type="datetime", nullable=true)
      *
-     * @Serializer\Groups({"main", "lease_list", "room_usage","log"})
+     * @Serializer\Groups({"main", "lease_list", "room_usage","log", "lease_bill"})
      */
     private $startDate;
 
@@ -168,7 +168,7 @@ class Lease
      *
      * @ORM\Column(name="end_date", type="datetime", nullable=true)
      *
-     * @Serializer\Groups({"main", "lease_list", "room_usage","log"})
+     * @Serializer\Groups({"main", "lease_list", "room_usage","log", "lease_bill"})
      */
     private $endDate;
 
