@@ -121,17 +121,21 @@ class AdminLeaseExportController extends SalesRestController
         $status = $paramFetcher->get('status');
         $keyword = $paramFetcher->get('keyword');
         $keywordSearch = $paramFetcher->get('keyword_search');
-        $createStart = $paramFetcher->get('create_start');
-        $createEnd = $paramFetcher->get('create_end');
         $rentFilter = $paramFetcher->get('rent_filter');
         $startDate = $paramFetcher->get('start_date');
         $endDate = $paramFetcher->get('end_date');
 
-        $createStart = new \DateTime($createStart);
-        $createStart->setTime(0, 0, 0);
+        $createStart = $paramFetcher->get('create_start');
+        if ($createStart) {
+            $createStart = new \DateTime($createStart);
+            $createStart->setTime(0, 0, 0);
+        }
 
-        $createEnd = new \DateTime($createEnd);
-        $createEnd->setTime(23, 59, 59);
+        $createEnd = $paramFetcher->get('create_end');
+        if ($createEnd) {
+            $createEnd = new \DateTime($createEnd);
+            $createEnd->setTime(23, 59, 59);
+        }
 
         $clues = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseClue')
