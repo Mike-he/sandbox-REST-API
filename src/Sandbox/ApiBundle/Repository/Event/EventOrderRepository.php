@@ -269,6 +269,8 @@ class EventOrderRepository extends EntityRepository
         $createDateRange,
         $createStart,
         $createEnd,
+        $orderCreateStart,
+        $orderCreateEnd,
         $salesCompanyId,
         $userId = null,
         $limit = null,
@@ -394,6 +396,20 @@ class EventOrderRepository extends EntityRepository
             }
         }
 
+        if (!is_null($orderCreateStart)) {
+            $orderCreateStart = new \DateTime($orderCreateStart);
+            $query->andWhere('eo.creationDate >= :orderCreateStart')
+                ->setParameter('orderCreateStart', $orderCreateStart);
+        }
+
+        // filter by order end point
+        if (!is_null($orderCreateEnd)) {
+            $orderCreateEnd = new \DateTime($orderCreateEnd);
+            $orderCreateEnd->setTime(23, 59, 59);
+            $query->andWhere('eo.creationDate <= :orderCreateEnd')
+                ->setParameter('orderCreateEnd', $orderCreateEnd);
+        }
+
         // filter by user
         if (!is_null($userId)) {
             $query->andWhere('eo.userId = :userId')
@@ -448,6 +464,8 @@ class EventOrderRepository extends EntityRepository
         $createDateRange,
         $createStart,
         $createEnd,
+        $orderCreateStart,
+        $orderCreateEnd,
         $salesCompanyId,
         $userId = null
     ) {
@@ -548,6 +566,20 @@ class EventOrderRepository extends EntityRepository
                 $query->andWhere('e.eventStartDate <= :createEnd')
                     ->setParameter('createEnd', $createEnd);
             }
+        }
+
+        if (!is_null($orderCreateStart)) {
+            $orderCreateStart = new \DateTime($orderCreateStart);
+            $query->andWhere('eo.creationDate >= :orderCreateStart')
+                ->setParameter('orderCreateStart', $orderCreateStart);
+        }
+
+        // filter by order end point
+        if (!is_null($orderCreateEnd)) {
+            $orderCreateEnd = new \DateTime($orderCreateEnd);
+            $orderCreateEnd->setTime(23, 59, 59);
+            $query->andWhere('eo.creationDate <= :orderCreateEnd')
+                ->setParameter('orderCreateEnd', $orderCreateEnd);
         }
 
         // filter by user
