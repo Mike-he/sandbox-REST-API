@@ -159,7 +159,16 @@ class AdminLeaseClueController extends SalesRestController
         $keywordSearch = $paramFetcher->get('keyword_search');
 
         $createStart = $paramFetcher->get('create_start');
+        if ($createStart) {
+            $createStart = new \DateTime($createStart);
+            $createStart->setTime(0, 0, 0);
+        }
+
         $createEnd = $paramFetcher->get('create_end');
+        if ($createEnd) {
+            $createEnd = new \DateTime($createEnd);
+            $createEnd->setTime(23, 59, 59);
+        }
 
         // rent date filter
         $rentFilter = $paramFetcher->get('rent_filter');
@@ -177,12 +186,6 @@ class AdminLeaseClueController extends SalesRestController
                 AdminPermission::KEY_SALES_BUILDING_LEASE_CLUE,
             )
         );
-
-        $createStart = new \DateTime($createStart);
-        $createStart->setTime(0, 0, 0);
-
-        $createEnd = new \DateTime($createEnd);
-        $createEnd->setTime(23, 59, 59);
 
         $clues = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseClue')
