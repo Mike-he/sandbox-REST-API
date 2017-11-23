@@ -401,6 +401,12 @@ class Lease
     private $unpaidLeaseBillsAmount;
 
     /**
+     * @var int
+     * @Serializer\Groups({"main", "lease_list"})
+     */
+    private $paidLeaseBillsAmount;
+
+    /**
      * @var User
      *
      * @ORM\ManyToMany(targetEntity="Sandbox\ApiBundle\Entity\User\User")
@@ -1445,5 +1451,21 @@ class Lease
     public function setPaidLeaseBillsFees($paidLeaseBillsFees)
     {
         $this->paidLeaseBillsFees = $paidLeaseBillsFees;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPaidLeaseBillsAmount()
+    {
+        return $this->paidLeaseBillsAmount;
+    }
+
+    /**
+     * @param int $paidLeaseBillsAmount
+     */
+    public function setPaidLeaseBillsAmount($paidLeaseBillsAmount)
+    {
+        $this->paidLeaseBillsAmount = $paidLeaseBillsAmount;
     }
 }

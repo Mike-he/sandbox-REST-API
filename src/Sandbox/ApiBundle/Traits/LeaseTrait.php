@@ -66,6 +66,14 @@ trait LeaseTrait
             );
         $lease->setUnpaidLeaseBillsAmount($unpaidBills);
 
+        $paidBills = $em->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->countBills(
+                $lease,
+                null,
+                LeaseBill::STATUS_PAID
+            );
+        $lease->setpaidLeaseBillsAmount($paidBills);
+
         $otherBills = $em->getRepository('SandboxApiBundle:Lease\LeaseBill')
             ->countBills(
                 $lease,
