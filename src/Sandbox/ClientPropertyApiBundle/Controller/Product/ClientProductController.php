@@ -280,6 +280,7 @@ class ClientProductController extends ProductController
         $rentDate = $form['earliest_rent_date']->getData();
 
         if (!is_null($rentDate) && !empty($rentDate)) {
+            $rentDate = new \DateTime($rentDate);
             $rentDate->setTime(0, 0, 0);
 
             $productRentSet = $this->getDoctrine()
