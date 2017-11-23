@@ -404,7 +404,7 @@ class Lease
      * @var int
      * @Serializer\Groups({"main", "lease_list"})
      */
-    private $paidLeaseBillsAmount;
+    private $paidBillsAmount;
 
     /**
      * @var User
@@ -1456,16 +1456,16 @@ class Lease
     /**
      * @return int
      */
-    public function getPaidLeaseBillsAmount()
+    public function getPaidBillsAmount()
     {
-        return $this->paidLeaseBillsAmount;
+        return $this->paidBillsAmount;
     }
 
     /**
-     * @param int $paidLeaseBillsAmount
+     * @param int $paidBillsAmount
      */
-    public function setPaidLeaseBillsAmount($paidLeaseBillsAmount)
+    public function setPaidBillsAmount($paidBillsAmount)
     {
-        $this->paidLeaseBillsAmount = $paidLeaseBillsAmount;
+        $this->paidBillsAmount = $paidBillsAmount;
     }
 }

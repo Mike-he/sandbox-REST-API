@@ -72,7 +72,7 @@ trait LeaseTrait
                 null,
                 LeaseBill::STATUS_PAID
             );
-        $lease->setpaidLeaseBillsAmount($paidBills);
+        $lease->setpaidBillsAmount($paidBills);
 
         $otherBills = $em->getRepository('SandboxApiBundle:Lease\LeaseBill')
             ->countBills(
