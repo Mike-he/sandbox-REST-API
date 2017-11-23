@@ -1988,15 +1988,17 @@ class OrderRepository extends EntityRepository
                     (
                         (o.status != :unpaid) AND 
                         (o.paymentDate IS NOT NULL) OR 
-                        (o.type = :preOrder)
+                        (o.type = :preOrder) OR 
+                        (o.type = :officialPreOrder)
                     )
                 ')
             ->andWhere('por.buildingId IN (:buildingIds)')
             ->setParameter('buildingIds', $myBuildingIds)
             ->setParameter('unpaid', ProductOrder::STATUS_UNPAID)
-            ->setParameter('preOrder', ProductOrder::PREORDER_TYPE);
+            ->setParameter('preOrder', ProductOrder::PREORDER_TYPE)
+            ->setParameter('officialPreOrder', ProductOrder::OFFICIAL_PREORDER_TYPE);
 
-        // filter by payment channel
+        // filter by payment channelP
         if (!is_null($channel) && !empty($channel)) {
             if (in_array('sandbox', $channel)) {
                 $channel[] = ProductOrder::CHANNEL_ACCOUNT;
