@@ -122,3 +122,5 @@ parameters:
     oss_bucket: sandbox3-pro-image
 
     error_log_dir: /var/log/app/error.log
+
+    rpc_server_test: http://139.224.210.135:10088

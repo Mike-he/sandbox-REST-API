@@ -38,3 +38,6 @@ services:
     sandbox_api.jmessage_property:
         class: Sandbox\ApiBundle\Service\JmessagePropertyService
         arguments: ['@service_container']
+    sandbox_rpc.client:
+        class: Sandbox\ApiBundle\Service\RpcClient
+        arguments: ['@service_container']
