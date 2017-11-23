@@ -755,10 +755,9 @@ class OrderRepository extends EntityRepository
             ->set('o.modificationDate', $nowString)
             ->where('o.status = \'unpaid\'')
             ->andWhere('(o.payChannel != :channel OR o.payChannel IS NULL)')
-            ->andWhere('(o.type != :preorder OR o.type != :officialPreOrder OR o.type is NULL)')
+            ->andWhere('(o.type == :own)')
             ->andWhere('o.creationDate <= :start')
-            ->setParameter('preorder', ProductOrder::PREORDER_TYPE)
-            ->setParameter('officialPreOrder', ProductOrder::OFFICIAL_PREORDER_TYPE)
+            ->setParameter('own', ProductOrder::OWN_TYPE)
             ->setParameter('start', $start)
             ->setParameter('channel', ProductOrder::CHANNEL_OFFLINE)
             ->getQuery();
