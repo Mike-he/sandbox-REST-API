@@ -25,6 +25,9 @@ cp data/sandbox.conf /etc/nginx/conf.d/sandbox.conf
 # Copy php-fpm conf
 cp data/www.conf /etc/php5/fpm/pool.d/www.conf
 
+mkdir /var/log/nginx/error  /var/log/nginx/access
+touch /var/log/nginx/error/error.log /var/log/nginx/access/access.log
+
 if [ ! -z "$ENV" ]; then
  cp app/config/parameters_${ENV}.yml.dist app/config/parameters.yml
 fi
