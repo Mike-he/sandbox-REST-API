@@ -307,12 +307,24 @@ class ClientOrderController extends OrderController
         $room = $order->getProduct()->getRoom();
         $building = $room->getBuilding();
 
+        $customerData = [];
         if ($order->getCustomerId()) {
             $customer = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:User\UserCustomer')
                 ->find($order->getCustomerId());
-        } else {
-            $customer = '';
+
+            $avatar = '';
+            if ($customer->getAvatar()) {
+                $avatar = $customer->getAvatar();
+            } elseif ($customer->getUserId()) {
+                $avatar = $this->getParameter('image_url').'/person/'.$customer->getUserId().'/avatar_small.jpg';
+            }
+
+            $customerData = [
+                'id' => $order->getCustomerId(),
+                'name' => $customer->getName(),
+                'avatar' => $avatar,
+            ];
         }
 
         $attachment = $this->getDoctrine()
@@ -363,11 +375,7 @@ class ClientOrderController extends OrderController
             'pay_channel' => $payChannel,
             'base_price' => $order->getBasePrice(),
             'unit_price' => $order->getUnitPrice(),
-            'customer' => array(
-                'id' => $order->getCustomerId(),
-                'name' => $customer ? $customer->getName() : '',
-                'avatar' => $customer ? $customer->getAvatar() : '',
-            ),
+            'customer' => $customerData,
         );
 
         return $result;
