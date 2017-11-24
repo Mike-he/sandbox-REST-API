@@ -267,6 +267,8 @@ class ClientLeaseController extends SalesRestController
             $ids = array_merge($ids, $leaseIds);
         }
 
+        $ids = array_unique($ids);
+
         $leases = $this->handleLeaseData($ids, $limit, $offset);
 
         $view = new View();

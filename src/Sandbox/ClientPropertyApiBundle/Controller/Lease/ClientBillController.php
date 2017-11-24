@@ -261,6 +261,8 @@ class ClientBillController extends SalesRestController
             $ids = array_merge($ids, $billIds);
         }
 
+        $ids = array_unique($ids);
+
         $receivableTypes = [
             'sales_wx' => '微信',
             'sales_alipay' => '支付宝支付',

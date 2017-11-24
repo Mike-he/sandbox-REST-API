@@ -217,6 +217,8 @@ class ClientClueController extends SalesRestController
             $ids = array_merge($ids, $leaseIds);
         }
 
+        $ids = array_unique($ids);
+
         $clues = $this->handleClueData($ids, $limit, $offset);
 
         $view = new View();

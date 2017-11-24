@@ -186,6 +186,8 @@ class ClientOfferController extends SalesRestController
             $ids = array_merge($ids, $offerIds);
         }
 
+        $ids = array_unique($ids);
+
         $offers = $this->handleOfferData($ids, $limit, $offset);
 
         $view = new View();
