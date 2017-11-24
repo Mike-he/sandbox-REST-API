@@ -60,20 +60,25 @@ class ReservationRepository extends EntityRepository
         $direction = null
     ) {
         $query = $this->createQueryBuilder('re')
-            ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'up.userId = re.userId')
-            ->leftJoin('SandboxApiBundle:User\UserProfile', 'upf', 'WITH', 'upf.userId = re.adminId')
+            ->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.userId = re.userId')
+            ->leftJoin('SandboxApiBundle:SalesAdmin\SalesAdmin', 'sa', 'WITH', 'sa.userId = re.adminId')
+            ->leftJoin('SandboxApiBundle:SalesAdmin\SalesAdminProfiles','sap','WITH','sap.userId = sa.userId')
            // ->leftJoin('SandboxApiBundle:Product\ProductRentSet','prt','WITH','prt.productId = re.productId')
             ->where('re.companyId = :companyId')
+            ->andWhere('uc.companyId = :companyId')
+            ->andWhere('sap.salesCompanyId = :companyId')
             ->setParameter('companyId', $salesCompanyId)
            ;
+
+
 
         if (!is_null($keyword) && !is_null($keywordSearch)) {
             switch ($keyword) {
                 case 'userName':
-                    $query->andWhere('up.name LIKE :search');
+                    $query->andWhere('uc.name LIKE :search');
                     break;
                 case 'userPhone':
-                    $query->andWhere('up.phone LIKE :search');
+                    $query->andWhere('uc.phone LIKE :search');
                     break;
                 case 'contectName':
                     $query->andWhere('re.contectName LIKE :search');
@@ -82,10 +87,10 @@ class ReservationRepository extends EntityRepository
                     $query->andWhere('re.phone LIKE :search');
                     break;
                 case 'adminName':
-                    $query->andWhere('upf.name LIKE :search');
+                    $query->andWhere('sap.nickname LIKE :search');
                     break;
                 case 'adminPhone':
-                    $query->andWhere('upf.phone LIKE :search');
+                    $query->andWhere('sa.phone LIKE :search');
                     break;
                 default:
                     break;
@@ -139,6 +144,11 @@ class ReservationRepository extends EntityRepository
         }
 
         if (!is_null($status)) {
+            if($status == Reservation::UNGRABED) {
+                $now = new \DateTime();
+                $query->andWhere('re.viewTime >= :viewTime')
+                    ->setParameter('viewTime',$now);
+            }
             $query->andWhere('re.status = :status')
                 ->setParameter('status', $status);
         }
@@ -149,25 +159,30 @@ class ReservationRepository extends EntityRepository
         }
 
         if (!is_null($sortColumn) && !is_null($direction)) {
-            switch ($sortColumn) {
-                case 'view_time':
-                    $query->orderBy('re.viewTime', $direction);
-                    break;
-                case 'creation_date':
-                    $query->orderBy('re.creationDate', $direction);
-                    break;
-                case 'grab_date':
-                    $query->orderBy('re.grabDate', $direction);
-                    break;
-                default:
-                    $query->orderBy('re.creationDate', 'DESC');
-                    break;
-            }
+            $direction = strtoupper($direction);
+            $sortArray = array(
+                'view_time' => 're.viewTime',
+                'creation_date' => 're.creationDate',
+                'grab_date' => 're.grabDate'
+            );
+            $query->orderBy($sortArray[$sortColumn], $direction);
+        } else {
+            $query->orderBy('re.viewTime', 'DESC');
         }
 
-        $query->setMaxResults($limit)
-            ->setFirstResult($offset);
+        if (!is_null($limit) && !is_null($offset)) {
 
+
+            $query->setMaxResults($limit)
+                ->setFirstResult($offset);
+        }
+var_dump($query->getQuery()->getSQL());
+
+//        $query->setFirstResult($offset)
+//            ->setMaxResults($limit);
+//
+
+        var_dump(count($query->getQuery()->getResult())); die('a');
         return $query->getQuery()->getResult();
     }
 
@@ -201,8 +216,9 @@ class ReservationRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('re')
             ->select('COUNT(re)')
-            ->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'up.userId = re.userId')
-            ->leftJoin('SandboxApiBundle:User\UserProfile', 'upf', 'WITH', 'upf.userId = re.adminId')
+            ->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.userId = re.userId')
+            ->leftJoin('SandboxApiBundle:SalesAdmin\SalesAdmin', 'sa', 'WITH', 'sa.userId = re.adminId')
+            ->leftJoin('SandboxApiBundle:SalesAdmin\SalesAdminProfiles','sap','WITH','sap.userId = sa.userId')
             ->where('re.companyId = :companyId')
             ->setParameter('companyId', $salesCompanyId)
         ;
@@ -210,10 +226,10 @@ class ReservationRepository extends EntityRepository
         if (!is_null($keyword) && !is_null($keywordSearch)) {
             switch ($keyword) {
                 case 'userName':
-                    $query->andWhere('up.name LIKE :search');
+                    $query->andWhere('uc.name LIKE :search');
                     break;
                 case 'userPhone':
-                    $query->andWhere('up.phone LIKE :search');
+                    $query->andWhere('uc.phone LIKE :search');
                     break;
                 case 'contectName':
                     $query->andWhere('re.contectName LIKE :search');
@@ -222,10 +238,10 @@ class ReservationRepository extends EntityRepository
                     $query->andWhere('re.phone LIKE :search');
                     break;
                 case 'adminName':
-                    $query->andWhere('upf.name LIKE :search');
+                    $query->andWhere('sap.nickname LIKE :search');
                     break;
                 case 'adminPhone':
-                    $query->andWhere('upf.phone LIKE :search');
+                    $query->andWhere('sa.phone LIKE :search');
                     break;
                 default:
                     break;
@@ -279,6 +295,11 @@ class ReservationRepository extends EntityRepository
         }
 
         if (!is_null($status)) {
+            if($status == Reservation::UNGRABED) {
+                $now = new \DateTime();
+                $query->andWhere('re.viewTime >= :viewTime')
+                    ->setParameter('viewTime',$now);
+            }
             $query->andWhere('re.status = :status')
                 ->setParameter('status', $status);
         }
