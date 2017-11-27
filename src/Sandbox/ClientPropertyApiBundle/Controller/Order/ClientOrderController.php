@@ -307,7 +307,7 @@ class ClientOrderController extends OrderController
         $room = $order->getProduct()->getRoom();
         $building = $room->getBuilding();
 
-        $customerData = [];
+        $customerData = '';
         if ($order->getCustomerId()) {
             $customer = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:User\UserCustomer')
