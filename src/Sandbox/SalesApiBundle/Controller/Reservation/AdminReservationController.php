@@ -311,6 +311,17 @@ class AdminReservationController extends SalesRestController
      */
     private function getProductInfo($reservation)
     {
+        $str = $reservation->getViewTime();
+        $str = str_replace('.','-',$str);
+
+        $viewTime =  new \DateTime($str);
+        $status = $reservation->getStatus();
+        $now = new \DateTime();
+
+        if($now > $viewTime){
+            $status = 'expired';
+        }
+
         $data = [];
         /** @var Reservation $reservation */
         $data['id'] = $reservation->getId();
@@ -324,7 +335,7 @@ class AdminReservationController extends SalesRestController
         $data['viewTime'] = $reservation->getViewTime();
         $data['creationDate'] = $reservation->getCreationDate();
         $data['modificationDate'] = $reservation->getModificationDate();
-        $data['status'] = $reservation->getStatus();
+        $data['status'] = $status;
         $data['grabDate'] = $reservation->getGrabDate();
         $data['companyId'] = $reservation->getCompanyId();
 
@@ -349,17 +360,16 @@ class AdminReservationController extends SalesRestController
         $data['product']['content'] = $attachment[0]['content'];
         $data['product']['type_tag_description'] = $typeTagDescription;
 
-
         $user = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserProfile')
-            ->findByUserId($reservation->getUserId());
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->findOneBy(array('userId'=>$reservation->getUserId()));
         $data['userName'] = $user->getName();
 
         if($reservation->getAdminId()){
             $admin = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:User\UserProfile')
-                ->findByUserId($reservation->getAdminId());
-            $data['adminName'] = $admin->getName();
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
+                ->findOneBy(array('userId'=>$reservation->getAdminId()));
+            $data['adminName'] = $admin->getNickname();
         }
 
         $rent = $this->getDoctrine()
