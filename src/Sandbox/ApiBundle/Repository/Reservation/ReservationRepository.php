@@ -60,25 +60,19 @@ class ReservationRepository extends EntityRepository
         $direction = null
     ) {
         $query = $this->createQueryBuilder('re')
-            ->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.userId = re.userId')
-            ->leftJoin('SandboxApiBundle:SalesAdmin\SalesAdmin', 'sa', 'WITH', 'sa.userId = re.adminId')
-            ->leftJoin('SandboxApiBundle:SalesAdmin\SalesAdminProfiles','sap','WITH','sap.userId = sa.userId')
-           // ->leftJoin('SandboxApiBundle:Product\ProductRentSet','prt','WITH','prt.productId = re.productId')
-            ->where('re.companyId = :companyId')
-            ->andWhere('uc.companyId = :companyId')
-            ->andWhere('sap.salesCompanyId = :companyId')
-            ->setParameter('companyId', $salesCompanyId)
-           ;
-
-
+            ->where('1=1');
 
         if (!is_null($keyword) && !is_null($keywordSearch)) {
             switch ($keyword) {
                 case 'userName':
-                    $query->andWhere('uc.name LIKE :search');
+                    $query->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.userId = re.userId')
+                        ->andWhere('uc.companyId = :companyId')
+                        ->andWhere('uc.name LIKE :search');
                     break;
                 case 'userPhone':
-                    $query->andWhere('uc.phone LIKE :search');
+                    $query->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.userId = re.userId')
+                        ->andWhere('uc.companyId = :companyId')
+                        ->andWhere('uc.phone LIKE :search');
                     break;
                 case 'contectName':
                     $query->andWhere('re.contectName LIKE :search');
@@ -87,16 +81,23 @@ class ReservationRepository extends EntityRepository
                     $query->andWhere('re.phone LIKE :search');
                     break;
                 case 'adminName':
-                    $query->andWhere('sap.nickname LIKE :search');
+                    $query->leftJoin('SandboxApiBundle:SalesAdmin\SalesAdminProfiles','sap','WITH','sap.userId = re.adminId')
+                        ->andWhere('sap.salesCompanyId =  :companyId OR sap.salesCompanyId is null')
+                        ->andWhere('sap.nickname LIKE :search');
                     break;
                 case 'adminPhone':
-                    $query->andWhere('sa.phone LIKE :search');
+                    $query->leftJoin('SandboxApiBundle:SalesAdmin\SalesAdmin', 'sa', 'WITH', 'sa.userId = re.adminId')
+                        ->andWhere('sa.phone LIKE :search');
                     break;
                 default:
+                    $query->andWhere('re.contectName LIKE :search');
                     break;
             }
             $query->setParameter('search', '%'.$keywordSearch.'%');
         }
+
+        $query->andWhere('re.companyId = :companyId')
+            ->setParameter('companyId', $salesCompanyId);
 
         if (!is_null($viewStart)) {
             $viewStart = new \DateTime($viewStart);
@@ -171,18 +172,13 @@ class ReservationRepository extends EntityRepository
         }
 
         if (!is_null($limit) && !is_null($offset)) {
-
-
             $query->setMaxResults($limit)
                 ->setFirstResult($offset);
         }
-var_dump($query->getQuery()->getSQL());
 
-//        $query->setFirstResult($offset)
-//            ->setMaxResults($limit);
-//
+        $query->setFirstResult($offset)
+            ->setMaxResults($limit);
 
-        var_dump(count($query->getQuery()->getResult())); die('a');
         return $query->getQuery()->getResult();
     }
 
@@ -216,20 +212,19 @@ var_dump($query->getQuery()->getSQL());
     ) {
         $query = $this->createQueryBuilder('re')
             ->select('COUNT(re)')
-            ->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.userId = re.userId')
-            ->leftJoin('SandboxApiBundle:SalesAdmin\SalesAdmin', 'sa', 'WITH', 'sa.userId = re.adminId')
-            ->leftJoin('SandboxApiBundle:SalesAdmin\SalesAdminProfiles','sap','WITH','sap.userId = sa.userId')
-            ->where('re.companyId = :companyId')
-            ->setParameter('companyId', $salesCompanyId)
-        ;
+            ->where('1=1');
 
         if (!is_null($keyword) && !is_null($keywordSearch)) {
             switch ($keyword) {
                 case 'userName':
-                    $query->andWhere('uc.name LIKE :search');
+                    $query->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.userId = re.userId')
+                        ->andWhere('uc.companyId = :companyId')
+                        ->andWhere('uc.name LIKE :search');
                     break;
                 case 'userPhone':
-                    $query->andWhere('uc.phone LIKE :search');
+                    $query->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.userId = re.userId')
+                        ->andWhere('uc.companyId = :companyId')
+                        ->andWhere('uc.phone LIKE :search');
                     break;
                 case 'contectName':
                     $query->andWhere('re.contectName LIKE :search');
@@ -238,16 +233,23 @@ var_dump($query->getQuery()->getSQL());
                     $query->andWhere('re.phone LIKE :search');
                     break;
                 case 'adminName':
-                    $query->andWhere('sap.nickname LIKE :search');
+                    $query->leftJoin('SandboxApiBundle:SalesAdmin\SalesAdminProfiles','sap','WITH','sap.userId = re.adminId')
+                        ->andWhere('sap.salesCompanyId =  :companyId OR sap.salesCompanyId is null')
+                        ->andWhere('sap.nickname LIKE :search');
                     break;
                 case 'adminPhone':
-                    $query->andWhere('sa.phone LIKE :search');
+                    $query->leftJoin('SandboxApiBundle:SalesAdmin\SalesAdmin', 'sa', 'WITH', 'sa.userId = re.adminId')
+                        ->andWhere('sa.phone LIKE :search');
                     break;
                 default:
+                    $query->andWhere('re.contectName LIKE :search');
                     break;
             }
             $query->setParameter('search', '%'.$keywordSearch.'%');
         }
+
+        $query->andWhere('re.companyId = :companyId')
+            ->setParameter('companyId', $salesCompanyId);
 
         if (!is_null($viewStart)) {
             $viewStart = new \DateTime($viewStart);
