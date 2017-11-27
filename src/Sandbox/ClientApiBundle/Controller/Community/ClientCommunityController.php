@@ -225,6 +225,13 @@ class ClientCommunityController extends ProductController
      *    description="district level"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="query",
+     *    default=null,
+     *    nullable=true,
+     *    description="search key word"
+     * )
+     *
      * @Route("/communities")
      * @Method({"GET"})
      *
@@ -262,6 +269,7 @@ class ClientCommunityController extends ProductController
         $minBasePrice = $paramFetcher->get('min_base_price');
         $maxBasePrice = $paramFetcher->get('max_base_price');
         $districtLevel = (bool) $paramFetcher->get('district_level');
+        $search = $paramFetcher->get('query');
 
         $location = $this->baiduToGaode($lat, $lng);
         $lat = $location['lat'];
@@ -302,7 +310,8 @@ class ClientCommunityController extends ProductController
             $minBasePrice,
             $maxBasePrice,
             $roomTypeTags,
-            $unit
+            $unit,
+            $search
         );
 
         $communities = $this->transformLocation($communities);
@@ -541,6 +550,13 @@ class ClientCommunityController extends ProductController
      *    description="max base price"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="query",
+     *    default=null,
+     *    nullable=true,
+     *    description="search key word"
+     * )
+     *
      * @Route("/communities/products/search")
      * @Method({"GET"})
      *
@@ -580,6 +596,7 @@ class ClientCommunityController extends ProductController
         $maxAllowedPeople = $paramFetcher->get('max_allowed_people');
         $minBasePrice = $paramFetcher->get('min_base_price');
         $maxBasePrice = $paramFetcher->get('max_base_price');
+        $search = $paramFetcher->get('query');
 
         $location = $this->baiduToGaode($lat, $lng);
         $lat = $location['lat'];
@@ -620,7 +637,8 @@ class ClientCommunityController extends ProductController
             $minBasePrice,
             $maxBasePrice,
             $roomTypeTags,
-            $unit
+            $unit,
+            $search
         );
 
         if (is_null($type)) {
@@ -675,6 +693,7 @@ class ClientCommunityController extends ProductController
      * @param $maxBasePrice
      * @param $roomTypeTags
      * @param $unit
+     * @param $search
      *
      * @return array
      */
@@ -692,7 +711,8 @@ class ClientCommunityController extends ProductController
         $minBasePrice,
         $maxBasePrice,
         $roomTypeTags,
-        $unit
+        $unit,
+        $search
     ) {
         $communitiesArray = [];
 
@@ -715,7 +735,8 @@ class ClientCommunityController extends ProductController
                 $minBasePrice,
                 $maxBasePrice,
                 $roomTypeTags,
-                $unit
+                $unit,
+                $search
             );
 
             if (count($productIds) == 0) {
@@ -801,7 +822,8 @@ class ClientCommunityController extends ProductController
         $minBasePrice,
         $maxBasePrice,
         $roomTypeTags,
-        $unit
+        $unit,
+        $search
     ) {
         $startTime = null;
         $endTime = null;
@@ -915,7 +937,8 @@ class ClientCommunityController extends ProductController
                     $isFavorite,
                     $minBasePrice,
                     $maxBasePrice,
-                    $roomTypeTags
+                    $roomTypeTags,
+                    $search
                 );
         }
 
