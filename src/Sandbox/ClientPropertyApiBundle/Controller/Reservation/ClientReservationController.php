@@ -250,15 +250,15 @@ class ClientReservationController extends SalesRestController
 
 
         $user = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserProfile')
-            ->findByUserId($reservation->getUserId());
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->findOneBy(array('userId'=>$reservation->getUserId()));
         $data['userName'] = $user->getName();
 
         if($reservation->getAdminId()){
             $admin = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:User\UserProfile')
-                ->findByUserId($reservation->getAdminId());
-            $data['adminName'] = $admin->getName();
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
+                ->findOneBy(array('userId'=>$reservation->getAdminId()));
+            $data['adminName'] = $admin->getNickname();
         }
 
         $rent = $this->getDoctrine()
