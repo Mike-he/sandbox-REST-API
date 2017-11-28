@@ -6,7 +6,6 @@ use Doctrine\DBAL\Migrations\AbstractMigration;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\ORM\EntityManager;
 use Sandbox\ApiBundle\Entity\Parameter\Parameter;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminProfiles;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 

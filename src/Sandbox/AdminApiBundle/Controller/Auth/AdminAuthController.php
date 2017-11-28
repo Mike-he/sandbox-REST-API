@@ -54,7 +54,7 @@ class AdminAuthController extends AuthController
         }
 
         // response my permissions
-        if ($platform !== 'official') {
+        if ($platform !== 'official' && $platform !== 'commnue') {
             if (is_null($salesCompanyId)) {
                 throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
             }
