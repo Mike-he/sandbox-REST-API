@@ -1,7 +1,0 @@
-parameters:
-#    sandbox_client_api.example.class: Sandbox\ClientApiBundle\Example
-
-services:
-#    sandbox_client_api.example:
-#        class: %sandbox_client_api.example.class%
-#        arguments: [@service_id, "plain_value", %parameter%]
