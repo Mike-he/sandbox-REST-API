@@ -1,0 +1,10 @@
+# Example
+#sandbox_client_api_feed:
+#    resource: "@SandboxClientApiBundle/Controller/Feed/ClientFeedController.php"
+#    type:     annotation
+#    prefix:   /
+
+commnue_admin_default_controller:
+    resource: "@CommnueAdminApiBundle/Controller/DefaultController.php"
+    type:     annotation
+    prefix:   /
