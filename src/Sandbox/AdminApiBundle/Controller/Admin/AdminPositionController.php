@@ -864,7 +864,7 @@ class AdminPositionController extends PaymentController
         $companyId = $position->getSalesCompanyId();
         $platform = $position->getPlatform();
 
-        if ($platform == AdminPosition::PLATFORM_OFFICIAL && is_null($companyId)) {
+        if (($platform == AdminPosition::PLATFORM_OFFICIAL || $platform == AdminPosition::PLATFORM_COMMNUE) && is_null($companyId)) {
             return;
         } else {
             $company = $this->getDoctrine()
