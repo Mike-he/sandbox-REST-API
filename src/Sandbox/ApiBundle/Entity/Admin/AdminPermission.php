@@ -21,6 +21,7 @@ class AdminPermission
     const PERMISSION_LEVEL_SPECIFY = 'specify';
 
     const PERMISSION_PLATFORM_OFFICIAL = 'official';
+    const PERMISSION_PLATFORM_COMMNUE = 'commnue';
     const PERMISSION_PLATFORM_SALES = 'sales';
     const PERMISSION_PLATFORM_SHOP = 'shop';
 
