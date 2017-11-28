@@ -13,7 +13,7 @@ pipeline {
                             "text": { \
                                 "content": "构建完成" \
                              } \
-                       }'
+                       }' \
                    "
             }
         }
