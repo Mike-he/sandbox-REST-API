@@ -25,7 +25,7 @@ class AdminPositionRepository extends EntityRepository
             ->andWhere('p.platform = :platform')
             ->setParameter('platform', $platform);
 
-        if (AdminPosition::PLATFORM_OFFICIAL != $platform) {
+        if (AdminPosition::PLATFORM_OFFICIAL != $platform && AdminPosition::PLATFORM_COMMNUE != $platform) {
             if (is_null($companyId) || empty($companyId)) {
                 return array();
             }
