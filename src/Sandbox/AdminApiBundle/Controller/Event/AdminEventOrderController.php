@@ -594,6 +594,7 @@ class AdminEventOrderController extends AdminOrderController
             $adminId,
             [
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_EVENT_ORDER],
+                ['key' => AdminPermission::KEY_COMMNUE_PLATFORM_EVENT],
             ],
             $opLevel,
             $platform

@@ -384,6 +384,7 @@ class AdminEventRegistrationController extends SandboxRestController
             $this->getAdminId(),
             [
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_EVENT],
+                ['key' => AdminPermission::KEY_COMMNUE_PLATFORM_EVENT],
             ],
             $opLevel
         );

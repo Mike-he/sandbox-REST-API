@@ -541,6 +541,7 @@ class AdminPositionBindingController extends AdminRestController
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ADMIN],
                 ['key' => AdminPermission::KEY_SALES_PLATFORM_ADMIN],
                 ['key' => AdminPermission::KEY_SHOP_PLATFORM_ADMIN],
+                ['key' => AdminPermission::KEY_COMMNUE_PLATFORM_ADMIN],
             ],
             $opLevel
         );

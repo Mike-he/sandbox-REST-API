@@ -169,13 +169,6 @@ class AdminPositionController extends PaymentController
      *
      * @param Request $request the request object
      *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     200 = "Returned when successful"
-     *   }
-     * )
-     *
      * @Method({"POST"})
      * @Route("/positions")
      *
