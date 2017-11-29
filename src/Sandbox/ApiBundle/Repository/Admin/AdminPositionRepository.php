@@ -72,7 +72,7 @@ class AdminPositionRepository extends EntityRepository
                 ->setParameter('isSuperAdmin', $isSuperAdmin);
         }
 
-        if (AdminPosition::PLATFORM_OFFICIAL != $platform) {
+        if (AdminPosition::PLATFORM_OFFICIAL != $platform && AdminPosition::PLATFORM_COMMNUE != $platform) {
             if (is_null($companyId) || empty($companyId)) {
                 return array();
             }

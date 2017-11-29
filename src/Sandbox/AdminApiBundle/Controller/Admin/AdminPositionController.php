@@ -750,6 +750,10 @@ class AdminPositionController extends PaymentController
                 }
 
                 break;
+            case AdminPosition::PLATFORM_COMMNUE:
+                //TODO: check official permissions
+
+                break;
             default:
                 throw new AccessDeniedHttpException();
 
@@ -1050,6 +1054,7 @@ class AdminPositionController extends PaymentController
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ADMIN],
                 ['key' => AdminPermission::KEY_SALES_PLATFORM_ADMIN],
                 ['key' => AdminPermission::KEY_SHOP_PLATFORM_ADMIN],
+                ['key' => AdminPermission::KEY_COMMNUE_PLATFORM_ADMIN],
             ],
             $opLevel
         );
