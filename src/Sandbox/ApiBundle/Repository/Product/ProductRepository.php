@@ -1410,7 +1410,8 @@ class ProductRepository extends EntityRepository
         $maxBasePrice,
         $roomTypeTags,
         $startDateString,
-        $endDateString
+        $endDateString,
+        $search
     ) {
         $now = new \DateTime();
 
@@ -1524,6 +1525,20 @@ class ProductRepository extends EntityRepository
                 ->setParameter('typeTags', $roomTypeTags);
         }
 
+        if (!is_null($search)) {
+            $query->leftJoin('SandboxApiBundle:SalesAdmin\SalesCompany',
+                'sc',
+                'WITH',
+                'sc.id = b.companyId'
+            )
+                ->andWhere('(
+                    sc.name LIKE :search
+                    OR b.name LIKE :search
+                    OR r.name LIKE :search
+                )')
+                ->setParameter('search', '%'.$search.'%');
+        }
+
         return $query->getQuery()->getResult();
     }
 
@@ -1557,7 +1572,8 @@ class ProductRepository extends EntityRepository
         $isFavorite,
         $minBasePrice,
         $maxBasePrice,
-        $roomTypeTags
+        $roomTypeTags,
+        $search
     ) {
         $now = new \DateTime();
 
@@ -1645,6 +1661,20 @@ class ProductRepository extends EntityRepository
             $query->leftJoin('SandboxApiBundle:Room\RoomTypeTags', 'rtt', 'WITH', 'rtt.tagKey = r.typeTag')
                 ->andWhere('rtt.id IN (:typeTags)')
                 ->setParameter('typeTags', $roomTypeTags);
+        }
+
+        if (!is_null($search)) {
+            $query->leftJoin('SandboxApiBundle:SalesAdmin\SalesCompany',
+                'sc',
+                'WITH',
+                'sc.id = b.companyId'
+            )
+                ->andWhere('(
+                    sc.name LIKE :search
+                    OR b.name LIKE :search
+                    OR r.name LIKE :search
+                )')
+                ->setParameter('search', '%'.$search.'%');
         }
 
         return $query->getQuery()->getResult();
