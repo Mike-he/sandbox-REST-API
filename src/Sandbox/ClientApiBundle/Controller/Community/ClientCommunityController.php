@@ -875,7 +875,8 @@ class ClientCommunityController extends ProductController
                     $maxBasePrice,
                     $roomTypeTags,
                     $startDateString,
-                    $endDateString
+                    $endDateString,
+                    $search
                 );
         } elseif (RoomTypes::TYPE_NAME_DESK == $type) {
             $startDate = null;
@@ -907,7 +908,8 @@ class ClientCommunityController extends ProductController
                     $isFavorite,
                     $minBasePrice,
                     $maxBasePrice,
-                    $roomTypeTags
+                    $roomTypeTags,
+                    $search
                 );
         } elseif (RoomTypes::TYPE_NAME_OFFICE == $type) {
             $startDate = null;
