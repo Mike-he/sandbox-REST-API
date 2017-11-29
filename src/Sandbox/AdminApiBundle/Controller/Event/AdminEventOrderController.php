@@ -228,6 +228,7 @@ class AdminEventOrderController extends AdminOrderController
 
         return new View($pagination);
     }
+
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher

@@ -27,7 +27,7 @@ use Sandbox\ApiBundle\Traits\EventNotification;
  * @author   Mike He <mike.he@easylinks.com.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 class AdminEventRegistrationController extends SandboxRestController
 {
@@ -101,7 +101,7 @@ class AdminEventRegistrationController extends SandboxRestController
             $em = $this->getDoctrine()->getManager();
             $em->flush();
 
-            if ($registration->getStatus() == EventRegistration::STATUS_ACCEPTED) {
+            if (EventRegistration::STATUS_ACCEPTED == $registration->getStatus()) {
                 $contentArray = array(
                     'type' => 'event',
                     'action' => EventRegistration::ACTION_ACCEPT,
@@ -340,14 +340,14 @@ class AdminEventRegistrationController extends SandboxRestController
                 ) {
                     // text string result
                     $inputResult = $userInput;
-                } elseif ($formType == EventForm::TYPE_RADIO) {
+                } elseif (EventForm::TYPE_RADIO == $formType) {
                     // radio result
                     $option = $this->getRepo('Event\EventFormOption')->findOneBy(array(
                         'id' => (int) $userInput,
                         'formId' => $formId,
                     ));
                     $inputResult = $option->getContent();
-                } elseif ($formType == EventForm::TYPE_CHECKBOX) {
+                } elseif (EventForm::TYPE_CHECKBOX == $formType) {
                     // check box result
                     $delimiter = ',';
                     $optionIds = explode($delimiter, $userInput);

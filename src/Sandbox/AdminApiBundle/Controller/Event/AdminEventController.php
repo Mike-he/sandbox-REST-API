@@ -4,7 +4,6 @@ namespace Sandbox\AdminApiBundle\Controller\Event;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
-use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
@@ -34,7 +33,7 @@ use Symfony\Component\Form\Form;
  * @author   Mike He <mike.he@easylinks.com.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 class AdminEventController extends SandboxRestController
 {
@@ -96,13 +95,6 @@ class AdminEventController extends SandboxRestController
      *
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
-     *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     200 = "Returned when successful"
-     *   }
-     * )
      *
      * @Annotations\QueryParam(
      *    name="pageLimit",
@@ -172,16 +164,28 @@ class AdminEventController extends SandboxRestController
         $status = $paramFetcher->get('status');
         $visible = $paramFetcher->get('visible');
 
-        $eventsArray = array();
+        $limit = $pageLimit;
+        $offset = ($pageIndex - 1) * $pageLimit;
+
         $events = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Event\Event')
             ->getEvents(
                 $status,
+                $visible,
+                $limit,
+                $offset
+            );
+
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\Event')
+            ->countEvents(
+                $status,
                 $visible
             );
 
-        foreach ($events as $eventArray) {
-            $event = $eventArray['event'];
+        $eventsArray = array();
+        foreach ($events as $value) {
+            $event = $value['event'];
             $attachments = $this->getRepo('Event\EventAttachment')->findByEvent($event);
             $dates = $this->getRepo('Event\EventDate')->findByEvent($event);
             $forms = $this->getRepo('Event\EventForm')->findByEvent($event);
@@ -204,14 +208,17 @@ class AdminEventController extends SandboxRestController
             array_push($eventsArray, $event);
         }
 
-        $paginator = new Paginator();
-        $pagination = $paginator->paginate(
-            $eventsArray,
-            $pageIndex,
-            $pageLimit
+        $view = new View();
+        $view->setData(
+            array(
+                'current_page_number' => $pageIndex,
+                'num_items_per_page' => (int) $pageLimit,
+                'items' => $eventsArray,
+                'total_count' => (int) $count,
+            )
         );
 
-        return new View($pagination);
+        return $view;
     }
 
     /**
@@ -219,13 +226,6 @@ class AdminEventController extends SandboxRestController
      *
      * @param Request $request
      * @param int     $id
-     *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     200 = "Returned when successful"
-     *   }
-     * )
      *
      * @Route("/events/{id}")
      * @Method({"GET"})
@@ -283,13 +283,6 @@ class AdminEventController extends SandboxRestController
     /**
      * @param Request $request
      *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     200 = "Returned when successful"
-     *  }
-     * )
-     *
      * @Method({"POST"})
      * @Route("/events")
      *
@@ -329,13 +322,6 @@ class AdminEventController extends SandboxRestController
     /**
      * @param Request $request
      * @param int     $id
-     *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     200 = "Returned when successful"
-     *   }
-     * )
      *
      * @Method({"PUT"})
      * @Route("/events/{id}")
@@ -401,13 +387,6 @@ class AdminEventController extends SandboxRestController
      * @param Request $request
      * @param $id
      *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     204 = "OK"
-     *  }
-     * )
-     *
      * @Route("/events/{id}")
      * @Method({"PATCH"})
      *
@@ -452,13 +431,6 @@ class AdminEventController extends SandboxRestController
      *
      * @param Request $request
      * @param int     $id
-     *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     204 = "OK"
-     *  }
-     * )
      *
      * @Route("/events/{id}")
      * @Method({"DELETE"})
@@ -817,7 +789,7 @@ class AdminEventController extends SandboxRestController
         }
 
         if (
-            $event->getRegistrationMethod() == Event::REGISTRATION_METHOD_ONLINE
+            Event::REGISTRATION_METHOD_ONLINE == $event->getRegistrationMethod()
             && (!is_null($eventForms) || !empty($eventForms))
         ) {
             $eventFormsArray = $this->getRepo('Event\EventForm')->findByEvent($event);
@@ -898,7 +870,7 @@ class AdminEventController extends SandboxRestController
         }
 
         // no verify if not free
-        if (!is_null($event->getPrice()) && $event->getPrice() != 0) {
+        if (!is_null($event->getPrice()) && 0 != $event->getPrice()) {
             $event->setVerify(false);
         }
 
@@ -978,7 +950,7 @@ class AdminEventController extends SandboxRestController
         $em = $this->getDoctrine()->getManager();
 
         if (
-            $event->getRegistrationMethod() == Event::REGISTRATION_METHOD_ONLINE
+            Event::REGISTRATION_METHOD_ONLINE == $event->getRegistrationMethod()
             && !is_null($forms)
             && !empty($forms)
         ) {
