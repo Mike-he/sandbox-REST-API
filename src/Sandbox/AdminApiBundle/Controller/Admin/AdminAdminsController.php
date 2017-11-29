@@ -590,6 +590,9 @@ class AdminAdminsController extends SandboxRestController
                     );
                 }
                 break;
+            case AdminPosition::PLATFORM_COMMNUE:
+
+                break;
             default:
                 return new View();
         }
