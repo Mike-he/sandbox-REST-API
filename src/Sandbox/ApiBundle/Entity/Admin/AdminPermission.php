@@ -116,6 +116,16 @@ class AdminPermission
     const KEY_SHOP_SHOP_ORDER = 'shop.shop.order';
     const KEY_SHOP_SHOP_PRODUCT = 'shop.shop.product';
     const KEY_SHOP_SHOP_KITCHEN = 'shop.shop.kitchen';
+    
+    const KEY_COMMNUE_PLATFORM_DASHBOARD = 'commnue.platform.dashboard';
+    const KEY_COMMNUE_PLATFORM_BANNER = 'commnue.platform.banner';
+    const KEY_COMMNUE_PLATFORM_ADVERTISEMENT = 'commnue.platform.advertisement';
+    const KEY_COMMNUE_PLATFORM_TOP = 'commnue.platform.top';
+    const KEY_COMMNUE_PLATFORM_MATERIAL = 'commnue.platform.material';
+    const KEY_COMMNUE_PLATFORM_COMMUNITY = 'commnue.platform.community';
+    const KEY_COMMNUE_PLATFORM_USER = 'commnue.platform.user';
+    const KEY_COMMNUE_PLATFORM_EVENT = 'commnue.platform.event';
+    const KEY_COMMNUE_PLATFORM_ADMIN = 'commnue.platform.admin';
 
     /**
      * @var int
