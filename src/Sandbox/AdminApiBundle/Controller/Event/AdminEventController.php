@@ -161,6 +161,7 @@ class AdminEventController extends SandboxRestController
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_EVENT],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_BANNER],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ADVERTISING],
+                ['key' => AdminPermission::KEY_COMMNUE_PLATFORM_EVENT],
             ],
             AdminPermission::OP_LEVEL_VIEW
         );
@@ -244,6 +245,7 @@ class AdminEventController extends SandboxRestController
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_EVENT],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_BANNER],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ADVERTISING],
+                ['key' => AdminPermission::KEY_COMMNUE_PLATFORM_EVENT],
             ],
             AdminPermission::OP_LEVEL_VIEW
         );
