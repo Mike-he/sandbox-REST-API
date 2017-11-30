@@ -1924,6 +1924,7 @@ class OrderRepository extends EntityRepository
     /**
      * Get list of orders for admin.
      *
+     * @param $allOrder
      * @param array $channel
      * @param array $type
      * @param $city
@@ -1953,6 +1954,7 @@ class OrderRepository extends EntityRepository
      * @return array
      */
     public function getSalesOrdersForAdmin(
+        $allOrder,
         $channel,
         $type,
         $city,
@@ -1983,8 +1985,11 @@ class OrderRepository extends EntityRepository
             ->leftJoin('o.product', 'p')
             ->leftJoin('p.room', 'r')
             ->leftJoin('SandboxApiBundle:Order\ProductOrderRecord', 'por', 'WITH', 'por.orderId = o.id')
-            ->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.id = o.customerId')
-            ->where('
+            ->where('por.buildingId IN (:buildingIds)')
+            ->setParameter('buildingIds', $myBuildingIds);
+
+        if (!$allOrder) {
+            $query->andWhere('
                     (
                         (o.status != :unpaid) AND 
                         (o.paymentDate IS NOT NULL) OR 
@@ -1992,11 +1997,10 @@ class OrderRepository extends EntityRepository
                         (o.type = :officialPreOrder)
                     )
                 ')
-            ->andWhere('por.buildingId IN (:buildingIds)')
-            ->setParameter('buildingIds', $myBuildingIds)
-            ->setParameter('unpaid', ProductOrder::STATUS_UNPAID)
-            ->setParameter('preOrder', ProductOrder::PREORDER_TYPE)
-            ->setParameter('officialPreOrder', ProductOrder::OFFICIAL_PREORDER_TYPE);
+                ->setParameter('unpaid', ProductOrder::STATUS_UNPAID)
+                ->setParameter('preOrder', ProductOrder::PREORDER_TYPE)
+                ->setParameter('officialPreOrder', ProductOrder::OFFICIAL_PREORDER_TYPE);
+        }
 
         // filter by payment channelP
         if (!is_null($channel) && !empty($channel)) {
@@ -2122,7 +2126,8 @@ class OrderRepository extends EntityRepository
         if (!is_null($keyword) && !is_null($keywordSearch)) {
             switch ($keyword) {
                 case 'all':
-                    $query->andWhere(
+                    $query->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.id = o.customerId')
+                        ->andWhere(
                         'o.orderNumber LIKE :search OR
                                 r.name LIKE :search OR
                                 uc.name LIKE :search OR
@@ -2133,10 +2138,12 @@ class OrderRepository extends EntityRepository
                     $query->andWhere('o.orderNumber LIKE :search');
                     break;
                 case 'phone':
-                    $query->andWhere('uc.phone LIKE :search');
+                    $query->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.id = o.customerId')
+                        ->andWhere('uc.phone LIKE :search');
                     break;
                 case 'name':
-                    $query->andWhere('uc.name LIKE :search');
+                    $query->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.id = o.customerId')
+                        ->andWhere('uc.name LIKE :search');
                     break;
                 default:
                     $query->andWhere('o.orderNumber LIKE :search');
@@ -2225,6 +2232,7 @@ class OrderRepository extends EntityRepository
      * @return array
      */
     public function countSalesOrdersForAdmin(
+        $allOrder,
         $channel,
         $type,
         $city,
@@ -2252,18 +2260,22 @@ class OrderRepository extends EntityRepository
             ->leftJoin('o.product', 'p')
             ->leftJoin('p.room', 'r')
             ->leftJoin('SandboxApiBundle:Order\ProductOrderRecord', 'por', 'WITH', 'por.orderId = o.id')
-            ->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.id = o.customerId')
-            ->where('
+            ->where('por.buildingId IN (:buildingIds)')
+            ->setParameter('buildingIds', $myBuildingIds);
+
+        if (!$allOrder) {
+            $query->andWhere('
                     (
                         (o.status != :unpaid) AND 
                         (o.paymentDate IS NOT NULL) OR 
-                        (o.type = :preOrder)
+                        (o.type = :preOrder) OR 
+                        (o.type = :officialPreOrder)
                     )
                 ')
-            ->andWhere('por.buildingId IN (:buildingIds)')
-            ->setParameter('buildingIds', $myBuildingIds)
-            ->setParameter('unpaid', ProductOrder::STATUS_UNPAID)
-            ->setParameter('preOrder', ProductOrder::PREORDER_TYPE);
+                ->setParameter('unpaid', ProductOrder::STATUS_UNPAID)
+                ->setParameter('preOrder', ProductOrder::PREORDER_TYPE)
+                ->setParameter('officialPreOrder', ProductOrder::OFFICIAL_PREORDER_TYPE);
+        }
 
         // filter by payment channel
         if (!is_null($channel) && !empty($channel)) {
@@ -2313,7 +2325,6 @@ class OrderRepository extends EntityRepository
             $query->andWhere('o.product = :product')
                 ->setParameter('product', $productId);
         }
-
 
         if (!is_null($room)) {
             $query->andWhere('p.room = :room')
@@ -2390,7 +2401,8 @@ class OrderRepository extends EntityRepository
         if (!is_null($keyword) && !is_null($keywordSearch)) {
             switch ($keyword) {
                 case 'all':
-                    $query->andWhere(
+                    $query->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.id = o.customerId')
+                        ->andWhere(
                         'o.orderNumber LIKE :search OR
                                 r.name LIKE :search OR
                                 uc.name LIKE :search OR
@@ -2401,10 +2413,12 @@ class OrderRepository extends EntityRepository
                     $query->andWhere('o.orderNumber LIKE :search');
                     break;
                 case 'phone':
-                    $query->andWhere('uc.phone LIKE :search');
+                    $query->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.id = o.customerId')
+                        ->andWhere('uc.phone LIKE :search');
                     break;
                 case 'name':
-                    $query->andWhere('uc.name LIKE :search');
+                    $query->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.id = o.customerId')
+                        ->andWhere('uc.name LIKE :search');
                     break;
                 default:
                     $query->andWhere('o.orderNumber LIKE :search');
@@ -4608,6 +4622,7 @@ class OrderRepository extends EntityRepository
 
     /**
      * @param $myBuildingIds
+     * @param $allOrder
      * @param $status
      * @param null $startDate
      * @param null $endDate
@@ -4616,6 +4631,7 @@ class OrderRepository extends EntityRepository
      */
     public function countOrders(
         $myBuildingIds,
+        $allOrder,
         $status,
         $startDate = null,
         $endDate = null
@@ -4626,6 +4642,20 @@ class OrderRepository extends EntityRepository
             ->leftJoin('p.room', 'r')
             ->where('r.buildingId in (:buildings)')
             ->setParameter('buildings', $myBuildingIds);
+
+        if (!$allOrder) {
+            $query->andWhere('
+                    (
+                        (o.status != :unpaid) AND 
+                        (o.paymentDate IS NOT NULL) OR 
+                        (o.type = :preOrder) OR 
+                        (o.type = :officialPreOrder)
+                    )
+                ')
+                ->setParameter('unpaid', ProductOrder::STATUS_UNPAID)
+                ->setParameter('preOrder', ProductOrder::PREORDER_TYPE)
+                ->setParameter('officialPreOrder', ProductOrder::OFFICIAL_PREORDER_TYPE);
+        }
 
         if ($status) {
             $query->andWhere('o.status = :status')
@@ -4665,6 +4695,7 @@ class OrderRepository extends EntityRepository
 
     /**
      * @param $myBuildingIds
+     * @param $allOrder
      * @param $status
      * @param null $startDate
      * @param null $endDate
@@ -4675,6 +4706,7 @@ class OrderRepository extends EntityRepository
      */
     public function getOrderLists(
         $myBuildingIds,
+        $allOrder,
         $status,
         $startDate = null,
         $endDate = null,
@@ -4686,6 +4718,20 @@ class OrderRepository extends EntityRepository
             ->leftJoin('p.room', 'r')
             ->where('r.buildingId in (:buildings)')
             ->setParameter('buildings', $myBuildingIds);
+
+        if (!$allOrder) {
+            $query->andWhere('
+                    (
+                        (o.status != :unpaid) AND 
+                        (o.paymentDate IS NOT NULL) OR 
+                        (o.type = :preOrder) OR 
+                        (o.type = :officialPreOrder)
+                    )
+                ')
+                ->setParameter('unpaid', ProductOrder::STATUS_UNPAID)
+                ->setParameter('preOrder', ProductOrder::PREORDER_TYPE)
+                ->setParameter('officialPreOrder', ProductOrder::OFFICIAL_PREORDER_TYPE);
+        }
 
         if ($status) {
             $query->andWhere('o.status = :status')

@@ -669,6 +669,7 @@ class AdminDashBoardController extends SalesRestController
             ->countOrders(
                 $myBuildingIds,
                 null,
+                null,
                 $startDate,
                 $endDate
             );

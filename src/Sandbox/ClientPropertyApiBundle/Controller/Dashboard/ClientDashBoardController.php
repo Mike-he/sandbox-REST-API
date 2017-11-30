@@ -188,6 +188,7 @@ class ClientDashBoardController extends SandboxRestController
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->countOrders(
                 $myBuildingIdsForOrder,
+                1,
                 ProductOrder::STATUS_UNPAID
             );
 
@@ -380,6 +381,7 @@ class ClientDashBoardController extends SandboxRestController
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->countOrders(
                 $myBuildingIds,
+                null,
                 null,
                 $startDate,
                 $endDate
