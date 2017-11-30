@@ -4624,7 +4624,15 @@ class OrderRepository extends EntityRepository
             ->select('count(o.id)')
             ->leftJoin('o.product', 'p')
             ->leftJoin('p.room', 'r')
-            ->where('r.buildingId in (:buildings)')
+            ->where('
+                    (
+                        (o.status != :unpaid) AND 
+                        (o.paymentDate IS NOT NULL) OR 
+                        (o.type = :preOrder) OR 
+                        (o.type = :officialPreOrder)
+                    )
+                ')
+            ->andWhere('r.buildingId in (:buildings)')
             ->setParameter('buildings', $myBuildingIds);
 
         if ($status) {
@@ -4684,7 +4692,15 @@ class OrderRepository extends EntityRepository
         $query = $this->createQueryBuilder('o')
             ->leftJoin('o.product', 'p')
             ->leftJoin('p.room', 'r')
-            ->where('r.buildingId in (:buildings)')
+            ->where('
+                    (
+                        (o.status != :unpaid) AND 
+                        (o.paymentDate IS NOT NULL) OR 
+                        (o.type = :preOrder) OR 
+                        (o.type = :officialPreOrder)
+                    )
+                ')
+            ->andWhere('r.buildingId in (:buildings)')
             ->setParameter('buildings', $myBuildingIds);
 
         if ($status) {
