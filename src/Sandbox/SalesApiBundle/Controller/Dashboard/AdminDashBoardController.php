@@ -641,8 +641,6 @@ class AdminDashBoardController extends SalesRestController
         $limit = 3,
         $offset = 0
     ) {
-        $em = $this->getDoctrine()->getManager();
-
         $myBuildingIds = $this->get('sandbox_api.admin_permission_check_service')
             ->getMySalesBuildingIds(
                 $this->getAdminId(),
@@ -655,6 +653,7 @@ class AdminDashBoardController extends SalesRestController
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->getOrderLists(
                 $myBuildingIds,
+                null,
                 null,
                 $startDate,
                 $endDate,

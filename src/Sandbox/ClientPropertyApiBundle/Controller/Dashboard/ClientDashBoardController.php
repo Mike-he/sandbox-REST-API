@@ -371,6 +371,7 @@ class ClientDashBoardController extends SandboxRestController
             ->getOrderLists(
                 $myBuildingIds,
                 null,
+                null,
                 $startDate,
                 $endDate,
                 $limit,
