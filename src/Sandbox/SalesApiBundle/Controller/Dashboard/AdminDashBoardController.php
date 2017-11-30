@@ -86,15 +86,10 @@ class AdminDashBoardController extends SalesRestController
         $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             array(
-                array(
-                    'key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT,
-                ),
-                array(
-                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_PREORDER,
-                ),
-                array(
-                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_RESERVE,
-                ),
+                ['key' => AdminPermission::KEY_SALES_BUILDING_ROOM],
+                ['key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT],
+                ['key' => AdminPermission::KEY_SALES_BUILDING_ORDER_PREORDER],
+                ['key' => AdminPermission::KEY_SALES_BUILDING_ORDER_RESERVE],
             ),
             AdminPermission::OP_LEVEL_VIEW
         );
