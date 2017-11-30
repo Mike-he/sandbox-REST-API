@@ -309,7 +309,6 @@ class Event
      *      "admin_event",
      *      "client_event"
      * })
-     *
      */
     private $status;
 

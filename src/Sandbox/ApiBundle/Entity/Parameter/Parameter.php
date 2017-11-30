@@ -57,6 +57,8 @@ class Parameter
     const KEY_HTML_CUSTOMER_CREATE_COMPANY = 'html_customer_create_company';    //创建企业客户
     const KEY_HTML_CLUE_CREATE = 'html_clue_create';                            //创建线索
 
+    const KEY_COMMNUE_EVENT_HOT = 'commnue_event_hot';      //合创社热门活动数
+
     /**
      * @var int
      *

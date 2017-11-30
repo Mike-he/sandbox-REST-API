@@ -8,3 +8,8 @@ commnue_admin_default_controller:
     resource: "@CommnueAdminApiBundle/Controller/DefaultController.php"
     type:     annotation
     prefix:   /
+
+commnue_admin_event_hot_controller:
+    resource: "@CommnueAdminApiBundle/Controller/Event/AdminEventHotController.php"
+    type:     annotation
+    prefix:   /
