@@ -54,6 +54,11 @@ class OrderService
         foreach ($orders as $order) {
             /** @var ProductOrder $order */
             $customerId = $order->getCustomerId();
+
+            if (!$customerId) {
+                continue;
+            }
+
             $customer = $this->container->get('doctrine')
                 ->getRepository('SandboxApiBundle:User\UserCustomer')
                 ->find($customerId);
@@ -111,6 +116,10 @@ class OrderService
         foreach ($leases as $lease) {
             /** @var Lease $lease */
             $customerId = $lease->getLesseeCustomer();
+
+            if (!$customerId) {
+                continue;
+            }
 
             $customer = $this->container->get('doctrine')
                 ->getRepository('SandboxApiBundle:User\UserCustomer')
