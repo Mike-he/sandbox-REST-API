@@ -4,6 +4,7 @@ namespace Sandbox\CommnueAdminApiBundle\Controller\Advertising;
 
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use FOS\RestBundle\Request\ParamFetcherInterface;
+use Sandbox\ApiBundle\Entity\Advertising\CommnueAdvertisingMiddle;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpFoundation\Request;
@@ -66,5 +67,36 @@ class AdminAdvertisingMiddleController extends SandboxRestController
         );
 
         return new View($pagination);
+    }
+
+    /**
+     * Get Advertising Middle By Id
+     *
+     * @param $id
+     *
+     * @Route("/advertising/middles/{id}")
+     * @Method({"GET"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getAdvertisingMiddleByIdAction(
+        $id
+    ) {
+        $middle = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Advertising\CommnueAdvertisingMiddle')
+            ->find($id);
+
+        $this->throwNotFoundIfNull($middle,self::NOT_FOUND_MESSAGE);
+
+        return new View($middle);
+    }
+
+    public function postAdvertisingMiddleAction(
+        Request $request
+    ) {
+        $middle = new CommnueAdvertisingMiddle();
+
     }
 }
