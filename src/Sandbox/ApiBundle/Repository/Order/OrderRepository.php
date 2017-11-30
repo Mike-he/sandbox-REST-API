@@ -1985,11 +1985,11 @@ class OrderRepository extends EntityRepository
             ->leftJoin('o.product', 'p')
             ->leftJoin('p.room', 'r')
             ->leftJoin('SandboxApiBundle:Order\ProductOrderRecord', 'por', 'WITH', 'por.orderId = o.id')
-            ->andWhere('por.buildingId IN (:buildingIds)')
+            ->where('por.buildingId IN (:buildingIds)')
             ->setParameter('buildingIds', $myBuildingIds);
 
         if (!$allOrder) {
-            $query->where('
+            $query->andWhere('
                     (
                         (o.status != :unpaid) AND 
                         (o.paymentDate IS NOT NULL) OR 
@@ -2264,7 +2264,7 @@ class OrderRepository extends EntityRepository
             ->setParameter('buildingIds', $myBuildingIds);
 
         if (!$allOrder) {
-            $query->where('
+            $query->andWhere('
                     (
                         (o.status != :unpaid) AND 
                         (o.paymentDate IS NOT NULL) OR 
