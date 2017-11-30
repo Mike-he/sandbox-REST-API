@@ -118,7 +118,10 @@ class AdminEventHotController extends SandboxRestController
         $hot = $em->getRepository('SandboxApiBundle:Event\CommnueEventHot')
             ->findOneBy(array('eventId' => $id));
 
-        $em->flush();
+        if ($hot) {
+            $em->remove($hot);
+            $em->flush();
+        }
 
         return new View();
     }
