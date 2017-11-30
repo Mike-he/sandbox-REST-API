@@ -83,7 +83,21 @@ class AdminDashBoardController extends SalesRestController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminDashboardPermissions(AdminPermission::OP_LEVEL_VIEW);
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
+            $this->getAdminId(),
+            array(
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_PRODUCT,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_PREORDER,
+                ),
+                array(
+                    'key' => AdminPermission::KEY_SALES_BUILDING_ORDER_RESERVE,
+                ),
+            ),
+            AdminPermission::OP_LEVEL_VIEW
+        );
 
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
