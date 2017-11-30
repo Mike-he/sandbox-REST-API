@@ -7,6 +7,7 @@ use Sandbox\AdminApiBundle\Data\Banner\BannerPosition;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Banner\Banner;
 use Sandbox\ApiBundle\Entity\Banner\BannerTag;
+use Sandbox\ApiBundle\Form\Banner\BannerPatchType;
 use Sandbox\ApiBundle\Form\Banner\BannerType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -16,10 +17,14 @@ use Knp\Component\Pager\Paginator;
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Rs\Json\Patch;
+use Sandbox\ApiBundle\Form\Banner\BannerPositionType;
 
-class AdminAdvertisingBanner extends SandboxRestController
+class AdminAdvertisingBannerController extends SandboxRestController
 {
     /**
+     * Get Banner List
+     *
      * @param Request $request
      * @param ParamFetcherInterface $paramFetcher
      *
@@ -52,6 +57,7 @@ class AdminAdvertisingBanner extends SandboxRestController
      *
      * @Route("/advertising/banners")
      * @Method({"GET"})
+     *
      * @return View
      */
     public function getBannersAction(
@@ -87,12 +93,46 @@ class AdminAdvertisingBanner extends SandboxRestController
     }
 
     /**
+     * Get Banner By Id
+     *
+     * @param $id
+     *
+     * @Route("/advertising/banners/{id}")
+     * @Method({"GET"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function getBannerByIdAction(
+        $id
+    ) {
+        $banner = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Banner\Banner')
+            ->find($id);
+
+        $this->throwNotFoundIfNull($banner,self::NOT_FOUND_MESSAGE);
+
+        // translate tag name
+        $tag = $banner->getTag();
+        $trans = $this->container->get('translator')->trans($tag->getKey());
+        $tag->setName($trans);
+
+        return new View($banner);
+    }
+
+    /**
+     * Create Banner
+     *
      * @param Request $request
      * @param ParamFetcherInterface $paramFetcher
      *
-     * @Route("/advertising/banner/{id}/position")
+     * @Route("/advertising/banners")
      * @Method({"POST"})
+     *
      * @return View
+     *
+     * @throws \Exception
      */
     public function postBannerAction(
         Request $request,
@@ -116,6 +156,104 @@ class AdminAdvertisingBanner extends SandboxRestController
     }
 
     /**
+     * Update Banner.
+     *
+     * @param Request $request
+     * @param int     $id
+     *
+     * @Route("/advertising/banners/{id}")
+     * @Method({"PATCH"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function putBannerAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        //$this->checkAdminBannerPermission(AdminPermission::OP_LEVEL_EDIT);
+
+        // get banner
+        $banner = $this->getRepo('Banner\Banner')->find($id);
+        $this->throwNotFoundIfNull($banner, self::NOT_FOUND_MESSAGE);
+
+        $bannerJson = $this->container->get('serializer')->serialize($banner, 'json');
+
+        $patch = new Patch($bannerJson, $request->getContent());
+        $bannerJson = $patch->apply();
+
+        $form = $this->createForm(new BannerPatchType(), $banner);
+        $form->submit(json_decode($bannerJson, true));
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        return new View();
+    }
+
+    /**
+     * Delete Banner
+     *
+     * @param $id
+     *
+     * @Route("/advertising/banners/{id}")
+     * @Method({"DELETE"})
+     *
+     * @return View
+     */
+    public function deleteBannerAction(
+        $id
+    ) {
+        $banner = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Banner\Banner')
+            ->find($id);
+
+        $this->throwNotFoundIfNull($banner, self::NOT_FOUND_MESSAGE);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->remove($banner);
+        $em->flush();
+
+        return new View();
+    }
+
+    /**
+     * Change Banner Position
+     * @param Request $request
+     * @param $id
+     *
+     * @Route("/advertising/banners/{id}/position")
+     * @Method({"POST"})
+     * @return mixed
+     */
+    public function changeBannerPositionAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        //$this->checkAdminBannerPermission(AdminPermission::OP_LEVEL_EDIT);
+
+        // get banner
+        $banner = $this->getRepo('Banner\Banner')->find($id);
+        $this->throwNotFoundIfNull($banner, self::NOT_FOUND_MESSAGE);
+
+        $position = new BannerPosition();
+        $form = $this->createForm(new BannerPositionType(), $position);
+        $form->handleRequest($request);
+
+        if (!$form->isValid()) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        return $this->updateBannerPosition(
+            $banner,
+            $position
+        );
+    }
+
+    /**
      * @param Banner $banner
      * @param $url
      * @return View
@@ -129,7 +267,15 @@ class AdminAdvertisingBanner extends SandboxRestController
         $source = $banner->getSource();
         $sourceId = $banner->getSourceId();
 
-        $banner->setTag(BannerTag::ADVERTISEMENT);
+        $tag = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Banner\BannerTag')
+            ->findOneBy(array('key'=>BannerTag::ADVERTISEMENT));
+
+        $banner->setTag($tag);
+
+        $sourceArray = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Material\CommnueMaterial')
+            ->getCategory();
 
         switch ($source) {
             case Banner::SOURCE_EVENT:
@@ -138,8 +284,8 @@ class AdminAdvertisingBanner extends SandboxRestController
                     $sourceId
                 );
                 break;
-            case Banner::SOURCE_NEWS:
-                $this->setBannerContentForNews(
+            case in_array($source, $sourceArray):
+                $this->setBannerContentForMaterial(
                     $banner,
                     $sourceId
                 );
@@ -187,11 +333,10 @@ class AdminAdvertisingBanner extends SandboxRestController
 
         $em->persist($banner);
         $em->flush();
-        $response = array(
-            'id' => $banner->getId(),
-        );
 
-        return new View($response);
+        return new View(array(
+            'id' => $banner->getId(),
+        ));
     }
 
     /**
@@ -216,47 +361,44 @@ class AdminAdvertisingBanner extends SandboxRestController
      * @param Banner $banner
      * @param int    $sourceId
      */
-    private function setBannerContentForNews(
+    private function setBannerContentForMaterial(
         $banner,
         $sourceId
     ) {
-        $news = $this->getRepo('News\News')->find($sourceId);
-        $this->throwNotFoundIfNull($news, self::NOT_FOUND_MESSAGE);
+        $material = $this->getRepo('Material\CommnueMaterial')->find($sourceId);
+        $this->throwNotFoundIfNull($material, self::NOT_FOUND_MESSAGE);
 
-        $banner->setContent($news->getTitle());
+        $banner->setContent($material->getTitle());
     }
 
     /**
-     * @param Request $request
-     * @param $id
-     *
-     * @Route("/advertising/banners/{id}/position")
-     * @Method({"POST"})
-     * @return mixed
+     * @param $source
+     * @param $sourceId
+     * @param $url
+     * @return object
      */
-    public function changeBannerPositionAction(
-        Request $request,
-        $id
+    private function getExistingBanner(
+        $source,
+        $sourceId,
+        $url
     ) {
-        // check user permission
-        $this->checkAdminBannerPermission(AdminPermission::OP_LEVEL_EDIT);
-
-        // get banner
-        $banner = $this->getRepo('Banner\Banner')->find($id);
-        $this->throwNotFoundIfNull($banner, self::NOT_FOUND_MESSAGE);
-
-        $position = new BannerPosition();
-        $form = $this->createForm(new BannerPositionType(), $position);
-        $form->handleRequest($request);
-
-        if (!$form->isValid()) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        if (!is_null($url)) {
+            $existBanner = $this->getRepo('Banner\Banner')->findOneBy(
+                [
+                    'source' => $source,
+                    'content' => $url,
+                ]
+            );
+        } else {
+            $existBanner = $this->getRepo('Banner\Banner')->findOneBy(
+                [
+                    'source' => $source,
+                    'sourceId' => $sourceId,
+                ]
+            );
         }
 
-        return $this->updateBannerPosition(
-            $banner,
-            $position
-        );
+        return $existBanner;
     }
 
     /**
@@ -312,7 +454,6 @@ class AdminAdvertisingBanner extends SandboxRestController
             $swapBanner->setSortTime($sortTime);
         }
     }
-
 
     /**
      * Check user permission.

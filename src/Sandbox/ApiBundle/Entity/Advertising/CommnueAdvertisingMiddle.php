@@ -1,17 +1,17 @@
 <?php
 
-namespace Sandbox\ApiBundle\Entity\Material;
+namespace Sandbox\ApiBundle\Entity\Advertising;
 
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
- * CommnueMaterial
+ * CommnueAdvertisingMiddle
  *
- * @ORM\Table("commnue_material")
- * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Material\CommnueMaterialRepository")
+ * @ORM\Table("commnue_advertising_middle")
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Advertising\CommnueAdvertisingMiddleRepository")
  */
-class CommnueMaterial
+class CommnueAdvertisingMiddle
 {
     /**
      * @var integer
@@ -32,23 +32,30 @@ class CommnueMaterial
     /**
      * @var string
      *
-     * @ORM\Column(name="category", type="string", length=255)
+     * @ORM\Column(name="sub_title", type="string", length=128)
      */
-    private $category;
+    private $subTitle;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="description", type="string", length=255, nullable=true)
+     * @ORM\Column(name="cover", type="string", length=255)
      */
-    private $description;
+    private $cover;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="image", type="string", length=255)
+     * @ORM\Column(name="source", type="string", length=64)
      */
-    private $image;
+    private $source;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="source_id", type="integer")
+     */
+    private $sourceId;
 
     /**
      * @var string
@@ -58,10 +65,17 @@ class CommnueMaterial
     private $content;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="sort_time", type="string", length=15)
+     */
+    private $sortTime;
+
+    /**
      * @var \DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     * @ORM\Column(name="creation_date", type="datetime", nullable=false)
+     * @ORM\Column(name="creation_date", type="datetime")
      */
     private $creationDate;
 
@@ -69,7 +83,7 @@ class CommnueMaterial
      * @var \DateTime
      *
      * @Gedmo\Timestampable(on="update")
-     * @ORM\Column(name="modification_date", type="datetime", nullable=true)
+     * @ORM\Column(name="modification_date", type="datetime")
      */
     private $modificationDate;
 
@@ -88,7 +102,7 @@ class CommnueMaterial
      * Set title
      *
      * @param string $title
-     * @return CommnueMaterial
+     * @return CommnueAdvertisingMiddle
      */
     public function setTitle($title)
     {
@@ -108,79 +122,102 @@ class CommnueMaterial
     }
 
     /**
-     * Set category
+     * Set subTitle
      *
-     * @param string $category
-     * @return CommnueMaterial
+     * @param string $subTitle
+     * @return CommnueAdvertisingMiddle
      */
-    public function setCategory($category)
+    public function setSubTitle($subTitle)
     {
-        $this->category = $category;
+        $this->subTitle = $subTitle;
 
         return $this;
     }
 
     /**
-     * Get category
+     * Get subTitle
      *
      * @return string 
      */
-    public function getCategory()
+    public function getSubTitle()
     {
-        return $this->category;
+        return $this->subTitle;
     }
 
     /**
-     * Set description
+     * Set cover
      *
-     * @param string $description
-     * @return CommnueMaterial
+     * @param string $cover
+     * @return CommnueAdvertisingMiddle
      */
-    public function setDescription($description)
+    public function setCover($cover)
     {
-        $this->description = $description;
+        $this->cover = $cover;
 
         return $this;
     }
 
     /**
-     * Get description
+     * Get cover
      *
      * @return string 
      */
-    public function getDescription()
+    public function getCover()
     {
-        return $this->description;
+        return $this->cover;
     }
 
     /**
-     * Set image
+     * Set source
      *
-     * @param string $image
-     * @return CommnueMaterial
+     * @param string $source
+     * @return CommnueAdvertisingMiddle
      */
-    public function setImage($image)
+    public function setSource($source)
     {
-        $this->image = $image;
+        $this->source = $source;
 
         return $this;
     }
 
     /**
-     * Get image
+     * Get source
      *
      * @return string 
      */
-    public function getImage()
+    public function getSource()
     {
-        return $this->image;
+        return $this->source;
+    }
+
+    /**
+     * Set source—�Id
+     *
+     * @param integer $sourceId
+     * @return CommnueAdvertisingMiddle
+     */
+    public function setSourceId($sourceId)
+    {
+        $this->sourceId = $sourceId;
+
+        return $this;
+    }
+
+    /**
+     * Get sourceId
+     *
+     * @return integer 
+     */
+    public function getSourceId()
+    {
+        return $this->sourceId;
     }
 
     /**
      * Set content
      *
      * @param string $content
-     * @return CommnueMaterial
+     * @return CommnueAdvertisingMiddle
      */
     public function setContent($content)
     {
@@ -200,10 +237,33 @@ class CommnueMaterial
     }
 
     /**
+     * Set sortTime
+     *
+     * @param string $sortTime
+     * @return CommnueAdvertisingMiddle
+     */
+    public function setSortTime($sortTime)
+    {
+        $this->sortTime = $sortTime;
+
+        return $this;
+    }
+
+    /**
+     * Get sortTime
+     *
+     * @return string 
+     */
+    public function getSortTime()
+    {
+        return $this->sortTime;
+    }
+
+    /**
      * Set creationDate
      *
      * @param \DateTime $creationDate
-     * @return CommnueMaterial
+     * @return CommnueAdvertisingMiddle
      */
     public function setCreationDate($creationDate)
     {
@@ -226,7 +286,7 @@ class CommnueMaterial
      * Set modificationDate
      *
      * @param \DateTime $modificationDate
-     * @return CommnueMaterial
+     * @return CommnueAdvertisingMiddle
      */
     public function setModificationDate($modificationDate)
     {
@@ -243,5 +303,10 @@ class CommnueMaterial
     public function getModificationDate()
     {
         return $this->modificationDate;
+    }
+
+    public function __construct()
+    {
+        $this->setSortTime(round(microtime(true) * 1000));
     }
 }
