@@ -158,6 +158,13 @@ class ClientAdministratorRegisterController extends SandboxRestController
                     ''
                 );
 
+            $this->get('sandbox_api.jmessage_commnue')
+                ->createUser(
+                    $user->getXmppUsername(),
+                    $user->getPassword(),
+                    ''
+                );
+
             $em->flush();
         }
 

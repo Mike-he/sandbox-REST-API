@@ -960,6 +960,12 @@ class AdminUsersController extends DoorController
                         $user->getXmppUsername(),
                         $profile->getName()
                     );
+
+                $this->get('sandbox_api.jmessage_commnue')
+                    ->updateNickname(
+                        $user->getXmppUsername(),
+                        $profile->getName()
+                    );
             } catch (\Exception $e) {
                 error_log('Sync user went wrong. User ID: '.$user->getId());
                 continue;
