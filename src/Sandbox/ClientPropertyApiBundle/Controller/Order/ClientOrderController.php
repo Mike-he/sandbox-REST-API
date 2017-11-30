@@ -180,6 +180,16 @@ class ClientOrderController extends OrderController
      * )
      *
      * @Annotations\QueryParam(
+     *    name="all_order",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter get All Order Data"
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="limit",
      *    array=false,
      *    default="10",
@@ -232,6 +242,8 @@ class ClientOrderController extends OrderController
         $createStart = $paramFetcher->get('create_start');
         $createEnd = $paramFetcher->get('create_end');
 
+        $allOrder= $paramFetcher->get('all_order');
+
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
 
@@ -246,6 +258,7 @@ class ClientOrderController extends OrderController
         $orders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->getSalesOrdersForAdmin(
+                $allOrder,
                 $channel,
                 $type,
                 null,

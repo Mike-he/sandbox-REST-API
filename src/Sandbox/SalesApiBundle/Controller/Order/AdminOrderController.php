@@ -884,6 +884,16 @@ class AdminOrderController extends OrderController
      * )
      *
      * @Annotations\QueryParam(
+     *    name="all_order",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter get All Order Data"
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="sort_column",
      *    default=null,
      *    nullable=true,
@@ -944,6 +954,7 @@ class AdminOrderController extends OrderController
         $roomId = $paramFetcher->get('room');
         $userId = $paramFetcher->get('user');
         $buildingId = $paramFetcher->get('building');
+        $allOrder = $paramFetcher->get('all_order');
 
         //sort
         $sortColumn = $paramFetcher->get('sort_column');
@@ -963,6 +974,7 @@ class AdminOrderController extends OrderController
         $orders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->getSalesOrdersForAdmin(
+                $allOrder,
                 $channel,
                 $type,
                 null,
@@ -993,6 +1005,7 @@ class AdminOrderController extends OrderController
         $count = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->countSalesOrdersForAdmin(
+                $allOrder,
                 $channel,
                 $type,
                 null,
@@ -1230,6 +1243,7 @@ class AdminOrderController extends OrderController
         $orders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->getSalesOrdersForAdmin(
+                null,
                 $channel,
                 $type,
                 null,
@@ -2298,6 +2312,7 @@ class AdminOrderController extends OrderController
         $orders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->getSalesOrdersForAdmin(
+                null,
                 $channel,
                 $type,
                 null,
