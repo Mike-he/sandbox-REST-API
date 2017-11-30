@@ -185,6 +185,7 @@ class AdminEventController extends SandboxRestController
 
         $eventsArray = array();
         foreach ($events as $value) {
+            /** @var Event $event */
             $event = $value['event'];
             $attachments = $this->getRepo('Event\EventAttachment')->findByEvent($event);
             $dates = $this->getRepo('Event\EventDate')->findByEvent($event);
@@ -204,6 +205,12 @@ class AdminEventController extends SandboxRestController
             $event->setDates($dates);
             $event->setForms($forms);
             $event->setRegisteredPersonNumber((int) $registrationCounts);
+
+            $commnueHot = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Event\CommnueEventHot')
+                ->findOneBy(array('eventId'=> $event->getId()));
+
+            $event->setCommnueHot($commnueHot ? true : false);
 
             array_push($eventsArray, $event);
         }

@@ -417,6 +417,16 @@ class Event
     private $salesCompany;
 
     /**
+     * @var bool
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "client_event"
+     * })
+     */
+    private $commnueHot;
+
+    /**
      * Get id.
      *
      * @return int
@@ -1124,5 +1134,21 @@ class Event
     public function setStatus($status)
     {
         $this->status = $status;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isCommnueHot()
+    {
+        return $this->commnueHot;
+    }
+
+    /**
+     * @param bool $commnueHot
+     */
+    public function setCommnueHot($commnueHot)
+    {
+        $this->commnueHot = $commnueHot;
     }
 }
