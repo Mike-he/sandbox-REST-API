@@ -755,7 +755,7 @@ class OrderRepository extends EntityRepository
             ->set('o.modificationDate', $nowString)
             ->where('o.status = \'unpaid\'')
             ->andWhere('(o.payChannel != :channel OR o.payChannel IS NULL)')
-            ->andWhere('(o.type == :own)')
+            ->andWhere('(o.type = :own)')
             ->andWhere('o.creationDate <= :start')
             ->setParameter('own', ProductOrder::OWN_TYPE)
             ->setParameter('start', $start)
