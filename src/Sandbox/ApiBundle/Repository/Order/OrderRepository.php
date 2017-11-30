@@ -4633,7 +4633,10 @@ class OrderRepository extends EntityRepository
                     )
                 ')
             ->andWhere('r.buildingId in (:buildings)')
-            ->setParameter('buildings', $myBuildingIds);
+            ->setParameter('buildings', $myBuildingIds)
+            ->setParameter('unpaid', ProductOrder::STATUS_UNPAID)
+            ->setParameter('preOrder', ProductOrder::PREORDER_TYPE)
+            ->setParameter('officialPreOrder', ProductOrder::OFFICIAL_PREORDER_TYPE);
 
         if ($status) {
             $query->andWhere('o.status = :status')
@@ -4701,7 +4704,10 @@ class OrderRepository extends EntityRepository
                     )
                 ')
             ->andWhere('r.buildingId in (:buildings)')
-            ->setParameter('buildings', $myBuildingIds);
+            ->setParameter('buildings', $myBuildingIds)
+            ->setParameter('unpaid', ProductOrder::STATUS_UNPAID)
+            ->setParameter('preOrder', ProductOrder::PREORDER_TYPE)
+            ->setParameter('officialPreOrder', ProductOrder::OFFICIAL_PREORDER_TYPE);
 
         if ($status) {
             $query->andWhere('o.status = :status')
