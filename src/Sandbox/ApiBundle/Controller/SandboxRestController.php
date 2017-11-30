@@ -1329,6 +1329,9 @@ class SandboxRestController extends FOSRestController
         $service = $this->get('sandbox_api.jmessage');
         $service->createUser($username, $password);
 
+        $commnueService = $this->get('sandbox_api.jmessage_commnue');
+        $commnueService->createUser($username, $password);
+
         return $username;
     }
 

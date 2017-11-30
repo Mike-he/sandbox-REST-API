@@ -525,6 +525,12 @@ class ClientUserPasswordController extends UserPasswordController
                 $password
             );
 
+        $this->get('sandbox_api.jmessage_commnue')
+            ->updatePassword(
+                $user->getXmppUsername(),
+                $password
+            );
+
         if ($result['http_code'] != 204) {
             return $this->customErrorView(
                 400,

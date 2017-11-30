@@ -207,6 +207,12 @@ class ClientUserBasicProfileController extends UserProfileController
                 $profile->getName()
             );
 
+        $this->get('sandbox_api.jmessage_commnue')
+            ->updateNickname(
+                $user->getXmppUsername(),
+                $profile->getName()
+            );
+
         return new View();
     }
 }
