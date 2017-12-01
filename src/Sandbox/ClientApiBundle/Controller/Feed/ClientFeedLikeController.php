@@ -31,6 +31,36 @@ class ClientFeedLikeController extends FeedLikeController
     use FeedNotification;
 
     /**
+     * Get all likes of a given feed.
+     *
+     * @param Request               $request      the request object
+     * @param int                   $id           the feed id
+     *
+     * @Route("/feeds/{id}/likes")
+     * @Method({"GET"})
+     *
+     * @throws \Exception
+     *
+     * @return View
+     */
+    public function getFeedCommentsAction(
+        Request $request,
+        $id
+    ) {
+        $em = $this->getDoctrine()->getManager();
+
+        $feed = $em->getRepository('SandboxApiBundle:Feed\Feed')->find($id);
+        $this->throwNotFoundIfNull($feed, self::NOT_FOUND_MESSAGE);
+
+        $likes = $em->getRepository('SandboxApiBundle:Feed\FeedLike')
+            ->getLikes($id);
+
+        $view = new View($likes);
+
+        return $view;
+    }
+
+    /**
      * like a post.
      *
      * @param Request $request
@@ -63,12 +93,12 @@ class ClientFeedLikeController extends FeedLikeController
             // create like
             $like = $this->createLike($feed, $myUser);
 
-            if ($myUser != $feed->getOwner()) {
-                // send notification
-                $this->sendXmppFeedNotification(
-                    $feed, $myUser, array($feed->getOwner()), 'like'
-                );
-            }
+//            if ($myUser != $feed->getOwner()) {
+//                // send notification
+//                $this->sendXmppFeedNotification(
+//                    $feed, $myUser, array($feed->getOwner()), 'like'
+//                );
+//            }
         }
 
         $result = array(

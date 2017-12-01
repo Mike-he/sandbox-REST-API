@@ -12,7 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
  *  indexes={
  *      @ORM\Index(name="fk_feedLike_feedId_idx", columns={"feedId"})
  *  })
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Feed\FeedLikeRepository")
  */
 class FeedLike
 {
