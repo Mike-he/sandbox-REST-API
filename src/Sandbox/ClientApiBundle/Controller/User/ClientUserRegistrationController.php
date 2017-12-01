@@ -332,6 +332,8 @@ class ClientUserRegistrationController extends UserRegistrationController
         $customerIds = [];
         foreach ($customers as $customer) {
             array_push($customerIds, $customer->getId());
+
+            $customer->setUserId($user->getId());
         }
 
         $api = $this->container->getParameter('crm_api_url');
