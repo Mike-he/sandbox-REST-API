@@ -4,7 +4,7 @@ namespace Sandbox\CommnueAdminApiBundle\Controller\Advertising;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\AdminApiBundle\Data\Banner\BannerPosition;
-use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Sandbox\ApiBundle\Controller\Banner\BannerController;
 use Sandbox\ApiBundle\Entity\Banner\Banner;
 use Sandbox\ApiBundle\Entity\Banner\BannerTag;
 use Sandbox\ApiBundle\Form\Banner\BannerPatchType;
@@ -20,7 +20,7 @@ use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Form\Banner\BannerPositionType;
 
-class AdminAdvertisingBannerController extends SandboxRestController
+class AdminAdvertisingBannerController extends BannerController
 {
     /**
      * Get Banner List
@@ -168,7 +168,7 @@ class AdminAdvertisingBannerController extends SandboxRestController
      *
      * @throws \Exception
      */
-    public function putBannerAction(
+    public function patchBannerAction(
         Request $request,
         $id
     ) {
