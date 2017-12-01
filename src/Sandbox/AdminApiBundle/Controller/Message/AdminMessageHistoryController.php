@@ -4,7 +4,6 @@ namespace Sandbox\AdminApiBundle\Controller\Message;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\AdminApiBundle\Command\SyncJmessageCommand;
-use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Message\JMessageHistory;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;

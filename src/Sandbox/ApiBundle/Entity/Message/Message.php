@@ -13,7 +13,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  */
 class Message
 {
-    const PLATFORM_SANDBOX = 'sandbox';
+    const PLATFORM_OFFICIAL = 'official';
     const PLATFORM_COMMNUE = 'commnue';
 
     /**
@@ -50,9 +50,9 @@ class Message
     /**
      * @var string
      *
-     * @ORM\Column(name="platform", type="string", length=64, options={"default": "sandbox"})
+     * @ORM\Column(name="platform", type="string", length=64, options={"default": "official"})
      */
-    private $platform = self::PLATFORM_SANDBOX;
+    private $platform = self::PLATFORM_OFFICIAL;
 
     /**
      * Get id.

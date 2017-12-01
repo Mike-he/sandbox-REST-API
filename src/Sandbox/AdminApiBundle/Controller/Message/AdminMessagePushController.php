@@ -13,7 +13,6 @@ use Sandbox\ApiBundle\Traits\SendNotification;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use FOS\RestBundle\Controller\Annotations;
@@ -21,18 +20,12 @@ use FOS\RestBundle\Controller\Annotations;
 class AdminMessagePushController extends AdminRestController
 {
     use SendNotification;
+
     /**
      * Get Message List.
      *
      * @param Request               $request      the request object
      * @param ParamFetcherInterface $paramFetcher param fetcher service
-     *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     200 = "Returned when successful"
-     *  }
-     * )
      *
      * @Annotations\QueryParam(
      *    name="pageLimit",
@@ -68,22 +61,40 @@ class AdminMessagePushController extends AdminRestController
         // check user permission
         $this->checkAdminMessagePermission(AdminPermission::OP_LEVEL_VIEW);
 
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $platform = $adminPlatform['platform'];
+
         // filters
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
 
+        $limit = $pageLimit;
+        $offset = ($pageIndex - 1) * $pageLimit;
+
         $messages = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Message\Message')
-            ->getMessageList();
+            ->getMessageList(
+                $platform,
+                $limit,
+                $offset
+            );
 
-        $paginator = new Paginator();
-        $pagination = $paginator->paginate(
-            $messages,
-            $pageIndex,
-            $pageLimit
-        );
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Message\Message')
+            ->countMessage(
+                $platform
+            );
 
-        return new View($pagination);
+        $view = new View();
+        $view->setData(
+            array(
+                'current_page_number' => (int) $pageIndex,
+                'num_items_per_page' => (int) $pageLimit,
+                'items' => $messages,
+                'total_count' => (int) $count,
+            ));
+
+        return $view;
     }
 
     /**
@@ -283,7 +294,7 @@ class AdminMessagePushController extends AdminRestController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
-        if ($messageMaterial->getType() == MessageMaterial::TYPE_MATERIAL) {
+        if (MessageMaterial::TYPE_MATERIAL == $messageMaterial->getType()) {
             if (is_null($messageMaterial->getContent())) {
                 throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
             }
@@ -294,7 +305,7 @@ class AdminMessagePushController extends AdminRestController
         }
 
         // send message to all client
-        if ($messageMaterial->getType() == MessageMaterial::TYPE_MESSAGE || !is_null($messageMaterial->getUrl()) || $messageMaterial->getAction() == MessageMaterial::ACTION_PUSH) {
+        if (MessageMaterial::TYPE_MESSAGE == $messageMaterial->getType() || !is_null($messageMaterial->getUrl()) || MessageMaterial::ACTION_PUSH == $messageMaterial->getAction()) {
             $this->sendMessages($messageMaterial);
         }
 
@@ -340,7 +351,7 @@ class AdminMessagePushController extends AdminRestController
         $em->flush();
 
         // send message to all client
-        if (!is_null($messageMaterial->getUrl()) || $messageMaterial->getAction() == MessageMaterial::ACTION_PUSH) {
+        if (!is_null($messageMaterial->getUrl()) || MessageMaterial::ACTION_PUSH == $messageMaterial->getAction()) {
             $this->sendMessages($messageMaterial);
         }
 
@@ -388,16 +399,34 @@ class AdminMessagePushController extends AdminRestController
             'cover' => $messageCover,
         ];
 
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $platform = $adminPlatform['platform'];
+
+        $key = null;
+        $secret = null;
+        switch ($platform) {
+            case Message::PLATFORM_OFFICIAL:
+                $title = '创合秒租';
+                break;
+            case Message::PLATFORM_COMMNUE:
+                $title = '合创设';
+                $key = $this->getParameter('jpush_commnue_key');
+                $secret = $this->getParameter('jpush_commnue_secret');
+                break;
+            default:
+                $title = '创合秒租';
+        }
+
         $data = $this->getJpushData(
             'all',
             ['lang_zh'],
             $messageTitle,
-            '创合秒租',
+            $title,
             $contentArray,
             true
         );
 
-        $this->sendJpushNotification($data);
+        $this->sendJpushNotification($data, $key, $secret);
     }
 
     /**
@@ -413,6 +442,7 @@ class AdminMessagePushController extends AdminRestController
             [
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_MESSAGE],
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_MESSAGE_CONSULTATION],
+                ['key' => AdminPermission::KEY_COMMNUE_PLATFORM_CUSTOMER],
             ],
             $opLevel
         );

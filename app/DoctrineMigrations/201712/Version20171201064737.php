@@ -18,7 +18,7 @@ class Version20171201064737 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE messages ADD platform VARCHAR(64) DEFAULT \'sandbox\' NOT NULL');
+        $this->addSql('ALTER TABLE messages ADD platform VARCHAR(64) DEFAULT \'official\' NOT NULL');
     }
 
     /**
