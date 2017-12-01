@@ -364,6 +364,9 @@ class AdminMessagePushController extends AdminRestController
     private function sendMessages(
         $messageMaterial
     ) {
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $platform = $adminPlatform['platform'];
+
         $messageUrl = $messageMaterial->getUrl();
         $messageTitle = $messageMaterial->getTitle();
         $messageCover = $messageMaterial->getCover();
@@ -380,6 +383,7 @@ class AdminMessagePushController extends AdminRestController
 
         $message = new Message();
         $message->setBody(json_encode($bodyArray));
+        $message->setPlatform($platform);
         $em->persist($message);
         $em->flush();
 
@@ -398,9 +402,6 @@ class AdminMessagePushController extends AdminRestController
             'url' => $url,
             'cover' => $messageCover,
         ];
-
-        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
-        $platform = $adminPlatform['platform'];
 
         $key = null;
         $secret = null;

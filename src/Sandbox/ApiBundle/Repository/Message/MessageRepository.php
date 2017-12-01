@@ -40,7 +40,7 @@ class MessageRepository extends EntityRepository
 
     /**
      * @param $platform
-     * 
+     *
      * @return mixed
      */
     public function countMessage(
