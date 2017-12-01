@@ -396,7 +396,7 @@ class ClientEnterpriseCustomerController extends SalesRestController
 
             $customer = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:User\UserCustomer')
-                ->find($bill->getLesseeCustomer());
+                ->find($lease->getLesseeCustomer());
 
             $attachment = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Room\RoomAttachmentBinding')
@@ -441,7 +441,7 @@ class ClientEnterpriseCustomerController extends SalesRestController
                 'status' => $status,
                 'pay_channel' => $payChannel,
                 'customer' => array(
-                    'id' => $bill->getLesseeCustomer(),
+                    'id' => $lease->getLesseeCustomer(),
                     'name' => $customer ? $customer->getName() : '',
                     'avatar' => $customer ? $customer->getAvatar() : '',
                 ),
