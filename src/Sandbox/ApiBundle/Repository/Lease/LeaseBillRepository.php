@@ -628,7 +628,7 @@ class LeaseBillRepository extends EntityRepository
                 ->setParameter('status', $status);
         }
 
-        if (!empty($channels)) {
+        if (!empty($channels) && !is_null($channels)) {
             if (in_array('sandbox', $channels)) {
                 $channels[] = ProductOrder::CHANNEL_ACCOUNT;
                 $channels[] = ProductOrder::CHANNEL_ALIPAY;
@@ -805,7 +805,7 @@ class LeaseBillRepository extends EntityRepository
                 ->setParameter('status', $status);
         }
 
-        if (!empty($channels) || !is_null($channels)) {
+        if (!empty($channels) && !is_null($channels)) {
             if (in_array('sandbox', $channels)) {
                 $channels[] = ProductOrder::CHANNEL_ACCOUNT;
                 $channels[] = ProductOrder::CHANNEL_ALIPAY;
