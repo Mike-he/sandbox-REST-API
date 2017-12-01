@@ -13,6 +13,9 @@ use Gedmo\Mapping\Annotation as Gedmo;
  */
 class Message
 {
+    const PLATFORM_SANDBOX = 'sandbox';
+    const PLATFORM_COMMNUE = 'commnue';
+
     /**
      * @var int
      *
@@ -43,6 +46,13 @@ class Message
      * @ORM\Column(name="creation_date", type="datetime")
      */
     private $creationDate;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="platform", type="string", length=64, options={"default": "sandbox"})
+     */
+    private $platform = self::PLATFORM_SANDBOX;
 
     /**
      * Get id.
@@ -124,5 +134,21 @@ class Message
     public function getCreationDate()
     {
         return $this->creationDate;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPlatform()
+    {
+        return $this->platform;
+    }
+
+    /**
+     * @param string $platform
+     */
+    public function setPlatform($platform)
+    {
+        $this->platform = $platform;
     }
 }
