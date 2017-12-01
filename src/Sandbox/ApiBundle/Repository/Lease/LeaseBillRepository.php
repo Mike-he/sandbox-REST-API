@@ -628,7 +628,7 @@ class LeaseBillRepository extends EntityRepository
                 ->setParameter('status', $status);
         }
 
-        if (!empty($channels)) {
+        if (!empty($channels) && !is_null($channels)) {
             if (in_array('sandbox', $channels)) {
                 $channels[] = ProductOrder::CHANNEL_ACCOUNT;
                 $channels[] = ProductOrder::CHANNEL_ALIPAY;
@@ -805,7 +805,7 @@ class LeaseBillRepository extends EntityRepository
                 ->setParameter('status', $status);
         }
 
-        if (!empty($channels) || !is_null($channels)) {
+        if (!empty($channels) && !is_null($channels)) {
             if (in_array('sandbox', $channels)) {
                 $channels[] = ProductOrder::CHANNEL_ACCOUNT;
                 $channels[] = ProductOrder::CHANNEL_ALIPAY;
@@ -1102,16 +1102,21 @@ class LeaseBillRepository extends EntityRepository
 
     /**
      * @param $customerId
+     * @param $myBuildingIds
      *
      * @return mixed
      */
     public function countCustomerAllLeaseBills(
-        $customerId
+        $customerId,
+        $myBuildingIds
     ) {
         $query = $this->createQueryBuilder('lb')
+            ->leftJoin('lb.lease', 'l')
             ->select('count(lb.id)')
             ->where('lb.customerId = :customerId')
-            ->setParameter('customerId', $customerId);
+            ->andWhere('l.buildingId in (:buildingIds)')
+            ->setParameter('customerId', $customerId)
+            ->setParameter('buildingIds', $myBuildingIds);
 
         return $query->getQuery()->getSingleScalarResult();
     }
@@ -1142,12 +1147,16 @@ class LeaseBillRepository extends EntityRepository
         $enterprise
     ) {
         $query = $this->createQueryBuilder('lb')
+            ->select('lb.id')
             ->leftJoin('lb.lease', 'l')
             ->where('l.lesseeEnterprise = :enterprise')
             ->setParameter('enterprise', $enterprise)
             ->orderBy('lb.sendDate', 'DESC');
 
-        return $query->getQuery()->getResult();
+        $result = $query->getQuery()->getResult();
+        $result = array_map('current', $result);
+
+        return $result;
     }
 
     /**
@@ -1324,6 +1333,31 @@ class LeaseBillRepository extends EntityRepository
             $query->setParameter('startDate', $startDate)
                 ->setParameter('endDate', $endDate);
         }
+
+        $result = $query->getQuery()->getResult();
+        $result = array_map('current', $result);
+
+        return $result;
+    }
+
+    /**
+     * @param $customerId
+     * @param $myBuildingIds
+     * @return array
+     */
+    public function findCustomerLeaseBill(
+        $customerId,
+        $myBuildingIds
+    ) {
+        $query = $this->createQueryBuilder('lb')
+            ->select('lb.id')
+            ->leftJoin('lb.lease', 'l')
+            ->where('lb.customerId = :customerId')
+            ->andWhere('l.buildingId in (:buildingIds)')
+            ->setParameter('customerId', $customerId)
+            ->setParameter('buildingIds', $myBuildingIds);
+
+        $query->orderBy('lb.sendDate','DESC');
 
         $result = $query->getQuery()->getResult();
         $result = array_map('current', $result);

@@ -5,6 +5,7 @@ namespace Sandbox\ClientPropertyApiBundle\Controller\Customer;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\User\UserCustomer;
@@ -72,6 +73,7 @@ class ClientCustomerController extends SalesRestController
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
+     * @param $id
      *
      * @Route("/customer/{id}")
      * @Method({"GET"})
@@ -254,17 +256,27 @@ class ClientCustomerController extends SalesRestController
         ParamFetcherInterface  $paramFetcher,
         $id
     ){
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
         $customer = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserCustomer')
             ->find($id);
         $userId = $customer->getUserId();
 
+        $myBuildingIds = $this->getMySalesBuildingIds(
+            $this->getAdminId(),
+            array(
+                AdminPermission::KEY_SALES_BUILDING_ORDER,
+            )
+        );
+
         $productOrdersCount = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->countCustomerAllProductOrders($userId);
+            ->countCustomerAllProductOrders($id, $myBuildingIds);
 
         $eventOrdersCount = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Event\EventOrder')
-            ->countCustomerAllEventOrders($userId);
+            ->countCustomerAllEventOrders($id,$salesCompanyId);
 
         $membershipOrdersCount = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:MembershipCard\MembershipOrder')
@@ -272,11 +284,11 @@ class ClientCustomerController extends SalesRestController
 
         $billsCount = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
-            ->countCustomerAllLeaseBills($id);
+            ->countCustomerAllLeaseBills($id,$myBuildingIds);
 
         $leaseCount = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\Lease')
-            ->countCustomerAllLeases($id);
+            ->countCustomerAllLeases($id,$myBuildingIds);
 
         $view = new View();
         $view->setData(
@@ -329,13 +341,22 @@ class ClientCustomerController extends SalesRestController
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
 
-        $customer = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserCustomer')
-            ->find($id);
-        $userId = $customer->getUserId();
+        $myBuildingIds = $this->getMySalesBuildingIds(
+            $this->getAdminId(),
+            array(
+                AdminPermission::KEY_SALES_BUILDING_ORDER,
+            )
+        );
 
         $productOrders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->findBy(array('userId'=>$userId),array('creationDate'=>'DESC'), $limit, $offset);
+            ->findCustomerProductsOrder(
+                $id,
+                $myBuildingIds,
+                $limit,
+                $offset
+            );
+           // ->findBy(array('customerId'=>$id),array('creationDate'=>'DESC'), $limit, $offset);
 
         $receivableTypes = [
             'sales_wx' => '微信',
@@ -394,13 +415,17 @@ class ClientCustomerController extends SalesRestController
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
 
-        $customer = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserCustomer')
-            ->find($id);
-        $userId = $customer->getUserId();
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
 
         $eventOrders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Event\EventOrder')
-            ->findBy(array('userId'=>$userId),array('creationDate'=>'DESC'), $limit, $offset);
+            ->findCustomerEventOrder(
+                $id,
+                $salesCompanyId,
+                $limit,
+                $offset
+            );
 
         $orderLists = [];
         foreach ($eventOrders as $order) {
@@ -499,14 +524,19 @@ class ClientCustomerController extends SalesRestController
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
 
+        $myBuildingIds = $this->getMySalesBuildingIds(
+            $this->getAdminId(),
+            array(
+                AdminPermission::KEY_SALES_BUILDING_ORDER,
+            )
+        );
+
         $bills = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
-            ->findBy(array('customerId'=>$id),array('sendDate'=>'DESC'));
-
-        $ids = array();
-        foreach($bills as $bill){
-            $ids[] = $bill->getId();
-        }
+            ->findCustomerLeaseBill(
+                $id,
+                $myBuildingIds
+            );
 
         $receivableTypes = [
             'sales_wx' => '微信',
@@ -522,7 +552,7 @@ class ClientCustomerController extends SalesRestController
             'remit' => '线下汇款'
         ];
 
-        $bills = $this->handleBillData($ids, $limit, $offset, $receivableTypes);
+        $bills = $this->handleBillData($bills, $limit, $offset, $receivableTypes);
 
         return new View($bills);
     }
@@ -563,9 +593,21 @@ class ClientCustomerController extends SalesRestController
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
 
+        $myBuildingIds = $this->getMySalesBuildingIds(
+            $this->getAdminId(),
+            array(
+                AdminPermission::KEY_SALES_BUILDING_ORDER,
+            )
+        );
+
         $leases = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\Lease')
-            ->findBy(array('lesseeCustomer'=>$id),array('creationDate'=>'DESC'), $limit, $offset);
+            ->findCustomerLease(
+                $id,
+                $myBuildingIds,
+                $limit,
+                $offset
+            );
 
         $ids = array();
         foreach($leases as $lease){
@@ -744,6 +786,8 @@ class ClientCustomerController extends SalesRestController
 
     /**
      * @param $billIds
+     * @param $limit
+     * @param $offset
      * @param $receivableTypes
      * @return array
      */
@@ -775,7 +819,7 @@ class ClientCustomerController extends SalesRestController
 
             $customer = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:User\UserCustomer')
-                ->find($lease->getLesseeCustomer());
+                ->find($bill->getCustomerId());
 
             $attachment = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Room\RoomAttachmentBinding')
@@ -820,7 +864,7 @@ class ClientCustomerController extends SalesRestController
                 'status' => $status,
                 'pay_channel' => $payChannel,
                 'customer' => array(
-                    'id' => $lease->getLesseeCustomer(),
+                    'id' => $bill->getCustomerId(),
                     'name' => $customer ? $customer->getName() : '',
                     'avatar' => $customer ? $customer->getAvatar() : '',
                 ),

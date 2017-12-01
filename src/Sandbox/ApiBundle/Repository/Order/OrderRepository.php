@@ -4678,17 +4678,22 @@ class OrderRepository extends EntityRepository
     }
 
     /**
-     * @param $userId
+     * @param $customerId
+     * @param $myBuildingIds
      *
      * @return mixed
      */
     public function countCustomerAllProductOrders(
-        $userId
+        $customerId,
+        $myBuildingIds
     ) {
         $query = $this->createQueryBuilder('o')
             ->select('count(o.id)')
-            ->where('o.userId = :userId')
-            ->setParameter('userId', $userId);
+            ->leftJoin('SandboxApiBundle:Order\ProductOrderRecord', 'por', 'WITH', 'por.orderId = o.id')
+            ->where('o.customerId = :customerId')
+            ->andWhere('por.buildingId IN (:buildingIds)')
+            ->setParameter('customerId', $customerId)
+            ->setParameter('buildingIds', $myBuildingIds);
 
         return $query->getQuery()->getSingleScalarResult();
     }
@@ -4758,5 +4763,34 @@ class OrderRepository extends EntityRepository
         $result = $query->getQuery()->getResult();
 
         return $result;
+    }
+
+    /**
+     * @param $customerId
+     * @param $buildingIds
+     * @param $limit
+     * @param $offset
+     * @return array
+     */
+    public function findCustomerProductsOrder(
+        $customerId,
+        $buildingIds,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->leftJoin('o.product','p')
+            ->leftJoin('p.room','r')
+            ->where('o.customerId = :customerId')
+            ->andWhere('r.building in (:buildingId)')
+            ->setParameter('customerId',$customerId)
+            ->setParameter('buildingId',$buildingIds);
+
+        $query->orderBy('o.creationDate','DESC');
+
+        $query->setMaxResults($limit)
+            ->setFirstResult($offset);
+
+        return $query->getQuery()->getResult();
     }
 }

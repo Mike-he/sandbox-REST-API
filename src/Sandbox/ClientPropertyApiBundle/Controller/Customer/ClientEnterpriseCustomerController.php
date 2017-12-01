@@ -295,16 +295,11 @@ class ClientEnterpriseCustomerController extends SalesRestController
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
 
-        $bills = $this->getDoctrine()
+        $ids = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
             ->getClientEnterpriseCustomerLeaseBills(
                 $id
             );
-
-        $ids = array();
-        foreach($bills as $bill){
-            $ids[] = $bill->getId();
-        }
 
         $receivableTypes = [
             'wx' => '微信',
