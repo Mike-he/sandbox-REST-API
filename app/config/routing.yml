@@ -32,7 +32,7 @@ sandbox_admin_shop_api:
     prefix:   /shop
 
 commnue_admin_api:
-    resource: "@SandboxCommnueAdminApiBundle/Resources/config/routing.yml"
+    resource: "@CommnueAdminApiBundle/Resources/config/routing.yml"
     type:     rest
     prefix:   /commnue/admin
 

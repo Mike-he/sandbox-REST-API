@@ -44,7 +44,7 @@ class AdminMaterialController extends SandboxRestController
      *    description="page number "
      * )
      *
-     * @Route("/advertising/materials/list")
+     * @Route("/advertising/materials")
      * @Method({"GET"})
      *
      * @return View

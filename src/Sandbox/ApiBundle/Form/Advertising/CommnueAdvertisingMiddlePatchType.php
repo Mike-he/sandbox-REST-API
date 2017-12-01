@@ -16,7 +16,7 @@ class CommnueAdvertisingMiddlePatchType extends AbstractType
     {
         $builder
             ->add('title')
-            ->add('subtitle')
+            ->add('sub_title')
             ->add('cover')
         ;
     }

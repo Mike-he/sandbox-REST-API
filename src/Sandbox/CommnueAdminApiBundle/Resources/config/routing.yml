@@ -5,22 +5,21 @@
 #    prefix:   /
 
 commnue_admin_default_controller:
-    resource: "@SandboxCommnueAdminApiBundle/Controller/DefaultController.php"
+    resource: "@CommnueAdminApiBundle/Controller/DefaultController.php"
     type:     annotation
     prefix:   /
-commnue_admin_api_advertising_banner:
-    resource: "@SandboxCommnueAdminApiBundle/Controller/Advertising/AdminAdvertisingBannerController.php"
+
+commnue_admin_advertising_banner_controller:
+    resource: "@CommnueAdminApiBundle/Controller/Advertising/AdminAdvertisingBannerController.php"
     type:     annotation
     prefix:   /
-commnue_admin_api_advertising_middle:
-    resource: "@SandboxCommnueAdminApiBundle/Controller/Advertising/AdminAdvertisingMiddleController.php"
+
+commnue_admin_advertising_middle_controller:
+    resource: "@CommnueAdminApiBundle/Controller/Advertising/AdminAdvertisingMiddleController.php"
     type:     annotation
     prefix:   /
-#commnue_admin_api_advertising_micro:
-#    resource: "@SandboxCommnueAdminApiBundle/Controller/Advertising/AdminAdvertisingMicroController.php"
-#    type:     annotation
-#    prefix:   /
-commnue_admin_api_advertising_material:
-    resource: "@SandboxCommnueAdminApiBundle/Controller/Advertising/AdminMaterialController.php"
+
+commnue_admin_advertising_material_controller:
+    resource: "@CommnueAdminApiBundle/Controller/Advertising/AdminMaterialController.php"
     type:     annotation
     prefix:   /
