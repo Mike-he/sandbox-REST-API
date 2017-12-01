@@ -295,16 +295,11 @@ class ClientEnterpriseCustomerController extends SalesRestController
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
 
-        $bills = $this->getDoctrine()
+        $ids = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
             ->getClientEnterpriseCustomerLeaseBills(
                 $id
             );
-
-        $ids = array();
-        foreach($bills as $bill){
-            $ids[] = $bill->getId();
-        }
 
         $receivableTypes = [
             'wx' => '微信',
@@ -401,7 +396,7 @@ class ClientEnterpriseCustomerController extends SalesRestController
 
             $customer = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:User\UserCustomer')
-                ->find($lease->getLesseeCustomer());
+                ->find($bill->getLesseeCustomer());
 
             $attachment = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Room\RoomAttachmentBinding')
@@ -446,7 +441,7 @@ class ClientEnterpriseCustomerController extends SalesRestController
                 'status' => $status,
                 'pay_channel' => $payChannel,
                 'customer' => array(
-                    'id' => $lease->getLesseeCustomer(),
+                    'id' => $bill->getLesseeCustomer(),
                     'name' => $customer ? $customer->getName() : '',
                     'avatar' => $customer ? $customer->getAvatar() : '',
                 ),
