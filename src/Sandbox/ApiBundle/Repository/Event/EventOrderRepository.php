@@ -952,18 +952,52 @@ class EventOrderRepository extends EntityRepository
     }
 
     /**
-     * @param $userId
+     * @param $customerId
+     * @param $salesCompanyId
      *
      * @return mixed
      */
     public function countCustomerAllEventOrders(
-        $userId
+        $customerId,
+        $salesCompanyId
     ) {
         $query = $this->createqueryBUilder('eo')
             ->select('count(eo.id)')
-            ->where('eo.userId = :userId')
-            ->setParameter('userId', $userId);
+            ->leftJoin('SandboxApiBundle:Event\Event', 'e', 'WITH', 'e.id = eo.eventId')
+            ->where('eo.customerId = :customerId')
+            ->andWhere('e.salesCompanyId = :salesCompanyId')
+            ->setParameter('customerId', $customerId)
+            ->setParameter('salesCompanyId',$salesCompanyId);
 
         return $query->getQuery()->getSingleScalarResult();
     }
+
+    /**
+     * @param $customerId
+     * @param $salesCompanyId
+     * @param $limit
+     * @param $offset
+     * @return array
+     */
+    public function findCustomerEventOrder(
+        $customerId,
+        $salesCompanyId,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createqueryBUilder('eo')
+            ->leftJoin('SandboxApiBundle:Event\Event', 'e', 'WITH', 'e.id = eo.eventId')
+            ->where('eo.customerId = :customerId')
+            ->andWhere('e.salesCompanyId = :salesCompanyId')
+            ->setParameter('customerId', $customerId)
+            ->setParameter('salesCompanyId',$salesCompanyId);
+
+        $query->orderBy('eo.creationDate','DESC');
+
+        $query->setMaxResults($limit)
+            ->setFirstResult($offset);
+
+        return $query->getQuery()->getResult();
+    }
+
 }

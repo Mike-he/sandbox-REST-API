@@ -511,15 +511,20 @@ class LeaseRepository extends EntityRepository
 
     /*
      * @param $customerId
+     * @param $myBuildingIds
+     *
      * @return mixed
      */
     public function countCustomerAllLeases(
-        $customerId
+        $customerId,
+        $myBuildingIds
     ) {
         $query = $this->createQueryBuilder('l')
             ->select('count(l.id)')
             ->where('l.lesseeCustomer = :customerId')
-            ->setParameter('customerId', $customerId);
+            ->andWhere('l.buildingId IN (:buildingIds)')
+            ->setParameter('customerId', $customerId)
+            ->setParameter('buildingIds', $myBuildingIds);
 
         return $query->getQuery()->getSingleScalarResult();
     }
@@ -694,5 +699,32 @@ class LeaseRepository extends EntityRepository
         $result = array_map('current', $result);
 
         return $result;
+    }
+
+    /**
+     * @param $customerId
+     * @param $myBuildingIds
+     * @param $limit
+     * @param $offset
+     * @return array
+     */
+    public function findCustomerLease(
+        $customerId,
+        $myBuildingIds,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('l')
+            ->where('l.lesseeCustomer = :customerId')
+            ->andWhere('l.buildingId IN (:buildingIds)')
+            ->setParameter('customerId', $customerId)
+            ->setParameter('buildingIds', $myBuildingIds);
+
+        $query->orderBy('l.creationDate','DESC');
+
+        $query->setMaxResults($limit)
+            ->setFirstResult($offset);
+
+        return $query->getQuery()->getResult();
     }
 }
