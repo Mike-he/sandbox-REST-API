@@ -13,3 +13,18 @@ commnue_admin_event_hot_controller:
     resource: "@CommnueAdminApiBundle/Controller/Event/AdminEventHotController.php"
     type:     annotation
     prefix:   /
+
+commnue_admin_advertising_banner_controller:
+    resource: "@CommnueAdminApiBundle/Controller/Advertising/AdminAdvertisingBannerController.php"
+    type:     annotation
+    prefix:   /
+
+commnue_admin_advertising_middle_controller:
+    resource: "@CommnueAdminApiBundle/Controller/Advertising/AdminAdvertisingMiddleController.php"
+    type:     annotation
+    prefix:   /
+
+commnue_admin_advertising_material_controller:
+    resource: "@CommnueAdminApiBundle/Controller/Advertising/AdminMaterialController.php"
+    type:     annotation
+    prefix:   /
