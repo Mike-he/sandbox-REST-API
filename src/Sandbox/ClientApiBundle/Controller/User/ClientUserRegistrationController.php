@@ -297,8 +297,6 @@ class ClientUserRegistrationController extends UserRegistrationController
         // post user account to internal api
         $this->postUserAccount($user->getId());
 
-        $em->flush();
-
         if ($isRegistration) {
             // add bean
             $parameter = $this->getDoctrine()
@@ -311,6 +309,8 @@ class ClientUserRegistrationController extends UserRegistrationController
 
         // sync crm customer users
         $this->syncCustomerUserIds($user);
+
+        $em->flush();
 
         // response
         $view = new View($responseArray);
