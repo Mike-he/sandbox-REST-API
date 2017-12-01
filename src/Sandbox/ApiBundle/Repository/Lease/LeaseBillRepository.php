@@ -1135,24 +1135,17 @@ class LeaseBillRepository extends EntityRepository
 
     /**
      * @param $enterprise
-     * @param $pageLimit
-     * @param $offset
      *
      * @return array
      */
     public function getClientEnterpriseCustomerLeaseBills(
-        $enterprise,
-        $pageLimit,
-        $offset
+        $enterprise
     ) {
         $query = $this->createQueryBuilder('lb')
             ->leftJoin('lb.lease', 'l')
             ->where('l.lesseeEnterprise = :enterprise')
             ->setParameter('enterprise', $enterprise)
             ->orderBy('lb.sendDate', 'DESC');
-
-        $query->setMaxResults($pageLimit)
-            ->setFirstResult($offset);
 
         return $query->getQuery()->getResult();
     }

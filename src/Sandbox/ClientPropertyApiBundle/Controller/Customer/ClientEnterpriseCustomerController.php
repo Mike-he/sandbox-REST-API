@@ -14,6 +14,9 @@ use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use FOS\RestBundle\Controller\Annotations;
+use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
+use Sandbox\ApiBundle\Constants\LeaseConstants;
+use Sandbox\ApiBundle\Constants\ProductOrderExport;
 
 class ClientEnterpriseCustomerController extends SalesRestController
 {
@@ -241,11 +244,18 @@ class ClientEnterpriseCustomerController extends SalesRestController
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
 
-        $lease = $this->getDoctrine()
+        $leases = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\Lease')
             ->findBy(array('lesseeEnterprise'=>$id),array('creationDate'=>'DESC'), $limit, $offset);
 
-        return new View($lease);
+        $ids = array();
+        foreach($leases as $lease){
+            $ids[] = $lease->getId();
+        }
+
+        $leases = $this->handleLeaseData($ids);
+
+        return new View($leases);
     }
 
     /**
@@ -288,10 +298,25 @@ class ClientEnterpriseCustomerController extends SalesRestController
         $bills = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
             ->getClientEnterpriseCustomerLeaseBills(
-                $id,
-                $limit,
-                $offset
+                $id
             );
+
+        $ids = array();
+        foreach($bills as $bill){
+            $ids[] = $bill->getId();
+        }
+
+        $receivableTypes = [
+            'wx' => '微信',
+            'sales_wx' => '微信',
+            'sales_alipay' => '支付宝支付',
+            'sales_cash' => '现金',
+            'sales_others' => '其他',
+            'sales_pos' => 'POS机',
+            'sales_remit' => '线下汇款',
+        ];
+
+        $bills = $this->handleBillData($ids, $limit, $offset, $receivableTypes);
 
         return new View($bills);
     }
@@ -339,5 +364,175 @@ class ClientEnterpriseCustomerController extends SalesRestController
         $em->flush();
 
         return;
+    }
+
+    /**
+     * @param $billIds
+     * @param $limit
+     * @param $offset
+     * @param $receivableTypes
+     * @return array
+     */
+    private function handleBillData(
+        $billIds,
+        $limit,
+        $offset,
+        $receivableTypes
+    ) {
+        $ids = array();
+        for ($i = $offset; $i < $offset + $limit; ++$i) {
+            if (isset($billIds[$i])) {
+                $ids[] = $billIds[$i];
+            }
+        }
+
+        $result = [];
+        foreach ($ids as $id) {
+            $bill = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+                ->find($id);
+
+            /** @var Lease $lease */
+            $lease = $bill->getLease();
+            /** @var Product $product */
+            $product = $lease->getProduct();
+            $room = $product->getRoom();
+            $building = $room->getBuilding();
+
+            $customer = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserCustomer')
+                ->find($lease->getLesseeCustomer());
+
+            $attachment = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomAttachmentBinding')
+                ->findAttachmentsByRoom($room->getId(), 1);
+
+            $roomAttachment = [];
+            if (!empty($attachment)) {
+                $roomAttachment['content'] = $attachment[0]['content'];
+                $roomAttachment['preview'] = $attachment[0]['preview'];
+            }
+
+            $payChannel = '';
+            if ($bill->getPayChannel()) {
+                if (LeaseBill::CHANNEL_SALES_OFFLINE == $bill->getPayChannel()) {
+                    $receivable = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:Finance\FinanceReceivables')
+                        ->findOneBy([
+                            'orderNumber' => $bill->getSerialNumber(),
+                        ]);
+                    if ($receivable) {
+                        $payChannel = $receivableTypes[$receivable->getPayChannel()];
+                    }
+                } else {
+                    $payChannel = '创合钱包支付';
+                }
+            }
+
+            $status = $this->get('translator')
+                ->trans(LeaseConstants::TRANS_LEASE_BILL_STATUS.$bill->getStatus());
+
+            $result[] = [
+                'id' => $id,
+                'serial_number' => $bill->getSerialNumber(),
+                'send_date' => $bill->getSendDate(),
+                'name' => $bill->getName(),
+                'room_name' => $room->getName(),
+                'building_name' => $building->getName(),
+                'start_date' => $bill->getStartDate(),
+                'end_date' => $bill->getEndDate(),
+                'amount' => (float) $bill->getAmount(),
+                'revised_amount' => (float) $bill->getRevisedAmount(),
+                'status' => $status,
+                'pay_channel' => $payChannel,
+                'customer' => array(
+                    'id' => $lease->getLesseeCustomer(),
+                    'name' => $customer ? $customer->getName() : '',
+                    'avatar' => $customer ? $customer->getAvatar() : '',
+                ),
+                'room_attachment' => $roomAttachment,
+            ];
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param Lease $leaseIds
+     *
+     * @return array
+     */
+    private function handleLeaseData(
+        $leaseIds
+    ) {
+        $result = [];
+        foreach ($leaseIds as $id) {
+            $lease = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Lease\Lease')
+                ->find($id);
+
+            $customer = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserCustomer')
+                ->find($lease->getLesseeCustomer());
+
+            $status = $this->get('translator')
+                ->trans(LeaseConstants::TRANS_LEASE_STATUS.$lease->getStatus());
+
+            /** @var Product $product */
+            $product = $lease->getProduct();
+            $room = $product->getRoom();
+            $building = $room->getBuilding();
+
+            $attachment = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomAttachmentBinding')
+                ->findAttachmentsByRoom($room->getId(), 1);
+
+            $roomType = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$room->getType());
+
+            $paidBillsCount = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+                ->countBills(
+                    $lease,
+                    null,
+                    LeaseBill::STATUS_PAID
+                );
+
+            $totalBillsCount = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+                ->countBills(
+                    $lease
+                );
+
+            $paidBillsAmount = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+                ->sumBillsFees(
+                    $lease,
+                    LeaseBill::STATUS_PAID
+                );
+
+            $result[] = [
+                'id' => $id,
+                'serial_number' => $lease->getSerialNumber(),
+                'creation_date' => $lease->getCreationDate(),
+                'status' => $status,
+                'start_date' => $lease->getStartDate(),
+                'end_date' => $lease->getEndDate(),
+                'room_type' => $roomType,
+                'room_name' => $room->getName(),
+                'room_attachment' => $attachment,
+                'building_name' => $building->getName(),
+                'total_rent' => (float) $lease->getTotalRent(),
+                'paid_amount' => (float) $paidBillsAmount,
+                'paid_bills_count' => $paidBillsCount,
+                'total_bills_count' => $totalBillsCount,
+                'customer' => array(
+                    'id' => $lease->getLesseeCustomer(),
+                    'name' => $customer ? $customer->getName() : '',
+                    'avatar' => $customer ? $customer->getAvatar() : '',
+                ),
+            ];
+        }
+
+        return $result;
     }
 }

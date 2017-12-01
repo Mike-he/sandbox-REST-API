@@ -18,6 +18,10 @@ use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
+use Sandbox\ApiBundle\Constants\LeaseConstants;
+use Sandbox\ApiBundle\Constants\ProductOrderExport;
+use Sandbox\ApiBundle\Constants\EventOrderExport;
 
 class ClientCustomerController extends SalesRestController
 {
@@ -333,7 +337,24 @@ class ClientCustomerController extends SalesRestController
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->findBy(array('userId'=>$userId),array('creationDate'=>'DESC'), $limit, $offset);
 
-        return new View($productOrders);
+        $receivableTypes = [
+            'sales_wx' => '微信',
+            'sales_alipay' => '支付宝支付',
+            'sales_cash' => '现金',
+            'sales_others' => '其他',
+            'sales_pos' => 'POS机',
+            'sales_remit' => '线下汇款',
+        ];
+
+        $orderLists = [];
+        foreach ($productOrders as $order) {
+            $orderLists[] = $this->handleOrderData(
+                $id,
+                $order,
+                $receivableTypes
+            );
+        }
+        return new View($orderLists);
     }
 
     /**
@@ -381,7 +402,12 @@ class ClientCustomerController extends SalesRestController
             ->getRepository('SandboxApiBundle:Event\EventOrder')
             ->findBy(array('userId'=>$userId),array('creationDate'=>'DESC'), $limit, $offset);
 
-        return new View($eventOrders);
+        $orderLists = [];
+        foreach ($eventOrders as $order) {
+            $orderLists[] = $this->handleEventOrderData($id,$order);
+        }
+
+        return new View($orderLists);
     }
 
     /**
@@ -429,7 +455,12 @@ class ClientCustomerController extends SalesRestController
             ->getRepository('SandboxApiBundle:MembershipCard\MembershipOrder')
             ->findBy(array('user'=>$userId),array('creationDate'=>'DESC'), $limit, $offset);
 
-        return new View($MembershipOrders);
+        $orderLists = [];
+        foreach ($MembershipOrders as $order) {
+            $orderLists[] = $this->handleMembershipOrderData($id,$order);
+        }
+
+        return new View($orderLists);
     }
 
     /**
@@ -470,7 +501,28 @@ class ClientCustomerController extends SalesRestController
 
         $bills = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
-            ->findBy(array('customerId'=>$id),array('sendDate'=>'DESC'), $limit, $offset);
+            ->findBy(array('customerId'=>$id),array('sendDate'=>'DESC'));
+
+        $ids = array();
+        foreach($bills as $bill){
+            $ids[] = $bill->getId();
+        }
+
+        $receivableTypes = [
+            'sales_wx' => '微信',
+            'wx' => '微信',
+            'sales_alipay' => '支付宝支付',
+            'alipay' => '支付宝支付',
+            'sales_cash' => '现金',
+            'cash' => '现金',
+            'sales_others' => '其他',
+            'others' => '其他',
+            'sales_pos' => 'POS机',
+            'sales_remit' => '线下汇款',
+            'remit' => '线下汇款'
+        ];
+
+        $bills = $this->handleBillData($ids, $limit, $offset, $receivableTypes);
 
         return new View($bills);
     }
@@ -514,6 +566,13 @@ class ClientCustomerController extends SalesRestController
         $leases = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\Lease')
             ->findBy(array('lesseeCustomer'=>$id),array('creationDate'=>'DESC'), $limit, $offset);
+
+        $ids = array();
+        foreach($leases as $lease){
+            $ids[] = $lease->getId();
+        }
+
+        $leases = $this->handleLeaseData($ids);
 
         return new View($leases);
     }
@@ -681,5 +740,346 @@ class ClientCustomerController extends SalesRestController
         }
 
         return new View([]);
+    }
+
+    /**
+     * @param $billIds
+     * @param $receivableTypes
+     * @return array
+     */
+    private function handleBillData(
+        $billIds,
+        $limit,
+        $offset,
+        $receivableTypes
+    ) {
+        $ids = array();
+        for ($i = $offset; $i < $offset + $limit; ++$i) {
+            if (isset($billIds[$i])) {
+                $ids[] = $billIds[$i];
+            }
+        }
+
+        $result = [];
+        foreach ($ids as $id) {
+            $bill = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+                ->find($id);
+
+            /** @var Lease $lease */
+            $lease = $bill->getLease();
+            /** @var Product $product */
+            $product = $lease->getProduct();
+            $room = $product->getRoom();
+            $building = $room->getBuilding();
+
+            $customer = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserCustomer')
+                ->find($lease->getLesseeCustomer());
+
+            $attachment = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomAttachmentBinding')
+                ->findAttachmentsByRoom($room->getId(), 1);
+
+            $roomAttachment = [];
+            if (!empty($attachment)) {
+                $roomAttachment['content'] = $attachment[0]['content'];
+                $roomAttachment['preview'] = $attachment[0]['preview'];
+            }
+
+            $payChannel = '';
+            if ($bill->getPayChannel()) {
+                if (LeaseBill::CHANNEL_SALES_OFFLINE == $bill->getPayChannel()) {
+                    $receivable = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:Finance\FinanceReceivables')
+                        ->findOneBy([
+                            'orderNumber' => $bill->getSerialNumber(),
+                        ]);
+                    if ($receivable) {
+                        $payChannel = $receivableTypes[$receivable->getPayChannel()];
+                    }
+                } else {
+                    $payChannel = '创合钱包支付';
+                }
+            }
+
+            $status = $this->get('translator')
+                ->trans(LeaseConstants::TRANS_LEASE_BILL_STATUS.$bill->getStatus());
+
+            $result[] = [
+                'id' => $id,
+                'serial_number' => $bill->getSerialNumber(),
+                'send_date' => $bill->getSendDate(),
+                'name' => $bill->getName(),
+                'room_name' => $room->getName(),
+                'building_name' => $building->getName(),
+                'start_date' => $bill->getStartDate(),
+                'end_date' => $bill->getEndDate(),
+                'amount' => (float) $bill->getAmount(),
+                'revised_amount' => (float) $bill->getRevisedAmount(),
+                'status' => $status,
+                'pay_channel' => $payChannel,
+                'customer' => array(
+                    'id' => $lease->getLesseeCustomer(),
+                    'name' => $customer ? $customer->getName() : '',
+                    'avatar' => $customer ? $customer->getAvatar() : '',
+                ),
+                'room_attachment' => $roomAttachment,
+            ];
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param ProductOrder $order
+     * @param $receivableTypes
+     * @param $id
+     *
+     * @return array
+     */
+    private function handleOrderData(
+        $id,
+        $order,
+        $receivableTypes
+    ) {
+        $room = $order->getProduct()->getRoom();
+        $building = $room->getBuilding();
+
+        $customer = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->find($id);
+
+        $avatar = '';
+        if ($customer->getAvatar()) {
+            $avatar = $customer->getAvatar();
+        } elseif ($customer->getUserId()) {
+            $avatar = $this->getParameter('image_url').'/person/'.$customer->getUserId().'/avatar_small.jpg';
+        }
+
+        $customerData = [
+            'id' => $order->getCustomerId(),
+            'name' => $customer->getName(),
+            'avatar' => $avatar,
+        ];
+
+        $attachment = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomAttachmentBinding')
+            ->findAttachmentsByRoom($room->getId(), 1);
+
+        $roomAttachment = [];
+        if (!empty($attachment)) {
+            $roomAttachment['content'] = $attachment[0]['content'];
+            $roomAttachment['preview'] = $attachment[0]['preview'];
+        }
+
+        $payChannel = '';
+        if ($order->getPayChannel()) {
+            if (ProductOrder::CHANNEL_SALES_OFFLINE == $order->getPayChannel()) {
+                $receivable = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Finance\FinanceReceivables')
+                    ->findOneBy([
+                        'orderNumber' => $order->getOrderNumber(),
+                    ]);
+                if ($receivable) {
+                    $payChannel = $receivableTypes[$receivable->getPayChannel()];
+                }
+            } else {
+                $payChannel = '创合钱包支付';
+            }
+        }
+
+        $roomType = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$room->getType());
+        $orderType = $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_TYPE.$order->getType());
+        $status = $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_STATUS.$order->getStatus());
+
+        $result = array(
+            'id' => $order->getId(),
+            'order_number' => $order->getOrderNumber(),
+            'creation_date' => $order->getCreationDate(),
+            'status' => $status,
+            'start_date' => $order->getStartDate(),
+            'end_date' => $order->getEndDate(),
+            'room_attachment' => $roomAttachment,
+            'room_type_description' => $roomType,
+            'room_type' => $room->getType(),
+            'room_name' => $room->getName(),
+            'building_name' => $building->getName(),
+            'price' => (float) $order->getPrice(),
+            'discount_price' => (float) $order->getDiscountPrice(),
+            'order_type' => $orderType,
+            'pay_channel' => $payChannel,
+            'base_price' => $order->getBasePrice(),
+            'unit_price' => $order->getUnitPrice(),
+            'customer' => $customerData,
+        );
+
+        return $result;
+    }
+
+    /**
+     * @param $id
+     * @param $order
+     *
+     * @return array
+     */
+    private function handleEventOrderData(
+        $id,
+        $order
+    ) {
+        $customer = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->find($id);
+
+        /** @var Event $event */
+        $event = $order->getEvent();
+
+        $eventAttachment = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventAttachment')
+            ->findOneBy(array('eventId' => $event->getId()));
+
+        $status = $this->get('translator')->trans(EventOrderExport::TRANS_EVENT_ORDER_STATUS.$order->getStatus());
+
+        $result = array(
+            'id' => $order->getId(),
+            'order_number' => $order->getOrderNumber(),
+            'creation_date' => $order->getCreationDate(),
+            'status' => $status,
+            'event_name' => $event->getname(),
+            'event_start_date' => $event->getEventStartDate(),
+            'event_end_date' => $event->getEventEndDate(),
+            'event_status' => $event->getStatus(),
+            'address' => $event->getAddress(),
+            'price' => (float) $order->getPrice(),
+            'pay_channel' => $order->getPayChannel() ? '创合钱包支付' : '',
+            'customer' => array(
+                'id' => $order->getCustomerId(),
+                'name' => $customer ? $customer->getName() : '',
+                'avatar' => $customer ? $customer->getAvatar() : '',
+            ),
+            'attachment' => $eventAttachment ? $eventAttachment->getContent() : '',
+        );
+
+        return $result;
+    }
+
+    /**
+     * @param MembershipOrder $order
+     *
+     * @return array
+     */
+    private function handleMembershipOrderData(
+        $id,
+        $order
+    ) {
+        $card = $order->getCard();
+        $userId = $order->getUser();
+
+        $customer = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->findOneBy(array(
+                'id' => $id,
+                'companyId' => $card->getCompanyId(),
+            ));
+
+        $result = array(
+            'id' => $order->getId(),
+            'order_number' => $order->getOrderNumber(),
+            'payment_date' => $order->getPaymentDate(),
+            'name' => $card->getName(),
+            'specification' => $order->getSpecification(),
+            'start_date' => $order->getStartDate(),
+            'end_date' => $order->getEndDate(),
+            'price' => $order->getPrice(),
+            'pay_channel' => $order->getPayChannel() ? '创合钱包支付' : '',
+            'status' => '已付款',
+            'background' => $card->getBackground(),
+            'customer' => array(
+                'id' => $customer ? $customer->getId() : '',
+                'name' => $customer ? $customer->getName() : '',
+                'avatar' => $customer ? $customer->getAvatar() : '',
+            ),
+        );
+
+        return $result;
+    }
+
+    /**
+     * @param Lease $leaseIds
+     *
+     * @return array
+     */
+    private function handleLeaseData(
+        $leaseIds
+    ) {
+        $result = [];
+        foreach ($leaseIds as $id) {
+            $lease = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Lease\Lease')
+                ->find($id);
+
+            $customer = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserCustomer')
+                ->find($lease->getLesseeCustomer());
+
+            $status = $this->get('translator')
+                ->trans(LeaseConstants::TRANS_LEASE_STATUS.$lease->getStatus());
+
+            /** @var Product $product */
+            $product = $lease->getProduct();
+            $room = $product->getRoom();
+            $building = $room->getBuilding();
+
+            $attachment = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomAttachmentBinding')
+                ->findAttachmentsByRoom($room->getId(), 1);
+
+            $roomType = $this->get('translator')->trans(ProductOrderExport::TRANS_ROOM_TYPE.$room->getType());
+
+            $paidBillsCount = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+                ->countBills(
+                    $lease,
+                    null,
+                    LeaseBill::STATUS_PAID
+                );
+
+            $totalBillsCount = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+                ->countBills(
+                    $lease
+                );
+
+            $paidBillsAmount = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Lease\LeaseBill')
+                ->sumBillsFees(
+                    $lease,
+                    LeaseBill::STATUS_PAID
+                );
+
+            $result[] = [
+                'id' => $id,
+                'serial_number' => $lease->getSerialNumber(),
+                'creation_date' => $lease->getCreationDate(),
+                'status' => $status,
+                'start_date' => $lease->getStartDate(),
+                'end_date' => $lease->getEndDate(),
+                'room_type' => $roomType,
+                'room_name' => $room->getName(),
+                'room_attachment' => $attachment,
+                'building_name' => $building->getName(),
+                'total_rent' => (float) $lease->getTotalRent(),
+                'paid_amount' => (float) $paidBillsAmount,
+                'paid_bills_count' => $paidBillsCount,
+                'total_bills_count' => $totalBillsCount,
+                'customer' => array(
+                    'id' => $lease->getLesseeCustomer(),
+                    'name' => $customer ? $customer->getName() : '',
+                    'avatar' => $customer ? $customer->getAvatar() : '',
+                ),
+            ];
+        }
+
+        return $result;
     }
 }
