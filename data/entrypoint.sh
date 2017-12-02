@@ -44,4 +44,4 @@ fi
 /etc/init.d/nginx start 
 
 # Keep container alive
-tail -f /app/logs/prod.log
+tail -f /var/www/app/logs/prod.log
