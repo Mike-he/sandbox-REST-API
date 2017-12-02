@@ -5,6 +5,8 @@ if [ -z "$TZ" ]; then
 fi
 ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && echo "${TZ}" > /etc/timezone
 
+cd /var/www/
+
 # Enable write permission for folder
 chmod 777 web/
 
