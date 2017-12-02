@@ -6,7 +6,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
-class CommnueAdvertisingMiddleType extends AbstractType
+class CommnueAdvertisingMicroType extends AbstractType
 {
     /**
      * @param FormBuilderInterface $builder
@@ -15,25 +15,7 @@ class CommnueAdvertisingMiddleType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('title')
-            ->add('sub_title')
-            ->add('cover')
-            ->add('source')
-            ->add(
-                'source_id',
-                'integer',
-                array('required' => false)
-            )
-            ->add(
-                'url',
-                'url',
-                array(
-                    'required' => false,
-                    'mapped' => false,
-                )
-            )
-
-        ;
+            ->add('content');
     }
 
     /**
@@ -42,7 +24,7 @@ class CommnueAdvertisingMiddleType extends AbstractType
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Sandbox\ApiBundle\Entity\Advertising\CommnueAdvertisingMiddle',
+            'data_class' => 'Sandbox\ApiBundle\Entity\Advertising\CommnueAdvertisingMicro',
         ));
     }
 

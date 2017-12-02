@@ -13,6 +13,9 @@ use Gedmo\Mapping\Annotation as Gedmo;
  */
 class CommnueMaterial
 {
+    const SOURCE_NEWS = 'news';
+    const SOURCE_ANNOUNCEMENT = 'announcement';
+    const SOURCE_INSTRUCTION = 'instruction';
     /**
      * @var integer
      *

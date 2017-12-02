@@ -4,11 +4,15 @@ namespace Sandbox\CommnueAdminApiBundle\Controller\Advertising;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\AdminApiBundle\Data\Banner\BannerPosition;
+use Sandbox\ApiBundle\Controller\Advertising\AdvertisingController;
 use Sandbox\ApiBundle\Controller\Banner\BannerController;
 use Sandbox\ApiBundle\Entity\Banner\Banner;
 use Sandbox\ApiBundle\Entity\Banner\BannerTag;
+use Sandbox\ApiBundle\Entity\Material\CommnueMaterial;
+use Sandbox\ApiBundle\Form\Advertising\AdvertisingPositionType;
 use Sandbox\ApiBundle\Form\Banner\BannerPatchType;
 use Sandbox\ApiBundle\Form\Banner\BannerType;
+use Sandbox\CommnueAdminApiBundle\Data\Advertising\AdvertisingPosition;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,7 +24,7 @@ use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Form\Banner\BannerPositionType;
 
-class AdminAdvertisingBannerController extends BannerController
+class AdminAdvertisingBannerController extends AdvertisingController
 {
     /**
      * Get Banner List
@@ -65,6 +69,9 @@ class AdminAdvertisingBannerController extends BannerController
         ParamFetcherInterface $paramFetcher
     )
     {
+        // check user permission
+        $this->checkAdminBannerPermission(AdminPermission::OP_LEVEL_VIEW);
+
         $pageIndex = $paramFetcher->get('pageIndex');
         $pageLimit = $paramFetcher->get('pageLimit');
         $search = $paramFetcher->get('search');
@@ -107,6 +114,9 @@ class AdminAdvertisingBannerController extends BannerController
     public function getBannerByIdAction(
         $id
     ) {
+        // check user permission
+        $this->checkAdminBannerPermission(AdminPermission::OP_LEVEL_VIEW);
+
         $banner = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Banner\Banner')
             ->find($id);
@@ -139,6 +149,9 @@ class AdminAdvertisingBannerController extends BannerController
         ParamFetcherInterface $paramFetcher
     )
     {
+        // check user permission
+        $this->checkAdminBannerPermission(AdminPermission::OP_LEVEL_EDIT);
+
         $banner = new Banner();
         $form = $this->createForm( new BannerType(),$banner);
         $form->handleRequest($request);
@@ -173,7 +186,7 @@ class AdminAdvertisingBannerController extends BannerController
         $id
     ) {
         // check user permission
-        //$this->checkAdminBannerPermission(AdminPermission::OP_LEVEL_EDIT);
+        $this->checkAdminBannerPermission(AdminPermission::OP_LEVEL_EDIT);
 
         // get banner
         $banner = $this->getRepo('Banner\Banner')->find($id);
@@ -206,6 +219,9 @@ class AdminAdvertisingBannerController extends BannerController
     public function deleteBannerAction(
         $id
     ) {
+        // check user permission
+        $this->checkAdminBannerPermission(AdminPermission::OP_LEVEL_EDIT);
+
         $banner = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Banner\Banner')
             ->find($id);
@@ -233,14 +249,14 @@ class AdminAdvertisingBannerController extends BannerController
         $id
     ) {
         // check user permission
-        //$this->checkAdminBannerPermission(AdminPermission::OP_LEVEL_EDIT);
+        $this->checkAdminBannerPermission(AdminPermission::OP_LEVEL_EDIT);
 
         // get banner
         $banner = $this->getRepo('Banner\Banner')->find($id);
         $this->throwNotFoundIfNull($banner, self::NOT_FOUND_MESSAGE);
 
-        $position = new BannerPosition();
-        $form = $this->createForm(new BannerPositionType(), $position);
+        $position = new AdvertisingPosition();
+        $form = $this->createForm(new AdvertisingPositionType(), $position);
         $form->handleRequest($request);
 
         if (!$form->isValid()) {
@@ -273,9 +289,11 @@ class AdminAdvertisingBannerController extends BannerController
 
         $banner->setTag($tag);
 
-        $sourceArray = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Material\CommnueMaterial')
-            ->getCategory();
+        $sourceArray = [
+            CommnueMaterial::SOURCE_NEWS,
+            CommnueMaterial::SOURCE_ANNOUNCEMENT,
+            CommnueMaterial::SOURCE_INSTRUCTION
+        ];
 
         switch ($source) {
             case Banner::SOURCE_EVENT:
@@ -465,7 +483,7 @@ class AdminAdvertisingBannerController extends BannerController
         $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             [
-                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_BANNER],
+                ['key' => AdminPermission::KEY_COMMNUE_PLATFORM_BANNER],
             ],
             $opLevel
         );

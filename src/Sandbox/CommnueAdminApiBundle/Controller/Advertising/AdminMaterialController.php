@@ -31,7 +31,7 @@ class AdminMaterialController extends SandboxRestController
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
-     *    description="How many banners to return per page"
+     *    description="How many materials to return per page"
      * )
      *
      * @Annotations\QueryParam(
@@ -53,6 +53,9 @@ class AdminMaterialController extends SandboxRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // check user permission
+       // $this->checkAdminMaterialPermission(AdminPermission::OP_LEVEL_VIEW);
+
         $pageIndex = $paramFetcher->get('pageIndex');
         $pageLimit = $paramFetcher->get('pageLimit');
 
@@ -83,6 +86,9 @@ class AdminMaterialController extends SandboxRestController
     public function getMaterialByIdAction(
         $id
     ) {
+        // check user permission
+        $this->checkAdminMaterialPermission(AdminPermission::OP_LEVEL_VIEW);
+
         $material = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Material\CommnueMaterial')
             ->find($id);
@@ -109,6 +115,9 @@ class AdminMaterialController extends SandboxRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // check user permission
+        $this->checkAdminMaterialPermission(AdminPermission::OP_LEVEL_EDIT);
+
         $material = new CommnueMaterial();
 
         $form = $this->createForm(new CommnueMaterialType(), $material);
@@ -143,6 +152,9 @@ class AdminMaterialController extends SandboxRestController
         Request $request,
         $id
     ) {
+        // check user permission
+        //$this->checkAdminMaterialPermission(AdminPermission::OP_LEVEL_EDIT);
+
         $material = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Material\CommnueMaterial')
             ->find($id);
@@ -180,6 +192,9 @@ class AdminMaterialController extends SandboxRestController
     public function deleteMaterialAction(
         $id
     ) {
+        // check user permission
+        $this->checkAdminMaterialPermission(AdminPermission::OP_LEVEL_EDIT);
+
         $material = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Material\CommnueMaterial')
             ->find($id);
@@ -203,7 +218,7 @@ class AdminMaterialController extends SandboxRestController
         $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             [
-                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_BANNER],
+                ['key' => AdminPermission::KEY_COMMNUE_PLATFORM_MATERIAL],
             ],
             $opLevel
         );
