@@ -5,9 +5,6 @@ if [ -z "$TZ" ]; then
 fi
 ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && echo "${TZ}" > /etc/timezone
 
-mkdir /var/log/nginx/error  /var/log/nginx/access
-touch /var/log/nginx/error/error.log /var/log/nginx/access/access.log
-
 # Enable write permission for folder
 chmod 777 web/
 
