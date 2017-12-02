@@ -29,7 +29,7 @@ use Sandbox\ApiBundle\Traits\WeChatApi;
  * @author   Yimo Zhang <yimo.zhang@Sandbox.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 class ClientUserLoginController extends UserLoginController
 {
@@ -282,7 +282,7 @@ class ClientUserLoginController extends UserLoginController
         $authString = base64_decode($auth, true);
         $authArray = explode(':', $authString);
 
-        if (count($authArray) != 2) {
+        if (2 != count($authArray)) {
             throw new UnauthorizedHttpException(self::UNAUTHED_API_CALL);
         }
 

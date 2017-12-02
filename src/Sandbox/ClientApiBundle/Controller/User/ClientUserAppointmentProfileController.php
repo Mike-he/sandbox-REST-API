@@ -22,7 +22,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  * @author   Leo Xu
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 class ClientUserAppointmentProfileController extends LocationController
 {
@@ -170,7 +170,7 @@ class ClientUserAppointmentProfileController extends LocationController
         return new View();
     }
 
- /********************** PRIVATE FUNCTIONS ******************************************/
+    /********************** PRIVATE FUNCTIONS ******************************************/
 
     /**
      * @param UserAppointmentProfile $profile
