@@ -24,14 +24,14 @@ class FeedLike
     /**
      * @var int
      *
-     * @ORM\Column(name="feed_id", type="integer")
+     * @ORM\Column(name="feedId", type="integer")
      */
     private $feedId;
 
     /**
      * @var int
      *
-     * @ORM\Column(name="author_id", type="integer")
+     * @ORM\Column(name="authorId", type="integer")
      */
     private $authorId;
 
