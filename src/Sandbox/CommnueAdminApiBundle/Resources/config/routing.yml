@@ -24,6 +24,11 @@ commnue_admin_advertising_middle_controller:
     type:     annotation
     prefix:   /
 
+commnue_admin_advertising_micro_controller:
+    resource: "@CommnueAdminApiBundle/Controller/Advertising/AdminAdvertisingMicroController.php"
+    type:     annotation
+    prefix:   /
+
 commnue_admin_advertising_material_controller:
     resource: "@CommnueAdminApiBundle/Controller/Advertising/AdminMaterialController.php"
     type:     annotation

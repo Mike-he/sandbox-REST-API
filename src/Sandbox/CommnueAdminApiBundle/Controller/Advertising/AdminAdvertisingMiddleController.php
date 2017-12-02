@@ -2,12 +2,14 @@
 
 namespace Sandbox\CommnueAdminApiBundle\Controller\Advertising;
 
-use Sandbox\ApiBundle\Controller\Banner\BannerController;
-use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Sandbox\ApiBundle\Controller\Advertising\AdvertisingController;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Entity\Advertising\CommnueAdvertisingMiddle;
+use Sandbox\ApiBundle\Entity\Material\CommnueMaterial;
+use Sandbox\ApiBundle\Form\Advertising\AdvertisingPositionType;
 use Sandbox\ApiBundle\Form\Advertising\CommnueAdvertisingMiddlePatchType;
 use Sandbox\ApiBundle\Form\Advertising\CommnueAdvertisingMiddleType;
+use Sandbox\CommnueAdminApiBundle\Data\Advertising\AdvertisingPosition;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,7 +20,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Rs\Json\Patch;
 
-class AdminAdvertisingMiddleController extends BannerController
+class AdminAdvertisingMiddleController extends AdvertisingController
 {
     /**
      * Get Advertising Middle List
@@ -33,7 +35,7 @@ class AdminAdvertisingMiddleController extends BannerController
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
-     *    description="How many banners to return per page"
+     *    description="How many advertising middles to return per page"
      * )
      *
      * @Annotations\QueryParam(
@@ -46,6 +48,13 @@ class AdminAdvertisingMiddleController extends BannerController
      *    description="page number "
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="search",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
      * @Route("/advertising/middles")
      * @Method({"GET"})
      *
@@ -55,12 +64,16 @@ class AdminAdvertisingMiddleController extends BannerController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // check user permission
+        $this->checkAdminAdvertisementPermission(AdminPermission::OP_LEVEL_VIEW);
+
         $pageIndex = $paramFetcher->get('pageIndex');
         $pageLimit = $paramFetcher->get('pageLimit');
+        $search = $paramFetcher->get('search');
 
         $middles = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Advertising\CommnueAdvertisingMiddle')
-            ->findAll();
+            ->getMiddleList($search);
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
@@ -87,6 +100,9 @@ class AdminAdvertisingMiddleController extends BannerController
     public function getAdvertisingMiddleByIdAction(
         $id
     ) {
+        // check user permission
+        $this->checkAdminAdvertisementPermission(AdminPermission::OP_LEVEL_VIEW);
+
         $middle = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Advertising\CommnueAdvertisingMiddle')
             ->find($id);
@@ -110,6 +126,9 @@ class AdminAdvertisingMiddleController extends BannerController
     public function postAdvertisingMiddleAction(
         Request $request
     ) {
+        // check user permission
+        $this->checkAdminAdvertisementPermission(AdminPermission::OP_LEVEL_EDIT);
+
         $middle = new CommnueAdvertisingMiddle();
         $form = $this->createForm(new CommnueAdvertisingMiddleType(), $middle);
         $form->handleRequest($request);
@@ -120,7 +139,7 @@ class AdminAdvertisingMiddleController extends BannerController
 
         $url = $form['url']->getData();
 
-        return $this->handleBannerPost(
+        return $this->handleMiddlePost(
             $middle,
             $url
         );
@@ -141,6 +160,9 @@ class AdminAdvertisingMiddleController extends BannerController
         Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkAdminAdvertisementPermission(AdminPermission::OP_LEVEL_EDIT);
+
        $middle = $this->getDoctrine()
            ->getRepository('SandboxApiBundle:Advertising\CommnueAdvertisingMiddle')
            ->find($id);
@@ -166,7 +188,7 @@ class AdminAdvertisingMiddleController extends BannerController
      *
      * @param $id
      *
-     * @Route("/advertising/middle/{id}")
+     * @Route("/advertising/middles/{id}")
      * @Method({"DELETE"})
      *
      * @return View
@@ -174,8 +196,11 @@ class AdminAdvertisingMiddleController extends BannerController
     public function deleteAdvertisingMiddleAction(
         $id
     ) {
+        // check user permission
+        $this->checkAdminAdvertisementPermission(AdminPermission::OP_LEVEL_EDIT);
+
         $middle = $this->getDoctrine()
-            ->getRepository('Advertising\CommnueAdvertisingMiddle')
+            ->getRepository('SandboxApiBundle:Advertising\CommnueAdvertisingMiddle')
             ->find($id);
 
         $this->throwNotFoundIfNull($middle, self::NOT_FOUND_MESSAGE);
@@ -189,11 +214,43 @@ class AdminAdvertisingMiddleController extends BannerController
     }
 
     /**
+     * @param Request $request
+     * @param $id
+     *
+     * @Route("/advertising/middles/{id}/position")
+     * @Method({"POST"})
+     *
+     * @return View
+     */
+    public function changeMiddlePositionAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->checkAdminAdvertisementPermission(AdminPermission::OP_LEVEL_EDIT);
+
+        $middle = $this->getRepo('Advertising\CommnueAdvertisingMiddle')->find($id);
+        $this->throwNotFoundIfNull($middle, self::NOT_FOUND_MESSAGE);
+        $position = new AdvertisingPosition();
+        $form = $this->createForm(new AdvertisingPositionType(), $position);
+        $form->handleRequest($request);
+
+        if (!$form->isValid()) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        return $this->updateAdvertisingMiddlePosition(
+            $middle,
+            $position
+        );
+    }
+
+    /**
      * @param CommnueAdvertisingMiddle $middle
      * @param $url
      * @return View
      */
-    private function handleBannerPost(
+    private function handleMiddlePost(
         $middle,
         $url
     ) {
@@ -202,9 +259,11 @@ class AdminAdvertisingMiddleController extends BannerController
         $source = $middle->getSource();
         $sourceId = $middle->getSourceId();
 
-        $sourceArray = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Material\CommnueMaterial')
-            ->getCategory();
+        $sourceArray = [
+            CommnueMaterial::SOURCE_NEWS,
+            CommnueMaterial::SOURCE_ANNOUNCEMENT,
+            CommnueMaterial::SOURCE_INSTRUCTION
+        ];
 
         switch ($source) {
             case CommnueAdvertisingMiddle::SOURCE_EVENT:
@@ -254,8 +313,8 @@ class AdminAdvertisingMiddleController extends BannerController
             if (!is_null($existMiddle)) {
                 return $this->customErrorView(
                     400,
-                    self::BANNER_ALREADY_EXIST_CODE,
-                    self::BANNER_ALREADY_EXIST_MESSAGE
+                    self::ADVERTISEMENT_ALREADY_EXIST_CODE,
+                    self::ADVERTISEMENT_ALREADY_EXIST_MESSAGE
                 );
             }
         }
@@ -330,4 +389,70 @@ class AdminAdvertisingMiddleController extends BannerController
         return $existMiddle;
     }
 
+    /**
+     * @param CommnueAdvertisingMiddle         $middle
+     * @param AdvertisingPosition $position
+     *
+     * @return View
+     */
+    private function updateAdvertisingMiddlePosition(
+        $middle,
+        $position
+    ) {
+        $action = $position->getAction();
+
+        if ($action == AdvertisingPosition::ACTION_TOP) {
+            $middle->setSortTime(round(microtime(true) * 1000));
+        } elseif (
+            $action == AdvertisingPosition::ACTION_UP ||
+            $action == AdvertisingPosition::ACTION_DOWN
+        ) {
+            $this->swapAdvertisingMiddlePosition(
+                $middle,
+                $action
+            );
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        return new View();
+    }
+
+    /**
+     * @param CommnueAdvertisingMiddle         $middle
+     * @param string $action
+     */
+    private function swapAdvertisingMiddlePosition(
+        $middle,
+        $action
+    ) {
+        $sortTime = $middle->getSortTime();
+        $swapMiddle = $this->getRepo('Advertising\CommnueAdvertisingMiddle')->findSwapMiddle(
+            $sortTime,
+            $action
+        );
+
+        if (!is_null($swapMiddle)) {
+            $swapSortTime = $swapMiddle->getSortTime();
+            $middle->setSortTime($swapSortTime);
+            $swapMiddle->setSortTime($sortTime);
+        }
+    }
+
+    /**
+     * Check user permission.
+     *
+     * @param int $opLevel
+     */
+    private function checkAdminAdvertisementPermission($opLevel)
+    {
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
+            $this->getAdminId(),
+            [
+                ['key' => AdminPermission::KEY_COMMNUE_PLATFORM_ADVERTISEMENT],
+            ],
+            $opLevel
+        );
+    }
 }
