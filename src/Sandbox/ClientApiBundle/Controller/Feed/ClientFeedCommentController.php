@@ -26,7 +26,7 @@ use Sandbox\ApiBundle\Traits\FeedNotification;
  * @author   Sergi Uceda <sergiu@gobeta.com.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 class ClientFeedCommentController extends FeedCommentController
 {

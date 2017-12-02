@@ -16,16 +16,6 @@ use Sandbox\ApiBundle\Entity\Feed\Feed;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Traits\FeedNotification;
 
-/**
- * Manipulate the likes of a feed.
- *
- * @category Sandbox
- *
- * @author   Sergi Uceda
- * @license  http://www.Sandbox.cn/ Proprietary
- *
- * @link     http://www.Sandbox.cn/
- */
 class ClientFeedLikeController extends FeedLikeController
 {
     use FeedNotification;
@@ -33,8 +23,8 @@ class ClientFeedLikeController extends FeedLikeController
     /**
      * Get all likes of a given feed.
      *
-     * @param Request               $request      the request object
-     * @param int                   $id           the feed id
+     * @param Request $request the request object
+     * @param int     $id      the feed id
      *
      * @Route("/feeds/{id}/likes")
      * @Method({"GET"})
@@ -78,7 +68,6 @@ class ClientFeedLikeController extends FeedLikeController
         $id
     ) {
         $myUserId = $this->getUserId();
-        $myUser = $this->getRepo('User\User')->find($myUserId);
 
         $feed = $this->getRepo('Feed\Feed')->find($id);
         $this->throwNotFoundIfNull($feed, self::NOT_FOUND_MESSAGE);
@@ -91,7 +80,7 @@ class ClientFeedLikeController extends FeedLikeController
 
         if (is_null($like)) {
             // create like
-            $like = $this->createLike($feed, $myUser);
+            $like = $this->createLike($id, $myUserId);
 
 //            if ($myUser != $feed->getOwner()) {
 //                // send notification
