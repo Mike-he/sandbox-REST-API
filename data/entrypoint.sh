@@ -5,28 +5,11 @@ if [ -z "$TZ" ]; then
 fi
 ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && echo "${TZ}" > /etc/timezone
 
-cd /var/www/sandbox-REST-API
+mkdir /var/log/nginx/error  /var/log/nginx/access
+touch /var/log/nginx/error/error.log /var/log/nginx/access/access.log
 
 # Enable write permission for folder
 chmod 777 web/
-
-# Copy pdf bin
-cp data/pdf_bin/* /usr/bin/ && chmod +x /usr/bin/wkhtmltopdf
-
-# Copy composer on system and install it globally
-cp data/composer.phar /usr/local/bin/composer && chmod +x /usr/local/bin/composer
-
-# Remove default nginx conf
-rm -rf /etc/nginx/sites-available/default
-
-# Copy Nginx conf
-cp data/sandbox.conf /etc/nginx/conf.d/sandbox.conf
-
-# Copy php-fpm conf
-cp data/www.conf /etc/php5/fpm/pool.d/www.conf
-
-mkdir /var/log/nginx/error  /var/log/nginx/access
-touch /var/log/nginx/error/error.log /var/log/nginx/access/access.log
 
 if [ ! -z "$ENV" ]; then
  cp app/config/parameters_${ENV}.yml.dist app/config/parameters.yml

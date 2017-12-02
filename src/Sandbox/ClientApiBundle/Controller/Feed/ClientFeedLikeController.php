@@ -145,8 +145,8 @@ class ClientFeedLikeController extends FeedLikeController
     ) {
         // set new like
         $like = new FeedLike();
-        $like->setFeed($feed);
-        $like->setAuthor($myUser);
+        $like->setFeedId($feed);
+        $like->setAuthorId($myUser);
         $like->setCreationDate(new \DateTime('now'));
 
         // save to db
