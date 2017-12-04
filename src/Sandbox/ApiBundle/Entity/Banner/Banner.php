@@ -17,7 +17,7 @@ class Banner
     const SOURCE_NEWS = 'news';
     const SOURCE_URL = 'url';
     const SOURCE_BLANK_BLOCK = 'blank_block';
-
+    const SOURCE_ADVERTISING = 'advertising';
     /**
      * @var int
      *
@@ -128,6 +128,11 @@ class Banner
      * @Serializer\Groups({"main"})
      */
     private $modificationDate;
+
+    /**
+     * @var string
+     */
+    private $sourceCat;
 
     /**
      * Get id.
@@ -377,6 +382,30 @@ class Banner
     public function getModificationDate()
     {
         return $this->modificationDate;
+    }
+
+    /**
+     * Set source_cat.
+     *
+     * @param string $sourceCat
+     *
+     * @return Banner
+     */
+    public function setSourceCat($sourceCat)
+    {
+        $this->sourceCat = $sourceCat;
+
+        return $this;
+    }
+
+    /**
+     * Get source_cat.
+     *
+     * @return string
+     */
+    public function getSourceCat()
+    {
+        return $this->sourceCat;
     }
 
     public function __construct()

@@ -16,6 +16,7 @@ class CommnueMaterial
     const SOURCE_NEWS = 'news';
     const SOURCE_ANNOUNCEMENT = 'announcement';
     const SOURCE_INSTRUCTION = 'instruction';
+    const SOURCE_ADVERTISING = 'advertising';
     /**
      * @var integer
      *

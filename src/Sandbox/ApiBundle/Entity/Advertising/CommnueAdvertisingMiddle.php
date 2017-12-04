@@ -92,6 +92,11 @@ class CommnueAdvertisingMiddle
      */
     private $modificationDate;
 
+    /**
+     * @var string
+     */
+    private $sourceCat;
+
 
     /**
      * Get id
@@ -310,6 +315,29 @@ class CommnueAdvertisingMiddle
         return $this->modificationDate;
     }
 
+    /**
+     * Set source_cat.
+     *
+     * @param string $sourceCat
+     *
+     * @return Banner
+     */
+    public function setSourceCat($sourceCat)
+    {
+        $this->sourceCat = $sourceCat;
+
+        return $this;
+    }
+
+    /**
+     * Get source_cat.
+     *
+     * @return string
+     */
+    public function getSourceCat()
+    {
+        return $this->sourceCat;
+    }
     public function __construct()
     {
         $this->setSortTime(round(microtime(true) * 1000));
