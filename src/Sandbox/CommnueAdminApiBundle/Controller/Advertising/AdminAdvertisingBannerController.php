@@ -5,7 +5,6 @@ namespace Sandbox\CommnueAdminApiBundle\Controller\Advertising;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\AdminApiBundle\Data\Banner\BannerPosition;
 use Sandbox\ApiBundle\Controller\Advertising\AdvertisingController;
-use Sandbox\ApiBundle\Controller\Banner\BannerController;
 use Sandbox\ApiBundle\Entity\Banner\Banner;
 use Sandbox\ApiBundle\Entity\Banner\BannerTag;
 use Sandbox\ApiBundle\Entity\Material\CommnueMaterial;
@@ -22,7 +21,6 @@ use FOS\RestBundle\View\View;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Rs\Json\Patch;
-use Sandbox\ApiBundle\Form\Banner\BannerPositionType;
 
 class AdminAdvertisingBannerController extends AdvertisingController
 {

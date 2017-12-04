@@ -752,4 +752,11 @@ class RoomBuildingRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    public function getAllRoomBuildings(
+        $search
+    ) {
+        $query = $this->createQueryBuilder('rb')
+            ->leftJoin('SandboxApiBundle:Room\Room','r','WITH','rb.id = r.building');
+    }
 }
