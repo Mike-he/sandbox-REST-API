@@ -282,6 +282,7 @@ class AdminAdvertisingBannerController extends AdvertisingController
 
         $source = $banner->getSource();
         $sourceId = $banner->getSourceId();
+        $sourceCat = $banner->getSourceCat();
 
         $tag = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Banner\BannerTag')
@@ -289,53 +290,38 @@ class AdminAdvertisingBannerController extends AdvertisingController
 
         $banner->setTag($tag);
 
-        $sourceArray = [
-            CommnueMaterial::SOURCE_NEWS,
-            CommnueMaterial::SOURCE_ANNOUNCEMENT,
-            CommnueMaterial::SOURCE_INSTRUCTION
-        ];
-
-        switch ($source) {
-            case Banner::SOURCE_EVENT:
-                $this->setBannerContentForEvent(
-                    $banner,
-                    $sourceId
-                );
-                break;
-            case in_array($source, $sourceArray):
-                $this->setBannerContentForMaterial(
-                    $banner,
-                    $sourceId
-                );
-
-                break;
-            case Banner::SOURCE_URL:
-                if (is_null($url) || empty($url)) {
-                    return $this->customErrorView(
-                        400,
-                        self::URL_NULL_CODE,
-                        self::URL_NULL_MESSAGE
-                    );
-                }
+       switch ($source) {
+           case Banner::SOURCE_URL:
+               if (is_null($url) || empty($url)) {
+               return $this->customErrorView(
+               400,
+               self::URL_NULL_CODE,
+               self::URL_NULL_MESSAGE
+               );
+               }
                 $banner->setContent($url);
 
                 break;
-            case Banner::SOURCE_BLANK_BLOCK:
-                break;
-            default:
-                return $this->customErrorView(
-                    400,
-                    self::WRONG_SOURCE_CODE,
-                    self::WRONG_SOURCE_MESSAGE
-                );
+           case Banner::SOURCE_BLANK_BLOCK:
+               break;
+           case 'material':
+               $this->handleMaterial($banner, $sourceCat, $sourceId);
 
-                break;
-        }
+               break;
+           default:
+               return $this->customErrorView(
+                   400,
+                   self::WRONG_SOURCE_CODE,
+                   self::WRONG_SOURCE_MESSAGE
+               );
+
+               break;
+       }
 
         // check if banner already exists
         if ($source != Banner::SOURCE_BLANK_BLOCK) {
             $existBanner = $this->getExistingBanner(
-                $source,
+                $sourceCat,
                 $sourceId,
                 $url
             );
@@ -355,6 +341,49 @@ class AdminAdvertisingBannerController extends AdvertisingController
         return new View(array(
             'id' => $banner->getId(),
         ));
+    }
+
+    /**
+     * @param Banner $banner
+     * @param $sourceCat
+     * @param $sourceId
+     *
+     * @return View
+     */
+    private function handleMaterial(
+        $banner,
+        $sourceCat,
+        $sourceId
+    ) {
+        $sourceArray = [
+            CommnueMaterial::SOURCE_NEWS,
+            CommnueMaterial::SOURCE_ANNOUNCEMENT,
+            CommnueMaterial::SOURCE_INSTRUCTION
+        ];
+
+        $banner->setSource($sourceCat);
+
+        switch($sourceCat){
+            case Banner::SOURCE_EVENT:
+                $this->setBannerContentForEvent(
+                    $banner,
+                    $sourceId
+                );
+                break;
+            case in_array($sourceCat, $sourceArray):
+                $this->setBannerContentForMaterial(
+                    $banner,
+                    $sourceId
+                );
+                break;
+            default:
+                return $this->customErrorView(
+                    400,
+                    self::WRONG_SOURCE_CODE,
+                    self::WRONG_SOURCE_MESSAGE
+                );
+                break;
+        }
     }
 
     /**

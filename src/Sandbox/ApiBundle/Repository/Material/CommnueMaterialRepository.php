@@ -20,4 +20,24 @@ class CommnueMaterialRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param null $category
+     * @return array
+     */
+    public function getMaterials(
+        $category=null
+    ) {
+        $query = $this->createQueryBuilder('cm')
+            ->where('1=1');
+
+        if(!is_null($category)){
+            $query->andWhere('cm.category = :category')
+                ->setParameter('category',$category);
+        }
+
+        $query->orderBy('cm.creationDate','DESC');
+
+        return $query->getQuery()->getResult();
+    }
 }

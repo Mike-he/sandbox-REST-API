@@ -19,6 +19,12 @@ class BannerType extends AbstractType
             ->add('tag_id')
             ->add('subtitle')
             ->add('source', 'text')
+            ->add('source_cat',
+                'text',
+                array(
+                    'required' => false
+                )
+            )
             ->add(
                 'source_id',
                 'integer',

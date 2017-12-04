@@ -44,6 +44,14 @@ class AdminMaterialController extends SandboxRestController
      *    description="page number "
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="category",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    description="material category "
+     * )
+     *
      * @Route("/advertising/materials")
      * @Method({"GET"})
      *
@@ -54,14 +62,15 @@ class AdminMaterialController extends SandboxRestController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-       // $this->checkAdminMaterialPermission(AdminPermission::OP_LEVEL_VIEW);
+        $this->checkAdminMaterialPermission(AdminPermission::OP_LEVEL_VIEW);
 
         $pageIndex = $paramFetcher->get('pageIndex');
         $pageLimit = $paramFetcher->get('pageLimit');
+        $category = $paramFetcher->get('category');
 
         $materials = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Material\CommnueMaterial')
-            ->findAll();
+            ->getMaterials($category);
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(

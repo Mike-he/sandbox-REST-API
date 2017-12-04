@@ -19,6 +19,12 @@ class CommnueAdvertisingMiddleType extends AbstractType
             ->add('sub_title')
             ->add('cover')
             ->add('source')
+            ->add('source_cat',
+                'text',
+                array(
+                    'required' => false
+                )
+            )
             ->add(
                 'source_id',
                 'integer',
