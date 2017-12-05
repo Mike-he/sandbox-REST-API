@@ -6,7 +6,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
-class BannerPatchType extends AbstractType
+class CommnueBannerType extends AbstractType
 {
     /**
      * @param FormBuilderInterface $builder
@@ -15,9 +15,28 @@ class BannerPatchType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('title')
-            ->add('cover')
-            ->add('subtitle')
+            ->add('title', 'text')
+            ->add('source', 'text')
+            ->add('source_cat',
+                'text',
+                array(
+                    'required' => false
+                )
+            )
+            ->add(
+                'source_id',
+                'integer',
+                array('required' => false)
+            )
+            ->add(
+                'url',
+                'url',
+                array(
+                    'required' => false,
+                    'mapped' => false,
+                )
+            )
+            ->add('cover', 'text')
         ;
     }
 
@@ -27,7 +46,7 @@ class BannerPatchType extends AbstractType
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Sandbox\ApiBundle\Entity\Banner\Banner',
+            'data_class' => 'Sandbox\ApiBundle\Entity\Banner\CommnueBanner',
         ));
     }
 
