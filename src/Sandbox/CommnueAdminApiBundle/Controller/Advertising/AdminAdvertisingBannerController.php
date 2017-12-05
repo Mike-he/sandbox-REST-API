@@ -58,7 +58,7 @@ class AdminAdvertisingBannerController extends AdvertisingController
      *    description="search query"
      * )
      *
-     * @Route("/advertising/banners")
+     * @Route("/commercial/banners")
      * @Method({"GET"})
      *
      * @return View
@@ -96,7 +96,7 @@ class AdminAdvertisingBannerController extends AdvertisingController
      *
      * @param $id
      *
-     * @Route("/advertising/banners/{id}")
+     * @Route("/commercial/banners/{id}")
      * @Method({"GET"})
      *
      * @return View
@@ -124,7 +124,7 @@ class AdminAdvertisingBannerController extends AdvertisingController
      * @param Request $request
      * @param ParamFetcherInterface $paramFetcher
      *
-     * @Route("/advertising/banners")
+     * @Route("/commercial/banners")
      * @Method({"POST"})
      *
      * @return View
@@ -161,7 +161,7 @@ class AdminAdvertisingBannerController extends AdvertisingController
      * @param Request $request
      * @param int     $id
      *
-     * @Route("/advertising/banners/{id}")
+     * @Route("/commercial/banners/{id}")
      * @Method({"PATCH"})
      *
      * @return View
@@ -198,7 +198,7 @@ class AdminAdvertisingBannerController extends AdvertisingController
      *
      * @param $id
      *
-     * @Route("/advertising/banners/{id}")
+     * @Route("/commercial/banners/{id}")
      * @Method({"DELETE"})
      *
      * @return View
@@ -207,7 +207,7 @@ class AdminAdvertisingBannerController extends AdvertisingController
         $id
     ) {
         // check user permission
-       // $this->checkAdminBannerPermission(AdminPermission::OP_LEVEL_EDIT);
+        $this->checkAdminBannerPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $banner = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Banner\CommnueBanner')
@@ -227,7 +227,7 @@ class AdminAdvertisingBannerController extends AdvertisingController
      * @param Request $request
      * @param $id
      *
-     * @Route("/advertising/banners/{id}/position")
+     * @Route("/commercial/banners/{id}/position")
      * @Method({"POST"})
      * @return mixed
      */

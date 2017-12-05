@@ -55,7 +55,7 @@ class AdminAdvertisingMiddleController extends AdvertisingController
      *    description="search query"
      * )
      *
-     * @Route("/advertising/middles")
+     * @Route("/commercial/middles")
      * @Method({"GET"})
      *
      * @return View
@@ -90,7 +90,7 @@ class AdminAdvertisingMiddleController extends AdvertisingController
      *
      * @param $id
      *
-     * @Route("/advertising/middles/{id}")
+     * @Route("/commercial/middles/{id}")
      * @Method({"GET"})
      *
      * @return View
@@ -117,7 +117,7 @@ class AdminAdvertisingMiddleController extends AdvertisingController
      *
      * @param Request $request
      *
-     * @Route("/advertising/middles")
+     * @Route("/commercial/middles")
      * @Method({"POST"})
      *
      * @return View
@@ -151,7 +151,7 @@ class AdminAdvertisingMiddleController extends AdvertisingController
      * @param Request $request
      * @param $id
      *
-     * @Route("/advertising/middles/{id}")
+     * @Route("/commercial/middles/{id}")
      * @Method({"PATCH"})
      *
      * @return View
@@ -188,7 +188,7 @@ class AdminAdvertisingMiddleController extends AdvertisingController
      *
      * @param $id
      *
-     * @Route("/advertising/middles/{id}")
+     * @Route("/commercial/middles/{id}")
      * @Method({"DELETE"})
      *
      * @return View
@@ -217,7 +217,7 @@ class AdminAdvertisingMiddleController extends AdvertisingController
      * @param Request $request
      * @param $id
      *
-     * @Route("/advertising/middles/{id}/position")
+     * @Route("/commercial/middles/{id}/position")
      * @Method({"POST"})
      *
      * @return View

@@ -52,7 +52,7 @@ class AdminMaterialController extends SandboxRestController
      *    description="material category "
      * )
      *
-     * @Route("/advertising/materials")
+     * @Route("/commercial/materials")
      * @Method({"GET"})
      *
      * @return View
@@ -87,7 +87,7 @@ class AdminMaterialController extends SandboxRestController
      *
      * @param $id
      *
-     * @Route("/advertising/materials/{id}")
+     * @Route("/commercial/materials/{id}")
      * @Method({"GET"})
      *
      * @return View
@@ -113,7 +113,7 @@ class AdminMaterialController extends SandboxRestController
      * @param Request $request
      * @param ParamFetcherInterface $paramFetcher
      *
-     * @Route("/advertising/materials")
+     * @Route("/commercial/materials")
      * @Method({"POST"})
      *
      * @return View
@@ -150,7 +150,7 @@ class AdminMaterialController extends SandboxRestController
      * @param Request $request
      * @param $id
      *
-     * @Route("/advertising/materials/{id}")
+     * @Route("/commercial/materials/{id}")
      * @Method({"PUT"})
      *
      * @return View
@@ -162,7 +162,7 @@ class AdminMaterialController extends SandboxRestController
         $id
     ) {
         // check user permission
-        //$this->checkAdminMaterialPermission(AdminPermission::OP_LEVEL_EDIT);
+        $this->checkAdminMaterialPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $material = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Material\CommnueMaterial')
@@ -193,7 +193,7 @@ class AdminMaterialController extends SandboxRestController
      *
      * @param $id
      *
-     * @Route("/advertising/material/{id}")
+     * @Route("/commercial/material/{id}")
      * @Method({"DELETE"})
      *
      * @return View
