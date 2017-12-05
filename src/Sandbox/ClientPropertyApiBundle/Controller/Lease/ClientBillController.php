@@ -358,6 +358,10 @@ class ClientBillController extends SalesRestController
                     'name' => $customer ? $customer->getName() : '',
                     'avatar' => $customer ? $customer->getAvatar() : '',
                 ),
+                'lease' => array(
+                    'start_date' => $lease->getStartDate(),
+                    'end_date' => $lease->getEndDate(),
+                ),
                 'room_attachment' => $roomAttachment,
             ];
         }
