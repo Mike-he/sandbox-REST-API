@@ -193,7 +193,7 @@ class AdminMaterialController extends SandboxRestController
      *
      * @param $id
      *
-     * @Route("/commercial/material/{id}")
+     * @Route("/commercial/materials/{id}")
      * @Method({"DELETE"})
      *
      * @return View
