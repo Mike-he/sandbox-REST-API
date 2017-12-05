@@ -25,12 +25,12 @@ class AdminUserController extends SandboxRestController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="authorized",
+     *    name="authenticate",
      *    array=false,
      *    default=null,
      *    nullable=true,
      *    strict=true,
-     *    description="user authorized"
+     *    description="user authenticate"
      * )
      *
      * @Annotations\QueryParam(
@@ -70,6 +70,26 @@ class AdminUserController extends SandboxRestController
      *    default=null
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many rooms to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number "
+     * )
+     *
      * @Route("/users")
      * @Method({"GET"})
      *
@@ -79,8 +99,12 @@ class AdminUserController extends SandboxRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+        $offset = ($pageIndex - 1) * $pageLimit;
+
         $banned = $paramFetcher->get('banned');
-        $authorized = $paramFetcher->get('authorized');
+        $authenticated = $paramFetcher->get('authenticate');
         $startDate = $paramFetcher->get('startDate');
         $endDate = $paramFetcher->get('endDate');
         $name = $paramFetcher->get('name');
@@ -89,12 +113,12 @@ class AdminUserController extends SandboxRestController
         $id = $paramFetcher->get('id');
 
         $userIds = null;
-        if (!is_null($banned) || !is_null($authorized)) {
+        if (!is_null($banned) || !is_null($authenticated)) {
             $commnueUserIds = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Commnue\CommnueUser')
                 ->getAdminCommnueUserIds(
                     $banned,
-                    $authorized
+                    $authenticated
                 );
 
             $userIds = $commnueUserIds;
@@ -103,6 +127,20 @@ class AdminUserController extends SandboxRestController
         $users = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserView')
             ->getAdminCommnueUsers(
+                $startDate,
+                $endDate,
+                $name,
+                $phone,
+                $email,
+                $id,
+                $userIds,
+                $pageLimit,
+                $offset
+            );
+
+        $usersCount = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserView')
+            ->countAdminCommnueUsers(
                 $startDate,
                 $endDate,
                 $name,
@@ -129,6 +167,8 @@ class AdminUserController extends SandboxRestController
                     $user['authenticated'] = true;
                     $user['authentication_tag']['icon_url'] = $commnueUserAuthTag->getIconUrl();
                     $user['authentication_tag']['name'] = $commnueUserAuthTag->getName();
+                } else {
+                    $user['authenticated'] = false;
                 }
 
                 $user['is_banned'] = $commnueUser->getIsBanned();
@@ -144,6 +184,11 @@ class AdminUserController extends SandboxRestController
             array_push($response, $user);
         }
 
-        return new View($response);
+        return new View([
+            'current_page_number' => (int) $pageIndex,
+            'num_items_per_page' => (int) $pageLimit,
+            'items' => $response,
+            'total_count' => $usersCount,
+        ]);
     }
 }
