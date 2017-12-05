@@ -524,7 +524,7 @@ class ClientUserPasswordController extends UserPasswordController
                 $password
             );
 
-        $this->get('sandbox_api.jmessage_commnue')
+        $commnueResult = $this->get('sandbox_api.jmessage_commnue')
             ->updatePassword(
                 $user->getXmppUsername(),
                 $password
@@ -533,12 +533,11 @@ class ClientUserPasswordController extends UserPasswordController
         if (204 != $result['http_code']) {
             $errorLogDir = $this->getParameter('error_log_dir');
             error_log('[jiguang]'.$result, 3, $errorLogDir);
+        }
 
-//            return $this->customErrorView(
-//                400,
-//                self::ERROR_JMESSAGE_SYNC_FAIL_CODE,
-//                self::ERROR_JMESSAGE_SYNC_FAIL_MESSAGE
-//            );
+        if (204 != $commnueResult['http_code']) {
+            $errorLogDir = $this->getParameter('error_log_dir');
+            error_log('[jiguang]'.$commnueResult, 3, $errorLogDir);
         }
 
         $em = $this->getDoctrine()->getManager();
