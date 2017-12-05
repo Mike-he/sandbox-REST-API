@@ -652,6 +652,8 @@ class UserViewRepository extends EntityRepository
      * @param $email
      * @param $id
      * @param $userIds
+     * @param $limit
+     * @param $offset
      *
      * @return array
      */
@@ -662,7 +664,9 @@ class UserViewRepository extends EntityRepository
         $phone,
         $email,
         $id,
-        $userIds
+        $userIds,
+        $limit,
+        $offset
     ) {
         $query = $this->createQueryBuilder('u')
             ->select('
@@ -709,6 +713,73 @@ class UserViewRepository extends EntityRepository
                 ->setParameter('ids', $userIds);
         }
 
+        if (!is_null($limit) && !is_null($offset)) {
+            $query->setFirstResult($offset)
+                ->setMaxResults($limit);
+        }
+
         return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @param $name
+     * @param $phone
+     * @param $email
+     * @param $id
+     * @param $userIds
+     *
+     * @return int
+     */
+    public function countAdminCommnueUsers(
+        $startDate,
+        $endDate,
+        $name,
+        $phone,
+        $email,
+        $id,
+        $userIds
+    ) {
+        $query = $this->createQueryBuilder('u')
+            ->select('COUNT(u)')
+            ->where('u.id IS NOT NULL');
+
+        if (!is_null($startDate)) {
+            $query->andWhere('u.userRegistrationDate >= :startDate')
+                ->setParameter('startDate', $startDate);
+        }
+
+        if (!is_null($endDate)) {
+            $query->andWhere('u.userRegistrationDate <= :endDate')
+                ->setParameter('endDate', $endDate);
+        }
+
+        if (!is_null($name)) {
+            $query->andWhere('u.name LIKE :name')
+                ->setParameter('name', '%'.$name.'%');
+        }
+
+        if (!is_null($phone)) {
+            $query->andWhere('u.phone LIKE :phone')
+                ->setParameter('phone', '%'.$phone.'%');
+        }
+
+        if (!is_null($phone)) {
+            $query->andWhere('u.email LIKE :email')
+                ->setParameter('email', '%'.$email.'%');
+        }
+
+        if (!is_null($id)) {
+            $query->andWhere('u.id = :id')
+                ->setParameter('id', $id);
+        }
+
+        if (!is_null($userIds)) {
+            $query->andWhere('u.id IN (:ids)')
+                ->setParameter('ids', $userIds);
+        }
+
+        return (int) $query->getQuery()->getSingleScalarResult();
     }
 }

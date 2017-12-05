@@ -8,16 +8,16 @@ class CommueUserRepository extends EntityRepository
 {
     /**
      * @param $banned
-     * @param $authorized
+     * @param $authenticated
      *
      * @return array
      */
     public function getAdminCommnueUserIds(
         $banned,
-        $authorized
+        $authenticated
     ) {
         $query = $this->createQueryBuilder('cu')
-            ->select('cu.id')
+            ->select('cu.userId')
             ->where('cu.id IS NOT NULL');
 
         if (!is_null($banned)) {
@@ -25,8 +25,8 @@ class CommueUserRepository extends EntityRepository
                 ->setParameter('banned', $banned);
         }
 
-        if (!is_null($authorized)) {
-            if ($authorized) {
+        if (!is_null($authenticated)) {
+            if ($authenticated) {
                 $query->andWhere('cu.authTagId IS NOT NULL');
             } else {
                 $query->andWhere('cu.authTagId IS NULL');
