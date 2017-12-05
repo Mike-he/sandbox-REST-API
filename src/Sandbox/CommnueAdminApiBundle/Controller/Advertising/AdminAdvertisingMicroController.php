@@ -53,7 +53,7 @@ class AdminAdvertisingMicroController extends AdvertisingController
      *    description="search query"
      * )
      *
-     * @Route("/advertising/micros")
+     * @Route("/commercial/micros")
      * @Method({"GET"})
      *
      * @return View
@@ -88,7 +88,7 @@ class AdminAdvertisingMicroController extends AdvertisingController
      *
      * @param $id
      *
-     * @Route("/advertising/micros/{id}")
+     * @Route("/commercial/micros/{id}")
      * @Method({"GET"})
      *
      * @return View
@@ -115,7 +115,7 @@ class AdminAdvertisingMicroController extends AdvertisingController
      *
      * @param Request $request
      *
-     * @Route("/advertising/micros")
+     * @Route("/commercial/micros")
      * @Method({"POST"})
      *
      * @return View
@@ -150,7 +150,7 @@ class AdminAdvertisingMicroController extends AdvertisingController
      * @param Request $request
      * @param $id
      *
-     * @Route("/advertising/micros/{id}")
+     * @Route("/commercial/micros/{id}")
      * @Method({"PUT"})
      *
      * @return View
@@ -191,7 +191,7 @@ class AdminAdvertisingMicroController extends AdvertisingController
      *
      * @param $id
      *
-     * @Route("/advertising/micro/{id}")
+     * @Route("/commercial/micro/{id}")
      * @Method({"DELETE"})
      *
      * @return View
@@ -220,7 +220,7 @@ class AdminAdvertisingMicroController extends AdvertisingController
      * @param Request $request
      * @param $id
      *
-     * @Route("/advertising/micros/{id}/position")
+     * @Route("/commercial/micros/{id}/position")
      * @Method({"POST"})
      *
      * @return View
