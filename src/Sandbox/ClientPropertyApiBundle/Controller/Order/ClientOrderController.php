@@ -325,19 +325,20 @@ class ClientOrderController extends OrderController
             $customer = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:User\UserCustomer')
                 ->find($order->getCustomerId());
+            if ($customer) {
+                $avatar = '';
+                if ($customer->getAvatar()) {
+                    $avatar = $customer->getAvatar();
+                } elseif ($customer->getUserId()) {
+                    $avatar = $this->getParameter('image_url').'/person/'.$customer->getUserId().'/avatar_small.jpg';
+                }
 
-            $avatar = '';
-            if ($customer->getAvatar()) {
-                $avatar = $customer->getAvatar();
-            } elseif ($customer->getUserId()) {
-                $avatar = $this->getParameter('image_url').'/person/'.$customer->getUserId().'/avatar_small.jpg';
+                $customerData = [
+                    'id' => $order->getCustomerId(),
+                    'name' => $customer->getName(),
+                    'avatar' => $avatar,
+                ];
             }
-
-            $customerData = [
-                'id' => $order->getCustomerId(),
-                'name' => $customer->getName(),
-                'avatar' => $avatar,
-            ];
         }
 
         $attachment = $this->getDoctrine()
