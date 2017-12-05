@@ -5,13 +5,12 @@ namespace Sandbox\CommnueAdminApiBundle\Controller\Advertising;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\AdminApiBundle\Data\Banner\BannerPosition;
 use Sandbox\ApiBundle\Controller\Advertising\AdvertisingController;
-use Sandbox\ApiBundle\Controller\Banner\BannerController;
 use Sandbox\ApiBundle\Entity\Banner\Banner;
-use Sandbox\ApiBundle\Entity\Banner\BannerTag;
+use Sandbox\ApiBundle\Entity\Banner\CommnueBanner;
 use Sandbox\ApiBundle\Entity\Material\CommnueMaterial;
 use Sandbox\ApiBundle\Form\Advertising\AdvertisingPositionType;
-use Sandbox\ApiBundle\Form\Banner\BannerPatchType;
-use Sandbox\ApiBundle\Form\Banner\BannerType;
+use Sandbox\ApiBundle\Form\Banner\CommnueBannerPatchType;
+use Sandbox\ApiBundle\Form\Banner\CommnueBannerType;
 use Sandbox\CommnueAdminApiBundle\Data\Advertising\AdvertisingPosition;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -27,7 +26,7 @@ use Sandbox\ApiBundle\Form\Banner\BannerPositionType;
 class AdminAdvertisingBannerController extends AdvertisingController
 {
     /**
-     * Get Banner List
+     * Get Commnue Banner List
      *
      * @param Request $request
      * @param ParamFetcherInterface $paramFetcher
@@ -77,17 +76,10 @@ class AdminAdvertisingBannerController extends AdvertisingController
         $search = $paramFetcher->get('search');
 
         $banners = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Banner\Banner')
+            ->getRepository('SandboxApiBundle:Banner\CommnueBanner')
             ->getAdminBannerList(
                 $search
             );
-
-        foreach ($banners as $banner) {
-            // translate tag name
-            $tagName = $banner->getTag()->getKey();
-            $trans = $this->get('translator')->trans($tagName);
-            $banner->getTag()->setName($trans);
-        }
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
@@ -100,7 +92,7 @@ class AdminAdvertisingBannerController extends AdvertisingController
     }
 
     /**
-     * Get Banner By Id
+     * Get Commnue Banner By Id
      *
      * @param $id
      *
@@ -118,21 +110,16 @@ class AdminAdvertisingBannerController extends AdvertisingController
         $this->checkAdminBannerPermission(AdminPermission::OP_LEVEL_VIEW);
 
         $banner = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Banner\Banner')
+            ->getRepository('SandboxApiBundle:Banner\CommnueBanner')
             ->find($id);
 
         $this->throwNotFoundIfNull($banner,self::NOT_FOUND_MESSAGE);
-
-        // translate tag name
-        $tag = $banner->getTag();
-        $trans = $this->container->get('translator')->trans($tag->getKey());
-        $tag->setName($trans);
 
         return new View($banner);
     }
 
     /**
-     * Create Banner
+     * Create Commnue Banner
      *
      * @param Request $request
      * @param ParamFetcherInterface $paramFetcher
@@ -152,8 +139,8 @@ class AdminAdvertisingBannerController extends AdvertisingController
         // check user permission
         $this->checkAdminBannerPermission(AdminPermission::OP_LEVEL_EDIT);
 
-        $banner = new Banner();
-        $form = $this->createForm( new BannerType(),$banner);
+        $banner = new CommnueBanner();
+        $form = $this->createForm( new CommnueBannerType(),$banner);
         $form->handleRequest($request);
 
         if(!$form->isValid()){
@@ -169,7 +156,7 @@ class AdminAdvertisingBannerController extends AdvertisingController
     }
 
     /**
-     * Update Banner.
+     * Update Commnue Banner.
      *
      * @param Request $request
      * @param int     $id
@@ -189,7 +176,7 @@ class AdminAdvertisingBannerController extends AdvertisingController
         $this->checkAdminBannerPermission(AdminPermission::OP_LEVEL_EDIT);
 
         // get banner
-        $banner = $this->getRepo('Banner\Banner')->find($id);
+        $banner = $this->getRepo('Banner\CommnueBanner')->find($id);
         $this->throwNotFoundIfNull($banner, self::NOT_FOUND_MESSAGE);
 
         $bannerJson = $this->container->get('serializer')->serialize($banner, 'json');
@@ -197,7 +184,7 @@ class AdminAdvertisingBannerController extends AdvertisingController
         $patch = new Patch($bannerJson, $request->getContent());
         $bannerJson = $patch->apply();
 
-        $form = $this->createForm(new BannerPatchType(), $banner);
+        $form = $this->createForm(new CommnueBannerPatchType(), $banner);
         $form->submit(json_decode($bannerJson, true));
 
         $em = $this->getDoctrine()->getManager();
@@ -207,7 +194,7 @@ class AdminAdvertisingBannerController extends AdvertisingController
     }
 
     /**
-     * Delete Banner
+     * Delete Commnue Banner
      *
      * @param $id
      *
@@ -220,10 +207,10 @@ class AdminAdvertisingBannerController extends AdvertisingController
         $id
     ) {
         // check user permission
-        $this->checkAdminBannerPermission(AdminPermission::OP_LEVEL_EDIT);
+       // $this->checkAdminBannerPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $banner = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Banner\Banner')
+            ->getRepository('SandboxApiBundle:Banner\CommnueBanner')
             ->find($id);
 
         $this->throwNotFoundIfNull($banner, self::NOT_FOUND_MESSAGE);
@@ -252,7 +239,7 @@ class AdminAdvertisingBannerController extends AdvertisingController
         $this->checkAdminBannerPermission(AdminPermission::OP_LEVEL_EDIT);
 
         // get banner
-        $banner = $this->getRepo('Banner\Banner')->find($id);
+        $banner = $this->getRepo('Banner\CommnueBanner')->find($id);
         $this->throwNotFoundIfNull($banner, self::NOT_FOUND_MESSAGE);
 
         $position = new AdvertisingPosition();
@@ -283,12 +270,6 @@ class AdminAdvertisingBannerController extends AdvertisingController
         $source = $banner->getSource();
         $sourceId = $banner->getSourceId();
         $sourceCat = $banner->getSourceCat();
-
-        $tag = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Banner\BannerTag')
-            ->findOneBy(array('key'=>BannerTag::ADVERTISEMENT));
-
-        $banner->setTag($tag);
 
        switch ($source) {
            case Banner::SOURCE_URL:
@@ -430,14 +411,14 @@ class AdminAdvertisingBannerController extends AdvertisingController
         $url
     ) {
         if (!is_null($url)) {
-            $existBanner = $this->getRepo('Banner\Banner')->findOneBy(
+            $existBanner = $this->getRepo('Banner\CommnueBanner')->findOneBy(
                 [
-                    'source' => $source,
+                    'source' => 'url',
                     'content' => $url,
                 ]
             );
         } else {
-            $existBanner = $this->getRepo('Banner\Banner')->findOneBy(
+            $existBanner = $this->getRepo('Banner\CommnueBanner')->findOneBy(
                 [
                     'source' => $source,
                     'sourceId' => $sourceId,
@@ -481,7 +462,7 @@ class AdminAdvertisingBannerController extends AdvertisingController
     }
 
     /**
-     * @param Banner $banner
+     * @param CommnueBanner $banner
      * @param string $action
      */
     private function swapBannerPosition(
@@ -489,7 +470,7 @@ class AdminAdvertisingBannerController extends AdvertisingController
         $action
     ) {
         $sortTime = $banner->getSortTime();
-        $swapBanner = $this->getRepo('Banner\Banner')->findSwapBanner(
+        $swapBanner = $this->getRepo('Banner\CommnueBanner')->findSwapBanner(
             $sortTime,
             $action
         );
