@@ -753,10 +753,49 @@ class RoomBuildingRepository extends EntityRepository
         return $query->getQuery()->getResult();
     }
 
+    /**
+     * @param $search
+     * @return array
+     */
     public function getAllRoomBuildings(
+        $category,
         $search
     ) {
         $query = $this->createQueryBuilder('rb')
-            ->leftJoin('SandboxApiBundle:Room\Room','r','WITH','rb.id = r.building');
+            ->leftJoin('SandboxApiBundle:Room\Room','r','WITH','rb.id = r.building')
+            ->select(
+                'rb.name',
+                'rb.address',
+                'rb.lessorName',
+                'rb.lessorContact',
+                'rb.lessorEmail',
+                'COUNT(r.id) as roomNumber'
+            )
+            ->where('rb.isDeleted = FALSE')
+            ->groupBy('rb.id')
+        ;
+
+        if(!is_null($category)){
+            switch ($category){
+                case RoomBuilding::FREEZON:
+                    $query->andWhere('rb.isFreezon = TRUE');
+                    break;
+                case RoomBuilding::AUTHENTICATION:
+                    $query->andWhere('rb.isAuthentication = TRUE');
+                    break;
+                case RoomBuilding::NORMAL:
+                    $query->andWhere('rb.isAuthentication = FALSE');
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        if(!is_null($search)){
+            $query->andWhere('rb.name LIKE :search')
+                ->setParameter('search','%'.$search.'%');
+        }
+
+        return $query->getQuery()->getResult();
     }
 }

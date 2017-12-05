@@ -36,6 +36,10 @@ class RoomBuilding implements JsonSerializable
     const LOCATION_TRANSFORM_VERSION_2 = 2; // checking version 2.2.2
     const LOCATION_TRANSFORM_VERSION_3 = 3; // checking version 2.2.3 (android)
 
+    const FREEZON = 'freezon';
+    const AUTHENTICATION = 'authentication';
+    const NORMAL = 'normal';
+
     /**
      * @var int
      *
@@ -698,6 +702,14 @@ class RoomBuilding implements JsonSerializable
      * @Serializer\Groups({"main", "admin_building", "client"})
      */
     private $removeDates;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="commnue_status", type="string", length=255)
+     * @Serializer\Groups({"main", "admin_building"})
+     */
+    private $commnueStatus;
 
     /**
      * Get id.
@@ -1890,4 +1902,22 @@ class RoomBuilding implements JsonSerializable
     {
         $this->customerServices = $customerServices;
     }
+
+    /**
+     * @return string
+     */
+    public function getCommnueStatus()
+    {
+        return $this->commnueStatus;
+    }
+
+    /**
+     * @param $commnueStatus
+     */
+    public function setCommnueStatus($commnueStatus)
+    {
+        $this->commnueStatus = $commnueStatus;
+    }
+
+
 }
