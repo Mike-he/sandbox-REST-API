@@ -534,11 +534,11 @@ class ClientUserPasswordController extends UserPasswordController
             $errorLogDir = $this->getParameter('error_log_dir');
             error_log('[jiguang]'.$result, 3, $errorLogDir);
 
-            return $this->customErrorView(
-                400,
-                self::ERROR_JMESSAGE_SYNC_FAIL_CODE,
-                self::ERROR_JMESSAGE_SYNC_FAIL_MESSAGE
-            );
+//            return $this->customErrorView(
+//                400,
+//                self::ERROR_JMESSAGE_SYNC_FAIL_CODE,
+//                self::ERROR_JMESSAGE_SYNC_FAIL_MESSAGE
+//            );
         }
 
         $em = $this->getDoctrine()->getManager();
