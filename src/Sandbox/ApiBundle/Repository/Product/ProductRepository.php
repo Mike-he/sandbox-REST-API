@@ -2312,6 +2312,8 @@ class ProductRepository extends EntityRepository
         $query->orderBy('b.name', 'asc')
             ->addOrderBy('r.name','asc');
 
+        $query->groupBy('p.id');
+
         $query->setMaxResults($limit)
             ->setFirstResult($offset);
 
