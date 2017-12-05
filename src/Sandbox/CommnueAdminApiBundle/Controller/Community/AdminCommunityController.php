@@ -51,7 +51,7 @@ class AdminCommunityController extends LocationController
      * )
      *
      * @Annotations\QueryParam(
-     *    name="category",
+     *    name="commnue_status",
      *    array=false,
      *    default=null,
      *    nullable=true,
@@ -66,7 +66,7 @@ class AdminCommunityController extends LocationController
      *    description="query key word"
      * )
      *
-     * @Route("/community/communities")
+     * @Route("/communities")
      * @Method({"GET"})
      *
      * @return View
@@ -78,19 +78,14 @@ class AdminCommunityController extends LocationController
         $pageIndex = $paramFetcher->get('pageIndex');
         $pageLimit = $paramFetcher->get('pageLimit');
         $city = $paramFetcher->get('city');
-        $category = $paramFetcher->get('category');
+        $commnueStatus = $paramFetcher->get('commnue_status');
         $search = $paramFetcher->get('search');
 
         $communitise = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')
-            ->getAllRoomBuildings(
-                $category,
+            ->getAllCommnueRoomBuildings(
+                $commnueStatus,
                 $search
             );
-
-        $results = array();
-        foreach($communitise as $community){
-            $results[] = $this->getCommunitiyInfo($community);
-        }
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
@@ -103,26 +98,94 @@ class AdminCommunityController extends LocationController
     }
 
     /**
-     * @param RoomBuilding $community
+     * Get Community By Id
+     *
+     * @param $id
+     *
+     * @Route("/communities/{id}")
+     * @Method({"GET"})
+     *
+     * @return View
      */
-    private function getCommunitiyInfo(
-        $community
+    public function getCommnuitiesByIdAction(
+        $id
     ) {
-        $data = [];
-        $buildingId = $community->getId();
-        $buildingNum = $this->getRepo('SandboxApiBundle:Room\Room')
-            ->countsRoomByBuilding($community);
+        $community = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+            ->getCommnueRoomBuildingsById($id);
 
-        $isFreezon = $community->isFreezon();
-        $isAuthentication = $community->isAuthentication();
+        $this->throwNotFoundIfNull($community, self::NOT_FOUND_MESSAGE);
 
-        $data['status'] = '未认证';
-        if($isAuthentication){
-            $data['status'] = '已认证';
-        }
-        if($isFreezon){
-            $data['status'] = '已冻结';
-        }
+        return new View($community);
     }
 
+    /**
+     * Certify Community
+     *
+     * @param Request $request
+     * @param $id
+     *
+     * @Route("/communities/{id}/certify")
+     * @Method({"PATCH"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function certifyCommunitiesAction(
+        Request $request,
+        $id
+    ) {
+        $community = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+            ->find($id);
+
+        $this->throwNotFoundIfNull($community, self::NOT_FOUND_MESSAGE);
+
+        $commnueStatus = $community->getCommnueStatus();
+        if($commnueStatus == RoomBuilding::FREEZON){
+            $this->customErrorView(
+                400,
+                self::WRONG_CERTIFY_CODE,
+                self::WRONG_CERTIFY_MESSAGE
+            );
+        }
+        $community->setCommnueStatus(RoomBuilding::CERTIFIED);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        return new View();
+    }
+
+    /**
+     * Freezon Community
+     *
+     * @param Request $request
+     * @param $id
+     *
+     * @Route("/communities/{id}/freezon")
+     * @Method({"PATCH"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function freezonCommunityAction(
+        Request $request,
+        $id
+    ) {
+        $community = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+            ->find($id);
+
+        $this->throwNotFoundIfNull($community, self::NOT_FOUND_MESSAGE);
+
+        $community->setCommnueStatus(RoomBuilding::FREEZON);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        return new View();
+    }
 }

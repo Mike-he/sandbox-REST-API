@@ -37,7 +37,7 @@ class RoomBuilding implements JsonSerializable
     const LOCATION_TRANSFORM_VERSION_3 = 3; // checking version 2.2.3 (android)
 
     const FREEZON = 'freezon';
-    const AUTHENTICATION = 'authentication';
+    const CERTIFIED = 'certified';
     const NORMAL = 'normal';
 
     /**

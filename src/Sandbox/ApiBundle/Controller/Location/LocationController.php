@@ -38,6 +38,8 @@ class LocationController extends SalesRestController
 {
     use HandleCoordinateTrait;
 
+    const WRONG_CERTIFY_CODE =  400001;
+    const WRONG_CERTIFY_MESSAGE = 'The Commnuity has been freezon';
     /**
      * @Get("/cities")
      *
