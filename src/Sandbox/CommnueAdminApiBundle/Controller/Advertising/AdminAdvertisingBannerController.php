@@ -257,7 +257,7 @@ class AdminAdvertisingBannerController extends AdvertisingController
     }
 
     /**
-     * @param Banner $banner
+     * @param CommnueBanner $banner
      * @param $url
      * @return View
      */
@@ -269,10 +269,9 @@ class AdminAdvertisingBannerController extends AdvertisingController
 
         $source = $banner->getSource();
         $sourceId = $banner->getSourceId();
-        $sourceCat = $banner->getSourceCat();
 
        switch ($source) {
-           case Banner::SOURCE_URL:
+           case CommnueBanner::SOURCE_URL:
                if (is_null($url) || empty($url)) {
                return $this->customErrorView(
                400,
@@ -283,10 +282,15 @@ class AdminAdvertisingBannerController extends AdvertisingController
                 $banner->setContent($url);
 
                 break;
-           case Banner::SOURCE_BLANK_BLOCK:
+           case CommnueBanner::SOURCE_MATERIAL:
+               $this->setBannerContentForMaterial($banner,$sourceId);
+
                break;
-           case 'material':
-               $this->handleMaterial($banner, $sourceCat, $sourceId);
+           case CommnueBanner::SOURCE_EVENT:
+               $this->setBannerContentForEvent($banner,$sourceId);
+
+               break;
+           case CommnueBanner::SOURCE_BLANK_BLOCK:
 
                break;
            default:
@@ -302,7 +306,7 @@ class AdminAdvertisingBannerController extends AdvertisingController
         // check if banner already exists
         if ($source != Banner::SOURCE_BLANK_BLOCK) {
             $existBanner = $this->getExistingBanner(
-                $sourceCat,
+                $source,
                 $sourceId,
                 $url
             );
@@ -325,52 +329,9 @@ class AdminAdvertisingBannerController extends AdvertisingController
     }
 
     /**
-     * @param Banner $banner
-     * @param $sourceCat
-     * @param $sourceId
-     *
-     * @return View
-     */
-    private function handleMaterial(
-        $banner,
-        $sourceCat,
-        $sourceId
-    ) {
-        $sourceArray = [
-            CommnueMaterial::SOURCE_NEWS,
-            CommnueMaterial::SOURCE_ANNOUNCEMENT,
-            CommnueMaterial::SOURCE_INSTRUCTION
-        ];
-
-        $banner->setSource($sourceCat);
-
-        switch($sourceCat){
-            case Banner::SOURCE_EVENT:
-                $this->setBannerContentForEvent(
-                    $banner,
-                    $sourceId
-                );
-                break;
-            case in_array($sourceCat, $sourceArray):
-                $this->setBannerContentForMaterial(
-                    $banner,
-                    $sourceId
-                );
-                break;
-            default:
-                return $this->customErrorView(
-                    400,
-                    self::WRONG_SOURCE_CODE,
-                    self::WRONG_SOURCE_MESSAGE
-                );
-                break;
-        }
-    }
-
-    /**
      * set banner content for event.
      *
-     * @param Banner $banner
+     * @param CommnueBanner $banner
      * @param int    $sourceId
      */
     private function setBannerContentForEvent(
@@ -386,7 +347,7 @@ class AdminAdvertisingBannerController extends AdvertisingController
     /**
      * set banner content for news.
      *
-     * @param Banner $banner
+     * @param CommnueBanner $banner
      * @param int    $sourceId
      */
     private function setBannerContentForMaterial(
@@ -413,7 +374,7 @@ class AdminAdvertisingBannerController extends AdvertisingController
         if (!is_null($url)) {
             $existBanner = $this->getRepo('Banner\CommnueBanner')->findOneBy(
                 [
-                    'source' => 'url',
+                    'source' =>  $source,
                     'content' => $url,
                 ]
             );
@@ -430,7 +391,7 @@ class AdminAdvertisingBannerController extends AdvertisingController
     }
 
     /**
-     * @param Banner         $banner
+     * @param CommnueBanner         $banner
      * @param BannerPosition $position
      *
      * @return View

@@ -14,10 +14,10 @@ use JMS\Serializer\Annotation as Serializer;
 class CommnueBanner
 {
     const SOURCE_EVENT = 'event';
-    const SOURCE_NEWS = 'news';
     const SOURCE_URL = 'url';
     const SOURCE_BLANK_BLOCK = 'blank_block';
-    const SOURCE_ADVERTISING = 'advertising';
+    const SOURCE_MATERIAL = 'material';
+
     /**
      * @var int
      *

@@ -14,7 +14,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 class CommnueAdvertisingMiddle
 {
     const SOURCE_EVENT = 'event';
-    const SOURCE_NEWS = 'news';
+    const SOURCE_MATERIAL = 'material';
     const SOURCE_URL = 'url';
     const SOURCE_BLANK_BLOCK = 'blank_block';
 
