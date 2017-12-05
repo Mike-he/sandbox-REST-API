@@ -17,12 +17,6 @@ class CommnueBannerType extends AbstractType
         $builder
             ->add('title', 'text')
             ->add('source', 'text')
-            ->add('source_cat',
-                'text',
-                array(
-                    'required' => false
-                )
-            )
             ->add(
                 'source_id',
                 'integer',

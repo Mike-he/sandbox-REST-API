@@ -258,7 +258,6 @@ class AdminAdvertisingMiddleController extends AdvertisingController
 
         $source = $middle->getSource();
         $sourceId = $middle->getSourceId();
-        $sourceCat = $middle->getSourceCat();
 
         switch ($source) {
             case CommnueAdvertisingMiddle::SOURCE_URL:
@@ -274,8 +273,12 @@ class AdminAdvertisingMiddleController extends AdvertisingController
                 break;
             case CommnueAdvertisingMiddle::SOURCE_BLANK_BLOCK:
                 break;
-            case 'material':
-                $this->handleMaterial($middle, $sourceCat, $sourceId);
+            case CommnueAdvertisingMiddle::SOURCE_MATERIAL:
+                $this->setMiddleContentForMaterial($middle, $sourceId);
+
+                break;
+            case CommnueAdvertisingMiddle::SOURCE_EVENT:
+                $this->setMiddleContentForEvent($middle, $sourceId);
 
                 break;
             default:
@@ -423,50 +426,6 @@ class AdminAdvertisingMiddleController extends AdvertisingController
             $swapSortTime = $swapMiddle->getSortTime();
             $middle->setSortTime($swapSortTime);
             $swapMiddle->setSortTime($sortTime);
-        }
-    }
-
-    /**
-     * @param CommnueAdvertisingMiddle         $middle
-     * @param $sourceCat
-     * @param $sourceId
-     *
-     * @return View
-     */
-    private function handleMaterial(
-        $middle,
-        $sourceCat,
-        $sourceId
-    ) {
-        $sourceArray = [
-            CommnueMaterial::SOURCE_NEWS,
-            CommnueMaterial::SOURCE_ANNOUNCEMENT,
-            CommnueMaterial::SOURCE_INSTRUCTION,
-            CommnueMaterial::SOURCE_ADVERTISING
-        ];
-
-        $middle->setSource($sourceCat);
-
-        switch($sourceCat){
-            case CommnueAdvertisingMiddle::SOURCE_EVENT:
-                $this->setMiddleContentForEvent(
-                    $middle,
-                    $sourceId
-                );
-                break;
-            case in_array($sourceCat, $sourceArray):
-                $this->setMiddleContentForMaterial(
-                    $middle,
-                    $sourceId
-                );
-                break;
-            default:
-                return $this->customErrorView(
-                    400,
-                    self::WRONG_SOURCE_CODE,
-                    self::WRONG_SOURCE_MESSAGE
-                );
-                break;
         }
     }
 
