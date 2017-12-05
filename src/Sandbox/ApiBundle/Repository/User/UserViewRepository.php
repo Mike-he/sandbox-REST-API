@@ -643,4 +643,72 @@ class UserViewRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @param $name
+     * @param $phone
+     * @param $email
+     * @param $id
+     * @param $userIds
+     *
+     * @return array
+     */
+    public function getAdminCommnueUsers(
+        $startDate,
+        $endDate,
+        $name,
+        $phone,
+        $email,
+        $id,
+        $userIds
+    ) {
+        $query = $this->createQueryBuilder('u')
+            ->select('
+                u.id,
+                u.name,
+                u.gender,
+                u.phone,
+                u.email
+            ')
+            ->where('u.id IS NOT NULL');
+
+        if (!is_null($startDate)) {
+            $query->andWhere('u.userRegistrationDate >= :startDate')
+                ->setParameter('startDate', $startDate);
+        }
+
+        if (!is_null($endDate)) {
+            $query->andWhere('u.userRegistrationDate <= :endDate')
+                ->setParameter('endDate', $endDate);
+        }
+
+        if (!is_null($name)) {
+            $query->andWhere('u.name LIKE :name')
+                ->setParameter('name', '%'.$name.'%');
+        }
+
+        if (!is_null($phone)) {
+            $query->andWhere('u.phone LIKE :phone')
+                ->setParameter('phone', '%'.$phone.'%');
+        }
+
+        if (!is_null($phone)) {
+            $query->andWhere('u.email LIKE :email')
+                ->setParameter('email', '%'.$email.'%');
+        }
+
+        if (!is_null($id)) {
+            $query->andWhere('u.id = :id')
+                ->setParameter('id', $id);
+        }
+
+        if (!is_null($userIds)) {
+            $query->andWhere('u.id IN (:ids)')
+                ->setParameter('ids', $userIds);
+        }
+
+        return $query->getQuery()->getResult();
+    }
 }

@@ -33,3 +33,8 @@ commnue_admin_advertising_material_controller:
     resource: "@CommnueAdminApiBundle/Controller/Advertising/AdminMaterialController.php"
     type:     annotation
     prefix:   /
+
+commnue_admin_user:
+    resource: "@CommnueAdminApiBundle/Controller/User/AdminUserController.php"
+    type:     annotation
+    prefix:   /
