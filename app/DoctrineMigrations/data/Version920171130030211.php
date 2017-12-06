@@ -32,10 +32,15 @@ class Version920171130030211 extends AbstractMigration implements ContainerAware
         /** @var EntityManager $em */
         $em = $this->container->get('doctrine.orm.entity_manager');
 
-        $parameter = new Parameter();
-        $parameter->setKey(Parameter::KEY_COMMNUE_EVENT_HOT);
-        $parameter->setValue(3);
-        $em->persist($parameter);
+//        $parameter = new Parameter();
+//        $parameter->setKey(Parameter::KEY_COMMNUE_EVENT_HOT);
+//        $parameter->setValue(3);
+//        $em->persist($parameter);
+
+        $parameter1 = new Parameter();
+        $parameter1->setKey(Parameter::KEY_COMMNUE_BUILDING_HOT);
+        $parameter1->setValue(3);
+        $em->persist($parameter1);
 
         $em->flush();
     }
