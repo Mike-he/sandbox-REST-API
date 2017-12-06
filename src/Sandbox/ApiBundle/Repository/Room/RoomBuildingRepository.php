@@ -752,4 +752,58 @@ class RoomBuildingRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param $commnueStatus
+     * @return array
+     */
+    public function getAllCommnueRoomBuildings(
+        $commnueStatus,
+        $search
+    ) {
+        $query = $this->createQueryBuilder('rb')
+            ->leftJoin('SandboxApiBundle:Room\Room','r','WITH','rb.id = r.building')
+            ->select(
+                'rb.id',
+                'rb.name',
+                'rb.commnueStatus',
+                'COUNT(r.id) as roomNumber'
+            )
+            ->where('rb.isDeleted = FALSE');
+
+        if(!is_null($commnueStatus)){
+            $query->andWhere('rb.commnueStatus = :commnueStatus')
+                ->setParameter('commnueStatus',$commnueStatus);
+        }
+
+        if(!is_null($search)){
+            $query->andWhere('rb.name LIKE :search')
+                ->setParameter('search','%'.$search.'%');
+        }
+
+        $query = $query->groupBy('rb.id');
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $id
+     * @return array
+     */
+    public function getCommnueRoomBuildingsById(
+        $id
+    ) {
+        $query = $this->createQueryBuilder('rb')
+            ->select(
+                'rb.name',
+                'rb.address',
+                'rb.lessorName',
+                'rb.lessorContact',
+                'rb.lessorEmail'
+            )
+            ->where('rb.id = :id')
+            ->setParameter('id',$id);
+
+        return $query->getQuery()->getResult();
+    }
 }

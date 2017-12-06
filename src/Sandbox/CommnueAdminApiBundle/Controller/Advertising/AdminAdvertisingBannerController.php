@@ -21,7 +21,6 @@ use FOS\RestBundle\View\View;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Rs\Json\Patch;
-use Sandbox\ApiBundle\Form\Banner\BannerPositionType;
 
 class AdminAdvertisingBannerController extends AdvertisingController
 {

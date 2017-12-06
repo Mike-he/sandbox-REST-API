@@ -58,6 +58,7 @@ class Parameter
     const KEY_HTML_CLUE_CREATE = 'html_clue_create';                            //创建线索
 
     const KEY_COMMNUE_EVENT_HOT = 'commnue_event_hot';      //合创社热门活动数
+    const KEY_COMMNUE_BUILDING_HOT = 'commnue_building_hot';    //合创社热门社区数
 
     /**
      * @var int
