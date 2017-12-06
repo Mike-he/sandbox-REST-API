@@ -771,8 +771,6 @@ class RoomBuildingRepository extends EntityRepository
             )
             ->where('rb.isDeleted = FALSE');
 
-        ;
-
         if(!is_null($commnueStatus)){
             $query->andWhere('rb.commnueStatus = :commnueStatus')
                 ->setParameter('commnueStatus',$commnueStatus);

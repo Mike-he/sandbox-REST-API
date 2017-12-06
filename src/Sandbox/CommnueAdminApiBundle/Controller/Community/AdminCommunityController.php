@@ -86,10 +86,14 @@ class AdminCommunityController extends LocationController
                 $commnueStatus,
                 $search
             );
+        $results = [];
+        foreach ($communitise as $commnuity){
+            $results[] = $this->setCommunity($commnuity);
+        }
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
-            $communitise,
+            $results,
             $pageIndex,
             $pageLimit
         );
@@ -239,7 +243,7 @@ class AdminCommunityController extends LocationController
         $id
     ) {
         // check user permission
-        //$this->checkAdminCommunityPermission(AdminPermission::OP_LEVEL_EDIT);
+        $this->checkAdminCommunityPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $community = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\RoomBuilding')
@@ -261,7 +265,7 @@ class AdminCommunityController extends LocationController
      * @param Request $request
      * @param $id
      *
-     * @Route("/community/hot/{id}")
+     * @Route("/community/{id}/hot")
      * @Method({"POST"})
      *
      * @return View
@@ -337,7 +341,7 @@ class AdminCommunityController extends LocationController
      * @param Request $request
      * @param $id
      *
-     * @Route("/community/hot/{id}")
+     * @Route("/community/{id}/hot")
      * @Method({"DELETE"})
      *
      * @return View
@@ -359,8 +363,34 @@ class AdminCommunityController extends LocationController
         $this->throwNotFoundIfNull($hot, self::NOT_FOUND_MESSAGE);
 
         $em->remove($hot);
+        $em->flush();
 
         return new View();
+    }
+
+    /**
+     * @param $community
+     * @return array
+     */
+    private function setCommunity(
+        $community
+    ) {
+        $data = [];
+        $id = $community['id'];
+        $data['id'] = $id;
+        $data['name'] = $community['name'];
+        $data['commnueStatus'] = $community['commnueStatus'];
+        $data['roomNumber'] = $community['roomNumber'];
+        $hot = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\CommnueBuildingHot')
+            ->findOneBy(array(
+                'buildingId'=>$id
+            ));
+        if(!is_null($hot)){
+            $data['is_hot'] = true;
+        }
+
+        return $data;
     }
     /**
      * Check user permission.
