@@ -5,10 +5,12 @@ namespace Sandbox\CommnueAdminApiBundle\Controller\User;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Sandbox\ApiBundle\Entity\Commnue\CommnueUser;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class AdminUserController extends SandboxRestController
 {
@@ -190,5 +192,47 @@ class AdminUserController extends SandboxRestController
             'items' => $response,
             'total_count' => $usersCount,
         ]);
+    }
+
+    /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/users")
+     * @Method({"POST"})
+     *
+     * @return View
+     */
+    public function postAdminCommnueUsersAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $content = json_decode($request->getContent(), true);
+
+        if (!isset($content['user_id']) || is_null($content['user_id'])
+            || !isset($content['is_banned']) || is_null($content['is_banned']))
+        {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $commnueUser = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Commnue\CommnueUser')
+            ->findOneBy(['userId' => $content['user_id']]);
+
+        $em = $this->getDoctrine()->getManager();
+
+        if (is_null($commnueUser)) {
+            $commnueUser = new CommnueUser();
+            $commnueUser->setUserId($content['user_id']);
+
+            $em->persist($commnueUser);
+        }
+
+        $commnueUser->setIsBanned($content['is_banned']);
+        $commnueUser->setAuthTagId($content['auth_tag_id']);
+
+        $em->flush();
+
+        return new View();
     }
 }
