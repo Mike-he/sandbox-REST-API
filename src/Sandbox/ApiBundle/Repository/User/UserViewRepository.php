@@ -718,6 +718,8 @@ class UserViewRepository extends EntityRepository
                 ->setMaxResults($limit);
         }
 
+        $query->orderBy('u.userRegistrationDate', 'DESC');
+
         return $query->getQuery()->getResult();
     }
 
