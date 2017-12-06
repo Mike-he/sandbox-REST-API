@@ -60,4 +60,18 @@ class CommnueAdvertisingMiddleRepository extends EntityRepository
 
         return $query->getSingleResult();
     }
+
+    /**
+     * @param $limit
+     * @return array
+     */
+    public function getClientMiddle(
+        $limit
+    ) {
+        $query = $this->createQueryBuilder('cam')
+            ->setMaxResults($limit)
+            ->orderBy('cam.sortTime','DESC');
+
+        return $query->getQuery()->getResult();
+    }
 }

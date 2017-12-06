@@ -806,4 +806,21 @@ class RoomBuildingRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param $builingIds
+     * @param $limit
+     * @return array
+     */
+    public function getCommnueClientBUilding(
+        $builingIds,
+        $limit
+    ){
+        $query = $this->createQueryBuilder('rb')
+            ->where('rb.id NOT IN (:ids)')
+            ->setParameter('ids',$builingIds)
+            ->setMaxResults($limit);
+
+        return $query->getQuery()->getResult();
+    }
 }
