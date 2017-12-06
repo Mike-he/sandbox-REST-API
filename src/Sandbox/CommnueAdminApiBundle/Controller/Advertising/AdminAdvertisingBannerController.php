@@ -162,13 +162,13 @@ class AdminAdvertisingBannerController extends AdvertisingController
      * @param int     $id
      *
      * @Route("/commercial/banners/{id}")
-     * @Method({"PATCH"})
+     * @Method({"PUT"})
      *
      * @return View
      *
      * @throws \Exception
      */
-    public function patchBannerAction(
+    public function putBannerAction(
         Request $request,
         $id
     ) {
@@ -179,18 +179,24 @@ class AdminAdvertisingBannerController extends AdvertisingController
         $banner = $this->getRepo('Banner\CommnueBanner')->find($id);
         $this->throwNotFoundIfNull($banner, self::NOT_FOUND_MESSAGE);
 
-        $bannerJson = $this->container->get('serializer')->serialize($banner, 'json');
+        $form = $this->createForm(
+            new CommnueBannerType(),
+            $banner,
+            array(
+            'method' => 'PUT',
+        ));
+        $form->handleRequest($request);
 
-        $patch = new Patch($bannerJson, $request->getContent());
-        $bannerJson = $patch->apply();
+        if(!$form->isValid()){
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
 
-        $form = $this->createForm(new CommnueBannerPatchType(), $banner);
-        $form->submit(json_decode($bannerJson, true));
+        $url = $form['url']->getData();
 
-        $em = $this->getDoctrine()->getManager();
-        $em->flush();
-
-        return new View();
+        return $this->handleBannerPost(
+            $banner,
+            $url
+        );
     }
 
     /**

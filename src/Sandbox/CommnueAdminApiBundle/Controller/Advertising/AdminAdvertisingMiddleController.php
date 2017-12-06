@@ -152,11 +152,11 @@ class AdminAdvertisingMiddleController extends AdvertisingController
      * @param $id
      *
      * @Route("/commercial/middles/{id}")
-     * @Method({"PATCH"})
+     * @Method({"PUT"})
      *
      * @return View
      */
-    public function patchAdvertisingMiddleAction(
+    public function putAdvertisingMiddleAction(
         Request $request,
         $id
     ) {
@@ -169,18 +169,24 @@ class AdminAdvertisingMiddleController extends AdvertisingController
 
         $this->throwNotFoundIfNull($middle, self::NOT_FOUND_MESSAGE);
 
-        $middleJson = $this->container->get('serializer')->serialize($middle, 'json');
+        $form = $this->createForm(
+            new CommnueAdvertisingMiddleType(),
+            $middle,
+            array(
+            'method' => 'PUT',
+        ));
+        $form->handleRequest($request);
 
-        $patch = new Patch($middleJson, $request->getContent());
-        $middleJson = $patch->apply();
+        if(!$form->isValid()){
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
 
-        $form = $this->createForm(new CommnueAdvertisingMiddlePatchType(), $middle);
-        $form->submit(json_decode($middleJson, true));
+        $url = $form['url']->getData();
 
-        $em = $this->getDoctrine()->getManager();
-        $em->flush();
-
-        return new View();
+        return $this->handleMiddlePost(
+            $middle,
+            $url
+        );
     }
 
     /**
