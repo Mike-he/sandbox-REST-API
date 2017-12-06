@@ -6,6 +6,9 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use Sandbox\ApiBundle\Controller\Location\LocationController;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Parameter\Parameter;
+use Sandbox\ApiBundle\Entity\Room\CommnueBuildingHot;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -15,6 +18,9 @@ use Symfony\Component\HttpFoundation\Request;
 
 class AdminCommunityController extends LocationController
 {
+    const ERROR_NOT_ALLOWED_ADD_CODE = 400001;
+    const ERROR_NOT_ALLOWED_ADD_MESSAGE = 'More than the allowed number of hits';
+
     /**
      * GET Communties List
      *
@@ -66,7 +72,7 @@ class AdminCommunityController extends LocationController
      *    description="query key word"
      * )
      *
-     * @Route("/communities")
+     * @Route("/community")
      * @Method({"GET"})
      *
      * @return View
@@ -75,6 +81,9 @@ class AdminCommunityController extends LocationController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        // check user permission
+        $this->checkAdminCommunityPermission(AdminPermission::OP_LEVEL_VIEW);
+
         $pageIndex = $paramFetcher->get('pageIndex');
         $pageLimit = $paramFetcher->get('pageLimit');
         $city = $paramFetcher->get('city');
@@ -102,21 +111,39 @@ class AdminCommunityController extends LocationController
      *
      * @param $id
      *
-     * @Route("/communities/{id}")
+     * @Route("/community/{id}")
      * @Method({"GET"})
      *
      * @return View
      */
     public function getCommnuitiesByIdAction(
+        Request $request,
         $id
     ) {
+        // check user permission
+        $this->checkAdminCommunityPermission(AdminPermission::OP_LEVEL_VIEW);
+
         $community = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\RoomBuilding')
-            ->getCommnueRoomBuildingsById($id);
+            ->find($id);
 
         $this->throwNotFoundIfNull($community, self::NOT_FOUND_MESSAGE);
 
-        return new View($community);
+        $buildingCompany = $this->getRepo('Room\RoomBuildingCompany')->findOneByBuilding($community);
+        $phone = $buildingCompany->getPhone();
+
+        $company = $community->getCompany();
+        $contactPhone = $company->getContacterPhone();
+
+        $result = [];
+        $result['name'] = $community->getName();
+        $result['address'] = $community->getAddress();
+        $result['phone'] = $phone;
+        $result['contacter'] = $community->getCommunityManagerName();
+        $result['contacterPhone'] = $contactPhone;
+        $result['contacterEmail'] = $community->getEmail();
+
+        return new View($result);
     }
 
     /**
@@ -125,7 +152,7 @@ class AdminCommunityController extends LocationController
      * @param Request $request
      * @param $id
      *
-     * @Route("/communities/{id}/certify")
+     * @Route("/community/{id}/certify")
      * @Method({"PATCH"})
      *
      * @return View
@@ -136,6 +163,9 @@ class AdminCommunityController extends LocationController
         Request $request,
         $id
     ) {
+        // check user permission
+        //$this->checkAdminCommunityPermission(AdminPermission::OP_LEVEL_EDIT);
+
         $community = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\RoomBuilding')
             ->find($id);
@@ -164,7 +194,7 @@ class AdminCommunityController extends LocationController
      * @param Request $request
      * @param $id
      *
-     * @Route("/communities/{id}/freezon")
+     * @Route("/community/{id}/freezon")
      * @Method({"PATCH"})
      *
      * @return View
@@ -175,6 +205,9 @@ class AdminCommunityController extends LocationController
         Request $request,
         $id
     ) {
+        // check user permission
+       // $this->checkAdminCommunityPermission(AdminPermission::OP_LEVEL_EDIT);
+
         $community = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\RoomBuilding')
             ->find($id);
@@ -184,8 +217,127 @@ class AdminCommunityController extends LocationController
         $community->setCommnueStatus(RoomBuilding::FREEZON);
 
         $em = $this->getDoctrine()->getManager();
+        $hot = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\CommnueBuildingHot')
+            ->findOneBy(array(
+                'buildingId'=>$id
+            ));
+        if(!is_null($hot)){
+            $em->remove($hot);
+        }
+
         $em->flush();
 
         return new View();
     }
+
+    /**
+     * Set Hot Community
+     *
+     * @param Request $request
+     * @param $id
+     *
+     * @Route("/community/hot/{id}")
+     * @Method({"POST"})
+     *
+     * @return View
+     */
+    public function postHotCommunityAction(
+        Request $request,
+        $id
+    )
+    {
+        // check user permission
+        $this->checkAdminCommunityPermission(AdminPermission::OP_LEVEL_EDIT);
+
+        $em = $this->getDoctrine()->getManager();
+
+        $count = $em->getRepository('SandboxApiBundle:Room\CommnueBuildingHot')->countHots();
+
+        $parameter = $em->getRepository('SandboxApiBundle:Parameter\Parameter')
+            ->findOneBy(array('key' => Parameter::KEY_COMMNUE_BUILDING_HOT));
+
+        $allowNumber = $parameter ? (int)$parameter->getValue() : 3;
+
+        if ($count >= $allowNumber) {
+            return $this->customErrorView(
+                400,
+                self::ERROR_NOT_ALLOWED_ADD_CODE,
+                self::ERROR_NOT_ALLOWED_ADD_MESSAGE
+            );
+        }
+
+        $hot = new CommnueBuildingHot();
+        $hot->setBuildingId($id);
+        $em->persist($hot);
+
+        $em->flush();
+
+        return new View(null, 201);
+    }
+
+    /**
+     * Get Hot Communities Counts
+     *
+     * @Route("/community/hot/counts")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getHotCommunityCountAction()
+    {
+        // check user permission
+        $this->checkAdminCommunityPermission(AdminPermission::OP_LEVEL_VIEW);
+
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\CommnueBuildingHot')
+            ->countHots();
+
+        $parameter = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Parameter\Parameter')
+            ->findOneBy(array('key' => Parameter::KEY_COMMNUE_BUILDING_HOT));
+
+        $allowNumber = $parameter ? (int) $parameter->getValue() : 3;
+
+        $result = [
+            'max_allow_number' => $allowNumber,
+            'count' => $count,
+        ];
+
+        return new View($result);
+    }
+
+    private function setBuildingInfo(
+        $building,
+        $request
+    ) {
+        $phones = $this->getRepo('Room\RoomBuildingPhones')->findByBuilding($building);
+        $building->setPhones($phones);
+
+
+
+        // set room counts
+        $roomCounts = $this->getRepo('Room\Room')->countsRoomByBuilding($building);
+        $building->setRoomCounts((int) $roomCounts);
+
+        return $building;
+    }
+
+    /**
+     * Check user permission.
+     *
+     * @param int $opLevel
+     */
+    private function checkAdminCommunityPermission(
+        $opLevel
+    ) {
+        $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
+            $this->getAdminId(),
+            [
+                ['key' => AdminPermission::KEY_COMMNUE_PLATFORM_COMMUNITY],
+            ],
+            $opLevel
+        );
+    }
+
 }

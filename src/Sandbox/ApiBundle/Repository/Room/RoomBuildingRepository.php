@@ -766,28 +766,24 @@ class RoomBuildingRepository extends EntityRepository
             ->select(
                 'rb.name',
                 'rb.address',
-                'rb.lessorName',
-                'rb.lessorContact',
-                'rb.lessorEmail',
                 'rb.commnueStatus',
                 'COUNT(r.id) as roomNumber'
             )
-            ->where('rb.isDeleted = FALSE')
-            ->groupBy('rb.id')
+            ->where('rb.isDeleted = FALSE');
+
         ;
 
         if(!is_null($commnueStatus)){
             $query->andWhere('rb.commnueStatus = :commnueStatus')
                 ->setParameter('commnueStatus',$commnueStatus);
-        }else{
-            $query->andWhere('rb.commnueStatus != :commnueStatus')
-                ->setParameter('commnueStatus','freezon');
         }
 
         if(!is_null($search)){
             $query->andWhere('rb.name LIKE :search')
                 ->setParameter('search','%'.$search.'%');
         }
+
+        $query = $query->groupBy('rb.id');
 
         return $query->getQuery()->getResult();
     }

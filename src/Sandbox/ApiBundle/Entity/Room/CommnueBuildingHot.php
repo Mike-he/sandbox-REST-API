@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * EventDate.
  *
  * @ORM\Table(name = "commnue_building_hot")
- * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Room\CommnueEventHotRepository")
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Room\CommnueBuildingHotRepository")
  */
 class CommnueBuildingHot
 {
@@ -24,9 +24,9 @@ class CommnueBuildingHot
     /**
      * @var int
      *
-     * @ORM\Column(name="event_id", type="integer")
+     * @ORM\Column(name="building_id", type="integer")
      */
-    private $eventId;
+    private $buildingId;
 
     /**
      * Get id.
@@ -41,16 +41,16 @@ class CommnueBuildingHot
     /**
      * @return int
      */
-    public function getEventId()
+    public function getBuildingId()
     {
-        return $this->eventId;
+        return $this->buildingId;
     }
 
     /**
-     * @param int $eventId
+     * @param int $buildingId
      */
-    public function setEventId($eventId)
+    public function setBuildingId($buildingId)
     {
-        $this->eventId = $eventId;
+        $this->buildingId = $buildingId;
     }
 }
