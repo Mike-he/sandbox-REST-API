@@ -38,3 +38,8 @@ commnue_admin_user:
     resource: "@CommnueAdminApiBundle/Controller/User/AdminUserController.php"
     type:     annotation
     prefix:   /
+
+commue_admin_user_auth_tags:
+    resource: "@CommnueAdminApiBundle/Controller/User/AdminUserAuthenticationTagsController.php"
+    type:     annotation
+    prefix:   /
