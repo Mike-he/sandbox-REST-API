@@ -764,8 +764,8 @@ class RoomBuildingRepository extends EntityRepository
         $query = $this->createQueryBuilder('rb')
             ->leftJoin('SandboxApiBundle:Room\Room','r','WITH','rb.id = r.building')
             ->select(
+                'rb.id',
                 'rb.name',
-                'rb.address',
                 'rb.commnueStatus',
                 'COUNT(r.id) as roomNumber'
             )

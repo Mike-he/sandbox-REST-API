@@ -20,6 +20,8 @@ class AdminCommunityController extends LocationController
 {
     const ERROR_NOT_ALLOWED_ADD_CODE = 400001;
     const ERROR_NOT_ALLOWED_ADD_MESSAGE = 'More than the allowed number of hits';
+    const WRONG_CANCEL_CERTIFY_CODE = 400002;
+    const WRONG_CANCEL_CERTIFY_MESSAGE = 'The community has not been certified';
 
     /**
      * GET Communties List
@@ -44,16 +46,6 @@ class AdminCommunityController extends LocationController
      *    requirements="\d+",
      *    strict=true,
      *    description="page number"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="city",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    requirements="\d+",
-     *    strict=true,
-     *    description="city id"
      * )
      *
      * @Annotations\QueryParam(
@@ -86,7 +78,6 @@ class AdminCommunityController extends LocationController
 
         $pageIndex = $paramFetcher->get('pageIndex');
         $pageLimit = $paramFetcher->get('pageLimit');
-        $city = $paramFetcher->get('city');
         $commnueStatus = $paramFetcher->get('commnue_status');
         $search = $paramFetcher->get('search');
 
@@ -136,6 +127,7 @@ class AdminCommunityController extends LocationController
         $contactPhone = $company->getContacterPhone();
 
         $result = [];
+        $result['id'] = $community->getId();
         $result['name'] = $community->getName();
         $result['address'] = $community->getAddress();
         $result['phone'] = $phone;
@@ -164,7 +156,7 @@ class AdminCommunityController extends LocationController
         $id
     ) {
         // check user permission
-        //$this->checkAdminCommunityPermission(AdminPermission::OP_LEVEL_EDIT);
+        $this->checkAdminCommunityPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $community = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\RoomBuilding')
@@ -174,12 +166,14 @@ class AdminCommunityController extends LocationController
 
         $commnueStatus = $community->getCommnueStatus();
         if($commnueStatus == RoomBuilding::FREEZON){
-            $this->customErrorView(
-                400,
-                self::WRONG_CERTIFY_CODE,
-                self::WRONG_CERTIFY_MESSAGE
-            );
+           return $this->customErrorView(
+                    400,
+                    self::WRONG_CERTIFY_CODE,
+                    self::WRONG_CERTIFY_MESSAGE
+                    );
+
         }
+
         $community->setCommnueStatus(RoomBuilding::CERTIFIED);
 
         $em = $this->getDoctrine()->getManager();
@@ -206,7 +200,7 @@ class AdminCommunityController extends LocationController
         $id
     ) {
         // check user permission
-       // $this->checkAdminCommunityPermission(AdminPermission::OP_LEVEL_EDIT);
+        $this->checkAdminCommunityPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $community = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\RoomBuilding')
@@ -226,6 +220,36 @@ class AdminCommunityController extends LocationController
             $em->remove($hot);
         }
 
+        $em->flush();
+
+        return new View();
+    }
+
+    /**
+     * Cancel Certify Or Freezon Community
+     *
+     * @param $id
+     *
+     * @Route("/community/{id}/cancel")
+     * @Method({"PATCH"})
+     *
+     * @return View
+     */
+    public function cancelCertifyAndFreezonCommunityAction(
+        $id
+    ) {
+        // check user permission
+        //$this->checkAdminCommunityPermission(AdminPermission::OP_LEVEL_EDIT);
+
+        $community = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+            ->find($id);
+
+        $this->throwNotFoundIfNull($community, self::NOT_FOUND_MESSAGE);
+
+        $community->setCommnueStatus(RoomBuilding::NORMAL);
+
+        $em = $this->getDoctrine()->getManager();
         $em->flush();
 
         return new View();
@@ -307,22 +331,37 @@ class AdminCommunityController extends LocationController
         return new View($result);
     }
 
-    private function setBuildingInfo(
-        $building,
-        $request
+    /**
+     * Cancel Hot Community
+     *
+     * @param Request $request
+     * @param $id
+     *
+     * @Route("/community/hot/{id}")
+     * @Method({"DELETE"})
+     *
+     * @return View
+     */
+    public function cancelHotCommunityAction(
+        Request $request,
+        $id
     ) {
-        $phones = $this->getRepo('Room\RoomBuildingPhones')->findByBuilding($building);
-        $building->setPhones($phones);
+        // check user permission
+        $this->checkAdminCommunityPermission(AdminPermission::OP_LEVEL_EDIT);
 
+        $em = $this->getDoctrine()->getManager();
 
+        $hot = $em->getRepository('SandboxApiBundle:Room\CommnueBuildingHot')
+            ->findOneBy(array(
+                'buildingId' =>$id
+            ));
 
-        // set room counts
-        $roomCounts = $this->getRepo('Room\Room')->countsRoomByBuilding($building);
-        $building->setRoomCounts((int) $roomCounts);
+        $this->throwNotFoundIfNull($hot, self::NOT_FOUND_MESSAGE);
 
-        return $building;
+        $em->remove($hot);
+
+        return new View();
     }
-
     /**
      * Check user permission.
      *
