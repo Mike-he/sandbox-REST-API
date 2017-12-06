@@ -48,3 +48,8 @@ commnue_admin_community_controller:
     resource: "@CommnueAdminApiBundle/Controller/Community/AdminCommunityController.php"
     type:     annotation
     prefix:   /
+
+commnue_admin_dashboard_users_data:
+    resource: "@CommnueAdminApiBundle/Controller/Dashboard/AdminDashboardController.php"
+    type:     annotation
+    prefix:   /
