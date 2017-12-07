@@ -111,6 +111,15 @@ class FeedView
     private $attachments;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="platform", type="string",  nullable=true)
+     *
+     * @Serializer\Groups({"main", "feed"})
+     */
+    private $platform;
+
+    /**
      * Get id.
      *
      * @return string
@@ -232,6 +241,22 @@ class FeedView
     public function isDeleted()
     {
         return $this->isDeleted;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPlatform()
+    {
+        return $this->platform;
+    }
+
+    /**
+     * @param string $platform
+     */
+    public function setPlatform($platform)
+    {
+        $this->platform = $platform;
     }
 
     /**

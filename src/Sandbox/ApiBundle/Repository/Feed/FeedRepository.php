@@ -21,12 +21,14 @@ class FeedRepository extends EntityRepository
      *
      * @param int $limit
      * @param int $lastId
+     * @param $platform
      *
      * @return array
      */
     public function getFeeds(
         $limit,
-        $lastId
+        $lastId,
+        $platform
     ) {
         $parameters = [];
 
@@ -51,6 +53,11 @@ class FeedRepository extends EntityRepository
         // set all parameters
         if (!empty($parameters)) {
             $query->setParameters($parameters);
+        }
+
+        if (!is_null($platform)) {
+            $query->andWhere('f.platform = :platform')
+                ->setParameter('platform', $platform);
         }
 
         $result = $query->getQuery()->getResult();

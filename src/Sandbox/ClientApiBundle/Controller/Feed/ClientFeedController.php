@@ -56,6 +56,13 @@ class ClientFeedController extends FeedController
      *    description="last id"
      * )
      *
+     * @Annotations\QueryParam(
+     *     name="platform",
+     *     array=false,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
      * @Route("feeds/all")
      * @Method({"GET"})
      *
@@ -75,11 +82,15 @@ class ClientFeedController extends FeedController
         // get params
         $limit = $paramFetcher->get('limit');
         $lastId = $paramFetcher->get('last_id');
+        $platform = $paramFetcher->get('platform');
 
-        $feeds = $this->getRepo('Feed\FeedView')->getFeeds(
-            $limit,
-            $lastId
-        );
+        $feeds = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Feed\FeedView')
+            ->getFeeds(
+                $limit,
+                $lastId,
+                $platform
+            );
 
         return $this->handleGetFeeds($feeds, $userId);
     }
