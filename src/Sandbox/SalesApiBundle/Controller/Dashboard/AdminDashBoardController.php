@@ -863,7 +863,7 @@ class AdminDashBoardController extends SalesRestController
             'source' => $source,
             'monthly_rent' => (float) $clue->getMonthlyRent(),
             'number' => $clue->getNumber(),
-            'building_id' => $clue->getBuilding(),
+            'building_id' => $buildingId,
         );
 
         return $result;
