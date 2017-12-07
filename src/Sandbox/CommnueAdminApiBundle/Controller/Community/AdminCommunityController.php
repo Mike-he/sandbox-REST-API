@@ -410,9 +410,7 @@ class AdminCommunityController extends LocationController
         $data['id'] = $id;
         $data['name'] = $community['name'];
         $data['commnueStatus'] = $community['commnueStatus'];
-        $data['roomNumber'] = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Room\Room')
-            ->countsRoomByBuilding($community);
+        $data['roomNumber'] = $community['roomNumber'];
         $hot = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\CommnueBuildingHot')
             ->findOneBy(array(
