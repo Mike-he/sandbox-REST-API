@@ -22,6 +22,8 @@ class AdminCommunityController extends LocationController
     const ERROR_NOT_ALLOWED_ADD_MESSAGE = 'More than the allowed number of hits';
     const WRONG_CANCEL_CERTIFY_CODE = 400002;
     const WRONG_CANCEL_CERTIFY_MESSAGE = 'The community has not been certified';
+    const WRONG_CERTIFY_CODE =  400003;
+    const WRONG_CERTIFY_MESSAGE = 'The Commnuity has been freezon';
 
     /**
      * GET Communties List

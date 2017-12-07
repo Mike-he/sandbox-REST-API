@@ -812,7 +812,7 @@ class RoomBuildingRepository extends EntityRepository
      * @param $limit
      * @return array
      */
-    public function getCommnueClientBUilding(
+    public function getCommnueClientBuilding(
         $builingIds,
         $limit
     ){
