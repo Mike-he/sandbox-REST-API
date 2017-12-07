@@ -59,6 +59,9 @@ class Parameter
 
     const KEY_COMMNUE_EVENT_HOT = 'commnue_event_hot';      //合创社热门活动数
     const KEY_COMMNUE_BUILDING_HOT = 'commnue_building_hot';    //合创社热门社区数
+    const KEY_COMMNUE_BANNER = 'commnue_banner';
+    const KEY_COMMNUE_ADVERTISING_MIDDLE = 'commnue_advertising_middle';
+    const KEY_COMMNUE_ADVERTISING_MICRO = 'commnue_advertising_micro';
 
     /**
      * @var int

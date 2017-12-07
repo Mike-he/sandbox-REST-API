@@ -60,4 +60,18 @@ class CommnueAdvertisingMicroRepository extends EntityRepository
 
         return $query->getSingleResult();
     }
+
+    /**
+     * @param $limit
+     * @return array
+     */
+    public function getClientMicro(
+        $limit
+    ) {
+        $query = $this->createQueryBuilder('cam')
+            ->setMaxResults($limit)
+            ->orderBy('cam.sortTime','DESC');
+
+        return $query->getQuery()->getResult();
+    }
 }

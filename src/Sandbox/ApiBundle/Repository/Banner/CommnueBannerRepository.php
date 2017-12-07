@@ -65,4 +65,18 @@ class CommnueBannerRepository extends EntityRepository
 
         return $query->getSingleResult();
     }
+
+    /**
+     * @param $limit
+     * @return array
+     */
+    public function getClientBanner(
+        $limit
+    ) {
+        $query = $this->createQueryBuilder('cb')
+            ->setMaxResults($limit)
+            ->orderBy('cb.sortTime','DESC');
+
+        return $query->getQuery()->getResult();
+    }
 }

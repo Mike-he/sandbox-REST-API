@@ -8,3 +8,18 @@ commnue_admin_default_controller:
     resource: "@CommnueClientApiBundle/Controller/DefaultController.php"
     type:     annotation
     prefix:   /
+
+commnue_client_commercial_controller:
+    resource: "@CommnueClientApiBundle/Controller/Commercial/ClientCommercialController.php"
+    type:     annotation
+    prefix:   /
+
+commnue_client_community_controller:
+    resource: "@CommnueClientApiBundle/Controller/Community/ClientCommunityHotController.php"
+    type:     annotation
+    prefix:   /
+
+commnue_client_Event_Hot_controller:
+    resource: "@CommnueClientApiBundle/Controller/Event/ClientEventHotController.php"
+    type:     annotation
+    prefix:   /
