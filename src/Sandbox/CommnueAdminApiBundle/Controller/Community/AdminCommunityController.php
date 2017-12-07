@@ -9,6 +9,7 @@ use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Sandbox\ApiBundle\Entity\Room\CommnueBuildingHot;
+use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -139,6 +140,33 @@ class AdminCommunityController extends LocationController
         $result['contacterPhone'] = $contactPhone;
         $result['contacterEmail'] = $community->getEmail();
 
+        return new View($result);
+    }
+
+    /**
+     * Get Different Commnue Status Community Counts
+     *
+     * @param Request $request
+     *
+     * @Route("/community/status/counts")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getCommunityStatusCount(
+        Request $request
+    ) {
+        // check user permission
+        $this->checkAdminCommunityPermission(AdminPermission::OP_LEVEL_VIEW);
+
+        $result = [];
+        $statusArray = [RoomBuilding::CERTIFIED,RoomBuilding::NORMAL,RoomBuilding::FREEZON];
+        foreach ($statusArray as $statu){
+            $result[$statu] = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                ->getCommueDiffStatusCounts($statu);
+        }
+        $result['total'] = $result[RoomBuilding::CERTIFIED] + $result[RoomBuilding::NORMAL];
         return new View($result);
     }
 

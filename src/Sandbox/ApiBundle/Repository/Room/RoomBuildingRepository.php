@@ -806,4 +806,22 @@ class RoomBuildingRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param $commnueStatus
+     * @return mixed
+     */
+    public function getCommueDiffStatusCounts(
+        $commnueStatus
+    )
+    {
+        $query = $this->createQueryBuilder('rb')
+            ->select(
+                'COUNT(rb.id) as counts'
+            )
+            ->where('rb.commnueStatus = :commnueStatus')
+            ->setParameter('commnueStatus',$commnueStatus);
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
 }
