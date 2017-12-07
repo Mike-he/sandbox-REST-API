@@ -173,7 +173,7 @@ class AdminUserController extends SandboxRestController
                     $user['authenticated'] = false;
                 }
 
-                $user['is_banned'] = $commnueUser->getIsBanned();
+                $user['is_banned'] = $commnueUser->isBanned();
 
                 array_push($response, $user);
 

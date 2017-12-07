@@ -3,6 +3,7 @@
 namespace Sandbox\ClientApiBundle\Controller\User;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
+use FOS\RestBundle\Controller\Annotations;
 use Sandbox\ApiBundle\Controller\User\UserLoginController;
 use Sandbox\ApiBundle\Entity\Auth\Auth;
 use Sandbox\ApiBundle\Entity\Error\Error;
@@ -50,6 +51,13 @@ class ClientUserLoginController extends UserLoginController
      *  }
      * )
      *
+     * @Annotations\QueryParam(
+     *     name="platform",
+     *     array=false,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
      * @Route("/login")
      * @Method({"POST"})
      *
@@ -58,7 +66,8 @@ class ClientUserLoginController extends UserLoginController
      * @throws \Exception
      */
     public function postClientUserLoginAction(
-        Request $request
+        Request $request,
+        ParamFetcherInterface $paramFetcher
     ) {
         // check security & get client
         $error = new Error();
@@ -72,20 +81,32 @@ class ClientUserLoginController extends UserLoginController
             );
         }
 
+        $platform = $paramFetcher->get('platform');
+
+        if ($platform == 'commnue') {
+            $checkUser = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Commnue\CommnueUser')
+                ->findOneBy(['userId' => $user->getId()]);
+        } else {
+            $checkUser = $user;
+        }
+
         // user is banned
-        if ($user->isBanned()) {
-            // get globals
-            $globals = $this->getGlobals();
+        if (!is_null($checkUser)) {
+            if ($checkUser->isBanned()) {
+                // get globals
+                $globals = $this->getGlobals();
 
-            $customerPhone = $globals['customer_service_phone'];
-            $translated = $this->get('translator')->trans(self::ERROR_ACCOUNT_BANNED_MESSAGE);
-            $bannedMessage = $translated.$customerPhone;
+                $customerPhone = $globals['customer_service_phone'];
+                $translated = $this->get('translator')->trans(self::ERROR_ACCOUNT_BANNED_MESSAGE);
+                $bannedMessage = $translated.$customerPhone;
 
-            return $this->customErrorView(
-                401,
-                self::ERROR_ACCOUNT_BANNED_CODE,
-                $bannedMessage
-            );
+                return $this->customErrorView(
+                    401,
+                    self::ERROR_ACCOUNT_BANNED_CODE,
+                    $bannedMessage
+                );
+            }
         }
 
         $login = new UserLoginData();

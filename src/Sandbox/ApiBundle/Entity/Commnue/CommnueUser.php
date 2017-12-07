@@ -134,7 +134,7 @@ class CommnueUser
      *
      * @return boolean 
      */
-    public function getIsBanned()
+    public function isBanned()
     {
         return $this->isBanned;
     }
