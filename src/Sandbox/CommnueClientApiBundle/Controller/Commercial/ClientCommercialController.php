@@ -9,6 +9,7 @@ use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
+use JMS\Serializer\SerializationContext;
 
 class ClientCommercialController extends AdvertisingController
 {
@@ -106,11 +107,11 @@ class ClientCommercialController extends AdvertisingController
                 'key'=>Parameter::KEY_COMMNUE_ADVERTISING_MIDDLE
             ));
         $limit = $parameter->getValue();
-        $banners = $this->getDoctrine()
+        $middles = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Advertising\CommnueAdvertisingMiddle')
             ->getClientMiddle($limit);
 
-        return new View($banners);
+        return new View($middles);
     }
 
     /**
@@ -181,11 +182,11 @@ class ClientCommercialController extends AdvertisingController
                 'key'=>Parameter::KEY_COMMNUE_ADVERTISING_MICRO
             ));
         $limit = $parameter->getValue();
-        $banners = $this->getDoctrine()
+        $micros = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Advertising\CommnueAdvertisingMicro')
             ->getClientMicro($limit);
 
-        return new View($banners);
+        return new View($micros);
     }
 
     /**
