@@ -815,12 +815,29 @@ class RoomBuildingRepository extends EntityRepository
     public function getCommnueClientBuilding(
         $builingIds,
         $limit
-    ){
+    ) {
         $query = $this->createQueryBuilder('rb')
             ->where('rb.id NOT IN (:ids)')
-            ->setParameter('ids',$builingIds)
+            ->setParameter('ids', $builingIds)
             ->setMaxResults($limit);
 
         return $query->getQuery()->getResult();
+    }
+    
+    /*
+     * @param $commnueStatus
+     * @return mixed
+     */
+    public function getCommueDiffStatusCounts(
+        $commnueStatus
+    ) {
+        $query = $this->createQueryBuilder('rb')
+            ->select(
+                'COUNT(rb.id) as counts'
+            )
+            ->where('rb.commnueStatus = :commnueStatus')
+            ->setParameter('commnueStatus',$commnueStatus);
+
+        return $query->getQuery()->getSingleScalarResult();
     }
 }
