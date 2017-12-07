@@ -61,6 +61,14 @@ class Feed
     private $isDeleted = false;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="platform", type="string", nullable=true)
+     * @Serializer\Groups({"main"})
+     */
+    private $platform = null;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
@@ -167,6 +175,22 @@ class Feed
     public function isDeleted()
     {
         return $this->isDeleted;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPlatform()
+    {
+        return $this->platform;
+    }
+
+    /**
+     * @param string $platform
+     */
+    public function setPlatform($platform)
+    {
+        $this->platform = $platform;
     }
 
     /**
