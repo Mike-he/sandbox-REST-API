@@ -755,6 +755,8 @@ class RoomBuildingRepository extends EntityRepository
 
     /**
      * @param $commnueStatus
+     * @param $search
+     *
      * @return array
      */
     public function getAllCommnueRoomBuildings(
@@ -787,39 +789,65 @@ class RoomBuildingRepository extends EntityRepository
     }
 
     /**
-     * @param $id
+     * @param $builingIds
+     * @param $limit
      * @return array
      */
-    public function getCommnueRoomBuildingsById(
-        $id
-    ) {
+    public function getExtraHotCommnueClientBuilding(
+        $builingIds,
+        $limit
+    ){
         $query = $this->createQueryBuilder('rb')
-            ->select(
-                'rb.name',
-                'rb.address',
-                'rb.lessorName',
-                'rb.lessorContact',
-                'rb.lessorEmail'
-            )
-            ->where('rb.id = :id')
-            ->setParameter('id',$id);
+            ->select('rb.id')
+            ->where('rb.id NOT IN (:ids)')
+            ->setParameter('ids',$builingIds)
+            ->setMaxResults($limit);
 
         return $query->getQuery()->getResult();
     }
 
     /**
-     * @param $builingIds
-     * @param $limit
+     * @param $userId
+     * @param $buildingIds
+     * @param $lat
+     * @param $lng
      * @return array
      */
-    public function getCommnueClientBuilding(
-        $builingIds,
-        $limit
-    ){
+    public function getCommnueClientCommunityBuilding(
+        $userId,
+        $buildingIds,
+        $lat,
+        $lng
+    ) {
         $query = $this->createQueryBuilder('rb')
-            ->where('rb.id NOT IN (:ids)')
-            ->setParameter('ids',$builingIds)
-            ->setMaxResults($limit);
+            ->leftJoin('SandboxApiBundle:Room\Room','r','WITH','r.buildingId = rb.id')
+                      ->select('
+                        rb.id,
+                        rb.name,
+                        COUNT(r.id) as room_number,
+                        (6371
+                            * acos(cos(radians(:latitude)) * cos(radians(rb.lat))
+                            * cos(radians(rb.lng) - radians(:longitude))
+                            + sin(radians(:latitude)) * sin(radians(rb.lat)))
+                        ) as distance,
+                        rb.evaluationStar,
+                        rb.avatar,
+                        rb.address,
+                        rb.lat,
+                        rb.lng,
+                        (rb.orderEvaluationNumber + rb.buildingEvaluationNumber) as total_comments_amount
+                    ')
+                        ->where('rb.id IN (:ids)')
+                        ->setParameter('ids',$buildingIds)
+                        ->setParameter('latitude', $lat)
+                        ->setParameter('longitude', $lng)
+                        ->groupBy('rb.id');
+
+        if(is_null($userId)){
+            $query->orderBy('distance','ASC');
+        }else{
+            $query->orderBy('room_number','DESC');
+        }
 
         return $query->getQuery()->getResult();
     }
