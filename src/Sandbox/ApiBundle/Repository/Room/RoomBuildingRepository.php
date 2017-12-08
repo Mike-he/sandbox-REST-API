@@ -882,12 +882,4 @@ class RoomBuildingRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
-
-    public function getAllCommnueClientCommunityBuilding(
-        $userId,
-        $lat,
-        $lng
-    ) {
-
-    }
 }

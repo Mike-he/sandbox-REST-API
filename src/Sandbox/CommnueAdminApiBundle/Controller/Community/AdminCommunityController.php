@@ -408,30 +408,6 @@ class AdminCommunityController extends LocationController
     }
 
     /**
-     * @param $community
-     * @return array
-     */
-    private function setCommunity(
-        $community
-    ) {
-        $data = [];
-        $id = $community['id'];
-        $data['id'] = $id;
-        $data['name'] = $community['name'];
-        $data['commnueStatus'] = $community['commnueStatus'];
-        $data['roomNumber'] = $community['roomNumber'];
-        $hot = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Room\CommnueBuildingHot')
-            ->findOneBy(array(
-                'buildingId'=>$id
-            ));
-        if(!is_null($hot)){
-            $data['is_hot'] = true;
-        }
-
-        return $data;
-    }
-    /**
      * Check user permission.
      *
      * @param int $opLevel
