@@ -808,16 +808,20 @@ class RoomBuildingRepository extends EntityRepository
 
     /**
      * @param $userId
-     * @param $buildingIds
      * @param $lat
      * @param $lng
+     * @param null $buildingIds
+     * @param null $limit
+     * @param null $offset
      * @return array
      */
     public function getCommnueClientCommunityBuilding(
         $userId,
-        $buildingIds,
         $lat,
-        $lng
+        $lng,
+        $buildingIds = null,
+        $limit = null,
+        $offset = null
     ) {
         $query = $this->createQueryBuilder('rb')
             ->leftJoin('SandboxApiBundle:Room\Room','r','WITH','r.buildingId = rb.id')
@@ -837,11 +841,16 @@ class RoomBuildingRepository extends EntityRepository
                         rb.lng,
                         (rb.orderEvaluationNumber + rb.buildingEvaluationNumber) as total_comments_amount
                     ')
-                        ->where('rb.id IN (:ids)')
-                        ->setParameter('ids',$buildingIds)
+                        ->where('rb.commnueStatus != :commnuestatus')
+                        ->setParameter('commnuestatus', RoomBuilding::FREEZON)
                         ->setParameter('latitude', $lat)
                         ->setParameter('longitude', $lng)
                         ->groupBy('rb.id');
+
+        if(!is_null($buildingIds)){
+            $query->andWhere('rb.id IN (:ids)')
+                ->setParameter('ids',$buildingIds);
+        }
 
         if(is_null($userId)){
             $query->orderBy('distance','ASC');
@@ -849,6 +858,19 @@ class RoomBuildingRepository extends EntityRepository
             $query->orderBy('room_number','DESC');
         }
 
+        if(!is_null($limit) && !is_null($offset)){
+            $query->setFirstResult($offset)
+                ->setMaxResults($limit);
+        }
+
         return $query->getQuery()->getResult();
+    }
+
+    public function getAllCommnueClientCommunityBuilding(
+        $userId,
+        $lat,
+        $lng
+    ) {
+
     }
 }

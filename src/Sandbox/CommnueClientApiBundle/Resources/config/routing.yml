@@ -15,7 +15,7 @@ commnue_client_commercial_controller:
     prefix:   /
 
 commnue_client_community_controller:
-    resource: "@CommnueClientApiBundle/Controller/Community/ClientCommunityHotController.php"
+    resource: "@CommnueClientApiBundle/Controller/Community/ClientCommunityController.php"
     type:     annotation
     prefix:   /
 

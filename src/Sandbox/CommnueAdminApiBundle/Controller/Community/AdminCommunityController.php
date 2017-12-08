@@ -83,19 +83,28 @@ class AdminCommunityController extends LocationController
         $commnueStatus = $paramFetcher->get('commnue_status');
         $search = $paramFetcher->get('search');
 
-        $communitise = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')
+        $communities = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')
             ->getAllCommnueRoomBuildings(
                 $commnueStatus,
                 $search
             );
-        $results = [];
-        foreach ($communitise as $commnuity){
-            $results[] = $this->setCommunity($commnuity);
+
+        foreach ($communities as &$community){
+
+            $hot = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\CommnueBuildingHot')
+                ->findOneBy(array(
+                    'buildingId'=> $community['id']
+                ));
+
+            if(!is_null($hot)){
+                $community['is_hot'] = true;
+            }
         }
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
-            $results,
+            $communities,
             $pageIndex,
             $pageLimit
         );

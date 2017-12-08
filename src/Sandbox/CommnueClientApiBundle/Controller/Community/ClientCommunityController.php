@@ -14,9 +14,11 @@ use Symfony\Component\HttpFoundation\Request;
 use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Constants\LocationConstants;
 
-class ClientCommunityHotController extends LocationController
+class ClientCommunityController extends LocationController
 {
     /**
+     * Get Commnue Community
+     *
      * @param Request $request
      *
      * @Annotations\QueryParam(
@@ -39,7 +41,89 @@ class ClientCommunityHotController extends LocationController
      *    description="coordinate lng"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit for the page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="offset",
+     *    array=false,
+     *    default="0",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="start of the page"
+     * )
+     *
      * @Route("/communities")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getAllCommnueCommunityAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $userId = null;
+        if ($this->isAuthProvided()) {
+            $userId = $this->getUserId();
+        }
+
+        $lat = $paramFetcher->get('lat');
+        $lng = $paramFetcher->get('lng');
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
+
+        $communities = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+            ->getCommnueClientCommunityBuilding(
+                $userId,
+                $lat,
+                $lng,
+                null,
+                $limit,
+                $offset
+            );
+
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
+        $view->setData($communities);
+
+        return $view;
+    }
+
+    /**
+     * Get Commnue Hot Community
+     *
+     * @param Request $request
+     *
+     * @Annotations\QueryParam(
+     *    name="lat",
+     *    array=false,
+     *    default=0,
+     *    nullable=true,
+     *    requirements="-?\d*(\.\d+)?$",
+     *    strict=true,
+     *    description="coordinate lat"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="lng",
+     *    array=false,
+     *    default=0,
+     *    nullable=true,
+     *    requirements="-?\d*(\.\d+)?$",
+     *    strict=true,
+     *    description="coordinate lng"
+     * )
+     *
+     * @Route("/communities/hot")
      * @Method({"GET"})
      *
      * @return View
@@ -74,7 +158,7 @@ class ClientCommunityHotController extends LocationController
             ));
 
         $builingIds = [];
-        $results = [];
+
         foreach ($hots as $hot){
             $id = $hot->getBuildingId();
             $builingIds[] = $id;
@@ -96,9 +180,9 @@ class ClientCommunityHotController extends LocationController
             ->getRepository('SandboxApiBundle:Room\RoomBuilding')
             ->getCommnueClientCommunityBuilding(
                 $userId,
-                $builingIds,
                 $lat,
-                $lng
+                $lng,
+                $builingIds
             );
 
         $view = new View();
