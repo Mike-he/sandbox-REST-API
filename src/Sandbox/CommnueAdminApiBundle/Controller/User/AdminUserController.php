@@ -195,6 +195,38 @@ class AdminUserController extends SandboxRestController
     }
 
     /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     * @param int                   $id
+     *
+     * @Route("/users/{id}")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getOneUserAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        $user = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\User')
+            ->find($id);
+
+        $userProfile = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserProfile')
+            ->findOneBy(['userId' => $id]);
+
+        return new View([
+            'name' => $userProfile->getName(),
+            'phone' => $user->getPhone(),
+            'email' => $user->getEmail(),
+            'gender' => $userProfile->getGender(),
+            'dat_of_birth' => $userProfile->getDateOfBirth(),
+        ]);
+    }
+
+    /**
      * @param Request $request
      * @param ParamFetcherInterface $paramFetcher
      *
