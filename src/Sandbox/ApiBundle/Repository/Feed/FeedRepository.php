@@ -77,7 +77,8 @@ class FeedRepository extends EntityRepository
     public function getFeedsByBuddies(
         $limit,
         $lastId,
-        $userId
+        $userId,
+        $platform
     ) {
         $userIds = array($userId);
 
@@ -126,6 +127,11 @@ class FeedRepository extends EntityRepository
         // set all parameters
         $query->setParameters($parameters);
 
+        if (!is_null($platform)) {
+            $query->andWhere('f.platform = :platform')
+                ->setParameter('platform', $platform);
+        }
+
         $result = $query->getQuery()->getResult();
 
         return $result;
@@ -137,13 +143,15 @@ class FeedRepository extends EntityRepository
      * @param int $limit
      * @param int $lastId
      * @param int $buildingId
+     * @param $platform
      *
      * @return array
      */
     public function getFeedsByBuilding(
         $limit,
         $lastId,
-        $buildingId
+        $buildingId,
+        $platform
     ) {
         $parameters = [];
 
@@ -172,6 +180,11 @@ class FeedRepository extends EntityRepository
 
         // set all parameters
         $query->setParameters($parameters);
+
+        if (!is_null($platform)) {
+            $query->andWhere('f.platform = :platform')
+                ->setParameter('platform', $platform);
+        }
 
         $result = $query->getQuery()->getResult();
 
@@ -245,13 +258,15 @@ class FeedRepository extends EntityRepository
      * @param int $userId
      * @param int $limit
      * @param int $lastId
+     * @param $platform
      *
      * @return array
      */
     public function getMyFeeds(
         $userId,
         $limit,
-        $lastId
+        $lastId,
+        $platform
     ) {
         $query = $this->createQueryBuilder('f')
             ->leftJoin('SandboxApiBundle:User\User', 'u', 'WITH', 'f.ownerId = u.id')
@@ -266,6 +281,11 @@ class FeedRepository extends EntityRepository
         if (!is_null($lastId)) {
             $query->andWhere('f.id < :lastId')
                 ->setParameter('lastId', $lastId);
+        }
+
+        if (!is_null($platform)) {
+            $query->andWhere('f.platform = :platform')
+                ->setParameter('platform', $platform);
         }
 
         $query->orderBy('f.creationDate', 'DESC');

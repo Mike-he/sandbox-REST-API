@@ -17,6 +17,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
 
 /**
  * Rest controller for Feed.
@@ -59,6 +61,7 @@ class ClientFeedController extends FeedController
      * @Annotations\QueryParam(
      *     name="platform",
      *     array=false,
+     *     default=null,
      *     nullable=true,
      *     strict=true
      * )
@@ -121,6 +124,14 @@ class ClientFeedController extends FeedController
      *    description="last id"
      * )
      *
+     * @Annotations\QueryParam(
+     *     name="platform",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
      * @Route("feeds/buddy")
      * @Method({"GET"})
      *
@@ -132,16 +143,24 @@ class ClientFeedController extends FeedController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $userId = $this->getUserId();
+        if ($this->isAuthProvided()) {
+            $userId = $this->getUserId();
+        } else {
+            throw new UnauthorizedHttpException(self::UNAUTHED_API_CALL);
+        }
 
         $limit = $paramFetcher->get('limit');
         $lastId = $paramFetcher->get('last_id');
+        $platform = $paramFetcher->get('platform');
 
-        $feeds = $this->getRepo('Feed\FeedView')->getFeedsByBuddies(
-            $limit,
-            $lastId,
-            $userId
-        );
+        $feeds = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Feed\FeedView')
+            ->getFeedsByBuddies(
+                $limit,
+                $lastId,
+                $userId,
+                $platform
+            );
 
         return $this->handleGetFeeds($feeds, $userId);
     }
@@ -172,6 +191,14 @@ class ClientFeedController extends FeedController
      *    description="last id"
      * )
      *
+     * @Annotations\QueryParam(
+     *     name="platform",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
      * @Route("feeds/building")
      * @Method({"GET"})
      *
@@ -183,10 +210,15 @@ class ClientFeedController extends FeedController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $userId = $this->getUserId();
+        if ($this->isAuthProvided()) {
+            $userId = $this->getUserId();
+        } else {
+            throw new UnauthorizedHttpException(self::UNAUTHED_API_CALL);
+        }
 
         $limit = $paramFetcher->get('limit');
         $lastId = $paramFetcher->get('last_id');
+        $platform = $paramFetcher->get('platform');
 
         $profile = $this->getRepo('User\UserProfile')->findOneByUserId($userId);
 
@@ -195,11 +227,14 @@ class ClientFeedController extends FeedController
             return new View(array());
         }
 
-        $feeds = $this->getRepo('Feed\FeedView')->getFeedsByBuilding(
-            $limit,
-            $lastId,
-            $buildingId
-        );
+        $feeds = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Feed\FeedView')
+            ->getFeedsByBuilding(
+                $limit,
+                $lastId,
+                $buildingId,
+                $platform
+            );
 
         return $this->handleGetFeeds($feeds, $userId);
     }
@@ -288,6 +323,14 @@ class ClientFeedController extends FeedController
      *    description="userId"
      * )
      *
+     * @Annotations\QueryParam(
+     *     name="platform",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
      * @Route("/feeds/my")
      * @Method({"GET"})
      *
@@ -321,13 +364,17 @@ class ClientFeedController extends FeedController
 
         $limit = $paramFetcher->get('limit');
         $lastId = $paramFetcher->get('last_id');
+        $platform = $paramFetcher->get('platform');
 
         // get all my feeds
-        $feeds = $this->getRepo('Feed\FeedView')->getMyFeeds(
-            $assignUserId,
-            $limit,
-            $lastId
-        );
+        $feeds = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Feed\FeedView')
+            ->getMyFeeds(
+                $assignUserId,
+                $limit,
+                $lastId,
+                $platform
+            );
 
         return $this->handleGetFeeds($feeds, $userId);
     }

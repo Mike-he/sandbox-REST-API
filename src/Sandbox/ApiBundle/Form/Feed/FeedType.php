@@ -16,6 +16,7 @@ class FeedType extends AbstractType
     {
         $builder
             ->add('content')
+            ->add('platform')
             ->add('feed_attachments',
                 null,
                 array(
