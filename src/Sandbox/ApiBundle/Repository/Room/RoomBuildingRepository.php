@@ -803,7 +803,8 @@ class RoomBuildingRepository extends EntityRepository
             ->setParameter('ids', $builingIds)
             ->setMaxResults($limit);
 
-        return $query->getQuery()->getResult();
+        $ids = $query->getQuery()->getScalarResult();
+        return array_unique(array_map('current', $ids));
     }
 
     /*

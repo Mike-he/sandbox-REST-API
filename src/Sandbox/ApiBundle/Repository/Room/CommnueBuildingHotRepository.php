@@ -25,23 +25,11 @@ class CommnueBuildingHotRepository extends EntityRepository
     {
         $query = $this->createQueryBuilder('cbh')
             ->leftJoin('SandboxApiBundle:Room\RoomBuilding','rb','WITH','cbh.buildingId = rb.id')
+            ->select('cbh.buildingId')
             ->where('rb.commnueStatus != :commnueStatus')
             ->setParameter('commnueStatus', RoomBuilding::FREEZON);
 
-        return $query->getQuery()->getResult();
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getHotCommunityCounts()
-    {
-        $query = $this->createQueryBuilder('cbh')
-            ->leftJoin('SandboxApiBundle:Room\RoomBuilding','rb','WITH','cbh.buildingId = rb.id')
-            ->select('COUNT(cbh.id)')
-            ->where('rb.commnueStatus != :commnueStatus')
-            ->setParameter('commnueStatus', RoomBuilding::FREEZON);
-
-        return $query->getQuery()->getSingleScalarResult();
+        $ids = $query->getQuery()->getScalarResult();
+        return array_unique(array_map('current', $ids));
     }
 }

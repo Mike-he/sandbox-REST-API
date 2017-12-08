@@ -20,6 +20,7 @@ class ClientCommunityController extends LocationController
      * Get Commnue Community
      *
      * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
      *    name="lat",
@@ -80,6 +81,10 @@ class ClientCommunityController extends LocationController
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
 
+        $location = $this->baiduToGaode($lat, $lng);
+        $lat = $location['lat'];
+        $lng = $location['lon'];
+
         $communities = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\RoomBuilding')
             ->getCommnueClientCommunityBuilding(
@@ -102,6 +107,7 @@ class ClientCommunityController extends LocationController
      * Get Commnue Hot Community
      *
      * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
      *    name="lat",
@@ -147,32 +153,23 @@ class ClientCommunityController extends LocationController
         $hots = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\CommnueBuildingHot')
             ->getHotCommunities();
+        $hotCounts = count($hots);
 
-        $hotCounts = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:Room\CommnueBuildingHot')
-                    ->getHotCommunityCounts();
         $parameter = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Parameter\Parameter')
             ->findOneBy(array(
                 'key'=>Parameter::KEY_COMMNUE_BUILDING_HOT
             ));
-
-        $builingIds = [];
-
-        foreach ($hots as $hot){
-            $id = $hot->getBuildingId();
-            $builingIds[] = $id;
-        }
         $maxHot = $parameter->getValue();
 
         if($hotCounts < $maxHot){
             $limit = $maxHot - $hotCounts;
             $extraHots = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Room\RoomBuilding')
-                ->getExtraHotCommnueClientBuilding($builingIds, $limit);
+                ->getExtraHotCommnueClientBuilding($hots, $limit);
 
             foreach($extraHots as $id){
-                $builingIds[] = $id;
+                array_push($hots,$id);
             }
         }
 
@@ -182,7 +179,7 @@ class ClientCommunityController extends LocationController
                 $userId,
                 $lat,
                 $lng,
-                $builingIds
+                $hots
             );
 
         $view = new View();
