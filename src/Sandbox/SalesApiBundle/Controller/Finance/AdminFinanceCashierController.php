@@ -9,6 +9,7 @@ use Sandbox\ApiBundle\Entity\GenericList\GenericList;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseRentTypes;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
+use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Symfony\Component\HttpFoundation\Request;
@@ -503,6 +504,7 @@ class AdminFinanceCashierController extends SalesRestController
             'description' => '',
             'room_name' => $roomData['room_name'],
             'room_type_tag' => $roomData['room_type_tag'],
+            'building_id' => $roomData['building_id']
         );
 
         return $data;
@@ -550,6 +552,7 @@ class AdminFinanceCashierController extends SalesRestController
             'description' => $bill->getDescription(),
             'room_name' => $roomData['room_name'],
             'room_type_tag' => $roomData['room_type_tag'],
+            'building_id' => $roomData['building_id']
         );
 
         return $data;
@@ -565,22 +568,26 @@ class AdminFinanceCashierController extends SalesRestController
     ) {
         $roomName = null;
         $roomTypeTag = null;
+        $buildingId = null;
         if ($productId) {
             $product = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Product\Product')
                 ->find($productId);
 
             if ($product) {
-                $roomName = $product->getRoom()->getName();
-                $tag = $product->getRoom()->getTypeTag();
-
+                /** @var Room $room */
+                $room = $product->getRoom();
+                $roomName = $room->getName();
+                $tag = $room->getTypeTag();
                 $roomTypeTag = $this->get('translator')->trans(ProductOrderExport::TRANS_PREFIX.$tag);
+                $buildingId = $room->getBuilding()->getId();
             }
         }
 
         $result = array(
             'room_name' => $roomName,
             'room_type_tag' => $roomTypeTag,
+            'building_id' => $buildingId,
         );
 
         return $result;

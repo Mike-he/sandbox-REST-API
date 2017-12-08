@@ -122,7 +122,7 @@ class AdminFinanceReceivableController extends SalesRestController
                     continue;
             }
 
-            if ($payload['pay_channel'] == 'sales_cash') {
+            if ('sales_cash' == $payload['pay_channel']) {
                 if (!isset($payload['amount'])) {
                     throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
                 }
