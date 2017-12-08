@@ -29,24 +29,34 @@ class Version820171206104705 extends AbstractMigration implements ContainerAware
     {
         $em = $this->container->get('doctrine.orm.entity_manager');
 
-        $logPermission = $em->getRepository('SandboxApiBundle:Admin\AdminPermission')
-            ->findOneBy(array(
-                'key'=> AdminPermission::KEY_SALES_PLATFORM_LOG
-            ));
-
         $group = $em->getRepository('SandboxApiBundle:Admin\AdminPermissionGroups')
             ->findOneBy(array(
                 'groupKey' => 'setting',
                 'platform' => 'sales',
             ));
 
+        $logPermission = $em->getRepository('SandboxApiBundle:Admin\AdminPermission')
+            ->findOneBy(array(
+                'key'=> AdminPermission::KEY_SALES_PLATFORM_LOG
+            ));
+        $buildingSettingPermission = $em->getRepository('SandboxApiBundle:Admin\AdminPermission')
+            ->findOneBy(array(
+                'key'=> AdminPermission::KEY_SALES_BUILDING_SETTING
+            ));
 
-        $groupMap = $em->getRepository('SandboxApiBundle:Admin\AdminPermissionGroupMap')
+        $groupMap1 = $em->getRepository('SandboxApiBundle:Admin\AdminPermissionGroupMap')
             ->findOneBy(array(
                 'group' => $group,
                 'permission' => $logPermission
             ));
-        $em->remove($groupMap);
+        $groupMap2 = $em->getRepository('SandboxApiBundle:Admin\AdminPermissionGroupMap')
+            ->findOneBy(array(
+                'group' => $group,
+                'permission' => $buildingSettingPermission
+            ));
+        $em->remove($groupMap1);
+        $em->remove($groupMap2);
+        $em->remove($buildingSettingPermission);
 
         $em->flush();
     }

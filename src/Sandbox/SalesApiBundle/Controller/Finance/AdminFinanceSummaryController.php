@@ -22,7 +22,7 @@ use FOS\RestBundle\Controller\Annotations;
  * @author   Leo Xu <leo.xu@sandbox3.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 class AdminFinanceSummaryController extends PaymentController
 {
@@ -416,7 +416,7 @@ class AdminFinanceSummaryController extends PaymentController
         );
 
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        if ($httpCode != self::HTTP_STATUS_OK) {
+        if (self::HTTP_STATUS_OK != $httpCode) {
             return;
         }
 
