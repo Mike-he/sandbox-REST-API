@@ -64,31 +64,6 @@ class ClientCommercialController extends AdvertisingController
     }
 
     /**
-     * Get Banners Show Counts
-     *
-     * @param Request $request
-     *
-     * @Route("/commercial/banners/limit")
-     * @Method("GET")
-     *
-     * @return View
-     */
-    public function getBannerLimitCountsAction(
-        Request $request
-    ) {
-        $parameter = $parameter = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Parameter\Parameter')
-            ->findOneBy(array(
-                'key'=>Parameter::KEY_COMMNUE_BANNER
-            ));
-        $limit = $parameter->getValue();
-
-        return new View(array(
-            'banner_count'=>$limit
-        ));
-    }
-
-    /**
      * Get advertising middles
      *
      * @param Request $request
@@ -139,31 +114,6 @@ class ClientCommercialController extends AdvertisingController
     }
 
     /**
-     * Get Advertising Middles Show Counts
-     *
-     * @param Request $request
-     *
-     * @Route("/commercial/middles/limit")
-     * @Method("GET")
-     *
-     * @return View
-     */
-    public function getMiddlesLimitCountsAction(
-        Request $request
-    ) {
-        $parameter = $parameter = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Parameter\Parameter')
-            ->findOneBy(array(
-                'key'=>Parameter::KEY_COMMNUE_ADVERTISING_MIDDLE
-            ));
-        $limit = $parameter->getValue();
-
-        return new View(array(
-            'middle_count'=>$limit
-        ));
-    }
-
-    /**
      * Get advertising micros
      *
      * @param Request $request
@@ -211,30 +161,5 @@ class ClientCommercialController extends AdvertisingController
         $this->throwNotFoundIfNull($micro,self::NOT_FOUND_MESSAGE);
 
         return new View($micro);
-    }
-
-    /**
-     * Get Advertising Micro Show Counts
-     *
-     * @param Request $request
-     *
-     * @Route("/commercial/micros/limit")
-     * @Method("GET")
-     *
-     * @return View
-     */
-    public function getMicrosLimitCountsAction(
-        Request $request
-    ) {
-        $parameter = $parameter = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Parameter\Parameter')
-            ->findOneBy(array(
-                'key'=>Parameter::KEY_COMMNUE_ADVERTISING_MICRO
-            ));
-        $limit = $parameter->getValue();
-
-        return new View(array(
-            'micro_count'=>$limit
-        ));
     }
 }
