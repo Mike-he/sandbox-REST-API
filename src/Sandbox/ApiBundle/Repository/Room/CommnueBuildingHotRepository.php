@@ -25,7 +25,7 @@ class CommnueBuildingHotRepository extends EntityRepository
     {
         $query = $this->createQueryBuilder('cbh')
             ->leftJoin('SandboxApiBundle:Room\RoomBuilding','rb','WITH','cbh.buildingId = rb.id')
-            ->select('cbh.id')
+            ->select('cbh.buildingId')
             ->where('rb.commnueStatus != :commnueStatus')
             ->setParameter('commnueStatus', RoomBuilding::FREEZON);
 

@@ -20,6 +20,7 @@ class ClientCommunityController extends LocationController
      * Get Commnue Community
      *
      * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
      *    name="lat",
