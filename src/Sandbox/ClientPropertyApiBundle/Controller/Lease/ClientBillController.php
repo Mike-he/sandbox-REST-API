@@ -359,6 +359,7 @@ class ClientBillController extends SalesRestController
                     'avatar' => $customer ? $customer->getAvatar() : '',
                 ),
                 'lease' => array(
+                    'status' => $lease->getStatus(),
                     'start_date' => $lease->getStartDate(),
                     'end_date' => $lease->getEndDate(),
                 ),
