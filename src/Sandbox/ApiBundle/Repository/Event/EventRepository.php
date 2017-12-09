@@ -84,12 +84,15 @@ class EventRepository extends EntityRepository
 
     public function countEvents(
         $status,
-        $visible
+        $visible,
+        $platform = Event::PLATFORM_OFFICIAL
     ) {
         $query = $this->createQueryBuilder('e')
             ->select('count(e.id)')
             ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = e.roomId')
-            ->where('e.isDeleted = FALSE');
+            ->where('e.isDeleted = FALSE')
+            ->where('e.platform = :platform')
+            ->setParameter('platform', $platform);
 
         // filter by status
         if (!is_null($status)) {
