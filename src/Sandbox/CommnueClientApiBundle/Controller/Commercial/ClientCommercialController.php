@@ -38,7 +38,12 @@ class ClientCommercialController extends AdvertisingController
             ->getRepository('SandboxApiBundle:Banner\CommnueBanner')
             ->getClientBanner($limit);
 
-        return new View($banners);
+        $results = [];
+        foreach($banners as $banner){
+            $results[] = $this->handleSource($banner);
+        }
+
+        return new View($results);
     }
 
     /**
@@ -88,7 +93,12 @@ class ClientCommercialController extends AdvertisingController
             ->getRepository('SandboxApiBundle:Advertising\CommnueAdvertisingMiddle')
             ->getClientMiddle($limit);
 
-        return new View($middles);
+        $results = [];
+        foreach ($middles as $middle){
+            $results[] = $this->handleSource($middle);
+        }
+
+        return new View($results);
     }
 
     /**
@@ -171,7 +181,7 @@ class ClientCommercialController extends AdvertisingController
      * @param Request $request
      * @param $id
      *
-     * @Route("/commercial/materials/{id}")
+     * @Route("/commercial/material/{id}")
      * @Method({"GET"})
      *
      * @return View
@@ -187,5 +197,31 @@ class ClientCommercialController extends AdvertisingController
         $this->throwNotFoundIfNull($material,self::NOT_FOUND_MESSAGE);
 
         return new View($material);
+    }
+
+    /**
+     * @param $item
+     * @return array
+     */
+    private function handleSource(
+        $item
+    ) {
+        $data = [];
+
+        $data['id'] = $item->getId();
+        $data['title'] = $item->getTitle();
+        $data['source'] = $item->getSource();
+        $data['cover'] = $item->getCover();
+
+        $source = $item->getSource();
+        if($source == 'material' || $source == 'event'){
+            $sourceId = $item->getSourceId();
+            $url = $this->getParameter('mobile_url');
+            $data['url'] = $url.'/'.$source.'?ptype=detail&id='.$sourceId;
+        }else{
+            $data['url'] = $item->getContent();
+        }
+
+        return $data;
     }
 }

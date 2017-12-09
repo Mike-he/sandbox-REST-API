@@ -274,4 +274,28 @@ class EventRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param $ids
+     * @return array
+     */
+    public function getCommnueHotEvents(
+        $ids
+    ) {
+        $query = $this->createQueryBuilder('e')
+            ->leftJoin('SandboxApiBundle:Event\EventAttachment','ea','WITH','e.id = ea.eventId')
+            ->select(
+                'e.id,
+                e.name,
+                e.address,
+                e.status,
+                ea.content,
+                ea.preview
+              '
+            )
+            ->where('e.id IN (:ids)')
+            ->setParameter('ids', $ids);
+
+        return $query->getQuery()->getResult();
+    }
 }

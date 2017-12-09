@@ -30,88 +30,23 @@ class ClientEventHotController extends EventController
             $userId = $this->getUserId();
         }
 
-        $hots = $this->getDoctrine()
+        $ids = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Event\CommnueEventHot')
-            ->findAll();
-        $events = [];
-        foreach ($hots as $hot){
-            $eventId = $hot->getEventId();
-            $event = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Event\Event')
-                ->find($eventId);
-            try {
-               $events[] = $this->setEventExtra($event, $userId);
-            } catch (\Exception $e) {
-                continue;
-            }
-        }
+            ->getCommnueHotEventsId();
+        $hots =  $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\Event')
+            ->getCommnueHotEvents($ids);
 
-        $view = new View($events);
+        foreach ($hots as &$hot) {
+            $url = $this->getParameter('mobile_url');
+            $id = $hot['id'];
+            $hot['url'] = $url.'/'.'event?ptype=detail&id='.$id;
+            $hot['registration_counts'] = $this->getRepo('Event\EventRegistration')
+                ->getRegistrationCounts($id);
+        }
+        $view = new View($hots);
         $view->setSerializationContext(SerializationContext::create()->setGroups(['client_event']));
 
         return $view;
-    }
-
-    /**
-     * @param Event $event
-     * @param int   $userId
-     *
-     * @return Event
-     */
-    private function setEventExtra(
-        $event,
-        $userId = null
-    ) {
-        $eventId = $event->getId();
-
-        // get attachment, dates, forms, registrationCounts, likesCount, commentsCount
-        $attachments = $this->getRepo('Event\EventAttachment')->findByEvent($event);
-        $dates = $this->getRepo('Event\EventDate')->findByEvent($event);
-        $forms = $this->getRepo('Event\EventForm')->findByEvent($event);
-        $registrationCounts = $this->getRepo('Event\EventRegistration')
-            ->getRegistrationCounts($eventId);
-        $likesCount = $this->getRepo('Event\EventLike')->getLikesCount($eventId);
-        $commentsCount = $this->getRepo('Event\EventComment')->getCommentsCount($eventId);
-
-        // set attachment, dates, forms, registrationCounts
-        $event->setAttachments($attachments);
-        $event->setDates($dates);
-        $event->setForms($forms);
-        $event->setRegisteredPersonNumber((int) $registrationCounts);
-        $event->setLikesCount((int) $likesCount);
-        $event->setCommentsCount((int) $commentsCount);
-
-        // set accepted person number
-        if ($event->isVerify()) {
-            $acceptedCounts = $this->getRepo('Event\EventRegistration')
-                ->getAcceptedPersonNumber($eventId);
-            $event->setAcceptedPersonNumber((int) $acceptedCounts);
-        }
-
-        // set my registration status
-        if (!is_null($userId)) {
-            // check if user is registered
-            $registration = $this->getRepo('Event\EventRegistration')->findOneBy(array(
-                'eventId' => $eventId,
-                'userId' => $userId,
-            ));
-
-            if (!is_null($registration)) {
-                // set registration
-                $event->setEventRegistration($registration);
-            }
-
-            // check my like if
-            $like = $this->getRepo('Event\EventLike')->findOneBy(array(
-                'eventId' => $event->getId(),
-                'authorId' => $userId,
-            ));
-
-            if (!is_null($like)) {
-                $event->setMyLikeId($like->getId());
-            }
-        }
-
-        return $event;
     }
 }
