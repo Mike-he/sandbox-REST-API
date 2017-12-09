@@ -583,7 +583,7 @@ class ClientDashBoardController extends SandboxRestController
                     ]);
                 $payChannel = $receivableTypes[$receivable->getPayChannel()];
             } else {
-                $payChannel = '创合钱包支付';
+                $payChannel = '秒租钱包';
             }
         }
 
@@ -636,7 +636,7 @@ class ClientDashBoardController extends SandboxRestController
             'address' => $event->getAddress(),
             'price' => (float) $event->getPrice(),
             'status' => $status,
-            'pay_channel' => $order->getPayChannel() ? '创合钱包支付' : '',
+            'pay_channel' => $order->getPayChannel() ? '秒租钱包' : '',
             'attachment' => $eventAttachment ? $eventAttachment->getContent() : '',
         );
 
@@ -662,7 +662,7 @@ class ClientDashBoardController extends SandboxRestController
             'end_date' => $order->getEndDate(),
             'price' => (float) $order->getPrice(),
             'status' => '已付款',
-            'pay_channel' => '创合钱包支付',
+            'pay_channel' => '秒租钱包',
         );
 
         return $result;
