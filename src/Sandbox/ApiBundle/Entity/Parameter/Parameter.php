@@ -47,7 +47,7 @@ class Parameter
     const KEY_HTML_APPLY = 'html_apply';                                        //预约看房
     const KEY_HTML_ROOM_ORDER_PARAM_ID = 'html_room_order_param_id';            //空间订单
     const KEY_HTML_EVENT_ORDER_PARAM_ID = 'html_event_order_param_id';          //活动订单
-    const KEY_HTML_MEMBER_ORDER_PARAM_ID= 'html_member_order_param_id';        //会员卡订单
+    const KEY_HTML_MEMBER_ORDER_PARAM_ID= 'html_member_order_param_id';         //会员卡订单
     const KEY_HTML_OFFER_PARAM_ID = 'html_offer_param_id';                      //报价
     const KEY_HTML_BILL_PARAM_ID = 'html_bill_param_id';                        //账单
     const KEY_HTML_CONTRACT_PARAM_ID = 'html_contract_param_id';                //合同
@@ -56,6 +56,8 @@ class Parameter
     const KEY_HTML_CUSTOMER_CREATE_PERSONAL = 'html_customer_create_personal';  //创建个人客户
     const KEY_HTML_CUSTOMER_CREATE_COMPANY = 'html_customer_create_company';    //创建企业客户
     const KEY_HTML_CLUE_CREATE = 'html_clue_create';                            //创建线索
+    const KEY_HTML_CUSTOMER_PROFILE_DETAIL = 'html_customer_profile_detail';    //客户详情
+    const KEY_HTML_CUSTOMER_ENTERPRISE_DETAIL = 'html_customer_enterprise_detail'; //客户详情
 
     /**
      * @var int
