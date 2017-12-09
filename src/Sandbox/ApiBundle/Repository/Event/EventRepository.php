@@ -133,16 +133,19 @@ class EventRepository extends EntityRepository
     /**
      * @param int $limit
      * @param int $offset
-     *
+     * @param     $paltform
      * @return array
      */
     public function getAllClientEvents(
         $limit,
-        $offset
+        $offset,
+        $paltform = Event::PLATFORM_OFFICIAL
     ) {
         $query = $this->createQueryBuilder('e')
             ->where('e.isDeleted = FALSE')
-            ->andWhere('e.visible = TRUE');
+            ->andWhere('e.visible = TRUE')
+            ->andWhere('e.platform = :platform')
+            ->setParameter('platform',$paltform);
 
         $query->orderBy('e.creationDate', 'DESC')
             ->setFirstResult($offset)
@@ -155,13 +158,15 @@ class EventRepository extends EntityRepository
      * @param int $userId
      * @param int $limit
      * @param int $offset
+     * @param     $platform
      *
      * @return array
      */
     public function getMyClientEvents(
         $userId,
         $limit,
-        $offset
+        $offset,
+        $platform = Event::PLATFORM_OFFICIAL
     ) {
         $queryStr = '
                 SELECT e
@@ -170,6 +175,7 @@ class EventRepository extends EntityRepository
                 WHERE e.isDeleted = FALSE
                 AND e.visible = TRUE
                 AND er.userId = :userId
+                AND e.platform = :platform
                 AND
                 (
                     (
@@ -186,6 +192,7 @@ class EventRepository extends EntityRepository
             ->createQuery($queryStr)
             ->setParameter('userId', $userId)
             ->setParameter('accepted', EventRegistration::STATUS_ACCEPTED)
+            ->setParameter('platform',$platform)
             ->setFirstResult($offset)
             ->setMaxResults($limit);
 

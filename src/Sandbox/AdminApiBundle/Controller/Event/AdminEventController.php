@@ -303,6 +303,9 @@ class AdminEventController extends SandboxRestController
         // check user permission
         $this->checkAdminEventPermission(AdminPermission::OP_LEVEL_EDIT);
 
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $platform = $adminPlatform['platform'];
+
         $event = new Event();
 
         $form = $this->createForm(new EventPostType(), $event);
@@ -319,6 +322,7 @@ class AdminEventController extends SandboxRestController
         if (is_null($submit)) {
             $submit = true;
         }
+        $event->setPlatform($platform);
 
         return $this->handleEventPost(
             $event,
