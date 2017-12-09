@@ -172,7 +172,7 @@ class ClientMembershipCardOrderController extends SalesRestController
             'start_date' => $order->getStartDate(),
             'end_date' => $order->getEndDate(),
             'price' => $order->getPrice(),
-            'pay_channel' => $order->getPayChannel() ? '创合钱包支付' : '',
+            'pay_channel' => $order->getPayChannel() ? '秒租钱包' : '',
             'status' => '已付款',
             'background' => $card->getBackground(),
             'customer' => array(

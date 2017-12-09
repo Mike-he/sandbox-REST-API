@@ -843,7 +843,7 @@ class ClientCustomerController extends SalesRestController
                         $payChannel = $receivableTypes[$receivable->getPayChannel()];
                     }
                 } else {
-                    $payChannel = '创合钱包支付';
+                    $payChannel = '秒租钱包';
                 }
             }
 
@@ -929,7 +929,7 @@ class ClientCustomerController extends SalesRestController
                     $payChannel = $receivableTypes[$receivable->getPayChannel()];
                 }
             } else {
-                $payChannel = '创合钱包支付';
+                $payChannel = '秒租钱包';
             }
         }
 
@@ -995,7 +995,7 @@ class ClientCustomerController extends SalesRestController
             'event_status' => $event->getStatus(),
             'address' => $event->getAddress(),
             'price' => (float) $order->getPrice(),
-            'pay_channel' => $order->getPayChannel() ? '创合钱包支付' : '',
+            'pay_channel' => $order->getPayChannel() ? '秒租钱包' : '',
             'customer' => array(
                 'id' => $order->getCustomerId(),
                 'name' => $customer ? $customer->getName() : '',
@@ -1035,7 +1035,7 @@ class ClientCustomerController extends SalesRestController
             'start_date' => $order->getStartDate(),
             'end_date' => $order->getEndDate(),
             'price' => $order->getPrice(),
-            'pay_channel' => $order->getPayChannel() ? '创合钱包支付' : '',
+            'pay_channel' => $order->getPayChannel() ? '秒租钱包' : '',
             'status' => '已付款',
             'background' => $card->getBackground(),
             'customer' => array(

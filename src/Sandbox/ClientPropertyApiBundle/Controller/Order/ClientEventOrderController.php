@@ -260,7 +260,7 @@ class ClientEventOrderController extends SalesRestController
             'event_status' => $event->getStatus(),
             'address' => $event->getAddress(),
             'price' => (float) $order->getPrice(),
-            'pay_channel' => $order->getPayChannel() ? '创合钱包支付' : '',
+            'pay_channel' => $order->getPayChannel() ? '秒租钱包' : '',
             'customer' => array(
                 'id' => $order->getCustomerId(),
                 'name' => $customer ? $customer->getName() : '',

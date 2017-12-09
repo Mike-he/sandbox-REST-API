@@ -420,7 +420,7 @@ class ClientEnterpriseCustomerController extends SalesRestController
                         $payChannel = $receivableTypes[$receivable->getPayChannel()];
                     }
                 } else {
-                    $payChannel = '创合钱包支付';
+                    $payChannel = '秒租钱包';
                 }
             }
 
