@@ -22,6 +22,8 @@ class Event
     const STATUS_ONGOING = 'ongoing';
     const STATUS_END = 'end';
     const STATUS_SAVED = 'saved';
+    const PLATFORM_OFFICIAL = 'official';
+    const PLATFORM_COMMNUE = 'commnue';
 
     /**
      * @var int
@@ -425,6 +427,13 @@ class Event
      * })
      */
     private $commnueHot;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="platform", type="string", length=64, options={"default": "official"})
+     */
+    private $platform = self::PLATFORM_OFFICIAL;
 
     /**
      * Get id.
@@ -1150,5 +1159,21 @@ class Event
     public function setCommnueHot($commnueHot)
     {
         $this->commnueHot = $commnueHot;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPlatform()
+    {
+        return $this->platform;
+    }
+
+    /**
+     * @param string $platform
+     */
+    public function setPlatform($platform)
+    {
+        $this->platform = $platform;
     }
 }
