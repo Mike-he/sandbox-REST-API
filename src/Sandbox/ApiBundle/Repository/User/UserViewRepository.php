@@ -698,7 +698,7 @@ class UserViewRepository extends EntityRepository
                 ->setParameter('phone', '%'.$phone.'%');
         }
 
-        if (!is_null($phone)) {
+        if (!is_null($email)) {
             $query->andWhere('u.email LIKE :email')
                 ->setParameter('email', '%'.$email.'%');
         }
