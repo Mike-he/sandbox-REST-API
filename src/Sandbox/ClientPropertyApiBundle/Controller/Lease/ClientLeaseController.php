@@ -346,6 +346,7 @@ class ClientLeaseController extends SalesRestController
                 'serial_number' => $lease->getSerialNumber(),
                 'creation_date' => $lease->getCreationDate(),
                 'status' => $status,
+                'lease_status' => $lease->getStatus(),
                 'start_date' => $lease->getStartDate(),
                 'end_date' => $lease->getEndDate(),
                 'room_type' => $roomType,
