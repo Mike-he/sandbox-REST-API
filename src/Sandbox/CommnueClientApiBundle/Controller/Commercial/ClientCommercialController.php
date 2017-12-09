@@ -5,6 +5,8 @@ namespace Sandbox\CommnueClientApiBundle\Controller\Commercial;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\View\View;
 use Sandbox\ApiBundle\Controller\Advertising\AdvertisingController;
+use Sandbox\ApiBundle\Entity\Banner\CommnueBanner;
+use Sandbox\ApiBundle\Entity\Material\CommnueMaterial;
 use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -161,5 +163,29 @@ class ClientCommercialController extends AdvertisingController
         $this->throwNotFoundIfNull($micro,self::NOT_FOUND_MESSAGE);
 
         return new View($micro);
+    }
+
+    /**
+     * Get Material By Id
+     *
+     * @param Request $request
+     * @param $id
+     *
+     * @Route("/commercial/materials/{id}")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getMaterialByIdAction(
+        Request $request,
+        $id
+    ) {
+        $material = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Material\CommnueMaterial')
+            ->find($id);
+
+        $this->throwNotFoundIfNull($material,self::NOT_FOUND_MESSAGE);
+
+        return new View($material);
     }
 }
