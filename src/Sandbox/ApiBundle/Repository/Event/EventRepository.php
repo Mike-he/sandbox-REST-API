@@ -13,6 +13,7 @@ class EventRepository extends EntityRepository
      * @param bool   $visible
      * @param int   $limit
      * @param int   $offset
+     * @param       $platform
      *
      * @return array
      */
@@ -20,7 +21,8 @@ class EventRepository extends EntityRepository
         $status,
         $visible,
         $limit,
-        $offset
+        $offset,
+        $platform = Event::PLATFORM_OFFICIAL
     ) {
         $query = $this->createQueryBuilder('e')
             ->select('
@@ -29,7 +31,9 @@ class EventRepository extends EntityRepository
                 r.number as room_number
             ')
             ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = e.roomId')
-            ->where('e.isDeleted = FALSE');
+            ->where('e.isDeleted = FALSE')
+            ->andWhere('e.platform = :platform')
+            ->setParameter('platform', $platform);
 
         // filter by status
         if (!is_null($status)) {

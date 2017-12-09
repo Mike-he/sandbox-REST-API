@@ -135,6 +135,14 @@ class AdminEventController extends SandboxRestController
      *    description="event visible"
      * )
      *
+     * @Annotations\QueryParam(
+     *     name="platform",
+     *     array=false,
+     *     default="official",
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
      * @Route("/events")
      * @Method({"GET"})
      *
@@ -158,6 +166,9 @@ class AdminEventController extends SandboxRestController
             AdminPermission::OP_LEVEL_VIEW
         );
 
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $platform = $adminPlatform['platform'];
+
         // filters
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
@@ -173,7 +184,8 @@ class AdminEventController extends SandboxRestController
                 $status,
                 $visible,
                 $limit,
-                $offset
+                $offset,
+                $platform
             );
 
         $count = $this->getDoctrine()
