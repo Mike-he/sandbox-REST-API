@@ -192,7 +192,8 @@ class AdminEventController extends SandboxRestController
             ->getRepository('SandboxApiBundle:Event\Event')
             ->countEvents(
                 $status,
-                $visible
+                $visible,
+                $platform
             );
 
         $eventsArray = array();
