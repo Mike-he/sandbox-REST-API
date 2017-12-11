@@ -137,7 +137,10 @@ class AdminCommunityController extends LocationController
         $this->throwNotFoundIfNull($community, self::NOT_FOUND_MESSAGE);
 
         $buildingCompany = $this->getRepo('Room\RoomBuildingCompany')->findOneByBuilding($community);
-        $phone = $buildingCompany->getPhone();
+        $phone = "";
+        if($buildingCompany){
+            $phone = $buildingCompany->getPhone();
+        }
 
         $company = $community->getCompany();
         $contactPhone = $company->getContacterPhone();

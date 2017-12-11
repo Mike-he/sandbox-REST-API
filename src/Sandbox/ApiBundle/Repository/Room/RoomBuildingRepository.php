@@ -765,6 +765,7 @@ class RoomBuildingRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('rb')
             ->leftJoin('SandboxApiBundle:Room\Room','r','WITH','rb.id = r.building')
+            ->leftJoin('SandboxApiBundle:Room\CommnueBuildingHot','cbh','WITH','rb.id = cbh.buildingId')
             ->select(
                 'rb.id',
                 'rb.name',
@@ -786,7 +787,8 @@ class RoomBuildingRepository extends EntityRepository
                 ->setParameter('search','%'.$search.'%');
         }
 
-        $query = $query->groupBy('rb.id');
+        $query = $query->groupBy('rb.id')
+            ->orderBy('cbh.id','DESC');
 
         return $query->getQuery()->getResult();
     }
