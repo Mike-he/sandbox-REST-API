@@ -23,8 +23,8 @@ class AdminCommunityController extends LocationController
     const ERROR_NOT_ALLOWED_ADD_MESSAGE = 'More than the allowed number of hits';
     const WRONG_CANCEL_CERTIFY_CODE = 400002;
     const WRONG_CANCEL_CERTIFY_MESSAGE = 'The community has not been certified';
-    const WRONG_CERTIFY_CODE =  400003;
-    const WRONG_CERTIFY_MESSAGE = 'The Commnuity has been freezon';
+    const WRONG_HANDLE_CODE =  400003;
+    const WRONG_HANDLE_MESSAGE = 'The Commnuity has been freezon';
 
     /**
      * GET Communties List
@@ -211,10 +211,9 @@ class AdminCommunityController extends LocationController
         if($commnueStatus == RoomBuilding::FREEZON){
            return $this->customErrorView(
                     400,
-                    self::WRONG_CERTIFY_CODE,
-                    self::WRONG_CERTIFY_MESSAGE
+                    self::WRONG_HANDLE_CODE,
+                    self::WRONG_HANDLE_MESSAGE
                     );
-
         }
 
         $community->setCommnueStatus(RoomBuilding::CERTIFIED);
@@ -318,6 +317,16 @@ class AdminCommunityController extends LocationController
         $this->checkAdminCommunityPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $em = $this->getDoctrine()->getManager();
+
+        $community = $em->getRepository('SandboxApiBundle:Room\RoomBuilding')->find($id);
+        $commnueStatus = $community->getCommnueStatus();
+        if($commnueStatus == RoomBuilding::FREEZON){
+            return $this->customErrorView(
+                400,
+                self::WRONG_HANDLE_CODE,
+                self::WRONG_HANDLE_MESSAGE
+            );
+        }
 
         $count = $em->getRepository('SandboxApiBundle:Room\CommnueBuildingHot')->countHots();
 

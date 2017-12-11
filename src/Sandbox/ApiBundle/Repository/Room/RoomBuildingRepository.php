@@ -776,6 +776,9 @@ class RoomBuildingRepository extends EntityRepository
         if(!is_null($commnueStatus)){
             $query->andWhere('rb.commnueStatus = :commnueStatus')
                 ->setParameter('commnueStatus',$commnueStatus);
+        }else{
+            $query->andWhere('rb.commnueStatus != :commnueStatus')
+                ->setParameter('commnueStatus',RoomBuilding::FREEZON);
         }
 
         if(!is_null($search)){
