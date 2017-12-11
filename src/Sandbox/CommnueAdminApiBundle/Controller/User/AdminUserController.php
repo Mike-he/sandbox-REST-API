@@ -167,6 +167,7 @@ class AdminUserController extends SandboxRestController
                         ->find($commnueUserAuthTagId);
 
                     $user['authenticated'] = true;
+                    $user['authentication_tag']['id'] = $commnueUserAuthTag->getId();
                     $user['authentication_tag']['icon_url'] = $commnueUserAuthTag->getIconUrl();
                     $user['authentication_tag']['name'] = $commnueUserAuthTag->getName();
                 } else {
