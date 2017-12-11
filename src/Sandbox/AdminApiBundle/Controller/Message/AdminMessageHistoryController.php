@@ -109,6 +109,14 @@ class AdminMessageHistoryController extends AdminMessagePushController
      *    description="page number "
      * )
      *
+     * @Annotations\QueryParam(
+     *     name="xmpp_username",
+     *     array=false,
+     *     nullable=true,
+     *     default="service",
+     *     strict=true
+     * )
+     *
      * @Route("/messages/history")
      * @Method({"GET"})
      *
@@ -121,6 +129,8 @@ class AdminMessageHistoryController extends AdminMessagePushController
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
 
+        $xmppUsername = $paramFetcher->get('xmpp_username');
+
         $min = ($pageIndex - 1) * $pageLimit;
         $max = $min + $pageLimit - 1;
 
@@ -128,7 +138,7 @@ class AdminMessageHistoryController extends AdminMessagePushController
             ->getRepository('SandboxApiBundle:Message\JMessageHistory')
             ->getFromIds(
                 JMessageHistory::TARGET_TYPE_SINGLE,
-                'service'
+                $xmppUsername
             );
 
         $fromIds = [];
@@ -165,7 +175,7 @@ class AdminMessageHistoryController extends AdminMessagePushController
                 ->getRepository('SandboxApiBundle:Message\JMessageHistory')
                 ->getLastMessages(
                     $jid,
-                    'service',
+                    $xmppUsername,
                     JMessageHistory::TARGET_TYPE_SINGLE
                 );
 
@@ -223,6 +233,14 @@ class AdminMessageHistoryController extends AdminMessagePushController
      *    description="search by tag"
      * )
      *
+     * @Annotations\QueryParam(
+     *     name="xmpp_username",
+     *     array=false,
+     *     nullable=true,
+     *     default="service",
+     *     strict=true
+     * )
+     *
      * @Route("/messages/single/history")
      * @Method({"GET"})
      *
@@ -233,6 +251,8 @@ class AdminMessageHistoryController extends AdminMessagePushController
         ParamFetcherInterface $paramFetcher
     ) {
         $fromId = $paramFetcher->get('from_id');
+        $xmppUsername = $paramFetcher->get('xmpp_username');
+
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
 
@@ -243,7 +263,7 @@ class AdminMessageHistoryController extends AdminMessagePushController
             ->getRepository('SandboxApiBundle:Message\JMessageHistory')
             ->getSingleMessages(
                 $fromId,
-                'service',
+                $xmppUsername,
                 JMessageHistory::TARGET_TYPE_SINGLE,
                 $limit,
                 $offset
@@ -253,7 +273,7 @@ class AdminMessageHistoryController extends AdminMessagePushController
             ->getRepository('SandboxApiBundle:Message\JMessageHistory')
             ->countSingleMessages(
                 $fromId,
-                'service',
+                $xmppUsername,
                 JMessageHistory::TARGET_TYPE_SINGLE
             );
 
