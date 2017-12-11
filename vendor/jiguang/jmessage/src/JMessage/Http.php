@@ -33,9 +33,9 @@ class Http {
     }
 
     public static function getInstance($client) {
-        if (is_null(self::$_instance) || !(self::$_instance instanceof self)) {
+//        if (is_null(self::$_instance) || !(self::$_instance instanceof self)) {
             self::$_instance = new self($client);
-        }
+//        }
         return self::$_instance;
     }
 
