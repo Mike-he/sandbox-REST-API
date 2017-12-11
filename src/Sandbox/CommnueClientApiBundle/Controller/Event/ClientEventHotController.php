@@ -25,17 +25,9 @@ class ClientEventHotController extends EventController
     public function getHotEventsAction(
         Request $request
     ) {
-        $userId = null;
-        if ($this->isAuthProvided()) {
-            $userId = $this->getUserId();
-        }
-
-        $ids = $this->getDoctrine()
+        $hots = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Event\CommnueEventHot')
-            ->getCommnueHotEventsId();
-        $hots =  $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Event\Event')
-            ->getCommnueHotEvents($ids);
+            ->getCommnueHotEvents();
 
         foreach ($hots as &$hot) {
             $url = $this->getParameter('mobile_url');

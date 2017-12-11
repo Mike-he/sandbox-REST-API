@@ -20,18 +20,22 @@ class CommnueEventHotRepository extends EntityRepository
         return $query->getQuery()->getSingleScalarResult();
     }
 
-    /**
-     * @return array
-     */
-    public function getCommnueHotEventsId()
+    public function getCommnueHotEvents()
     {
         $query = $this->createQueryBuilder('h')
+            ->leftJoin('SandboxApiBundle:Event\Event','e','WITH','h.eventId = e.id')
+            ->leftJoin('SandboxApiBundle:Event\EventAttachment','ea','WITH','ea.eventId = e.id')
             ->select(
-                'h.eventId'
+                'e.id,
+                e.name,
+                e.address,
+                e.status,
+                ea.content,
+                ea.preview
+              '
             )
             ->where('1=1');
 
-        $ids = $query->getQuery()->getScalarResult();
-        return array_unique(array_map('current',$ids));
+        return $query->getQuery()->getResult();
     }
 }
