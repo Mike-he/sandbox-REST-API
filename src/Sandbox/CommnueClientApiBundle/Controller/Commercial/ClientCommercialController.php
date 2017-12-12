@@ -214,12 +214,21 @@ class ClientCommercialController extends AdvertisingController
         $data['cover'] = $item->getCover();
 
         $source = $item->getSource();
-        if($source == 'material' || $source == 'event'){
-            $sourceId = $item->getSourceId();
-            $url = $this->getParameter('mobile_url');
-            $data['url'] = $url.'/'.$source.'?ptype=detail&id='.$sourceId;
-        }else{
-            $data['url'] = $item->getContent();
+
+        switch ($source){
+            case 'material':
+                $sourceId = $item->getSourceId();
+                $url = $this->getParameter('mobile_url');
+                $data['url'] = $url.'/materials?ptype=detail&source_id='.$sourceId;
+                break;
+            case 'event':
+                $sourceId = $item->getSourceId();
+                $url = $this->getParameter('mobile_url');
+                $data['url'] = $url.'/event?ptype=detail&id='.$sourceId;
+                break;
+            default:
+                $data['url'] = $item->getContent();
+                break;
         }
 
         return $data;
