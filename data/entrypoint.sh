@@ -33,7 +33,7 @@ chmod o+rwx app/logs -R
 
 if [ ! -z "$CRON_JOB" ]; then
   if [ "$CRON_JOB" == true ]; then
-      cp data/crontab /var/spool/cron/crontabs/root
+      cp data/crontab /var/spool/cron/crontabs/root && chmod +x /var/spool/cron/crontabs/root
       /etc/init.d/cron start
   fi
 fi
