@@ -1,5 +1,4 @@
 # For details see man 4 crontabs
-
 */1 * * * * date >> /root/test.log
 */5 * * * * php /var/www/app/console check:status
 20,50 * * * * php /var/www/app/console meeting:notification
