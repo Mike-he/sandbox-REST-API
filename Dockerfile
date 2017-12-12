@@ -23,9 +23,9 @@ COPY data/sandbox.conf /etc/nginx/conf.d/sandbox.conf
 # Copy php-fpm conf
 COPY data/www.conf /etc/php5/fpm/pool.d/www.conf
 
-#COPY data/crontab /var/spool/cron/crontabs/root
+COPY data/crontab /root/crontab
 
-#RUN rm -rf data/*
+RUN rm -rf data/*
 
 # Copy code
 COPY . /var/www/
