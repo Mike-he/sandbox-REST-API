@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Service;
 
 use JMessage\Cross\Member;
 use JMessage\IM\Friend;
+use JMessage\IM\Message;
 use JMessage\IM\Resource;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use JMessage\JMessage;
@@ -61,6 +62,11 @@ class JmessageCommnueService
      */
     private $member;
 
+    /**
+     * @var Message
+     */
+    private $message;
+
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
@@ -73,6 +79,7 @@ class JmessageCommnueService
         $this->report = new Report($this->client);
         $this->friend = new Friend($this->client);
         $this->member = new Member($this->client);
+        $this->message = new Message($this->client);
     }
 
     public function createUser(
@@ -197,5 +204,36 @@ class JmessageCommnueService
         $friends
     ) {
         $this->friend->add($user, $friends);
+    }
+
+    public function sendTxtMessage(
+        $xmppUser,
+        $txt
+    ) {
+        $version = 1;
+
+        $from = [
+            'id'   => 'commnue',
+            'name' => '合创社',
+            'type' => 'admin'
+        ];
+
+        $target = [
+            'id'   => $xmppUser,
+            'type' => 'single'
+        ];
+        $msg = [
+            'text' => $txt
+        ];
+
+        $result = $this->message->sendText($version,$from, $target, $msg);
+
+        if (201 != $result['http_code']) {
+            $errorLogDir = $this->getParameter('error_log_dir');
+            $errorMessage = json_encode($result);
+            error_log('[jiguang] -- '.date("Y-m-d H:i:s").' -- '.$errorMessage."\r\n", 3, $errorLogDir);
+        }
+
+        return $result;
     }
 }

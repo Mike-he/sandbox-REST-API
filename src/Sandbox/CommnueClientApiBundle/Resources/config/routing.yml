@@ -19,7 +19,12 @@ commnue_client_community_controller:
     type:     annotation
     prefix:   /
 
-commnue_client_Event_Hot_controller:
+commnue_client_event_hot_controller:
     resource: "@CommnueClientApiBundle/Controller/Event/ClientEventHotController.php"
+    type:     annotation
+    prefix:   /
+
+commnue_client_customer:
+    resource: "@CommnueClientApiBundle/Controller/Customer/ClientCustomerController.php"
     type:     annotation
     prefix:   /

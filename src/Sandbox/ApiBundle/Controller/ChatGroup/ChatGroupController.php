@@ -126,9 +126,9 @@ class ChatGroupController extends SandboxRestController
         );
 
         if (201 != $result['http_code']) {
-            // TODO: create Jmessage Group Error
             $errorLogDir = $this->getParameter('error_log_dir');
-            error_log('[jiguang]'.$result,3,$errorLogDir);
+            $errorMessage = json_encode($result);
+            error_log('[jiguang] -- '.date("Y-m-d H:i:s").' -- '.$errorMessage."\r\n", 3, $errorLogDir);
         }
 
         return $result['body']['gid'];
@@ -193,9 +193,9 @@ class ChatGroupController extends SandboxRestController
         $result = $service->addGroupMembers($gid, $memberIds, $appKey);
 
         if (204 != $result['http_code']) {
-            // TODO: create Jmessage Group Error
             $errorLogDir = $this->getParameter('error_log_dir');
-            error_log('[jiguang]'.$result,3,$errorLogDir);
+            $errorMessage = json_encode($result);
+            error_log('[jiguang] -- '.date("Y-m-d H:i:s").' -- '.$errorMessage."\r\n", 3, $errorLogDir);
         }
     }
 
@@ -215,9 +215,9 @@ class ChatGroupController extends SandboxRestController
         $result = $service->deleteGroupMembers($gid, $memberIds, $appKey);
 
         if (204 != $result['http_code']) {
-            // TODO: create Jmessage Group Error
             $errorLogDir = $this->getParameter('error_log_dir');
-            error_log('[jiguang]'.$result,3,$errorLogDir);
+            $errorMessage = json_encode($result);
+            error_log('[jiguang] -- '.date("Y-m-d H:i:s").' -- '.$errorMessage."\r\n", 3, $errorLogDir);
         }
     }
 }

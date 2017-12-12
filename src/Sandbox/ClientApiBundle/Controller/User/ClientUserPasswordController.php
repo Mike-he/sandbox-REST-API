@@ -532,12 +532,14 @@ class ClientUserPasswordController extends UserPasswordController
 
         if (204 != $result['http_code']) {
             $errorLogDir = $this->getParameter('error_log_dir');
-            error_log('[jiguang]'.$result, 3, $errorLogDir);
+            $errorMessage = json_encode($result);
+            error_log('[jiguang] -- '.date("Y-m-d H:i:s").' -- '.$errorMessage."\r\n", 3, $errorLogDir);
         }
 
         if (204 != $commnueResult['http_code']) {
             $errorLogDir = $this->getParameter('error_log_dir');
-            error_log('[jiguang]'.$commnueResult, 3, $errorLogDir);
+            $errorMessage = json_encode($result);
+            error_log('[jiguang] -- '.date("Y-m-d H:i:s").' -- '.$errorMessage."\r\n", 3, $errorLogDir);
         }
 
         $em = $this->getDoctrine()->getManager();
