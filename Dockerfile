@@ -25,7 +25,7 @@ COPY data/www.conf /etc/php5/fpm/pool.d/www.conf
 
 #COPY data/crontab /var/spool/cron/crontabs/root
 
-RUN rm -rf data/*
+#RUN rm -rf data/*
 
 # Copy code
 COPY . /var/www/
