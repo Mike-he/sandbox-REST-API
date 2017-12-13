@@ -847,6 +847,7 @@ class RoomBuildingRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('rb')
             ->leftJoin('SandboxApiBundle:Room\Room','r','WITH','r.buildingId = rb.id')
+            ->leftJoin('SandboxApiBundle:Room\RoomBuildingAttachment','rba','WITH','rba.buildingId = rb.id')
                       ->select('
                         rb.id,
                         rb.name,
@@ -861,6 +862,7 @@ class RoomBuildingRepository extends EntityRepository
                         rb.address,
                         rb.lat,
                         rb.lng,
+                        rba.content as attachment,
                         (rb.orderEvaluationNumber + rb.buildingEvaluationNumber) as total_comments_amount
                     ')
                         ->where('rb.commnueStatus != :commnuestatus')
