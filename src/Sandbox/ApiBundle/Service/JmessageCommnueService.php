@@ -20,6 +20,11 @@ class JmessageCommnueService
     /**
      * @var mixed
      */
+    private $errorLogDir;
+
+    /**
+     * @var mixed
+     */
     private $appKey;
 
     /**
@@ -70,6 +75,7 @@ class JmessageCommnueService
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
+        $this->errorLogDir = $this->container->getParameter('error_log_dir');
         $this->appKey = $this->container->getParameter('jpush_commnue_key');
         $this->masterSecret = $this->container->getParameter('jpush_commnue_secret');
         $this->client = new JMessage($this->appKey, $this->masterSecret);
@@ -95,6 +101,11 @@ class JmessageCommnueService
         $password
     ) {
         $result = $this->user->updatePassword($username, $password);
+
+        if (204 != $result['http_code']) {
+            $errorMessage = json_encode($result);
+            error_log('[jiguang] -- '.date("Y-m-d H:i:s").' -- '.$errorMessage."\r\n", 3, $this->errorLogDir);
+        }
 
         return $result;
     }
@@ -229,9 +240,8 @@ class JmessageCommnueService
         $result = $this->message->sendText($version,$from, $target, $msg);
 
         if (201 != $result['http_code']) {
-            $errorLogDir = $this->getParameter('error_log_dir');
             $errorMessage = json_encode($result);
-            error_log('[jiguang] -- '.date("Y-m-d H:i:s").' -- '.$errorMessage."\r\n", 3, $errorLogDir);
+            error_log('[jiguang] -- '.date("Y-m-d H:i:s").' -- '.$errorMessage."\r\n", 3, $this->errorLogDir);
         }
 
         return $result;

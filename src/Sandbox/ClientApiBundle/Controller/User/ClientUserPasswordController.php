@@ -517,30 +517,19 @@ class ClientUserPasswordController extends UserPasswordController
         $forgetPassword,
         $auth = null
     ) {
-        // update xmpp user password
-        $result = $this->get('sandbox_api.jmessage')
+        // update Jmessage Sandbox user password
+        $this->get('sandbox_api.jmessage')
             ->updatePassword(
                 $user->getXmppUsername(),
                 $password
             );
 
-        $commnueResult = $this->get('sandbox_api.jmessage_commnue')
+        // update Jmessage Commnue user password
+        $this->get('sandbox_api.jmessage_commnue')
             ->updatePassword(
                 $user->getXmppUsername(),
                 $password
             );
-
-        if (204 != $result['http_code']) {
-            $errorLogDir = $this->getParameter('error_log_dir');
-            $errorMessage = json_encode($result);
-            error_log('[jiguang] -- '.date("Y-m-d H:i:s").' -- '.$errorMessage."\r\n", 3, $errorLogDir);
-        }
-
-        if (204 != $commnueResult['http_code']) {
-            $errorLogDir = $this->getParameter('error_log_dir');
-            $errorMessage = json_encode($result);
-            error_log('[jiguang] -- '.date("Y-m-d H:i:s").' -- '.$errorMessage."\r\n", 3, $errorLogDir);
-        }
 
         $em = $this->getDoctrine()->getManager();
 
