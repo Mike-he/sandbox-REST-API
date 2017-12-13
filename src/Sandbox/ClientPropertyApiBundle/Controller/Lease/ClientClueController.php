@@ -30,8 +30,6 @@ class ClientClueController extends SalesRestController
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
-     *
-     *
      * @Annotations\QueryParam(
      *    name="building",
      *    array=true,
