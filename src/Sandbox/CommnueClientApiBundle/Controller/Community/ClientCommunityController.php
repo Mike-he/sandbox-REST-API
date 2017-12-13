@@ -233,7 +233,7 @@ class ClientCommunityController extends LocationController
                     null
                 );
 
-            $community['room_number'] = (int)$number;
+            $community['room_number'] = $number;
         }
 
         return $communities;
