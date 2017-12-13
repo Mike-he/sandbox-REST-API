@@ -37,7 +37,7 @@ pipeline {
                         sh "curl 'https://cs.console.aliyun.com/hook/trigger?triggerUrl=Y2RlY2RkMTJlYTZhOTRmNTQ5MDQ3MWFjODJiMjI5MjNifGFwaS1yZXN0LWNyb250YWJ8cmVkZXBsb3l8MTl1ZGJwNW5sNGo5Ynw=&secret=78485350324763427573466f42356c67900a9191a9e43c6d40ee06287766e6bd'"
                     } else if (env.BRANCH_NAME == 'master') {
                         sh "curl 'https://cs.console.aliyun.com/hook/trigger?triggerUrl=Y2YxOTJlM2JlYzM0YjRmMjI4ZDVlNzI2MGVmM2MwMjExfGFwaS1yZXN0fHJlZGVwbG95fDE5cTVqN2dyMzhpMXJ8&secret=4951497a6843474c6c475468304b5150e0d081d68689da5a441b622bc4cb2a12'"
-                        sh "curl 'https://cs.console.aliyun.com/hook/trigger?triggerUrl=Y2YxOTJlM2JlYzM0YjRmMjI4ZDVlNzI2MGVmM2MwMjExfGFwaS1yZXN0LWNyb25kfHJlZGVwbG95fDE5cTVqZ3M1dmJuMWF8&secret=334e47376e674c6e526d714b4c5a585341cf166a541c9480151e2cc56fdddae7'"
+                        sh "curl 'https://cs.console.aliyun.com/hook/trigger?triggerUrl=Y2YxOTJlM2JlYzM0YjRmMjI4ZDVlNzI2MGVmM2MwMjExfGFwaS1yZXN0LWNyb250YWJ8cmVkZXBsb3l8MTl2dTRqNmxhYm5yOXw=&secret=5736514358755531716b447a30426f6facbc0417668deaf30623c219fb8692fe'"
                     } else {
                         echo 'I execute elsewhere'
                     }
