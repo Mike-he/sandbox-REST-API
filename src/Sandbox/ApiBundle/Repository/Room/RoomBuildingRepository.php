@@ -798,10 +798,14 @@ class RoomBuildingRepository extends EntityRepository
         $limit
     ) {
         $query = $this->createQueryBuilder('rb')
-            ->select('rb.id')
-            ->where('rb.id NOT IN (:ids)')
-            ->setParameter('ids', $builingIds)
-            ->setMaxResults($limit);
+            ->select('rb.id');
+
+        if(!empty($builingIds)){
+            $query ->where('rb.id NOT IN (:ids)')
+                ->setParameter('ids', $builingIds);
+        }
+
+        $query->setMaxResults($limit);
 
         $ids = $query->getQuery()->getScalarResult();
         return array_unique(array_map('current', $ids));
