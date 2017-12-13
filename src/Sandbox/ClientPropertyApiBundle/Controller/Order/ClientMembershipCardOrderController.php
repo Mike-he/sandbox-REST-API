@@ -163,6 +163,22 @@ class ClientMembershipCardOrderController extends SalesRestController
                 'companyId' => $card->getCompanyId(),
             ));
 
+        $customerData = '';
+        if ($customer) {
+            $avatar = '';
+            if ($customer->getAvatar()) {
+                $avatar = $customer->getAvatar();
+            } elseif ($customer->getUserId()) {
+                $avatar = $this->getParameter('image_url').'/person/'.$customer->getUserId().'/avatar_small.jpg';
+            }
+
+            $customerData = [
+                'id' => $customer->getId(),
+                'name' => $customer->getName(),
+                'avatar' => $avatar,
+            ];
+        }
+
         $result = array(
             'id' => $order->getId(),
             'order_number' => $order->getOrderNumber(),
@@ -175,11 +191,7 @@ class ClientMembershipCardOrderController extends SalesRestController
             'pay_channel' => $order->getPayChannel() ? '秒租钱包' : '',
             'status' => '已付款',
             'background' => $card->getBackground(),
-            'customer' => array(
-                'id' => $customer ? $customer->getId() : '',
-                'name' => $customer ? $customer->getName() : '',
-                'avatar' => $customer ? $customer->getAvatar() : '',
-            ),
+            'customer' => $customerData,
         );
 
         return $result;
