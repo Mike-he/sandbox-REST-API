@@ -851,12 +851,9 @@ class RoomBuildingRepository extends EntityRepository
         $offset = null
     ) {
         $query = $this->createQueryBuilder('rb')
-            ->leftJoin('SandboxApiBundle:Room\Room','r','WITH','r.buildingId = rb.id')
-            ->leftJoin('SandboxApiBundle:Room\RoomBuildingAttachment','rba','WITH','rba.buildingId = rb.id')
                       ->select('
                         rb.id,
                         rb.name,
-                        COUNT(r.id) as room_number,
                         (6371
                             * acos(cos(radians(:latitude)) * cos(radians(rb.lat))
                             * cos(radians(rb.lng) - radians(:longitude))
@@ -866,26 +863,22 @@ class RoomBuildingRepository extends EntityRepository
                         rb.avatar,
                         rb.address,
                         rb.lat,
-                        rb.lng,
-                        rba.content as attachment,
+                        rb.lng,                     
                         (rb.orderEvaluationNumber + rb.buildingEvaluationNumber) as total_comments_amount
                     ')
                         ->where('rb.commnueStatus != :commnuestatus')
+                        ->andWhere('rb.isDeleted = FALSE')
+                        ->andWhere('rb.visible = TRUE')
                         ->setParameter('commnuestatus', RoomBuilding::FREEZON)
                         ->setParameter('latitude', $lat)
-                        ->setParameter('longitude', $lng)
-                        ->groupBy('rb.id');
+                        ->setParameter('longitude', $lng);
 
         if(!is_null($buildingIds)){
             $query->andWhere('rb.id IN (:ids)')
                 ->setParameter('ids',$buildingIds);
         }
 
-        if(is_null($userId)){
-            $query->orderBy('distance','ASC');
-        }else{
-            $query->orderBy('room_number','DESC');
-        }
+        $query->orderBy('distance','ASC');
 
         if(!is_null($limit) && !is_null($offset)){
             $query->setFirstResult($offset)

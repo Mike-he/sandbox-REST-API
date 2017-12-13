@@ -25,7 +25,7 @@ class ClientCommunityController extends LocationController
      * @Annotations\QueryParam(
      *    name="lat",
      *    array=false,
-     *    default=0,
+     *    default="31.216",
      *    nullable=true,
      *    requirements="-?\d*(\.\d+)?$",
      *    strict=true,
@@ -35,7 +35,7 @@ class ClientCommunityController extends LocationController
      * @Annotations\QueryParam(
      *    name="lng",
      *    array=false,
-     *    default=0,
+     *    default="121.632",
      *    nullable=true,
      *    requirements="-?\d*(\.\d+)?$",
      *    strict=true,
@@ -96,8 +96,9 @@ class ClientCommunityController extends LocationController
                 $offset
             );
 
+        $communities = $this->handleCommunityInfo($communities);
+
         $view = new View();
-        $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
         $view->setData($communities);
 
         return $view;
@@ -112,7 +113,7 @@ class ClientCommunityController extends LocationController
      * @Annotations\QueryParam(
      *    name="lat",
      *    array=false,
-     *    default=0,
+     *    default="31.216",
      *    nullable=true,
      *    requirements="-?\d*(\.\d+)?$",
      *    strict=true,
@@ -122,7 +123,7 @@ class ClientCommunityController extends LocationController
      * @Annotations\QueryParam(
      *    name="lng",
      *    array=false,
-     *    default=0,
+     *    default="121.632",
      *    nullable=true,
      *    requirements="-?\d*(\.\d+)?$",
      *    strict=true,
@@ -182,8 +183,9 @@ class ClientCommunityController extends LocationController
                 $hots
             );
 
+        $buildings = $this->handleCommunityInfo($buildings);
+
         $view = new View();
-        $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
         $view->setData($buildings);
 
         return $view;
@@ -209,5 +211,31 @@ class ClientCommunityController extends LocationController
         $gg_lat = $z * sin($theta);
 
         return  array('lat' => $gg_lat, 'lon' => $gg_lon);
+    }
+
+    /**
+     * @param $communities
+     * @return mixed
+     */
+    private function handleCommunityInfo(
+        $communities
+    ) {
+        foreach ($communities as &$community){
+            $id = $community['id'];
+            $buildingAttachment = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomBuildingAttachment')
+                ->findOneBy(array('buildingId'=>$id));
+            $community['attachment'] = $buildingAttachment->getContent();
+            $number = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\Product')
+                ->countRoomsWithProductByBuilding(
+                    $id,
+                    null
+                );
+
+            $community['room_number'] = (int)$number;
+        }
+
+        return $communities;
     }
 }
