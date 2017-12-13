@@ -236,9 +236,26 @@ class ClientEventOrderController extends SalesRestController
     private function handleOrderData(
         $order
     ) {
-        $customer = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserCustomer')
-            ->find($order->getCustomerId());
+        $customerData = '';
+        if ($order->getCustomerId()) {
+            $customer = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserCustomer')
+                ->find($order->getCustomerId());
+            if ($customer) {
+                $avatar = '';
+                if ($customer->getAvatar()) {
+                    $avatar = $customer->getAvatar();
+                } elseif ($customer->getUserId()) {
+                    $avatar = $this->getParameter('image_url').'/person/'.$customer->getUserId().'/avatar_small.jpg';
+                }
+
+                $customerData = [
+                    'id' => $order->getCustomerId(),
+                    'name' => $customer->getName(),
+                    'avatar' => $avatar,
+                ];
+            }
+        }
 
         /** @var Event $event */
         $event = $order->getEvent();
@@ -261,11 +278,7 @@ class ClientEventOrderController extends SalesRestController
             'address' => $event->getAddress(),
             'price' => (float) $order->getPrice(),
             'pay_channel' => $order->getPayChannel() ? '秒租钱包' : '',
-            'customer' => array(
-                'id' => $order->getCustomerId(),
-                'name' => $customer ? $customer->getName() : '',
-                'avatar' => $customer ? $customer->getAvatar() : '',
-            ),
+            'customer' => $customerData,
             'attachment' => $eventAttachment ? $eventAttachment->getContent() : '',
         );
 
