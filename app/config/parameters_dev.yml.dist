@@ -26,10 +26,10 @@ parameters:
     locale: en
     secret: ae4f49befc969ff5feada55bcc88e3c0
     database_path: null
-    pingpp_key: sk_live_WPKujD90inDO8G0mXTj9ibvL
-    pingpp_app_id: app_aTKWTK1G0aLO4azn
-#    pingpp_key: sk_test_yHufjLubPOePTW54y5iDeHa5
-#    pingpp_app_id: app_X5OW105ezz940W14
+#    pingpp_key: sk_live_WPKujD90inDO8G0mXTj9ibvL
+#    pingpp_app_id: app_aTKWTK1G0aLO4azn
+    pingpp_key: sk_test_yHufjLubPOePTW54y5iDeHa5
+    pingpp_app_id: app_X5OW105ezz940W14
     wechat_app_id: wx5f5a4878763f5515
     wechat_app_secret: 2f576c27bef3d5a83ac78a273712abe7
     wechat_public_platform_app_id: wxd0bc8ff918c8e593
@@ -128,8 +128,8 @@ parameters:
     jpush_secret: 83aa0ae09df6f9e1a302cae0
     jpush_property_key: 6edbdf8bd11a5cc27212a01b
     jpush_property_secret: 0cd15d94296076c69bd9faa7
-    jpush_commnue_key: 670c044ff669cce70d1a591d
-    jpush_commnue_secret: 249a0764349420304151f709
+    jpush_commnue_key: c6a84909032e010f76c02caf
+    jpush_commnue_secret: 33552689186c92e57603a6ee
 
     oss_access_key_id: LTAIlrwRyGc3PpVH
     oss_access_key_secret: mxnsEPGC4OgwOLTqB3HX6YMB34wUqh
