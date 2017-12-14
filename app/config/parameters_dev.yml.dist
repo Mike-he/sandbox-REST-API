@@ -1,17 +1,11 @@
 parameters:
     database_driver: pdo_mysql
 
-    database_host: rdsuz7cpk5r23ytx02t0o.mysql.rds.aliyuncs.com
+    database_host: rdsuz7cpk5r23ytx02t0.mysql.rds.aliyuncs.com
     database_port: '3306'
-    database_name: production_rest_db
-    database_user: production_rest
-    database_password: Sandhill2290
-
-#    database_host: rdsuz7cpk5r23ytx02t0.mysql.rds.aliyuncs.com
-#    database_port: '3306'
-#    database_name: sandbox_rest_db
-#    database_user: develop_root
-#    database_password: go_beta_123
+    database_name: sandbox_rest_db
+    database_user: develop_root
+    database_password: go_beta_123
 
     #database_host_slave1:     192.168.0.10
     #database_port_slave1:     3306
