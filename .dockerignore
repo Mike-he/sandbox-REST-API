@@ -1,6 +1,6 @@
 .git/
 contrib/
 provisioning/
-vagrantfile
+Vagrantfile
 README.md
 php-cs-fixer.phar
