@@ -225,7 +225,8 @@ class ClientCommunityController extends LocationController
             $buildingAttachment = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Room\RoomBuildingAttachment')
                 ->findOneBy(array('buildingId'=>$id));
-            $community['attachment'] = $buildingAttachment->getContent();
+            $community['attachment'] = $buildingAttachment ? $buildingAttachment->getContent() : '';
+
             $number = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Product\Product')
                 ->countRoomsWithProductByBuilding(
@@ -233,7 +234,7 @@ class ClientCommunityController extends LocationController
                     null
                 );
 
-            $community['room_number'] = $number;
+            $community['room_number'] = (int) $number;
         }
 
         return $communities;
