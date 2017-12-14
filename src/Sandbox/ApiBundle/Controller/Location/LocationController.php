@@ -1109,8 +1109,7 @@ class LocationController extends SalesRestController
             $roomCount = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Product\Product')
                 ->countRoomsWithProductByBuilding(
-                    $building['id'],
-                    null
+                    $building['id']
                 );
 
             $building['room_count'] = $roomCount;

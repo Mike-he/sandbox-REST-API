@@ -230,8 +230,7 @@ class ClientCommunityController extends LocationController
             $number = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Product\Product')
                 ->countRoomsWithProductByBuilding(
-                    $id,
-                    null
+                    $id
                 );
 
             $community['room_number'] = (int) $number;

@@ -1128,7 +1128,7 @@ class ProductRepository extends EntityRepository
      */
     public function countRoomsWithProductByBuilding(
         $building,
-        $userId
+        $userId = null
     ) {
         $query = $this->createQueryBuilder('p')
             ->select('count(distinct r.id)')
