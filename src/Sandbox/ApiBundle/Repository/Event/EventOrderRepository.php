@@ -849,10 +849,10 @@ class EventOrderRepository extends EntityRepository
                 case 'all':
                     $query ->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.id = eo.customerId')
                         ->andWhere('
-                                eo.orderNumber LIKE :search OR
+                                (eo.orderNumber LIKE :search OR
                                 e.name LIKE :search OR
                                 uc.name LIKE :search OR
-                                uc.phone LIKE :search
+                                uc.phone LIKE :search)
                             ');
                     break;
                 default:

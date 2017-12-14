@@ -321,10 +321,10 @@ class LeaseClueRepository extends EntityRepository
                         ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'lc.productId = p.id')
                         ->leftJoin('p.room', 'r')
                         ->andWhere('
-                            lc.serialNumber LIKE :keywordSearch OR
+                            (lc.serialNumber LIKE :keywordSearch OR
                             uc.phone LIKE :keywordSearch OR 
                             uc.name LIKE :keywordSearch OR
-                            r.name LIKE :keywordSearch
+                            r.name LIKE :keywordSearch)
                         ');
                     break;
                 default:

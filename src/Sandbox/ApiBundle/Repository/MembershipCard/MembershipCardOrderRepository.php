@@ -109,10 +109,10 @@ class MembershipCardOrderRepository extends EntityRepository
                 case 'all':
                     $query->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.userId = mo.user')
                             ->andWhere('
-                                mo.orderNumber LIKE :search OR
+                                (mo.orderNumber LIKE :search OR
                                 c.name LIKE :search OR
                                 uc.name LIKE :search OR
-                                uc.phone LIKE :search
+                                uc.phone LIKE :search)
                             ');
                     break;
                 case 'number':

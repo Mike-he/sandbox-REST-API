@@ -1245,12 +1245,12 @@ class LeaseBillRepository extends EntityRepository
                         ->leftJoin('l.product', 'p')
                         ->leftJoin('p.room', 'r')
                         ->andWhere('
-                            lb.name LIKE :search OR
+                            (lb.name LIKE :search OR
                             lb.serialNumber LIKE :search OR
                             l.serialNumber LIKE :search OR
                             r.name LIKE :search OR
                             uc.name LIKE :search OR
-                            uc.phone LIKE :search 
+                            uc.phone LIKE :search)
                         ');
                     break;
                 default:
@@ -1333,6 +1333,8 @@ class LeaseBillRepository extends EntityRepository
             $query->setParameter('startDate', $startDate)
                 ->setParameter('endDate', $endDate);
         }
+
+        $query->groupBy('lb.id');
 
         $result = $query->getQuery()->getResult();
         $result = array_map('current', $result);

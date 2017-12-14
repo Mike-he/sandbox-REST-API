@@ -2127,11 +2127,11 @@ class OrderRepository extends EntityRepository
             switch ($keyword) {
                 case 'all':
                     $query->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.id = o.customerId')
-                        ->andWhere(
-                        'o.orderNumber LIKE :search OR
+                        ->andWhere('
+                                (o.orderNumber LIKE :search OR
                                 r.name LIKE :search OR
                                 uc.name LIKE :search OR
-                                uc.phone LIKE :search
+                                uc.phone LIKE :search)
                             ');
                     break;
                 case 'number':
