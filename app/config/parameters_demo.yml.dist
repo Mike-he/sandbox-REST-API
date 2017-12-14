@@ -123,4 +123,4 @@ parameters:
     oss_endpoint: oss-cn-shanghai-internal.aliyuncs.com
     oss_bucket: sandbox3-demo-image
 
-    error_log_dir: /var/log/app/error.log
+    error_log_dir: /var/www/error.log

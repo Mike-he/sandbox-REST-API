@@ -135,6 +135,6 @@ parameters:
     oss_endpoint: oss-cn-shanghai-internal.aliyuncs.com
     oss_bucket: sandbox3-dev-image
 
-    error_log_dir: /root/error.log
+    error_log_dir: /var/www/error.log
 
     rpc_server_test: http://139.224.210.135:10088

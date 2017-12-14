@@ -39,7 +39,8 @@ if [ ! -z "$CRON_JOB" ]; then
 fi
 
 mkdir /var/log/nginx/error  /var/log/nginx/access
-touch /var/log/nginx/error/error.log /var/log/nginx/access/access.log /root/error.log
+touch /var/log/nginx/error/error.log /var/log/nginx/access/access.log
+touch /var/www/error.log && chmod 777 /var/www/error.log
 
 # Startup
 /etc/init.d/php5-fpm start 
