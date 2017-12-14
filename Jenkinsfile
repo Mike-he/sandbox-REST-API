@@ -46,9 +46,19 @@ pipeline {
         }
         stage('Notice') {
             steps {
-                sh "curl 'https://oapi.dingtalk.com/robot/send?access_token=99d023c34e9dc10ce131a60715cb44d34d4ded3b9e61fec5f2534576b4cd9370' \
-                    -H 'Content-Type: application/json' \
-                    -d ' { \"msgtype\": \"text\",\"text\": {\"content\": \"REST-dev构建完成\"} }' "
+                script {
+                    if (env.BRANCH_NAME == 'develop') {
+                        sh "curl 'https://oapi.dingtalk.com/robot/send?access_token=2cf510246ce6156bee19cfd9071c3af9d346596f21910eb0fc6c3bda2af7bb81' \
+                            -H 'Content-Type: application/json' \
+                            -d ' { \"msgtype\": \"text\",\"text\": {\"content\": \"REST-dev构建完成\"} }' "
+                    } else if (env.BRANCH_NAME == 'master') {
+                        sh "curl 'https://oapi.dingtalk.com/robot/send?access_token=2cf510246ce6156bee19cfd9071c3af9d346596f21910eb0fc6c3bda2af7bb81' \
+                            -H 'Content-Type: application/json' \
+                            -d ' { \"msgtype\": \"text\",\"text\": {\"content\": \"REST-staging构建完成\"} }' "
+                    } else {
+                        echo 'I execute elsewhere'
+                    }
+                }
             }
         }
     }
