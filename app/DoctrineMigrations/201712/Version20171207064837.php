@@ -18,7 +18,7 @@ class Version20171207064837 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE feed ADD platform VARCHAR(255) DEFAULT NULL');
+        $this->addSql('ALTER TABLE feed ADD platform VARCHAR(255) DEFAULT NULL, ADD location VARCHAR(256) DEFAULT NULL');
     }
 
     /**
@@ -29,6 +29,6 @@ class Version20171207064837 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE feed DROP platform');
+        $this->addSql('ALTER TABLE feed DROP platform, DROP location');
     }
 }

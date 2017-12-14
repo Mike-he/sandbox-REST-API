@@ -1,1 +1,6 @@
 .git/
+contrib/
+provisioning/
+vagrantfile
+README.md
+php-cs-fixer.phar

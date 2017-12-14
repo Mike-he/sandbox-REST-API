@@ -69,6 +69,14 @@ class Feed
     private $platform = null;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="location", type="string", length=256, nullable=true)
+     * @Serializer\Groups({"main"})
+     */
+    private $location = null;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="creationDate", type="datetime", nullable=false)
@@ -215,5 +223,21 @@ class Feed
     public function getCreationDate()
     {
         return $this->creationDate;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLocation()
+    {
+        return $this->location;
+    }
+
+    /**
+     * @param string $location
+     */
+    public function setLocation($location)
+    {
+        $this->location = $location;
     }
 }
