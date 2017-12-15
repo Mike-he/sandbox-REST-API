@@ -35,10 +35,15 @@ class ClientEventHotController extends EventController
             $hot['url'] = $url.'/'.'event?ptype=detail&id='.$id;
             $hot['registration_counts'] = $this->getRepo('Event\EventRegistration')
                 ->getRegistrationCounts($id);
-        }
-        $view = new View($hots);
-        $view->setSerializationContext(SerializationContext::create()->setGroups(['client_event']));
 
-        return $view;
+            $buildingId = $hot['buildingId'];
+            if($buildingId){
+                $building = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                    ->find($buildingId);
+                $hot['community_name'] = $building->getName();
+            }
+        }
+
+        return new View($hots);
     }
 }
