@@ -309,19 +309,21 @@ class AdminAdvertisingBannerController extends AdvertisingController
        }
 
         // check if banner already exists
-        if ($source != Banner::SOURCE_BLANK_BLOCK) {
-            $existBanner = $this->getExistingBanner(
-                $source,
-                $sourceId,
-                $url
-            );
-
-            if (!is_null($existBanner)) {
-                return $this->customErrorView(
-                    400,
-                    self::BANNER_ALREADY_EXIST_CODE,
-                    self::BANNER_ALREADY_EXIST_MESSAGE
+        if(is_null($banner->getId())){
+            if ($source != Banner::SOURCE_BLANK_BLOCK) {
+                $existBanner = $this->getExistingBanner(
+                    $source,
+                    $sourceId,
+                    $url
                 );
+
+                if (!is_null($existBanner)) {
+                    return $this->customErrorView(
+                        400,
+                        self::BANNER_ALREADY_EXIST_CODE,
+                        self::BANNER_ALREADY_EXIST_MESSAGE
+                    );
+                }
             }
         }
 

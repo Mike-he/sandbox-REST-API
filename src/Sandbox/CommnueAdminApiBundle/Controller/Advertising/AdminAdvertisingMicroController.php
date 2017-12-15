@@ -191,7 +191,7 @@ class AdminAdvertisingMicroController extends AdvertisingController
      *
      * @param $id
      *
-     * @Route("/commercial/micro/{id}")
+     * @Route("/commercial/micros/{id}")
      * @Method({"DELETE"})
      *
      * @return View

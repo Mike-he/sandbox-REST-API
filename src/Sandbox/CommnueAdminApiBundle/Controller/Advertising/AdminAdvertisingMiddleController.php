@@ -298,19 +298,21 @@ class AdminAdvertisingMiddleController extends AdvertisingController
         }
 
         // check if advertising middle already exists
-        if ($source != CommnueAdvertisingMiddle::SOURCE_BLANK_BLOCK) {
-            $existMiddle = $this->getExistingMiddle(
-                $source,
-                $sourceId,
-                $url
-            );
-
-            if (!is_null($existMiddle)) {
-                return $this->customErrorView(
-                    400,
-                    self::ADVERTISEMENT_ALREADY_EXIST_CODE,
-                    self::ADVERTISEMENT_ALREADY_EXIST_MESSAGE
+        if(is_null($middle->getId())){
+            if ($source != CommnueAdvertisingMiddle::SOURCE_BLANK_BLOCK) {
+                $existMiddle = $this->getExistingMiddle(
+                    $source,
+                    $sourceId,
+                    $url
                 );
+
+                if (!is_null($existMiddle)) {
+                    return $this->customErrorView(
+                        400,
+                        self::ADVERTISEMENT_ALREADY_EXIST_CODE,
+                        self::ADVERTISEMENT_ALREADY_EXIST_MESSAGE
+                    );
+                }
             }
         }
 
