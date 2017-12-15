@@ -878,7 +878,7 @@ class ClientCommunityController extends ProductController
                     $endDateString,
                     $search
                 );
-        } elseif (RoomTypes::TYPE_NAME_DESK == $type) {
+        } elseif (RoomTypes::TYPE_NAME_DESK == $type {
             $startDate = null;
             $endDate = null;
             if (!is_null($start) && !is_null($end) && !empty($start) && !empty($end)) {
