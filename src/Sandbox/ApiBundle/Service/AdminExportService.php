@@ -206,7 +206,7 @@ class AdminExportService
                 'room_type_tag' => $roomData['room_type_tag'],
                 'lessee_name' => $clue->getLesseeName(),
                 'lessee_address' => $clue->getLesseeAddress(),
-                'lessee_customer' => $customer->getName(),
+                'lessee_customer' => $customer ? $customer->getName() : "",
                 'lessee_email' => $clue->getLesseeEmail(),
                 'lessee_phone' => $clue->getLesseePhone(),
                 'start_date' => $clue->getStartDate() ? $clue->getStartDate()->format('Y-m-d H:i:s') : '',
@@ -323,7 +323,7 @@ class AdminExportService
                 'room_type_tag' => $roomData['room_type_tag'],
                 'lessee_type' => LeaseOffer::LEASE_OFFER_LESSEE_TYPE_PERSONAL == $offer->getLesseeType() ? '个人承租' : '企业承租',
                 'lessee_enterprise' => $enterpriseName,
-                'lessee_customer' => $customer->getName(),
+                'lessee_customer' => $customer ? $customer->getName() : "",
                 'start_date' => $startDate,
                 'end_date' => $endDate,
                 'monthly_rent' => $offer->getMonthlyRent() ? $offer->getMonthlyRent().'元/月起' : '',
@@ -481,7 +481,7 @@ class AdminExportService
                 }
             }
 
-            $status = $this->get('translator')
+            $status = $this->container->get('translator')
                 ->trans(LeaseConstants::TRANS_LEASE_BILL_STATUS.$bill->getStatus());
 
             $billList = array(
