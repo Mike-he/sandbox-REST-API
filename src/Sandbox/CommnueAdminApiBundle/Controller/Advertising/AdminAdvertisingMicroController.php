@@ -203,7 +203,7 @@ class AdminAdvertisingMicroController extends AdvertisingController
         $this->checkAdminAdvertisementPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $micro = $this->getDoctrine()
-            ->getRepository('Advertising\CommnueAdvertisingMicro')
+            ->getRepository('SandboxApiBundle:Advertising\CommnueAdvertisingMicro')
             ->find($id);
 
         $this->throwNotFoundIfNull($micro, self::NOT_FOUND_MESSAGE);
