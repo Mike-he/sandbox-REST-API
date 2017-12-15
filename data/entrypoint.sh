@@ -43,8 +43,8 @@ touch /var/log/nginx/error/error.log /var/log/nginx/access/access.log /var/www/e
 chmod 777 /var/www/error.log
 
 # Startup
-/etc/init.d/php5-fpm start 
-/etc/init.d/nginx start 
+/etc/init.d/php5-fpm start
+/etc/init.d/nginx start
 
 # Keep container alive
 tail -f /var/www/app/logs/prod.log
