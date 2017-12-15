@@ -30,6 +30,7 @@ class CommnueEventHotRepository extends EntityRepository
                 e.name,
                 e.address,
                 e.status,
+                e.buildingId,
                 ea.content,
                 ea.preview
               '
