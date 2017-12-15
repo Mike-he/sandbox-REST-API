@@ -1977,8 +1977,10 @@ class ProductRepository extends EntityRepository
                     FROM product AS p
                       LEFT JOIN product_order AS po ON po.productId = p.id
                       LEFT JOIN room AS r ON r.id = p.roomId
-                    WHERE po.id IS NULL OR `po`.status = '$status'
+                    WHERE po.id IS NULL OR `po`.status != '$status'
                     AND r.type = '$roomType'
+                    GROUP BY p.id
+                    HAVING COUNT(po.id) = 0
                     ;
               ");
             $stat->execute();
