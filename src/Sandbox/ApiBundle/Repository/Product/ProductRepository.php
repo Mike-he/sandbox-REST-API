@@ -1986,30 +1986,30 @@ class ProductRepository extends EntityRepository
             $stat->execute();
             $pids = array_map('current', $stat->fetchAll());
 
-            $em = $this->getEntityManager();
-            $connection = $em->getConnection();
-            $stat = $connection->prepare("
-                    SELECT p.id,r.allowedPeople
-                    FROM product AS p
-                      LEFT JOIN product_order AS po ON po.productId = p.id
-                      LEFT JOIN room AS r ON r.id = p.roomId
-                    WHERE r.type = '$roomType'
-                    AND ((po.startDate >= $startDate AND po.endDate <= $endDate) OR
-                       (po.startDate <= $startDate AND po.endDate >= $startDate) OR
-                       (po.startDate <= $endDate AND po.endDate >= $endDate))
-                    GROUP BY p.id
-                    HAVING COUNT(po.id) < r.allowedPeople
-                    ;
-              ");
-            $stat->execute();
-            $pidsTwo = array_map('current', $stat->fetchAll());
+//            $em = $this->getEntityManager();
+//            $connection = $em->getConnection();
+//            $stat = $connection->prepare("
+//                    SELECT p.id,r.allowedPeople
+//                    FROM product AS p
+//                      LEFT JOIN product_order AS po ON po.productId = p.id
+//                      LEFT JOIN room AS r ON r.id = p.roomId
+//                    WHERE r.type = '$roomType'
+//                    AND ((po.startDate >= $startDate AND po.endDate <= $endDate) OR
+//                       (po.startDate <= $startDate AND po.endDate >= $startDate) OR
+//                       (po.startDate <= $endDate AND po.endDate >= $endDate))
+//                    GROUP BY p.id
+//                    HAVING COUNT(po.id) < r.allowedPeople
+//                    ;
+//              ");
+//            $stat->execute();
+//            $pidsTwo = array_map('current', $stat->fetchAll());
 
             $query->andWhere('p.startDate <= :startDate')
                 ->andWhere('p.endDate >= :startDate')
-                ->andWhere('p.id IN (:pids) OR p.id IN (:pidsTwo)')
+                ->andWhere('p.id IN (:pids)')
+//                ->andWhere('p.id IN (:pids) OR p.id IN (:pidsTwo)')
                 ->setParameter('startDate', $startTime)
-                ->setParameter('pids', $pids)
-                ->setParameter('pidsTwo', $pidsTwo);
+                ->setParameter('pids', $pids);
         }
 
         return $query;
