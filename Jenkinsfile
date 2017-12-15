@@ -64,5 +64,35 @@ pipeline {
             }
         }
     }
+
+    post {
+        success {
+            script {
+                if (env.BRANCH_NAME == 'develop') {
+                    sh "curl 'https://oapi.dingtalk.com/robot/send?access_token=2cf510246ce6156bee19cfd9071c3af9d346596f21910eb0fc6c3bda2af7bb81' \
+                        -H 'Content-Type: application/json' \
+                        -d ' { \"msgtype\": \"text\",\"text\": {\"content\": \"REST-Develop构建完成[测试中...]\"} }' "
+                } else if (env.BRANCH_NAME == 'master') {
+                    sh "curl 'https://oapi.dingtalk.com/robot/send?access_token=2cf510246ce6156bee19cfd9071c3af9d346596f21910eb0fc6c3bda2af7bb81' \
+                        -H 'Content-Type: application/json' \
+                        -d ' { \"msgtype\": \"text\",\"text\": {\"content\": \"REST-Staging构建完成\"} }' "
+                } else if (env.BRANCH_NAME == 'release_production') {
+                     sh "curl 'https://oapi.dingtalk.com/robot/send?access_token=2cf510246ce6156bee19cfd9071c3af9d346596f21910eb0fc6c3bda2af7bb81' \
+                         -H 'Content-Type: application/json' \
+                         -d ' { \"msgtype\": \"text\",\"text\": {\"content\": \"REST-Production构建完成\"} }' "
+                 } else {
+                    echo 'I execute elsewhere'
+                }
+            }
+        }
+
+        failure {
+            script {
+                sh "curl 'https://oapi.dingtalk.com/robot/send?access_token=2cf510246ce6156bee19cfd9071c3af9d346596f21910eb0fc6c3bda2af7bb81' \
+                    -H 'Content-Type: application/json' \
+                    -d ' { \"msgtype\": \"text\",\"text\": {\"content\": \"REST-Develop构建失败[测试中...]\"} }' "
+            }
+        }
+    }
 }
 
