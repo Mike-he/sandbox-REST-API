@@ -1,27 +1,37 @@
-FROM debian:8
-MAINTAINER Feng Li<feng.li@sandbox3.cn>
+FROM registry.cn-hangzhou.aliyuncs.com/sandbox3/php:5.6-debian
 
-# Update distribution
-COPY data/sources.list /etc/apt/sources.list
-RUN apt-get update && apt-get upgrade -y
-
-# Install tools
-RUN apt-get install -y \
-    vim cron wget nginx php5-fpm php5-mysql php5-curl php5-common php5-redis php5-gd \
-    libxrender1 libxtst6 fonts-wqy-zenhei \
-    php5-mcrypt \
-  && rm -fr /var/lib/apt/lists/*
+MAINTAINER sandbox3 <account@sandbox3.cn>
 
 # Copy startup script
-COPY data/entrypoint.sh /root/entrypoint.sh
-RUN chown root:root /root/entrypoint.sh && chmod +x /root/entrypoint.sh
+COPY data/*.sh /root/
+RUN chown root:root /root/*.sh && chmod +x /root/*.sh
+
+# Copy pdf bin
+COPY data/pdf_bin/* /usr/bin/
+RUN chmod +x /usr/bin/wkhtmltopdf
+
+# Copy composer on system and install it globally
+COPY data/composer.phar /usr/local/bin/composer
+RUN chmod +x /usr/local/bin/composer
+
+# Remove default nginx conf
+RUN rm -rf /etc/nginx/sites-available/default
+
+# Copy Nginx conf
+COPY data/sandbox.conf /etc/nginx/conf.d/sandbox.conf
+
+# Copy php-fpm conf
+COPY data/www.conf /etc/php5/fpm/pool.d/www.conf
+
+COPY data/crontab /root/crontab
+
+RUN rm -rf data
 
 # Copy code
-RUN mkdir /var/www/sandbox-REST-API
-
-COPY . /var/www/sandbox-REST-API/
+COPY . /var/www/
 
 WORKDIR /var/www
+
 EXPOSE 80
 
 # Run startup script

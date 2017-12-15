@@ -5,25 +5,10 @@ if [ -z "$TZ" ]; then
 fi
 ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && echo "${TZ}" > /etc/timezone
 
-cd /var/www/sandbox-REST-API
+cd /var/www/
 
 # Enable write permission for folder
 chmod 777 web/
-
-# Copy pdf bin
-cp data/pdf_bin/* /usr/bin/ && chmod +x /usr/bin/wkhtmltopdf
-
-# Copy composer on system and install it globally
-cp data/composer.phar /usr/local/bin/composer && chmod +x /usr/local/bin/composer
-
-# Remove default nginx conf
-rm -rf /etc/nginx/sites-available/default
-
-# Copy Nginx conf
-cp data/sandbox.conf /etc/nginx/conf.d/sandbox.conf
-
-# Copy php-fpm conf
-cp data/www.conf /etc/php5/fpm/pool.d/www.conf
 
 if [ ! -z "$ENV" ]; then
  cp app/config/parameters_${ENV}.yml.dist app/config/parameters.yml
@@ -48,15 +33,18 @@ chmod o+rwx app/logs -R
 
 if [ ! -z "$CRON_JOB" ]; then
   if [ "$CRON_JOB" == true ]; then
-      # Copy cron jobs
-      cp data/crontab /etc/crontab
+      cp /root/crontab /etc/crontab
       /etc/init.d/cron start
   fi
 fi
 
+mkdir /var/log/nginx/error  /var/log/nginx/access
+touch /var/log/nginx/error/error.log /var/log/nginx/access/access.log /var/www/error.log
+chmod 777 /var/www/error.log
+
 # Startup
-/etc/init.d/php5-fpm start 
-/etc/init.d/nginx start 
+/etc/init.d/php5-fpm start
+/etc/init.d/nginx start
 
 # Keep container alive
-tail -f /var/www/sandbox-REST-API/app/logs/prod.log
+tail -f /var/www/app/logs/prod.log
