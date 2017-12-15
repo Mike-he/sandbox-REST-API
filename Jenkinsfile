@@ -7,15 +7,7 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Build Docker Image...'
-                script {
-                    if (env.BRANCH_NAME == 'develop') {
-                            sh 'sudo docker build -t registry-internal.cn-shanghai.aliyuncs.com/sandbox3/rest:dev .'
-                    } else if (env.BRANCH_NAME == 'master') {
-                            sh 'sudo docker build -t registry-internal.cn-shanghai.aliyuncs.com/sandbox3/rest:staging .'
-                    } else {
-                        echo 'I execute elsewhere'
-                    }
-                }
+                sh 'sudo docker build -t registry-internal.cn-shanghai.aliyuncs.com/sandbox3/rest:$BRANCH_NAME .'
             }
         }
 
