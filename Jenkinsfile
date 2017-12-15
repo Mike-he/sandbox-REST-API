@@ -13,7 +13,7 @@ pipeline {
 
         stage('Test') {
             steps {
-                echo 'Testing..'
+                sh "php app/console cache:clear --env=prod"
             }
         }
 
