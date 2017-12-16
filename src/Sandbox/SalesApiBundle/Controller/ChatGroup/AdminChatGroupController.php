@@ -329,9 +329,11 @@ class AdminChatGroupController extends ChatGroupController
         $this->throwAccessDeniedIfNull($member);
 
         //get creator latest login client
-        $paltform = PlatformConstants::PLATFORM_OFFICIAL;
+        $userPlatform = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserPlatform')
+            ->findOneBy(array('userId'=>$creatorId));
+        $platform = $userPlatform ? $userPlatform->getPlatform() : PlatformConstants::PLATFORM_OFFICIAL;
 
-        
         // check if chat group already exist
         $existGroup = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:ChatGroup\ChatGroup')
@@ -339,13 +341,13 @@ class AdminChatGroupController extends ChatGroupController
                 'creator' => $creator,
                 'buildingId' => $buildingId,
                 'tag' => $chatGroup->getTag(),
-                'platform' => $paltform,
+                'platform' => $platform,
             ]);
 
         if (!is_null($existGroup)) {
             $gid = $existGroup->getGid();
             if (!$gid) {
-                $gid = $this->createXmppChatGroup($existGroup, $paltform);
+                $gid = $this->createXmppChatGroup($existGroup, $platform);
 
                 $chatGroupMembers = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:ChatGroup\ChatGroupMember')
@@ -363,7 +365,7 @@ class AdminChatGroupController extends ChatGroupController
                     }
                 }
 
-                $this->addXmppChatGroupMember($existGroup, $memberIds, $paltform, $appKey);
+                $this->addXmppChatGroupMember($existGroup, $memberIds, $platform, $appKey);
 
                 $existGroup->setGid($gid);
                 $em->flush();
@@ -380,7 +382,7 @@ class AdminChatGroupController extends ChatGroupController
         $chatGroup->setCompanyId($companyId);
         $chatGroup->setCreator($creator);
         $chatGroup->setName($building->getName().'客服');
-        $chatGroup->setPlatform($paltform);
+        $chatGroup->setPlatform($platform);
 
         $em->persist($chatGroup);
 
@@ -413,10 +415,10 @@ class AdminChatGroupController extends ChatGroupController
 
         $em->flush();
 
-        $gid = $this->createXmppChatGroup($chatGroup, $paltform);
+        $gid = $this->createXmppChatGroup($chatGroup, $platform);
         $chatGroup->setGid($gid);
 
-        $this->addXmppChatGroupMember($chatGroup, $memberIds, $paltform, $appKey);
+        $this->addXmppChatGroupMember($chatGroup, $memberIds, $platform, $appKey);
 
         $em->flush();
 

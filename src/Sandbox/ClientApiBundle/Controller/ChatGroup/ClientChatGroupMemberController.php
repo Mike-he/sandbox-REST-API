@@ -98,6 +98,7 @@ class ClientChatGroupMemberController extends ClientChatGroupController
         $chatGroup = $this->getRepo('ChatGroup\ChatGroup')->findOneBy(array('gid' => $gid));
         $this->throwNotFoundIfNull($chatGroup, self::NOT_FOUND_MESSAGE);
 
+        $platform = $chatGroup->getPlatform();
         //add member
         $em = $this->getDoctrine()->getManager();
 
@@ -137,7 +138,7 @@ class ClientChatGroupMemberController extends ClientChatGroupController
             $memberIds[] = $member->getXmppUsername();
         }
 
-        $this->addXmppChatGroupMember($chatGroup, $membersIds);
+        $this->addXmppChatGroupMember($chatGroup, $membersIds, $platform);
 
         return new view();
     }
