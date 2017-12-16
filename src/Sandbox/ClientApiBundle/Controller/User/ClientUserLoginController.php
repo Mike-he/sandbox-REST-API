@@ -56,7 +56,7 @@ class ClientUserLoginController extends UserLoginController
      *     name="platform",
      *     array=false,
      *     nullable=true,
-     *     default="sandbox",
+     *     default="official",
      *     strict=true
      * )
      *
