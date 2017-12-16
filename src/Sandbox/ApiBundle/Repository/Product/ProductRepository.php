@@ -2004,6 +2004,24 @@ class ProductRepository extends EntityRepository
 //            $stat->execute();
 //            $pidsTwo = array_map('current', $stat->fetchAll());
 
+            $stat = $connection->prepare(
+                "
+                    SELECT p.id
+                    FROM product AS p
+                      LEFT JOIN leases as l ON l.productId = p.id
+                      LEFT JOIN room AS r ON r.id = p.roomId
+                    WHERE r.type = '$roomType'
+                    AND(
+                     (l.startDate >= $endDate) OR
+                     (l.endDate <= $startDate)
+                    )
+                    AND l.status != 'closed'
+                    GROUP BY p.id;
+                "
+            );
+            $stat->execute();
+            $pids = array_map('current', $stat->fetchAll());
+
             $query->andWhere('p.startDate <= :startDate')
                 ->andWhere('p.endDate >= :startDate')
                 ->andWhere('p.id IN (:pids)')
