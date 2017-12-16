@@ -772,7 +772,8 @@ class RoomBuildingRepository extends EntityRepository
                 'rb.commnueStatus',
                 'COUNT(r.id) as roomNumber'
             )
-            ->where('rb.isDeleted = FALSE');
+            ->where('rb.isDeleted = FALSE')
+            ->andWhere('rb.visible = TRUE');
 
         if(!is_null($commnueStatus)){
             $query->andWhere('rb.commnueStatus = :commnueStatus')
@@ -803,10 +804,14 @@ class RoomBuildingRepository extends EntityRepository
         $limit
     ) {
         $query = $this->createQueryBuilder('rb')
-            ->select('rb.id');
+            ->select('rb.id')
+            ->andWhere('rb.isDeleted = FALSE')
+            ->andWhere('rb.visible = TRUE')
+            ->andWhere('rb.commnueStatus != :commnueStatus')
+            ->setParameter('commnueStatus', RoomBuilding::FREEZON);
 
         if(!empty($builingIds)){
-            $query ->where('rb.id NOT IN (:ids)')
+            $query ->andWhere('rb.id NOT IN (:ids)')
                 ->setParameter('ids', $builingIds);
         }
 
@@ -828,6 +833,7 @@ class RoomBuildingRepository extends EntityRepository
                 'COUNT(rb.id) as counts'
             )
             ->where('rb.isDeleted = FALSE')
+            ->andWhere('rb.visible = TRUE')
             ->andWhere('rb.commnueStatus = :commnueStatus')
             ->setParameter('commnueStatus',$commnueStatus);
 
