@@ -57,6 +57,11 @@ class Version920171130030211 extends AbstractMigration implements ContainerAware
         $parameter4->setValue(5);
         $em->persist($parameter4);
 
+        $parameter5 = new Parameter();
+        $parameter5->setKey(Parameter::KEY_COMMNUE_ADVERTISING_SCREEN);
+        $parameter5->setValue(5);
+        $em->persist($parameter5);
+
         $em->flush();
     }
 
