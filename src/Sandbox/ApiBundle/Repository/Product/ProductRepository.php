@@ -1938,53 +1938,53 @@ class ProductRepository extends EntityRepository
         if (!is_null($startDate) && !is_null($endDate) && !empty($startDate) && !empty($endDate)) {
             $status = ProductOrder::STATUS_CANCELLED;
 
-//            $em = $this->getEntityManager();
-//            $connection = $em->getConnection();
-//            $stat = $connection->prepare("
-//                  SELECT
-//                      pid
-//                    FROM (SELECT
-//                        (CASE
-//                          WHEN (po.startDate >= $startDate AND po.endDate <= $endDate)
-//                            THEN DATEDIFF(po.endDate, po.startDate)
-//                          END) AS sum_day1,
-//                        (CASE
-//                          WHEN (po.startDate <= $startDate AND po.endDate >= $startDate)
-//                            THEN DATEDIFF(po.endDate, $startDate)
-//                          END) AS sum_day2,
-//                        (CASE
-//                          WHEN (po.startDate <= $endDate AND po.endDate >= $endDate)
-//                            THEN DATEDIFF($endDate, po.startDate)
-//                          END) AS sum_day3,
-//                        (CASE
-//                          WHEN (po.startDate >= $startDate AND po.endDate <= $endDate) OR
-//                               (po.startDate <= $startDate AND po.endDate >= $startDate) OR
-//                               (po.startDate <= $endDate AND po.endDate >= $endDate)
-//                            THEN
-//                              COUNT(id)
-//                          END) AS count,
-//                        po.productId AS pid
-//                      FROM product_order `po`
-//                      WHERE `po`.status != '$status'
-//                      GROUP BY po.id
-//                    ) AS p
-//                    GROUP BY pid
-//                    HAVING (DATEDIFF($endDate, $startDate) + 1) > (IFNULL(SUM(sum_day1), 0) + IFNULL(SUM(sum_day2), 0) + IFNULL(SUM(sum_day3), 0) + IFNULL(SUM(`count`), 0))
-//
-//                    UNION
-//
-//                    SELECT p.id
-//                    FROM product AS p
-//                      LEFT JOIN product_order AS po ON po.productId = p.id
-//                      LEFT JOIN room AS r ON r.id = p.roomId
-//                    WHERE po.id IS NULL OR `po`.status != '$status'
-//                    AND r.type = '$roomType'
-//                    GROUP BY p.id
-//                    HAVING COUNT(po.id) = 0
-//                    ;
-//              ");
-//            $stat->execute();
-//            $pids = array_map('current', $stat->fetchAll());
+            $em = $this->getEntityManager();
+            $connection = $em->getConnection();
+            $stat = $connection->prepare("
+                  SELECT
+                      pid
+                    FROM (SELECT
+                        (CASE
+                          WHEN (po.startDate >= $startDate AND po.endDate <= $endDate)
+                            THEN DATEDIFF(po.endDate, po.startDate)
+                          END) AS sum_day1,
+                        (CASE
+                          WHEN (po.startDate <= $startDate AND po.endDate >= $startDate)
+                            THEN DATEDIFF(po.endDate, $startDate)
+                          END) AS sum_day2,
+                        (CASE
+                          WHEN (po.startDate <= $endDate AND po.endDate >= $endDate)
+                            THEN DATEDIFF($endDate, po.startDate)
+                          END) AS sum_day3,
+                        (CASE
+                          WHEN (po.startDate >= $startDate AND po.endDate <= $endDate) OR
+                               (po.startDate <= $startDate AND po.endDate >= $startDate) OR
+                               (po.startDate <= $endDate AND po.endDate >= $endDate)
+                            THEN
+                              COUNT(id)
+                          END) AS count,
+                        po.productId AS pid
+                      FROM product_order `po`
+                      WHERE `po`.status != '$status'
+                      GROUP BY po.id
+                    ) AS p
+                    GROUP BY pid
+                    HAVING (DATEDIFF($endDate, $startDate) + 1) > (IFNULL(SUM(sum_day1), 0) + IFNULL(SUM(sum_day2), 0) + IFNULL(SUM(sum_day3), 0) + IFNULL(SUM(`count`), 0))
+
+                    UNION
+
+                    SELECT p.id
+                    FROM product AS p
+                      LEFT JOIN product_order AS po ON po.productId = p.id
+                      LEFT JOIN room AS r ON r.id = p.roomId
+                    WHERE po.id IS NULL OR `po`.status != '$status'
+                    AND r.type = '$roomType'
+                    GROUP BY p.id
+                    HAVING COUNT(po.id) = 0
+                    ;
+              ");
+            $stat->execute();
+            $pids = array_map('current', $stat->fetchAll());
 
 //            $em = $this->getEntityManager();
 //            $connection = $em->getConnection();
@@ -2003,26 +2003,6 @@ class ProductRepository extends EntityRepository
 //              ");
 //            $stat->execute();
 //            $pidsTwo = array_map('current', $stat->fetchAll());
-
-            $em = $this->getEntityManager();
-            $connection = $em->getConnection();
-            $stat = $connection->prepare("
-                    SELECT p.id,r.allowedPeople
-                    FROM product AS p
-                      LEFT JOIN product_order AS po ON po.productId = p.id
-                      LEFT JOIN room AS r ON r.id = p.roomId
-                    WHERE r.type = '$roomType'
-                    AND ((po.startDate >= $startDate AND po.endDate <= $endDate) OR
-                       (po.startDate <= $startDate AND po.endDate >= $startDate) OR
-                       (po.startDate <= $endDate AND po.endDate >= $endDate))
-                    AND po.status != '$status'
-                    AND r.type = '$roomType'
-                    GROUP BY p.id
-                    HAVING COUNT(po.id) < r.allowedPeople
-                    ;
-              ");
-            $stat->execute();
-            $pidsTwo = array_map('current', $stat->fetchAll());
 
             $query->andWhere('p.startDate <= :startDate')
                 ->andWhere('p.endDate >= :startDate')
