@@ -823,7 +823,8 @@ class RoomBuildingRepository extends EntityRepository
             ->select(
                 'COUNT(rb.id) as counts'
             )
-            ->where('rb.commnueStatus = :commnueStatus')
+            ->where('rb.isDeleted = FALSE')
+            ->andWhere('rb.commnueStatus = :commnueStatus')
             ->setParameter('commnueStatus',$commnueStatus);
 
         return $query->getQuery()->getSingleScalarResult();
