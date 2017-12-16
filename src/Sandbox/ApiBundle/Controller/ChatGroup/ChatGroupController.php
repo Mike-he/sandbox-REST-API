@@ -2,11 +2,14 @@
 
 namespace Sandbox\ApiBundle\Controller\ChatGroup;
 
+use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
+use Sandbox\ApiBundle\Constants\PlatformConstants;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\ChatGroup\ChatGroup;
 use Sandbox\ApiBundle\Entity\ChatGroup\ChatGroupMember;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Traits\CurlUtil;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Chat Group Controller.
@@ -82,11 +85,13 @@ class ChatGroupController extends SandboxRestController
 
     /**
      * @param ChatGroup $chatGroup
+     * @param $platform
      *
      * @return mixed|void
      */
     protected function createXmppChatGroup(
-        $chatGroup
+        $chatGroup,
+        $platform
     ) {
         $chatRoomName = $chatGroup->getName().'@'.$chatGroup->getTag();
         $chatRoomDesc = array(
@@ -117,7 +122,19 @@ class ChatGroupController extends SandboxRestController
             }
         }
 
-        $service = $this->get('sandbox_api.jmessage');
+        switch ($platform) {
+            case PlatformConstants::PLATFORM_OFFICIAL:
+                $service = $this->get('sandbox_api.jmessage');
+                break;
+            case PlatformConstants::PLATFORM_COMMNUE:
+                $service = $this->get('sandbox_api.jmessage_commnue');
+                break;
+            default:
+                throw new BadRequestHttpException(
+                    CustomErrorMessagesConstants::ERROR_CUSTOMER_SERVICE_PAYLOAD_NOT_CORRECT_CODE
+                );
+        }
+
         $result = $service->createGroup(
             $ownerName,
             $chatRoomName,
@@ -174,16 +191,30 @@ class ChatGroupController extends SandboxRestController
     /**
      * @param ChatGroup $chatGroup
      * @param $memberIds
+     * @param $platform
      * @param $appKey
      */
     protected function addXmppChatGroupMember(
         $chatGroup,
         $memberIds,
+        $platform,
         $appKey = null
     ) {
         $gid = $chatGroup->getGid();
 
-        $service = $this->get('sandbox_api.jmessage');
+        switch ($platform) {
+            case PlatformConstants::PLATFORM_OFFICIAL:
+                $service = $this->get('sandbox_api.jmessage');
+                break;
+            case PlatformConstants::PLATFORM_COMMNUE:
+                $service = $this->get('sandbox_api.jmessage_commnue');
+                break;
+            default:
+                throw new BadRequestHttpException(
+                    CustomErrorMessagesConstants::ERROR_CUSTOMER_SERVICE_PAYLOAD_NOT_CORRECT_CODE
+                );
+        }
+
         $service->addGroupMembers($gid, $memberIds, $appKey);
     }
 

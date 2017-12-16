@@ -18,6 +18,11 @@ class ChatGroupData
     private $name;
 
     /**
+     * @var string
+     */
+    private $platform;
+
+    /**
      * Set memberIds.
      *
      * @param array $memberIds
@@ -63,5 +68,21 @@ class ChatGroupData
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPlatform()
+    {
+        return $this->platform;
+    }
+
+    /**
+     * @param string $platform
+     */
+    public function setPlatform($platform)
+    {
+        $this->platform = $platform;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Sandbox\ClientApiBundle\Controller\ChatGroup;
 
+use Sandbox\ApiBundle\Constants\PlatformConstants;
 use Sandbox\ApiBundle\Controller\ChatGroup\ChatGroupController;
 use Sandbox\ApiBundle\Entity\ChatGroup\ChatGroup;
 use Sandbox\ClientApiBundle\Data\ChatGroup\ChatGroupData;
@@ -62,6 +63,11 @@ class ClientChatGroupController extends ChatGroupController
         // validate request content
         $memberIds = $data->getMemberIds();
         $name = $data->getName();
+        $platform = $data->getPlatform();
+
+        if (is_null($platform)) {
+            $platform = PlatformConstants::PLATFORM_OFFICIAL;
+        }
 
         if (is_null($memberIds) || empty($memberIds)) {
             // TODO return custom error
@@ -73,6 +79,7 @@ class ClientChatGroupController extends ChatGroupController
         $chatGroup = new ChatGroup();
         $chatGroup->setCreator($myUser);
         $chatGroup->setTag(ChatGroup::GROUP_SERVICE);
+        $chatGroup->setPlatform($platform);
 
         // add member
         $chatGroupName = $name;
@@ -131,7 +138,7 @@ class ClientChatGroupController extends ChatGroupController
         // save to db
         $em->flush();
 
-        $gid = $this->createXmppChatGroup($chatGroup);
+        $gid = $this->createXmppChatGroup($chatGroup, $platform);
         $chatGroup->setGid($gid);
 
         $em->flush();

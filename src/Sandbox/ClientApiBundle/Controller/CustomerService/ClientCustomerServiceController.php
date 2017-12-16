@@ -3,6 +3,7 @@
 namespace Sandbox\ClientApiBundle\Controller\CustomerService;
 
 use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
+use Sandbox\ApiBundle\Constants\PlatformConstants;
 use Sandbox\ApiBundle\Controller\ChatGroup\ChatGroupController;
 use Sandbox\ApiBundle\Entity\ChatGroup\ChatGroup;
 use Sandbox\ApiBundle\Entity\ChatGroup\ChatGroupMember;
@@ -69,6 +70,11 @@ class ClientCustomerServiceController extends ChatGroupController
 
         $tag = $data['tag'];
 
+        $platform = $data['platform'];
+        if (is_null($platform)) {
+            $platform = PlatformConstants::PLATFORM_OFFICIAL;
+        }
+
         $building = $this->getRoomBuildingRepo()
             ->find($data['building_id']);
 
@@ -98,12 +104,13 @@ class ClientCustomerServiceController extends ChatGroupController
                 'buildingId' => $building->getId(),
                 'creatorId' => $myUserId,
                 'tag' => $tag,
+                'platform' => $platform,
             ]);
 
         if (!is_null($existChatGroup)) {
             $gid = $existChatGroup->getGid();
             if (!$gid) {
-                $gid = $this->createXmppChatGroup($existChatGroup);
+                $gid = $this->createXmppChatGroup($existChatGroup,$platform);
 
                 $existChatGroup->setGid($gid);
                 $em->flush();
@@ -124,7 +131,7 @@ class ClientCustomerServiceController extends ChatGroupController
                     }
                 }
 
-                $this->addXmppChatGroupMember($existChatGroup, $memberIds, $appKey);
+                $this->addXmppChatGroupMember($existChatGroup, $memberIds, $platform, $appKey);
             }
 
             return new View([
@@ -146,6 +153,7 @@ class ClientCustomerServiceController extends ChatGroupController
         $chatGroup->setBuildingId($building->getId());
         $chatGroup->setCompanyId($company->getId());
         $chatGroup->setTag($tag);
+        $chatGroup->setPlatform($platform);
 
         $em->persist($chatGroup);
 
@@ -172,10 +180,10 @@ class ClientCustomerServiceController extends ChatGroupController
         $em->flush();
 
         // create chat group in Openfire
-        $gid = $this->createXmppChatGroup($chatGroup);
+        $gid = $this->createXmppChatGroup($chatGroup,$platform);
         $chatGroup->setGid($gid);
 
-        $this->addXmppChatGroupMember($chatGroup, $memberIds, $appKey);
+        $this->addXmppChatGroupMember($chatGroup, $memberIds, $platform, $appKey);
 
         $em->flush();
 

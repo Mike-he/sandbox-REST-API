@@ -1196,6 +1196,8 @@ class AdminBuildingController extends LocationController
                 ->getRepository('SandboxApiBundle:ChatGroup\ChatGroup')
                 ->find($key);
 
+            $platform = $group->getPlatform();
+
             $membersIds = [];
             foreach ($users as $userId) {
                 $salesAdmin = $this->getDoctrine()
@@ -1206,7 +1208,7 @@ class AdminBuildingController extends LocationController
                 }
             }
             // call openfire
-            $this->addXmppChatGroupMember($group, $membersIds, $appKey);
+            $this->addXmppChatGroupMember($group, $membersIds, $platform, $appKey);
         }
     }
 

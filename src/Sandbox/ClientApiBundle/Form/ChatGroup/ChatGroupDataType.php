@@ -13,6 +13,7 @@ class ChatGroupDataType extends AbstractType
         $builder
             ->add('member_ids')
             ->add('name')
+            ->add('platform')
         ;
     }
 
