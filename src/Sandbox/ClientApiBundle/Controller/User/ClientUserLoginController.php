@@ -9,6 +9,7 @@ use Sandbox\ApiBundle\Entity\Auth\Auth;
 use Sandbox\ApiBundle\Entity\Error\Error;
 use Sandbox\ApiBundle\Entity\ThirdParty\WeChat;
 use Sandbox\ApiBundle\Entity\User\User;
+use Sandbox\ApiBundle\Entity\User\UserPlatform;
 use Sandbox\ApiBundle\Form\User\UserCheckType;
 use Sandbox\ClientApiBundle\Data\User\UserLoginData;
 use Sandbox\ClientApiBundle\Form\User\UserLoginType;
@@ -55,6 +56,7 @@ class ClientUserLoginController extends UserLoginController
      *     name="platform",
      *     array=false,
      *     nullable=true,
+     *     default="sandbox",
      *     strict=true
      * )
      *
@@ -138,11 +140,42 @@ class ClientUserLoginController extends UserLoginController
 
         $responseArray = $this->handleClientUserLogin($request, $user, $login);
 
+        // set user platform
+        $this->setUserPlatform($user->getId(), $platform);
+
         // response
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(array('login')));
 
         return $view->setData($responseArray);
+    }
+
+    /**
+     * @param $userId
+     * @param $platform
+     */
+    private function setUserPlatform(
+        $userId,
+        $platform
+    ) {
+        $userPlatform = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserPlatform')
+            ->findOneBy(['userId' => $userId]);
+
+        if (is_null($userPlatform)) {
+            if ($platform == 'commnue') {
+                $userPlatform = new UserPlatform();
+                $userPlatform->setUserId($userId);
+            } else {
+                return;
+            }
+        }
+
+        $userPlatform->setPlatform($platform);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($userPlatform);
+        $em->flush();
     }
 
     /**
