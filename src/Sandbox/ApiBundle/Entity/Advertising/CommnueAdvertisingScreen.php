@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Advertising;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
@@ -23,20 +24,24 @@ class CommnueAdvertisingScreen
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     *
+     * @Serializer\Groups({"main", "client_list"})
      */
     private $id;
 
     /**
-     * @var string
+     * @var array
      *
-     * @ORM\Column(name="cover", type="string", length=255)
+     * @Serializer\Groups({"main", "client_list"})
      */
-    private $cover;
+    private $attachments;
 
     /**
      * @var string
      *
      * @ORM\Column(name="source", type="string", length=64)
+     *
+     * @Serializer\Groups({"main", "client_list"})
      */
     private $source;
 
@@ -44,28 +49,54 @@ class CommnueAdvertisingScreen
      * @var integer
      *
      * @ORM\Column(name="source_id", type="integer")
+     *
+     * @Serializer\Groups({"main", "client_list"})
      */
     private $sourceId;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="content", type="text", nullable=true)
+     * @ORM\Column(name="url", type="text", nullable=true)
+     *
+     * @Serializer\Groups({"main", "client_list"})
      */
-    private $content;
+    private $url;
 
     /**
      * @var string
      *
      * @ORM\Column(name="visible", type="boolean", nullable=false)
+     *
+     * @Serializer\Groups({"main"})
      */
     private $visible=false;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="isSaved", type="boolean", nullable=false)
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $isSaved = false;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="isDefault", type="boolean", nullable=false)
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $isDefault = false;
 
     /**
      * @var \DateTime
      *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="creation_date", type="datetime")
+     *
+     * @Serializer\Groups({"main"})
      */
     private $creationDate;
 
@@ -74,6 +105,8 @@ class CommnueAdvertisingScreen
      *
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(name="modification_date", type="datetime")
+     *
+     * @Serializer\Groups({"main"})
      */
     private $modificationDate;
 
@@ -88,26 +121,23 @@ class CommnueAdvertisingScreen
     }
 
     /**
-     * Set cover
+     * @param CommnueScreenAttachment $attachments
      *
-     * @param string $cover
      * @return CommnueAdvertisingScreen
      */
-    public function setCover($cover)
+    public function setAttachments($attachments)
     {
-        $this->cover = $cover;
+        $this->attachments = $attachments;
 
         return $this;
     }
 
     /**
-     * Get cover
-     *
-     * @return string 
+     * @return CommnueScreenAttachment
      */
-    public function getCover()
+    public function getAttachments()
     {
-        return $this->cover;
+        return $this->attachments;
     }
 
     /**
@@ -157,26 +187,19 @@ class CommnueAdvertisingScreen
     }
 
     /**
-     * Set content
-     *
-     * @param string $content
-     * @return CommnueAdvertisingScreen
+     * @return string
      */
-    public function setContent($content)
+    public function getUrl()
     {
-        $this->content = $content;
-
-        return $this;
+        return $this->url;
     }
 
     /**
-     * Get content
-     *
-     * @return string 
+     * @param string $url
      */
-    public function getContent()
+    public function setUrl($url)
     {
-        return $this->content;
+        $this->url = $url;
     }
 
     /**
@@ -201,6 +224,46 @@ class CommnueAdvertisingScreen
     public function getVisible()
     {
         return $this->visible;
+    }
+
+    /**
+     * Set isSaved.
+     *
+     * @param bool $isSaved
+     *
+     * @return CommnueAdvertisingScreen
+     */
+    public function setIsSaved($isSaved)
+    {
+        $this->isSaved = $isSaved;
+
+        return $this;
+    }
+
+    /**
+     * Get isSaved.
+     *
+     * @return bool
+     */
+    public function getIsSaved()
+    {
+        return $this->isSaved;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsDefault()
+    {
+        return $this->isDefault;
+    }
+
+    /**
+     * @param bool $isDefault
+     */
+    public function setIsDefault($isDefault)
+    {
+        $this->isDefault = $isDefault;
     }
 
     /**
