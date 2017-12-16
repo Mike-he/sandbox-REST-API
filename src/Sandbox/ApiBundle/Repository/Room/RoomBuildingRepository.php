@@ -833,6 +833,7 @@ class RoomBuildingRepository extends EntityRepository
                 'COUNT(rb.id) as counts'
             )
             ->where('rb.isDeleted = FALSE')
+            ->andWhere('rb.visible = TRUE')
             ->andWhere('rb.commnueStatus = :commnueStatus')
             ->setParameter('commnueStatus',$commnueStatus);
 
