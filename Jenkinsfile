@@ -50,7 +50,7 @@ pipeline {
                 if (env.BRANCH_NAME == 'develop') {
                     sh "curl 'https://oapi.dingtalk.com/robot/send?access_token=2cf510246ce6156bee19cfd9071c3af9d346596f21910eb0fc6c3bda2af7bb81' \
                         -H 'Content-Type: application/json' \
-                        -d '{\"actionCard\":{\"title\":\"Jenkins CI\",\"text\":\"![screenshot](https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1513417411509&di=e8b79e6cd1937c3ccd992df8b09f49e9&imgtype=0&src=http%3A%2F%2Fzmblog.oss-cn-hangzhou.aliyuncs.com%2Fwordpress%2F2017%2F02%2Fdocker1.jpg) \\n#### 构建成功【Develop Server】REST-API\"},\"msgtype\":\"actionCard\"}' "
+                        -d '{\"actionCard\":{\"title\":\"Jenkins CI\",\"text\":\"![screenshot](https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1513417411509&di=e8b79e6cd1937c3ccd992df8b09f49e9&imgtype=0&src=http%3A%2F%2Fzmblog.oss-cn-hangzhou.aliyuncs.com%2Fwordpress%2F2017%2F02%2Fdocker1.jpg) \\n####【Develop Server】REST-API 构建成功\"},\"msgtype\":\"actionCard\"}' "
                 } else if (env.BRANCH_NAME == 'master') {
                     sh "curl 'https://oapi.dingtalk.com/robot/send?access_token=2cf510246ce6156bee19cfd9071c3af9d346596f21910eb0fc6c3bda2af7bb81' \
                         -H 'Content-Type: application/json' \
