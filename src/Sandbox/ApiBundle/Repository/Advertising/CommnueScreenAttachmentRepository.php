@@ -13,28 +13,28 @@ use Doctrine\ORM\EntityRepository;
 class CommnueScreenAttachmentRepository extends EntityRepository
 {
     /**
-     * @param $advertising
+     * @param $screen
      * @param null $height
      * @param null $width
      *
      * @return array
      */
     public function findAttachment(
-        $advertising,
+        $screen,
         $height = null,
         $width = null
     ) {
-        $query = $this->createQueryBuilder('a')
-            ->where('a.advertising = :advertising')
-            ->setParameter('advertising', $advertising);
+        $query = $this->createQueryBuilder('csa')
+            ->where('csa.screen = :screen')
+            ->setParameter('screen', $screen);
 
         if (!is_null($height)) {
-            $query->andWhere('a.height = :height')
+            $query->andWhere('csa.height = :height')
                     ->setParameter('height', $height);
         }
 
         if (!is_null($width)) {
-            $query->andWhere('a.width = :width')
+            $query->andWhere('csa.width = :width')
                 ->setParameter('width', $width);
         }
 

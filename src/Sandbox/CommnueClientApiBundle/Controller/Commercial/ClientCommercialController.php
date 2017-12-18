@@ -2,7 +2,7 @@
 
 namespace Sandbox\CommnueClientApiBundle\Controller\Commercial;
 
-use FOS\RestBundle\Controller\Annotations as Rest;
+use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use Sandbox\ApiBundle\Controller\Advertising\AdvertisingController;
 use Sandbox\ApiBundle\Entity\Banner\CommnueBanner;
@@ -12,6 +12,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
 use JMS\Serializer\SerializationContext;
+use FOS\RestBundle\Controller\Annotations;
 
 class ClientCommercialController extends AdvertisingController
 {
@@ -197,6 +198,98 @@ class ClientCommercialController extends AdvertisingController
         $this->throwNotFoundIfNull($material,self::NOT_FOUND_MESSAGE);
 
         return new View($material);
+    }
+
+    /**
+     * Get Advertising Screen
+     *
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="height",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="height"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="width",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="width"
+     * )
+     *
+     * @Route("/commercial/screens")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getAdvertisingScreenAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $parameter = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Parameter\Parameter')
+            ->findOneBy(array(
+                'key'=>Parameter::KEY_COMMNUE_ADVERTISING_SCREEN
+            ));
+        $limit = $parameter->getValue();
+
+        $height = $paramFetcher->get('height');
+        $width = $paramFetcher->get('width');
+
+        $screens = $this->getDoctrine()
+            ->getRepository("SandboxApiBundle:Advertising\CommnueAdvertisingScreen")
+            ->getVisibleScreens($limit);
+
+        if (!is_null($screens)) {
+            foreach ($screens as $screen){
+                $attachment = $this->getDoctrine()->getRepository("SandboxApiBundle:Advertising\CommnueScreenAttachment")->findAttachment($screen, $height, $width);
+                $screen->setAttachments($attachment);
+            }
+        }
+
+        $view = new View($screens);
+        $view->setSerializationContext(
+            SerializationContext::create()->setGroups(array('client_list'))
+        );
+
+        return $view;
+    }
+
+    /**
+     * GET Advertising Screen By Id
+     *
+     * @param $id
+     *
+     * @Route("/commercial/screens/{id}")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getScreenByIdAction(
+        $id
+    ) {
+        $screen = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Advertising\CommnueAdvertisingScreen')
+            ->find($id);
+
+        $this->throwNotFoundIfNull($screen,self::NOT_FOUND_MESSAGE);
+
+        $attachments = $this->getDoctrine()->getRepository('SandboxApiBundle:Advertising\CommnueScreenAttachment')->findByScreen($screen);
+        $screen->setAttachments($attachments);
+
+        $view = new View($screen);
+        $view->setSerializationContext(
+            SerializationContext::create()->setGroups(array('main'))
+        );
+
+        return $view;
     }
 
     /**

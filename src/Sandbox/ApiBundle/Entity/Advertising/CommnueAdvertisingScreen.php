@@ -48,7 +48,7 @@ class CommnueAdvertisingScreen
     /**
      * @var integer
      *
-     * @ORM\Column(name="source_id", type="integer")
+     * @ORM\Column(name="source_id", type="integer", nullable=true)
      *
      * @Serializer\Groups({"main", "client_list"})
      */
