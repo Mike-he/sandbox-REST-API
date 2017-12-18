@@ -83,6 +83,7 @@ class ClientChatGroupMemberController extends ChatGroupController
             'customer' => array(
                 'name' => $customer ? $customer->getName() : '',
                 'avatar' => $customer ? $customer->getAvatar() : '',
+                'phone' => $customer ? $customer->getPhone() : '',
             ),
             'admin' => $admins,
         );
