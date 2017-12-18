@@ -166,7 +166,7 @@ class AdminAdvertisingController extends AdvertisingController
         $advertising = $this->getDoctrine()->getRepository('SandboxApiBundle:Advertising\Advertising')->find($id);
         $this->throwNotFoundIfNull($advertising, self::NOT_FOUND_MESSAGE);
 
-        $attachments = $this->getDoctrine()->getRepository('SandboxApiBundle:Advertising\AdvertisingAttachment')->findByAdvertising($advertising);
+        $attachments = $this->getDoctrine()->getRepository('SandboxApiBundle:Advertising\CommnueScreenAttachment')->findByAdvertising($advertising);
         $advertising->setAttachments($attachments);
 
         // set view

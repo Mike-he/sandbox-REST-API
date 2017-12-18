@@ -3,6 +3,7 @@
 namespace Sandbox\CommnueAdminApiBundle\Controller\Advertising;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
+use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Controller\Advertising\AdvertisingController;
 use Sandbox\ApiBundle\Entity\Advertising\CommnueAdvertisingScreen;
 use Sandbox\ApiBundle\Entity\Advertising\CommnueScreenAttachment;
@@ -67,6 +68,11 @@ class AdminAdvertisingScreenController extends AdvertisingController
             ->getRepository('SandboxApiBundle:Advertising\CommnueAdvertisingScreen')
             ->findAll();
 
+        foreach ($screens as $screen){
+            $attachments = $this->getDoctrine()->getRepository('SandboxApiBundle:Advertising\CommnueScreenAttachment')->findByScreen($screen);
+            $screen->setAttachments($attachments);
+        }
+
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
             $screens,
@@ -101,7 +107,15 @@ class AdminAdvertisingScreenController extends AdvertisingController
 
         $this->throwNotFoundIfNull($screen,self::NOT_FOUND_MESSAGE);
 
-        return new View($screen);
+        $attachments = $this->getDoctrine()->getRepository('SandboxApiBundle:Advertising\CommnueScreenAttachment')->findByScreen($screen);
+        $screen->setAttachments($attachments);
+
+        $view = new View($screen);
+        $view->setSerializationContext(
+            SerializationContext::create()->setGroups(array('main'))
+        );
+
+        return $view;
     }
 
     /**
@@ -156,7 +170,7 @@ class AdminAdvertisingScreenController extends AdvertisingController
         $id
     ) {
         // check user permission
-        //$this->checkAdminScreenPermission(AdminPermission::OP_LEVEL_EDIT);
+        $this->checkAdminScreenPermission(AdminPermission::OP_LEVEL_EDIT);
 
         // get screen
         $screen = $this->getRepo('Advertising\CommnueAdvertisingScreen')->find($id);
@@ -194,7 +208,7 @@ class AdminAdvertisingScreenController extends AdvertisingController
         $id
     ) {
         // check user permission
-        //$this->checkAdminScreenPermission(AdminPermission::OP_LEVEL_EDIT);
+        $this->checkAdminScreenPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $screen = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Advertising\CommnueAdvertisingScreen')
