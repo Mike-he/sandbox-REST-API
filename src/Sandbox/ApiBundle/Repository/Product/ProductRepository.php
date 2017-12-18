@@ -1985,6 +1985,7 @@ class ProductRepository extends EntityRepository
               ");
             $stat->execute();
             $pids = array_map('current', $stat->fetchAll());
+            $str = substr(implode(',',$pids),1);
 
 //            $em = $this->getEntityManager();
 //            $connection = $em->getConnection();
@@ -2011,6 +2012,7 @@ class ProductRepository extends EntityRepository
                       LEFT JOIN leases as l ON l.product_id = p.id
                       LEFT JOIN room AS r ON r.id = p.roomId
                     WHERE r.type = '$roomType'
+                    AND p.id IN ($str)
                     AND(
                      (l.start_date >= $startDate) OR
                      (l.end_date <= $endDate)
