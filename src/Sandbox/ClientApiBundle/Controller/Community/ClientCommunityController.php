@@ -943,7 +943,6 @@ class ClientCommunityController extends ProductController
                     $search
                 );
         }
-        var_dump($productIds);exit();
 
         return $productIds;
     }

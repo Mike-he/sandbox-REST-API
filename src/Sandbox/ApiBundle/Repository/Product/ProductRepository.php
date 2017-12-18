@@ -2008,12 +2008,12 @@ class ProductRepository extends EntityRepository
                 "
                     SELECT p.id
                     FROM product AS p
-                      LEFT JOIN leases as l ON l.productId = p.id
+                      LEFT JOIN leases as l ON l.product_id = p.id
                       LEFT JOIN room AS r ON r.id = p.roomId
                     WHERE r.type = '$roomType'
                     AND(
-                     (l.startDate >= $endDate) OR
-                     (l.endDate <= $startDate)
+                     (l.start_date >= $startDate) OR
+                     (l.end_date <= $endDate)
                     )
                     AND l.status != 'closed'
                     GROUP BY p.id;
