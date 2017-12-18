@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\Advertising;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * CommnueScreenAttachment.
@@ -27,6 +28,7 @@ class CommnueScreenAttachment
      *
      * @ORM\Column(name="screenId", type="integer", nullable=false)
      *
+     * @Serializer\Groups({"main", "client_list"})
      */
     private $screenId;
 
@@ -35,6 +37,7 @@ class CommnueScreenAttachment
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Advertising\CommnueAdvertisingScreen")
      * @ORM\JoinColumn(name="screenId", referencedColumnName="id", onDelete="CASCADE")
+     *
      */
     private $screen;
 
@@ -43,6 +46,7 @@ class CommnueScreenAttachment
      *
      * @ORM\Column(name="content", type="text", nullable=false)
      *
+     * @Serializer\Groups({"main", "client_list"})
      */
     private $content;
 
@@ -51,6 +55,7 @@ class CommnueScreenAttachment
      *
      * @ORM\Column(name="attachmentType", type="string", length=255, nullable=false)
      *
+     * @Serializer\Groups({"main", "client_list"})
      */
     private $attachmentType;
 
@@ -59,6 +64,7 @@ class CommnueScreenAttachment
      *
      * @ORM\Column(name="filename", type="string", length=255, nullable=false)
      *
+     * @Serializer\Groups({"main", "client_list"})
      */
     private $filename;
 
@@ -67,6 +73,7 @@ class CommnueScreenAttachment
      *
      * @ORM\Column(name="preview", type="text", nullable=true)
      *
+     * @Serializer\Groups({"main", "client_list"})
      */
     private $preview;
 
@@ -75,6 +82,7 @@ class CommnueScreenAttachment
      *
      * @ORM\Column(name="size", type="integer", nullable=false)
      *
+     * @Serializer\Groups({"main", "client_list"})
      */
     private $size;
 
@@ -83,6 +91,7 @@ class CommnueScreenAttachment
      *
      * @ORM\Column(name="height", type="integer", nullable=false)
      *
+     * @Serializer\Groups({"main", "client_list"})
      */
     private $height;
 
@@ -91,6 +100,7 @@ class CommnueScreenAttachment
      *
      * @ORM\Column(name="width", type="integer", nullable=false)
      *
+     * @Serializer\Groups({"main", "client_list"})
      */
     private $width;
 
