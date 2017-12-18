@@ -784,4 +784,22 @@ class UserViewRepository extends EntityRepository
 
         return (int) $query->getQuery()->getSingleScalarResult();
     }
+
+    /**
+     * @return array
+     */
+    public function getAllNotCommnueUserIds()
+    {
+        $query = $this->createQueryBuilder('u')
+            ->leftJoin('SandboxApiBundle:Commnue\CommnueUser','cu','WITH','cu.userId = u.id')
+            ->select(
+                'u.id'
+            )
+            ->where('cu.userId IS NULL');
+
+        $ids = $query->getQuery()->getScalarResult();
+        $ids = array_map('current', $ids);
+
+        return $ids;
+    }
 }

@@ -124,6 +124,13 @@ class AdminUserController extends SandboxRestController
                 );
 
             $userIds = $commnueUserIds;
+
+            if(!$banned && !$authenticated){
+                $allNotCommnueUserIds = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:User\UserView')
+                    ->getAllNotCommnueUserIds();
+                $userIds = array_merge($commnueUserIds,$allNotCommnueUserIds);
+            }
         }
 
         $users = $this->getDoctrine()
