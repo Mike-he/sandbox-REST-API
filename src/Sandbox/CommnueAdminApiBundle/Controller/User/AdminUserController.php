@@ -141,10 +141,15 @@ class AdminUserController extends SandboxRestController
             );
 
         $usersCount = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Commnue\CommnueUser')
+            ->getRepository('SandboxApiBundle:User\UserView')
             ->countAdminCommnueUsers(
-                $banned,
-                $authenticated
+                $startDate,
+                $endDate,
+                $name,
+                $phone,
+                $email,
+                $id,
+                $userIds
             );
 
         $response = [];
