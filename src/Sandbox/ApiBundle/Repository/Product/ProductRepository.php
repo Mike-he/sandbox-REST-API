@@ -1970,8 +1970,8 @@ class ProductRepository extends EntityRepository
                     ) AS p
                     GROUP BY pid
                     HAVING (DATEDIFF($endDate, $startDate) + 1) > (IFNULL(SUM(sum_day1), 0) + IFNULL(SUM(sum_day2), 0) + IFNULL(SUM(sum_day3), 0) + IFNULL(SUM(`count`), 0))
-                    
-                    UNION 
+
+                    UNION
 
                     SELECT p.id
                     FROM product AS p
@@ -2003,6 +2003,24 @@ class ProductRepository extends EntityRepository
 //              ");
 //            $stat->execute();
 //            $pidsTwo = array_map('current', $stat->fetchAll());
+
+            $stat = $connection->prepare(
+                "
+                    SELECT p.id
+                    FROM product AS p
+                      LEFT JOIN leases as l ON l.product_id = p.id
+                      LEFT JOIN room AS r ON r.id = p.roomId
+                    WHERE r.type = '$roomType'
+                    AND(
+                     (l.start_date >= $startDate) OR
+                     (l.end_date <= $endDate)
+                    )
+                    AND l.status != 'closed'
+                    GROUP BY p.id;
+                "
+            );
+            $stat->execute();
+            $pids = array_map('current', $stat->fetchAll());
 
             $query->andWhere('p.startDate <= :startDate')
                 ->andWhere('p.endDate >= :startDate')
