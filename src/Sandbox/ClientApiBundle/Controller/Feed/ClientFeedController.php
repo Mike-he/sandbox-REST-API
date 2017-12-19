@@ -2,10 +2,8 @@
 
 namespace Sandbox\ClientApiBundle\Controller\Feed;
 
-use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Constants\PlatformConstants;
 use Sandbox\ApiBundle\Controller\Feed\FeedController;
-use Sandbox\ApiBundle\Entity\Feed\Feed;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
@@ -35,7 +33,7 @@ class ClientFeedController extends FeedController
      * @Annotations\QueryParam(
      *    name="last_id",
      *    array=false,
-     *    default=null,
+     *    default="0",
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
@@ -45,15 +43,13 @@ class ClientFeedController extends FeedController
      * @Annotations\QueryParam(
      *     name="platform",
      *     array=false,
-     *     default=null,
+     *     default="official",
      *     nullable=true,
      *     strict=true
      * )
      *
      * @Route("feeds/all")
      * @Method({"GET"})
-     *
-     * @throws \Exception
      *
      * @return View
      */
@@ -71,15 +67,20 @@ class ClientFeedController extends FeedController
         $lastId = $paramFetcher->get('last_id');
         $platform = $paramFetcher->get('platform');
 
-        $feeds = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Feed\FeedView')
-            ->getFeeds(
-                $limit,
-                $lastId,
-                $platform
-            );
+        $params = array(
+            'platform' => $platform,
+            'users' => array(),
+            'limit' => $limit,
+            'offset' => $lastId,
+        );
 
-        return $this->handleGetFeeds($feeds, $userId);
+        $result = $this->get('sandbox_rpc.client')->callRpcServer(
+            $this->getParameter('rpc_server_feed'),
+            'FeedService.lists',
+            $params
+        );
+
+        return $this->handleGetFeeds($result['result'], $userId);
     }
 
     /**
@@ -101,7 +102,7 @@ class ClientFeedController extends FeedController
      * @Annotations\QueryParam(
      *    name="last_id",
      *    array=false,
-     *    default=null,
+     *    default="0",
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
@@ -111,7 +112,7 @@ class ClientFeedController extends FeedController
      * @Annotations\QueryParam(
      *     name="platform",
      *     array=false,
-     *     default=null,
+     *     default="official",
      *     nullable=true,
      *     strict=true
      * )
@@ -137,16 +138,24 @@ class ClientFeedController extends FeedController
         $lastId = $paramFetcher->get('last_id');
         $platform = $paramFetcher->get('platform');
 
-        $feeds = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Feed\FeedView')
-            ->getFeedsByBuddies(
-                $limit,
-                $lastId,
-                $userId,
-                $platform
-            );
+        $buddies = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Buddy\Buddy')
+            ->getBuddies($userId);
 
-        return $this->handleGetFeeds($feeds, $userId);
+        $params = array(
+            'platform' => $platform,
+            'users' => $buddies,
+            'limit' => $limit,
+            'offset' => $lastId,
+        );
+
+        $result = $this->get('sandbox_rpc.client')->callRpcServer(
+            $this->getParameter('rpc_server_feed'),
+            'FeedService.lists',
+            $params
+        );
+
+        return $this->handleGetFeeds($result['result'], $userId);
     }
 
     /**
@@ -168,7 +177,7 @@ class ClientFeedController extends FeedController
      * @Annotations\QueryParam(
      *    name="last_id",
      *    array=false,
-     *    default=null,
+     *    default="0",
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
@@ -178,7 +187,7 @@ class ClientFeedController extends FeedController
      * @Annotations\QueryParam(
      *     name="platform",
      *     array=false,
-     *     default=null,
+     *     default="official",
      *     nullable=true,
      *     strict=true
      * )
@@ -211,16 +220,24 @@ class ClientFeedController extends FeedController
             return new View(array());
         }
 
-        $feeds = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Feed\FeedView')
-            ->getFeedsByBuilding(
-                $limit,
-                $lastId,
-                $buildingId,
-                $platform
-            );
+        $users = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserProfile')
+            ->findUsersByBuilding($buildingId);
 
-        return $this->handleGetFeeds($feeds, $userId);
+        $params = array(
+            'platform' => $platform,
+            'users' => $users,
+            'limit' => $limit,
+            'offset' => $lastId,
+        );
+
+        $result = $this->get('sandbox_rpc.client')->callRpcServer(
+            $this->getParameter('rpc_server_feed'),
+            'FeedService.lists',
+            $params
+        );
+
+        return $this->handleGetFeeds($result['result'], $userId);
     }
 
     /**
@@ -242,11 +259,19 @@ class ClientFeedController extends FeedController
      * @Annotations\QueryParam(
      *    name="last_id",
      *    array=false,
-     *    default=null,
+     *    default="0",
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
      *    description="last id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="platform",
+     *     array=false,
+     *     default="official",
+     *     nullable=true,
+     *     strict=true
      * )
      *
      * @Route("feeds/company")
@@ -260,19 +285,34 @@ class ClientFeedController extends FeedController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $userId = $this->getUserId();
+        if ($this->isAuthProvided()) {
+            $userId = $this->getUserId();
+        } else {
+            throw new UnauthorizedHttpException(self::UNAUTHED_API_CALL);
+        }
 
         $limit = $paramFetcher->get('limit');
         $lastId = $paramFetcher->get('last_id');
+        $platform = $paramFetcher->get('platform');
 
-        // get all my company members' feeds
-        $feeds = $this->getRepo('Feed\FeedView')->getFeedsByColleagues(
-            $limit,
-            $lastId,
-            $userId
+        $users = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Company\CompanyMember')
+            ->getCompanyMembersByUser($userId);
+
+        $params = array(
+            'platform' => $platform,
+            'users' => $users,
+            'limit' => $limit,
+            'offset' => $lastId,
         );
 
-        return $this->handleGetFeeds($feeds, $userId);
+        $result = $this->get('sandbox_rpc.client')->callRpcServer(
+            $this->getParameter('rpc_server_feed'),
+            'FeedService.lists',
+            $params
+        );
+
+        return $this->handleGetFeeds($result['result'], $userId);
     }
 
     /**
@@ -294,7 +334,7 @@ class ClientFeedController extends FeedController
      * @Annotations\QueryParam(
      *    name="last_id",
      *    array=false,
-     *    default=null,
+     *    default="0",
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
@@ -310,7 +350,7 @@ class ClientFeedController extends FeedController
      * @Annotations\QueryParam(
      *     name="platform",
      *     array=false,
-     *     default=null,
+     *     default="official",
      *     nullable=true,
      *     strict=true
      * )
@@ -350,17 +390,20 @@ class ClientFeedController extends FeedController
         $lastId = $paramFetcher->get('last_id');
         $platform = $paramFetcher->get('platform');
 
-        // get all my feeds
-        $feeds = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Feed\FeedView')
-            ->getMyFeeds(
-                $assignUserId,
-                $limit,
-                $lastId,
-                $platform
-            );
+        $params = array(
+            'platform' => $platform,
+            'users' => $assignUserId,
+            'limit' => $limit,
+            'offset' => $lastId,
+        );
 
-        return $this->handleGetFeeds($feeds, $userId);
+        $result = $this->get('sandbox_rpc.client')->callRpcServer(
+            $this->getParameter('rpc_server_feed'),
+            'FeedService.lists',
+            $params
+        );
+
+        return $this->handleGetFeeds($result['result'], $userId);
     }
 
     /**
@@ -392,41 +435,9 @@ class ClientFeedController extends FeedController
         $data = $result['result'];
         $this->throwNotFoundIfNull($data, self::NOT_FOUND_MESSAGE);
 
-        $userProfile = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserProfile')
-            ->findOneBy(array('userId' => $data['owner']));
+        $feed = $this->setFeed($data, $userId);
 
-        $likeId = null;
-        if ($userId) {
-            $likeIdResult = $this->get('sandbox_rpc.client')->callRpcServer(
-                $this->getParameter('rpc_server_feed'),
-                'FeedLikeService.getId',
-                ['feed' => $id, 'user' => $userId]
-            );
-
-            $likeId = $likeIdResult['result'];
-        }
-
-        $feed = array(
-            'id' => $data['id'],
-            'content' => $data['content'],
-            'owner' => array(
-                'user_id' => $data['owner'],
-                'name' => $userProfile->getName(),
-            ),
-            'creation_date' => $data['creationDate'],
-            'likes_count' => $data['likesCount'],
-            'comments_count' => $data['commentsCount'],
-            'attachments' => $data['attachments'],
-            'platform' => $data['platform'],
-            'location' => $data['location'],
-            'my_like_id' => $likeId,
-        );
-
-        $view = new View($feed);
-        $view->setSerializationContext(SerializationContext::create()->setGroups(['feed']));
-
-        return $view;
+        return new View($feed);
     }
 
     /**
