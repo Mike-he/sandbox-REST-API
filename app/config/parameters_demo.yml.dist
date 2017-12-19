@@ -124,3 +124,5 @@ parameters:
     oss_bucket: sandbox3-demo-image
 
     error_log_dir: /var/www/error.log
+
+    rpc_server_feed: feed.local

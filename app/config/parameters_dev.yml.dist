@@ -137,4 +137,4 @@ parameters:
 
     error_log_dir: /var/www/error.log
 
-    rpc_server_test: http://139.224.210.135:10088
+    rpc_server_feed: feed.local
