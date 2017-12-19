@@ -115,9 +115,15 @@ class ChatGroupController extends SandboxRestController
         foreach ($members as $member) {
             /* @var ChatGroupMember $member */
             if (ChatGroup::GROUP_SERVICE == $chatGroup->getTag()) {
-                $memberId = $member->getUser()->getXmppUsername();
-                if ($memberId != $ownerName) {
-                    array_push($membersIds, $memberId);
+                $user = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:User\User')
+                    ->find($member->getUser());
+
+                if ($user) {
+                    $memberId = $user->getXmppUsername();
+                    if ($memberId != $ownerName) {
+                        array_push($membersIds, $memberId);
+                    }
                 }
             }
         }
