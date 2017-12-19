@@ -17,7 +17,7 @@ class BuddyRepository extends EntityRepository
         $query = $this->getEntityManager()
             ->createQuery(
                 '
-                SELECT b
+                SELECT b.buddyId
                 FROM SandboxApiBundle:Buddy\Buddy b
                 LEFT JOIN SandboxApiBundle:User\User u
                 WITH b.buddyId = u.id

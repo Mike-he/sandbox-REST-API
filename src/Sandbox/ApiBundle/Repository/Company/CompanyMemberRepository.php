@@ -31,4 +31,15 @@ class CompanyMemberRepository extends EntityRepository
 
         return $query->getResult();
     }
+
+    public function getCompanyMembersByUser(
+        $userId
+    ) {
+        $sql = 'SELECT cm.userId FROM company_member as cm where companyId in ((SELECT companyId from company_member where userId = '.$userId.'))';
+        $query = $this->getEntityManager()->getConnection()->prepare($sql);
+        $query->execute();
+        $result = $query->fetchAll();
+
+        return $result;
+    }
 }

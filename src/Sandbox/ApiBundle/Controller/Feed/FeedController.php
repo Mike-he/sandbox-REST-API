@@ -3,21 +3,9 @@
 namespace Sandbox\ApiBundle\Controller\Feed;
 
 use Sandbox\ApiBundle\Controller\SandboxRestController;
-use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Entity\Feed\Feed;
-use Sandbox\ApiBundle\Entity\Feed\FeedView;
 use FOS\RestBundle\View\View;
 
-/**
- * Feed Controller.
- *
- * @category Sandbox
- *
- * @author   Josh Yang <josh.yang@Sandbox.cn>
- * @license  http://www.Sandbox.cn/ Proprietary
- *
- * @link     http://www.Sandbox.cn/
- */
 class FeedController extends SandboxRestController
 {
     /**
@@ -52,34 +40,51 @@ class FeedController extends SandboxRestController
         }
 
         $view = new View($feeds);
-        $view->setSerializationContext(SerializationContext::create()->setGroups(['feed']));
 
         return $view;
     }
 
     /**
-     * @param FeedView $feed
-     * @param int      $userId
+     * @param $feed
+     * @param null $userId
+     *
+     * @return array
      */
     protected function setFeed(
         $feed,
         $userId = null
     ) {
-        $profile = $this->getRepo('User\UserProfile')->findOneByUserId($feed->getOwnerId());
-        $this->throwNotFoundIfNull($profile, self::NOT_FOUND_MESSAGE);
-        $feed->setOwner($profile);
+        $userProfile = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserProfile')
+            ->findOneBy(array('userId' => $feed['owner']));
 
-        if (is_null($userId)) {
-            return;
+        $likeId = null;
+        if ($userId) {
+            $likeIdResult = $this->get('sandbox_rpc.client')->callRpcServer(
+                $this->getParameter('rpc_server_feed'),
+                'FeedLikeService.getId',
+                ['feed' => $feed['id'], 'user' => $userId]
+            );
+
+            $likeId = $likeIdResult['result'];
         }
 
-        $like = $this->getRepo('Feed\FeedLike')->findOneBy(array(
-            'feedId' => $feed->getId(),
-            'authorId' => $userId,
-        ));
+        $feed = array(
+            'id' => $feed['id'],
+            'content' => $feed['content'],
+            'owner' => array(
+                'user_id' => $feed['owner'],
+                'name' => $userProfile->getName(),
+            ),
+            'creation_date' => $feed['creationDate'],
+            'likes_count' => $feed['likesCount'],
+            'comments_count' => $feed['commentsCount'],
+            'attachments' => $feed['attachments'],
+            'platform' => $feed['platform'],
+            'location' => $feed['location'],
+            'my_like_id' => $likeId,
+        );
 
-        if (!is_null($like)) {
-            $feed->setMyLikeId($like->getId());
-        }
+        return $feed;
     }
 }
