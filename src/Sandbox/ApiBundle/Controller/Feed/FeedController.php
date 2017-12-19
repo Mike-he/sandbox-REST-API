@@ -35,11 +35,12 @@ class FeedController extends SandboxRestController
         $feeds,
         $userId = null
     ) {
+        $result = array();
         foreach ($feeds as $feed) {
-            $this->setFeed($feed, $userId);
+            $result[] = $this->setFeed($feed, $userId);
         }
 
-        $view = new View($feeds);
+        $view = new View($result);
 
         return $view;
     }
