@@ -54,11 +54,11 @@ pipeline {
                 } else if (env.BRANCH_NAME == 'master') {
                     sh "curl 'https://oapi.dingtalk.com/robot/send?access_token=2cf510246ce6156bee19cfd9071c3af9d346596f21910eb0fc6c3bda2af7bb81' \
                         -H 'Content-Type: application/json' \
-                        -d '{\"actionCard\":{\"title\":\"构建成功【Test Server】REST-API\",\"text\":\"![screenshot](https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1513417411509&di=e8b79e6cd1937c3ccd992df8b09f49e9&imgtype=0&src=http%3A%2F%2Fzmblog.oss-cn-hangzhou.aliyuncs.com%2Fwordpress%2F2017%2F02%2Fdocker1.jpg) \\n#### 构建成功【Test Server】REST-API\"},\"msgtype\":\"actionCard\"}' "
+                        -d '{\"actionCard\":{\"title\":\"构建成功【Test Server】REST-API\",\"text\":\"![screenshot](http://sandbox3-pro-image.oss-cn-shanghai.aliyuncs.com/useless/test.jpg) \\n#### 构建成功【Test Server】REST-API\"},\"msgtype\":\"actionCard\"}' "
                 } else if (env.BRANCH_NAME == 'release_production') {
                      sh "curl 'https://oapi.dingtalk.com/robot/send?access_token=2cf510246ce6156bee19cfd9071c3af9d346596f21910eb0fc6c3bda2af7bb81' \
                          -H 'Content-Type: application/json' \
-                         -d '{\"actionCard\":{\"title\":\"构建成功【Production Server】REST-API\",\"text\":\"![screenshot](https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1513578649002&di=1c47b68e2d5c522c0270527a319cd1eb&imgtype=0&src=http%3A%2F%2Fimg.it-home.org%2Fdata%2Fattachment%2Fforum%2F2017pic2%2F20170420111451_197.png) \\n#### 构建成功【Production Server】REST-API\"},\"msgtype\":\"actionCard\"}' "
+                         -d '{\"actionCard\":{\"title\":\"构建成功【Production Server】REST-API\",\"text\":\"![screenshot](http://sandbox3-pro-image.oss-cn-shanghai.aliyuncs.com/useless/product.jpg) \\n#### 构建成功【Production Server】REST-API\"},\"msgtype\":\"actionCard\"}' "
                  } else {
                     echo 'I execute elsewhere'
                 }
