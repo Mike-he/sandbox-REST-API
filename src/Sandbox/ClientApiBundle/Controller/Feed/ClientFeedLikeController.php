@@ -49,8 +49,6 @@ class ClientFeedLikeController extends FeedLikeController
      * @Route("feeds/{id}/likes")
      * @Method({"POST"})
      *
-     * @throws \Exception
-     *
      * @return View
      */
     public function postFeedLikeAction(
@@ -85,7 +83,6 @@ class ClientFeedLikeController extends FeedLikeController
      *
      * @Route("feeds/{id}/likes")
      * @Method({"DELETE"})
-     *
      */
     public function feedUnlikeAction(
         Request $request,
