@@ -2012,24 +2012,24 @@ class ProductRepository extends EntityRepository
                       LEFT JOIN leases as l ON l.product_id = p.id
                       LEFT JOIN room AS r ON r.id = p.roomId
                     WHERE r.type = '$roomType'
-                    AND p.id IN ($str)
                     AND(
-                     (l.start_date >= $startDate) OR
-                     (l.end_date <= $endDate)
+                     (l.start_date <= $startDate AND l.end_date >= $endDate)
                     )
                     AND l.status != 'closed'
                     GROUP BY p.id;
                 "
             );
             $stat->execute();
-            $pids = array_map('current', $stat->fetchAll());
+            $pidsTwo = array_map('current', $stat->fetchAll());
 
             $query->andWhere('p.startDate <= :startDate')
                 ->andWhere('p.endDate >= :startDate')
                 ->andWhere('p.id IN (:pids)')
-//                ->andWhere('p.id IN (:pids) OR p.id IN (:pidsTwo)')
+                ->andWhere('p.id IN (:pids) AND p.id NOT IN (:pidsTwo)')
                 ->setParameter('startDate', $startTime)
-                ->setParameter('pids', $pids);
+                ->setParameter('pids', $pids)
+               ->setParameter('pidsTwo', $pidsTwo)
+            ;
         }
 
         return $query;
