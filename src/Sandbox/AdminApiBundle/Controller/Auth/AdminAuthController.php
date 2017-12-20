@@ -19,7 +19,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  * @author   Albert Feng <albert.f@sandbox3.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 class AdminAuthController extends AuthController
 {
@@ -56,7 +56,7 @@ class AdminAuthController extends AuthController
         }
 
         // response my permissions
-        if ($platform !== 'official') {
+        if ('official' !== $platform) {
             if (is_null($salesCompanyId)) {
                 throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
             }
@@ -99,7 +99,7 @@ class AdminAuthController extends AuthController
 
         $salesAdmin = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
-            ->findOneBy(array('userId'=>$adminId));
+            ->findOneBy(array('userId' => $adminId));
 
         $adminProfile = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
@@ -128,7 +128,7 @@ class AdminAuthController extends AuthController
                 'is_super_admin' => $condition,
                 'client_id' => $this->getUser()->getClientId(),
                 'xmpp_username' => $salesAdmin->getXmppUsername(),
-                'xmpp_code' => $this->get('sandbox_api.des_encrypt')->encrypt($salesAdmin->getPassword())
+                'xmpp_code' => $this->get('sandbox_api.des_encrypt')->encrypt($salesAdmin->getPassword()),
             ],
         );
 
@@ -137,12 +137,13 @@ class AdminAuthController extends AuthController
 
         $dataHash = hash('sha256', json_encode($data));
 
-
         // check hash
         if ($etag == $dataHash) {
+            $view->setStatusCode(304);
+
             return $view;
         }
-        
+
         $view->setHeader('etag', $dataHash);
         $view->setData($data);
         // response
