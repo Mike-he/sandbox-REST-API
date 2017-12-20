@@ -44,6 +44,8 @@ class AdminAuthController extends AuthController
         $platform = $request->query->get('platform');
         $salesCompanyId = $request->query->get('sales_company_id');
 
+        $etag = $request->headers->get('etag');
+
         // response for openfire
         if (is_null($platform)) {
             return new View(array(
@@ -117,21 +119,34 @@ class AdminAuthController extends AuthController
 
         $name = !is_null($adminProfile) ? $adminProfile->getNickname() : '';
 
-        // response
-        return new View(
-            array(
-                'permissions' => $this->remove_duplicate($permissions),
-                'admin' => [
-                    'id' => $admin->getId(),
-                    'name' => $name,
-                    'phone' => $admin->getPhone(),
-                    'is_super_admin' => $condition,
-                    'client_id' => $this->getUser()->getClientId(),
-                    'xmpp_username' => $salesAdmin->getXmppUsername(),
-                    'xmpp_code' => $this->get('sandbox_api.des_encrypt')->encrypt($salesAdmin->getPassword())
-                ],
-            )
+        $data = array(
+            'permissions' => $this->remove_duplicate($permissions),
+            'admin' => [
+                'id' => $admin->getId(),
+                'name' => $name,
+                'phone' => $admin->getPhone(),
+                'is_super_admin' => $condition,
+                'client_id' => $this->getUser()->getClientId(),
+                'xmpp_username' => $salesAdmin->getXmppUsername(),
+                'xmpp_code' => $this->get('sandbox_api.des_encrypt')->encrypt($salesAdmin->getPassword())
+            ],
         );
+
+        // return view
+        $view = new View();
+
+        $dataHash = hash('sha256', json_encode($data));
+
+
+        // check hash
+        if ($etag == $dataHash) {
+            return $view;
+        }
+        
+        $view->setHeader('etag', $dataHash);
+        $view->setData($data);
+        // response
+        return $view;
     }
 
     /**
