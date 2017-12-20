@@ -23,7 +23,6 @@ class CommnueAdvertisingMiddleRepository extends EntityRepository
         $query = $this->createQueryBuilder('cam')
             ->where('1=1');
 
-
         if (!is_null($search)) {
             $query = $query->andWhere('cam.title LIKE :search OR cam.content LIKE :search')
                 ->setParameter('search', '%'.$search.'%');

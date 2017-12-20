@@ -13,14 +13,6 @@ use Sandbox\ApiBundle\Entity\Material\CommnueMaterial;
  */
 class CommnueMaterialRepository extends EntityRepository
 {
-    public function getCategory()
-    {
-        $query = $this->createQueryBuilder('cm')
-            ->select('cm.category');
-
-        return $query->getQuery()->getResult();
-    }
-
     /**
      * @param null $category
      * @return array

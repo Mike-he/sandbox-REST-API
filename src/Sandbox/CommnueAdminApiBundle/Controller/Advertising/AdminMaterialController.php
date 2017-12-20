@@ -18,6 +18,9 @@ use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 
 class AdminMaterialController extends SandboxRestController
 {
+    const UNABLE_DELETE_CODE = 400001;
+    const UNABLE_DELETE_MESSAGE = 'THE MATERIAL HAS BEEN USED';
+
     /**
      * Get Material list
      *
@@ -209,6 +212,33 @@ class AdminMaterialController extends SandboxRestController
             ->find($id);
 
         $this->throwNotFoundIfNull($material, self::NOT_FOUND_MESSAGE);
+
+        $banners = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Banner\CommnueBanner')
+            ->findOneBy(array(
+                'source' => 'material',
+                'sourceId' => $id
+            ));
+        $middles = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Advertising\CommnueAdvertisingMiddle')
+            ->findOneBy(array(
+                'source' => 'material',
+                'sourceId' => $id
+            ));
+        $screens = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Advertising\CommnueAdvertisingScreen')
+            ->findOneBy(array(
+                'source' => 'material',
+                'sourceId' => $id
+            ));
+
+        if(!empty($banners) || !empty($middles) || !empty($screens)){
+            return $this->customErrorView(
+                400,
+                self::UNABLE_DELETE_CODE,
+                self::UNABLE_DELETE_MESSAGE
+            );
+        }
 
         $em = $this->getDoctrine()->getManager();
         $em->remove($material);
