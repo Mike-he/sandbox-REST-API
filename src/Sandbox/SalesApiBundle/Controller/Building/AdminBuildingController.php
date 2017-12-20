@@ -473,8 +473,7 @@ class AdminBuildingController extends LocationController
                     'building_id' => $id,
                 ],
                 [
-                    'key' => AdminPermission::KEY_SALES_BUILDING_BUILDING,
-                    'building_id' => $id,
+                    'key' => AdminPermission::KEY_SALES_BUILDING_BUILDING
                 ],
                 ['key' => AdminPermission::KEY_SALES_PLATFORM_BUILDING],
             ],
@@ -545,8 +544,7 @@ class AdminBuildingController extends LocationController
                     'building_id' => $id,
                 ],
                 [
-                    'key' => AdminPermission::KEY_SALES_BUILDING_BUILDING,
-                    'building_id' => $id,
+                    'key' => AdminPermission::KEY_SALES_BUILDING_BUILDING
                 ],
                 ['key' => AdminPermission::KEY_SALES_PLATFORM_BUILDING],
             ],
@@ -747,8 +745,7 @@ class AdminBuildingController extends LocationController
             $this->getAdminId(),
             [
                 [
-                    'key' => AdminPermission::KEY_SALES_BUILDING_BUILDING,
-                    'building_id' => $id,
+                    'key' => AdminPermission::KEY_SALES_BUILDING_BUILDING
                 ],
                 ['key' => AdminPermission::KEY_SALES_PLATFORM_BUILDING],
             ],
