@@ -1970,22 +1970,78 @@ class ProductRepository extends EntityRepository
                     ) AS p
                     GROUP BY pid
                     HAVING (DATEDIFF($endDate, $startDate) + 1) > (IFNULL(SUM(sum_day1), 0) + IFNULL(SUM(sum_day2), 0) + IFNULL(SUM(sum_day3), 0) + IFNULL(SUM(`count`), 0))
-
-                    UNION
-
-                    SELECT p.id
-                    FROM product AS p
-                      LEFT JOIN product_order AS po ON po.productId = p.id
-                      LEFT JOIN room AS r ON r.id = p.roomId
-                    WHERE po.id IS NULL OR `po`.status != '$status'
-                    AND r.type = '$roomType'
-                    GROUP BY p.id
-                    HAVING COUNT(po.id) = 0
+                    
                     ;
               ");
             $stat->execute();
-            $pids = array_map('current', $stat->fetchAll());
-            $str = substr(implode(',',$pids),1);
+            $pids1 = array_map('current', $stat->fetchAll());
+
+            $stat = $connection->prepare("
+                SELECT  
+                    po.productId
+                FROM 
+                   product_order `po`
+                WHERE 
+                   po.status = '$status'
+                GROUP BY  po.productId
+            ");
+            $stat->execute();
+            $pidsCancelled = array_map('current', $stat->fetchAll());
+            $str = substr(implode(',',$pidsCancelled),1);
+
+            $stat = $connection->prepare("
+                  SELECT
+                      pid
+                    FROM (SELECT
+                        (CASE
+                          WHEN (po.startDate >= $startDate AND po.endDate <= $endDate)
+                            THEN DATEDIFF(po.endDate, po.startDate)
+                          END) AS sum_day1,
+                        (CASE
+                          WHEN (po.startDate <= $startDate AND po.endDate >= $startDate)
+                            THEN DATEDIFF(po.endDate, $startDate)
+                          END) AS sum_day2,
+                        (CASE
+                          WHEN (po.startDate <= $endDate AND po.endDate >= $endDate)
+                            THEN DATEDIFF($endDate, po.startDate)
+                          END) AS sum_day3,
+                        (CASE
+                          WHEN (po.startDate >= $startDate AND po.endDate <= $endDate) OR
+                               (po.startDate <= $startDate AND po.endDate >= $startDate) OR
+                               (po.startDate <= $endDate AND po.endDate >= $endDate)
+                            THEN
+                              COUNT(id)
+                          END) AS count,
+                        po.productId AS pid
+                      FROM product_order `po`
+                      WHERE po.status != '$status' 
+                      AND po.productId IN ($str)
+                      GROUP BY po.id
+                    ) AS p
+                    GROUP BY pid
+                    HAVING (DATEDIFF($endDate, $startDate) + 1) <= (IFNULL(SUM(sum_day1), 0) + IFNULL(SUM(sum_day2), 0) + IFNULL(SUM(sum_day3), 0) + IFNULL(SUM(`count`), 0))      
+                    ;
+              ");
+            $stat->execute();
+            $pids2 = array_map('current', $stat->fetchAll());
+            $str2 = substr(implode(',',$pids2),1);
+
+            $stat = $connection->prepare("
+                SELECT p.id
+                    FROM product AS p
+                      LEFT JOIN product_order AS po ON po.productId = p.id
+                      LEFT JOIN room AS r ON r.id = p.roomId
+                    WHERE po.id IS NULL 
+                    OR po.status = '$status' 
+                    AND p.id NOT IN ($str2)
+                    AND r.type = '$roomType'
+                    GROUP BY p.id
+                
+            ");
+            $stat->execute();
+            $pids3 = array_map('current', $stat->fetchAll());
+
+            $pids = array_merge($pids1,$pids3);
 
 //            $em = $this->getEntityManager();
 //            $connection = $em->getConnection();
@@ -2024,11 +2080,10 @@ class ProductRepository extends EntityRepository
 
             $query->andWhere('p.startDate <= :startDate')
                 ->andWhere('p.endDate >= :startDate')
-                ->andWhere('p.id IN (:pids)')
                 ->andWhere('p.id IN (:pids) AND p.id NOT IN (:pidsTwo)')
                 ->setParameter('startDate', $startTime)
                 ->setParameter('pids', $pids)
-               ->setParameter('pidsTwo', $pidsTwo)
+                ->setParameter('pidsTwo', $pidsTwo)
             ;
         }
 
