@@ -63,6 +63,9 @@ class CheckStatusCommand extends ContainerAwareCommand
         $em->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->setStatusCancelled();
 
+        $em->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->setPreOrderStatusCancelled();
+
         // set room product status visible false
         $em->getRepository('SandboxApiBundle:Product\Product')
             ->setVisibleFalse();

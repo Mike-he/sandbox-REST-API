@@ -766,6 +766,32 @@ class OrderRepository extends EntityRepository
     }
 
     /**
+     * Set preorder orders status to cancelled
+     */
+    public function setPreOrderStatusCancelled()
+    {
+        $now = new \DateTime();
+        $nowString = (string) $now->format('Y-m-d H:i:s');
+        $nowString = "'$nowString'";
+
+        $query = $this->createQueryBuilder('o')
+            ->update()
+            ->set('o.status', self::CANCELLED)
+            ->set('o.cancelledDate', $nowString)
+            ->set('o.modificationDate', $nowString)
+            ->where('o.status = \'unpaid\'')
+            ->andWhere('(o.payChannel != :channel OR o.payChannel IS NULL)')
+            ->andWhere('(o.type = :preorder)')
+            ->andWhere('o.startDate <= :start')
+            ->setParameter('preorder', ProductOrder::PREORDER_TYPE)
+            ->setParameter('start', $now)
+            ->setParameter('channel', ProductOrder::CHANNEL_OFFLINE)
+            ->getQuery();
+
+        $query->execute();
+    }
+
+    /**
      * get unpaid preorder product orders.
      *
      * @param $myBuildingIds
