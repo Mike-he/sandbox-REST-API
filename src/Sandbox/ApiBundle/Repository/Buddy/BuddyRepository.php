@@ -17,6 +17,25 @@ class BuddyRepository extends EntityRepository
         $query = $this->getEntityManager()
             ->createQuery(
                 '
+                SELECT b
+                FROM SandboxApiBundle:Buddy\Buddy b
+                LEFT JOIN SandboxApiBundle:User\User u
+                WITH b.buddyId = u.id
+                WHERE u.banned = FALSE
+                  AND b.user = :myUser
+                '
+            )
+            ->setParameter('myUser', $myUser);
+
+        return $query->getResult();
+    }
+
+    public function getbuddyIds(
+        $myUser
+    ) {
+        $query = $this->getEntityManager()
+            ->createQuery(
+                '
                 SELECT b.buddyId
                 FROM SandboxApiBundle:Buddy\Buddy b
                 LEFT JOIN SandboxApiBundle:User\User u
