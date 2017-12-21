@@ -140,7 +140,7 @@ class ClientFeedController extends FeedController
 
         $buddies = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Buddy\Buddy')
-            ->getBuddies($userId);
+            ->getbuddyIds($userId);
 
         $params = array(
             'platform' => $platform,
