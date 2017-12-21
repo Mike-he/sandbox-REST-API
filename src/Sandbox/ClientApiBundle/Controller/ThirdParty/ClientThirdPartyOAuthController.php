@@ -16,6 +16,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use JMS\Serializer\SerializationContext;
+use FOS\RestBundle\Controller\Annotations;
 
 /**
  * Client Third Party OAuth controller.
@@ -43,6 +44,14 @@ class ClientThirdPartyOAuthController extends ClientThirdPartyController
      *  }
      * )
      *
+     * @Annotations\QueryParam(
+     *     name="platform",
+     *     array=false,
+     *     nullable=true,
+     *     default="official",
+     *     strict=true
+     * )
+     *
      * @Route("/login")
      * @Method({"POST"})
      *
@@ -51,7 +60,8 @@ class ClientThirdPartyOAuthController extends ClientThirdPartyController
      * @return View
      */
     public function postThirdPartyOAuthLoginAction(
-        Request $request
+        Request $request,
+        ParamFetcherInterface $paramFetcher
     ) {
         $login = new ThirdPartyOAuthLoginData();
 
@@ -64,6 +74,7 @@ class ClientThirdPartyOAuthController extends ClientThirdPartyController
 
         // get third party resources
         $weChatData = $login->getWeChat();
+        $platform = $paramFetcher->get('platform');
 
         // for third party oauth login,
         // currently, we are supporting WeChat
@@ -79,7 +90,7 @@ class ClientThirdPartyOAuthController extends ClientThirdPartyController
 
         if (!is_null($weChatData)) {
             // do oauth with WeChat API with code
-            $weChat = $this->authenticateWithWeChat($weChatData, $user);
+            $weChat = $this->authenticateWithWeChat($weChatData, $user, $platform);
 
             if (is_null($weChat)) {
                 throw new UnauthorizedHttpException(self::UNAUTHED_API_CALL);
@@ -122,7 +133,8 @@ class ClientThirdPartyOAuthController extends ClientThirdPartyController
      */
     private function authenticateWithWeChat(
         $weChatData,
-        $user
+        $user,
+        $platform
     ) {
         $code = $weChatData->getCode();
         $from = $weChatData->isFrom();
@@ -136,7 +148,7 @@ class ClientThirdPartyOAuthController extends ClientThirdPartyController
         }
 
         // call WeChat API to get access token
-        $result = $this->getWeChatAuthInfoByCode($code, $from);
+        $result = $this->getWeChatAuthInfoByCode($code, $from, $platform);
 
         if (!isset($result['unionid'])) {
             return null;

@@ -2,6 +2,7 @@
 
 namespace Sandbox\ApiBundle\Traits;
 
+use Sandbox\ApiBundle\Constants\PlatformConstants;
 use Sandbox\ApiBundle\Constants\WeChatConstants;
 use Sandbox\ApiBundle\Entity\ThirdParty\WeChat;
 use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
@@ -25,7 +26,8 @@ trait WeChatApi
      */
     public function getWeChatAuthInfoByCode(
         $code,
-        $from
+        $from,
+        $platform
     ) {
         $code = $this->after('_', $code);
 
@@ -33,13 +35,24 @@ trait WeChatApi
                         ->get('twig')
                         ->getGlobals();
 
-        // get appid by data from type
-        if (ThirdPartyOAuthWeChatData::DATA_FROM_APPLICATION == $from) {
-            $appId = $globals['wechat_app_id'];
-            $secret = $globals['wechat_app_secret'];
-        } elseif (ThirdPartyOAuthWeChatData::DATA_FROM_WEBSITE == $from) {
-            $appId = $globals['wechat_website_app_id'];
-            $secret = $globals['wechat_website_secret'];
+        if ($platform == PlatformConstants::PLATFORM_COMMNUE) {
+            // get appid by data from type
+            if (ThirdPartyOAuthWeChatData::DATA_FROM_APPLICATION == $from) {
+                $appId = $globals['wechat_commnue_app_id'];
+                $secret = $globals['wechat_commnue_secret'];
+            } elseif (ThirdPartyOAuthWeChatData::DATA_FROM_WEBSITE == $from) {
+                $appId = $globals['wechat_website_app_id'];
+                $secret = $globals['wechat_website_secret'];
+            }
+        } else {
+            // get appid by data from type
+            if (ThirdPartyOAuthWeChatData::DATA_FROM_APPLICATION == $from) {
+                $appId = $globals['wechat_app_id'];
+                $secret = $globals['wechat_app_secret'];
+            } elseif (ThirdPartyOAuthWeChatData::DATA_FROM_WEBSITE == $from) {
+                $appId = $globals['wechat_website_app_id'];
+                $secret = $globals['wechat_website_secret'];
+            }
         }
 
         $url = WeChatConstants::URL_ACCESS_TOKEN;
