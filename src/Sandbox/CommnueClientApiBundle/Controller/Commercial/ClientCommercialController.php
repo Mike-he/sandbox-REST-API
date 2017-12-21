@@ -233,19 +233,12 @@ class ClientCommercialController extends AdvertisingController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $parameter = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Parameter\Parameter')
-            ->findOneBy(array(
-                'key'=>Parameter::KEY_COMMNUE_ADVERTISING_SCREEN
-            ));
-        $limit = $parameter->getValue();
-
         $height = $paramFetcher->get('height');
         $width = $paramFetcher->get('width');
 
         $screens = $this->getDoctrine()
             ->getRepository("SandboxApiBundle:Advertising\CommnueAdvertisingScreen")
-            ->getVisibleScreens($limit);
+            ->findOneBy(array('visible'=>true));
 
         if (!is_null($screens)) {
             foreach ($screens as $screen){

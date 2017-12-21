@@ -64,7 +64,6 @@ class Parameter
     const KEY_COMMNUE_BANNER = 'commnue_banner';
     const KEY_COMMNUE_ADVERTISING_MIDDLE = 'commnue_advertising_middle';
     const KEY_COMMNUE_ADVERTISING_MICRO = 'commnue_advertising_micro';
-    const KEY_COMMNUE_ADVERTISING_SCREEN = 'commnue_advertising_screen';
 
     /**
      * @var int

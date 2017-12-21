@@ -13,18 +13,5 @@ use Doctrine\ORM\EntityRepository;
  */
 class CommnueAdvertisingScreenRepository extends EntityRepository
 {
-    /**
-     * @param $limit
-     * @return array
-     */
-    public function getVisibleScreens(
-        $limit
-    ) {
-        $query = $this->createQueryBuilder('cas')
-            ->where('cas.visible = TRUE')
-            ->andWhere('cas.isSaved = TRUE')
-            ->setMaxResults($limit);
 
-        return $query->getQuery()->getResult();
-    }
 }
