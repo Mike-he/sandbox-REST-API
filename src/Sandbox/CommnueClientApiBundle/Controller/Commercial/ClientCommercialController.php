@@ -236,18 +236,15 @@ class ClientCommercialController extends AdvertisingController
         $height = $paramFetcher->get('height');
         $width = $paramFetcher->get('width');
 
-        $screens = $this->getDoctrine()
+        $screen = $this->getDoctrine()
             ->getRepository("SandboxApiBundle:Advertising\CommnueAdvertisingScreen")
             ->findOneBy(array('visible'=>true));
-
-        if (!is_null($screens)) {
-            foreach ($screens as $screen){
-                $attachment = $this->getDoctrine()->getRepository("SandboxApiBundle:Advertising\CommnueScreenAttachment")->findAttachment($screen, $height, $width);
-                $screen->setAttachments($attachment);
-            }
+        if($screen){
+            $attachment = $this->getDoctrine()->getRepository("SandboxApiBundle:Advertising\CommnueScreenAttachment")->findAttachment($screen, $height, $width);
+            $screen->setAttachments($attachment);
         }
 
-        $view = new View($screens);
+        $view = new View($screen);
         $view->setSerializationContext(
             SerializationContext::create()->setGroups(array('client_list'))
         );
