@@ -31,27 +31,23 @@ trait WeChatApi
     ) {
         $code = $this->after('_', $code);
 
-        $globals = $this->getContainer()
-                        ->get('twig')
-                        ->getGlobals();
-
         if ($platform == PlatformConstants::PLATFORM_COMMNUE) {
             // get appid by data from type
             if (ThirdPartyOAuthWeChatData::DATA_FROM_APPLICATION == $from) {
-                $appId = $globals['wechat_commnue_app_id'];
-                $secret = $globals['wechat_commnue_secret'];
+                $appId = $this->getParameter('wechat_commnue_app_id');
+                $secret = $this->getParameter('wechat_commnue_secret');
             } elseif (ThirdPartyOAuthWeChatData::DATA_FROM_WEBSITE == $from) {
-                $appId = $globals['wechat_website_app_id'];
-                $secret = $globals['wechat_website_secret'];
+                $appId = $this->getParameter('wechat_website_app_id');
+                $secret = $this->getParameter('wechat_website_secret');
             }
         } else {
             // get appid by data from type
             if (ThirdPartyOAuthWeChatData::DATA_FROM_APPLICATION == $from) {
-                $appId = $globals['wechat_app_id'];
-                $secret = $globals['wechat_app_secret'];
+                $appId = $this->getParameter('wechat_app_id');
+                $secret = $this->getParameter('wechat_app_secret');
             } elseif (ThirdPartyOAuthWeChatData::DATA_FROM_WEBSITE == $from) {
-                $appId = $globals['wechat_website_app_id'];
-                $secret = $globals['wechat_website_secret'];
+                $appId = $this->getParameter('wechat_website_app_id');
+                $secret = $this->getParameter('wechat_website_secret');
             }
         }
 

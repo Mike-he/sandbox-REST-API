@@ -14,7 +14,7 @@ parameters:
     database_path: null
     pingpp_key: sk_test_yHufjLubPOePTW54y5iDeHa5
     pingpp_app_id: app_aTKWTK1G0aLO4azn
-    
+
     wechat_app_id: wx5f5a4878763f5515
     wechat_app_secret: 2f576c27bef3d5a83ac78a273712abe7
     wechat_public_platform_app_id: wxd0bc8ff918c8e593
