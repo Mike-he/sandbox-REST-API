@@ -14,12 +14,16 @@ parameters:
     database_path: null
     pingpp_key: sk_test_yHufjLubPOePTW54y5iDeHa5
     pingpp_app_id: app_aTKWTK1G0aLO4azn
+    
     wechat_app_id: wx5f5a4878763f5515
     wechat_app_secret: 2f576c27bef3d5a83ac78a273712abe7
     wechat_public_platform_app_id: wxd0bc8ff918c8e593
     wechat_public_platform_secret: be4ed95443a324b27d19e313ad7dd2e0
     wechat_website_app_id: wx3ada402af6480db0
     wechat_website_secret: cb013671b7d43e92ea7df28848053e70
+    wechat_commnue_app_id: wx1388ca2b2fa80df6
+    wechat_commnue_secret: 5a5a63d1731189e19870b1342a011887
+
     server_order_id: s
     load_more_limit: 20
     nearby_range_km: 10000
