@@ -125,4 +125,4 @@ parameters:
 
     error_log_dir: /var/www/error.log
 
-    rpc_server_feed: feed.local
+    rpc_server_feed: demofeed.local
