@@ -156,10 +156,12 @@ class ClientThirdPartyOAuthController extends ClientThirdPartyController
 
         // get WeChat by openId
         $unionId = $result['unionid'];
+        $openid = $result['openid'];
         $weChat = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:ThirdParty\WeChat')
             ->findOneBy(array(
                 'unionid' => $unionId,
+                'openid' => $openid,
             ));
 
         $em = $this->getDoctrine()->getManager();
@@ -168,7 +170,7 @@ class ClientThirdPartyOAuthController extends ClientThirdPartyController
         // update existing WeChat
         if (is_null($weChat)) {
             $weChat = new WeChat();
-            $weChat->setOpenId($result['openid']);
+            $weChat->setOpenId($openid);
             $weChat->setCreationDate($now);
 
             $em->persist($weChat);
@@ -194,6 +196,7 @@ class ClientThirdPartyOAuthController extends ClientThirdPartyController
                     ->getRepository('SandboxApiBundle:ThirdParty\WeChat')
                     ->findOneBy(array(
                         'unionid' => $unionId,
+                        'openid' => $openid,
                     ));
 
                 if (!is_null($currentAccount)) {
