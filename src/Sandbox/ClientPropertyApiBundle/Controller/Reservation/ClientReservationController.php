@@ -96,6 +96,7 @@ class ClientReservationController extends SalesRestController
     ) {
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
+        $salesCompanyId = 72;
 
         $offset = $paramFetcher->get('offset');
         $limit = $paramFetcher->get('limit');
@@ -199,10 +200,7 @@ class ClientReservationController extends SalesRestController
      */
     private function getProductInfo($reservation)
     {
-        $str = $reservation->getViewTime();
-        $str = str_replace('.','-',$str);
-
-        $viewTime =  new \DateTime($str);
+        $viewTime =  $reservation->getViewTime();
         $status = $reservation->getStatus();
         $now = new \DateTime();
 
@@ -247,12 +245,13 @@ class ClientReservationController extends SalesRestController
         $data['product'] = $product;
         $data['product']['content'] = $attachment[0]['content'];
         $data['product']['type_tag_description'] = $typeTagDescription;
-
-
+        
         $user = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserCustomer')
             ->findOneBy(array('userId'=>$reservation->getUserId()));
-        $data['userName'] = $user->getName();
+        if($user){
+            $data['userName'] = $user->getName();
+        }
 
         if($reservation->getAdminId()){
             $admin = $this->getDoctrine()
