@@ -334,7 +334,7 @@ class ReservationRepository extends EntityRepository
             ->setParameter('companyId', $salesCompanyId);
 
         if(!is_null($time)){
-            $query->andWhere('re.viewTime >= :viewTime')
+            $query->andWhere('re.viewTime > :viewTime')
                 ->setParameter('viewTime',$time);
         }
             $query->orderBy('re.viewTime', 'ASC');

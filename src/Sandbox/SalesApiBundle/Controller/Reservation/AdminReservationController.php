@@ -302,7 +302,6 @@ class AdminReservationController extends SalesRestController
         );
 
         return $view;
-
     }
 
     /**
@@ -311,10 +310,7 @@ class AdminReservationController extends SalesRestController
      */
     private function getProductInfo($reservation)
     {
-        $str = $reservation->getViewTime();
-        $str = str_replace('.','-',$str);
-
-        $viewTime =  new \DateTime($str);
+        $viewTime = $reservation->getViewTime();
         $status = $reservation->getStatus();
         $now = new \DateTime();
 
