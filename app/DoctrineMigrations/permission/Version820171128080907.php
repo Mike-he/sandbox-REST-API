@@ -97,6 +97,15 @@ class Version820171128080907 extends AbstractMigration implements ContainerAware
         $permission24->setMaxOpLevel('2');
         $em->persist($permission24);
 
+        $permission25 = new AdminPermission();
+        $permission25->setKey('commnue.platform.screen');
+        $permission25->setName('开屏广告');
+        $permission25->setPlatform('commnue');
+        $permission25->setLevel('global');
+        $permission25->setOpLevelSelect('1,2');
+        $permission25->setMaxOpLevel('2');
+        $em->persist($permission25);
+
         $map21 = new AdminPermissionGroupMap();
         $map21->setGroup($permissionGroup2);
         $map21->setPermission($permission21);
@@ -116,6 +125,11 @@ class Version820171128080907 extends AbstractMigration implements ContainerAware
         $map24->setGroup($permissionGroup2);
         $map24->setPermission($permission24);
         $em->persist($map24);
+
+        $map25 = new AdminPermissionGroupMap();
+        $map25->setGroup($permissionGroup2);
+        $map25->setPermission($permission25);
+        $em->persist($map25);
 
         //commnue_community
         $permissionGroup3 = new AdminPermissionGroups();
