@@ -359,7 +359,9 @@ class AdminReservationController extends SalesRestController
         $user = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserCustomer')
             ->findOneBy(array('userId'=>$reservation->getUserId()));
-        $data['userName'] = $user->getName();
+        if($user){
+            $data['userName'] = $user->getName();
+        }
 
         if($reservation->getAdminId()){
             $admin = $this->getDoctrine()
