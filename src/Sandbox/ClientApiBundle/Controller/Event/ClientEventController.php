@@ -58,14 +58,6 @@ class ClientEventController extends EventController
      *    description="offset of page"
      * )
      *
-     * @Annotations\QueryParam(
-     *     name="platform",
-     *     array=false,
-     *     default="official",
-     *     nullable=true,
-     *     strict=true
-     * )
-     *
      * @Route("/events/all")
      * @Method({"GET"})
      *
@@ -85,15 +77,13 @@ class ClientEventController extends EventController
         // filters
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
-        $platform = $paramFetcher->get('platform');
 
         // get max limit
         $limit = $this->getLoadMoreLimit($limit);
 
         $events = $this->getRepo('Event\Event')->getAllClientEvents(
             $limit,
-            $offset,
-            $platform
+            $offset
         );
 
         foreach ($events as $event) {
@@ -143,14 +133,6 @@ class ClientEventController extends EventController
      *    description="offset of the page"
      * )
      *
-     * @Annotations\QueryParam(
-     *     name="platform",
-     *     array=false,
-     *     default="official",
-     *     nullable=true,
-     *     strict=true
-     * )
-     *
      * @Route("/events/my")
      * @Method({"GET"})
      *
@@ -167,7 +149,6 @@ class ClientEventController extends EventController
         // filters
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
-        $platform = $paramFetcher->get('platform');
 
         // get max limit
         $limit = $this->getLoadMoreLimit($limit);
@@ -175,8 +156,7 @@ class ClientEventController extends EventController
         $events = $this->getRepo('Event\Event')->getMyClientEvents(
             $userId,
             $limit,
-            $offset,
-            $platform
+            $offset
         );
 
         $eventsArray = array();
