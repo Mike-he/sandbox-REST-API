@@ -309,7 +309,7 @@ class AdminAdvertisingMicroController extends AdvertisingController
         $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             [
-                ['key' => AdminPermission::KEY_COMMNUE_PLATFORM_ADVERTISEMENT],
+                ['key' => AdminPermission::KEY_COMMNUE_PLATFORM_TOP],
             ],
             $opLevel
         );
