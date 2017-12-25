@@ -24,5 +24,3 @@ with username = "token" and password = "id of client"
 ## API Documentations
 
 [http://gitlab.sandbox3.cn/Sandbox/Sandbox-API-Docs](http://gitlab.sandbox3.cn/Sandbox/Sandbox-API-Docs)
-
-TEST
