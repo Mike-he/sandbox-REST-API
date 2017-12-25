@@ -547,6 +547,22 @@ class ClientClueController extends SalesRestController
                     ->findAttachmentsByRoom($room->getId(), 1);
             }
 
+            if ($clue->getProductAppointmentId()) {
+                $source = '客户申请';
+            } else {
+                $statusLog = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Admin\AdminStatusLog')
+                    ->findOneBy(array(
+                        'object' => AdminStatusLog::OBJECT_LEASE_CLUE,
+                        'objectId' => $id,
+                        'status' => LeaseClue::LEASE_CLUE_STATUS_CLUE,
+                    ));
+
+                $username = $statusLog ? $statusLog->getUsername() : '';
+
+                $source = $username.' 管理员创建';
+            }
+
             $result[] = [
                 'id' => $id,
                 'serial_number' => $clue->getSerialNumber(),
@@ -557,7 +573,7 @@ class ClientClueController extends SalesRestController
                 'building_name' => $building ? $building->getName() : '',
                 'start_date' => $clue->getStartDate(),
                 'cycle' => $clue->getCycle(),
-                'source' => $clue->getProductAppointmentId() ? '客户申请' : '管理员创建',
+                'source' => $source,
                 'customer' => array(
                     'id' => $clue->getLesseeCustomer(),
                     'name' => $customer ? $customer->getName() : '',
