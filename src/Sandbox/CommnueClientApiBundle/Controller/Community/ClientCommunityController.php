@@ -232,10 +232,28 @@ class ClientCommunityController extends LocationController
                 ->countRoomsWithProductByBuilding(
                     $id
                 );
-
             $community['room_number'] = (int) $number;
+
+            $lat = $community['lat'];
+            $lng = $community['lng'];
+            $locationArray = $this->gaodeToBaidu($lat, $lng);
+            $community['lat'] = $locationArray['lat'];
+            $community['lng'] = $locationArray['lon'];
         }
 
         return $communities;
+    }
+
+    private function gaodeToBaidu($gg_lat, $gg_lon)
+    {
+        $x = $gg_lon;
+        $y = $gg_lat;
+
+        $z = sqrt($x * $x + $y * $y) + 0.00002 * sin($y * LocationConstants::$pi);
+        $theta = atan2($y, $x) + 0.000003 * cos($x * LocationConstants::$pi);
+        $bd_lon = $z * cos($theta) + 0.0065;
+        $bd_lat = $z * sin($theta) + 0.006;
+
+        return  array('lat' => $bd_lat, 'lon' => $bd_lon);
     }
 }
