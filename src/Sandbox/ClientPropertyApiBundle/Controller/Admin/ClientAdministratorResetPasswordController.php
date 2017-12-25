@@ -51,7 +51,7 @@ class ClientAdministratorResetPasswordController extends SandboxRestController
         if (is_null($salesAdmin)) {
             return new View([
                 'error_code' => '400001',
-                'error_message' => '该手机号未注册',
+                'error_message' => '该账号不存在',
             ]);
         }
 
