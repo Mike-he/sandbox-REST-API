@@ -241,6 +241,10 @@ class ClientEventOrderController extends PaymentController
             ->find($id);
         $this->throwNotFoundIfNull($event, self::NOT_FOUND_MESSAGE);
 
+        if ($event->isVerify()) {
+            return new View();
+        }
+
         $customerId = null;
         if ($event->getSalesCompanyId()) {
             $customerId = $this->get('sandbox_api.sales_customer')->createCustomer(
