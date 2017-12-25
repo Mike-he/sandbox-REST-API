@@ -460,6 +460,10 @@ class LocationController extends SalesRestController
             $viewGroup = 'shop_nearby';
         }
 
+        $location = $this->baiduToGaode($lat, $lng);
+        $lat = $location['lat'];
+        $lng = $location['lon'];
+
         $buildings = $this->getRepo('Room\RoomBuilding')->findNearbyBuildings(
             $lat,
             $lng,
@@ -889,6 +893,28 @@ class LocationController extends SalesRestController
         $bd_lat = $z * sin($theta) + 0.006;
 
         return  array('lat' => $bd_lat, 'lon' => $bd_lon);
+    }
+
+    /**
+     * @param $lat
+     * @param $lng
+     *
+     * @return array
+     */
+    private function baiduToGaode(
+        $lat,
+        $lng
+    ) {
+        $x = $lng - 0.0065;
+        $y = $lat - 0.006;
+
+        $z = sqrt($x * $x + $y * $y) - 0.00002 * sin($y * LocationConstants::$pi);
+        $theta = atan2($y, $x) - 0.000003 * cos($x * LocationConstants::$pi);
+
+        $gg_lon = $z * cos($theta);
+        $gg_lat = $z * sin($theta);
+
+        return  array('lat' => $gg_lat, 'lon' => $gg_lon);
     }
 
     /**
