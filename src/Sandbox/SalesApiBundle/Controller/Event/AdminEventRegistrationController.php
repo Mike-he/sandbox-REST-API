@@ -7,7 +7,9 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Event\EventForm;
+use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Sandbox\ApiBundle\Entity\Event\EventRegistration;
+use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Sandbox\ApiBundle\Form\Event\EventRegistrationPatchType;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Symfony\Component\HttpFoundation\Request;
@@ -104,6 +106,56 @@ class AdminEventRegistrationController extends SalesRestController
             $em->flush();
 
             if ($registration->getStatus() == EventRegistration::STATUS_ACCEPTED) {
+                // generate event order
+                $userId = $registration->getUserId();
+                $eventId = $registration->getEventId();
+                $event = $registration->getEvent();
+
+                $eventOrder = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Event\EventOrder')
+                    ->findOneBy([
+                        'userId' => $userId,
+                        'eventId' => $eventId,
+                        'status' => [EventOrder::STATUS_PAID, EventOrder::STATUS_COMPLETED],
+                    ]);
+
+                if (is_null($eventOrder)) {
+                    $eventOrder = new EventOrder();
+
+                    // generate order number
+                    $orderNumber = $this->getOrderNumber(EventOrder::LETTER_HEAD);
+
+                    // set order
+                    $eventOrder->setEvent($event);
+                    $eventOrder->setUserId($userId);
+                    $eventOrder->setPrice($event->getPrice());
+                    $eventOrder->setOrderNumber($orderNumber);
+
+                    if ($event->getSalesCompanyId()) {
+                        $customerId = $this->get('sandbox_api.sales_customer')->createCustomer(
+                            $userId,
+                            $event->getSalesCompanyId()
+                        );
+                        $eventOrder->setCustomerId($customerId);
+                    }
+                    $eventOrder->setStatus(EventOrder::STATUS_PAID);
+
+                    // set service fee
+                    $serviceInfo = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
+                        ->findOneBy(array(
+                            'tradeTypes' => SalesCompanyServiceInfos::TRADE_TYPE_ACTIVITY,
+                            'company' => $event->getSalesCompanyId(),
+                            'status' => true,
+                        ));
+                    if (!is_null($serviceInfo)) {
+                        $eventOrder->setServiceFee($serviceInfo->getServiceFee());
+                    }
+
+                    $em->persist($eventOrder);
+                    $em->flush();
+                }
+
                 $contentArray = array(
                     'type' => 'event',
                     'action' => EventRegistration::ACTION_ACCEPT,
@@ -135,6 +187,52 @@ class AdminEventRegistrationController extends SalesRestController
         }
 
         return new View();
+    }
+
+    /**
+     * @param $letter
+     *
+     * @return string
+     */
+    public function getOrderNumber(
+        $letter
+    ) {
+        $datetime = new \DateTime();
+        $now = clone $datetime;
+        $now->setTime(00, 00, 00);
+        $date = round(microtime(true) * 1000);
+        $counter = $this->getRepo('Order\OrderCount')->findOneBy(['orderDate' => $now]);
+        if (is_null($counter)) {
+            $count = 1;
+            $this->setOrderCount($count, $now);
+        } else {
+            $count = $counter->getCount() + 1;
+            $counter->setCount($count);
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($counter);
+            $em->flush();
+        }
+
+        $serverId = $this->getGlobal('server_order_id');
+        $orderNumber = $letter."$date"."$count"."$serverId";
+
+        return $orderNumber;
+    }
+
+    /**
+     * @param $count
+     * @param $now
+     */
+    public function setOrderCount(
+        $count,
+        $now
+    ) {
+        $counter = new OrderCount();
+        $counter->setCount($count);
+        $counter->setOrderDate($now);
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($counter);
+        $em->flush();
     }
 
     /**
