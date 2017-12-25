@@ -14,7 +14,6 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 52 6	1 * *	root	test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.monthly )
 #
 
-*/1 * * * * root date >> /root/test.log
 */5 * * * * root php /var/www/app/console check:status
 20,50 * * * * root php /var/www/app/console meeting:notification
 0 16 * * * root php /var/www/app/console order:notification
