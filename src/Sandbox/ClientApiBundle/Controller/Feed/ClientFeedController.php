@@ -458,6 +458,7 @@ class ClientFeedController extends FeedController
         $params = json_decode($request->getContent(), true);
         $params['owner'] = $myUserId;
         $params['platform'] = isset($params['platform']) ? $params['platform'] : PlatformConstants::PLATFORM_OFFICIAL;
+        $params['location'] = isset($params['location']) ? $params['location'] : "";
         $params['attachments'] = isset($params['feed_attachments']) ? $params['feed_attachments'] : array();
 
         $result = $this->get('sandbox_rpc.client')->callRpcServer(
