@@ -7,6 +7,7 @@ use Sandbox\ApiBundle\Controller\SandboxRestController;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Admin\AdminStatusLog;
 use Sandbox\ApiBundle\Entity\Event\Event;
 use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
@@ -536,7 +537,17 @@ class ClientDashBoardController extends SandboxRestController
         if ($clue->getProductAppointmentId()) {
             $source = '客户申请';
         } else {
-            $source = '管理员创建';
+            $statusLog = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminStatusLog')
+                ->findOneBy(array(
+                    'object' => AdminStatusLog::OBJECT_LEASE_CLUE,
+                    'objectId' => $clue->getId(),
+                    'status' => LeaseClue::LEASE_CLUE_STATUS_CLUE,
+                ));
+
+            $username = $statusLog ? $statusLog->getUsername() : '';
+
+            $source = $username.' 管理员创建';
         }
 
         $result = array(
