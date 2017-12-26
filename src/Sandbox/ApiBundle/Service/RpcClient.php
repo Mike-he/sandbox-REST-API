@@ -32,7 +32,7 @@ class RpcClient
             'RPC-Token: ClientTokenExample',
         ];
 
-        curl_setopt($ch, CURLOPT_URL,$server);
+        curl_setopt($ch, CURLOPT_URL, $server);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
