@@ -681,7 +681,9 @@ class AdminLeaseController extends SalesRestController
             $newStatus,
             $logMessage,
             AdminStatusLog::OBJECT_LEASE,
-            $lease->getId()
+            $lease->getId(),
+            AdminStatusLog::TYPE_SALES_ADMIN,
+            $lease->getCompanyId()
         );
 
         // generate log
@@ -888,7 +890,9 @@ class AdminLeaseController extends SalesRestController
             Lease::LEASE_STATUS_DRAFTING,
             $logMessage,
             AdminStatusLog::OBJECT_LEASE,
-            $lease->getId()
+            $lease->getId(),
+            AdminStatusLog::TYPE_SALES_ADMIN,
+            $lease->getCompanyId()
         );
 
         if (!empty($bills['add'])) {
@@ -920,7 +924,9 @@ class AdminLeaseController extends SalesRestController
                     LeaseBill::STATUS_PENDING,
                     $logMessage,
                     AdminStatusLog::OBJECT_LEASE_BILL,
-                    $billId
+                    $billId,
+                    AdminStatusLog::TYPE_SALES_ADMIN,
+                    $lease->getCompanyId()
                 );
             }
         }
@@ -1052,7 +1058,9 @@ class AdminLeaseController extends SalesRestController
                 Lease::LEASE_STATUS_PERFORMING,
                 $logMessage,
                 AdminStatusLog::OBJECT_LEASE,
-                $lease->getId()
+                $lease->getId(),
+                AdminStatusLog::TYPE_SALES_ADMIN,
+                $lease->getCompanyId()
             );
 
             if ($userId) {
@@ -1116,7 +1124,9 @@ class AdminLeaseController extends SalesRestController
                     LeaseBill::STATUS_PENDING,
                     $logMessage,
                     AdminStatusLog::OBJECT_LEASE_BILL,
-                    $billId
+                    $billId,
+                    AdminStatusLog::TYPE_SALES_ADMIN,
+                    $lease->getCompanyId()
                 );
             }
         }

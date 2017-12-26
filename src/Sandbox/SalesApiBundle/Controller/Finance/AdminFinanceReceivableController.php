@@ -113,7 +113,9 @@ class AdminFinanceReceivableController extends SalesRestController
                         LeaseBill::STATUS_PAID,
                         $logMessage,
                         AdminStatusLog::OBJECT_LEASE_BILL,
-                        $bill->getId()
+                        $bill->getId(),
+                        AdminStatusLog::TYPE_SALES_ADMIN,
+                        $salesCompanyId
                     );
 
                     $amount = $bill->getRevisedAmount();

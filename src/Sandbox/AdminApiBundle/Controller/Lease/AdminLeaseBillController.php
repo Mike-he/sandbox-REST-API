@@ -339,7 +339,8 @@ class AdminLeaseBillController extends LeaseController
             LeaseBill::STATUS_PAID,
             $logMessage,
             AdminStatusLog::OBJECT_LEASE_BILL,
-            $bill->getId()
+            $bill->getId(),
+            AdminStatusLog::TYPE_OFFICIAL_ADMIN
         );
 
         return new View();
