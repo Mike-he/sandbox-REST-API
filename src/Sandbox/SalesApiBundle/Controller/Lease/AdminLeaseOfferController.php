@@ -392,7 +392,9 @@ class AdminLeaseOfferController extends SalesRestController
                 $newStatus,
                 $logMessage,
                 AdminStatusLog::OBJECT_LEASE_OFFER,
-                $offer->getId()
+                $offer->getId(),
+                AdminStatusLog::TYPE_SALES_ADMIN,
+                $salesCompanyId
             );
         }
 
@@ -540,7 +542,9 @@ class AdminLeaseOfferController extends SalesRestController
                     LeaseClue::LEASE_CLUE_STATUS_OFFER,
                     $leaseLogMessage,
                     AdminStatusLog::OBJECT_LEASE_CLUE,
-                    $leaseClueId
+                    $leaseClueId,
+                    AdminStatusLog::TYPE_SALES_ADMIN,
+                    $salesCompanyId
                 );
 
                 $logMessage = '从线索：'.$leaseClue->getSerialNumber().' 转为报价';
@@ -553,7 +557,9 @@ class AdminLeaseOfferController extends SalesRestController
                 $offer->getStatus(),
                 $logMessage,
                 AdminStatusLog::OBJECT_LEASE_OFFER,
-                $offer->getId()
+                $offer->getId(),
+                AdminStatusLog::TYPE_SALES_ADMIN,
+                $salesCompanyId
             );
 
             $response = array(

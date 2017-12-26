@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Controller\Log;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Sandbox\ApiBundle\Entity\Admin\AdminStatusLog;
 use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Form\Log\LogType;
 use Symfony\Component\HttpFoundation\Request;
@@ -42,13 +43,13 @@ class LogController extends SandboxRestController
         }
 
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
-
+        $salesCompanyId = $adminPlatform['sales_company_id'];
         $log->setPlatform($adminPlatform['platform']);
         $log->setAdminUsername($adminId);
 
         $salesCompany = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
-            ->find($adminPlatform['sales_company_id']);
+            ->find($salesCompanyId);
         $log->setSalesCompany($salesCompany);
 
         $em = $this->getDoctrine()->getManager();
@@ -64,7 +65,9 @@ class LogController extends SandboxRestController
                     'completed',
                     '确认开票',
                     $log->getLogObjectKey(),
-                    $log->getLogObjectId()
+                    $log->getLogObjectId(),
+                    AdminStatusLog::TYPE_SALES_ADMIN,
+                    $salesCompanyId
                 );
         }
 

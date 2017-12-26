@@ -393,7 +393,9 @@ class AdminLeaseClueController extends SalesRestController
                 $newStatus,
                 $logMessage,
                 AdminStatusLog::OBJECT_LEASE_CLUE,
-                $clue->getId()
+                $clue->getId(),
+                AdminStatusLog::TYPE_SALES_ADMIN,
+                $clue->getCompanyId()
             );
         }
 
@@ -479,7 +481,9 @@ class AdminLeaseClueController extends SalesRestController
                 $status,
                 $logMessage,
                 AdminStatusLog::OBJECT_LEASE_CLUE,
-                $clue->getId()
+                $clue->getId(),
+                AdminStatusLog::TYPE_SALES_ADMIN,
+                $clue->getCompanyId()
             );
 
             $response = array(
