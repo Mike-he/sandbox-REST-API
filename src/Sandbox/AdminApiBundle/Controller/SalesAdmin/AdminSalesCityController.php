@@ -18,7 +18,7 @@ use FOS\RestBundle\View\View;
  * @author   Mike He <mike.he@easylinks.com.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 class AdminSalesCityController extends LocationController
 {

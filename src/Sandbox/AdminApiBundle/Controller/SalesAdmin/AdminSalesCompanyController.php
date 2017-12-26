@@ -42,7 +42,7 @@ use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
  * @author   Mike He <mike.he@easylinks.com.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 class AdminSalesCompanyController extends SandboxRestController
 {
@@ -69,18 +69,11 @@ class AdminSalesCompanyController extends SandboxRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $eventGroup = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Admin\AdminPermissionGroups')
-            ->findOneBy(array(
-                'groupKey' => AdminPermissionGroups::GROUP_KEY_EVENT,
-                'platform' => AdminPermissionGroups::GROUP_PLATFORM_SALES,
-            ));
-
-        return new View(array(
+        $excludePermission = array(
             'exclude_permissions_options' => array(
                 array(
-                    'group_key' => $eventGroup->getGroupKey(),
-                    'group_name' => $eventGroup->getGroupName(),
+                    'group_key' => AdminPermissionGroups::GROUP_KEY_EVENT,
+                    'group_name' => '活动管理',
                     'permissions' => array(
                         array('key' => AdminPermission::KEY_SALES_PLATFORM_EVENT),
                         array('key' => AdminPermission::KEY_SALES_PLATFORM_EVENT_ORDER),
@@ -95,8 +88,18 @@ class AdminSalesCompanyController extends SandboxRestController
                         array('key' => AdminPermission::KEY_SALES_PLATFORM_MEMBERSHIP_CARD_PRODUCT),
                     ),
                 ),
+                array(
+                    'group_key' => AdminPermissionGroups::GROUP_KEY_SERVICE,
+                    'group_name' => '服务管理',
+                    'permissions' => array(
+                        array('key' => AdminPermission::KEY_SALES_PLATFORM_SERVICE),
+                        array('key' => AdminPermission::KEY_SALES_PLATFORM_SERVICE_ORDER),
+                    ),
+                ),
             ),
-        ));
+        );
+
+        return new View($excludePermission);
     }
 
     /**
@@ -218,7 +221,7 @@ class AdminSalesCompanyController extends SandboxRestController
             $shops = $this->getDoctrine()->getRepository('SandboxApiBundle:Shop\Shop')->getShopsByCompany($company);
             $shopCounts = count($shops);
 
-            /** @var SalesCompany $company*/
+            /* @var SalesCompany $company*/
             $company->setBuildingCounts((int) $buildingCounts);
             $company->setShopCounts((int) $shopCounts);
 
@@ -826,7 +829,7 @@ class AdminSalesCompanyController extends SandboxRestController
             }
 
             $salesAdmin = $em->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
-                ->findOneBy(array('userId'=>$userId));
+                ->findOneBy(array('userId' => $userId));
 
             if (is_null($salesAdmin)) {
                 $salesAdmin = new SalesAdmin();
@@ -934,7 +937,7 @@ class AdminSalesCompanyController extends SandboxRestController
         $status,
         $roomType
     ) {
-        if ($status == false) {
+        if (false == $status) {
             $products = $this->getProductRepo()->findProductsByType(
                 $company,
                 $roomType
@@ -1143,9 +1146,8 @@ class AdminSalesCompanyController extends SandboxRestController
                 throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_SERVICE_INFO_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE);
             }
 
-            if($serviceInfo['trade_types'] == SalesCompanyServiceInfos::TRADE_TYPE_LONGTERM)
-            {
-                $service->setCollectionMethod("");
+            if (SalesCompanyServiceInfos::TRADE_TYPE_LONGTERM == $serviceInfo['trade_types']) {
+                $service->setCollectionMethod('');
             }
 
             $service->setCompany($salesCompany);
@@ -1318,7 +1320,7 @@ class AdminSalesCompanyController extends SandboxRestController
 
         $excludePermissionsKeyArray = array();
         foreach ($excludePermissions as $excludePermission) {
-            if(!$excludePermission){
+            if (!$excludePermission) {
                 continue;
             }
             array_push($excludePermissionsKeyArray, $excludePermission['group_key']);
@@ -1449,7 +1451,7 @@ class AdminSalesCompanyController extends SandboxRestController
 
         $excludePermissionsKeyArray = array();
         foreach ($excludePermissions as $excludePermission) {
-            if(!$excludePermission){
+            if (!$excludePermission) {
                 continue;
             }
             array_push($excludePermissionsKeyArray, $excludePermission['group_key']);
@@ -1567,7 +1569,7 @@ class AdminSalesCompanyController extends SandboxRestController
 
         $excludePermissionsKeyArray = array();
         foreach ($excludePermissions as $excludePermission) {
-            if(!$excludePermission){
+            if (!$excludePermission) {
                 continue;
             }
             array_push($excludePermissionsKeyArray, $excludePermission['group_key']);
@@ -1694,7 +1696,7 @@ class AdminSalesCompanyController extends SandboxRestController
 
         $excludePermissionsKeyArray = array();
         foreach ($excludePermissions as $excludePermission) {
-            if(!$excludePermission){
+            if (!$excludePermission) {
                 continue;
             }
             array_push($excludePermissionsKeyArray, $excludePermission['group_key']);
@@ -1791,7 +1793,7 @@ class AdminSalesCompanyController extends SandboxRestController
                     'platform' => AdminPermissionGroups::GROUP_PLATFORM_SALES,
                 ));
 
-            if (!$group){
+            if (!$group) {
                 continue;
             }
 
