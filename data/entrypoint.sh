@@ -26,7 +26,7 @@ chmod 777 web/
 # Clean all caches for sandbox_app
 #php app/console cache:clear --env=prod
 
-touch app/logs/prod.log
+#touch app/logs/prod.log
 
 #chmod o+rwx app/cache -R
 #chmod o+rwx app/logs -R
@@ -47,4 +47,4 @@ chmod 777 /var/www/error.log
 /etc/init.d/nginx start
 
 # Keep container alive
-tail -f /var/www/app/logs/prod.log
+tail -f /var/log/nginx/error/error.log
