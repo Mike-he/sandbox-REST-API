@@ -113,7 +113,6 @@ class AdminPermission
     const KEY_SALES_BUILDING_INTERNAL_OCCUPANCY = 'sales.building.internal_occupancy';
     const KEY_SALES_BUILDING_PUSH_ORDER = 'sales.building.push_order';
     const KEY_SALES_BUILDING_SETTING = 'sales.building.setting';
-    const KEY_SALES_PLATFORM_SERVICE = 'sales.platform.service';
 
     // Shop Permission
     const KEY_SHOP_PLATFORM_DASHBOARD = 'shop.platform.dashboard';
