@@ -24,6 +24,6 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 30 1 * * * root php /var/www/app/console sandbox:api-bundle:check_lease_maturity
 10 0 1 * * root php /var/www/app/console create:short_rent_invoice
 15 0 1 * * root php /var/www/app/console sandbox:api-bundle:set_finance_dashboard
-*/5 * * * * root php /var/www/app/console sandbox:api-bundle:add_group_user_to_door
+15 */1 * * * root php /var/www/app/console sandbox:api-bundle:add_group_user_to_door
 30 0 * * * root php /var/www/app/console sandbox:api-bundle:remove_group_user_to_doors
 0 */1 * * * root php /var/www/app/console sandbox:api-bundle:sync:Jemssage

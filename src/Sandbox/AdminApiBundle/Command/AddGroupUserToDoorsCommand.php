@@ -33,6 +33,11 @@ class AddGroupUserToDoorsCommand extends ContainerAwareCommand
 
         $now = new \DateTime('now');
 
+        $statDate = new \DateTime();
+        $interval = new \DateInterval('PT1H');
+        $endDate = new \DateTime();
+        $endDate->add($interval);
+
         $addData = array();
         foreach ($groups as $group) {
             $groupId = $group->getId();
@@ -40,7 +45,8 @@ class AddGroupUserToDoorsCommand extends ContainerAwareCommand
             $addUsers = $em->getRepository('SandboxApiBundle:User\UserGroupHasUser')
                 ->findValidUsers(
                     $groupId,
-                    $now
+                    $statDate,
+                    $endDate
                 );
 
             $addData[] = array(
