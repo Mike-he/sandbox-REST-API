@@ -202,10 +202,10 @@ class AdminServiceController extends SalesRestController
         $service,
         $submit
     ) {
-
         $attachments = $service->getAttachments();
         $times = $service->getTimes();
         $serviceForms = $service->getForms();
+        $countryId = $service->getCountryId();
         $cityId = $service->getCityId();
         $provinceId = $service->getProvinceId();
         $districtId = $service->getDistrictId();
@@ -238,6 +238,7 @@ class AdminServiceController extends SalesRestController
         // add services
         $this->addService(
             $service,
+            $countryId,
             $provinceId,
             $cityId,
             $districtId,
@@ -272,6 +273,7 @@ class AdminServiceController extends SalesRestController
 
     /**
      * @param Service $service
+     * @param $countryId
      * @param $provinceId
      * @param $cityId
      * @param $districtId
@@ -280,6 +282,7 @@ class AdminServiceController extends SalesRestController
      */
     private function addService(
         $service,
+        $countryId,
         $provinceId,
         $cityId,
         $districtId,
@@ -291,6 +294,7 @@ class AdminServiceController extends SalesRestController
         $now = new \DateTime('now');
 
         $province = $this->getRepo('Room\RoomCity')->find($provinceId);
+        $country = $this->getRepo('Room\RoomCity')->find($countryId);
         $city = $this->getRepo('Room\RoomCity')->find($cityId);
         $district = $this->getRepo('Room\RoomCity')->find($districtId);
         $type = $this->getRepo('Service\ServiceType')->find($typeId);
@@ -302,6 +306,7 @@ class AdminServiceController extends SalesRestController
             $service->setPrice(0.00);
         }
 
+        $service->setCountry($country);
         $service->setProvince($province);
         $service->setDistrict($district);
         $service->setCity($city);
