@@ -639,7 +639,7 @@ class EventOrderRepository extends EntityRepository
                     $query->andWhere('
                             (
                                 eo.status = :unpaid OR
-                                (e.verify = TRUE AND er.status = :pending AND eo.status = :paid)
+                                (e.verify = TRUE AND er.status = :pending AND eo.status = :paid) OR
                                 (e.verify = TRUE AND (er.status = :accepted OR er.status = :rejected)) OR 
                                 (e.verify = FAlSE AND (eo.status = :paid OR eo.status = :completed))
                             )
@@ -647,8 +647,10 @@ class EventOrderRepository extends EntityRepository
                         ->andWhere('e.eventEndDate >= :now')
                         ->setParameter('now', $now)
                         ->setParameter('rejected', EventRegistration::STATUS_REJECTED)
+                        ->setParameter('unpaid', EventOrder::STATUS_UNPAID)
                         ->setParameter('paid', EventOrder::STATUS_PAID)
                         ->setParameter('userId', $userId)
+                        ->setParameter('pending', EventRegistration::STATUS_PENDING)
                         ->setParameter('accepted', EventRegistration::STATUS_ACCEPTED)
                         ->setParameter('completed', EventOrder::STATUS_COMPLETED);
                     break;
