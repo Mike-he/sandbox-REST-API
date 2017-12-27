@@ -5,6 +5,7 @@ namespace Application\Migrations;
 use Doctrine\DBAL\Migrations\AbstractMigration;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\ORM\EntityManager;
+use Sandbox\ApiBundle\Entity\Admin\AdminExcludePermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionGroupMap;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermissionGroups;
@@ -72,6 +73,31 @@ class Version820171226100301 extends AbstractMigration implements ContainerAware
         $orderMap->setGroup($orderGroup);
         $orderMap->setPermission($orderPermission);
         $em->persist($orderMap);
+
+        $salesCompanies = $em->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')->findAll();
+
+        foreach ($salesCompanies as $company) {
+            $excludeGroup = new AdminExcludePermission();
+            $excludeGroup->setPlatform(AdminPermission::PERMISSION_PLATFORM_SALES);
+            $excludeGroup->setGroup($group);
+            $excludeGroup->setSalesCompanyId($company);
+            $excludeGroup->setCreationDate(new \DateTime());
+            $em->persist($excludeGroup);
+
+            $excludePermission1 = new AdminExcludePermission();
+            $excludePermission1->setPlatform(AdminPermission::PERMISSION_PLATFORM_SALES);
+            $excludePermission1->setPermission($permission);
+            $excludePermission1->setSalesCompanyId($company);
+            $excludePermission1->setCreationDate(new \DateTime());
+            $em->persist($excludePermission1);
+
+            $excludePermission2 = new AdminExcludePermission();
+            $excludePermission2->setPlatform(AdminPermission::PERMISSION_PLATFORM_SALES);
+            $excludePermission2->setPermission($orderPermission);
+            $excludePermission2->setSalesCompanyId($company);
+            $excludePermission2->setCreationDate(new \DateTime());
+            $em->persist($excludePermission2);
+        }
 
         $em->flush();
     }
