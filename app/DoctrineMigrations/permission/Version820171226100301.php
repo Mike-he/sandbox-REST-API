@@ -80,21 +80,21 @@ class Version820171226100301 extends AbstractMigration implements ContainerAware
             $excludeGroup = new AdminExcludePermission();
             $excludeGroup->setPlatform(AdminPermission::PERMISSION_PLATFORM_SALES);
             $excludeGroup->setGroup($group);
-            $excludeGroup->setSalesCompanyId($company);
+            $excludeGroup->setSalesCompany($company);
             $excludeGroup->setCreationDate(new \DateTime());
             $em->persist($excludeGroup);
 
             $excludePermission1 = new AdminExcludePermission();
             $excludePermission1->setPlatform(AdminPermission::PERMISSION_PLATFORM_SALES);
             $excludePermission1->setPermission($permission);
-            $excludePermission1->setSalesCompanyId($company);
+            $excludePermission1->setSalesCompany($company);
             $excludePermission1->setCreationDate(new \DateTime());
             $em->persist($excludePermission1);
 
             $excludePermission2 = new AdminExcludePermission();
             $excludePermission2->setPlatform(AdminPermission::PERMISSION_PLATFORM_SALES);
             $excludePermission2->setPermission($orderPermission);
-            $excludePermission2->setSalesCompanyId($company);
+            $excludePermission2->setSalesCompany($company);
             $excludePermission2->setCreationDate(new \DateTime());
             $em->persist($excludePermission2);
         }
