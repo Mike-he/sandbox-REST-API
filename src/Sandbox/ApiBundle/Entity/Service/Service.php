@@ -13,17 +13,11 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class Service
 {
-    const REGISTRATION_METHOD_ONLINE = 'online';
-    const REGISTRATION_METHOD_OFFLINE = 'offline';
-
     const STATUS_PREHEATING = 'preheating';
-    const STATUS_REGISTERING = 'registering';
     const STATUS_WAITING = 'waiting';
     const STATUS_ONGOING = 'ongoing';
     const STATUS_END = 'end';
     const STATUS_SAVED = 'saved';
-    const PLATFORM_OFFICIAL = 'official';
-    const PLATFORM_COMMNUE = 'commnue';
 
     /**
      * @var int
