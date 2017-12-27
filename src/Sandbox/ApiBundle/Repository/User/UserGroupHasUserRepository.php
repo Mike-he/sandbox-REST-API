@@ -87,22 +87,25 @@ class UserGroupHasUserRepository extends EntityRepository
 
     /**
      * @param $group
-     * @param $date
+     * @param $statDate
+     * @param $endDate
      *
      * @return array
      */
     public function findValidUsers(
         $group,
-        $date
+        $statDate,
+        $endDate
     ) {
         $query = $this->createQueryBuilder('u')
             ->select('u.userId')
             ->where('u.groupId = :group')
-            ->andWhere('u.startDate < :date')
-            ->andWhere('u.endDate > :date')
+            ->andWhere('u.startDate < :end')
+            ->andWhere('u.startDate > :start')
             ->andWhere('u.type != :type')
             ->setParameter('group', $group)
-            ->setParameter('date', $date)
+            ->setParameter('start', $statDate)
+            ->setParameter('end', $endDate)
             ->setParameter('type', UserGroupHasUser::TYPE_ADD);
 
         $query = $query->groupBy('u.userId');
