@@ -209,7 +209,6 @@ class AdminServiceController extends SalesRestController
         $cityId = $service->getCityId();
         $provinceId = $service->getProvinceId();
         $districtId = $service->getDistrictId();
-        $typeId = $service->getTypeId();
         $limitNumber = (int) $service->getLimitNumber();
 
         // check event start time and end time
@@ -242,7 +241,6 @@ class AdminServiceController extends SalesRestController
             $provinceId,
             $cityId,
             $districtId,
-            $typeId,
             $submit
         );
 
@@ -286,7 +284,6 @@ class AdminServiceController extends SalesRestController
         $provinceId,
         $cityId,
         $districtId,
-        $typeId,
         $submit
     ) {
         $em = $this->getDoctrine()->getManager();
@@ -297,7 +294,6 @@ class AdminServiceController extends SalesRestController
         $country = $this->getRepo('Room\RoomCity')->find($countryId);
         $city = $this->getRepo('Room\RoomCity')->find($cityId);
         $district = $this->getRepo('Room\RoomCity')->find($districtId);
-        $type = $this->getRepo('Service\ServiceType')->find($typeId);
         $serviceStartDate = new \DateTime($service->getServiceStartDate());
         $serviceEndDate = new \DateTime($service->getServiceEndDate());
 
@@ -310,7 +306,6 @@ class AdminServiceController extends SalesRestController
         $service->setProvince($province);
         $service->setDistrict($district);
         $service->setCity($city);
-        $service->setType($type);
         $service->setServiceStartDate($serviceStartDate);
         $service->setServiceEndDate($serviceEndDate);
         $service->setSalesCompanyId($this->getSalesCompanyId());

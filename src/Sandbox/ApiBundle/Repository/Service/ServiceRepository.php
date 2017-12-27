@@ -27,15 +27,14 @@ class ServiceRepository extends EntityRepository
                     COUNT(so.id) as purchaseNumber
                 '
             )
-            ->leftJoin('SandboxApiBundle:Service\ServiceType','st','WITH','st.id = s.typeId')
             ->leftJoin('SandboxApiBundle:Service\ServiceOrder','so','WITH','so.serviceId = s.id')
             ->where('s.salesCompanyId = :salesCompanyId')
             ->setParameter('salesCompanyId', $salesCompanyId);
 
         if(!is_null($type)) {
-            $query->andWhere('st.id = :id')
+            $query->andWhere('s.type = :type')
                 ->andWhere('s.isSaved = FALSE')
-                ->setParameter('id', $type);
+                ->setParameter('type', $type);
         }
 
         // filter by visible

@@ -24,7 +24,7 @@ class ServicePostType extends AbstractType
             ->add('city_id')
             ->add('province_id')
             ->add('district_id')
-            ->add('type_id')
+            ->add('type')
             ->add('limit_number')
             ->add('service_start_date')
             ->add('service_end_date')
