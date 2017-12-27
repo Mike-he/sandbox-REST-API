@@ -136,7 +136,7 @@ class AdminServiceController extends SalesRestController
     /**
      * @param Request $request
      *
-     * @Route("/types")
+     * @Route("/service/types")
      * @Method({"GET"})
      *
      * @return View
@@ -150,8 +150,7 @@ class AdminServiceController extends SalesRestController
 
         return new View($types);
     }
-
-
+    
     /**
      * Create Service
      *
