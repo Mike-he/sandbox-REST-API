@@ -14,7 +14,6 @@ pipeline {
             steps {
                 sh 'php app/console cache:clear --env=prod'
                 sh 'php app/console cache:clear --env=dev'
-                sh 'rm -rf app/cache/*  app/logs/*'
                 sh 'chmod -R 777 app/cache/ app/logs/'
                 sh 'php app/console doc:mig:mig -q'
             }
