@@ -60,6 +60,30 @@ class Service
     /**
      * @var int
      *
+     * @ORM\Column(name="country_id", type="integer", nullable=false)
+     *
+     * @Serializer\Groups({"main"})
+     */
+    private $countryId;
+
+    /**
+     * @var \Sandbox\ApiBundle\Entity\Room\RoomCity
+     *
+     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomCity")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="country_id", referencedColumnName="id", onDelete="SET NULL")
+     * })
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_service",
+     *      "client_service"
+     * })
+     */
+    private $country;
+
+    /**
+     * @var int
+     *
      * @ORM\Column(name="city_id", type="integer", nullable=false)
      *
      * @Serializer\Groups({"main"})
@@ -413,6 +437,29 @@ class Service
     }
 
     /**
+     * Set countryId
+     *
+     * @param integer $countryId
+     * @return Service
+     */
+    public function setCountryId($countryId)
+    {
+        $this->countryId = $countryId;
+
+        return $this;
+    }
+
+    /**
+     * Get countryId
+     *
+     * @return integer
+     */
+    public function getCountryId()
+    {
+        return $this->countryId;
+    }
+
+    /**
      * Set cityId
      *
      * @param integer $cityId
@@ -755,6 +802,29 @@ class Service
     public function getStatus()
     {
         return $this->status;
+    }
+
+    /**
+     * Set country
+     *
+     * @param \Sandbox\ApiBundle\Entity\Room\RoomCity $country
+     * @return Service
+     */
+    public function setCountry(\Sandbox\ApiBundle\Entity\Room\RoomCity $country = null)
+    {
+        $this->country = $country;
+
+        return $this;
+    }
+
+    /**
+     * Get country
+     *
+     * @return \Sandbox\ApiBundle\Entity\Room\RoomCity
+     */
+    public function getCountry()
+    {
+        return $this->country;
     }
 
     /**

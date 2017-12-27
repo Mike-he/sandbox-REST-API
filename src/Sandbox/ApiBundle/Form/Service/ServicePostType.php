@@ -19,6 +19,7 @@ class ServicePostType extends AbstractType
             ->add('attachments')
             ->add('description')
             ->add('times')
+            ->add('country_id')
             ->add('city_id')
             ->add('province_id')
             ->add('district_id')
