@@ -16,6 +16,7 @@ class ServicePostType extends AbstractType
     {
         $builder
             ->add('name')
+            ->add('sub_title')
             ->add('attachments')
             ->add('description')
             ->add('times')

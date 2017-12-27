@@ -48,6 +48,18 @@ class Service
     /**
      * @var string
      *
+     * @ORM\Column(name="sub_title", type="string", length=255, nullable=false)
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_service",
+     *      "client_service"
+     * })
+     */
+    private $subTitle;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="description", type="text", nullable=false)
      * @Serializer\Groups({
      *      "main",
@@ -411,6 +423,29 @@ class Service
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * Set subTitle
+     *
+     * @param string $subTitle
+     * @return Service
+     */
+    public function setSubTitle($subTitle)
+    {
+        $this->subTitle = $subTitle;
+
+        return $this;
+    }
+
+    /**
+     * Get subTitle
+     *
+     * @return string
+     */
+    public function getSubTitle()
+    {
+        return $this->subTitle;
     }
 
     /**

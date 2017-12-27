@@ -23,10 +23,12 @@ class ServiceRepository extends EntityRepository
             ->select(
                 '
                     s as service,
-                    st.name as type
+                    st.name as type,
+                    COUNT(so.id) as purchaseNumber
                 '
             )
             ->leftJoin('SandboxApiBundle:Service\ServiceType','st','WITH','st.id = s.typeId')
+            ->leftJoin('SandboxApiBundle:Service\ServiceOrder','so','WITH','so.serviceId = s.id')
             ->where('s.salesCompanyId = :salesCompanyId')
             ->setParameter('salesCompanyId', $salesCompanyId);
 
@@ -41,6 +43,7 @@ class ServiceRepository extends EntityRepository
             $query->andWhere('s.visible = :visible')
                 ->setParameter('visible', $visible);
         }
+        $query->groupBy('s.id');
 
         $query->orderBy('s.creationDate', 'DESC');
 
