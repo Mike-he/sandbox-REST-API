@@ -432,7 +432,7 @@ class AdminServiceController extends SalesRestController
             $this->getAdminId(),
             array(
                 array(
-                    'key' => AdminPermission::KEY_SALES_PLATFORM_EVENT,
+                    'key' => AdminPermission::KEY_SALES_PLATFORM_SERVICE,
                 ),
             ),
             $opLevel
