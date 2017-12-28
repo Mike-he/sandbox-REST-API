@@ -331,7 +331,7 @@ class AdminChatGroupController extends ChatGroupController
         //get creator latest login client
         $userPlatform = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserPlatform')
-            ->findOneBy(array('userId'=>$creatorId));
+            ->findOneBy(array('userId' => $creatorId));
         $platform = $userPlatform ? $userPlatform->getPlatform() : PlatformConstants::PLATFORM_OFFICIAL;
 
         // check if chat group already exist
@@ -365,7 +365,7 @@ class AdminChatGroupController extends ChatGroupController
                     }
                 }
 
-                $this->addXmppChatGroupMember($existGroup, $memberIds, $platform, $appKey);
+                $this->addXmppChatGroupMember($existGroup, $memberIds, $appKey);
 
                 $existGroup->setGid($gid);
                 $em->flush();
@@ -418,7 +418,7 @@ class AdminChatGroupController extends ChatGroupController
         $gid = $this->createXmppChatGroup($chatGroup, $platform);
         $chatGroup->setGid($gid);
 
-        $this->addXmppChatGroupMember($chatGroup, $memberIds, $platform, $appKey);
+        $this->addXmppChatGroupMember($chatGroup, $memberIds, $appKey);
 
         $em->flush();
 

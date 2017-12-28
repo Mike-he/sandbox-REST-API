@@ -138,7 +138,7 @@ class ClientChatGroupMemberController extends ClientChatGroupController
             $memberIds[] = $member->getXmppUsername();
         }
 
-        $this->addXmppChatGroupMember($chatGroup, $membersIds, $platform);
+        $this->addXmppChatGroupMember($chatGroup, $membersIds);
 
         return new view();
     }

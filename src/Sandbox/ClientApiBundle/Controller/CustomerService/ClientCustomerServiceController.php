@@ -131,7 +131,7 @@ class ClientCustomerServiceController extends ChatGroupController
                     }
                 }
 
-                $this->addXmppChatGroupMember($existChatGroup, $memberIds, $platform, $appKey);
+                $this->addXmppChatGroupMember($existChatGroup, $memberIds, $appKey);
             }
 
             return new View([
@@ -183,7 +183,7 @@ class ClientCustomerServiceController extends ChatGroupController
         $gid = $this->createXmppChatGroup($chatGroup,$platform);
         $chatGroup->setGid($gid);
 
-        $this->addXmppChatGroupMember($chatGroup, $memberIds, $platform, $appKey);
+        $this->addXmppChatGroupMember($chatGroup, $memberIds, $appKey);
 
         $em->flush();
 
