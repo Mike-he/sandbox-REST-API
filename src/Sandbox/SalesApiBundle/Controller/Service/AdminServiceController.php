@@ -65,7 +65,7 @@ class AdminServiceController extends SalesRestController
      *    array=false,
      *    default=null,
      *    nullable=true,
-     *    requirements="\d+",
+     *    requirements="string",
      *    description="services typeId"
      * )
      *
