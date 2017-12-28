@@ -23,7 +23,6 @@ class ServiceRepository extends EntityRepository
             ->select(
                 '
                     s as service,
-                    st.name as type,
                     COUNT(so.id) as purchaseNumber
                 '
             )

@@ -116,9 +116,15 @@ class AdminServiceController extends SalesRestController
             $times = $this->getRepo('Service\ServiceTime')->findByService($service);
             $forms = $this->getRepo('Service\ServiceForm')->findByService($service);
 
+            $city = $this->getRepo('Room\RoomCity')->find($service->getCityId())->getName();
+            $country = $this->getRepo('Room\RoomCity')->find($service->getCountryId())->getName();
+            $province = $this->getRepo('Room\RoomCity')->find($service->getProvinceId())->getName();
+            $district = $this->getRepo('Room\RoomCity')->find($service->getDistrictId())->getName();
+            $addresss = $country.$province.$city.$district;
             $service->setAttachments($attachments);
             $service->setTimes($times);
             $service->setForms($forms);
+            $service->setAddress($addresss);
 
             array_push($servicesArray, $service);
         }

@@ -317,6 +317,16 @@ class Service
     private $salesCompany;
 
     /**
+     * @var string
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "client_service"
+     * })
+     */
+    private $address;
+
+    /**
      * Get id.
      *
      * @return int
@@ -740,5 +750,21 @@ class Service
     public function setSalesCompany($salesCompany)
     {
         $this->salesCompany = $salesCompany;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAddress()
+    {
+        return $this->address;
+    }
+
+    /**
+     * @param string $address
+     */
+    public function setAddress($address)
+    {
+        $this->address = $address;
     }
 }
