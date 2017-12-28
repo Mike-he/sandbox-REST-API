@@ -132,7 +132,7 @@ class ClientServiceController extends SalesRestController
                 $limit,
                 $offset
             );
-var_dump($services);exit();
+
         foreach ($services as $service){
             $attachments = $this->getRepo('Service\ServiceAttachment')->findByService($service);
             $times = $this->getRepo('Service\ServiceTime')->findByService($service);
@@ -142,5 +142,19 @@ var_dump($services);exit();
         }
 
         return new View($services);
+    }
+
+    public function getServicesByIdAction(
+        $id
+    ) {
+        $service = $this->getDoctrine()->getManager()
+            ->getRepository('SandboxApiBundle:Service\Service')
+            ->find($id);
+
+        if(is_null($service)){
+            $this->throwNotFoundIfNull($service, self::NOT_FOUND_MESSAGE);
+        }
+
+        $att
     }
 }
