@@ -61,7 +61,7 @@ class ServiceRepository extends EntityRepository
         $query = $this->createQueryBuilder('s')
             ->select('
                 s,
-                COUNT(so.id) AS HIDDEN 
+                COUNT(so.id) AS HIDDEN purchase
             ')
             ->leftJoin('SandboxApiBundle:Service\ServiceOrder','so','WITH','so.serviceId = s.id')
             ->where('s.visible = true');
@@ -89,6 +89,14 @@ class ServiceRepository extends EntityRepository
         if(!is_null($type)){
             $query->andWhere('s.type = :type')
                 ->setParameter('type',$type);
+        }
+
+        if(!is_null($sort)){
+            switch ($sort){
+                case "purchase":
+                    $query->orderBy('purchase','DESC');
+                    break;
+            }
         }
     }
 }
