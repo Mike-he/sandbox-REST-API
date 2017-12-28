@@ -6,6 +6,8 @@ use Sandbox\ApiBundle\Controller\ChatGroup\ChatGroupController;
 use Sandbox\ApiBundle\Entity\ChatGroup\ChatGroupMember;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingServiceMember;
 use Symfony\Component\HttpFoundation\Request;
+use FOS\RestBundle\Request\ParamFetcherInterface;
+use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\View\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -16,15 +18,37 @@ class AdminCustomerServiceController extends ChatGroupController
     /**
      * @param Request $request the request object
      *
+     * @Annotations\QueryParam(
+     *    name="tag",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="search by tag"
+     * )
+     *
      * @Route("/customerservice/members")
      * @Method({"GET"})
      *
      * @return View
      */
     public function getServiceMembersAction(
-        Request $request
+        Request $request,
+        ParamFetcherInterface $paramFetcher
     ) {
-        return new View();
+        $adminPlatform = $this->getAdminPlatform();
+        $companyId = $adminPlatform['sales_company_id'];
+
+        $tag = $paramFetcher->get('tag');
+
+        $serviceMembers = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomBuildingServiceMember')
+            ->findBy(array(
+                'tag' => $tag,
+                'companyId' => $companyId,
+            ));
+
+        return new View($serviceMembers);
     }
 
     /**
@@ -117,6 +141,7 @@ class AdminCustomerServiceController extends ChatGroupController
                     ->findOneBy(array(
                         'tag' => $tag,
                         'userId' => $userId,
+                        'companyId' => $companyId,
                     ));
 
                 if ($serviceMember) {
@@ -164,6 +189,7 @@ class AdminCustomerServiceController extends ChatGroupController
                     ->findOneBy(array(
                         'tag' => $tag,
                         'userId' => $userId,
+                        'companyId' => $companyId,
                     ));
 
                 if ($serviceMember) {
