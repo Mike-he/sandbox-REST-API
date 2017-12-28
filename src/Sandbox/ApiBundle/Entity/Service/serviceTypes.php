@@ -11,7 +11,7 @@ use JMS\Serializer\Annotation as Serializer;
  * @ORM\Table(name="service_types")
  * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Service\ServiceTypeRepository")
  */
-class ServiceType
+class ServiceTypes
 {
     const TYPE_NAME_STRATING_BUSSINESS = 'starting_business';
     const TYPE_NAME_FINANCIAL_COLLECTION = 'financial_collection';

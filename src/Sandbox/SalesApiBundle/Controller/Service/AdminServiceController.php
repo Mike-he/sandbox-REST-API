@@ -151,7 +151,7 @@ class AdminServiceController extends SalesRestController
         Request $request
     ){
         $types = $this->getDoctrine()->getManager()
-            ->getRepository('SandboxApiBundle:Service\ServiceType')
+            ->getRepository('SandboxApiBundle:Service\ServiceTypes')
             ->findAll();
 
         return new View($types);
