@@ -38,13 +38,16 @@ class ServiceTypes
      *
      * @ORM\Column(name="name", type="string", length=255)
      *
-     * @Serializer\Groups({
-     *     "main",
-     *     "admin_service",
-     *     "client_service"
-     * })
      */
     private $name;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="`key`", type="string", length=255)
+     *
+     */
+    private $key;
 
     /**
      * Get id.
@@ -70,6 +73,22 @@ class ServiceTypes
     public function setName($name)
     {
         $this->name = $name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getKey()
+    {
+        return $this->key;
+    }
+
+    /**
+     * @param string $key
+     */
+    public function setKey($key)
+    {
+        $this->key = $key;
     }
 
 }
