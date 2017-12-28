@@ -20,11 +20,12 @@ class Version20171227095905 extends AbstractMigration
 
         $this->addSql('ALTER TABLE commnue_advertising_micro CHANGE sort_time sort_time VARCHAR(15) NOT NULL');
         $this->addSql('ALTER TABLE room_building CHANGE commnue_status commnue_status VARCHAR(255) NOT NULL');
+        $this->addSql('CREATE INDEX IDX_7332E169F92F3E70 ON services (country_id)');
         $this->addSql('ALTER TABLE services ADD CONSTRAINT FK_7332E169F92F3E70 FOREIGN KEY (country_id) REFERENCES room_city (id) ON DELETE SET NULL');
         $this->addSql('ALTER TABLE services ADD CONSTRAINT FK_7332E1698BAC62AF FOREIGN KEY (city_id) REFERENCES room_city (id) ON DELETE SET NULL');
         $this->addSql('ALTER TABLE services ADD CONSTRAINT FK_7332E169E946114A FOREIGN KEY (province_id) REFERENCES room_city (id) ON DELETE SET NULL');
         $this->addSql('ALTER TABLE services ADD CONSTRAINT FK_7332E169B08FA272 FOREIGN KEY (district_id) REFERENCES room_city (id) ON DELETE SET NULL');
-        $this->addSql('CREATE INDEX IDX_7332E169F92F3E70 ON services (country_id)');
+       // $this->addSql('CREATE INDEX IDX_7332E169F92F3E70 ON services (country_id)');
         $this->addSql('ALTER TABLE service_attachment ADD CONSTRAINT FK_EF0EE00FED5CA9E6 FOREIGN KEY (service_id) REFERENCES services (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE service_form ADD CONSTRAINT FK_9CCB49A3ED5CA9E6 FOREIGN KEY (service_id) REFERENCES services (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE service_form_option ADD CONSTRAINT FK_94F2F2B25FF69B7D FOREIGN KEY (form_id) REFERENCES service_form (id) ON DELETE CASCADE');
