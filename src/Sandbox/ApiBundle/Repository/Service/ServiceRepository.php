@@ -47,4 +47,42 @@ class ServiceRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    public function getClientServices(
+        $country,
+        $province,
+        $city,
+        $dictrict,
+        $type,
+        $sort
+    ){
+        $query = $this->createQueryBuilder('s')
+            ->where('s.visible = true');
+
+        if(!is_null($country)){
+            $query->andWhere('s.countryId = :countryId')
+                ->setParameter('countryId', $country);
+        }
+
+        if(!is_null($city)){
+            $query->andWhere('s.cityId = :cityId')
+                ->setParameter('cityId', $city);
+        }
+
+        if(!is_null($province)){
+            $query->andWhere('s.provinceId = :provinceId')
+                ->setParameter('provinceId', $province);
+        }
+
+        if(!is_null($dictrict)){
+            $query->andWhere('s.dictrictId = :districtId')
+                ->setParameter('districtId', $dictrict);
+        }
+
+        if(!is_null($sort)){
+            switch ($sort){
+
+            }
+        }
+    }
 }
