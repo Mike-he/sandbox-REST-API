@@ -101,7 +101,6 @@ class AdminServiceController extends SalesRestController
         $type = $paramFetcher->get('type');
         $visible = $paramFetcher->get('visible');
 
-        $servicesArray = array();
         $services = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Service\Service')
             ->getSalesServices(
@@ -125,13 +124,11 @@ class AdminServiceController extends SalesRestController
             $service->setTimes($times);
             $service->setForms($forms);
             $service->setAddress($addresss);
-
-            array_push($servicesArray, $service);
         }
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
-            $servicesArray,
+            $services,
             $pageIndex,
             $pageLimit
         );
