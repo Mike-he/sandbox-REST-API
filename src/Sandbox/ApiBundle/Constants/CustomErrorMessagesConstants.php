@@ -34,6 +34,7 @@ class CustomErrorMessagesConstants
 
     // CUSTOMER SERVICE
     const ERROR_CUSTOMER_SERVICE_PAYLOAD_NOT_CORRECT_CODE = 'The format of payload for customer service does not correct';
+    const ERROR_JMESSAGE_ERROR_MESSAGE= 'Jmessage Error';
 
     // Membership Card && Group
     const ERROR_CARD_GROUP_CAN_NOT_BE_EDITED_CODE = 400011;

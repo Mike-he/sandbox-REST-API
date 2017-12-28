@@ -2,6 +2,7 @@
 
 namespace Sandbox\ClientApiBundle\Controller\ChatGroup;
 
+use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
 use Sandbox\ApiBundle\Constants\PlatformConstants;
 use Sandbox\ApiBundle\Controller\ChatGroup\ChatGroupController;
 use Sandbox\ApiBundle\Entity\ChatGroup\ChatGroup;
@@ -138,8 +139,18 @@ class ClientChatGroupController extends ChatGroupController
         // save to db
         $em->flush();
 
-        $gid = $this->createXmppChatGroup($chatGroup, $platform);
-        $chatGroup->setGid($gid);
+        $result = $this->createXmppChatGroup($chatGroup, $platform);
+
+        if (!isset($result['gid'])) {
+            $em->remove($chatGroup);
+            $em->flush();
+
+            throw new BadRequestHttpException(
+                CustomErrorMessagesConstants::ERROR_JMESSAGE_ERROR_MESSAGE
+            );
+        }
+
+        $chatGroup->setGid($result['gid']);
 
         $em->flush();
 
@@ -148,7 +159,7 @@ class ClientChatGroupController extends ChatGroupController
         $view->setData(array(
             'id' => $chatGroup->getId(),
             'name' => $chatGroupName,
-            'gid' => $gid,
+            'gid' => $chatGroup->getGid(),
         ));
 
         return $view;

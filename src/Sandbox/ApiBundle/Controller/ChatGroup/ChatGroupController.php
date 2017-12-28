@@ -148,7 +148,7 @@ class ChatGroupController extends SandboxRestController
             $membersIds
         );
 
-        return $result['body']['gid'];
+        return $result['body'];
     }
 
     /**
