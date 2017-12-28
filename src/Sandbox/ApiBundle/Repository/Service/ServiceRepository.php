@@ -70,11 +70,11 @@ class ServiceRepository extends EntityRepository
         $offset=null
     ){
         $query = $this->createQueryBuilder('s')
-            ->select('
-                s,
-                COUNT(so.id) AS HIDDEN purchase
-            ')
-            ->leftJoin('SandboxApiBundle:Service\ServiceOrder','so','WITH','so.serviceId = s.id')
+//            ->select('
+//                s,
+//                COUNT(so.id) AS HIDDEN purchase
+//            ')
+//            ->leftJoin('SandboxApiBundle:Service\ServiceOrder','so','WITH','so.serviceId = s.id')
             ->where('s.visible = true');
 
 

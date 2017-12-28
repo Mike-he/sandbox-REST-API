@@ -1,6 +1,6 @@
 <?php
 
-namespace Sandbox\CommnueClientApiBundle\Controller\Event;
+namespace Sandbox\CommnueClientApiBundle\Controller\Service;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
@@ -9,6 +9,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
 use JMS\Serializer\SerializationContext;
+use FOS\RestBundle\Controller\Annotations;
+use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 
 class ClientServiceController extends SalesRestController
 {
@@ -45,6 +47,59 @@ class ClientServiceController extends SalesRestController
      *    description="offset of page"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="country",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="province",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    description="services typeId"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="city",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    description="services typeId"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="district",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    description="services typeId"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="type",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="string",
+     *    description="services typeId"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="sort",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="string",
+     *    description="services typeId"
+     * )
+     *
      * @Route("/services")
      * @Method({"GET"})
      *
@@ -61,41 +116,29 @@ class ClientServiceController extends SalesRestController
         $country = $paramFetcher->get('country');
         $city = $paramFetcher->get('city');
         $province = $paramFetcher->get('province');
-        $dictrict = $paramFetcher->get('dictrict');
+        $district = $paramFetcher->get('district');
         $type = $paramFetcher->get('type');
         $sort = $paramFetcher->get('sort');
 
-        $servicesArray = array();
         $services = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Service\Service')
             ->getClientServices(
                 $country,
                 $province,
                 $city,
-                $dictrict,
+                $district,
                 $type,
                 $sort,
                 $limit,
                 $offset
             );
-
-        foreach ($services as $serviceArray) {
-            $service = $serviceArray['service'];
+var_dump($services);exit();
+        foreach ($services as $service){
             $attachments = $this->getRepo('Service\ServiceAttachment')->findByService($service);
             $times = $this->getRepo('Service\ServiceTime')->findByService($service);
-            $forms = $this->getRepo('Service\ServiceForm')->findByService($service);
 
-            $city = $this->getRepo('Room\RoomCity')->find($service->getCityId())->getName();
-            $country = $this->getRepo('Room\RoomCity')->find($service->getCountryId())->getName();
-            $province = $this->getRepo('Room\RoomCity')->find($service->getProvinceId())->getName();
-            $district = $this->getRepo('Room\RoomCity')->find($service->getDistrictId())->getName();
-            $addresss = $country.$province.$city.$district;
             $service->setAttachments($attachments);
             $service->setTimes($times);
-            $service->setForms($forms);
-            $service->setAddress($addresss);
-
-            array_push($servicesArray, $service);
         }
 
         return new View($services);
