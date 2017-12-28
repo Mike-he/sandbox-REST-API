@@ -48,6 +48,17 @@ class ServiceRepository extends EntityRepository
         return $query->getQuery()->getResult();
     }
 
+    /**
+     * @param $country
+     * @param $province
+     * @param $city
+     * @param $dictrict
+     * @param $type
+     * @param $sort
+     * @param null $limit
+     * @param null $offset
+     * @return array
+     */
     public function getClientServices(
         $country,
         $province,
@@ -55,8 +66,8 @@ class ServiceRepository extends EntityRepository
         $dictrict,
         $type,
         $sort,
-        $limit,
-        $offset
+        $limit=null,
+        $offset=null
     ){
         $query = $this->createQueryBuilder('s')
             ->select('
@@ -65,6 +76,7 @@ class ServiceRepository extends EntityRepository
             ')
             ->leftJoin('SandboxApiBundle:Service\ServiceOrder','so','WITH','so.serviceId = s.id')
             ->where('s.visible = true');
+
 
         if(!is_null($country)){
             $query->andWhere('s.countryId = :countryId')
@@ -96,7 +108,23 @@ class ServiceRepository extends EntityRepository
                 case "purchase":
                     $query->orderBy('purchase','DESC');
                     break;
+                case "view":
+                    $query ->leftJoin('SandboxApiBundle:Service\ViewCount','v','WITH','v.objectId = s.id')
+                        ->andWhere('v.object = :object')
+                        ->setParameter('object','service')
+                        ->orderBy('v.count','DESC');
+                    break;
+                default:
+                    $query->orderBy('s.creationDate','DESC');
+                    break;
             }
         }
+
+        if(!is_null($limit) && !is_null($offset)){
+            $query->setFirstResult($offset)
+                ->setMaxResults($limit);
+        }
+
+        return $query->getQuery()->getResult();
     }
 }

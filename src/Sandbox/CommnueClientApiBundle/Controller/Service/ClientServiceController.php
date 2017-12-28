@@ -12,6 +12,46 @@ use JMS\Serializer\SerializationContext;
 
 class ClientServiceController extends SalesRestController
 {
+    /**
+     * Get all client services.
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes = {
+     *     200 = "Returned when successful"
+     *   }
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit for page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="offset",
+     *    array=false,
+     *    default="0",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="offset of page"
+     * )
+     *
+     * @Route("/services")
+     * @Method({"GET"})
+     *
+     * @return View
+     *
+     * @throw \Exception
+     */
     public function getServicesAction(
         Request $request,
         ParamFetcherInterface $paramFetcher
@@ -58,13 +98,6 @@ class ClientServiceController extends SalesRestController
             array_push($servicesArray, $service);
         }
 
-        $paginator = new Paginator();
-        $pagination = $paginator->paginate(
-            $servicesArray,
-            $pageIndex,
-            $pageLimit
-        );
-
-        return new View($pagination);
+        return new View($services);
     }
 }
