@@ -243,10 +243,6 @@ class AdminServiceController extends SalesRestController
         // add services
         $this->addService(
             $service,
-            $countryId,
-            $provinceId,
-            $cityId,
-            $districtId,
             $submit
         );
 
@@ -277,29 +273,16 @@ class AdminServiceController extends SalesRestController
 
     /**
      * @param Service $service
-     * @param $countryId
-     * @param $provinceId
-     * @param $cityId
-     * @param $districtId
-     * @param $typeId
      * @param $submit
      */
     private function addService(
         $service,
-        $countryId,
-        $provinceId,
-        $cityId,
-        $districtId,
         $submit
     ) {
         $em = $this->getDoctrine()->getManager();
 
         $now = new \DateTime('now');
 
-        $province = $this->getRepo('Room\RoomCity')->find($provinceId);
-        $country = $this->getRepo('Room\RoomCity')->find($countryId);
-        $city = $this->getRepo('Room\RoomCity')->find($cityId);
-        $district = $this->getRepo('Room\RoomCity')->find($districtId);
         $serviceStartDate = new \DateTime($service->getServiceStartDate());
         $serviceEndDate = new \DateTime($service->getServiceEndDate());
 
@@ -308,10 +291,6 @@ class AdminServiceController extends SalesRestController
             $service->setPrice(0.00);
         }
 
-        $service->setCountry($country);
-        $service->setProvince($province);
-        $service->setDistrict($district);
-        $service->setCity($city);
         $service->setServiceStartDate($serviceStartDate);
         $service->setServiceEndDate($serviceEndDate);
         $service->setSalesCompanyId($this->getSalesCompanyId());
