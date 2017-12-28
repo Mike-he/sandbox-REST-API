@@ -34,7 +34,9 @@ class ClientServiceController extends SalesRestController
                 $city,
                 $dictrict,
                 $type,
-                $sort
+                $sort,
+                $limit,
+                $offset
             );
 
         foreach ($services as $serviceArray) {

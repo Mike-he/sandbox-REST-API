@@ -54,9 +54,16 @@ class ServiceRepository extends EntityRepository
         $city,
         $dictrict,
         $type,
-        $sort
+        $sort,
+        $limit,
+        $offset
     ){
         $query = $this->createQueryBuilder('s')
+            ->select('
+                s,
+                COUNT(so.id) AS HIDDEN 
+            ')
+            ->leftJoin('SandboxApiBundle:Service\ServiceOrder','so','WITH','so.serviceId = s.id')
             ->where('s.visible = true');
 
         if(!is_null($country)){
@@ -79,10 +86,9 @@ class ServiceRepository extends EntityRepository
                 ->setParameter('districtId', $dictrict);
         }
 
-        if(!is_null($sort)){
-            switch ($sort){
-
-            }
+        if(!is_null($type)){
+            $query->andWhere('s.type = :type')
+                ->setParameter('type',$type);
         }
     }
 }
