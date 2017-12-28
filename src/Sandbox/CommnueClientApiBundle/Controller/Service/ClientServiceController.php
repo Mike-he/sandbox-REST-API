@@ -144,6 +144,14 @@ class ClientServiceController extends SalesRestController
         return new View($services);
     }
 
+    /**
+     * @param $id
+     *
+     * @Route("/services/{id}")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
     public function getServicesByIdAction(
         $id
     ) {
@@ -155,6 +163,17 @@ class ClientServiceController extends SalesRestController
             $this->throwNotFoundIfNull($service, self::NOT_FOUND_MESSAGE);
         }
 
-        $att
+        $attachment = $this->getRepo('Service\ServiceAttachment')->findByService($service);
+        $forms = $this->getRepo('Service\ServiceForm')->findByService($service);
+
+        $city = $this->getRepo('Room\RoomCity')->find($service->getCityId())->getName();
+        $district = $this->getRepo('Room\RoomCity')->find($service->getDistrictId())->getName();
+        $addresss = $city.$district;
+
+        $service->setAttachments($attachment);
+        $service->setForms($forms);
+        $service->setAddress($addresss);
+
+        return new View($service);
     }
 }
