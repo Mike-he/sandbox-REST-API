@@ -6,11 +6,11 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
-* ServiceType.
-*
-* @ORM\Table(name="service_types")
-* @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Service\ServiceTypeRepository")
-*/
+ * ServiceType.
+ *
+ * @ORM\Table(name="service_types")
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Service\ServiceTypeRepository")
+ */
 class ServiceType
 {
     const TYPE_NAME_STRATING_BUSSINESS = 'starting_business';

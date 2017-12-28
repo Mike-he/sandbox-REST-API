@@ -150,7 +150,6 @@ class ServiceTime
         return $this->service;
     }
 
-
     /**
      * Set startTime.
      *

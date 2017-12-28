@@ -79,103 +79,43 @@ class Service
     private $countryId;
 
     /**
-     * @var \Sandbox\ApiBundle\Entity\Room\RoomCity
-     *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomCity")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="country_id", referencedColumnName="id", onDelete="SET NULL")
-     * })
-     * @Serializer\Groups({
-     *      "main",
-     *      "admin_service",
-     *      "client_service"
-     * })
-     */
-    private $country;
-
-    /**
      * @var int
      *
-     * @ORM\Column(name="city_id", type="integer", nullable=false)
+     * @ORM\Column(name="city_id", type="integer")
      *
      * @Serializer\Groups({"main"})
      */
     private $cityId;
 
     /**
-     * @var \Sandbox\ApiBundle\Entity\Room\RoomCity
-     *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomCity")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="city_id", referencedColumnName="id", onDelete="SET NULL")
-     * })
-     * @Serializer\Groups({
-     *      "main",
-     *      "admin_service",
-     *      "client_service"
-     * })
-     */
-    private $city;
-
-    /**
      * @var int
      *
-     * @ORM\Column(name="province_id", type="integer", nullable=false)
+     * @ORM\Column(name="province_id", type="integer")
      *
      * @Serializer\Groups({"main"})
      */
     private $provinceId;
 
     /**
-     * @var \Sandbox\ApiBundle\Entity\Room\RoomCity
-     *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomCity")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="province_id", referencedColumnName="id", onDelete="SET NULL")
-     * })
-     * @Serializer\Groups({
-     *      "main",
-     *      "admin_service",
-     *      "client_service"
-     * })
-     */
-    private $province;
-
-    /**
      * @var int
      *
-     * @ORM\Column(name="district_id", type="integer", nullable=false)
+     * @ORM\Column(name="district_id", type="integer")
      *
      * @Serializer\Groups({"main"})
      */
     private $districtId;
 
     /**
-     * @var \Sandbox\ApiBundle\Entity\Room\RoomCity
-     *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Room\RoomCity")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="district_id", referencedColumnName="id", onDelete="SET NULL")
-     * })
-     * @Serializer\Groups({
-     *      "main",
-     *      "admin_service",
-     *      "client_service"
-     * })
-     */
-    private $district;
-
-    /**
      * @var string
      *
-     *  @ORM\Column(name="type", type="string", length=64, nullable=false)
+     *  @ORM\Column(name="type", type="string", length=64)
      */
     private $type;
 
     /**
      * @var int
      *
-     * @ORM\Column(name="limit_number", type="integer", nullable=false)
+     * @ORM\Column(name="limit_number", type="integer")
      * @Serializer\Groups({
      *      "main",
      *      "admin_service",
@@ -211,7 +151,7 @@ class Service
     /**
      * @var string
      *
-     * @ORM\Column(name="publishCompany", type="string", length=255, nullable=true)
+     * @ORM\Column(name="publish_company", type="string", length=255, nullable=true)
      *
      * @Serializer\Groups({
      *      "main",
@@ -377,9 +317,9 @@ class Service
     private $salesCompany;
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -451,22 +391,6 @@ class Service
     }
 
     /**
-     * @return \Sandbox\ApiBundle\Entity\Room\RoomCity
-     */
-    public function getCountry()
-    {
-        return $this->country;
-    }
-
-    /**
-     * @param \Sandbox\ApiBundle\Entity\Room\RoomCity $country
-     */
-    public function setCountry($country)
-    {
-        $this->country = $country;
-    }
-
-    /**
      * @return int
      */
     public function getCityId()
@@ -480,22 +404,6 @@ class Service
     public function setCityId($cityId)
     {
         $this->cityId = $cityId;
-    }
-
-    /**
-     * @return \Sandbox\ApiBundle\Entity\Room\RoomCity
-     */
-    public function getCity()
-    {
-        return $this->city;
-    }
-
-    /**
-     * @param \Sandbox\ApiBundle\Entity\Room\RoomCity $city
-     */
-    public function setCity($city)
-    {
-        $this->city = $city;
     }
 
     /**
@@ -515,22 +423,6 @@ class Service
     }
 
     /**
-     * @return \Sandbox\ApiBundle\Entity\Room\RoomCity
-     */
-    public function getProvince()
-    {
-        return $this->province;
-    }
-
-    /**
-     * @param \Sandbox\ApiBundle\Entity\Room\RoomCity $province
-     */
-    public function setProvince($province)
-    {
-        $this->province = $province;
-    }
-
-    /**
      * @return int
      */
     public function getDistrictId()
@@ -544,22 +436,6 @@ class Service
     public function setDistrictId($districtId)
     {
         $this->districtId = $districtId;
-    }
-
-    /**
-     * @return \Sandbox\ApiBundle\Entity\Room\RoomCity
-     */
-    public function getDistrict()
-    {
-        return $this->district;
-    }
-
-    /**
-     * @param \Sandbox\ApiBundle\Entity\Room\RoomCity $district
-     */
-    public function setDistrict($district)
-    {
-        $this->district = $district;
     }
 
     /**
@@ -693,7 +569,7 @@ class Service
     /**
      * @return bool
      */
-    public function isIsSaved()
+    public function isSaved()
     {
         return $this->isSaved;
     }

@@ -3,7 +3,6 @@
 namespace Sandbox\ApiBundle\Entity\Service;
 
 use Doctrine\ORM\Mapping as ORM;
-use JMS\Serializer\Annotation as Serializer;
 
 /**
  * ViewCount.
@@ -13,35 +12,33 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class ViewCount
 {
-       /**
-         * @var int
-         *
-         * @ORM\Column(name="id", type="integer")
-         * @ORM\Id
-         * @ORM\GeneratedValue(strategy="AUTO")
-         */
-        private $id;
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
 
-       /**
-         * @var string
-         *
-         * @ORM\Column(name="object", type="string", length=64, nullable=false)
-         *
-         */
-        private $object;
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="object", type="string", length=64, nullable=false)
+     */
+    private $object;
 
-         /**
-           * @var int
-           *
-           * @ORM\Column(name="object_id", type="integer", nullable=false)
-           *
-           */
-        private $objectId;
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="object_id", type="integer", nullable=false)
+     */
+    private $objectId;
 
-        /**
-         * @var int
-         *
-         * @ORM\Column(name="count", type="integer")
-         */
-        private $count;
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="count", type="integer")
+     */
+    private $count;
 }
