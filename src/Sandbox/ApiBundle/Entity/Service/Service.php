@@ -645,7 +645,7 @@ class Service
     /**
      * @return bool
      */
-    public function isIsCharge()
+    public function isCharge()
     {
         return $this->isCharge;
     }
