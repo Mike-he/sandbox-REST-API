@@ -128,4 +128,22 @@ class ServiceRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param $id
+     * @return int
+     */
+    public function getServicePurchaseNumber(
+        $id
+    ) {
+            $query = $this->createQueryBuilder('s')
+                ->select('
+                    COUNT(so.id)
+                ')
+                ->leftJoin('SandboxApiBundle:Service\ServiceOrder','so','WITH','so.serviceId = s.id')
+                ->where('s.id = :id')
+                ->setParameter('id',$id);
+
+            return (int)$query->getQuery()->getSingleScalarResult();
+    }
 }
