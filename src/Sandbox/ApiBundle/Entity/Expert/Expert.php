@@ -61,42 +61,42 @@ class Expert
     /**
      * @var string
      *
-     * @ORM\Column(name="email", type="string", length=128)
+     * @ORM\Column(name="email", type="string", length=128, nullable=true)
      */
     private $email;
 
     /**
      * @var int
      *
-     * @ORM\Column(name="country_id", type="integer")
+     * @ORM\Column(name="country_id", type="integer", nullable=true)
      */
     private $countryId;
 
     /**
      * @var int
      *
-     * @ORM\Column(name="city_id", type="integer")
+     * @ORM\Column(name="city_id", type="integer", nullable=true)
      */
     private $cityId;
 
     /**
      * @var int
      *
-     * @ORM\Column(name="province_id", type="integer")
+     * @ORM\Column(name="province_id", type="integer", nullable=true)
      */
     private $provinceId;
 
     /**
      * @var int
      *
-     * @ORM\Column(name="district_id", type="integer")
+     * @ORM\Column(name="district_id", type="integer", nullable=true)
      */
     private $districtId;
 
     /**
      * @var float
      *
-     * @ORM\Column(name="base_price", type="float")
+     * @ORM\Column(name="base_price", type="float", nullable=true)
      */
     private $basePrice;
 
@@ -117,21 +117,21 @@ class Expert
     /**
      * @var string
      *
-     * @ORM\Column(name="identity", type="string", length=64)
+     * @ORM\Column(name="identity", type="string", length=64, nullable=true)
      */
     private $identity;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="introduction", type="string", length=256)
+     * @ORM\Column(name="introduction", type="string", length=256, nullable=true)
      */
     private $introduction;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="description", type="text")
+     * @ORM\Column(name="description", type="text", nullable=true)
      */
     private $description;
 
