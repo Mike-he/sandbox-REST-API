@@ -164,13 +164,16 @@ class ClientServiceController extends SalesRestController
 
         $attachment = $this->getRepo('Service\ServiceAttachment')->findByService($service);
         $forms = $this->getRepo('Service\ServiceForm')->findByService($service);
+        $times = $this->getRepo('Service\ServiceTime')->findByService($service);
 
         $city = $this->getRepo('Room\RoomCity')->find($service->getCityId())->getName();
         $district = $this->getRepo('Room\RoomCity')->find($service->getDistrictId())->getName();
+
         $addresss = $city.$district;
 
         $service->setAttachments($attachment);
         $service->setForms($forms);
+        $service->setTimes($times);
         $service->setAddress($addresss);
 
         return new View($service);
