@@ -4,6 +4,7 @@ namespace Sandbox\CommnueClientApiBundle\Controller\Service;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
+use Sandbox\ApiBundle\Entity\Service\ViewCounts;
 use Sandbox\ApiBundle\Entity\User\UserFavorite;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -190,7 +191,14 @@ class ClientServiceController extends SalesRestController
                 ]
             );
 
-        $viewCount = new
+        $viewCount = $this->getRepo('Service\ViewCounts')->findOneBy(array(
+            'object' => 'service',
+            'objectId' => $id,
+            'type' => 'view'
+        ));
+        if(is_null($viewCount)){
+            $viewCount = new ViewCounts();
+        }
 
         return new View($result);
     }

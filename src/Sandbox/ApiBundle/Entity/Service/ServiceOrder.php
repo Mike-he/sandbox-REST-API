@@ -17,7 +17,6 @@ class ServiceOrder
     const CLIENT_STATUS_IN_PROCESS = 'in_process';
     const CLIENT_STATUS_PASSED = 'passed';
 
-    const STATUS_CANCELLED = 'cancelled';
     const STATUS_PAID = 'paid';
     const STATUS_UNPAID = 'unpaid';
     const STATUS_COMPLETED = 'completed';
