@@ -9,6 +9,7 @@ class ServiceOrderRepository extends EntityRepository
 {
     /**
      * @param $userId
+     * @param $numbers
      * @param $limit
      * @param $offset
      *
@@ -16,8 +17,9 @@ class ServiceOrderRepository extends EntityRepository
      */
     public function getInvoiceServiceOrders(
         $userId,
-        $limit,
-        $offset
+        $numbers = null,
+        $limit = null,
+        $offset = null
     ) {
         $query = $this->createQueryBuilder('so')
             ->where('so.status = :completed')
@@ -26,6 +28,11 @@ class ServiceOrderRepository extends EntityRepository
             ->orderBy('so.paymentDate', 'DESC')
             ->setParameter('userId', $userId)
             ->setParameter('completed', ServiceOrder::STATUS_COMPLETED);
+
+        if (!is_null($numbers)) {
+            $query->andWhere('so.orderNumber IN (:numbers)')
+                ->setParameter('numbers', $numbers);
+        }
 
         if (!is_null($limit) && !is_null($offset)) {
             $query->setMaxResults($limit)

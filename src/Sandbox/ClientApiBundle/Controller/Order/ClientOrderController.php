@@ -396,7 +396,7 @@ class ClientOrderController extends OrderController
      *    default=null,
      *    nullable=true,
      *    strict=true,
-     *    description="ids of orders"
+     *    description="numbers of orders"
      * )
      *
      * @return View
