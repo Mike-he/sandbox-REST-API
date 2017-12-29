@@ -18,7 +18,6 @@ class Version20171229055901 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE services DROP invoiced');
         $this->addSql('ALTER TABLE service_order ADD invoiced TINYINT(1) DEFAULT 0 NOT NULL');
     }
 
@@ -31,6 +30,5 @@ class Version20171229055901 extends AbstractMigration
         $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
         $this->addSql('ALTER TABLE service_order DROP invoiced');
-        $this->addSql('ALTER TABLE services ADD invoiced TINYINT(1) DEFAULT \'0\' NOT NULL');
     }
 }
