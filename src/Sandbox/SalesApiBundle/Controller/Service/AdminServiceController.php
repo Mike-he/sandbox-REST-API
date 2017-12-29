@@ -139,6 +139,46 @@ class AdminServiceController extends SalesRestController
 
     /**
      * @param Request $request
+     * @param $id
+     *
+     * @Route("/services/{id}")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getServicesByIdAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->checkSalesAdminServicePermission(AdminPermission::OP_LEVEL_VIEW);
+
+        $service = $this->getRepo('Service\Service')->findOneBy(array(
+            'id'=>$id,
+            'salesCompanyId'=> $this->getSalesCompanyId()
+        ));
+
+        $this->throwNotFoundIfNull($service, self::NOT_FOUND_MESSAGE);
+
+        $attachments = $this->getRepo('Service\ServiceAttachment')->findByService($service);
+        $times = $this->getRepo('Service\ServiceTime')->findByService($service);
+        $forms = $this->getRepo('Service\ServiceForm')->findByService($service);
+
+        $city = $this->getRepo('Room\RoomCity')->find($service->getCityId())->getName();
+        $country = $this->getRepo('Room\RoomCity')->find($service->getCountryId())->getName();
+        $province = $this->getRepo('Room\RoomCity')->find($service->getProvinceId())->getName();
+        $district = $this->getRepo('Room\RoomCity')->find($service->getDistrictId())->getName();
+        $addresss = $country.$province.$city.$district;
+        $service->setAttachments($attachments);
+        $service->setTimes($times);
+        $service->setForms($forms);
+        $service->setAddress($addresss);
+
+        return new View($service);
+    }
+
+    /**
+     * @param Request $request
      *
      * @Route("/service/types")
      * @Method({"GET"})
