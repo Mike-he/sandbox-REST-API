@@ -21,13 +21,13 @@ use Sandbox\ApiBundle\Entity\Service\Service;
 
 class ClientServiceOrderController extends PaymentController
 {
-    const SERVICE_NOT_AVAILABLE_CODE = 400031;
+    const SERVICE_NOT_AVAILABLE_CODE = 400001;
     const SERVICE_NOT_AVAILABLE_MESSAGE = 'Service Is Not Available';
-    const SERVICE_REGISTRATION_NOT_AVAILABLE_CODE = 400032;
+    const SERVICE_REGISTRATION_NOT_AVAILABLE_CODE = 400002;
     const SERVICE_REGISTRATION_NOT_AVAILABLE_MESSAGE = 'Event Registration Is Not Available';
-    const WRONG_SERVICE_ORDER_STATUS_CODE = 400033;
+    const WRONG_SERVICE_ORDER_STATUS_CODE = 400003;
     const WRONG_SERVICE_ORDER_STATUS_MESSAGE = 'Wrong Order Status';
-    const SERVICE_ORDER_EXIST_CODE = 400034;
+    const SERVICE_ORDER_EXIST_CODE = 400004;
     const SERVICE_ORDER_EXIST_MESSAGE = 'Service Order Already Exists';
 
     /**
@@ -101,16 +101,16 @@ class ClientServiceOrderController extends PaymentController
         }
 
         // set service fee
-        $serviceInfo = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
-            ->findOneBy(array(
-                'tradeTypes' => SalesCompanyServiceInfos::TRADE_TYPE_ACTIVITY,
-                'company' => $service->getSalesCompanyId(),
-                'status' => true,
-            ));
-        if (!is_null($serviceInfo)) {
-            $serviceOrder->setServiceFee($serviceInfo->getServiceFee());
-        }
+//        $serviceInfo = $this->getDoctrine()
+//            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
+//            ->findOneBy(array(
+//                'tradeTypes' => SalesCompanyServiceInfos::TRADE_TYPE_ACTIVITY,
+//                'company' => $service->getSalesCompanyId(),
+//                'status' => true,
+//            ));
+//        if (!is_null($serviceInfo)) {
+//            $serviceOrder->setServiceFee($serviceInfo->getServiceFee());
+//        }
 
         $em = $this->getDoctrine()->getManager();
 

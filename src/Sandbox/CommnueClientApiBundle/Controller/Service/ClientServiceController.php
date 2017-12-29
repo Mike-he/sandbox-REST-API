@@ -192,13 +192,25 @@ class ClientServiceController extends SalesRestController
             );
 
         $viewCount = $this->getRepo('Service\ViewCounts')->findOneBy(array(
-            'object' => 'service',
+            'object' => ViewCounts::OBJECT_SERVICE,
             'objectId' => $id,
-            'type' => 'view'
+            'type' => ViewCounts::TYPE_VIEW
         ));
+
+        $em = $this->getDoctrine()->getManager();
         if(is_null($viewCount)){
             $viewCount = new ViewCounts();
+            $viewCount->setObject(ViewCounts::OBJECT_SERVICE);
+            $viewCount->setObjectId($id);
+            $viewCount->setType(ViewCounts::TYPE_VIEW);
+            $viewCount->setCount(1);
+            $em->persist($viewCount);
+        }else{
+            $count = $viewCount->getCount()+1;
+            $viewCount->setCount($count);
         }
+
+        $em->flush();
 
         return new View($result);
     }
