@@ -110,6 +110,25 @@ class LocationController extends SalesRestController
     }
 
     /**
+     * @param Request $request
+     *
+     * @Route("/all")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getAllAction(
+        Request $request
+    ) {
+        $language = $request->getPreferredLanguage(array('zh', 'en'));
+
+        $city = $this->getRepo('Room\RoomCity')
+            ->getAllCities();
+
+        return new View($city);
+    }
+
+    /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
