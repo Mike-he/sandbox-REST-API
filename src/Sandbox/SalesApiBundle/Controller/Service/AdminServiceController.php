@@ -151,7 +151,7 @@ class AdminServiceController extends SalesRestController
         $id
     ) {
         // check user permission
-        $this->checkSalesAdminServicePermission(AdminPermission::OP_LEVEL_VIEW);
+        //$this->checkSalesAdminServicePermission(AdminPermission::OP_LEVEL_VIEW);
 
         $service = $this->getRepo('Service\Service')->findOneBy(array(
             'id'=>$id,
