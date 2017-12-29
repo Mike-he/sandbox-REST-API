@@ -52,57 +52,12 @@ class AdminCustomerServiceController extends ChatGroupController
     }
 
     /**
-     * create CustomerService members.
-     *
-     * @param Request $request the request object
-     *
-     * @Route("/customerservice/members")
-     * @Method({"POST"})
-     *
-     * @return View
-     */
-    public function addMembersAction(
-        Request $request
-    ) {
-        $em = $this->getDoctrine()->getManager();
-
-        $adminPlatform = $this->getAdminPlatform();
-        $companyId = $adminPlatform['sales_company_id'];
-
-        $content = json_decode($request->getContent(), true);
-
-        if (!isset($content['tag'])) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
-
-        $tag = $content['tag'];
-
-        if (isset($content['add'])) {
-            $addMembers = $content['add'];
-            foreach ($addMembers as $addMember) {
-                $member = new RoomBuildingServiceMember();
-                $member->setCompanyId($companyId);
-                $member->setTag($tag);
-                $member->setUserId($addMember['user_id']);
-                $em->persist($member);
-            }
-        }
-
-        $em->flush();
-
-        $view = new View();
-        $view->setStatusCode(201);
-
-        return $view;
-    }
-
-    /**
      * Update CustomerService members.
      *
      * @param Request $request the request object
      *
      * @Route("/customerservice/members")
-     * @Method({"PUT"})
+     * @Method({"POST"})
      *
      * @return View
      */
