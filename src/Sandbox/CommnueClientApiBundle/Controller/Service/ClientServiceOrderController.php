@@ -100,18 +100,6 @@ class ClientServiceOrderController extends PaymentController
             $serviceOrder->setStatus(ServiceOrder::STATUS_UNPAID);
         }
 
-        // set service fee
-//        $serviceInfo = $this->getDoctrine()
-//            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
-//            ->findOneBy(array(
-//                'tradeTypes' => SalesCompanyServiceInfos::TRADE_TYPE_ACTIVITY,
-//                'company' => $service->getSalesCompanyId(),
-//                'status' => true,
-//            ));
-//        if (!is_null($serviceInfo)) {
-//            $serviceOrder->setServiceFee($serviceInfo->getServiceFee());
-//        }
-
         $em = $this->getDoctrine()->getManager();
 
         $em->persist($serviceOrder);
