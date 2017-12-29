@@ -25,6 +25,7 @@ class ServiceOrderRepository extends EntityRepository
             ->where('so.status = :completed')
             ->andWhere('so.price > 0')
             ->andWhere('so.userId = :userId')
+            ->andWhere('so.invoiced = FALSE')
             ->orderBy('so.paymentDate', 'DESC')
             ->setParameter('userId', $userId)
             ->setParameter('completed', ServiceOrder::STATUS_COMPLETED);
@@ -55,12 +56,20 @@ class ServiceOrderRepository extends EntityRepository
             ->where('so.status = :completed')
             ->andWhere('so.price > 0')
             ->andWhere('so.userId = :userId')
+            ->andWhere('so.invoiced = FALSE')
             ->setParameter('userId', $userId)
             ->setParameter('completed', ServiceOrder::STATUS_COMPLETED);
 
         return $query->getQuery()->getSingleScalarResult();
     }
 
+    /**
+     * @param $companyId
+     * @param $limit
+     * @param $offset
+     *
+     * @return array
+     */
     public function getServiceOrders(
         $companyId,
         $limit,
@@ -80,6 +89,11 @@ class ServiceOrderRepository extends EntityRepository
         return $query->getQuery()->getResult();
     }
 
+    /**
+     * @param $companyId
+     *
+     * @return mixed
+     */
     public function countServiceOrders(
         $companyId
     ) {
@@ -89,5 +103,18 @@ class ServiceOrderRepository extends EntityRepository
             ->setParameter('companyId', $companyId);
 
         return $query->getQuery()->getSingleScalarResult();
+    }
+
+    public function getUserLastOrder(
+        $userId,
+        $serviceId
+    ) {
+        $query = $this->createQueryBuilder('so')
+            ->where('so.userId = :userId')
+            ->andWhere('so.serviceId = :serviceId')
+            ->setParameter('userId', $userId)
+            ->setParameter('serviceId', $serviceId);
+
+        return $query->getQuery()->getResult();
     }
 }

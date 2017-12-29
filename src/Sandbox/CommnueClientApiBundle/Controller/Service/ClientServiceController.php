@@ -4,6 +4,7 @@ namespace Sandbox\CommnueClientApiBundle\Controller\Service;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
+use Sandbox\ApiBundle\Entity\User\UserFavorite;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -154,6 +155,8 @@ class ClientServiceController extends SalesRestController
     public function getServicesByIdAction(
         $id
     ) {
+        $userId = $this->getUserId();
+
         $service = $this->getDoctrine()->getManager()
             ->getRepository('SandboxApiBundle:Service\Service')
             ->find($id);
@@ -162,6 +165,7 @@ class ClientServiceController extends SalesRestController
             $this->throwNotFoundIfNull($service, self::NOT_FOUND_MESSAGE);
         }
 
+        $result = [];
         $attachment = $this->getRepo('Service\ServiceAttachment')->findByService($service);
         $forms = $this->getRepo('Service\ServiceForm')->findByService($service);
         $times = $this->getRepo('Service\ServiceTime')->findByService($service);
@@ -175,7 +179,19 @@ class ClientServiceController extends SalesRestController
         $service->setForms($forms);
         $service->setTimes($times);
         $service->setAddress($addresss);
+        $result['service'] = $service;
+        $result['like'] =  $favorite = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserFavorite')
+            ->findOneBy(
+                [
+                    'userId' => $userId,
+                    'object' => UserFavorite::OBJECT_SERVICE,
+                    'objectId' => $id,
+                ]
+            );
 
-        return new View($service);
+        $viewCount = new
+
+        return new View($result);
     }
 }

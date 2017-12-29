@@ -15,6 +15,7 @@ class UserFavorite
 {
     const OBJECT_PRODUCT = 'product';
     const OBJECT_BUILDING = 'building';
+    const OBJECT_SERVICE = 'service';
 
     /**
      * @var int

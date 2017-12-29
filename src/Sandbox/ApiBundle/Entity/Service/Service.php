@@ -219,13 +219,6 @@ class Service
     private $salesCompanyId;
 
     /**
-     * @var bool
-     *
-     * @ORM\Column(name="invoiced", type="boolean", nullable=false)
-     */
-    private $invoiced = false;
-
-    /**
      * @var \DateTime
      *
      * @ORM\Column(name="creation_date", type="datetime", nullable=false)
@@ -618,22 +611,6 @@ class Service
     public function setSalesCompanyId($salesCompanyId)
     {
         $this->salesCompanyId = $salesCompanyId;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isInvoiced()
-    {
-        return $this->invoiced;
-    }
-
-    /**
-     * @param bool $invoiced
-     */
-    public function setInvoiced($invoiced)
-    {
-        $this->invoiced = $invoiced;
     }
 
     /**

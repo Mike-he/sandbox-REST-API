@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="view_count")
  * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Service\ViewCountRepository")
  */
-class ViewCount
+class ViewCounts
 {
     /**
      * @var int

@@ -22,7 +22,7 @@ class ServiceOrder
     const STATUS_UNPAID = 'unpaid';
     const STATUS_COMPLETED = 'completed';
 
-    const LETTER_HEAD = 'S';
+    const LETTER_HEAD = 'F';
 
     const CHANNEL_ACCOUNT = 'account';
     const Service_MAP = 'service';
@@ -171,6 +171,13 @@ class ServiceOrder
      * @Serializer\Groups({"main", "admin_service"})
      */
     private $user;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="invoiced", type="boolean", nullable=false)
+     */
+    private $invoiced = false;
 
     /**
      * @return float
@@ -517,5 +524,21 @@ class ServiceOrder
     public function setCustomerId($customerId)
     {
         $this->customerId = $customerId;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isInvoiced()
+    {
+        return $this->invoiced;
+    }
+
+    /**
+     * @param bool $invoiced
+     */
+    public function setInvoiced($invoiced)
+    {
+        $this->invoiced = $invoiced;
     }
 }
