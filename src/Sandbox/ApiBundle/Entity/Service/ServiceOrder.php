@@ -173,6 +173,13 @@ class ServiceOrder
     private $user;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="invoiced", type="boolean", nullable=false)
+     */
+    private $invoiced = false;
+
+    /**
      * @return float
      */
     public function getServiceFee()
@@ -517,5 +524,21 @@ class ServiceOrder
     public function setCustomerId($customerId)
     {
         $this->customerId = $customerId;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isInvoiced()
+    {
+        return $this->invoiced;
+    }
+
+    /**
+     * @param bool $invoiced
+     */
+    public function setInvoiced($invoiced)
+    {
+        $this->invoiced = $invoiced;
     }
 }

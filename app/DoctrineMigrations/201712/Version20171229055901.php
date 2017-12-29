@@ -8,7 +8,7 @@ use Doctrine\DBAL\Schema\Schema;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-class Version20171228081953 extends AbstractMigration
+class Version20171229055901 extends AbstractMigration
 {
     /**
      * @param Schema $schema
@@ -18,7 +18,8 @@ class Version20171228081953 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE services ADD invoiced TINYINT(1) DEFAULT 0 NOT NULL');
+        $this->addSql('ALTER TABLE services DROP invoiced');
+        $this->addSql('ALTER TABLE service_order ADD invoiced TINYINT(1) DEFAULT 0 NOT NULL');
     }
 
     /**
@@ -29,6 +30,7 @@ class Version20171228081953 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE services DROP invoiced');
+        $this->addSql('ALTER TABLE service_order DROP invoiced');
+        $this->addSql('ALTER TABLE services ADD invoiced TINYINT(1) DEFAULT \'0\' NOT NULL');
     }
 }
