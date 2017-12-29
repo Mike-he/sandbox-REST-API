@@ -11,6 +11,7 @@ use Sandbox\ApiBundle\Entity\Service\ServiceForm;
 use Sandbox\ApiBundle\Entity\Service\ServiceFormOption;
 use Sandbox\ApiBundle\Entity\Service\ServiceTime;
 use Sandbox\ApiBundle\Form\Service\ServicePostType;
+use Sandbox\ApiBundle\Form\Service\ServicePutType;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -101,7 +102,6 @@ class AdminServiceController extends SalesRestController
         $type = $paramFetcher->get('type');
         $visible = $paramFetcher->get('visible');
 
-        $servicesArray = array();
         $services = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Service\Service')
             ->getSalesServices(
@@ -125,13 +125,11 @@ class AdminServiceController extends SalesRestController
             $service->setTimes($times);
             $service->setForms($forms);
             $service->setAddress($addresss);
-
-            array_push($servicesArray, $service);
         }
 
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
-            $servicesArray,
+            $services,
             $pageIndex,
             $pageLimit
         );
@@ -151,12 +149,12 @@ class AdminServiceController extends SalesRestController
         Request $request
     ){
         $types = $this->getDoctrine()->getManager()
-            ->getRepository('SandboxApiBundle:Service\ServiceType')
+            ->getRepository('SandboxApiBundle:Service\ServiceTypes')
             ->findAll();
 
         return new View($types);
     }
-    
+
     /**
      * Create Service
      *
@@ -197,6 +195,71 @@ class AdminServiceController extends SalesRestController
     }
 
     /**
+     * @param Request $request
+     * @param $id
+     *
+     * @Route("/services/{id}")
+     * @Method({"PUT"})
+     *
+     * @return View
+     */
+    public function putServiceAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        //$this->checkSalesAdminServicePermission(AdminPermission::OP_LEVEL_EDIT);
+
+        $service = $this->getRepo('Service\Service')->findOneBy(array(
+            'id'=>$id,
+            'salesCompanyId'=> $this->getSalesCompanyId()
+        ));
+
+        if(is_null($service)){
+            $this->throwNotFoundIfNull($service, self::NOT_FOUND_MESSAGE);
+        }
+
+        // bind form
+        $form = $this->createForm(
+            new ServicePutType(),
+            $service,
+            array('method' => 'PUT')
+        );
+        $form->handleRequest($request);
+
+        if (!$form->isValid()) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $requestContent = json_decode($request->getContent(), true);
+
+        // set default submit value
+        $submit = $requestContent['submit'];
+        if (is_null($submit)) {
+            $submit = true;
+        }
+
+        // check charge valid
+        if ($service->isCharge()) {
+            if (is_null($service->getPrice())) {
+                return $this->customErrorView(
+                    400,
+                    self::ERROR_INVALID_EVENT_PRICE_CODE,
+                    self::ERROR_INVALID_EVENT_PRICE_MESSAGE
+                );
+            }
+        } else {
+            $service->setPrice(null);
+        }
+
+        // handle event form
+        return $this->handleServicePut(
+            $service,
+            $submit
+        );
+    }
+
+    /**
      * Save service to db.
      *
      * @param Service $service
@@ -211,10 +274,6 @@ class AdminServiceController extends SalesRestController
         $attachments = $service->getAttachments();
         $times = $service->getTimes();
         $serviceForms = $service->getForms();
-        $countryId = $service->getCountryId();
-        $cityId = $service->getCityId();
-        $provinceId = $service->getProvinceId();
-        $districtId = $service->getDistrictId();
         $limitNumber = (int) $service->getLimitNumber();
 
         // check event start time and end time
@@ -243,10 +302,6 @@ class AdminServiceController extends SalesRestController
         // add services
         $this->addService(
             $service,
-            $countryId,
-            $provinceId,
-            $cityId,
-            $districtId,
             $submit
         );
 
@@ -277,29 +332,16 @@ class AdminServiceController extends SalesRestController
 
     /**
      * @param Service $service
-     * @param $countryId
-     * @param $provinceId
-     * @param $cityId
-     * @param $districtId
-     * @param $typeId
      * @param $submit
      */
     private function addService(
         $service,
-        $countryId,
-        $provinceId,
-        $cityId,
-        $districtId,
         $submit
     ) {
         $em = $this->getDoctrine()->getManager();
 
         $now = new \DateTime('now');
 
-        $province = $this->getRepo('Room\RoomCity')->find($provinceId);
-        $country = $this->getRepo('Room\RoomCity')->find($countryId);
-        $city = $this->getRepo('Room\RoomCity')->find($cityId);
-        $district = $this->getRepo('Room\RoomCity')->find($districtId);
         $serviceStartDate = new \DateTime($service->getServiceStartDate());
         $serviceEndDate = new \DateTime($service->getServiceEndDate());
 
@@ -308,10 +350,6 @@ class AdminServiceController extends SalesRestController
             $service->setPrice(0.00);
         }
 
-        $service->setCountry($country);
-        $service->setProvince($province);
-        $service->setDistrict($district);
-        $service->setCity($city);
         $service->setServiceStartDate($serviceStartDate);
         $service->setServiceEndDate($serviceEndDate);
         $service->setSalesCompanyId($this->getSalesCompanyId());
@@ -424,6 +462,189 @@ class AdminServiceController extends SalesRestController
             }
         }
         $em->flush();
+    }
+
+    /**
+     * Save service modification to db.
+     *
+     * @param Service $service
+     * @param       $submit
+     *
+     * @return View
+     */
+    private function handleServicePut(
+        $service,
+        $submit
+    ) {
+        $attachments = $service->getAttachments();
+        $times = $service->getTimes();
+        $serviceForms = $service->getForms();
+        $limitNumber = (int) $service->getLimitNumber();
+
+        // check service start time and end time
+        if (!is_null($times) && !empty($times)) {
+            foreach ($times as $time) {
+                if ($time['start_time'] >= $time['end_time']) {
+                    return $this->customErrorView(
+                        400,
+                        self::ERROR_INVALID_EVENT_TIME_CODE,
+                        self::ERROR_INVALID_EVENT_TIME_MESSAGE
+                    );
+                }
+            }
+        }
+
+        // check limit number is valid
+        if ($limitNumber < 0) {
+            return $this->customErrorView(
+                400,
+                self::ERROR_INVALID_LIMIT_NUMBER_CODE,
+                self::ERROR_INVALID_LIMIT_NUMBER_MESSAGE
+            );
+        }
+
+        // modify services
+        $this->modifyService(
+            $service,
+            $submit
+        );
+
+        // modify services attachments
+        $this->modifyServiceAttachments(
+            $service,
+            $attachments
+        );
+
+        // modify services times
+        $this->modifyServiceTimes(
+            $service,
+            $times
+        );
+
+        // modify services forms
+        $this->modifyServiceForms(
+            $service,
+            $serviceForms
+        );
+
+        return new View();
+    }
+
+    /**
+     * @param $service
+     * @param $submit
+     */
+    private function modifyService(
+        $service,
+        $submit
+    ) {
+        $em = $this->getDoctrine()->getManager();
+
+        $now = new \DateTime('now');
+
+        $serviceStartDate = new \DateTime($service->getServiceStartDate());
+        $serviceEndDate = new \DateTime($service->getServiceEndDate());
+
+        // set price
+        if (!$service->isCharge()) {
+            $service->setPrice(0.00);
+        }
+
+        $service->setServiceStartDate($serviceStartDate);
+        $service->setServiceEndDate($serviceEndDate);
+        $service->setSalesCompanyId($this->getSalesCompanyId());
+        $service->setIsCharge(true);
+        $service->setCreationDate($now);
+        $service->setModificationDate($now);
+
+        // set visible & isSaved
+        if ($submit) {
+            $service->setVisible(true);
+            $service->setIsSaved(false);
+            $service->setStatus(Service::STATUS_PREHEATING);
+        } else {
+            $service->setVisible(false);
+            $service->setIsSaved(true);
+            $service->setStatus(Service::STATUS_SAVED);
+        }
+
+        $em->persist($service);
+    }
+
+    /**
+     * @param $service
+     * @param $attachments
+     */
+    private function modifyServiceAttachments(
+        $service,
+        $attachments
+    ) {
+        $em = $this->getDoctrine()->getManager();
+
+        if (!is_null($attachments) || !empty($attachments)) {
+            $serviceAttachments = $this->getRepo('Service\ServiceAttachment')->findByService($service);
+            foreach ($serviceAttachments as $serviceAttachment) {
+                $em->remove($serviceAttachment);
+            }
+
+            $this->addServiceAttachments(
+                $service,
+                $attachments
+            );
+        }
+    }
+
+    /**
+     * @param $service
+     * @param $times
+     */
+    private function modifyServiceTimes(
+        $service,
+        $times
+    ) {
+        $em = $this->getDoctrine()->getManager();
+
+        if (!is_null($times) || !empty($times)) {
+            $serviceTimes = $this->getRepo('Service\ServiceTime')->findByService($service);
+            foreach ($serviceTimes as $serviceTime) {
+                $em->remove($serviceTime);
+            }
+
+            $this->addServiceTimes(
+                $service,
+                $times
+            );
+        }
+    }
+
+    /**
+     * @param $service
+     * @param $serviceForms
+     */
+    private function modifyServiceForms(
+        $service,
+        $serviceForms
+    ) {
+        $em = $this->getDoctrine()->getManager();
+
+        // check if is valid to modify
+//        if (new \DateTime('now') >= $service->getServiceStartDate()) {
+//            $em->flush();
+//
+//            return;
+//        }
+
+        if (!is_null($serviceForms) || !empty($serviceForms)) {
+            $serviceFormArray = $this->getRepo('Service\ServiceForm')->findByService($service);
+            foreach ($serviceFormArray as $serviceForm) {
+                $em->remove($serviceForm);
+            }
+
+            $this->addServiceForms(
+                $service,
+                $serviceForms
+            );
+        }
     }
 
     /**
