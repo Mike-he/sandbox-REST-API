@@ -114,7 +114,7 @@ class Service
     /**
      * @var int
      *
-     * @ORM\Column(name="district_id", type="integer")
+     * @ORM\Column(name="district_id", type="integer", nullable=true)
      *
      * @Serializer\Groups({"main"})
      */

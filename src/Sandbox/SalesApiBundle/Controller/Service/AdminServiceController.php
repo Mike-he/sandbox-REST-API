@@ -119,7 +119,10 @@ class AdminServiceController extends SalesRestController
             $city = $this->getRepo('Room\RoomCity')->find($service->getCityId())->getName();
             $country = $this->getRepo('Room\RoomCity')->find($service->getCountryId())->getName();
             $province = $this->getRepo('Room\RoomCity')->find($service->getProvinceId())->getName();
-            $district = $this->getRepo('Room\RoomCity')->find($service->getDistrictId())->getName();
+            $district = "";
+            if($service->getDistrictId()){
+                $district = $this->getRepo('Room\RoomCity')->find($service->getDistrictId())->getName();
+            }
             $addresss = $country.$province.$city.$district;
             $service->setAttachments($attachments);
             $service->setTimes($times);
@@ -691,7 +694,10 @@ class AdminServiceController extends SalesRestController
         $cityName = $city->getName();
         $countryName = $country->getName();
         $provinceName = $province->getName();
-        $districtName = $district->getName();
+        $districtName = "";
+        if($district){
+            $districtName = $district->getName();
+        }
 
         $addresss = $countryName.$provinceName.$cityName.$districtName;
         $service->setAttachments($attachments);
