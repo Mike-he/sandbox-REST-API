@@ -334,6 +334,11 @@ class Service
     private $address;
 
     /**
+     * @var int
+     */
+    private $purchaseNumber;
+
+    /**
      * Get id.
      *
      * @return int
@@ -789,5 +794,21 @@ class Service
     public function setAddress($address)
     {
         $this->address = $address;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPurchaseNumber()
+    {
+        return $this->purchaseNumber;
+    }
+
+    /**
+     * @param int $purchaseNumber
+     */
+    public function setPurchaseNumber($purchaseNumber)
+    {
+        $this->purchaseNumber = $purchaseNumber;
     }
 }

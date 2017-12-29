@@ -151,7 +151,7 @@ class AdminServiceController extends SalesRestController
         $id
     ) {
         // check user permission
-        //$this->checkSalesAdminServicePermission(AdminPermission::OP_LEVEL_VIEW);
+        $this->checkSalesAdminServicePermission(AdminPermission::OP_LEVEL_VIEW);
 
         $service = $this->getRepo('Service\Service')->findOneBy(array(
             'id'=>$id,
@@ -173,6 +173,9 @@ class AdminServiceController extends SalesRestController
         $service->setTimes($times);
         $service->setForms($forms);
         $service->setAddress($addresss);
+
+        $purchaseNumber = $this->getRepo('Service\Service')->getServicePurchaseNumber($id);
+        $service->setPurchaseNumber($purchaseNumber);
 
         return new View($service);
     }

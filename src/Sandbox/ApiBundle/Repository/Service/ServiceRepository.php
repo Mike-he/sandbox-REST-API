@@ -140,9 +140,8 @@ class ServiceRepository extends EntityRepository
                     COUNT(so.id)
                 ')
                 ->leftJoin('SandboxApiBundle:Service\ServiceOrder','so','WITH','so.serviceId = s.id')
-                ->where('s.id = id')
-                ->setParameter('id',$id)
-                ->groupBy('s.id');
+                ->where('s.id = :id')
+                ->setParameter('id',$id);
 
             return (int)$query->getQuery()->getSingleScalarResult();
     }
