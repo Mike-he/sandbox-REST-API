@@ -41,4 +41,23 @@ class ServiceOrderRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param $userId
+     *
+     * @return mixed
+     */
+    public function getInvoiceServiceOrdersAmount(
+        $userId
+    ) {
+        $query = $this->createQueryBuilder('so')
+            ->select('SUM(so.price)')
+            ->where('so.status = :completed')
+            ->andWhere('so.price > 0')
+            ->andWhere('so.userId = :userId')
+            ->setParameter('userId', $userId)
+            ->setParameter('completed', ServiceOrder::STATUS_COMPLETED);
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
 }
