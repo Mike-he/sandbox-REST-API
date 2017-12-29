@@ -17,9 +17,10 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class ChatGroup
 {
-    const CUSTOMER_SERVICE = 'customer';
-    const GROUP_SERVICE = 'group';
-
+    const GROUP_SERVICE = 'group';        //普通群聊
+    const CUSTOMER_SERVICE = 'customer';  //社区客服
+    const SERVICE_SERVICE = 'service';    //服务客服
+    
     /**
      * @var int
      *

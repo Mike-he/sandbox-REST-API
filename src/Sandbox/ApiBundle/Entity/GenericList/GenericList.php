@@ -20,13 +20,16 @@ class GenericList
     const OBJECT_LEASE_BILL = 'lease_bill';
     const OBJECT_LEASE_CLUE = 'lease_clue';
     const OBJECT_LEASE_OFFER = 'lease_offer';
+
+    const OBJECT_PRODUCT_ORDER = 'product_order';
+    const OBJECT_EVENT_ORDER = 'event_order';
+    const OBJECT_MEMBERSHIP_ORDER = 'membership_order';
+    const OBJECT_SERVICE_ORDER = 'service_order';
+
     const OBJECT_CUSTOMER = 'customer';
     const OBJECT_ENTERPRISE = 'enterprise';
     const OBJECT_CASHIER = 'cashier';
     const OBJECT_RESERVATION = 'reservation';
-    const OBJECT_PRODUCT_ORDER = 'product_order';
-    const OBJECT_EVENT_ORDER = 'event_order';
-    const OBJECT_MEMBERSHIP_ORDER = 'membership_order';
     const OBJECT_CUSTOMER_INVOICE = 'customer_invoice';
 
     /**

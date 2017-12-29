@@ -148,7 +148,7 @@ class ChatGroupController extends SandboxRestController
             $membersIds
         );
 
-        return $result['body']['gid'];
+        return $result['body'];
     }
 
     /**
@@ -197,16 +197,16 @@ class ChatGroupController extends SandboxRestController
     /**
      * @param ChatGroup $chatGroup
      * @param $memberIds
-     * @param $platform
      * @param $appKey
      */
     protected function addXmppChatGroupMember(
         $chatGroup,
         $memberIds,
-        $platform,
         $appKey = null
     ) {
         $gid = $chatGroup->getGid();
+
+        $platform = $chatGroup->getPlatform();
 
         switch ($platform) {
             case PlatformConstants::PLATFORM_OFFICIAL:
@@ -236,7 +236,22 @@ class ChatGroupController extends SandboxRestController
     ) {
         $gid = $chatGroup->getGid();
 
-        $service = $this->get('sandbox_api.jmessage');
+        $platform = $chatGroup->getPlatform();
+
+        switch ($platform) {
+            case PlatformConstants::PLATFORM_OFFICIAL:
+                $service = $this->get('sandbox_api.jmessage');
+                break;
+            case PlatformConstants::PLATFORM_COMMNUE:
+                $service = $this->get('sandbox_api.jmessage_commnue');
+                break;
+            default:
+                throw new BadRequestHttpException(
+                    CustomErrorMessagesConstants::ERROR_CUSTOMER_SERVICE_PAYLOAD_NOT_CORRECT_CODE
+                );
+        }
+
+
         $service->deleteGroupMembers($gid, $memberIds, $appKey);
     }
 }

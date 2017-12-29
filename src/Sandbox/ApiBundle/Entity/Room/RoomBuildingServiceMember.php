@@ -41,6 +41,13 @@ class RoomBuildingServiceMember
     private $buildingId;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="company_id", type="integer")
+     */
+    private $companyId;
+
+    /**
      * @var \DateTime
      *
      * @Gedmo\Timestampable(on="create")
@@ -135,5 +142,21 @@ class RoomBuildingServiceMember
     public function setTag($tag)
     {
         $this->tag = $tag;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCompanyId()
+    {
+        return $this->companyId;
+    }
+
+    /**
+     * @param int $companyId
+     */
+    public function setCompanyId($companyId)
+    {
+        $this->companyId = $companyId;
     }
 }

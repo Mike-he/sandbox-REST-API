@@ -11,7 +11,7 @@ use JMS\Serializer\Annotation as Serializer;
  * @ORM\Table(name="service_types")
  * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Service\ServiceTypeRepository")
  */
-class ServiceType
+class ServiceTypes
 {
     const TYPE_NAME_STRATING_BUSSINESS = 'starting_business';
     const TYPE_NAME_FINANCIAL_COLLECTION = 'financial_collection';
@@ -38,13 +38,16 @@ class ServiceType
      *
      * @ORM\Column(name="name", type="string", length=255)
      *
-     * @Serializer\Groups({
-     *     "main",
-     *     "admin_service",
-     *     "client_service"
-     * })
      */
     private $name;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="`key`", type="string", length=255)
+     *
+     */
+    private $key;
 
     /**
      * Get id.
@@ -57,26 +60,35 @@ class ServiceType
     }
 
     /**
-     * Set name.
-     *
-     * @param string $name
-     *
-     * @return ServiceType
-     */
-    public function setName($name)
-    {
-        $this->name = $name;
-
-        return $this;
-    }
-
-    /**
-     * Get name.
-     *
      * @return string
      */
     public function getName()
     {
         return $this->name;
     }
+
+    /**
+     * @param string $name
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getKey()
+    {
+        return $this->key;
+    }
+
+    /**
+     * @param string $key
+     */
+    public function setKey($key)
+    {
+        $this->key = $key;
+    }
+
 }

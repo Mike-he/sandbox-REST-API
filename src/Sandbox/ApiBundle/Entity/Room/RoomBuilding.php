@@ -706,10 +706,10 @@ class RoomBuilding implements JsonSerializable
     /**
      * @var string
      *
-     * @ORM\Column(name="commnue_status", type="string", length=255)
+     * @ORM\Column(name="commnue_status", type="string", length=255, options={"default": "normal"})
      * @Serializer\Groups({"main", "admin_building"})
      */
-    private $commnueStatus;
+    private $commnueStatus = self::NORMAL;
 
     /**
      * Get id.

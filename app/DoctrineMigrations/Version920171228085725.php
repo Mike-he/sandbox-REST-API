@@ -4,13 +4,14 @@ namespace Application\Migrations;
 
 use Doctrine\DBAL\Migrations\AbstractMigration;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\ORM\EntityManager;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-class Version920170828100623 extends AbstractMigration implements ContainerAwareInterface
+class Version920171228085725 extends AbstractMigration implements ContainerAwareInterface
 {
     use ContainerAwareTrait;
 
@@ -20,19 +21,27 @@ class Version920170828100623 extends AbstractMigration implements ContainerAware
     public function up(Schema $schema)
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
+        $this->abortIf('mysql' != $this->connection->getDatabasePlatform()->getName(), 'Migration can only be executed safely on \'mysql\'.');
     }
 
     public function postUp(Schema $schema)
     {
         parent::postUp($schema);
 
+        /** @var EntityManager $em */
         $em = $this->container->get('doctrine.orm.entity_manager');
 
         $serviceMembers = $em->getRepository('SandboxApiBundle:Room\RoomBuildingServiceMember')->findAll();
 
         foreach ($serviceMembers as $serviceMember) {
-            $serviceMember->setTag('customer');
+            $buildingId = $serviceMember->getBuildingId();
+
+            if ($buildingId) {
+                $building = $em->getRepository('SandboxApiBundle:Room\RoomBuilding')->find($buildingId);
+                $serviceMember->setCompanyId($building->getCompanyId());
+
+                $em->persist($serviceMember);
+            }
         }
 
         $em->flush();
@@ -44,6 +53,6 @@ class Version920170828100623 extends AbstractMigration implements ContainerAware
     public function down(Schema $schema)
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
+        $this->abortIf('mysql' != $this->connection->getDatabasePlatform()->getName(), 'Migration can only be executed safely on \'mysql\'.');
     }
 }
