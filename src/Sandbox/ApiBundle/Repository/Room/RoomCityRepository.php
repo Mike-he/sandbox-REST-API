@@ -113,19 +113,4 @@ class RoomCityRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
-
-    public function getAllCities(
-
-    ) {
-        $query = $this->createQueryBuilder('c')
-            ->select('
-                c.id,
-                c.name,
-                c.parentId,
-                c.level
-            ')
-            ->where('1=1');
-
-        return $query->getQuery()->getResult();
-    }
 }
