@@ -251,7 +251,6 @@ class ChatGroupController extends SandboxRestController
                 );
         }
 
-
         $service->deleteGroupMembers($gid, $memberIds, $appKey);
     }
 }

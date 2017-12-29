@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 class ClientServiceOrderController extends SandboxRestController
 {
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -88,7 +88,7 @@ class ClientServiceOrderController extends SandboxRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(

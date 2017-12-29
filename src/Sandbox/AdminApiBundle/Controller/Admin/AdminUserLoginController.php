@@ -185,8 +185,8 @@ class AdminUserLoginController extends AdminRestController
     }
 
     /**
-     * @param Request $request
-     * @param SalesAdmin    $admin
+     * @param Request    $request
+     * @param SalesAdmin $admin
      *
      * @return View
      *

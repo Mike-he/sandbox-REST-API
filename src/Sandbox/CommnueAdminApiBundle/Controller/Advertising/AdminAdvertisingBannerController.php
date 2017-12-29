@@ -7,9 +7,7 @@ use Sandbox\AdminApiBundle\Data\Banner\BannerPosition;
 use Sandbox\ApiBundle\Controller\Advertising\AdvertisingController;
 use Sandbox\ApiBundle\Entity\Banner\Banner;
 use Sandbox\ApiBundle\Entity\Banner\CommnueBanner;
-use Sandbox\ApiBundle\Entity\Material\CommnueMaterial;
 use Sandbox\ApiBundle\Form\Advertising\AdvertisingPositionType;
-use Sandbox\ApiBundle\Form\Banner\CommnueBannerPatchType;
 use Sandbox\ApiBundle\Form\Banner\CommnueBannerType;
 use Sandbox\CommnueAdminApiBundle\Data\Advertising\AdvertisingPosition;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -20,14 +18,13 @@ use Knp\Component\Pager\Paginator;
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Rs\Json\Patch;
 
 class AdminAdvertisingBannerController extends AdvertisingController
 {
     /**
-     * Get Commnue Banner List
+     * Get Commnue Banner List.
      *
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -65,8 +62,7 @@ class AdminAdvertisingBannerController extends AdvertisingController
     public function getBannersAction(
         Request $request,
         ParamFetcherInterface $paramFetcher
-    )
-    {
+    ) {
         // check user permission
         $this->checkAdminBannerPermission(AdminPermission::OP_LEVEL_VIEW);
 
@@ -91,7 +87,7 @@ class AdminAdvertisingBannerController extends AdvertisingController
     }
 
     /**
-     * Get Commnue Banner By Id
+     * Get Commnue Banner By Id.
      *
      * @param $id
      *
@@ -112,15 +108,15 @@ class AdminAdvertisingBannerController extends AdvertisingController
             ->getRepository('SandboxApiBundle:Banner\CommnueBanner')
             ->find($id);
 
-        $this->throwNotFoundIfNull($banner,self::NOT_FOUND_MESSAGE);
+        $this->throwNotFoundIfNull($banner, self::NOT_FOUND_MESSAGE);
 
         return new View($banner);
     }
 
     /**
-     * Create Commnue Banner
+     * Create Commnue Banner.
      *
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/commercial/banners")
@@ -133,16 +129,15 @@ class AdminAdvertisingBannerController extends AdvertisingController
     public function postBannerAction(
         Request $request,
         ParamFetcherInterface $paramFetcher
-    )
-    {
+    ) {
         // check user permission
         $this->checkAdminBannerPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $banner = new CommnueBanner();
-        $form = $this->createForm( new CommnueBannerType(),$banner);
+        $form = $this->createForm(new CommnueBannerType(), $banner);
         $form->handleRequest($request);
 
-        if(!$form->isValid()){
+        if (!$form->isValid()) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
@@ -186,7 +181,7 @@ class AdminAdvertisingBannerController extends AdvertisingController
         ));
         $form->handleRequest($request);
 
-        if(!$form->isValid()){
+        if (!$form->isValid()) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
@@ -199,7 +194,7 @@ class AdminAdvertisingBannerController extends AdvertisingController
     }
 
     /**
-     * Delete Commnue Banner
+     * Delete Commnue Banner.
      *
      * @param $id
      *
@@ -228,12 +223,14 @@ class AdminAdvertisingBannerController extends AdvertisingController
     }
 
     /**
-     * Change Banner Position
+     * Change Banner Position.
+     *
      * @param Request $request
      * @param $id
      *
      * @Route("/commercial/banners/{id}/position")
      * @Method({"POST"})
+     *
      * @return mixed
      */
     public function changeBannerPositionAction(
@@ -264,6 +261,7 @@ class AdminAdvertisingBannerController extends AdvertisingController
     /**
      * @param CommnueBanner $banner
      * @param $url
+     *
      * @return View
      */
     private function handleBannerPost(
@@ -275,10 +273,10 @@ class AdminAdvertisingBannerController extends AdvertisingController
         $source = $banner->getSource();
         $sourceId = $banner->getSourceId();
 
-       switch ($source) {
+        switch ($source) {
            case CommnueBanner::SOURCE_URL:
                if (is_null($url) || empty($url)) {
-               return $this->customErrorView(
+                   return $this->customErrorView(
                400,
                self::URL_NULL_CODE,
                self::URL_NULL_MESSAGE
@@ -288,11 +286,11 @@ class AdminAdvertisingBannerController extends AdvertisingController
 
                 break;
            case CommnueBanner::SOURCE_MATERIAL:
-               $this->setBannerContentForMaterial($banner,$sourceId);
+               $this->setBannerContentForMaterial($banner, $sourceId);
 
                break;
            case CommnueBanner::SOURCE_EVENT:
-               $this->setBannerContentForEvent($banner,$sourceId);
+               $this->setBannerContentForEvent($banner, $sourceId);
 
                break;
            case CommnueBanner::SOURCE_BLANK_BLOCK:
@@ -309,7 +307,7 @@ class AdminAdvertisingBannerController extends AdvertisingController
        }
 
         // check if banner already exists
-        if(is_null($banner->getId())){
+        if (is_null($banner->getId())) {
             if ($source != Banner::SOURCE_BLANK_BLOCK) {
                 $existBanner = $this->getExistingBanner(
                     $source,
@@ -339,7 +337,7 @@ class AdminAdvertisingBannerController extends AdvertisingController
      * set banner content for event.
      *
      * @param CommnueBanner $banner
-     * @param int    $sourceId
+     * @param int           $sourceId
      */
     private function setBannerContentForEvent(
         $banner,
@@ -355,7 +353,7 @@ class AdminAdvertisingBannerController extends AdvertisingController
      * set banner content for news.
      *
      * @param CommnueBanner $banner
-     * @param int    $sourceId
+     * @param int           $sourceId
      */
     private function setBannerContentForMaterial(
         $banner,
@@ -371,6 +369,7 @@ class AdminAdvertisingBannerController extends AdvertisingController
      * @param $source
      * @param $sourceId
      * @param $url
+     *
      * @return object
      */
     private function getExistingBanner(
@@ -381,7 +380,7 @@ class AdminAdvertisingBannerController extends AdvertisingController
         if (!is_null($url)) {
             $existBanner = $this->getRepo('Banner\CommnueBanner')->findOneBy(
                 [
-                    'source' =>  $source,
+                    'source' => $source,
                     'content' => $url,
                 ]
             );
@@ -398,7 +397,7 @@ class AdminAdvertisingBannerController extends AdvertisingController
     }
 
     /**
-     * @param CommnueBanner         $banner
+     * @param CommnueBanner  $banner
      * @param BannerPosition $position
      *
      * @return View
@@ -431,7 +430,7 @@ class AdminAdvertisingBannerController extends AdvertisingController
 
     /**
      * @param CommnueBanner $banner
-     * @param string $action
+     * @param string        $action
      */
     private function swapBannerPosition(
         $banner,

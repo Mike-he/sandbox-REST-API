@@ -1092,7 +1092,6 @@ class SandboxRestController extends FOSRestController
         $mailer->send($message);
     }
 
-
     //--------------------generate default verification code and token--------------------//
     /**
      * @param $digits

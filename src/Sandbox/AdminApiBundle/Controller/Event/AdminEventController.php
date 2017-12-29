@@ -21,7 +21,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\View\View;
-use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Form\Form;
 
@@ -221,7 +220,7 @@ class AdminEventController extends SandboxRestController
 
             $commnueHot = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Event\CommnueEventHot')
-                ->findOneBy(array('eventId'=> $event->getId()));
+                ->findOneBy(array('eventId' => $event->getId()));
 
             $event->setCommnueHot($commnueHot ? true : false);
 

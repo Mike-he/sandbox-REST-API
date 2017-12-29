@@ -7,7 +7,7 @@ use JMS\Serializer\Annotation as Serializer;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
- * CommnueAdvertisingScreen
+ * CommnueAdvertisingScreen.
  *
  * @ORM\Table("commnue_advertising_screen")
  * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Advertising\CommnueAdvertisingScreenRepository")
@@ -19,7 +19,7 @@ class CommnueAdvertisingScreen
     const SOURCE_URL = 'url';
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -46,7 +46,7 @@ class CommnueAdvertisingScreen
     private $source;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="source_id", type="integer", nullable=true)
      *
@@ -70,7 +70,7 @@ class CommnueAdvertisingScreen
      *
      * @Serializer\Groups({"main"})
      */
-    private $visible=false;
+    private $visible = false;
 
     /**
      * @var bool
@@ -111,9 +111,9 @@ class CommnueAdvertisingScreen
     private $modificationDate;
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -141,9 +141,10 @@ class CommnueAdvertisingScreen
     }
 
     /**
-     * Set source
+     * Set source.
      *
      * @param string $source
+     *
      * @return CommnueAdvertisingScreen
      */
     public function setSource($source)
@@ -154,9 +155,9 @@ class CommnueAdvertisingScreen
     }
 
     /**
-     * Get source
+     * Get source.
      *
-     * @return string 
+     * @return string
      */
     public function getSource()
     {
@@ -164,9 +165,10 @@ class CommnueAdvertisingScreen
     }
 
     /**
-     * Set source—�Id
+     * Set source—�Id.
      *
-     * @param integer $sourceId
+     * @param int $sourceId
+     *
      * @return CommnueAdvertisingScreen
      */
     public function setSourceId($sourceId)
@@ -177,9 +179,9 @@ class CommnueAdvertisingScreen
     }
 
     /**
-     * Get sourceId
+     * Get sourceId.
      *
-     * @return integer 
+     * @return int
      */
     public function getSourceId()
     {
@@ -267,9 +269,10 @@ class CommnueAdvertisingScreen
     }
 
     /**
-     * Set creationDate
+     * Set creationDate.
      *
      * @param \DateTime $creationDate
+     *
      * @return CommnueAdvertisingScreen
      */
     public function setCreationDate($creationDate)
@@ -280,9 +283,9 @@ class CommnueAdvertisingScreen
     }
 
     /**
-     * Get creationDate
+     * Get creationDate.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getCreationDate()
     {
@@ -290,9 +293,10 @@ class CommnueAdvertisingScreen
     }
 
     /**
-     * Set modificationDate
+     * Set modificationDate.
      *
      * @param \DateTime $modificationDate
+     *
      * @return CommnueAdvertisingScreen
      */
     public function setModificationDate($modificationDate)
@@ -303,9 +307,9 @@ class CommnueAdvertisingScreen
     }
 
     /**
-     * Get modificationDate
+     * Get modificationDate.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getModificationDate()
     {

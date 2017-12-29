@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
- * CommnueUser
+ * CommnueUser.
  *
  * @ORM\Table(name="commune_user")
  * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Commnue\CommueUserRepository")
@@ -14,7 +14,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 class CommnueUser
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -23,21 +23,21 @@ class CommnueUser
     private $id;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="user_id", type="integer")
      */
     private $userId;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="auth_tag_id", type="integer", nullable=true)
      */
     private $authTagId;
 
     /**
-     * @var boolean
+     * @var bool
      *
      * @ORM\Column(name="is_banned", type="boolean")
      */
@@ -59,11 +59,10 @@ class CommnueUser
      */
     private $modificationDate;
 
-
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -71,9 +70,10 @@ class CommnueUser
     }
 
     /**
-     * Set userId
+     * Set userId.
      *
-     * @param integer $userId
+     * @param int $userId
+     *
      * @return CommnueUser
      */
     public function setUserId($userId)
@@ -84,9 +84,9 @@ class CommnueUser
     }
 
     /**
-     * Get userId
+     * Get userId.
      *
-     * @return integer 
+     * @return int
      */
     public function getUserId()
     {
@@ -94,9 +94,10 @@ class CommnueUser
     }
 
     /**
-     * Set authTagId
+     * Set authTagId.
      *
-     * @param integer $authTagId
+     * @param int $authTagId
+     *
      * @return CommnueUser
      */
     public function setAuthTagId($authTagId)
@@ -107,9 +108,9 @@ class CommnueUser
     }
 
     /**
-     * Get authTagId
+     * Get authTagId.
      *
-     * @return integer 
+     * @return int
      */
     public function getAuthTagId()
     {
@@ -117,9 +118,10 @@ class CommnueUser
     }
 
     /**
-     * Set isBanned
+     * Set isBanned.
      *
-     * @param boolean $isBanned
+     * @param bool $isBanned
+     *
      * @return CommnueUser
      */
     public function setIsBanned($isBanned)
@@ -130,9 +132,9 @@ class CommnueUser
     }
 
     /**
-     * Get isBanned
+     * Get isBanned.
      *
-     * @return boolean 
+     * @return bool
      */
     public function isBanned()
     {
@@ -140,9 +142,10 @@ class CommnueUser
     }
 
     /**
-     * Set creationDate
+     * Set creationDate.
      *
      * @param \DateTime $creationDate
+     *
      * @return CommnueUser
      */
     public function setCreationDate($creationDate)
@@ -153,9 +156,9 @@ class CommnueUser
     }
 
     /**
-     * Get creationDate
+     * Get creationDate.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getCreationDate()
     {
@@ -163,9 +166,10 @@ class CommnueUser
     }
 
     /**
-     * Set modificationDate
+     * Set modificationDate.
      *
      * @param \DateTime $modificationDate
+     *
      * @return CommnueUser
      */
     public function setModificationDate($modificationDate)
@@ -176,9 +180,9 @@ class CommnueUser
     }
 
     /**
-     * Get modificationDate
+     * Get modificationDate.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getModificationDate()
     {

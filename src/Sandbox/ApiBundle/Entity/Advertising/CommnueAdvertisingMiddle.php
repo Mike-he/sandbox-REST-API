@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
- * CommnueAdvertisingMiddle
+ * CommnueAdvertisingMiddle.
  *
  * @ORM\Table("commnue_advertising_middle")
  * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Advertising\CommnueAdvertisingMiddleRepository")
@@ -19,7 +19,7 @@ class CommnueAdvertisingMiddle
     const SOURCE_BLANK_BLOCK = 'blank_block';
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -56,7 +56,7 @@ class CommnueAdvertisingMiddle
     private $source;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="source_id", type="integer")
      */
@@ -97,11 +97,10 @@ class CommnueAdvertisingMiddle
      */
     private $sourceCat;
 
-
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -109,9 +108,10 @@ class CommnueAdvertisingMiddle
     }
 
     /**
-     * Set title
+     * Set title.
      *
      * @param string $title
+     *
      * @return CommnueAdvertisingMiddle
      */
     public function setTitle($title)
@@ -122,9 +122,9 @@ class CommnueAdvertisingMiddle
     }
 
     /**
-     * Get title
+     * Get title.
      *
-     * @return string 
+     * @return string
      */
     public function getTitle()
     {
@@ -132,9 +132,10 @@ class CommnueAdvertisingMiddle
     }
 
     /**
-     * Set subTitle
+     * Set subTitle.
      *
      * @param string $subTitle
+     *
      * @return CommnueAdvertisingMiddle
      */
     public function setSubTitle($subTitle)
@@ -145,9 +146,9 @@ class CommnueAdvertisingMiddle
     }
 
     /**
-     * Get subTitle
+     * Get subTitle.
      *
-     * @return string 
+     * @return string
      */
     public function getSubTitle()
     {
@@ -155,9 +156,10 @@ class CommnueAdvertisingMiddle
     }
 
     /**
-     * Set cover
+     * Set cover.
      *
      * @param string $cover
+     *
      * @return CommnueAdvertisingMiddle
      */
     public function setCover($cover)
@@ -168,9 +170,9 @@ class CommnueAdvertisingMiddle
     }
 
     /**
-     * Get cover
+     * Get cover.
      *
-     * @return string 
+     * @return string
      */
     public function getCover()
     {
@@ -178,9 +180,10 @@ class CommnueAdvertisingMiddle
     }
 
     /**
-     * Set source
+     * Set source.
      *
      * @param string $source
+     *
      * @return CommnueAdvertisingMiddle
      */
     public function setSource($source)
@@ -191,9 +194,9 @@ class CommnueAdvertisingMiddle
     }
 
     /**
-     * Get source
+     * Get source.
      *
-     * @return string 
+     * @return string
      */
     public function getSource()
     {
@@ -201,9 +204,10 @@ class CommnueAdvertisingMiddle
     }
 
     /**
-     * Set source—�Id
+     * Set source—�Id.
      *
-     * @param integer $sourceId
+     * @param int $sourceId
+     *
      * @return CommnueAdvertisingMiddle
      */
     public function setSourceId($sourceId)
@@ -214,9 +218,9 @@ class CommnueAdvertisingMiddle
     }
 
     /**
-     * Get sourceId
+     * Get sourceId.
      *
-     * @return integer 
+     * @return int
      */
     public function getSourceId()
     {
@@ -224,9 +228,10 @@ class CommnueAdvertisingMiddle
     }
 
     /**
-     * Set content
+     * Set content.
      *
      * @param string $content
+     *
      * @return CommnueAdvertisingMiddle
      */
     public function setContent($content)
@@ -237,9 +242,9 @@ class CommnueAdvertisingMiddle
     }
 
     /**
-     * Get content
+     * Get content.
      *
-     * @return string 
+     * @return string
      */
     public function getContent()
     {
@@ -247,9 +252,10 @@ class CommnueAdvertisingMiddle
     }
 
     /**
-     * Set sortTime
+     * Set sortTime.
      *
      * @param string $sortTime
+     *
      * @return CommnueAdvertisingMiddle
      */
     public function setSortTime($sortTime)
@@ -260,9 +266,9 @@ class CommnueAdvertisingMiddle
     }
 
     /**
-     * Get sortTime
+     * Get sortTime.
      *
-     * @return string 
+     * @return string
      */
     public function getSortTime()
     {
@@ -270,9 +276,10 @@ class CommnueAdvertisingMiddle
     }
 
     /**
-     * Set creationDate
+     * Set creationDate.
      *
      * @param \DateTime $creationDate
+     *
      * @return CommnueAdvertisingMiddle
      */
     public function setCreationDate($creationDate)
@@ -283,9 +290,9 @@ class CommnueAdvertisingMiddle
     }
 
     /**
-     * Get creationDate
+     * Get creationDate.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getCreationDate()
     {
@@ -293,9 +300,10 @@ class CommnueAdvertisingMiddle
     }
 
     /**
-     * Set modificationDate
+     * Set modificationDate.
      *
      * @param \DateTime $modificationDate
+     *
      * @return CommnueAdvertisingMiddle
      */
     public function setModificationDate($modificationDate)
@@ -306,9 +314,9 @@ class CommnueAdvertisingMiddle
     }
 
     /**
-     * Get modificationDate
+     * Get modificationDate.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getModificationDate()
     {

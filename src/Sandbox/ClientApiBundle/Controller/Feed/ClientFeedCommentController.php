@@ -13,7 +13,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class ClientFeedCommentController extends FeedCommentController
 {
-//    use FeedNotification;
+    //    use FeedNotification;
 
     /**
      * Get all comments of a given feed.

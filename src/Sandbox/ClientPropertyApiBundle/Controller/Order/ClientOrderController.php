@@ -242,7 +242,7 @@ class ClientOrderController extends OrderController
         $createStart = $paramFetcher->get('create_start');
         $createEnd = $paramFetcher->get('create_end');
 
-        $allOrder= $paramFetcher->get('all_order');
+        $allOrder = $paramFetcher->get('all_order');
 
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');

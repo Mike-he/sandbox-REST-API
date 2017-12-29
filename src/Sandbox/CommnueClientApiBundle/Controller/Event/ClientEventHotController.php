@@ -8,12 +8,11 @@ use Sandbox\ApiBundle\Entity\Event\Event;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
-use JMS\Serializer\SerializationContext;
 
 class ClientEventHotController extends EventController
 {
     /**
-     * Get Hot Events Lists
+     * Get Hot Events Lists.
      *
      * @param Request $request
      *
@@ -37,7 +36,7 @@ class ClientEventHotController extends EventController
                 ->getRegistrationCounts($id);
 
             $buildingId = $hot['buildingId'];
-            if($buildingId){
+            if ($buildingId) {
                 $building = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')
                     ->find($buildingId);
                 $hot['community_name'] = $building->getName();

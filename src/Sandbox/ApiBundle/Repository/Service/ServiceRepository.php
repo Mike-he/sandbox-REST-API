@@ -4,7 +4,6 @@ namespace Sandbox\ApiBundle\Repository\Service;
 
 use Doctrine\ORM\EntityRepository;
 use Sandbox\ApiBundle\Entity\Service\Service;
-use Sandbox\ApiBundle\Entity\Service\ServiceType;
 
 class ServiceRepository extends EntityRepository
 {
@@ -12,6 +11,7 @@ class ServiceRepository extends EntityRepository
      * @param $type
      * @param $visible
      * @param $salesCompanyId
+     *
      * @return array
      */
     public function getSalesServices(
@@ -26,11 +26,11 @@ class ServiceRepository extends EntityRepository
                     COUNT(so.id) as purchaseNumber
                 '
             )
-            ->leftJoin('SandboxApiBundle:Service\ServiceOrder','so','WITH','so.serviceId = s.id')
+            ->leftJoin('SandboxApiBundle:Service\ServiceOrder', 'so', 'WITH', 'so.serviceId = s.id')
             ->where('s.salesCompanyId = :salesCompanyId')
             ->setParameter('salesCompanyId', $salesCompanyId);
 
-        if(!is_null($type)) {
+        if (!is_null($type)) {
             $query->andWhere('s.type = :type')
                 ->andWhere('s.isSaved = FALSE')
                 ->setParameter('type', $type);
@@ -57,6 +57,7 @@ class ServiceRepository extends EntityRepository
      * @param $sort
      * @param null $limit
      * @param null $offset
+     *
      * @return array
      */
     public function getClientServices(
@@ -66,61 +67,61 @@ class ServiceRepository extends EntityRepository
         $dictrict,
         $type,
         $sort,
-        $limit=null,
-        $offset=null
-    ){
+        $limit = null,
+        $offset = null
+    ) {
         $query = $this->createQueryBuilder('s')
             ->select('
                 s,
                 COUNT(s.id) AS HIDDEN purchase
             ')
-            ->leftJoin('SandboxApiBundle:Service\ServiceOrder','so','WITH','so.serviceId = s.id')
+            ->leftJoin('SandboxApiBundle:Service\ServiceOrder', 'so', 'WITH', 'so.serviceId = s.id')
             ->where('s.visible = true')
             ->groupBy('s.id');
 
-        if(!is_null($country)){
+        if (!is_null($country)) {
             $query->andWhere('s.countryId = :countryId')
                 ->setParameter('countryId', $country);
         }
 
-        if(!is_null($city)){
+        if (!is_null($city)) {
             $query->andWhere('s.cityId = :cityId')
                 ->setParameter('cityId', $city);
         }
 
-        if(!is_null($province)){
+        if (!is_null($province)) {
             $query->andWhere('s.provinceId = :provinceId')
                 ->setParameter('provinceId', $province);
         }
 
-        if(!is_null($dictrict)){
+        if (!is_null($dictrict)) {
             $query->andWhere('s.dictrictId = :districtId')
                 ->setParameter('districtId', $dictrict);
         }
 
-        if(!is_null($type)){
+        if (!is_null($type)) {
             $query->andWhere('s.type = :type')
-                ->setParameter('type',$type);
+                ->setParameter('type', $type);
         }
 
-        if(!is_null($sort)){
-            switch ($sort){
-                case "purchase":
-                    $query->orderBy('purchase','DESC');
+        if (!is_null($sort)) {
+            switch ($sort) {
+                case 'purchase':
+                    $query->orderBy('purchase', 'DESC');
                     break;
-                case "view":
-                    $query ->leftJoin('SandboxApiBundle:Service\ViewCount','v','WITH','v.objectId = s.id')
+                case 'view':
+                    $query->leftJoin('SandboxApiBundle:Service\ViewCount', 'v', 'WITH', 'v.objectId = s.id')
                         ->andWhere('v.object = :object')
-                        ->setParameter('object','service')
-                        ->orderBy('v.count','DESC');
+                        ->setParameter('object', 'service')
+                        ->orderBy('v.count', 'DESC');
                     break;
                 default:
-                    $query->orderBy('s.creationDate','DESC');
+                    $query->orderBy('s.creationDate', 'DESC');
                     break;
             }
         }
 
-        if(!is_null($limit) && !is_null($offset)){
+        if (!is_null($limit) && !is_null($offset)) {
             $query->setFirstResult($offset)
                 ->setMaxResults($limit);
         }

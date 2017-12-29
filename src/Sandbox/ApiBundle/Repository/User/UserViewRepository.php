@@ -791,7 +791,7 @@ class UserViewRepository extends EntityRepository
     public function getAllNotCommnueUserIds()
     {
         $query = $this->createQueryBuilder('u')
-            ->leftJoin('SandboxApiBundle:Commnue\CommnueUser','cu','WITH','cu.userId = u.id')
+            ->leftJoin('SandboxApiBundle:Commnue\CommnueUser', 'cu', 'WITH', 'cu.userId = u.id')
             ->select(
                 'u.id'
             )

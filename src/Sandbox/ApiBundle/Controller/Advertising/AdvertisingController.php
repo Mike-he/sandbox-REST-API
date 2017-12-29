@@ -27,5 +27,4 @@ class AdvertisingController extends SandboxRestController
 
     const ADVERTISEMENT_ALREADY_EXIST_CODE = 400004;
     const ADVERTISEMENT_ALREADY_EXIST_MESSAGE = 'This Advertisement Already Exists';
-
 }

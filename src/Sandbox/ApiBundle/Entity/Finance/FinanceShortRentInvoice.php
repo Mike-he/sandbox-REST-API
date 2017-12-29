@@ -83,7 +83,6 @@ class FinanceShortRentInvoice
      */
     private $confirmDate;
 
-
     /**
      * Get id.
      *

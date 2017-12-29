@@ -147,7 +147,7 @@ class AdminServiceController extends SalesRestController
      */
     public function getTypesAction(
         Request $request
-    ){
+    ) {
         $types = $this->getDoctrine()->getManager()
             ->getRepository('SandboxApiBundle:Service\ServiceTypes')
             ->findAll();
@@ -156,7 +156,7 @@ class AdminServiceController extends SalesRestController
     }
 
     /**
-     * Create Service
+     * Create Service.
      *
      * @param Request $request
      *
@@ -167,7 +167,7 @@ class AdminServiceController extends SalesRestController
      */
     public function postServiceAction(
         Request $request
-    ){
+    ) {
         // check user permission
         $this->checkSalesAdminServicePermission(AdminPermission::OP_LEVEL_EDIT);
 
@@ -211,11 +211,11 @@ class AdminServiceController extends SalesRestController
         $this->checkSalesAdminServicePermission(AdminPermission::OP_LEVEL_EDIT);
 
         $service = $this->getRepo('Service\Service')->findOneBy(array(
-            'id'=>$id,
-            'salesCompanyId'=> $this->getSalesCompanyId()
+            'id' => $id,
+            'salesCompanyId' => $this->getSalesCompanyId(),
         ));
 
-        if(is_null($service)){
+        if (is_null($service)) {
             $this->throwNotFoundIfNull($service, self::NOT_FOUND_MESSAGE);
         }
 
@@ -263,7 +263,7 @@ class AdminServiceController extends SalesRestController
      * Save service to db.
      *
      * @param Service $service
-     * @param bool  $submit
+     * @param bool    $submit
      *
      * @return View
      */
@@ -278,7 +278,6 @@ class AdminServiceController extends SalesRestController
 
         // check service start time and end time
         if (!is_null($times) && !empty($times)) {
-
             foreach ($times as $time) {
                 if ($time['start_time'] >= $time['end_time']) {
                     return $this->customErrorView(
@@ -402,7 +401,7 @@ class AdminServiceController extends SalesRestController
     private function addServiceTimes(
         $service,
         $times
-    ){
+    ) {
         if (!is_null($times) && !empty($times)) {
             foreach ($times as $time) {
                 $serviceTime = new ServiceTime();
@@ -468,7 +467,7 @@ class AdminServiceController extends SalesRestController
      * Save service modification to db.
      *
      * @param Service $service
-     * @param       $submit
+     * @param         $submit
      *
      * @return View
      */
@@ -630,7 +629,7 @@ class AdminServiceController extends SalesRestController
         // check if is valid to modify
 //        if (new \DateTime('now') >= $service->getServiceStartDate()) {
 //            $em->flush();
-//
+
 //            return;
 //        }
 

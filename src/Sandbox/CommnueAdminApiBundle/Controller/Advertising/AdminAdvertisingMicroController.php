@@ -16,14 +16,13 @@ use Knp\Component\Pager\Paginator;
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Rs\Json\Patch;
 
 class AdminAdvertisingMicroController extends AdvertisingController
 {
     /**
-     * Get Advertising Micro List
+     * Get Advertising Micro List.
      *
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -84,7 +83,7 @@ class AdminAdvertisingMicroController extends AdvertisingController
     }
 
     /**
-     * Get Advertising Micro By Id
+     * Get Advertising Micro By Id.
      *
      * @param $id
      *
@@ -105,13 +104,13 @@ class AdminAdvertisingMicroController extends AdvertisingController
             ->getRepository('SandboxApiBundle:Advertising\CommnueAdvertisingMicro')
             ->find($id);
 
-        $this->throwNotFoundIfNull($micro,self::NOT_FOUND_MESSAGE);
+        $this->throwNotFoundIfNull($micro, self::NOT_FOUND_MESSAGE);
 
         return new View($micro);
     }
 
     /**
-     * Create Advertising Micro
+     * Create Advertising Micro.
      *
      * @param Request $request
      *
@@ -119,6 +118,7 @@ class AdminAdvertisingMicroController extends AdvertisingController
      * @Method({"POST"})
      *
      * @return View
+     *
      * @throws \Exception
      */
     public function postAdvertisingMicroAction(
@@ -131,7 +131,7 @@ class AdminAdvertisingMicroController extends AdvertisingController
         $form = $this->createForm(new CommnueAdvertisingMicroType(), $micro);
         $form->handleRequest($request);
 
-        if(!$form->isValid()){
+        if (!$form->isValid()) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
@@ -140,12 +140,12 @@ class AdminAdvertisingMicroController extends AdvertisingController
         $em->flush();
 
         return new View(array(
-            'id'=>$micro->getId()
+            'id' => $micro->getId(),
         ));
     }
 
     /**
-     * Update Advertising Micro
+     * Update Advertising Micro.
      *
      * @param Request $request
      * @param $id
@@ -172,11 +172,11 @@ class AdminAdvertisingMicroController extends AdvertisingController
             new CommnueAdvertisingMicroType(),
             $micro,
             array(
-                'method'=>'put'
+                'method' => 'put',
             )
         );
         $form->handleRequest($request);
-        if(!$form->isValid()){
+        if (!$form->isValid()) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
@@ -187,7 +187,7 @@ class AdminAdvertisingMicroController extends AdvertisingController
     }
 
     /**
-     * Delete Advertising Micro
+     * Delete Advertising Micro.
      *
      * @param $id
      *
@@ -249,8 +249,8 @@ class AdminAdvertisingMicroController extends AdvertisingController
     }
 
     /**
-     * @param CommnueAdvertisingMicro         $micro
-     * @param AdvertisingPosition $position
+     * @param CommnueAdvertisingMicro $micro
+     * @param AdvertisingPosition     $position
      *
      * @return View
      */
@@ -279,8 +279,8 @@ class AdminAdvertisingMicroController extends AdvertisingController
     }
 
     /**
-     * @param CommnueAdvertisingMicro         $micro
-     * @param string $action
+     * @param CommnueAdvertisingMicro $micro
+     * @param string                  $action
      */
     private function swapAdvertisingMicroPosition(
         $micro,

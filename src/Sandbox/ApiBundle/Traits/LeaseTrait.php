@@ -103,7 +103,7 @@ trait LeaseTrait
         /** @var Product $product */
         $product = $lease->getProduct();
         $rentSet = $em->getRepository('SandboxApiBundle:Product\ProductRentSet')
-            ->findOneBy(array('product'=>$product));
+            ->findOneBy(array('product' => $product));
 
         $product->setRentSet($rentSet);
     }

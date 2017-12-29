@@ -764,8 +764,8 @@ class RoomBuildingRepository extends EntityRepository
         $search
     ) {
         $query = $this->createQueryBuilder('rb')
-            ->leftJoin('SandboxApiBundle:Room\Room','r','WITH','rb.id = r.building')
-            ->leftJoin('SandboxApiBundle:Room\CommnueBuildingHot','cbh','WITH','rb.id = cbh.buildingId')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'rb.id = r.building')
+            ->leftJoin('SandboxApiBundle:Room\CommnueBuildingHot', 'cbh', 'WITH', 'rb.id = cbh.buildingId')
             ->select(
                 'rb.id',
                 'rb.name',
@@ -775,21 +775,21 @@ class RoomBuildingRepository extends EntityRepository
             ->where('rb.isDeleted = FALSE')
             ->andWhere('rb.visible = TRUE');
 
-        if(!is_null($commnueStatus)){
+        if (!is_null($commnueStatus)) {
             $query->andWhere('rb.commnueStatus = :commnueStatus')
-                ->setParameter('commnueStatus',$commnueStatus);
-        }else{
+                ->setParameter('commnueStatus', $commnueStatus);
+        } else {
             $query->andWhere('rb.commnueStatus != :commnueStatus')
-                ->setParameter('commnueStatus',RoomBuilding::FREEZON);
+                ->setParameter('commnueStatus', RoomBuilding::FREEZON);
         }
 
-        if(!is_null($search)){
+        if (!is_null($search)) {
             $query->andWhere('rb.name LIKE :search')
-                ->setParameter('search','%'.$search.'%');
+                ->setParameter('search', '%'.$search.'%');
         }
 
         $query = $query->groupBy('rb.id')
-            ->orderBy('cbh.id','DESC');
+            ->orderBy('cbh.id', 'DESC');
 
         return $query->getQuery()->getResult();
     }
@@ -797,6 +797,7 @@ class RoomBuildingRepository extends EntityRepository
     /**
      * @param $builingIds
      * @param $limit
+     *
      * @return array
      */
     public function getExtraHotCommnueClientBuilding(
@@ -810,14 +811,15 @@ class RoomBuildingRepository extends EntityRepository
             ->andWhere('rb.commnueStatus != :commnueStatus')
             ->setParameter('commnueStatus', RoomBuilding::FREEZON);
 
-        if(!empty($builingIds)){
-            $query ->andWhere('rb.id NOT IN (:ids)')
+        if (!empty($builingIds)) {
+            $query->andWhere('rb.id NOT IN (:ids)')
                 ->setParameter('ids', $builingIds);
         }
 
         $query->setMaxResults($limit);
 
         $ids = $query->getQuery()->getScalarResult();
+
         return array_unique(array_map('current', $ids));
     }
 
@@ -835,10 +837,10 @@ class RoomBuildingRepository extends EntityRepository
             ->where('rb.isDeleted = FALSE')
             ->andWhere('rb.visible = TRUE')
             ->andWhere('rb.commnueStatus = :commnueStatus')
-            ->setParameter('commnueStatus',$commnueStatus);
+            ->setParameter('commnueStatus', $commnueStatus);
 
         return $query->getQuery()->getSingleScalarResult();
-     }
+    }
 
     /**
      * @param $userId
@@ -847,6 +849,7 @@ class RoomBuildingRepository extends EntityRepository
      * @param null $buildingIds
      * @param null $limit
      * @param null $offset
+     *
      * @return array
      */
     public function getCommnueClientCommunityBuilding(
@@ -880,14 +883,14 @@ class RoomBuildingRepository extends EntityRepository
                         ->setParameter('latitude', $lat)
                         ->setParameter('longitude', $lng);
 
-        if(!is_null($buildingIds)){
+        if (!is_null($buildingIds)) {
             $query->andWhere('rb.id IN (:ids)')
-                ->setParameter('ids',$buildingIds);
+                ->setParameter('ids', $buildingIds);
         }
 
-        $query->orderBy('distance','ASC');
+        $query->orderBy('distance', 'ASC');
 
-        if(!is_null($limit) && !is_null($offset)){
+        if (!is_null($limit) && !is_null($offset)) {
             $query->setFirstResult($offset)
                 ->setMaxResults($limit);
         }

@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
- * CommnueUserAuthenticationTags
+ * CommnueUserAuthenticationTags.
  *
  * @ORM\Table(name="commnue_user_authentication_tags")
  * @ORM\Entity
@@ -14,7 +14,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 class CommnueUserAuthenticationTags
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -59,11 +59,10 @@ class CommnueUserAuthenticationTags
      */
     private $modificationDate;
 
-
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -71,9 +70,10 @@ class CommnueUserAuthenticationTags
     }
 
     /**
-     * Set name
+     * Set name.
      *
      * @param string $name
+     *
      * @return CommnueUserAuthenticationTags
      */
     public function setName($name)
@@ -84,9 +84,9 @@ class CommnueUserAuthenticationTags
     }
 
     /**
-     * Get name
+     * Get name.
      *
-     * @return string 
+     * @return string
      */
     public function getName()
     {
@@ -94,9 +94,10 @@ class CommnueUserAuthenticationTags
     }
 
     /**
-     * Set description
+     * Set description.
      *
      * @param string $description
+     *
      * @return CommnueUserAuthenticationTags
      */
     public function setDescription($description)
@@ -107,9 +108,9 @@ class CommnueUserAuthenticationTags
     }
 
     /**
-     * Get description
+     * Get description.
      *
-     * @return string 
+     * @return string
      */
     public function getDescription()
     {
@@ -117,9 +118,10 @@ class CommnueUserAuthenticationTags
     }
 
     /**
-     * Set iconUrl
+     * Set iconUrl.
      *
      * @param string $iconUrl
+     *
      * @return CommnueUserAuthenticationTags
      */
     public function setIconUrl($iconUrl)
@@ -130,9 +132,9 @@ class CommnueUserAuthenticationTags
     }
 
     /**
-     * Get iconUrl
+     * Get iconUrl.
      *
-     * @return string 
+     * @return string
      */
     public function getIconUrl()
     {
@@ -140,9 +142,10 @@ class CommnueUserAuthenticationTags
     }
 
     /**
-     * Set creationDate
+     * Set creationDate.
      *
      * @param \DateTime $creationDate
+     *
      * @return CommnueUserAuthenticationTags
      */
     public function setCreationDate($creationDate)
@@ -153,9 +156,9 @@ class CommnueUserAuthenticationTags
     }
 
     /**
-     * Get creationDate
+     * Get creationDate.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getCreationDate()
     {
@@ -163,9 +166,10 @@ class CommnueUserAuthenticationTags
     }
 
     /**
-     * Set modificationDate
+     * Set modificationDate.
      *
      * @param \DateTime $modificationDate
+     *
      * @return CommnueUserAuthenticationTags
      */
     public function setModificationDate($modificationDate)
@@ -176,9 +180,9 @@ class CommnueUserAuthenticationTags
     }
 
     /**
-     * Get modificationDate
+     * Get modificationDate.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getModificationDate()
     {

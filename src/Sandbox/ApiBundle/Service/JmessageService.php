@@ -97,7 +97,7 @@ class JmessageService
 
         if (204 != $result['http_code']) {
             $errorMessage = json_encode($result);
-            error_log('[jiguang] -- '.date("Y-m-d H:i:s").' -- '.$errorMessage."\r\n", 3, $this->errorLogDir);
+            error_log('[jiguang] -- '.date('Y-m-d H:i:s').' -- '.$errorMessage."\r\n", 3, $this->errorLogDir);
         }
 
         return $result;
@@ -124,7 +124,7 @@ class JmessageService
 
         if (201 != $response['http_code']) {
             $errorMessage = json_encode($response);
-            error_log('[jiguang] -- '.date("Y-m-d H:i:s").' -- '.$errorMessage."\r\n", 3, $this->errorLogDir);
+            error_log('[jiguang] -- '.date('Y-m-d H:i:s').' -- '.$errorMessage."\r\n", 3, $this->errorLogDir);
         }
 
         return $response;
@@ -157,7 +157,7 @@ class JmessageService
 
         if (204 != $response['http_code']) {
             $errorMessage = json_encode($response);
-            error_log('[jiguang] -- '.date("Y-m-d H:i:s").' -- '.$errorMessage."\r\n", 3, $this->errorLogDir);
+            error_log('[jiguang] -- '.date('Y-m-d H:i:s').' -- '.$errorMessage."\r\n", 3, $this->errorLogDir);
         }
 
         return $response;
@@ -176,7 +176,7 @@ class JmessageService
 
         if (204 != $response['http_code']) {
             $errorMessage = json_encode($response);
-            error_log('[jiguang] -- '.date("Y-m-d H:i:s").' -- '.$errorMessage."\r\n", 3, $this->errorLogDir);
+            error_log('[jiguang] -- '.date('Y-m-d H:i:s').' -- '.$errorMessage."\r\n", 3, $this->errorLogDir);
         }
 
         return $response;

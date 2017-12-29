@@ -8,7 +8,6 @@ use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
-use JMS\Serializer\SerializationContext;
 use FOS\RestBundle\Controller\Annotations;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 
@@ -133,7 +132,7 @@ class ClientServiceController extends SalesRestController
                 $offset
             );
 
-        foreach ($services as $service){
+        foreach ($services as $service) {
             $attachments = $this->getRepo('Service\ServiceAttachment')->findByService($service);
             $times = $this->getRepo('Service\ServiceTime')->findByService($service);
 
@@ -159,7 +158,7 @@ class ClientServiceController extends SalesRestController
             ->getRepository('SandboxApiBundle:Service\Service')
             ->find($id);
 
-        if(is_null($service)){
+        if (is_null($service)) {
             $this->throwNotFoundIfNull($service, self::NOT_FOUND_MESSAGE);
         }
 

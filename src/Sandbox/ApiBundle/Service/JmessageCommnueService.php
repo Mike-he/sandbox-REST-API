@@ -104,7 +104,7 @@ class JmessageCommnueService
 
         if (204 != $result['http_code']) {
             $errorMessage = json_encode($result);
-            error_log('[jiguang] -- '.date("Y-m-d H:i:s").' -- '.$errorMessage."\r\n", 3, $this->errorLogDir);
+            error_log('[jiguang] -- '.date('Y-m-d H:i:s').' -- '.$errorMessage."\r\n", 3, $this->errorLogDir);
         }
 
         return $result;
@@ -224,24 +224,24 @@ class JmessageCommnueService
         $version = 1;
 
         $from = [
-            'id'   => 'commnue',
+            'id' => 'commnue',
             'name' => '合创社',
-            'type' => 'admin'
+            'type' => 'admin',
         ];
 
         $target = [
-            'id'   => $xmppUser,
-            'type' => 'single'
+            'id' => $xmppUser,
+            'type' => 'single',
         ];
         $msg = [
-            'text' => $txt
+            'text' => $txt,
         ];
 
-        $result = $this->message->sendText($version,$from, $target, $msg);
+        $result = $this->message->sendText($version, $from, $target, $msg);
 
         if (201 != $result['http_code']) {
             $errorMessage = json_encode($result);
-            error_log('[jiguang] -- '.date("Y-m-d H:i:s").' -- '.$errorMessage."\r\n", 3, $this->errorLogDir);
+            error_log('[jiguang] -- '.date('Y-m-d H:i:s').' -- '.$errorMessage."\r\n", 3, $this->errorLogDir);
         }
 
         return $result;

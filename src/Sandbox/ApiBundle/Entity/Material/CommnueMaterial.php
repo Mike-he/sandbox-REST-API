@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
- * CommnueMaterial
+ * CommnueMaterial.
  *
  * @ORM\Table("commnue_material")
  * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Material\CommnueMaterialRepository")
@@ -18,7 +18,7 @@ class CommnueMaterial
     const SOURCE_INSTRUCTION = 'instruction';
     const SOURCE_ADVERTISING = 'advertising';
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -77,11 +77,10 @@ class CommnueMaterial
      */
     private $modificationDate;
 
-
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -89,9 +88,10 @@ class CommnueMaterial
     }
 
     /**
-     * Set title
+     * Set title.
      *
      * @param string $title
+     *
      * @return CommnueMaterial
      */
     public function setTitle($title)
@@ -102,9 +102,9 @@ class CommnueMaterial
     }
 
     /**
-     * Get title
+     * Get title.
      *
-     * @return string 
+     * @return string
      */
     public function getTitle()
     {
@@ -112,9 +112,10 @@ class CommnueMaterial
     }
 
     /**
-     * Set category
+     * Set category.
      *
      * @param string $category
+     *
      * @return CommnueMaterial
      */
     public function setCategory($category)
@@ -125,9 +126,9 @@ class CommnueMaterial
     }
 
     /**
-     * Get category
+     * Get category.
      *
-     * @return string 
+     * @return string
      */
     public function getCategory()
     {
@@ -135,9 +136,10 @@ class CommnueMaterial
     }
 
     /**
-     * Set description
+     * Set description.
      *
      * @param string $description
+     *
      * @return CommnueMaterial
      */
     public function setDescription($description)
@@ -148,9 +150,9 @@ class CommnueMaterial
     }
 
     /**
-     * Get description
+     * Get description.
      *
-     * @return string 
+     * @return string
      */
     public function getDescription()
     {
@@ -158,9 +160,10 @@ class CommnueMaterial
     }
 
     /**
-     * Set image
+     * Set image.
      *
      * @param string $image
+     *
      * @return CommnueMaterial
      */
     public function setImage($image)
@@ -171,9 +174,9 @@ class CommnueMaterial
     }
 
     /**
-     * Get image
+     * Get image.
      *
-     * @return string 
+     * @return string
      */
     public function getImage()
     {
@@ -181,9 +184,10 @@ class CommnueMaterial
     }
 
     /**
-     * Set content
+     * Set content.
      *
      * @param string $content
+     *
      * @return CommnueMaterial
      */
     public function setContent($content)
@@ -194,9 +198,9 @@ class CommnueMaterial
     }
 
     /**
-     * Get content
+     * Get content.
      *
-     * @return string 
+     * @return string
      */
     public function getContent()
     {
@@ -204,9 +208,10 @@ class CommnueMaterial
     }
 
     /**
-     * Set creationDate
+     * Set creationDate.
      *
      * @param \DateTime $creationDate
+     *
      * @return CommnueMaterial
      */
     public function setCreationDate($creationDate)
@@ -217,9 +222,9 @@ class CommnueMaterial
     }
 
     /**
-     * Get creationDate
+     * Get creationDate.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getCreationDate()
     {
@@ -227,9 +232,10 @@ class CommnueMaterial
     }
 
     /**
-     * Set modificationDate
+     * Set modificationDate.
      *
      * @param \DateTime $modificationDate
+     *
      * @return CommnueMaterial
      */
     public function setModificationDate($modificationDate)
@@ -240,9 +246,9 @@ class CommnueMaterial
     }
 
     /**
-     * Get modificationDate
+     * Get modificationDate.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getModificationDate()
     {

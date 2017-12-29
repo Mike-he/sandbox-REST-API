@@ -3,7 +3,6 @@
 namespace Sandbox\SalesApiBundle\Controller\Customer;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
-use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\User\UserCustomer;
@@ -24,7 +23,7 @@ class AdminCustomerController extends SalesRestController
     const ERROR_CUSTOMER_EXIST_MESSAGE = 'Customer exist';
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(

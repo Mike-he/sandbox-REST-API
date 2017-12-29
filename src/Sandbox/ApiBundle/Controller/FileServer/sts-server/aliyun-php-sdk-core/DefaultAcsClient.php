@@ -60,7 +60,7 @@ class DefaultAcsClient implements IAcsClient
         while (500 <= $httpResponse->getStatus() && $autoRetry && $retryTimes < $maxRetryNumber) {
             $requestUrl = $request->composeUrl($iSigner, $credential);
             $httpResponse = HttpHelper::curl($requestUrl, null, $request->getHeaders());
-            ++$retryTimes ;
+            ++$retryTimes;
         }
 
         return $httpResponse;

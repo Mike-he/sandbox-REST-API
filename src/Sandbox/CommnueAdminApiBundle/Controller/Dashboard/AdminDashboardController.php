@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 class AdminDashboardController extends SandboxRestController
 {
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -75,7 +75,7 @@ class AdminDashboardController extends SandboxRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/dashboard/statistics")
@@ -141,7 +141,7 @@ class AdminDashboardController extends SandboxRestController
                     Event::STATUS_ONGOING,
                     Event::STATUS_PREHEATING,
                     Event::STATUS_REGISTERING,
-                ]
+                ],
             ]);
 
         $registrationsSum = [];
@@ -164,7 +164,7 @@ class AdminDashboardController extends SandboxRestController
                     Event::STATUS_ONGOING,
                     Event::STATUS_PREHEATING,
                     Event::STATUS_REGISTERING,
-                ]
+                ],
             ]);
 
         $endedActivities = $this->getDoctrine()
@@ -175,7 +175,7 @@ class AdminDashboardController extends SandboxRestController
                 'visible' => true,
                 'status' => [
                     Event::STATUS_END,
-                ]
+                ],
             ]);
 
         return new View([

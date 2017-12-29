@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
- * CommnueAdvertisingMicro
+ * CommnueAdvertisingMicro.
  *
  * @ORM\Table("commnue_advertising_micro")
  * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Advertising\CommnueAdvertisingMicroRepository")
@@ -14,7 +14,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 class CommnueAdvertisingMicro
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -52,11 +52,10 @@ class CommnueAdvertisingMicro
      */
     private $modificationDate;
 
-
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -64,9 +63,10 @@ class CommnueAdvertisingMicro
     }
 
     /**
-     * Set content
+     * Set content.
      *
      * @param string $content
+     *
      * @return CommnueAdvertisingMicro
      */
     public function setContent($content)
@@ -77,7 +77,7 @@ class CommnueAdvertisingMicro
     }
 
     /**
-     * Get content
+     * Get content.
      *
      * @return string
      */
@@ -87,9 +87,10 @@ class CommnueAdvertisingMicro
     }
 
     /**
-     * Set sortTime
+     * Set sortTime.
      *
      * @param string $sortTime
+     *
      * @return CommnueAdvertisingMicro
      */
     public function setSortTime($sortTime)
@@ -100,7 +101,7 @@ class CommnueAdvertisingMicro
     }
 
     /**
-     * Get sortTime
+     * Get sortTime.
      *
      * @return string
      */
@@ -110,9 +111,10 @@ class CommnueAdvertisingMicro
     }
 
     /**
-     * Set creationDate
+     * Set creationDate.
      *
      * @param \DateTime $creationDate
+     *
      * @return CommnueAdvertisingMicro
      */
     public function setCreationDate($creationDate)
@@ -123,7 +125,7 @@ class CommnueAdvertisingMicro
     }
 
     /**
-     * Get creationDate
+     * Get creationDate.
      *
      * @return \DateTime
      */
@@ -133,9 +135,10 @@ class CommnueAdvertisingMicro
     }
 
     /**
-     * Set modificationDate
+     * Set modificationDate.
      *
      * @param \DateTime $modificationDate
+     *
      * @return CommnueAdvertisingMicro
      */
     public function setModificationDate($modificationDate)
@@ -146,7 +149,7 @@ class CommnueAdvertisingMicro
     }
 
     /**
-     * Get modificationDate
+     * Get modificationDate.
      *
      * @return \DateTime
      */

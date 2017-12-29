@@ -15,16 +15,15 @@ use FOS\RestBundle\View\View;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 
-
 class AdminMaterialController extends SandboxRestController
 {
     const UNABLE_DELETE_CODE = 400001;
     const UNABLE_DELETE_MESSAGE = 'THE MATERIAL HAS BEEN USED';
 
     /**
-     * Get Material list
+     * Get Material list.
      *
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -86,7 +85,7 @@ class AdminMaterialController extends SandboxRestController
     }
 
     /**
-     * Get Material By Id
+     * Get Material By Id.
      *
      * @param $id
      *
@@ -111,9 +110,9 @@ class AdminMaterialController extends SandboxRestController
     }
 
     /**
-     * Create Material
+     * Create Material.
      *
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/commercial/materials")
@@ -134,7 +133,7 @@ class AdminMaterialController extends SandboxRestController
 
         $form = $this->createForm(new CommnueMaterialType(), $material);
         $form->handleRequest($request);
-        if(!$form->isValid()){
+        if (!$form->isValid()) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
@@ -143,12 +142,12 @@ class AdminMaterialController extends SandboxRestController
         $em->flush();
 
         return new View(array(
-            'id'=>$material->getId()
+            'id' => $material->getId(),
         ));
     }
 
     /**
-     * Update Material
+     * Update Material.
      *
      * @param Request $request
      * @param $id
@@ -171,17 +170,17 @@ class AdminMaterialController extends SandboxRestController
             ->getRepository('SandboxApiBundle:Material\CommnueMaterial')
             ->find($id);
 
-        $this->throwNotFoundIfNull($material,self::NOT_FOUND_MESSAGE);
+        $this->throwNotFoundIfNull($material, self::NOT_FOUND_MESSAGE);
 
         $form = $this->createForm(
             new CommnueMaterialType(),
             $material,
             array(
-                'method'=>'put'
+                'method' => 'put',
             )
         );
         $form->handleRequest($request);
-        if(!$form->isValid()){
+        if (!$form->isValid()) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
@@ -192,7 +191,7 @@ class AdminMaterialController extends SandboxRestController
     }
 
     /**
-     * Delete Material
+     * Delete Material.
      *
      * @param $id
      *
@@ -217,22 +216,22 @@ class AdminMaterialController extends SandboxRestController
             ->getRepository('SandboxApiBundle:Banner\CommnueBanner')
             ->findOneBy(array(
                 'source' => 'material',
-                'sourceId' => $id
+                'sourceId' => $id,
             ));
         $middles = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Advertising\CommnueAdvertisingMiddle')
             ->findOneBy(array(
                 'source' => 'material',
-                'sourceId' => $id
+                'sourceId' => $id,
             ));
         $screens = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Advertising\CommnueAdvertisingScreen')
             ->findOneBy(array(
                 'source' => 'material',
-                'sourceId' => $id
+                'sourceId' => $id,
             ));
 
-        if(!empty($banners) || !empty($middles) || !empty($screens)){
+        if (!empty($banners) || !empty($middles) || !empty($screens)) {
             return $this->customErrorView(
                 400,
                 self::UNABLE_DELETE_CODE,

@@ -49,7 +49,6 @@ class ChatGroupMember
      * @var User
      *
      * @ORM\Column(name="userId", type="integer")
-     *
      */
     private $user;
 

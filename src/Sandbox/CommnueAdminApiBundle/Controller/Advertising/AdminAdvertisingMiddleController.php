@@ -5,9 +5,7 @@ namespace Sandbox\CommnueAdminApiBundle\Controller\Advertising;
 use Sandbox\ApiBundle\Controller\Advertising\AdvertisingController;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Entity\Advertising\CommnueAdvertisingMiddle;
-use Sandbox\ApiBundle\Entity\Material\CommnueMaterial;
 use Sandbox\ApiBundle\Form\Advertising\AdvertisingPositionType;
-use Sandbox\ApiBundle\Form\Advertising\CommnueAdvertisingMiddlePatchType;
 use Sandbox\ApiBundle\Form\Advertising\CommnueAdvertisingMiddleType;
 use Sandbox\CommnueAdminApiBundle\Data\Advertising\AdvertisingPosition;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -18,14 +16,13 @@ use Knp\Component\Pager\Paginator;
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Rs\Json\Patch;
 
 class AdminAdvertisingMiddleController extends AdvertisingController
 {
     /**
-     * Get Advertising Middle List
+     * Get Advertising Middle List.
      *
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -86,7 +83,7 @@ class AdminAdvertisingMiddleController extends AdvertisingController
     }
 
     /**
-     * Get Advertising Middle By Id
+     * Get Advertising Middle By Id.
      *
      * @param $id
      *
@@ -107,13 +104,13 @@ class AdminAdvertisingMiddleController extends AdvertisingController
             ->getRepository('SandboxApiBundle:Advertising\CommnueAdvertisingMiddle')
             ->find($id);
 
-        $this->throwNotFoundIfNull($middle,self::NOT_FOUND_MESSAGE);
+        $this->throwNotFoundIfNull($middle, self::NOT_FOUND_MESSAGE);
 
         return new View($middle);
     }
 
     /**
-     * Create Advertising Middle
+     * Create Advertising Middle.
      *
      * @param Request $request
      *
@@ -121,6 +118,7 @@ class AdminAdvertisingMiddleController extends AdvertisingController
      * @Method({"POST"})
      *
      * @return View
+     *
      * @throws \Exception
      */
     public function postAdvertisingMiddleAction(
@@ -133,7 +131,7 @@ class AdminAdvertisingMiddleController extends AdvertisingController
         $form = $this->createForm(new CommnueAdvertisingMiddleType(), $middle);
         $form->handleRequest($request);
 
-        if(!$form->isValid()){
+        if (!$form->isValid()) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
@@ -146,7 +144,7 @@ class AdminAdvertisingMiddleController extends AdvertisingController
     }
 
     /**
-     * Update Advertising Middle
+     * Update Advertising Middle.
      *
      * @param Request $request
      * @param $id
@@ -163,7 +161,7 @@ class AdminAdvertisingMiddleController extends AdvertisingController
         // check user permission
         $this->checkAdminAdvertisementPermission(AdminPermission::OP_LEVEL_EDIT);
 
-       $middle = $this->getDoctrine()
+        $middle = $this->getDoctrine()
            ->getRepository('SandboxApiBundle:Advertising\CommnueAdvertisingMiddle')
            ->find($id);
 
@@ -177,7 +175,7 @@ class AdminAdvertisingMiddleController extends AdvertisingController
         ));
         $form->handleRequest($request);
 
-        if(!$form->isValid()){
+        if (!$form->isValid()) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
@@ -190,7 +188,7 @@ class AdminAdvertisingMiddleController extends AdvertisingController
     }
 
     /**
-     * Delete Advertising Middle
+     * Delete Advertising Middle.
      *
      * @param $id
      *
@@ -254,6 +252,7 @@ class AdminAdvertisingMiddleController extends AdvertisingController
     /**
      * @param CommnueAdvertisingMiddle $middle
      * @param $url
+     *
      * @return View
      */
     private function handleMiddlePost(
@@ -298,7 +297,7 @@ class AdminAdvertisingMiddleController extends AdvertisingController
         }
 
         // check if advertising middle already exists
-        if(is_null($middle->getId())){
+        if (is_null($middle->getId())) {
             if ($source != CommnueAdvertisingMiddle::SOURCE_BLANK_BLOCK) {
                 $existMiddle = $this->getExistingMiddle(
                     $source,
@@ -325,10 +324,10 @@ class AdminAdvertisingMiddleController extends AdvertisingController
     }
 
     /**
-     * Set Advertising Middle For Event
+     * Set Advertising Middle For Event.
      *
      * @param CommnueAdvertisingMiddle $middle
-     * @param int    $sourceId
+     * @param int                      $sourceId
      */
     private function setMiddleContentForEvent(
         $middle,
@@ -344,7 +343,7 @@ class AdminAdvertisingMiddleController extends AdvertisingController
      * Set Advertising Middle For Material.
      *
      * @param CommnueAdvertisingMiddle $middle
-     * @param int    $sourceId
+     * @param int                      $sourceId
      */
     private function setMiddleContentForMaterial(
         $middle,
@@ -360,6 +359,7 @@ class AdminAdvertisingMiddleController extends AdvertisingController
      * @param $source
      * @param $sourceId
      * @param $url
+     *
      * @return object
      */
     private function getExistingMiddle(
@@ -387,8 +387,8 @@ class AdminAdvertisingMiddleController extends AdvertisingController
     }
 
     /**
-     * @param CommnueAdvertisingMiddle         $middle
-     * @param AdvertisingPosition $position
+     * @param CommnueAdvertisingMiddle $middle
+     * @param AdvertisingPosition      $position
      *
      * @return View
      */
@@ -417,8 +417,8 @@ class AdminAdvertisingMiddleController extends AdvertisingController
     }
 
     /**
-     * @param CommnueAdvertisingMiddle         $middle
-     * @param string $action
+     * @param CommnueAdvertisingMiddle $middle
+     * @param string                   $action
      */
     private function swapAdvertisingMiddlePosition(
         $middle,

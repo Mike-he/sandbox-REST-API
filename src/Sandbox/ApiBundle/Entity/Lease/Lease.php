@@ -1053,7 +1053,7 @@ class Lease
                     'attachment' => $this->product->getRoom()->degenerateAttachment(),
                 ],
                 'lease_rent_types' => $this->product->getLeaseRentTypes(),
-                'rent_set' =>  $this->product->getRentSet(),
+                'rent_set' => $this->product->getRentSet(),
             ];
         } else {
             return null;

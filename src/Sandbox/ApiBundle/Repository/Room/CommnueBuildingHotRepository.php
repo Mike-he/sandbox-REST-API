@@ -24,12 +24,13 @@ class CommnueBuildingHotRepository extends EntityRepository
     public function getHotCommunities()
     {
         $query = $this->createQueryBuilder('cbh')
-            ->leftJoin('SandboxApiBundle:Room\RoomBuilding','rb','WITH','cbh.buildingId = rb.id')
+            ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'rb', 'WITH', 'cbh.buildingId = rb.id')
             ->select('cbh.buildingId')
             ->where('rb.commnueStatus != :commnueStatus')
             ->setParameter('commnueStatus', RoomBuilding::FREEZON);
 
         $ids = $query->getQuery()->getScalarResult();
+
         return array_unique(array_map('current', $ids));
     }
 }

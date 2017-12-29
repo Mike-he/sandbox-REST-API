@@ -685,7 +685,7 @@ class AdminAdminsController extends SandboxRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(

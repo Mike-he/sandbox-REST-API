@@ -5,8 +5,6 @@ namespace Sandbox\CommnueClientApiBundle\Controller\Commercial;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use Sandbox\ApiBundle\Controller\Advertising\AdvertisingController;
-use Sandbox\ApiBundle\Entity\Banner\CommnueBanner;
-use Sandbox\ApiBundle\Entity\Material\CommnueMaterial;
 use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -17,7 +15,7 @@ use FOS\RestBundle\Controller\Annotations;
 class ClientCommercialController extends AdvertisingController
 {
     /**
-     * Get Banners
+     * Get Banners.
      *
      * @param Request $request
      *
@@ -32,7 +30,7 @@ class ClientCommercialController extends AdvertisingController
         $parameter = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Parameter\Parameter')
             ->findOneBy(array(
-                'key'=>Parameter::KEY_COMMNUE_BANNER
+                'key' => Parameter::KEY_COMMNUE_BANNER,
             ));
         $limit = $parameter->getValue();
         $banners = $this->getDoctrine()
@@ -40,7 +38,7 @@ class ClientCommercialController extends AdvertisingController
             ->getClientBanner($limit);
 
         $results = [];
-        foreach($banners as $banner){
+        foreach ($banners as $banner) {
             $results[] = $this->handleSource($banner);
         }
 
@@ -48,7 +46,7 @@ class ClientCommercialController extends AdvertisingController
     }
 
     /**
-     * Get Banner By Id
+     * Get Banner By Id.
      *
      * @param Request $request
      * @param $id
@@ -66,13 +64,13 @@ class ClientCommercialController extends AdvertisingController
             ->getRepository('SandboxApiBundle:Banner\CommnueBanner')
             ->find($id);
 
-        $this->throwNotFoundIfNull($banner,self::NOT_FOUND_MESSAGE);
+        $this->throwNotFoundIfNull($banner, self::NOT_FOUND_MESSAGE);
 
         return new View($banner);
     }
 
     /**
-     * Get advertising middles
+     * Get advertising middles.
      *
      * @param Request $request
      *
@@ -87,7 +85,7 @@ class ClientCommercialController extends AdvertisingController
         $parameter = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Parameter\Parameter')
             ->findOneBy(array(
-                'key'=>Parameter::KEY_COMMNUE_ADVERTISING_MIDDLE
+                'key' => Parameter::KEY_COMMNUE_ADVERTISING_MIDDLE,
             ));
         $limit = $parameter->getValue();
         $middles = $this->getDoctrine()
@@ -95,7 +93,7 @@ class ClientCommercialController extends AdvertisingController
             ->getClientMiddle($limit);
 
         $results = [];
-        foreach ($middles as $middle){
+        foreach ($middles as $middle) {
             $results[] = $this->handleSource($middle);
         }
 
@@ -103,7 +101,7 @@ class ClientCommercialController extends AdvertisingController
     }
 
     /**
-     * Get Advertising Middle By Id
+     * Get Advertising Middle By Id.
      *
      * @param Request $request
      * @param $id
@@ -121,13 +119,13 @@ class ClientCommercialController extends AdvertisingController
             ->getRepository('SandboxApiBundle:Advertising\CommnueAdvertisingMiddle')
             ->find($id);
 
-        $this->throwNotFoundIfNull($middle,self::NOT_FOUND_MESSAGE);
+        $this->throwNotFoundIfNull($middle, self::NOT_FOUND_MESSAGE);
 
         return new View($middle);
     }
 
     /**
-     * Get advertising micros
+     * Get advertising micros.
      *
      * @param Request $request
      *
@@ -142,7 +140,7 @@ class ClientCommercialController extends AdvertisingController
         $parameter = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Parameter\Parameter')
             ->findOneBy(array(
-                'key'=>Parameter::KEY_COMMNUE_ADVERTISING_MICRO
+                'key' => Parameter::KEY_COMMNUE_ADVERTISING_MICRO,
             ));
         $limit = $parameter->getValue();
         $micros = $this->getDoctrine()
@@ -153,7 +151,7 @@ class ClientCommercialController extends AdvertisingController
     }
 
     /**
-     * Get Advertising Micro By Id
+     * Get Advertising Micro By Id.
      *
      * @param Request $request
      * @param $id
@@ -171,13 +169,13 @@ class ClientCommercialController extends AdvertisingController
             ->getRepository('SandboxApiBundle:Advertising\CommnueAdvertisingMicro')
             ->find($id);
 
-        $this->throwNotFoundIfNull($micro,self::NOT_FOUND_MESSAGE);
+        $this->throwNotFoundIfNull($micro, self::NOT_FOUND_MESSAGE);
 
         return new View($micro);
     }
 
     /**
-     * Get Material By Id
+     * Get Material By Id.
      *
      * @param Request $request
      * @param $id
@@ -195,15 +193,15 @@ class ClientCommercialController extends AdvertisingController
             ->getRepository('SandboxApiBundle:Material\CommnueMaterial')
             ->find($id);
 
-        $this->throwNotFoundIfNull($material,self::NOT_FOUND_MESSAGE);
+        $this->throwNotFoundIfNull($material, self::NOT_FOUND_MESSAGE);
 
         return new View($material);
     }
 
     /**
-     * Get Advertising Screen
+     * Get Advertising Screen.
      *
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -238,8 +236,8 @@ class ClientCommercialController extends AdvertisingController
 
         $screen = $this->getDoctrine()
             ->getRepository("SandboxApiBundle:Advertising\CommnueAdvertisingScreen")
-            ->findOneBy(array('visible'=>true));
-        if($screen){
+            ->findOneBy(array('visible' => true));
+        if ($screen) {
             $attachment = $this->getDoctrine()->getRepository("SandboxApiBundle:Advertising\CommnueScreenAttachment")->findAttachment($screen, $height, $width);
             $screen->setAttachments($attachment);
         }
@@ -253,7 +251,7 @@ class ClientCommercialController extends AdvertisingController
     }
 
     /**
-     * GET Advertising Screen By Id
+     * GET Advertising Screen By Id.
      *
      * @param $id
      *
@@ -269,7 +267,7 @@ class ClientCommercialController extends AdvertisingController
             ->getRepository('SandboxApiBundle:Advertising\CommnueAdvertisingScreen')
             ->find($id);
 
-        $this->throwNotFoundIfNull($screen,self::NOT_FOUND_MESSAGE);
+        $this->throwNotFoundIfNull($screen, self::NOT_FOUND_MESSAGE);
 
         $attachments = $this->getDoctrine()->getRepository('SandboxApiBundle:Advertising\CommnueScreenAttachment')->findByScreen($screen);
         $screen->setAttachments($attachments);
@@ -284,6 +282,7 @@ class ClientCommercialController extends AdvertisingController
 
     /**
      * @param $item
+     *
      * @return array
      */
     private function handleSource(
@@ -298,7 +297,7 @@ class ClientCommercialController extends AdvertisingController
 
         $source = $item->getSource();
 
-        switch ($source){
+        switch ($source) {
             case 'material':
                 $sourceId = $item->getSourceId();
                 $url = $this->getParameter('mobile_url');

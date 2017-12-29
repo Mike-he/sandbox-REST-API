@@ -1918,6 +1918,4 @@ class RoomBuilding implements JsonSerializable
     {
         $this->commnueStatus = $commnueStatus;
     }
-
-
 }

@@ -19,7 +19,6 @@ class CommnueScreenAttachment
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
-     *
      */
     private $id;
 
@@ -37,7 +36,6 @@ class CommnueScreenAttachment
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Advertising\CommnueAdvertisingScreen")
      * @ORM\JoinColumn(name="screenId", referencedColumnName="id", onDelete="CASCADE")
-     *
      */
     private $screen;
 

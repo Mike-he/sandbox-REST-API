@@ -22,7 +22,7 @@ class BannerType extends AbstractType
             ->add('source_cat',
                 'text',
                 array(
-                    'required' => false
+                    'required' => false,
                 )
             )
             ->add(

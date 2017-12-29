@@ -33,7 +33,7 @@ class ClientChatGroupMemberController extends ClientChatGroupController
      * Get members.
      *
      * @param Request $request contains request info
-     * @param int     $gid      id of the company
+     * @param int     $gid     id of the company
      *
      * @Get("/chatgroups/{gid}/members")
      *

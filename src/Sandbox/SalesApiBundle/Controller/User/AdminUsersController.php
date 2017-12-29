@@ -4,7 +4,6 @@ namespace Sandbox\SalesApiBundle\Controller\User;
 
 use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminProfiles;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesUser;
 use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
@@ -498,7 +497,7 @@ class AdminUsersController extends DoorController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(

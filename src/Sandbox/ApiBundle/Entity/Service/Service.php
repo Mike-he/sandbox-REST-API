@@ -219,7 +219,7 @@ class Service
     private $salesCompanyId;
 
     /**
-     * @var boolean
+     * @var bool
      *
      * @ORM\Column(name="invoiced", type="boolean", nullable=false)
      */

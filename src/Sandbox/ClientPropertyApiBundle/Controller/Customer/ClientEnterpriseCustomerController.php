@@ -1,8 +1,8 @@
 <?php
+
 namespace Sandbox\ClientPropertyApiBundle\Controller\Customer;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
-use Knp\Component\Pager\Paginator;
 use Sandbox\ApiBundle\Entity\User\EnterpriseCustomer;
 use Sandbox\ApiBundle\Entity\User\EnterpriseCustomerContacts;
 use Sandbox\ApiBundle\Form\User\EnterpriseCustomerContactType;
@@ -21,7 +21,7 @@ use Sandbox\ApiBundle\Constants\ProductOrderExport;
 class ClientEnterpriseCustomerController extends SalesRestController
 {
     /**
-     * @param Request   $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -52,28 +52,29 @@ class ClientEnterpriseCustomerController extends SalesRestController
                 $search
             );
 
-       $count = count($enterpriseCustomers);
+        $count = count($enterpriseCustomers);
+
         return new View([
-            "item" => $enterpriseCustomers,
+            'item' => $enterpriseCustomers,
             'total_count' => $count,
 
         ]);
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      * @param $id
      * @Route("/enterprise_customer/{id}")
      * @Method({"GET"})
+     *
      * @return View
      */
-    public function getEnterpriseCustomerAction
-    (
+    public function getEnterpriseCustomerAction(
         Request $request,
         ParamFetcherInterface $paramFetcher,
         $id
-    ){
+    ) {
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
@@ -91,7 +92,7 @@ class ClientEnterpriseCustomerController extends SalesRestController
                 'enterpriseCustomerId' => $enterpriseCustomer->getId(),
             ));
 
-        foreach($contacts as $contact){
+        foreach ($contacts as $contact) {
             $contactCustomer = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:User\UserCustomer')
                 ->find($contact->getCustomerId());
@@ -105,17 +106,18 @@ class ClientEnterpriseCustomerController extends SalesRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      * @param $id
      * @Route("/enterprise_customer/{id}/lease_and_bill/count")
+     *
      * @return View
      */
     public function getEnterPriseCusomerLeasesAndBillsCountAction(
         Request $request,
         ParamFetcherInterface $paramFetcher,
         $id
-    ){
+    ) {
         $leasesCount = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\Lease')
             ->countEnterpriseCustomerLease($id);
@@ -127,8 +129,8 @@ class ClientEnterpriseCustomerController extends SalesRestController
         $view = new View();
         $view->setData(
             array(
-                'leasesCount'=>$leasesCount,
-                'billsCount'=>$billsCount
+                'leasesCount' => $leasesCount,
+                'billsCount' => $billsCount,
             )
         );
 
@@ -208,7 +210,7 @@ class ClientEnterpriseCustomerController extends SalesRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      * @param $id
      *
@@ -234,22 +236,23 @@ class ClientEnterpriseCustomerController extends SalesRestController
      *
      * @Route("/enterprise_customer/{id}/leases")
      * @Method({"GET"})
+     *
      * @return View
      */
     public function getEnterPriseCustomerleasesAction(
         Request $request,
         ParamFetcherInterface $paramFetcher,
         $id
-    ){
+    ) {
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
 
         $leases = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\Lease')
-            ->findBy(array('lesseeEnterprise'=>$id),array('creationDate'=>'DESC'), $limit, $offset);
+            ->findBy(array('lesseeEnterprise' => $id), array('creationDate' => 'DESC'), $limit, $offset);
 
         $ids = array();
-        foreach($leases as $lease){
+        foreach ($leases as $lease) {
             $ids[] = $lease->getId();
         }
 
@@ -259,7 +262,7 @@ class ClientEnterpriseCustomerController extends SalesRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      * @param $id
      *
@@ -285,13 +288,14 @@ class ClientEnterpriseCustomerController extends SalesRestController
      *
      * @Route("/enterprise_customer/{id}/bills")
      * @Method({"GET"})
+     *
      * @return View
      */
     public function getEnterPriseCustomerleaseBillsAction(
         Request $request,
         ParamFetcherInterface $paramFetcher,
         $id
-    ){
+    ) {
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
 
@@ -366,6 +370,7 @@ class ClientEnterpriseCustomerController extends SalesRestController
      * @param $limit
      * @param $offset
      * @param $receivableTypes
+     *
      * @return array
      */
     private function handleBillData(

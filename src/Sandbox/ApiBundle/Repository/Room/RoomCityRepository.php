@@ -116,7 +116,7 @@ class RoomCityRepository extends EntityRepository
 
     public function getAllCities(
 
-    ){
+    ) {
         $query = $this->createQueryBuilder('c')
             ->select('
                 c.id,

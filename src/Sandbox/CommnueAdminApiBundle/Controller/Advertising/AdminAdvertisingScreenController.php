@@ -7,7 +7,6 @@ use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Controller\Advertising\AdvertisingController;
 use Sandbox\ApiBundle\Entity\Advertising\CommnueAdvertisingScreen;
 use Sandbox\ApiBundle\Entity\Advertising\CommnueScreenAttachment;
-use Sandbox\ApiBundle\Entity\Material\CommnueMaterial;
 use Sandbox\ApiBundle\Form\Advertising\CommnueAdvertisingScreenPatchType;
 use Sandbox\ApiBundle\Form\Advertising\CommnueAdvertisingScreenType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -23,9 +22,9 @@ use Rs\Json\Patch;
 class AdminAdvertisingScreenController extends AdvertisingController
 {
     /**
-     * Get Commnue Advertising Screen List
+     * Get Commnue Advertising Screen List.
      *
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -56,8 +55,7 @@ class AdminAdvertisingScreenController extends AdvertisingController
     public function getAdvertisingScreensAction(
         Request $request,
         ParamFetcherInterface $paramFetcher
-    )
-    {
+    ) {
         // check user permission
         $this->checkAdminScreenPermission(AdminPermission::OP_LEVEL_VIEW);
 
@@ -68,7 +66,7 @@ class AdminAdvertisingScreenController extends AdvertisingController
             ->getRepository('SandboxApiBundle:Advertising\CommnueAdvertisingScreen')
             ->findAll();
 
-        foreach ($screens as $screen){
+        foreach ($screens as $screen) {
             $attachments = $this->getDoctrine()->getRepository('SandboxApiBundle:Advertising\CommnueScreenAttachment')->findByScreen($screen);
             $screen->setAttachments($attachments);
         }
@@ -84,7 +82,7 @@ class AdminAdvertisingScreenController extends AdvertisingController
     }
 
     /**
-     * Get Commnue Advertising Screen By Id
+     * Get Commnue Advertising Screen By Id.
      *
      * @param $id
      *
@@ -105,7 +103,7 @@ class AdminAdvertisingScreenController extends AdvertisingController
             ->getRepository('SandboxApiBundle:Advertising\CommnueAdvertisingScreen')
             ->find($id);
 
-        $this->throwNotFoundIfNull($screen,self::NOT_FOUND_MESSAGE);
+        $this->throwNotFoundIfNull($screen, self::NOT_FOUND_MESSAGE);
 
         $attachments = $this->getDoctrine()->getRepository('SandboxApiBundle:Advertising\CommnueScreenAttachment')->findByScreen($screen);
         $screen->setAttachments($attachments);
@@ -119,9 +117,9 @@ class AdminAdvertisingScreenController extends AdvertisingController
     }
 
     /**
-     * Create Commnue Advertising Screen
+     * Create Commnue Advertising Screen.
      *
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/commercial/screens")
@@ -134,16 +132,15 @@ class AdminAdvertisingScreenController extends AdvertisingController
     public function postScreenAction(
         Request $request,
         ParamFetcherInterface $paramFetcher
-    )
-    {
+    ) {
         // check user permission
         $this->checkAdminScreenPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $screen = new CommnueAdvertisingScreen();
-        $form = $this->createForm( new CommnueAdvertisingScreenType(),$screen);
+        $form = $this->createForm(new CommnueAdvertisingScreenType(), $screen);
         $form->handleRequest($request);
 
-        if(!$form->isValid()){
+        if (!$form->isValid()) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
@@ -184,7 +181,7 @@ class AdminAdvertisingScreenController extends AdvertisingController
             ));
         $form->handleRequest($request);
 
-        if(!$form->isValid()){
+        if (!$form->isValid()) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 

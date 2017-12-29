@@ -766,7 +766,7 @@ class OrderRepository extends EntityRepository
     }
 
     /**
-     * Set preorder orders status to cancelled
+     * Set preorder orders status to cancelled.
      */
     public function setPreOrderStatusCancelled()
     {
@@ -4796,6 +4796,7 @@ class OrderRepository extends EntityRepository
      * @param $buildingIds
      * @param $limit
      * @param $offset
+     *
      * @return array
      */
     public function findCustomerProductsOrder(
@@ -4805,14 +4806,14 @@ class OrderRepository extends EntityRepository
         $offset
     ) {
         $query = $this->createQueryBuilder('o')
-            ->leftJoin('o.product','p')
-            ->leftJoin('p.room','r')
+            ->leftJoin('o.product', 'p')
+            ->leftJoin('p.room', 'r')
             ->where('o.customerId = :customerId')
             ->andWhere('r.building in (:buildingId)')
-            ->setParameter('customerId',$customerId)
-            ->setParameter('buildingId',$buildingIds);
+            ->setParameter('customerId', $customerId)
+            ->setParameter('buildingId', $buildingIds);
 
-        $query->orderBy('o.creationDate','DESC');
+        $query->orderBy('o.creationDate', 'DESC');
 
         $query->setMaxResults($limit)
             ->setFirstResult($offset);

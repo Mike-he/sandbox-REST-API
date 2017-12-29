@@ -37,7 +37,6 @@ class ServiceTypes
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=255)
-     *
      */
     private $name;
 
@@ -45,7 +44,6 @@ class ServiceTypes
      * @var string
      *
      * @ORM\Column(name="`key`", type="string", length=255)
-     *
      */
     private $key;
 
@@ -90,5 +88,4 @@ class ServiceTypes
     {
         $this->key = $key;
     }
-
 }

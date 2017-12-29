@@ -446,7 +446,6 @@ trait FinanceSalesExportTraits
         /** @var EntityManager $em */
         $em = $this->getContainer()->get('doctrine')->getManager();
 
-
         $receivableTypes = [
             'sales_wx' => '微信',
             'sales_alipay' => '支付宝支付',

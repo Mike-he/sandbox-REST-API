@@ -6,20 +6,18 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use Sandbox\ApiBundle\Controller\Location\LocationController;
 use Sandbox\ApiBundle\Entity\Parameter\Parameter;
-use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use FOS\RestBundle\Controller\Annotations;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
-use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Constants\LocationConstants;
 
 class ClientCommunityController extends LocationController
 {
     /**
-     * Get Commnue Community
+     * Get Commnue Community.
      *
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -105,9 +103,9 @@ class ClientCommunityController extends LocationController
     }
 
     /**
-     * Get Commnue Hot Community
+     * Get Commnue Hot Community.
      *
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -159,18 +157,18 @@ class ClientCommunityController extends LocationController
         $parameter = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Parameter\Parameter')
             ->findOneBy(array(
-                'key'=>Parameter::KEY_COMMNUE_BUILDING_HOT
+                'key' => Parameter::KEY_COMMNUE_BUILDING_HOT,
             ));
         $maxHot = $parameter->getValue();
 
-        if($hotCounts < $maxHot){
+        if ($hotCounts < $maxHot) {
             $limit = $maxHot - $hotCounts;
             $extraHots = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Room\RoomBuilding')
                 ->getExtraHotCommnueClientBuilding($hots, $limit);
 
-            foreach($extraHots as $id){
-                array_push($hots,$id);
+            foreach ($extraHots as $id) {
+                array_push($hots, $id);
             }
         }
 
@@ -215,16 +213,17 @@ class ClientCommunityController extends LocationController
 
     /**
      * @param $communities
+     *
      * @return mixed
      */
     private function handleCommunityInfo(
         $communities
     ) {
-        foreach ($communities as &$community){
+        foreach ($communities as &$community) {
             $id = $community['id'];
             $buildingAttachment = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Room\RoomBuildingAttachment')
-                ->findOneBy(array('buildingId'=>$id));
+                ->findOneBy(array('buildingId' => $id));
             $community['attachment'] = $buildingAttachment ? $buildingAttachment->getContent() : '';
 
             $number = $this->getDoctrine()

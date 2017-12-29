@@ -5,7 +5,6 @@ namespace Sandbox\CommnueAdminApiBundle\Controller\Community;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use Sandbox\ApiBundle\Controller\Location\LocationController;
-use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Sandbox\ApiBundle\Entity\Room\CommnueBuildingHot;
@@ -23,11 +22,11 @@ class AdminCommunityController extends LocationController
     const ERROR_NOT_ALLOWED_ADD_MESSAGE = 'More than the allowed number of hits';
     const WRONG_CANCEL_CERTIFY_CODE = 400002;
     const WRONG_CANCEL_CERTIFY_MESSAGE = 'The community has not been certified';
-    const WRONG_HANDLE_CODE =  400003;
+    const WRONG_HANDLE_CODE = 400003;
     const WRONG_HANDLE_MESSAGE = 'The Commnuity has been freezon';
 
     /**
-     * GET Communties List
+     * GET Communties List.
      *
      * @param ParamFetcherInterface $paramFetcher
      *
@@ -90,15 +89,14 @@ class AdminCommunityController extends LocationController
                 $search
             );
 
-        foreach ($communities as &$community){
-
+        foreach ($communities as &$community) {
             $hot = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Room\CommnueBuildingHot')
                 ->findOneBy(array(
-                    'buildingId'=> $community['id']
+                    'buildingId' => $community['id'],
                 ));
 
-            if(!is_null($hot)){
+            if (!is_null($hot)) {
                 $community['is_hot'] = true;
             }
         }
@@ -110,11 +108,11 @@ class AdminCommunityController extends LocationController
             $pageLimit
         );
 
-        return new View( $pagination);
+        return new View($pagination);
     }
 
     /**
-     * Get Community By Id
+     * Get Community By Id.
      *
      * @param $id
      *
@@ -137,8 +135,8 @@ class AdminCommunityController extends LocationController
         $this->throwNotFoundIfNull($community, self::NOT_FOUND_MESSAGE);
 
         $buildingCompany = $this->getRepo('Room\RoomBuildingCompany')->findOneByBuilding($community);
-        $phone = "";
-        if($buildingCompany){
+        $phone = '';
+        if ($buildingCompany) {
             $phone = $buildingCompany->getPhone();
         }
 
@@ -158,7 +156,7 @@ class AdminCommunityController extends LocationController
     }
 
     /**
-     * Get Different Commnue Status Community Counts
+     * Get Different Commnue Status Community Counts.
      *
      * @param Request $request
      *
@@ -174,18 +172,19 @@ class AdminCommunityController extends LocationController
         $this->checkAdminCommunityPermission(AdminPermission::OP_LEVEL_VIEW);
 
         $result = [];
-        $statusArray = [RoomBuilding::CERTIFIED,RoomBuilding::NORMAL,RoomBuilding::FREEZON];
-        foreach ($statusArray as $statu){
+        $statusArray = [RoomBuilding::CERTIFIED, RoomBuilding::NORMAL, RoomBuilding::FREEZON];
+        foreach ($statusArray as $statu) {
             $result[$statu] = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Room\RoomBuilding')
                 ->getCommueDiffStatusCounts($statu);
         }
         $result['total'] = $result[RoomBuilding::CERTIFIED] + $result[RoomBuilding::NORMAL];
+
         return new View($result);
     }
 
     /**
-     * Certify Community
+     * Certify Community.
      *
      * @param Request $request
      * @param $id
@@ -211,8 +210,8 @@ class AdminCommunityController extends LocationController
         $this->throwNotFoundIfNull($community, self::NOT_FOUND_MESSAGE);
 
         $commnueStatus = $community->getCommnueStatus();
-        if($commnueStatus == RoomBuilding::FREEZON){
-           return $this->customErrorView(
+        if ($commnueStatus == RoomBuilding::FREEZON) {
+            return $this->customErrorView(
                     400,
                     self::WRONG_HANDLE_CODE,
                     self::WRONG_HANDLE_MESSAGE
@@ -228,7 +227,7 @@ class AdminCommunityController extends LocationController
     }
 
     /**
-     * Freezon Community
+     * Freezon Community.
      *
      * @param Request $request
      * @param $id
@@ -259,9 +258,9 @@ class AdminCommunityController extends LocationController
         $hot = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\CommnueBuildingHot')
             ->findOneBy(array(
-                'buildingId'=>$id
+                'buildingId' => $id,
             ));
-        if(!is_null($hot)){
+        if (!is_null($hot)) {
             $em->remove($hot);
         }
 
@@ -271,7 +270,7 @@ class AdminCommunityController extends LocationController
     }
 
     /**
-     * Cancel Certify Or Freezon Community
+     * Cancel Certify Or Freezon Community.
      *
      * @param $id
      *
@@ -301,7 +300,7 @@ class AdminCommunityController extends LocationController
     }
 
     /**
-     * Set Hot Community
+     * Set Hot Community.
      *
      * @param Request $request
      * @param $id
@@ -314,8 +313,7 @@ class AdminCommunityController extends LocationController
     public function postHotCommunityAction(
         Request $request,
         $id
-    )
-    {
+    ) {
         // check user permission
         $this->checkAdminCommunityPermission(AdminPermission::OP_LEVEL_EDIT);
 
@@ -323,7 +321,7 @@ class AdminCommunityController extends LocationController
 
         $community = $em->getRepository('SandboxApiBundle:Room\RoomBuilding')->find($id);
         $commnueStatus = $community->getCommnueStatus();
-        if($commnueStatus == RoomBuilding::FREEZON){
+        if ($commnueStatus == RoomBuilding::FREEZON) {
             return $this->customErrorView(
                 400,
                 self::WRONG_HANDLE_CODE,
@@ -336,7 +334,7 @@ class AdminCommunityController extends LocationController
         $parameter = $em->getRepository('SandboxApiBundle:Parameter\Parameter')
             ->findOneBy(array('key' => Parameter::KEY_COMMNUE_BUILDING_HOT));
 
-        $allowNumber = $parameter ? (int)$parameter->getValue() : 3;
+        $allowNumber = $parameter ? (int) $parameter->getValue() : 3;
 
         if ($count >= $allowNumber) {
             return $this->customErrorView(
@@ -356,7 +354,7 @@ class AdminCommunityController extends LocationController
     }
 
     /**
-     * Get Hot Communities Counts
+     * Get Hot Communities Counts.
      *
      * @Route("/community/hot/counts")
      * @Method({"GET"})
@@ -387,7 +385,7 @@ class AdminCommunityController extends LocationController
     }
 
     /**
-     * Cancel Hot Community
+     * Cancel Hot Community.
      *
      * @param Request $request
      * @param $id
@@ -408,7 +406,7 @@ class AdminCommunityController extends LocationController
 
         $hot = $em->getRepository('SandboxApiBundle:Room\CommnueBuildingHot')
             ->findOneBy(array(
-                'buildingId' =>$id
+                'buildingId' => $id,
             ));
 
         $this->throwNotFoundIfNull($hot, self::NOT_FOUND_MESSAGE);
@@ -435,5 +433,4 @@ class AdminCommunityController extends LocationController
             $opLevel
         );
     }
-
 }

@@ -1081,7 +1081,7 @@ class AdminBuildingController extends LocationController
             ->getRepository('SandboxApiBundle:ChatGroup\ChatGroup')
             ->findBy([
                 'buildingId' => $buildingId,
-                'tag' => ChatGroup::CUSTOMER_SERVICE
+                'tag' => ChatGroup::CUSTOMER_SERVICE,
             ]);
 
         if (array_key_exists('add', $services)) {

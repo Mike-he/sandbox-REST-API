@@ -15,7 +15,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 class AdminUserController extends SandboxRestController
 {
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -125,11 +125,11 @@ class AdminUserController extends SandboxRestController
 
             $userIds = $commnueUserIds;
 
-            if(!$banned && !$authenticated){
+            if (!$banned && !$authenticated) {
                 $allNotCommnueUserIds = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:User\UserView')
                     ->getAllNotCommnueUserIds();
-                $userIds = array_merge($commnueUserIds,$allNotCommnueUserIds);
+                $userIds = array_merge($commnueUserIds, $allNotCommnueUserIds);
             }
         }
 
@@ -235,7 +235,7 @@ class AdminUserController extends SandboxRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/users")
@@ -250,8 +250,7 @@ class AdminUserController extends SandboxRestController
         $content = json_decode($request->getContent(), true);
 
         if (!isset($content['user_id']) || is_null($content['user_id'])
-            || !isset($content['is_banned']) || is_null($content['is_banned']))
-        {
+            || !isset($content['is_banned']) || is_null($content['is_banned'])) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 

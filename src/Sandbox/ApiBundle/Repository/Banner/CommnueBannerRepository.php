@@ -4,7 +4,6 @@ namespace Sandbox\ApiBundle\Repository\Banner;
 
 use Doctrine\ORM\EntityRepository;
 use Sandbox\AdminApiBundle\Data\Banner\BannerPosition;
-use Sandbox\ApiBundle\Entity\Banner\CommnueBanner;
 
 /**
  * CommnueBannerRepository.
@@ -68,6 +67,7 @@ class CommnueBannerRepository extends EntityRepository
 
     /**
      * @param $limit
+     *
      * @return array
      */
     public function getClientBanner(
@@ -75,7 +75,7 @@ class CommnueBannerRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('cb')
             ->setMaxResults($limit)
-            ->orderBy('cb.sortTime','DESC');
+            ->orderBy('cb.sortTime', 'DESC');
 
         return $query->getQuery()->getResult();
     }

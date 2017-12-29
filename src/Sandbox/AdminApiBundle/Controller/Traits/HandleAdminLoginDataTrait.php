@@ -27,7 +27,7 @@ trait HandleAdminLoginDataTrait
                 case 'sales':
                     $platform['sales'][] = $position;
                     break;
-                case 'commnue' :
+                case 'commnue':
                     $position['commnue_name'] = '合创社管理平台';
                     $platform['commnue'][] = $position;
                     break;

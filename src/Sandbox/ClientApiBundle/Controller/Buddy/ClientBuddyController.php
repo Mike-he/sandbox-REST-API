@@ -152,7 +152,6 @@ class ClientBuddyController extends BuddyController
         if (is_null($buddies) || empty($buddies)) {
             return new View(array());
         }
-        
 
         $myBuddies = array();
 

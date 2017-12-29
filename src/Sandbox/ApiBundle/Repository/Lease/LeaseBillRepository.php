@@ -1345,6 +1345,7 @@ class LeaseBillRepository extends EntityRepository
     /**
      * @param $customerId
      * @param $myBuildingIds
+     *
      * @return array
      */
     public function findCustomerLeaseBill(
@@ -1359,7 +1360,7 @@ class LeaseBillRepository extends EntityRepository
             ->setParameter('customerId', $customerId)
             ->setParameter('buildingIds', $myBuildingIds);
 
-        $query->orderBy('lb.sendDate','DESC');
+        $query->orderBy('lb.sendDate', 'DESC');
 
         $result = $query->getQuery()->getResult();
         $result = array_map('current', $result);

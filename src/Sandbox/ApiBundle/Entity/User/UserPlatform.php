@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
- * UserPlatform
+ * UserPlatform.
  *
  * @ORM\Table(name="user_platform")
  * @ORM\Entity
@@ -14,7 +14,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 class UserPlatform
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -23,7 +23,7 @@ class UserPlatform
     private $id;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="user_id", type="integer")
      */
@@ -52,11 +52,10 @@ class UserPlatform
      */
     private $modificationDate;
 
-
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -64,9 +63,10 @@ class UserPlatform
     }
 
     /**
-     * Set userId
+     * Set userId.
      *
-     * @param integer $userId
+     * @param int $userId
+     *
      * @return UserPlatform
      */
     public function setUserId($userId)
@@ -77,9 +77,9 @@ class UserPlatform
     }
 
     /**
-     * Get userId
+     * Get userId.
      *
-     * @return integer 
+     * @return int
      */
     public function getUserId()
     {
@@ -87,9 +87,10 @@ class UserPlatform
     }
 
     /**
-     * Set platform
+     * Set platform.
      *
      * @param string $platform
+     *
      * @return UserPlatform
      */
     public function setPlatform($platform)
@@ -100,9 +101,9 @@ class UserPlatform
     }
 
     /**
-     * Get platform
+     * Get platform.
      *
-     * @return string 
+     * @return string
      */
     public function getPlatform()
     {
@@ -110,9 +111,10 @@ class UserPlatform
     }
 
     /**
-     * Set creationDate
+     * Set creationDate.
      *
      * @param \DateTime $creationDate
+     *
      * @return UserPlatform
      */
     public function setCreationDate($creationDate)
@@ -123,9 +125,9 @@ class UserPlatform
     }
 
     /**
-     * Get creationDate
+     * Get creationDate.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getCreationDate()
     {
@@ -133,9 +135,10 @@ class UserPlatform
     }
 
     /**
-     * Set modificationDate
+     * Set modificationDate.
      *
      * @param \DateTime $modificationDate
+     *
      * @return UserPlatform
      */
     public function setModificationDate($modificationDate)
@@ -146,9 +149,9 @@ class UserPlatform
     }
 
     /**
-     * Get modificationDate
+     * Get modificationDate.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getModificationDate()
     {

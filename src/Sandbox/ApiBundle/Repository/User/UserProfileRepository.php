@@ -47,7 +47,7 @@ class UserProfileRepository extends EntityRepository
 
     public function findUsersByBuilding(
         $building
-    ){
+    ) {
         $query = $this->createQueryBuilder('up')
             ->select('up.userId')
             ->where('up.building = :building')

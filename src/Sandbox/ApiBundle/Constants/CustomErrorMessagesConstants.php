@@ -13,7 +13,6 @@ class CustomErrorMessagesConstants
     // LEASE
     const ERROR_LEASE_KEEP_AT_LEAST_ONE_BILL_MESSAGE = 'Sorry, you can not remove all bills, please keeping at least one bill.';
 
-
     // SALES COMPANY
     const ERROR_SALES_COMPANY_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE = 'The format of payload for sales company does not correct';
     const ERROR_SERVICE_INFO_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE = 'The format of payload for service info does not correct';
@@ -34,7 +33,7 @@ class CustomErrorMessagesConstants
 
     // CUSTOMER SERVICE
     const ERROR_CUSTOMER_SERVICE_PAYLOAD_NOT_CORRECT_CODE = 'The format of payload for customer service does not correct';
-    const ERROR_JMESSAGE_ERROR_MESSAGE= 'Jmessage Error';
+    const ERROR_JMESSAGE_ERROR_MESSAGE = 'Jmessage Error';
 
     // Membership Card && Group
     const ERROR_CARD_GROUP_CAN_NOT_BE_EDITED_CODE = 400011;
@@ -47,7 +46,6 @@ class CustomErrorMessagesConstants
     //Offline Transfer
     const ERROR_TRANSFER_STATUS_CODE = 400015;
     const ERROR_TRANSFER_STATUS_MESSAGE = 'Wrong Transfer Status';
-
 
     // 404 NOT FOUND MESSAGE
     // LEASE

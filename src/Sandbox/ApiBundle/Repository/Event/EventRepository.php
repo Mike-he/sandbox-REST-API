@@ -11,9 +11,9 @@ class EventRepository extends EntityRepository
     /**
      * @param string $status
      * @param bool   $visible
-     * @param int   $limit
-     * @param int   $offset
-     * @param       $platform
+     * @param int    $limit
+     * @param int    $offset
+     * @param        $platform
      *
      * @return array
      */
@@ -133,13 +133,13 @@ class EventRepository extends EntityRepository
                 ->setParameter('visible', $visible);
         }
 
-
         return $query->getQuery()->getSingleScalarResult();
     }
 
     /**
      * @param int $limit
      * @param int $offset
+     *
      * @return array
      */
     public function getAllClientEvents(

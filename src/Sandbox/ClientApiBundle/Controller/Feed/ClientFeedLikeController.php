@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class ClientFeedLikeController extends FeedLikeController
 {
-//    use FeedNotification;
+    //    use FeedNotification;
 
     /**
      * Get all likes of a given feed.

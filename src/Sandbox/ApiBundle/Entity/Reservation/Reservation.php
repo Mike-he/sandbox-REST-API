@@ -112,7 +112,6 @@ class Reservation
      * @var \DateTime
      *
      * @ORM\Column(name="grab_date", type="datetime", nullable=true)
-     *
      */
     private $grabDate;
 
@@ -406,7 +405,6 @@ class Reservation
         return $this->modificationDate;
     }
 
-
     /**
      * Set grabDate.
      *
@@ -430,5 +428,4 @@ class Reservation
     {
         return $this->grabDate;
     }
-
 }

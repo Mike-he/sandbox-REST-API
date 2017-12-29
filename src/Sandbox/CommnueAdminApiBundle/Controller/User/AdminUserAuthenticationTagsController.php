@@ -16,7 +16,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 class AdminUserAuthenticationTagsController extends SandboxRestController
 {
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -69,7 +69,7 @@ class AdminUserAuthenticationTagsController extends SandboxRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/users_authentication_tags")
@@ -85,8 +85,7 @@ class AdminUserAuthenticationTagsController extends SandboxRestController
 
         if (!isset($content['name']) || is_null($content['name'])
             || !isset($content['icon_url']) || is_null($content['icon_url'])
-            || !isset($content['description']) || is_null($content['description']))
-        {
+            || !isset($content['description']) || is_null($content['description'])) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
@@ -103,7 +102,7 @@ class AdminUserAuthenticationTagsController extends SandboxRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      * @param $id
      *
@@ -126,8 +125,7 @@ class AdminUserAuthenticationTagsController extends SandboxRestController
 
         if (!isset($content['name']) || is_null($content['name'])
             || !isset($content['icon_url']) || is_null($content['icon_url'])
-            || !isset($content['description']) || is_null($content['description']))
-        {
+            || !isset($content['description']) || is_null($content['description'])) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
