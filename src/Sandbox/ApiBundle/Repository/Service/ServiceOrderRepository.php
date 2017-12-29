@@ -60,4 +60,34 @@ class ServiceOrderRepository extends EntityRepository
 
         return $query->getQuery()->getSingleScalarResult();
     }
+
+    public function getServiceOrders(
+        $companyId,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('so')
+            ->where('so.companyId = :companyId')
+            ->setParameter('companyId', $companyId);
+
+        $query->orderBy('so.id', 'DESC');
+
+        if (!is_null($limit) && !is_null($offset)) {
+            $query->setMaxResults($limit)
+                ->setFirstResult($offset);
+        }
+
+        return $query->getQuery()->getResult();
+    }
+
+    public function countServiceOrders(
+        $companyId
+    ) {
+        $query = $this->createQueryBuilder('so')
+            ->select('count(so.id)')
+            ->where('so.companyId = :companyId')
+            ->setParameter('companyId', $companyId);
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
 }
