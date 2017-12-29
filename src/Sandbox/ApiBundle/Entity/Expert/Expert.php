@@ -124,9 +124,16 @@ class Expert
     /**
      * @var string
      *
-     * @ORM\Column(name="introduction", type="text")
+     * @ORM\Column(name="introduction", type="string", length=256)
      */
     private $introduction;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="description", type="text")
+     */
+    private $description;
 
     /**
      * @var string
@@ -414,6 +421,22 @@ class Expert
     public function setIntroduction($introduction)
     {
         $this->introduction = $introduction;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDescription()
+    {
+        return $this->description;
+    }
+
+    /**
+     * @param string $description
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
     }
 
     /**
