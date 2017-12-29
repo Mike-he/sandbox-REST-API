@@ -28,10 +28,10 @@ class AdminServiceController extends SalesRestController
     const ERROR_NOT_ALLOWED_DELETE_MESSAGE = 'Not allowed to delete - 不允许被删除';
     const ERROR_INVALID_LIMIT_NUMBER_CODE = 400003;
     const ERROR_INVALID_LIMIT_NUMBER_MESSAGE = 'Invalid limit number';
-    const ERROR_INVALID_EVENT_TIME_CODE = 400006;
-    const ERROR_INVALID_EVENT_TIME_MESSAGE = 'Event start time should before event end time';
-    const ERROR_INVALID_EVENT_PRICE_CODE = 400007;
-    const ERROR_INVALID_EVENT_PRICE_MESSAGE = 'Event can not be null while need charge';
+    const ERROR_INVALID_SERVICE_TIME_CODE = 400006;
+    const ERROR_INVALID_SERVICE_TIME_MESSAGE = 'Service start time should before service end time';
+    const ERROR_INVALID_SERVICE_PRICE_CODE = 400007;
+    const ERROR_INVALID_SERVICE_PRICE_MESSAGE = 'Service can not be null while need charge';
 
     const ERROR_ROOM_INVALID = 'Invalid room';
 
@@ -208,7 +208,7 @@ class AdminServiceController extends SalesRestController
         $id
     ) {
         // check user permission
-        //$this->checkSalesAdminServicePermission(AdminPermission::OP_LEVEL_EDIT);
+        $this->checkSalesAdminServicePermission(AdminPermission::OP_LEVEL_EDIT);
 
         $service = $this->getRepo('Service\Service')->findOneBy(array(
             'id'=>$id,
@@ -244,15 +244,15 @@ class AdminServiceController extends SalesRestController
             if (is_null($service->getPrice())) {
                 return $this->customErrorView(
                     400,
-                    self::ERROR_INVALID_EVENT_PRICE_CODE,
-                    self::ERROR_INVALID_EVENT_PRICE_MESSAGE
+                    self::ERROR_INVALID_SERVICE_PRICE_CODE,
+                    self::ERROR_INVALID_SERVICE_PRICE_MESSAGE
                 );
             }
         } else {
             $service->setPrice(null);
         }
 
-        // handle event form
+        // handle service form
         return $this->handleServicePut(
             $service,
             $submit
@@ -276,15 +276,15 @@ class AdminServiceController extends SalesRestController
         $serviceForms = $service->getForms();
         $limitNumber = (int) $service->getLimitNumber();
 
-        // check event start time and end time
+        // check service start time and end time
         if (!is_null($times) && !empty($times)) {
 
             foreach ($times as $time) {
                 if ($time['start_time'] >= $time['end_time']) {
                     return $this->customErrorView(
                         400,
-                        self::ERROR_INVALID_EVENT_TIME_CODE,
-                        self::ERROR_INVALID_EVENT_TIME_MESSAGE
+                        self::ERROR_INVALID_SERVICE_TIME_CODE,
+                        self::ERROR_INVALID_SERVICE_TIME_MESSAGE
                     );
                 }
             }
@@ -487,8 +487,8 @@ class AdminServiceController extends SalesRestController
                 if ($time['start_time'] >= $time['end_time']) {
                     return $this->customErrorView(
                         400,
-                        self::ERROR_INVALID_EVENT_TIME_CODE,
-                        self::ERROR_INVALID_EVENT_TIME_MESSAGE
+                        self::ERROR_INVALID_SERVICE_TIME_CODE,
+                        self::ERROR_INVALID_SERVICE_TIME_MESSAGE
                     );
                 }
             }
