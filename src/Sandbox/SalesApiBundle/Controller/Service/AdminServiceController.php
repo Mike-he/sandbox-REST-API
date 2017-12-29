@@ -65,8 +65,8 @@ class AdminServiceController extends SalesRestController
      *    array=false,
      *    default=null,
      *    nullable=true,
-     *    requirements="string",
-     *    description="services typeId"
+     *    strict=true,
+     *    description="services type"
      * )
      *
      * @Annotations\QueryParam(
