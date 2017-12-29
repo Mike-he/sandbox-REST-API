@@ -162,22 +162,7 @@ class AdminServiceController extends SalesRestController
 
         $this->throwNotFoundIfNull($service, self::NOT_FOUND_MESSAGE);
 
-        $attachments = $this->getRepo('Service\ServiceAttachment')->findByService($service);
-        $times = $this->getRepo('Service\ServiceTime')->findByService($service);
-        $forms = $this->getRepo('Service\ServiceForm')->findByService($service);
-
-        $city = $this->getRepo('Room\RoomCity')->find($service->getCityId())->getName();
-        $country = $this->getRepo('Room\RoomCity')->find($service->getCountryId())->getName();
-        $province = $this->getRepo('Room\RoomCity')->find($service->getProvinceId())->getName();
-        $district = $this->getRepo('Room\RoomCity')->find($service->getDistrictId())->getName();
-        $addresss = $country.$province.$city.$district;
-        $service->setAttachments($attachments);
-        $service->setTimes($times);
-        $service->setForms($forms);
-        $service->setAddress($addresss);
-
-        $purchaseNumber = $this->getRepo('Service\Service')->getServicePurchaseNumber($id);
-        $service->setPurchaseNumber($purchaseNumber);
+        $service = $this->handleServiceInfo($service);
 
         return new View($service);
     }
@@ -716,11 +701,11 @@ class AdminServiceController extends SalesRestController
         $em = $this->getDoctrine()->getManager();
 
         // check if is valid to modify
-//        if (new \DateTime('now') >= $service->getServiceStartDate()) {
-//            $em->flush();
+        if (new \DateTime('now') >= $service->getServiceStartDate()) {
+            $em->flush();
 
-//            return;
-//        }
+            return;
+        }
 
         if (!is_null($serviceForms) || !empty($serviceForms)) {
             $serviceFormArray = $this->getRepo('Service\ServiceForm')->findByService($service);
@@ -733,6 +718,42 @@ class AdminServiceController extends SalesRestController
                 $serviceForms
             );
         }
+    }
+
+    /**
+     * @param Service $service
+     */
+    private function handleServiceInfo(
+        $service
+    ) {
+        $attachments = $this->getRepo('Service\ServiceAttachment')->findByService($service);
+        $times = $this->getRepo('Service\ServiceTime')->findByService($service);
+        $forms = $this->getRepo('Service\ServiceForm')->findByService($service);
+
+        $city = $this->getRepo('Room\RoomCity')->find($service->getCityId());
+        $country = $this->getRepo('Room\RoomCity')->find($service->getCountryId());
+        $province = $this->getRepo('Room\RoomCity')->find($service->getProvinceId());
+        $district = $this->getRepo('Room\RoomCity')->find($service->getDistrictId());
+        $cityName = $city->getName();
+        $countryName = $country->getName();
+        $provinceName = $province->getName();
+        $districtName = $district->getName();
+
+        $addresss = $countryName.$provinceName.$cityName.$districtName;
+        $service->setAttachments($attachments);
+        $service->setTimes($times);
+        $service->setForms($forms);
+        $service->setCountry($country);
+        $service->setProvince($province);
+        $service->setCity($city);
+        $service->setDistrict($district);
+        $service->setAddress($addresss);
+
+        $id = $service->getId();
+        $purchaseNumber = $this->getRepo('Service\Service')->getServicePurchaseNumber($id);
+        $service->setPurchaseNumber($purchaseNumber);
+
+        return $service;
     }
 
     /**

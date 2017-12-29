@@ -79,6 +79,11 @@ class Service
     private $countryId;
 
     /**
+     * @var object
+     */
+    private $country;
+
+    /**
      * @var int
      *
      * @ORM\Column(name="city_id", type="integer")
@@ -86,6 +91,11 @@ class Service
      * @Serializer\Groups({"main"})
      */
     private $cityId;
+
+    /**
+     * @var object
+     */
+    private $city;
 
     /**
      * @var int
@@ -97,6 +107,11 @@ class Service
     private $provinceId;
 
     /**
+     * @var object
+     */
+    private $province;
+
+    /**
      * @var int
      *
      * @ORM\Column(name="district_id", type="integer")
@@ -104,6 +119,11 @@ class Service
      * @Serializer\Groups({"main"})
      */
     private $districtId;
+
+    /**
+     * @var object
+     */
+    private  $district;
 
     /**
      * @var string
@@ -788,4 +808,70 @@ class Service
     {
         $this->purchaseNumber = $purchaseNumber;
     }
+
+    /**
+     * @return object
+     */
+    public function getCountry()
+    {
+        return $this->country;
+    }
+
+    /**
+     * @param object $country
+     */
+    public function setCountry($country)
+    {
+        $this->country = $country;
+    }
+
+    /**
+     * @return object
+     */
+    public function getCity()
+    {
+        return $this->city;
+    }
+
+    /**
+     * @param object $city
+     */
+    public function setCity($city)
+    {
+        $this->city = $city;
+    }
+
+    /**
+     * @return object
+     */
+    public function getProvince()
+    {
+        return $this->province;
+    }
+
+    /**
+     * @param object $province
+     */
+    public function setProvince($province)
+    {
+        $this->province = $province;
+    }
+
+    /**
+     * @return object
+     */
+    public function getDistrict()
+    {
+        return $this->district;
+    }
+
+    /**
+     * @param object $district
+     */
+    public function setDistrict($district)
+    {
+        $this->district = $district;
+    }
+
+
 }
