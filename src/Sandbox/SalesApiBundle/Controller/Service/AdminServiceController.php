@@ -690,12 +690,12 @@ class AdminServiceController extends SalesRestController
         $city = $this->getRepo('Room\RoomCity')->find($service->getCityId());
         $country = $this->getRepo('Room\RoomCity')->find($service->getCountryId());
         $province = $this->getRepo('Room\RoomCity')->find($service->getProvinceId());
-        $district = $this->getRepo('Room\RoomCity')->find($service->getDistrictId());
         $cityName = $city->getName();
         $countryName = $country->getName();
         $provinceName = $province->getName();
         $districtName = '';
-        if ($district) {
+        if($service->getDistrictId()){
+            $district = $this->getRepo('Room\RoomCity')->find($service->getDistrictId());
             $districtName = $district->getName();
         }
 
@@ -706,7 +706,6 @@ class AdminServiceController extends SalesRestController
         $service->setCountry($country);
         $service->setProvince($province);
         $service->setCity($city);
-        $service->setDistrict($district);
         $service->setAddress($addresss);
 
         $id = $service->getId();
