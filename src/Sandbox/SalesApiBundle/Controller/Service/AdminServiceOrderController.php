@@ -191,6 +191,39 @@ class AdminServiceOrderController extends SalesRestController
     }
 
     /**
+     * @param Request $request
+     * @param $id
+     *
+     * @Route("/service/orders/form/{id}")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getPurchaseDetailByIdAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->checkPermission(AdminPermission::OP_LEVEL_VIEW);
+
+        $order = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServiceOrder')
+            ->find($id);
+
+        $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
+        $result = array();
+
+        $user = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->find($order->getCustomerId());
+        $purchaseForm = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServicePurchaseForm')
+            ->findByOrders($order);
+
+        $result['user'] = $user;
+        $result['form'] = $purchaseForm;
+
+        return new View($result);
+    }
+
+    /**
      * @param $id
      *
      * @Route("/service/orders/{id}")

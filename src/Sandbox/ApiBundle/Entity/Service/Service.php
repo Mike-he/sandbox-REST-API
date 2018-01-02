@@ -60,6 +60,13 @@ class Service
     /**
      * @var string
      *
+     * @ORM\Column(name="phone", type="string", length=32)
+     */
+    private $phone;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="description", type="text", nullable=false)
      * @Serializer\Groups({
      *      "main",
@@ -391,6 +398,22 @@ class Service
     public function setSubTitle($subTitle)
     {
         $this->subTitle = $subTitle;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPhone()
+    {
+        return $this->phone;
+    }
+
+    /**
+     * @param string $phone
+     */
+    public function setPhone($phone)
+    {
+        $this->phone = $phone;
     }
 
     /**
