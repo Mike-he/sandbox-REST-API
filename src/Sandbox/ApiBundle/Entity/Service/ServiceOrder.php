@@ -179,6 +179,11 @@ class ServiceOrder
     private $invoiced = false;
 
     /**
+     * @var object
+     */
+    private $purchaseForm;
+
+    /**
      * @return float
      */
     public function getServiceFee()
@@ -540,4 +545,22 @@ class ServiceOrder
     {
         $this->invoiced = $invoiced;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getPurchaseForm()
+    {
+        return $this->purchaseForm;
+    }
+
+    /**
+     * @param mixed $purchaseForm
+     */
+    public function setPurchaseForm($purchaseForm)
+    {
+        $this->purchaseForm = $purchaseForm;
+    }
+
+
 }

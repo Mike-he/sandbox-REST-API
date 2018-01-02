@@ -9,6 +9,7 @@ use Sandbox\ApiBundle\Entity\Service\Service;
 use Sandbox\ApiBundle\Entity\Service\ServiceAttachment;
 use Sandbox\ApiBundle\Entity\Service\ServiceForm;
 use Sandbox\ApiBundle\Entity\Service\ServiceFormOption;
+use Sandbox\ApiBundle\Entity\Service\ServiceOrder;
 use Sandbox\ApiBundle\Entity\Service\ServiceTime;
 use Sandbox\ApiBundle\Form\Service\ServicePatchType;
 use Sandbox\ApiBundle\Form\Service\ServicePostType;
@@ -34,6 +35,10 @@ class AdminServiceController extends SalesRestController
     const ERROR_INVALID_SERVICE_TIME_MESSAGE = 'Service start time should before service end time';
     const ERROR_INVALID_SERVICE_PRICE_CODE = 400007;
     const ERROR_INVALID_SERVICE_PRICE_MESSAGE = 'Service can not be null while need charge';
+    const ERROR_INVALID_PATCH_CODE = 400008;
+    const ERROR_INVALID_PATCH_MESSAGE = 'Have uncompleted service order';
+    const ERROR_SERVICE_STSRTDATE_CODE = 400009;
+    const ERROR_SERVICE_STSRTDATE_MESSAGE = 'Service startDate should later than now';
 
     const ERROR_ROOM_INVALID = 'Invalid room';
 
@@ -342,14 +347,7 @@ class AdminServiceController extends SalesRestController
         $form->submit(json_decode($serviceJson, true));
 
         // change save status
-        if ($service->isVisible()) {
-            $service->setIsSaved(false);
-        }
-
-        $em = $this->getDoctrine()->getManager();
-        $em->flush();
-
-        return new View();
+        return $this->checkPatchValid($service);
     }
 
     /**
@@ -778,6 +776,42 @@ class AdminServiceController extends SalesRestController
         return $service;
     }
 
+    /**
+     * @param Service $service
+     * @return View
+     */
+    private function checkPatchValid(
+        $service
+    ) {
+        if($service->isVisible()){
+            $now = new \DateTime();
+            $startDate = $service->getServiceStartDate();
+            if($startDate < $now){
+                return $this->customErrorView(
+                    400,
+                    self::ERROR_SERVICE_STSRTDATE_CODE,
+                    self::ERROR_SERVICE_STSRTDATE_MESSAGE
+                );
+            }
+
+            $service->setIsSaved(false);
+        }
+        $orders = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServiceOrder')
+            ->findOneBy(array(
+                'serviceId'=>$service->getId(),
+                'status'=>ServiceOrder::STATUS_PAID
+            ));
+        if(!is_null($orders)){
+           return $this->customErrorView(
+                    400,
+                    self::ERROR_INVALID_PATCH_CODE,
+                    self::ERROR_INVALID_PATCH_MESSAGE
+                );
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+    }
     /**
      * Check user permission.
      *
