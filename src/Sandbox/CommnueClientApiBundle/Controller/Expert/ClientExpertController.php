@@ -6,6 +6,7 @@ use FOS\RestBundle\View\View;
 use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
 use Sandbox\ApiBundle\Entity\Expert\Expert;
 use Sandbox\ApiBundle\Form\Expert\ExpertPostType;
+use Sandbox\ApiBundle\Form\Expert\ExpertPutType;
 use Sandbox\ApiBundle\Traits\UserIdCardTraits;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -118,7 +119,6 @@ class ClientExpertController extends SalesRestController
 
         $expert->setUserId($user->getUserId());
         $em->persist($expert);
-
         $em->flush();
 
         $response = array(
@@ -126,5 +126,57 @@ class ClientExpertController extends SalesRestController
         );
 
         return new View($response, 201);
+    }
+
+    /**
+     * Update Expert Info.
+     *
+     * @param $request
+     *
+     * @Route("/experts")
+     * @Method({"PUT"})
+     *
+     * @return View
+     */
+    public function putExpertAction(
+        Request $request
+    ) {
+        $em = $this->getDoctrine()->getManager();
+        $user = $this->getUser();
+
+        $expert = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Expert\Expert')
+            ->findOneBy(array('userId' => $user->getUserId()));
+        $this->throwNotFoundIfNull($expert, self::NOT_FOUND_MESSAGE);
+
+        $form = $this->createForm(
+            new ExpertPutType(),
+            $expert,
+            array('method' => 'PUT')
+        );
+        $form->handleRequest($request);
+
+        if (!$form->isValid()) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $requestContent = json_decode($request->getContent(), true);
+
+        $expertFields = $expert->getExpertFields();
+        foreach ($expertFields as $expertField) {
+            $expert->removeExpertFields($expertField);
+        }
+        $fieldIds = $requestContent['field_ids'];
+        foreach ($fieldIds as $fieldId) {
+            $field = $this->getDoctrine()->getRepository('SandboxApiBundle:Expert\ExpertField')->find($fieldId);
+            if ($field) {
+                $expert->addExpertFields($field);
+            }
+        }
+
+        $em->persist($expert);
+        $em->flush();
+
+        return new View();
     }
 }
