@@ -743,6 +743,7 @@ class AdminServiceController extends SalesRestController
         if($service->getDistrictId()){
             $district = $this->getRepo('Room\RoomCity')->find($service->getDistrictId());
             $districtName = $district->getName();
+            $service->setDistrict($district);
         }
 
         $addresss = $countryName.$provinceName.$cityName.$districtName;
