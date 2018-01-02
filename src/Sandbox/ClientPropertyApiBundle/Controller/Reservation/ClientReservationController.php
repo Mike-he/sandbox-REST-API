@@ -96,7 +96,6 @@ class ClientReservationController extends SalesRestController
     ) {
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
-        $salesCompanyId = 72;
 
         $offset = $paramFetcher->get('offset');
         $limit = $paramFetcher->get('limit');
