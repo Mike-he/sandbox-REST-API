@@ -104,4 +104,24 @@ class ServiceOrderRepository extends EntityRepository
 
         return $query->getQuery()->getSingleScalarResult();
     }
+
+    /**
+     * @param $userId
+     * @param $serviceId
+     * @return array
+     */
+    public function getUserLastOrder(
+        $userId,
+        $serviceId
+    ) {
+        $query = $this->createQueryBuilder('so')
+            ->where('so.userId = :userId')
+            ->andWhere('so.serviceId = :serviceId')
+            ->andWhere('so.status = :status')
+            ->setParameter('userId', $userId)
+            ->setParameter('serviceId', $serviceId)
+            ->setParameter('status', ServiceOrder::STATUS_PAID);
+
+        return $query->getQuery()->getOneOrNullResult();
+    }
 }

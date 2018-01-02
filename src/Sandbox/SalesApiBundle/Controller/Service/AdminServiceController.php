@@ -10,6 +10,7 @@ use Sandbox\ApiBundle\Entity\Service\ServiceAttachment;
 use Sandbox\ApiBundle\Entity\Service\ServiceForm;
 use Sandbox\ApiBundle\Entity\Service\ServiceFormOption;
 use Sandbox\ApiBundle\Entity\Service\ServiceTime;
+use Sandbox\ApiBundle\Form\Service\ServicePatchType;
 use Sandbox\ApiBundle\Form\Service\ServicePostType;
 use Sandbox\ApiBundle\Form\Service\ServicePutType;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
@@ -19,6 +20,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Knp\Component\Pager\Paginator;
 use FOS\RestBundle\Controller\Annotations;
+use Rs\Json\Patch;
 
 class AdminServiceController extends SalesRestController
 {
@@ -288,6 +290,50 @@ class AdminServiceController extends SalesRestController
             $service,
             $submit
         );
+    }
+
+    /**
+     * @param Request $request
+     * @param $id
+     *
+     * @Route("/services/{id}")
+     * @Method({"PATCH"})
+     *
+     * @return View
+     */
+    public function patchServiceAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->checkSalesAdminServicePermission(AdminPermission::OP_LEVEL_EDIT);
+
+        $service = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Service\Service')
+            ->findOneBy(array(
+                'id' => $id,
+                'salesCompanyId' => $this->getSalesCompanyId(),
+            ));
+
+        $this->throwNotFoundIfNull($service, self::NOT_FOUND_MESSAGE);
+
+        // bind data
+        $serviceJson = $this->container->get('serializer')->serialize($service, 'json');
+        $patch = new Patch($serviceJson, $request->getContent());
+        $serviceJson = $patch->apply();
+
+        $form = $this->createForm(new ServicePatchType(), $service);
+        $form->submit(json_decode($serviceJson, true));
+
+        // change save status
+        if ($service->isVisible()) {
+            $event->setIsSaved(false);
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        return new View();
     }
 
     /**
