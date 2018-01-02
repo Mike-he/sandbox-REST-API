@@ -165,7 +165,6 @@ class ClientLeaseController extends SalesRestController
      *    array=false,
      *    default=null,
      *    nullable=true,
-     *    requirements="\d+",
      *    strict=true,
      *    description="Filter by lease source"
      * )
