@@ -36,17 +36,17 @@ class ServicePurchaseForm
      *   @ORM\JoinColumn(name="order_id", referencedColumnName="id", nullable=false, onDelete="CASCADE")
      * })
      */
-    private $registration;
+    private $order;
 
     /**
      * @var int
      *
-     * @ORM\Column(name="form_Id", type="integer", nullable=false)
+     * @ORM\Column(name="form_id", type="integer", nullable=false)
      */
     private $formId;
 
     /**
-     * @var \Sandbox\ApiBundle\Entity\Event\EventForm
+     * @var \Sandbox\ApiBundle\Entity\Service\ServiceForm
      *
      * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Service\ServiceForm")
      * @ORM\JoinColumns({
@@ -97,27 +97,19 @@ class ServicePurchaseForm
     }
 
     /**
-     * Set order.
-     *
-     * @param $order
-     *
-     * @return ServicePurchaseForm
+     * @return ServiceOrder
      */
-    public function setRegistration($order)
+    public function getOrder()
     {
-        $this->order = $order;
-
-        return $this;
+        return $this->order;
     }
 
     /**
-     * Get registration.
-     *
-     * @return ServiceOrder
+     * @param ServiceOrder $order
      */
-    public function getorder()
+    public function setOrder($order)
     {
-        return $this->order;
+        $this->order = $order;
     }
 
     /**
