@@ -6,6 +6,7 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Service\Service;
 use Sandbox\ApiBundle\Entity\Service\ServiceOrder;
+use Sandbox\ApiBundle\Traits\HandleServiceDataTrait;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -15,6 +16,7 @@ use FOS\RestBundle\View\View;
 
 class AdminServiceOrderController extends SalesRestController
 {
+    use HandleServiceDataTrait;
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
@@ -76,19 +78,10 @@ class AdminServiceOrderController extends SalesRestController
         foreach ($orders as $order) {
             /**
              * @var ServiceOrder
-             * @var Service      $service
              */
             $service = $order->getService();
 
-            $city = $this->getRepo('Room\RoomCity')->find($service->getCityId());
-            $country = $this->getRepo('Room\RoomCity')->find($service->getCountryId());
-            $province = $this->getRepo('Room\RoomCity')->find($service->getProvinceId());
-            $district = $this->getRepo('Room\RoomCity')->find($service->getDistrictId());
-
-            $service->setCountry($country);
-            $service->setProvince($province);
-            $service->setCity($city);
-            $service->setDistrict($district);
+            $this->handleServicesData($service);
         }
 
         $view = new View();
