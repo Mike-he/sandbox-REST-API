@@ -76,7 +76,7 @@ class ClientServiceOrderController extends PaymentController
 
         if ($salesCompanyId) {
             $customerId = $this->get('sandbox_api.sales_customer')->createCustomer(
-                $service,
+                $userId,
                 $salesCompanyId
             );
         }

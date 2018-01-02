@@ -11,13 +11,16 @@ class ServiceRepository extends EntityRepository
      * @param $type
      * @param $visible
      * @param $salesCompanyId
-     *
+     * @param $limit
+     * @param $offset
      * @return array
      */
     public function getSalesServices(
         $type,
         $visible,
-        $salesCompanyId
+        $salesCompanyId,
+        $limit,
+        $offset
     ) {
         $query = $this->createQueryBuilder('s')
             ->select(
@@ -43,9 +46,46 @@ class ServiceRepository extends EntityRepository
         }
         $query->groupBy('s.id');
 
-        $query->orderBy('s.creationDate', 'DESC');
+        $query->orderBy('s.creationDate', 'DESC')
+            ->setFirstResult($offset)
+            ->setMaxResults($limit);
 
         return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $type
+     * @param $visible
+     * @param $salesCompanyId
+     * @return mixed
+     */
+    public function getSalesServiceCount(
+        $type,
+        $visible,
+        $salesCompanyId
+    ){
+        $query = $this->createQueryBuilder('s')
+            ->select(
+                '
+                    COUNT(s.id)
+                '
+            )
+            ->where('s.salesCompanyId = :salesCompanyId')
+            ->setParameter('salesCompanyId', $salesCompanyId);
+
+        if (!is_null($type)) {
+            $query->andWhere('s.type = :type')
+                ->andWhere('s.isSaved = FALSE')
+                ->setParameter('type', $type);
+        }
+
+        // filter by visible
+        if (!is_null($visible)) {
+            $query->andWhere('s.visible = :visible')
+                ->setParameter('visible', $visible);
+        }
+
+        return $query->getQuery()->getSingleScalarResult();
     }
 
     /**

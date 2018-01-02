@@ -104,13 +104,26 @@ class AdminServiceController extends SalesRestController
         $type = $paramFetcher->get('type');
         $visible = $paramFetcher->get('visible');
 
+        $limit = $pageLimit;
+        $offset = ($pageIndex - 1) * $pageLimit;
+
         $services = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Service\Service')
             ->getSalesServices(
                 $type,
                 $visible,
-                $salesCompanyId
+                $salesCompanyId,
+                $limit,
+                $offset
             );
+
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Service\Service')
+            ->getSalesServiceCount(
+                $type,
+                $visible,
+                $salesCompanyId
+        );
 
         foreach ($services as $serviceArray) {
             $service = $serviceArray['service'];
@@ -132,14 +145,17 @@ class AdminServiceController extends SalesRestController
             $service->setAddress($addresss);
         }
 
-        $paginator = new Paginator();
-        $pagination = $paginator->paginate(
-            $services,
-            $pageIndex,
-            $pageLimit
+        $view = new View();
+        $view->setData(
+            array(
+                'current_page_number' => $pageIndex,
+                'num_items_per_page' => (int) $pageLimit,
+                'items' => $services,
+                'total_count' => (int) $count,
+            )
         );
 
-        return new View($pagination);
+        return $view;
     }
 
     /**
