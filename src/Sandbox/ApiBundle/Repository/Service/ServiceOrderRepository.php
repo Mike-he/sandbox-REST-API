@@ -124,4 +124,32 @@ class ServiceOrderRepository extends EntityRepository
 
         return $query->getQuery()->getOneOrNullResult();
     }
+
+    /**
+     * @param $userId
+     * @param $status
+     * @param $limit
+     * @param $offset
+     * @return array
+     */
+    public function findClientServiceOrders(
+        $userId,
+        $status,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('so')
+            ->where('so.userId = :userId')
+            ->setParameter('userId', $userId);
+
+        if (!is_null($status)) {
+            $query->andWhere('so.status = :status')
+                ->setParameter('status', $status);
+        }
+
+        $query->setFirstResult($offset)
+            ->setMaxResults($limit);
+
+        return $query->getQuery()->getResult();
+    }
 }
