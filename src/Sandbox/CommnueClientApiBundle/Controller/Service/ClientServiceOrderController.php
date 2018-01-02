@@ -12,8 +12,8 @@ use Sandbox\ApiBundle\Entity\Service\ServiceForm;
 use Sandbox\ApiBundle\Entity\Service\ServiceOrder;
 use Sandbox\ApiBundle\Entity\Service\ServicePurchaseForm;
 use Sandbox\ApiBundle\Entity\User\UserFavorite;
+use Sandbox\ApiBundle\Traits\HandleServiceDataTrait;
 use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
-use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,6 +24,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class ClientServiceOrderController extends PaymentController
 {
+    use HandleServiceDataTrait;
     const SERVICE_NOT_AVAILABLE_CODE = 400001;
     const SERVICE_NOT_AVAILABLE_MESSAGE = 'Service Is Not Available';
     const SERVICE_PURCHASE_NOT_AVAILABLE_CODE = 400002;
@@ -60,6 +61,7 @@ class ClientServiceOrderController extends PaymentController
         $id
     ) {
         $userId = $this->getUserId();
+
         $now = new \DateTime();
 
         $service = $this->getDoctrine()->getManager()
@@ -282,6 +284,116 @@ class ClientServiceOrderController extends PaymentController
     }
 
     /**
+     * @param Request $request
+     *
+     * @Annotations\QueryParam(
+     *    name="status",
+     *    default=null,
+     *    nullable=true,
+     *    description="
+     *       service order status
+     *    "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit for page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="offset",
+     *    array=false,
+     *    default="0",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Offset of page"
+     * )
+     *
+     * @Route("/service/orders")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getServiceOrdersAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ){
+        $userId = $this->getUserId();
+
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
+        $status = $paramFetcher->get('status');
+
+        $orders = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServiceOrder')
+            ->findClientServiceOrders(
+                $userId,
+                $status,
+                $limit,
+                $offset
+            );
+
+        if($orders){
+            foreach ($orders as $order){
+                $this->handleServiceInfo($order->getService());
+            }
+        }
+
+        return new View($orders);
+    }
+
+    /**
+     * @param $id
+     *
+     * @Annotations\QueryParam(
+     *    name="status",
+     *    default=null,
+     *    nullable=true,
+     *    description="
+     *       service order status
+     *    "
+     * )
+     *
+     * @Route("/service/orders/{id}")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getServiceOrdersByIdAction(
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        $userId = $this->getUserId();
+        $status = $paramFetcher->get('status');
+
+        if(!is_null($status)){
+            $order = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServiceOrder')
+                ->findOneBy(array(
+                    'id'=>$id,
+                    'userId'=>$userId,
+                    'status' => $status
+                ));
+        }else{
+            $order = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServiceOrder')
+                ->findOneBy(array(
+                    'id'=>$id,
+                    'userId'=>$userId,
+                ));
+        }
+
+        $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
+
+        $this->handleServiceInfo($order->getService());
+
+        return new View($order);
+    }
+
+    /**
      * @param $userId
      * @param Service $service
      * @param $now
@@ -451,5 +563,19 @@ class ClientServiceOrderController extends PaymentController
                 'channel' => self::PAYMENT_CHANNEL_ACCOUNT,
             )
         );
+    }
+
+    /**
+     * @param Service $service
+     * @return mixed
+     */
+    private function handleServiceInfo(
+        $service
+    ) {
+        $this->handleServicesData($service);
+        $times = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServiceTime')->findByService($service);
+        $service->setTimes($times);
+
+        return $service;
     }
 }

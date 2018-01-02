@@ -9,6 +9,7 @@ use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\MembershipCard\MembershipOrder;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Order\TopUpOrder;
+use Sandbox\ApiBundle\Entity\Service\ServiceOrder;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 use Sandbox\ApiBundle\Traits\SendNotification;
 use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
@@ -261,6 +262,22 @@ class ClientPaymentController extends PaymentController
                 }
 
                 $orderMap = MembershipOrder::TOP_UP_MAP;
+                break;
+            case 'F':
+                $order = $this->setServiceOrderStatus(
+                    $orderNumber,
+                    $channel
+                );
+
+                $this->postBalanceChange(
+                    $order->getUserId(),
+                    0,
+                    $orderNumber,
+                    $channel,
+                    $price
+                );
+
+                $orderMap = ServiceOrder::Service_MAP;
                 break;
             default:
                 $orderMap = null;

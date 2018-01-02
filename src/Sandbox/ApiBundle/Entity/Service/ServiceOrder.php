@@ -28,7 +28,7 @@ class ServiceOrder
     const ENTITY_PATH = 'Service\ServiceOrder';
 
     const PAYMENT_SUBJECT = 'SANDBOX3-服务购买支付';
-    const PAYMENT_BODY = 'Service ORDER PAYMENT';
+    const PAYMENT_BODY = 'SERVICE ORDER PAYMENT';
 
     /**
      * @var int
