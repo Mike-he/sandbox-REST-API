@@ -122,6 +122,6 @@ class ServiceOrderRepository extends EntityRepository
             ->setParameter('serviceId', $serviceId)
             ->setParameter('status', ServiceOrder::STATUS_PAID);
 
-        return $query->getQuery()->getResult();
+        return $query->getQuery()->getOneOrNullResult();
     }
 }

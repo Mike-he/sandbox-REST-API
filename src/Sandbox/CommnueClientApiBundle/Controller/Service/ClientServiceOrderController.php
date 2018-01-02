@@ -34,7 +34,7 @@ class ClientServiceOrderController extends PaymentController
      * @param Request $request
      * @param $id
      *
-     * @Route("/service/orders")
+     * @Route("/service/{id}/orders")
      * @Method({"POST"})
      *
      * @return View
@@ -53,14 +53,15 @@ class ClientServiceOrderController extends PaymentController
                 'visible' => true
             ));
         $this->throwNotFoundIfNull($service, self::NOT_FOUND_MESSAGE);
+        $salesCompanyId = $service->getSalesCompanyId();
 
         $serviceOrder = new ServiceOrder();
         $customerId = null;
 
-        if ($service->getSalesCompanyId()) {
+        if ($salesCompanyId) {
             $customerId = $this->get('sandbox_api.sales_customer')->createCustomer(
                 $service,
-                $service->getSalesCompanyId()
+                $salesCompanyId
             );
         }
 
@@ -87,9 +88,10 @@ class ClientServiceOrderController extends PaymentController
         $serviceOrder->setService($service);
         $serviceOrder->setOrderNumber($orderNumber);
         $serviceOrder->setPrice($service->getPrice());
-        $serviceOrder->setCustomerId();
+        $serviceOrder->setCompanyId($salesCompanyId);
+        $serviceOrder->setCustomerId($customerId);
 
-        if ($service->getSalesCompanyId()) {
+        if ($salesCompanyId) {
             $serviceOrder->setCustomerId($customerId);
         }
 
