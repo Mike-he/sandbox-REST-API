@@ -2,17 +2,23 @@
 
 namespace Sandbox\CommnueClientApiBundle\Controller\Expert;
 
-use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
+use Sandbox\ApiBundle\Entity\Expert\Expert;
+use Sandbox\ApiBundle\Form\Expert\ExpertPostType;
+use Sandbox\ApiBundle\Traits\UserIdCardTraits;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
-use FOS\RestBundle\Controller\Annotations;
-use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class ClientExpertController extends SalesRestController
 {
+    const ERROR_ID_CARD_AUTHENTICATION_FAILURE_CODE = 400001;
+    const ERROR_ID_CARD_AUTHENTICATION_FAILURE_MESSAGE = '认证失败';
+
+    use UserIdCardTraits;
+
     /**
      * Check A Expert.
      *
@@ -24,9 +30,23 @@ class ClientExpertController extends SalesRestController
      * @return View
      */
     public function checkExpertAction(
-
+        Request $request
     ) {
+        $user = $this->getUser();
 
+        $expert = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Expert\Expert')
+            ->findOneBy(array('userId' => $user->getUserId()));
+
+        $response = array();
+        if ($expert) {
+            $response['status'] = true;
+            $response['banned'] = $expert->isBanned();
+        } else {
+            $response['status'] = false;
+        }
+
+        return new View($response);
     }
 
     /**
@@ -42,10 +62,59 @@ class ClientExpertController extends SalesRestController
     public function postExpertAction(
         Request $request
     ) {
+        $em = $this->getDoctrine()->getManager();
+        $user = $this->getUser();
 
-        $view = new View();
-        $view->setStatusCode(201);
+        $expert = new Expert();
+        $expert->setUserId($user->getUserId());
 
-        return $view;
+        $form = $this->createForm(new ExpertPostType(), $expert);
+        $form->handleRequest($request);
+
+        if (!$form->isValid()) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $requestContent = json_decode($request->getContent(), true);
+
+        $userInfo = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\User')
+            ->find($user->getUserId());
+        if ($userInfo->getCredentialNo()) {
+            $expert->setCredentialNo($userInfo->getCredentialNo());
+        } else {
+            $check = $this->checkIDCardValidation(
+                $expert->getName(),
+                $expert->getCredentialNo()
+            );
+
+            if (!$check) {
+                return $this->customErrorView(
+                    400,
+                    self::ERROR_ID_CARD_AUTHENTICATION_FAILURE_CODE,
+                    self::ERROR_ID_CARD_AUTHENTICATION_FAILURE_MESSAGE
+                );
+            }
+        }
+
+        $fieldIds = $requestContent['field_ids'];
+
+        foreach ($fieldIds as $fieldId) {
+            $field = $this->getDoctrine()->getRepository('SandboxApiBundle:Expert\ExpertField')->find($fieldId);
+            if ($field) {
+                $expert->addExpertFields($field);
+            }
+        }
+
+        $expert->setUserId($user->getUserId());
+        $em->persist($expert);
+
+        $em->flush();
+
+        $response = array(
+            'id' => $expert->getId(),
+        );
+
+        return new View($response, 201);
     }
 }
