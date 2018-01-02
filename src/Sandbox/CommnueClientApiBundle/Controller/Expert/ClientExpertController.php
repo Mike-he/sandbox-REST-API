@@ -5,12 +5,17 @@ namespace Sandbox\CommnueClientApiBundle\Controller\Expert;
 use FOS\RestBundle\View\View;
 use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
 use Sandbox\ApiBundle\Entity\Expert\Expert;
+use Sandbox\ApiBundle\Entity\Expert\ExpertOrder;
+use Sandbox\ApiBundle\Entity\Service\ViewCounts;
+use Sandbox\ApiBundle\Entity\User\UserFavorite;
 use Sandbox\ApiBundle\Form\Expert\ExpertPostType;
 use Sandbox\ApiBundle\Form\Expert\ExpertPutType;
 use Sandbox\ApiBundle\Traits\UserIdCardTraits;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use FOS\RestBundle\Request\ParamFetcherInterface;
+use FOS\RestBundle\Controller\Annotations;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -46,6 +51,33 @@ class ClientExpertController extends SalesRestController
         }
 
         return new View($response);
+    }
+
+    /**
+     * Get Detail.
+     *
+     * @param $request
+     *
+     * @Route("/experts/my")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getMyExpertAction(
+        Request $request
+    ) {
+        $user = $this->getUser();
+
+        $expert = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Expert\Expert')
+            ->findOneBy(array('userId' => $user->getUserId()));
+
+        $this->throwNotFoundIfNull($expert, self::NOT_FOUND_MESSAGE);
+
+        $view = new View();
+        $view->setData($expert);
+
+        return $view;
     }
 
     /**
@@ -121,6 +153,18 @@ class ClientExpertController extends SalesRestController
         $em->persist($expert);
         $em->flush();
 
+        $types = [ViewCounts::TYPE_VIEW, ViewCounts::TYPE_BOOKING];
+        foreach ($types as $type) {
+            $viewCount = new ViewCounts();
+            $viewCount->setCount(0);
+            $viewCount->setObject(ViewCounts::OBJECT_EXPERT);
+            $viewCount->setObjectId($expert->getId());
+            $viewCount->setType($type);
+
+            $em->persist($viewCount);
+        }
+        $em->flush();
+
         $response = array(
             'id' => $expert->getId(),
         );
@@ -178,5 +222,208 @@ class ClientExpertController extends SalesRestController
         $em->flush();
 
         return new View();
+    }
+
+    /**
+     * Get Lists.
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *     name="field",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="country",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="province",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    description="services typeId"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="city",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    description="services typeId"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="district",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    description="services typeId"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="sort",
+     *    default="default",
+     *    nullable=true,
+     *    description="smart sort"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit for the page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="offset",
+     *    array=false,
+     *    default="0",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="start of the page"
+     * )
+     *
+     * @Route("/experts")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getExpertsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $field = $paramFetcher->get('field');
+        $sort = $paramFetcher->get('sort');
+        $country = $paramFetcher->get('country');
+        $province = $paramFetcher->get('province');
+        $city = $paramFetcher->get('city');
+        $district = $paramFetcher->get('district');
+
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
+
+        $experts = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Expert\Expert')
+            ->getExperts(
+                $field,
+                $country,
+                $province,
+                $city,
+                $district,
+                $sort,
+                $limit,
+                $offset
+            );
+
+        $view = new View();
+        $view->setData($experts);
+
+        return $view;
+    }
+
+    /**
+     * Get Detail.
+     *
+     * @param $id
+     *
+     * @Route("/experts/{id}")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getDetailAction(
+        $id
+    ) {
+        $expert = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Expert\Expert')->find($id);
+        $this->throwNotFoundIfNull($expert, self::NOT_FOUND_MESSAGE);
+
+        $cityName = '';
+        if ($expert->getCityId()) {
+            $city = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomCity')
+                ->find($expert->getCityId());
+            $cityName = $city ? $city->getName() : '';
+        }
+
+        $districtName = '';
+        if ($expert->getDistrictId()) {
+            $district = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomCity')
+                ->find($expert->getDistrictId());
+
+            $districtName = $district ? $district->getName() : '';
+        }
+
+        $user = $this->getDoctrine()
+            ->getRepository("SandboxApiBundle:User\User")
+            ->find($expert->getUserId());
+
+        $viewCount = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Service\ViewCounts')
+            ->findOneBy(array(
+                'object' => ViewCounts::OBJECT_EXPERT,
+                'objectId' => $id,
+                'type' => ViewCounts::TYPE_VIEW,
+            ));
+
+        $userId = $this->getUserId();
+
+        $favorite = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserFavorite')
+            ->findOneBy(array(
+                'userId' => $userId,
+                'object' => UserFavorite::OBJECT_EXPERT,
+                'objectId' => $id,
+            ));
+
+        $order = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Expert\ExpertOrder')
+            ->findOneBy(array(
+                'expertId' => $id,
+                'userId' => $userId,
+                'status' => ExpertOrder::STATUS_PENDING,
+            ));
+
+        $data = [
+            'id' => $expert->getId(),
+            'user_id' => $expert->getUserId(),
+            'xmpp_username' => $user->getXmppUsername(),
+            'baned' => $expert->isBanned(),
+            'is_service' => $expert->isService(),
+            'photo' => $expert->getPhoto(),
+            'name' => $expert->getName(),
+            'city_name' => $cityName,
+            'district_name' => $districtName,
+            'base_price' => $expert->getBasePrice(),
+            'identity' => $expert->getIdentity(),
+            'introduction' => $expert->getIntroduction(),
+            'description' => $expert->getDescription(),
+            'view_count' => $viewCount ? $viewCount->getCount() : 0,
+            'is_favorite' => $favorite ? true : false,
+            'order_id' => $order ? $order->getId() : '',
+        ];
+
+        $view = new View();
+        $view->setData($data);
+
+        return $view;
     }
 }

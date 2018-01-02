@@ -10,7 +10,7 @@ use Doctrine\Common\Collections\ArrayCollection;
  * Expert.
  *
  * @ORM\Table(name = "expert")
- * @ORM\Entity()
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Expert\ExpertRepository")
  */
 class Expert
 {
@@ -94,7 +94,7 @@ class Expert
     private $districtId;
 
     /**
-     * @var float
+     * @var string
      *
      * @ORM\Column(name="base_price", type="decimal", precision=10, scale=2, nullable=true)
      */

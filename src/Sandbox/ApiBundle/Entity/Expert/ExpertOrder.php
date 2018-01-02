@@ -13,6 +13,10 @@ use Gedmo\Mapping\Annotation as Gedmo;
  */
 class ExpertOrder
 {
+    const STATUS_PENDING = 'pending';
+    const STATUS_COMPLETED = 'completed';
+    const STATUS_CANCELLED = 'cancelled';
+
     /**
      * @var int
      *
@@ -28,6 +32,13 @@ class ExpertOrder
      * @ORM\Column(name="expert_id", type="integer")
      */
     private $expertId;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="user_id", type="integer")
+     */
+    private $userId;
 
     /**
      * @var string
@@ -214,5 +225,21 @@ class ExpertOrder
     public function setModificationDate($modificationDate)
     {
         $this->modificationDate = $modificationDate;
+    }
+
+    /**
+     * @return int
+     */
+    public function getUserId()
+    {
+        return $this->userId;
+    }
+
+    /**
+     * @param int $userId
+     */
+    public function setUserId($userId)
+    {
+        $this->userId = $userId;
     }
 }
