@@ -44,3 +44,6 @@ services:
     sandbox_rpc.client:
         class: Sandbox\ApiBundle\Service\RpcClient
         arguments: ['@service_container']
+    sandbox_api.view_count:
+        class: Sandbox\ApiBundle\Service\ViewCountService
+        arguments: ['@service_container']

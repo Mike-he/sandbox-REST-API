@@ -412,7 +412,7 @@ class ClientExpertController extends SalesRestController
             'name' => $expert->getName(),
             'city_name' => $cityName,
             'district_name' => $districtName,
-            'base_price' => $expert->getBasePrice(),
+            'base_price' => (float) $expert->getBasePrice(),
             'identity' => $expert->getIdentity(),
             'introduction' => $expert->getIntroduction(),
             'description' => $expert->getDescription(),
@@ -420,6 +420,12 @@ class ClientExpertController extends SalesRestController
             'is_favorite' => $favorite ? true : false,
             'order_id' => $order ? $order->getId() : '',
         ];
+
+        $this->get('sandbox_api.view_count')->autoCounting(
+            ViewCounts::OBJECT_EXPERT,
+            $id,
+            ViewCounts::TYPE_VIEW
+        );
 
         $view = new View();
         $view->setData($data);
