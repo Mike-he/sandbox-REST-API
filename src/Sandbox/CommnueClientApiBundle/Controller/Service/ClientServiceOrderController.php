@@ -9,6 +9,7 @@ use Sandbox\ApiBundle\Entity\Error\Error;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Sandbox\ApiBundle\Entity\Service\ServiceOrder;
+use Sandbox\ApiBundle\Entity\Service\ServicePurchaseForm;
 use Sandbox\ApiBundle\Entity\User\UserFavorite;
 use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
@@ -18,6 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sandbox\ApiBundle\Entity\Service\Service;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class ClientServiceOrderController extends PaymentController
 {
@@ -29,6 +31,7 @@ class ClientServiceOrderController extends PaymentController
     const WRONG_SERVICE_ORDER_STATUS_MESSAGE = 'Wrong Order Status';
     const SERVICE_ORDER_EXIST_CODE = 400004;
     const SERVICE_ORDER_EXIST_MESSAGE = 'Service Order Already Exists';
+    const ERROR_SERVICE_INVALID = 'Invalid Form';
 
     /**
      * @param Request $request
@@ -281,7 +284,83 @@ class ClientServiceOrderController extends PaymentController
         $orderId,
         $request
     ) {
+        $purchaseForm = new ServicePurchaseForm();
+        $requestContent = json_decode($request->getContent(), true);
 
+        foreach ($requestContent as $form) {
+            $userInput = $form['user_input'];
+            if (is_null($userInput)) {
+                return $this->customErrorView(
+                    400,
+                    self::ERROR_MISSING_USER_INPUT_CODE,
+                    self::ERROR_MISSING_USER_INPUT_MESSAGE
+                );
+            }
+
+            $ServiceForm = $this->getRepo('Service\ServiceForm')->find($form['id']);
+            if (is_null($ServiceForm)) {
+                throw new BadRequestHttpException(self::ERROR_SERVICE_INVALID);
+            }
+
+            // check if user input is legal
+            $formType = $ServiceForm->getType();
+            $formId = $ServiceForm->getId();
+
+            if (EventForm::TYPE_PHONE == $formType) {
+                if (!is_numeric($userInput)) {
+                    return $this->customErrorView(
+                        400,
+                        self::ERROR_INVALID_PHONE_CODE,
+                        self::ERROR_INVALID_PHONE_MESSAGE
+                    );
+                }
+            } elseif (EventForm::TYPE_EMAIL == $formType) {
+                if (!filter_var($userInput, FILTER_VALIDATE_EMAIL)) {
+                    return $this->customErrorView(
+                        400,
+                        self::ERROR_INVALID_EMAIL_CODE,
+                        self::ERROR_INVALID_EMAIL_MESSAGE
+                    );
+                }
+            } elseif (EventForm::TYPE_RADIO == $formType) {
+                $formOption = $this->getRepo('Event\EventFormOption')->findOneBy(array(
+                    'id' => (int) $userInput,
+                    'formId' => $formId,
+                ));
+                if (is_null($formOption)) {
+                    return $this->customErrorView(
+                        400,
+                        self::ERROR_INVALID_RADIO_CODE,
+                        self::ERROR_INVALID_RADIO_MESSAGE
+                    );
+                }
+            } elseif (EventForm::TYPE_CHECKBOX == $formType) {
+                $delimiter = ',';
+                $ids = explode($delimiter, $userInput);
+
+                foreach ($ids as $id) {
+                    $formOption = $this->getRepo('Event\EventFormOption')->findOneBy(array(
+                        'id' => (int) $id,
+                        'formId' => $formId,
+                    ));
+                    if (is_null($formOption)) {
+                        return $this->customErrorView(
+                            400,
+                            self::ERROR_INVALID_CHECKBOX_CODE,
+                            self::ERROR_INVALID_CHECKBOX_MESSAGE
+                        );
+                    }
+                }
+            }
+
+            $registrationForm = new EventRegistrationForm();
+
+            $registrationForm->setRegistration($eventRegistration);
+            $registrationForm->setForm($eventForm);
+            $registrationForm->setUserInput($userInput);
+
+            $em->persist($registrationForm);
+        }
     }
 
     /**
