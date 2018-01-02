@@ -1,6 +1,6 @@
 <?php
 
-namespace Sandbox\ClientApiBundle\Controller\Service;
+namespace Sandbox\CommnueClientApiBundle\Controller\Service;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
