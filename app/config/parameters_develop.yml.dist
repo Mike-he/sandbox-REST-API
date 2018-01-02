@@ -142,3 +142,6 @@ parameters:
     error_log_dir: /var/www/error.log
 
     rpc_server_feed: feed.local
+
+    id_card_auth_api_url: http://apis.haoservice.com/idcard/VerifyIdcardv2
+    id_card_auth_api_appkey: 09524110e7534dc49773b2bd4a1fe2cd

@@ -3,6 +3,7 @@
 namespace Sandbox\CommnueClientApiBundle\Controller\Expert;
 
 use FOS\RestBundle\View\View;
+use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
 use Sandbox\ApiBundle\Entity\Expert\Expert;
 use Sandbox\ApiBundle\Form\Expert\ExpertPostType;
 use Sandbox\ApiBundle\Traits\UserIdCardTraits;
@@ -14,9 +15,6 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class ClientExpertController extends SalesRestController
 {
-    const ERROR_ID_CARD_AUTHENTICATION_FAILURE_CODE = 400001;
-    const ERROR_ID_CARD_AUTHENTICATION_FAILURE_MESSAGE = '认证失败';
-
     use UserIdCardTraits;
 
     /**
@@ -65,6 +63,18 @@ class ClientExpertController extends SalesRestController
         $em = $this->getDoctrine()->getManager();
         $user = $this->getUser();
 
+        $expert = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Expert\Expert')
+            ->findOneBy(array('userId' => $user->getUserId()));
+
+        if ($expert) {
+            return $this->customErrorView(
+                400,
+                CustomErrorMessagesConstants::ERROR_EXPERT_HAS_CREATED_CODE,
+                CustomErrorMessagesConstants::ERROR_EXPERT_HAS_CREATED_MESSAGE
+            );
+        }
+
         $expert = new Expert();
         $expert->setUserId($user->getUserId());
 
@@ -91,8 +101,8 @@ class ClientExpertController extends SalesRestController
             if (!$check) {
                 return $this->customErrorView(
                     400,
-                    self::ERROR_ID_CARD_AUTHENTICATION_FAILURE_CODE,
-                    self::ERROR_ID_CARD_AUTHENTICATION_FAILURE_MESSAGE
+                    CustomErrorMessagesConstants::ERROR_ID_CARD_AUTHENTICATION_FAILURE_CODE,
+                    CustomErrorMessagesConstants::ERROR_ID_CARD_AUTHENTICATION_FAILURE_MESSAGE
                 );
             }
         }

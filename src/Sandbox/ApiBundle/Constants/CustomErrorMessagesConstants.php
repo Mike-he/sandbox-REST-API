@@ -47,6 +47,12 @@ class CustomErrorMessagesConstants
     const ERROR_TRANSFER_STATUS_CODE = 400015;
     const ERROR_TRANSFER_STATUS_MESSAGE = 'Wrong Transfer Status';
 
+    const ERROR_ID_CARD_AUTHENTICATION_FAILURE_CODE = 400016;
+    const ERROR_ID_CARD_AUTHENTICATION_FAILURE_MESSAGE = '认证失败';
+
+    const ERROR_EXPERT_HAS_CREATED_CODE = 400017;
+    const ERROR_EXPERT_HAS_CREATED_MESSAGE = '您已是专家，请勿重复提交';
+
     // 404 NOT FOUND MESSAGE
     // LEASE
     const ERROR_LEASE_NOT_FOUND_MESSAGE = 'The lease does not exist';
