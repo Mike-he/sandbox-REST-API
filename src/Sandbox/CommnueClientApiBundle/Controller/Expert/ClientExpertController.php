@@ -5,6 +5,7 @@ namespace Sandbox\CommnueClientApiBundle\Controller\Expert;
 use FOS\RestBundle\View\View;
 use Sandbox\ApiBundle\Entity\Expert\Expert;
 use Sandbox\ApiBundle\Form\Expert\ExpertPostType;
+use Sandbox\ApiBundle\Traits\UserIdCardTraits;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -13,6 +14,11 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class ClientExpertController extends SalesRestController
 {
+    const ERROR_ID_CARD_AUTHENTICATION_FAILURE_CODE = 400001;
+    const ERROR_ID_CARD_AUTHENTICATION_FAILURE_MESSAGE = '认证失败';
+
+    use UserIdCardTraits;
+
     /**
      * Check A Expert.
      *
@@ -60,6 +66,7 @@ class ClientExpertController extends SalesRestController
         $user = $this->getUser();
 
         $expert = new Expert();
+        $expert->setUserId($user->getUserId());
 
         $form = $this->createForm(new ExpertPostType(), $expert);
         $form->handleRequest($request);
@@ -70,10 +77,33 @@ class ClientExpertController extends SalesRestController
 
         $requestContent = json_decode($request->getContent(), true);
 
+        $userInfo = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\User')
+            ->find($user->getUserId());
+        if ($userInfo->getCredentialNo()) {
+            $expert->setCredentialNo($userInfo->getCredentialNo());
+        } else {
+            $check = $this->checkIDCardValidation(
+                $expert->getName(),
+                $expert->getCredentialNo()
+            );
+
+            if (!$check) {
+                return $this->customErrorView(
+                    400,
+                    self::ERROR_ID_CARD_AUTHENTICATION_FAILURE_CODE,
+                    self::ERROR_ID_CARD_AUTHENTICATION_FAILURE_MESSAGE
+                );
+            }
+        }
+
         $fieldIds = $requestContent['field_ids'];
 
         foreach ($fieldIds as $fieldId) {
-
+            $field = $this->getDoctrine()->getRepository('SandboxApiBundle:Expert\ExpertField')->find($fieldId);
+            if ($field) {
+                $expert->addExpertFields($field);
+            }
         }
 
         $expert->setUserId($user->getUserId());

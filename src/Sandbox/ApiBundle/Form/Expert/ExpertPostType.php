@@ -26,6 +26,7 @@ class ExpertPostType extends AbstractType
             ->add('district_id')
             ->add('photo')
             ->add('identity')
+            ->add('introduction')
             ->add('description')
             ->add(
                 'field_ids',

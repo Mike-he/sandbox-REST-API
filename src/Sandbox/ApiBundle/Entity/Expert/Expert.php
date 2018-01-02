@@ -96,7 +96,7 @@ class Expert
     /**
      * @var float
      *
-     * @ORM\Column(name="base_price", type="float", nullable=true)
+     * @ORM\Column(name="base_price", type="decimal", precision=10, scale=2, nullable=true)
      */
     private $basePrice;
 
