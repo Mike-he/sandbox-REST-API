@@ -31,7 +31,7 @@ trait WeChatApi
     ) {
         $code = $this->after('_', $code);
 
-        if ($platform == PlatformConstants::PLATFORM_COMMNUE) {
+        if (PlatformConstants::PLATFORM_COMMNUE == $platform) {
             // get appid by data from type
             if (ThirdPartyOAuthWeChatData::DATA_FROM_APPLICATION == $from) {
                 $appId = $this->getParameter('wechat_commnue_app_id');

@@ -9,6 +9,7 @@ trait HandleServiceDataTrait
 {
     /**
      * @param Service $service
+     *
      * @return mixed
      */
     private function handleServicesData(
