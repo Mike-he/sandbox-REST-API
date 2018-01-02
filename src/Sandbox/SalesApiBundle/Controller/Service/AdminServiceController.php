@@ -119,8 +119,8 @@ class AdminServiceController extends SalesRestController
             $city = $this->getRepo('Room\RoomCity')->find($service->getCityId())->getName();
             $country = $this->getRepo('Room\RoomCity')->find($service->getCountryId())->getName();
             $province = $this->getRepo('Room\RoomCity')->find($service->getProvinceId())->getName();
-            $district = "";
-            if($service->getDistrictId()){
+            $district = '';
+            if ($service->getDistrictId()) {
                 $district = $this->getRepo('Room\RoomCity')->find($service->getDistrictId())->getName();
             }
             $addresss = $country.$province.$city.$district;
@@ -157,8 +157,8 @@ class AdminServiceController extends SalesRestController
         $this->checkSalesAdminServicePermission(AdminPermission::OP_LEVEL_VIEW);
 
         $service = $this->getRepo('Service\Service')->findOneBy(array(
-            'id'=>$id,
-            'salesCompanyId'=> $this->getSalesCompanyId()
+            'id' => $id,
+            'salesCompanyId' => $this->getSalesCompanyId(),
         ));
 
         $this->throwNotFoundIfNull($service, self::NOT_FOUND_MESSAGE);
@@ -694,8 +694,8 @@ class AdminServiceController extends SalesRestController
         $cityName = $city->getName();
         $countryName = $country->getName();
         $provinceName = $province->getName();
-        $districtName = "";
-        if($district){
+        $districtName = '';
+        if ($district) {
             $districtName = $district->getName();
         }
 

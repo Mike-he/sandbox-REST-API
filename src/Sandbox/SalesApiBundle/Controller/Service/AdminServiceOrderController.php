@@ -4,6 +4,8 @@ namespace Sandbox\SalesApiBundle\Controller\Service;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Service\Service;
+use Sandbox\ApiBundle\Entity\Service\ServiceOrder;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -70,6 +72,24 @@ class AdminServiceOrderController extends SalesRestController
             ->countServiceOrders(
                 $companyId
             );
+
+        foreach ($orders as $order) {
+            /**
+             * @var ServiceOrder
+             * @var Service      $service
+             */
+            $service = $order->getService();
+
+            $city = $this->getRepo('Room\RoomCity')->find($service->getCityId());
+            $country = $this->getRepo('Room\RoomCity')->find($service->getCountryId());
+            $province = $this->getRepo('Room\RoomCity')->find($service->getProvinceId());
+            $district = $this->getRepo('Room\RoomCity')->find($service->getDistrictId());
+
+            $service->setCountry($country);
+            $service->setProvince($province);
+            $service->setCity($city);
+            $service->setDistrict($district);
+        }
 
         $view = new View();
         $view->setData(
