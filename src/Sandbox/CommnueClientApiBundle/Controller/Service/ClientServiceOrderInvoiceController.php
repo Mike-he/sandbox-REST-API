@@ -12,7 +12,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\Controller\Annotations;
 use Symfony\Component\HttpFoundation\Request;
 
-class ClientServiceOrderController extends SandboxRestController
+class ClientServiceOrderInvoiceController extends SandboxRestController
 {
     /**
      * @param Request               $request

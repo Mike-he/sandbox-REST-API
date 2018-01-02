@@ -416,8 +416,3 @@ sandbox_client_api_admin_register:
     resource: "@SandboxClientApiBundle/Controller/Admin/ClientAdministratorRegisterController.php"
     type:     annotation
     prefix:   /
-
-sandbox_client_api_service_orders:
-    resource: "@SandboxClientApiBundle/Controller/Service/ClientServiceOrderController.php"
-    type:     annotation
-    prefix:   /
