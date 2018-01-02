@@ -102,6 +102,11 @@ class ClientServiceOrderController extends PaymentController
             $serviceOrder->setStatus(ServiceOrder::STATUS_UNPAID);
         }
 
+        $this->handlePurchaseForm(
+            $serviceOrder->getId(),
+            $request
+        );
+
         $em = $this->getDoctrine()->getManager();
 
         $em->persist($serviceOrder);
@@ -270,6 +275,13 @@ class ClientServiceOrderController extends PaymentController
             $error->setCode(self::SERVICE_ORDER_EXIST_CODE);
             $error->setMessage(self::SERVICE_ORDER_EXIST_MESSAGE);
         }
+    }
+
+    private function handlePurchaseForm(
+        $orderId,
+        $request
+    ) {
+
     }
 
     /**
