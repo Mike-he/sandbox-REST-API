@@ -327,7 +327,7 @@ class AdminServiceController extends SalesRestController
 
         // change save status
         if ($service->isVisible()) {
-            $event->setIsSaved(false);
+            $service->setIsSaved(false);
         }
 
         $em = $this->getDoctrine()->getManager();
