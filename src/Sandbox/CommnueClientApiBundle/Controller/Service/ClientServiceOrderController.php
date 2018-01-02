@@ -8,6 +8,7 @@ use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Error\Error;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
+use Sandbox\ApiBundle\Entity\Service\ServiceForm;
 use Sandbox\ApiBundle\Entity\Service\ServiceOrder;
 use Sandbox\ApiBundle\Entity\Service\ServicePurchaseForm;
 use Sandbox\ApiBundle\Entity\User\UserFavorite;
@@ -25,13 +26,25 @@ class ClientServiceOrderController extends PaymentController
 {
     const SERVICE_NOT_AVAILABLE_CODE = 400001;
     const SERVICE_NOT_AVAILABLE_MESSAGE = 'Service Is Not Available';
-    const SERVICE_REGISTRATION_NOT_AVAILABLE_CODE = 400002;
-    const SERVICE_REGISTRATION_NOT_AVAILABLE_MESSAGE = 'Event Registration Is Not Available';
+    const SERVICE_PURCHASE_NOT_AVAILABLE_CODE = 400002;
+    const SERVICE_PURCHASE_NOT_AVAILABLE_MESSAGE = 'Service Purchase Is Not Available';
     const WRONG_SERVICE_ORDER_STATUS_CODE = 400003;
     const WRONG_SERVICE_ORDER_STATUS_MESSAGE = 'Wrong Order Status';
     const SERVICE_ORDER_EXIST_CODE = 400004;
     const SERVICE_ORDER_EXIST_MESSAGE = 'Service Order Already Exists';
-    const ERROR_SERVICE_INVALID = 'Invalid Form';
+    const ERROR_SERVICE_INVALID = 'Invalid Service Form';
+    const ERROR_INVALID_PHONE_CODE = 400005;
+    const ERROR_INVALID_PHONE_MESSAGE = 'Invalid phone';
+    const ERROR_INVALID_EMAIL_CODE = 400006;
+    const ERROR_INVALID_EMAIL_MESSAGE = 'Invalid email';
+    const ERROR_INVALID_RADIO_CODE = 400007;
+    const ERROR_INVALID_RADIO_MESSAGE = 'Invalid radio';
+    const ERROR_INVALID_CHECKBOX_CODE = 400008;
+    const ERROR_INVALID_CHECKBOX_MESSAGE = 'Invalid checkbox';
+    const ERROR_MISSING_USER_INPUT_CODE = 400009;
+    const ERROR_MISSING_USER_INPUT_MESSAGE = 'Missing user input';
+    const ERROR_OVER_LIMIT_NUMBER_CODE = 400010;
+    const ERROR_OVER_LIMIT_NUMBER_MESSAGE = 'Over purchaselimit number';
 
     /**
      * @param Request $request
@@ -105,11 +118,6 @@ class ClientServiceOrderController extends PaymentController
             $serviceOrder->setStatus(ServiceOrder::STATUS_UNPAID);
         }
 
-        $this->handlePurchaseForm(
-            $serviceOrder->getId(),
-            $request
-        );
-
         $em = $this->getDoctrine()->getManager();
 
         $em->persist($serviceOrder);
@@ -119,6 +127,12 @@ class ClientServiceOrderController extends PaymentController
         $view->setData(array(
             'order_id' => $serviceOrder->getId(),
         ));
+
+        $this->handlePurchaseForm(
+            $serviceOrder,
+            $request,
+            $em
+        );
 
         return $view;
     }
@@ -139,7 +153,7 @@ class ClientServiceOrderController extends PaymentController
         $em = $this->getDoctrine()->getManager();
         $now = new \DateTime();
 
-        // get event order
+        // get service order
         $order = $this->getRepo('Service\ServiceOrder')->find($id);
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
 
@@ -158,6 +172,12 @@ class ClientServiceOrderController extends PaymentController
                 $minutes = 0;
                 $seconds = 0;
                 $em->remove($order);
+
+                $purchaseForms = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServicePurchaseForm')
+                    ->findByOrder($order);
+                foreach ($purchaseForms as $purchaseForm){
+                    $em->remove($purchaseForm);
+                }
                 $em->flush();
             }
         }
@@ -182,11 +202,11 @@ class ClientServiceOrderController extends PaymentController
      *
      * @return View
      */
-    public function payEventOrderAction(
+    public function payServiceOrderAction(
         Request $request,
         $id
     ) {
-        // get event order
+        // get service order
         $order = $this->getRepo('Service\ServiceOrder')->find($id);
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
 
@@ -243,6 +263,25 @@ class ClientServiceOrderController extends PaymentController
     }
 
     /**
+     * @param $id
+     *
+     * @Route("/service/{id}/form")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getServiceFormAction(
+        $id
+    ) {
+        $service = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\Service')->find($id);
+        $this->throwNotFoundIfNull($service, self::NOT_FOUND_MESSAGE);
+
+        $serviceForm = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServiceForm')->findByService($service);
+
+        return new View($serviceForm);
+    }
+
+    /**
      * @param $userId
      * @param Service $service
      * @param $now
@@ -280,11 +319,17 @@ class ClientServiceOrderController extends PaymentController
         }
     }
 
+    /**
+     * @param $serviceOrder
+     * @param $request
+     * @param $em
+     * @return View
+     */
     private function handlePurchaseForm(
-        $orderId,
-        $request
+        $serviceOrder,
+        $request,
+        $em
     ) {
-        $purchaseForm = new ServicePurchaseForm();
         $requestContent = json_decode($request->getContent(), true);
 
         foreach ($requestContent as $form) {
@@ -297,16 +342,16 @@ class ClientServiceOrderController extends PaymentController
                 );
             }
 
-            $ServiceForm = $this->getRepo('Service\ServiceForm')->find($form['id']);
-            if (is_null($ServiceForm)) {
+            $serviceForm = $this->getRepo('Service\ServiceForm')->find($form['id']);
+            if (is_null($serviceForm)) {
                 throw new BadRequestHttpException(self::ERROR_SERVICE_INVALID);
             }
 
             // check if user input is legal
-            $formType = $ServiceForm->getType();
-            $formId = $ServiceForm->getId();
+            $formType = $serviceForm->getType();
+            $formId = $serviceForm->getId();
 
-            if (EventForm::TYPE_PHONE == $formType) {
+            if (ServiceForm::TYPE_PHONE == $formType) {
                 if (!is_numeric($userInput)) {
                     return $this->customErrorView(
                         400,
@@ -314,7 +359,7 @@ class ClientServiceOrderController extends PaymentController
                         self::ERROR_INVALID_PHONE_MESSAGE
                     );
                 }
-            } elseif (EventForm::TYPE_EMAIL == $formType) {
+            } elseif (ServiceForm::TYPE_EMAIL == $formType) {
                 if (!filter_var($userInput, FILTER_VALIDATE_EMAIL)) {
                     return $this->customErrorView(
                         400,
@@ -322,8 +367,8 @@ class ClientServiceOrderController extends PaymentController
                         self::ERROR_INVALID_EMAIL_MESSAGE
                     );
                 }
-            } elseif (EventForm::TYPE_RADIO == $formType) {
-                $formOption = $this->getRepo('Event\EventFormOption')->findOneBy(array(
+            } elseif (ServiceForm::TYPE_RADIO == $formType) {
+                $formOption = $this->getRepo('Service\ServiceFormOption')->findOneBy(array(
                     'id' => (int) $userInput,
                     'formId' => $formId,
                 ));
@@ -334,12 +379,12 @@ class ClientServiceOrderController extends PaymentController
                         self::ERROR_INVALID_RADIO_MESSAGE
                     );
                 }
-            } elseif (EventForm::TYPE_CHECKBOX == $formType) {
+            } elseif (ServiceForm::TYPE_CHECKBOX == $formType) {
                 $delimiter = ',';
                 $ids = explode($delimiter, $userInput);
 
                 foreach ($ids as $id) {
-                    $formOption = $this->getRepo('Event\EventFormOption')->findOneBy(array(
+                    $formOption = $this->getRepo('Service\ServiceFormOption')->findOneBy(array(
                         'id' => (int) $id,
                         'formId' => $formId,
                     ));
@@ -352,14 +397,14 @@ class ClientServiceOrderController extends PaymentController
                     }
                 }
             }
+            $purchaseForm = new ServicePurchaseForm();
 
-            $registrationForm = new EventRegistrationForm();
+            $purchaseForm->setOrder($serviceOrder);
+            $purchaseForm->setForm($serviceForm);
+            $purchaseForm->setUserInput($userInput);
 
-            $registrationForm->setRegistration($eventRegistration);
-            $registrationForm->setForm($eventForm);
-            $registrationForm->setUserInput($userInput);
-
-            $em->persist($registrationForm);
+            $em->persist($purchaseForm);
+            $em->flush();
         }
     }
 
