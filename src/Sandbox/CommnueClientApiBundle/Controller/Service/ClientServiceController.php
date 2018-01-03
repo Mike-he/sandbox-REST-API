@@ -181,7 +181,7 @@ class ClientServiceController extends SalesRestController
         $service->setTimes($times);
         $service->setAddress($addresss);
         $result['service'] = $service;
-        $result['like'] =  $favorite = $this->getDoctrine()
+        $result['like'] =  $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserFavorite')
             ->findOneBy(
                 [

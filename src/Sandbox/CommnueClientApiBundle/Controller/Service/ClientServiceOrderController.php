@@ -140,6 +140,42 @@ class ClientServiceOrderController extends PaymentController
     }
 
     /**
+     * @param $id
+     *
+     * @Route("/service/orders/{id}")
+     * @Method({"DELETE"})
+     *
+     * @return View
+     */
+    public function cancelServiceOrderAction(
+        $id
+    ) {
+        $userId = $this->getUserId();
+
+        $order = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServiceOrder')
+            ->findOneBy(array(
+                'id' => $id,
+                'userId' => $userId,
+                'status' => ServiceOrder::STATUS_UNPAID
+            ));
+        $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
+
+        $em = $this->getDoctrine()->getManager();
+
+        $em->remove($order);
+
+        $purchaseForms = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServicePurchaseForm')
+            ->findByOrder($order);
+        foreach ($purchaseForms as $purchaseForm){
+            $em->remove($purchaseForm);
+        }
+
+        $em->flush();
+
+        return new View();
+    }
+
+    /**
      * @param Request $request
      * @param $id
      *
