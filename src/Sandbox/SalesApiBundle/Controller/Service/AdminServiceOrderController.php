@@ -178,14 +178,12 @@ class AdminServiceOrderController extends SalesRestController
         $offset = ($pageIndex-1)*$pageLimit;
 
         $orders = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServiceOrder')
-            ->findBy(array(
-                        'serviceId'=>$id,
-                        'companyId'=>$companyId
-                    ),
-                        null,
-                        $limit,
-                        $offset
-                  );
+            ->findPurchaseOrders(
+                $id,
+                $companyId,
+                $limit,
+                $offset
+            );
         $this->throwNotFoundIfNull($orders, self::NOT_FOUND_MESSAGE);
 
         $count =  $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServiceOrder')

@@ -126,6 +126,34 @@ class ServiceOrderRepository extends EntityRepository
     }
 
     /**
+     * @param $serviceId
+     * @param $companyId
+     * @param $limit
+     * @param $offset
+     * @return array
+     */
+    public function findPurchaseOrders(
+        $serviceId,
+        $companyId,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('so')
+            ->where('so.serviceId = :serviceId')
+            ->andWhere('so.companyId = :companyId')
+            ->andWhere('so.status != :status')
+            ->setParameter('companyId', $companyId)
+            ->setParameter('serviceId', $serviceId)
+            ->setParameter('status', ServiceOrder::STATUS_UNPAID);
+
+        $query->orderBy('so.id','DESC')
+            ->setFirstResult($offset)
+            ->setMaxResults($limit);
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
      * @param $userId
      * @param $status
      * @param $limit
@@ -165,7 +193,9 @@ class ServiceOrderRepository extends EntityRepository
         $query = $this->createQueryBuilder('so')
             ->select('count(so.id)')
             ->where('so.serviceId = :serviceId')
-            ->setParameter('serviceId', $serviceId);
+            ->andWhere('so.status != :status')
+            ->setParameter('serviceId', $serviceId)
+            ->setParameter('status', ServiceOrder::STATUS_UNPAID);
 
         return $query->getQuery()->getSingleScalarResult();
     }
