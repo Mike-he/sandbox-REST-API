@@ -741,7 +741,8 @@ class AdminServiceController extends SalesRestController
     }
 
     /**
-     * @param Service $service
+     * @param  Service $service
+     * @return mixed
      */
     private function handleServiceInfo(
         $service
@@ -773,7 +774,7 @@ class AdminServiceController extends SalesRestController
         $service->setAddress($addresss);
 
         $id = $service->getId();
-        $purchaseNumber = $this->getRepo('Service\Service')->getServicePurchaseNumber($id);
+        $purchaseNumber = $this->getRepo('Service\ServiceOrder')->getServicePurchaseCount($id);
         $service->setPurchaseNumber($purchaseNumber);
 
         return $service;
@@ -815,6 +816,7 @@ class AdminServiceController extends SalesRestController
         $em = $this->getDoctrine()->getManager();
         $em->flush();
     }
+
     /**
      * Check user permission.
      *
