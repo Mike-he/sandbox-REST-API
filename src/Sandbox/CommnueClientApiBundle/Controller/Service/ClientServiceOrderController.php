@@ -125,10 +125,8 @@ class ClientServiceOrderController extends PaymentController
         $em->persist($serviceOrder);
         $em->flush();
 
-        $view = new View();
-        $view->setData(array(
-            'order_id' => $serviceOrder->getId(),
-        ));
+        $result = [];
+        $result[]['order_id'] = $serviceOrder->getId();
 
         $this->handlePurchaseForm(
             $serviceOrder,
@@ -136,7 +134,7 @@ class ClientServiceOrderController extends PaymentController
             $em
         );
 
-        return $view;
+        return new View($result);
     }
 
     /**
