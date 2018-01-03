@@ -9,7 +9,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * ExpertField.
  *
  * @ORM\Table(name = "expert_field")
- * @ORM\Entity()
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Expert\ExpertFieldRepository")
  */
 class ExpertField
 {
