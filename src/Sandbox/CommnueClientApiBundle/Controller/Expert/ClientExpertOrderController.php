@@ -14,6 +14,8 @@ use Sandbox\ApiBundle\Form\Expert\ExpertOrderPatchType;
 use Sandbox\ApiBundle\Traits\GenerateSerialNumberTrait;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use FOS\RestBundle\Request\ParamFetcherInterface;
+use FOS\RestBundle\Controller\Annotations;
 use Symfony\Component\HttpFoundation\Request;
 
 class ClientExpertOrderController extends SandboxRestController
@@ -98,6 +100,94 @@ class ClientExpertOrderController extends SandboxRestController
         );
 
         return new View($response, 201);
+    }
+
+    /**
+     * Get Lists.
+     *
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *     name="status",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit for the page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="offset",
+     *    array=false,
+     *    default="0",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="start of the page"
+     * )
+     *
+     * @Route("/experts/my/orders")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getMyOrdersAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $status = $paramFetcher->get('status');
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
+
+        $userId = $this->getUserId();
+
+        $expert = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Expert\Expert')
+            ->findOneBy(array('userId' => $userId));
+
+        if (!$expert) {
+            return new View();
+        }
+
+        $orders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Expert\ExpertOrder')
+            ->getLists(
+                $expert->getId(),
+                $status,
+                $limit,
+                $offset
+            );
+
+        foreach ($orders as &$order) {
+            $user = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserView')->find($order['user_id']);
+
+            $order['user'] = array(
+                'id' => $order['user_id'],
+                'name' => $user->getName(),
+                'phone' => $user->getPhone(),
+            );
+
+            $remarks = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Expert\ExpertOrderRemark')
+                ->findBy(array('orderId' => $order['id']));
+
+            $order['remarks'] = $remarks;
+        }
+
+        $view = new View();
+        $view->setData($orders);
+
+        return $view;
     }
 
     /**
