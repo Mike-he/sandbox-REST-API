@@ -120,6 +120,23 @@ class ClientExpertController extends SandboxRestController
 
         $requestContent = json_decode($request->getContent(), true);
 
+        $fieldIds = $requestContent['field_ids'];
+
+        if (count($fieldIds) > 3) {
+            return $this->customErrorView(
+                400,
+                CustomErrorMessagesConstants::ERROR_MORE_THAN_QUANTITY_CODE,
+                CustomErrorMessagesConstants::ERROR_MORE_THAN_QUANTITY_MESSAGE
+            );
+        }
+
+        foreach ($fieldIds as $fieldId) {
+            $field = $this->getDoctrine()->getRepository('SandboxApiBundle:Expert\ExpertField')->find($fieldId);
+            if ($field) {
+                $expert->addExpertFields($field);
+            }
+        }
+
         $userInfo = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\User')
             ->find($user->getUserId());
@@ -137,15 +154,6 @@ class ClientExpertController extends SandboxRestController
                     CustomErrorMessagesConstants::ERROR_ID_CARD_AUTHENTICATION_FAILURE_CODE,
                     CustomErrorMessagesConstants::ERROR_ID_CARD_AUTHENTICATION_FAILURE_MESSAGE
                 );
-            }
-        }
-
-        $fieldIds = $requestContent['field_ids'];
-
-        foreach ($fieldIds as $fieldId) {
-            $field = $this->getDoctrine()->getRepository('SandboxApiBundle:Expert\ExpertField')->find($fieldId);
-            if ($field) {
-                $expert->addExpertFields($field);
             }
         }
 

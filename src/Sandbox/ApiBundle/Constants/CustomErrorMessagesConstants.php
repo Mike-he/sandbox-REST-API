@@ -44,10 +44,12 @@ class CustomErrorMessagesConstants
     const ERROR_BEAN_OPERATION_TODAY_MESSAGE = 'Today has been operating';
 
     //Offline Transfer
-    const ERROR_TRANSFER_STATUS_CODE = 400015;
+    const ERROR_TRANSFER_STATUS_CODE = 400014;
     const ERROR_TRANSFER_STATUS_MESSAGE = 'Wrong Transfer Status';
 
     // Expert
+    const ERROR_MORE_THAN_QUANTITY_CODE = 400015;
+    const ERROR_MORE_THAN_QUANTITY_MESSAGE = '超过可选择领域数';
     const ERROR_ID_CARD_AUTHENTICATION_FAILURE_CODE = 400016;
     const ERROR_ID_CARD_AUTHENTICATION_FAILURE_MESSAGE = '实名认证失败';
     const ERROR_EXPERT_HAS_CREATED_CODE = 400017;
