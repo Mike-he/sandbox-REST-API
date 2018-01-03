@@ -301,6 +301,8 @@ class CreateShortRentInvoiceCommand extends ContainerAwareCommand
                     'event_order_count' => 1,
                     'membership_order_balance' => 0,
                     'membership_order_count' => 0,
+                    'service_order_balance' => 0,
+                    'service_order_count' => 0,
                 ];
             } else {
                 $companyArray[$companyId]['event_order_balance'] += $price;
