@@ -88,7 +88,7 @@ class ServiceOrder
     /**
      * @var float
      *
-     * @ORM\Column(name="price", type="float", nullable=false)
+     * @ORM\Column(name="price", type="float", nullable=true)
      *
      * @Serializer\Groups({"main", "client_service"})
      */

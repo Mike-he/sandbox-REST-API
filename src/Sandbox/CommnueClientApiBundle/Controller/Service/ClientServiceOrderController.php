@@ -74,14 +74,11 @@ class ClientServiceOrderController extends PaymentController
         $salesCompanyId = $service->getSalesCompanyId();
 
         $serviceOrder = new ServiceOrder();
-        $customerId = null;
 
-        if ($salesCompanyId) {
-            $customerId = $this->get('sandbox_api.sales_customer')->createCustomer(
-                $userId,
-                $salesCompanyId
-            );
-        }
+        $customerId = $this->get('sandbox_api.sales_customer')->createCustomer(
+            $userId,
+            $salesCompanyId
+        );
 
         $error = new Error();
         $this->checkIfAvailable(
@@ -114,7 +111,7 @@ class ClientServiceOrderController extends PaymentController
         }
 
         // set status
-        if (0 == $serviceOrder->getPrice()) {
+        if (0 == $serviceOrder->getPrice() || null == $serviceOrder->getPrice()) {
             $serviceOrder->setStatus(ServiceOrder::STATUS_PAID);
         } else {
             $serviceOrder->setStatus(ServiceOrder::STATUS_UNPAID);
