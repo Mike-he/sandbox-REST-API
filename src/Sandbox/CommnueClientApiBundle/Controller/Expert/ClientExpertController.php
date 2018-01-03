@@ -4,6 +4,7 @@ namespace Sandbox\CommnueClientApiBundle\Controller\Expert;
 
 use FOS\RestBundle\View\View;
 use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
+use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Expert\Expert;
 use Sandbox\ApiBundle\Entity\Expert\ExpertOrder;
 use Sandbox\ApiBundle\Entity\Service\ViewCounts;
@@ -11,7 +12,6 @@ use Sandbox\ApiBundle\Entity\User\UserFavorite;
 use Sandbox\ApiBundle\Form\Expert\ExpertPostType;
 use Sandbox\ApiBundle\Form\Expert\ExpertPutType;
 use Sandbox\ApiBundle\Traits\UserIdCardTraits;
-use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use FOS\RestBundle\Request\ParamFetcherInterface;
@@ -19,7 +19,7 @@ use FOS\RestBundle\Controller\Annotations;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-class ClientExpertController extends SalesRestController
+class ClientExpertController extends SandboxRestController
 {
     use UserIdCardTraits;
 

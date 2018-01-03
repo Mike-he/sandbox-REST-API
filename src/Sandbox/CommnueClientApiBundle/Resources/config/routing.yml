@@ -34,11 +34,6 @@ commnue_client_service:
     type:     annotation
     prefix:   /
 
-commnue_client_expert:
-    resource: "@CommnueClientApiBundle/Controller/Expert/ClientExpertController.php"
-    type:     annotation
-    prefix:   /
-
 commnue_client_service_order:
     resource: "@CommnueClientApiBundle/Controller/Service/ClientServiceOrderController.php"
     type:     annotation
@@ -46,5 +41,15 @@ commnue_client_service_order:
 
 commnue_client_service_order_invoice:
     resource: "@CommnueClientApiBundle/Controller/Service/ClientServiceOrderInvoiceController.php"
+    type:     annotation
+    prefix:   /
+
+commnue_client_expert:
+    resource: "@CommnueClientApiBundle/Controller/Expert/ClientExpertController.php"
+    type:     annotation
+    prefix:   /
+
+commnue_client_expert_order:
+    resource: "@CommnueClientApiBundle/Controller/Expert/ClientExpertOrderController.php"
     type:     annotation
     prefix:   /

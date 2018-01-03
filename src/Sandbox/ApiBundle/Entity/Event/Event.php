@@ -22,6 +22,7 @@ class Event
     const STATUS_ONGOING = 'ongoing';
     const STATUS_END = 'end';
     const STATUS_SAVED = 'saved';
+
     const PLATFORM_OFFICIAL = 'official';
     const PLATFORM_COMMNUE = 'commnue';
 
