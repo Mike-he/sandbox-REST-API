@@ -32,7 +32,6 @@ class SpaceControllerTest extends WebTestCase
             'Sandbox\ApiBundle\DataFixtures\ORM\User\LoadUserData',
             'Sandbox\ApiBundle\DataFixtures\ORM\Evaluation\LoadEvaluationData',
             'Sandbox\ApiBundle\DataFixtures\ORM\Sales\LoadSalesCompanyData',
-            'Sandbox\ApiBundle\DataFixtures\ORM\Admin\LoadAdminPermissionData',
             'Sandbox\ApiBundle\DataFixtures\ORM\Admin\LoadAdminPositionData',
             'Sandbox\ApiBundle\DataFixtures\ORM\Admin\LoadAdminPositionBindingData',
         ];
