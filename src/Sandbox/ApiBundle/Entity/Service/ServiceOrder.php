@@ -561,6 +561,4 @@ class ServiceOrder
     {
         $this->purchaseForm = $purchaseForm;
     }
-
-
 }
