@@ -3,6 +3,7 @@
 namespace Sandbox\SalesApiBundle\Controller\Service;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
+use JMS\Serializer\Tests\Fixtures\VehicleInterfaceGarage;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Service\Service;
 use Sandbox\ApiBundle\Entity\Service\ServiceOrder;
@@ -134,7 +135,27 @@ class AdminServiceOrderController extends SalesRestController
      * @param ParamFetcherInterface $paramFetcher
      * @param $id
      *
-     * @Route("/service/orders/purchase")
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many products to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number "
+     * )
+     *
+     * @Route("/service/{id}/orders/purchase")
      * @Method({"GET"})
      *
      * @return mixed
@@ -159,7 +180,7 @@ class AdminServiceOrderController extends SalesRestController
         $orders = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServiceOrder')
             ->findBy(array(
                         'serviceId'=>$id,
-                        'customerId'=>$companyId
+                        'companyId'=>$companyId
                     ),
                         null,
                         $limit,
@@ -170,11 +191,9 @@ class AdminServiceOrderController extends SalesRestController
         $count =  $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServiceOrder')
         ->getServicePurchaseCount($id);
 
+        $result = [];
         foreach ($orders as $order){
-            $purchaseForm = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServicePurchaseForm')
-                ->findByOrders($order);
-
-            $order->setPurchaseForm($purchaseForm);
+            $result[] = $this->handlePurchaseInfo($order);
         }
 
         $view = new View();
@@ -182,12 +201,12 @@ class AdminServiceOrderController extends SalesRestController
             array(
                 'current_page_number' => $pageIndex,
                 'num_items_per_page' => (int) $pageLimit,
-                'items' => $orders,
+                'items' => $result,
                 'total_count' => (int) $count,
             )
         );
 
-        return new $view;
+        return  $view;
     }
 
     /**
@@ -215,7 +234,7 @@ class AdminServiceOrderController extends SalesRestController
         $user = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserCustomer')
             ->find($order->getCustomerId());
         $purchaseForm = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServicePurchaseForm')
-            ->findByOrders($order);
+            ->findByOrder($order);
 
         $result['user'] = $user;
         $result['form'] = $purchaseForm;
@@ -255,6 +274,27 @@ class AdminServiceOrderController extends SalesRestController
         $em->flush();
 
         return new View();
+    }
+
+    /**
+     * @param ServiceOrder $order
+     * @return array
+     */
+    private function handlePurchaseInfo(
+        $order
+    ) {
+        $data = [];
+        $user = $user = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->find($order->getCustomerId());
+        $data['id'] = $order->getId();
+        $data['user_id'] = $user->getId();
+        $data['user_name'] = $user->getName();
+        $data['user_sex'] = $user->getSex();
+        $data['email'] = $user->getEmail();
+        $data['payment_date'] = $order->getPaymentDate();
+        $data['status'] = $order->getStatus();
+
+        return $data;
     }
 
     /**
