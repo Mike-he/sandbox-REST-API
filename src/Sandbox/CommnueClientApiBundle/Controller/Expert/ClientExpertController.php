@@ -36,11 +36,11 @@ class ClientExpertController extends SandboxRestController
     public function checkExpertAction(
         Request $request
     ) {
-        $user = $this->getUser();
+        $userId = $this->getUserId();
 
         $expert = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Expert\Expert')
-            ->findOneBy(array('userId' => $user->getUserId()));
+            ->findOneBy(array('userId' => $userId));
 
         $response = array();
         if ($expert) {
@@ -66,11 +66,11 @@ class ClientExpertController extends SandboxRestController
     public function getMyExpertAction(
         Request $request
     ) {
-        $user = $this->getUser();
+        $userId = $this->getUserId();
 
         $expert = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Expert\Expert')
-            ->findOneBy(array('userId' => $user->getUserId()));
+            ->findOneBy(array('userId' => $userId));
 
         $this->throwNotFoundIfNull($expert, self::NOT_FOUND_MESSAGE);
 
@@ -94,11 +94,11 @@ class ClientExpertController extends SandboxRestController
         Request $request
     ) {
         $em = $this->getDoctrine()->getManager();
-        $user = $this->getUser();
+        $userId = $this->getUserId();
 
         $expert = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Expert\Expert')
-            ->findOneBy(array('userId' => $user->getUserId()));
+            ->findOneBy(array('userId' => $userId));
 
         if ($expert) {
             return $this->customErrorView(
@@ -109,7 +109,6 @@ class ClientExpertController extends SandboxRestController
         }
 
         $expert = new Expert();
-        $expert->setUserId($user->getUserId());
 
         $form = $this->createForm(new ExpertPostType(), $expert);
         $form->handleRequest($request);
@@ -137,12 +136,20 @@ class ClientExpertController extends SandboxRestController
             }
         }
 
-        $userInfo = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\User')
-            ->find($user->getUserId());
-        if ($userInfo->getCredentialNo()) {
-            $expert->setCredentialNo($userInfo->getCredentialNo());
-        } else {
+        $userInfo = $this->getDoctrine()->getRepository('SandboxApiBundle:User\User')->find($userId);
+        if ($userInfo->getCredentialNo() != $expert->getCredentialNo()) {
+            $expertCheck = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Expert\Expert')
+                ->findOneBy(array('credentialNo' => $expert->getCredentialNo()));
+
+            if ($expertCheck) {
+                return $this->customErrorView(
+                    400,
+                    CustomErrorMessagesConstants::ERROR_ID_CARD_HAS_CERTIFIED_CODE,
+                    CustomErrorMessagesConstants::ERROR_ID_CARD_HAS_CERTIFIED_MESSAGE
+                );
+            }
+
             $check = $this->checkIDCardValidation(
                 $expert->getName(),
                 $expert->getCredentialNo()
@@ -157,7 +164,7 @@ class ClientExpertController extends SandboxRestController
             }
         }
 
-        $expert->setUserId($user->getUserId());
+        $expert->setUserId($userId);
         $em->persist($expert);
         $em->flush();
 
@@ -194,11 +201,11 @@ class ClientExpertController extends SandboxRestController
         Request $request
     ) {
         $em = $this->getDoctrine()->getManager();
-        $user = $this->getUser();
+        $userId = $this->getUserId();
 
         $expert = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Expert\Expert')
-            ->findOneBy(array('userId' => $user->getUserId()));
+            ->findOneBy(array('userId' => $userId));
         $this->throwNotFoundIfNull($expert, self::NOT_FOUND_MESSAGE);
 
         $form = $this->createForm(
