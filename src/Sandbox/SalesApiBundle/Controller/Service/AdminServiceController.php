@@ -143,11 +143,14 @@ class AdminServiceController extends SalesRestController
             if ($service->getDistrictId()) {
                 $district = $this->getRepo('Room\RoomCity')->find($service->getDistrictId())->getName();
             }
+
+            $purchaseNumber = $this->getRepo('Service\ServiceOrder')->getServicePurchaseCount($service->getId());
             $addresss = $country.$province.$city.$district;
             $service->setAttachments($attachments);
             $service->setTimes($times);
             $service->setForms($forms);
             $service->setAddress($addresss);
+            $service->setPurchaseNumber($purchaseNumber);
         }
 
         $view = new View();

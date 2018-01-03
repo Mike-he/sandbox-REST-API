@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Repository\Service;
 
 use Doctrine\ORM\EntityRepository;
 use Sandbox\ApiBundle\Entity\Service\Service;
+use Sandbox\ApiBundle\Entity\Service\ServiceOrder;
 
 class ServiceRepository extends EntityRepository
 {
@@ -25,11 +26,9 @@ class ServiceRepository extends EntityRepository
         $query = $this->createQueryBuilder('s')
             ->select(
                 '
-                    s as service,
-                    COUNT(so.id) as purchaseNumber
+                    s as service
                 '
             )
-            ->leftJoin('SandboxApiBundle:Service\ServiceOrder', 'so', 'WITH', 'so.serviceId = s.id')
             ->where('s.salesCompanyId = :salesCompanyId')
             ->setParameter('salesCompanyId', $salesCompanyId);
 
