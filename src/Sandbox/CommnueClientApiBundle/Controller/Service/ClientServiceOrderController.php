@@ -604,7 +604,9 @@ class ClientServiceOrderController extends PaymentController
         $service
     ) {
         $this->handleServicesData($service);
+        $forms = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServiceAttachment')->findByService($service);
         $times = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServiceTime')->findByService($service);
+        $service->setAttachments($forms);
         $service->setTimes($times);
 
         return $service;

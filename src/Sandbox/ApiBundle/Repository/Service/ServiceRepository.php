@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\Repository\Service;
 use Doctrine\ORM\EntityRepository;
 use Sandbox\ApiBundle\Entity\Service\Service;
 use Sandbox\ApiBundle\Entity\Service\ServiceOrder;
+use Sandbox\ApiBundle\Entity\Service\ViewCounts;
 
 class ServiceRepository extends EntityRepository
 {
@@ -109,6 +110,8 @@ class ServiceRepository extends EntityRepository
         $limit = null,
         $offset = null
     ) {
+        $now = new \DateTime();
+
         $query = $this->createQueryBuilder('s')
             ->select('
                 s,
@@ -116,6 +119,8 @@ class ServiceRepository extends EntityRepository
             ')
             ->leftJoin('SandboxApiBundle:Service\ServiceOrder', 'so', 'WITH', 'so.serviceId = s.id')
             ->where('s.visible = true')
+            ->andWhere('s.serviceEndDate > :endDate')
+            ->setParameter('endDate', $now)
             ->groupBy('s.id');
 
         if (!is_null($country)) {
@@ -151,7 +156,7 @@ class ServiceRepository extends EntityRepository
                 case 'view':
                     $query->leftJoin('SandboxApiBundle:Service\ViewCount', 'v', 'WITH', 'v.objectId = s.id')
                         ->andWhere('v.object = :object')
-                        ->setParameter('object', 'service')
+                        ->setParameter('object', ViewCounts::OBJECT_SERVICE)
                         ->orderBy('v.count', 'DESC');
                     break;
                 default:
