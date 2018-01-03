@@ -169,4 +169,26 @@ class ServiceOrderRepository extends EntityRepository
 
         return $query->getQuery()->getSingleScalarResult();
     }
+
+    /**
+     * @param $firstDate
+     * @param $lastDate
+     *
+     * @return array
+     */
+    public function getServiceOrdersByDate(
+        $firstDate,
+        $lastDate
+    ) {
+        $query = $this->createQueryBuilder('so')
+            ->where('so.status = :paid OR so.status = :completed')
+            ->andWhere('so.paymentDate >= :start')
+            ->andWhere('so.paymentDate <= :end')
+            ->setParameter('start', $firstDate)
+            ->setParameter('end', $lastDate)
+            ->setParameter('paid', ServiceOrder::STATUS_PAID)
+            ->setParameter('completed', ServiceOrder::STATUS_COMPLETED);
+
+        return $query->getQuery()->getResult();
+    }
 }

@@ -6,6 +6,7 @@ use Sandbox\ApiBundle\Entity\Finance\FinanceSalesWalletFlow;
 use Sandbox\ApiBundle\Entity\Finance\FinanceShortRentInvoice;
 use Sandbox\ApiBundle\Entity\Finance\FinanceSummary;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
+use Sandbox\ApiBundle\Entity\Service\ServiceOrder;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -45,6 +46,12 @@ class CreateShortRentInvoiceCommand extends ContainerAwareCommand
         );
 
         $companyArray = $this->setMembershipOrderSummary(
+            $firstDate,
+            $lastDate,
+            $companyArray
+        );
+
+        $companyArray = $this->setServiceOrderSummary(
             $firstDate,
             $lastDate,
             $companyArray
@@ -91,6 +98,8 @@ class CreateShortRentInvoiceCommand extends ContainerAwareCommand
                     'event_order_count' => 0,
                     'membership_order_balance' => 0,
                     'membership_order_count' => 0,
+                    'service_order_balance' => 0,
+                    'service_order_count' => 0,
                 ];
             } else {
                 $companyArray[$companyId]['short_rent_balance'] += $amount;
@@ -147,6 +156,8 @@ class CreateShortRentInvoiceCommand extends ContainerAwareCommand
                     'event_order_count' => 0,
                     'membership_order_balance' => 0,
                     'membership_order_count' => 0,
+                    'service_order_balance' => 0,
+                    'service_order_count' => 0,
                 ];
             } else {
                 $companyArray[$companyId]['long_rent_balance'] += $incomeAmount;
@@ -194,10 +205,60 @@ class CreateShortRentInvoiceCommand extends ContainerAwareCommand
                     'event_order_count' => 0,
                     'membership_order_balance' => $amount,
                     'membership_order_count' => 1,
+                    'service_order_balance' => 0,
+                    'service_order_count' => 0,
                 ];
             } else {
                 $companyArray[$companyId]['membership_order_balance'] += $amount;
                 ++$companyArray[$companyId]['membership_order_count'];
+            }
+        }
+
+        return $companyArray;
+    }
+
+    /**
+     * @param $firstDate
+     * @param $lastDate
+     * @param $companyArray
+     *
+     * @return mixed
+     */
+    private function setServiceOrderSummary(
+        $firstDate,
+        $lastDate,
+        $companyArray
+    ) {
+        $serviceOrders = $this->getContainer()
+            ->get('doctrine')
+            ->getRepository('SandboxApiBundle:Service\ServiceOrder')
+            ->getServiceOrdersByDate(
+                $firstDate,
+                $lastDate
+            );
+
+        foreach ($serviceOrders as $serviceOrder) {
+            /** @var ServiceOrder $serviceOrder */
+            $amount = $serviceOrder->getPrice();
+            $companyId = $serviceOrder->getCompanyId();
+
+            if (!array_key_exists($companyId, $companyArray)) {
+                $companyArray[$companyId] = [
+                    'short_rent_balance' => 0,
+                    'short_rent_count' => 0,
+                    'long_rent_balance' => 0,
+                    'long_rent_service_balance' => 0,
+                    'long_rent_count' => 0,
+                    'event_order_balance' => 0,
+                    'event_order_count' => 0,
+                    'membership_order_balance' => 0,
+                    'membership_order_count' => 0,
+                    'service_order_balance' => $amount,
+                    'service_order_count' => 1,
+                ];
+            } else {
+                $companyArray[$companyId]['service_order_balance'] += $amount;
+                ++$companyArray[$companyId]['service_order_count'];
             }
         }
 
@@ -260,6 +321,8 @@ class CreateShortRentInvoiceCommand extends ContainerAwareCommand
             $summary->setEventOrderCount((int) $value['event_order_count']);
             $summary->setMembershipOrderBalance($value['membership_order_balance']);
             $summary->setMembershipOrderCount((int) $value['membership_order_count']);
+            $summary->setServiceOrderBalance($value['service_order_balance']);
+            $summary->setServiceOrderCount((int) $value['service_order_count']);
             $summary->setSummaryDate($lastDate);
 
             $preorderAmount = $this->getContainer()
