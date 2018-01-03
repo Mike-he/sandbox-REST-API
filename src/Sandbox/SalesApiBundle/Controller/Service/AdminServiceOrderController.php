@@ -130,6 +130,134 @@ class AdminServiceOrderController extends SalesRestController
     }
 
     /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     * @param $id
+     *
+     * @Route("/service/orders/purchase")
+     * @Method({"GET"})
+     *
+     * @return mixed
+     */
+    public function getPurchaseUserAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        // check user permission
+        $this->checkPermission(AdminPermission::OP_LEVEL_VIEW);
+
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $companyId = $adminPlatform['sales_company_id'];
+
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+
+        $limit = $pageLimit;
+        $offset = ($pageIndex-1)*$pageLimit;
+
+        $orders = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServiceOrder')
+            ->findBy(array(
+                        'serviceId'=>$id,
+                        'customerId'=>$companyId
+                    ),
+                        null,
+                        $limit,
+                        $offset
+                  );
+        $this->throwNotFoundIfNull($orders, self::NOT_FOUND_MESSAGE);
+
+        $count =  $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServiceOrder')
+        ->getServicePurchaseCount($id);
+
+        foreach ($orders as $order){
+            $purchaseForm = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServicePurchaseForm')
+                ->findByOrders($order);
+
+            $order->setPurchaseForm($purchaseForm);
+        }
+
+        $view = new View();
+        $view->setData(
+            array(
+                'current_page_number' => $pageIndex,
+                'num_items_per_page' => (int) $pageLimit,
+                'items' => $orders,
+                'total_count' => (int) $count,
+            )
+        );
+
+        return new $view;
+    }
+
+    /**
+     * @param Request $request
+     * @param $id
+     *
+     * @Route("/service/orders/form/{id}")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getPurchaseDetailByIdAction(
+        Request $request,
+        $id
+    ) {
+        // check user permission
+        $this->checkPermission(AdminPermission::OP_LEVEL_VIEW);
+
+        $order = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServiceOrder')
+            ->find($id);
+
+        $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
+        $result = array();
+
+        $user = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->find($order->getCustomerId());
+        $purchaseForm = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServicePurchaseForm')
+            ->findByOrders($order);
+
+        $result['user'] = $user;
+        $result['form'] = $purchaseForm;
+
+        return new View($result);
+    }
+
+    /**
+     * @param $id
+     *
+     * @Route("/service/orders/{id}")
+     * @Method({"PATCH"})
+     *
+     * @return View
+     */
+    public function changeServiceOrdersStatusAction(
+        $id
+    ) {
+        // check user permission
+        $this->checkPermission(AdminPermission::OP_LEVEL_EDIT);
+
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $companyId = $adminPlatform['sales_company_id'];
+
+        $order = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServiceOrder')
+            ->findOneBy(array(
+                'id'=>$id,
+                'status'=>ServiceOrder::STATUS_PAID,
+                'companyId'=>$companyId
+            ));
+
+        $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
+
+        $order->setStatus(ServiceOrder::STATUS_COMPLETED);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        return new View();
+    }
+
+    /**
      * Check user permission.
      *
      * @param int $opLevel

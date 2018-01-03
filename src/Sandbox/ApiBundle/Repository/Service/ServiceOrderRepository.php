@@ -147,9 +147,26 @@ class ServiceOrderRepository extends EntityRepository
                 ->setParameter('status', $status);
         }
 
+        $query->orderBy('so.creationDate', 'DESC');
+
         $query->setFirstResult($offset)
             ->setMaxResults($limit);
 
         return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $serviceId
+     * @return mixed
+     */
+    public function getServicePurchaseCount(
+        $serviceId
+    ) {
+        $query = $this->createQueryBuilder('so')
+            ->select('count(so.id)')
+            ->where('so.serviceId = :serviceId')
+            ->setParameter('serviceId', $serviceId);
+
+        return $query->getQuery()->getSingleScalarResult();
     }
 }
