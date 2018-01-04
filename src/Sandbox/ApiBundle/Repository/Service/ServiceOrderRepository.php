@@ -117,10 +117,10 @@ class ServiceOrderRepository extends EntityRepository
         $query = $this->createQueryBuilder('so')
             ->where('so.userId = :userId')
             ->andWhere('so.serviceId = :serviceId')
-            ->andWhere('so.status = :status')
+            ->andWhere('so.status != :status')
             ->setParameter('userId', $userId)
             ->setParameter('serviceId', $serviceId)
-            ->setParameter('status', ServiceOrder::STATUS_PAID);
+            ->setParameter('status', ServiceOrder::STATUS_COMPLETED);
 
         return $query->getQuery()->getOneOrNullResult();
     }
