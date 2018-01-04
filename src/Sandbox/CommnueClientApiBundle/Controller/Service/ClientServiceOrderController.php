@@ -73,8 +73,6 @@ class ClientServiceOrderController extends PaymentController
         $this->throwNotFoundIfNull($service, self::NOT_FOUND_MESSAGE);
         $salesCompanyId = $service->getSalesCompanyId();
 
-        $serviceOrder = new ServiceOrder();
-
         $customerId = $this->get('sandbox_api.sales_customer')->createCustomer(
             $userId,
             $salesCompanyId
@@ -82,7 +80,6 @@ class ClientServiceOrderController extends PaymentController
 
         $error = new Error();
         $this->checkIfAvailable(
-            $userId,
             $service,
             $now,
             $error
@@ -96,19 +93,31 @@ class ClientServiceOrderController extends PaymentController
             );
         }
 
+        // check service order exists
+        $serviceId = $service->getId();
+        $order = $this->getDoctrine()->getManager()
+            ->getRepository('SandboxApiBundle:Service\ServiceOrder')
+            ->getUserLastOrder(
+                $userId,
+                $serviceId
+            );
+        if(!is_null($order)){
+            $result = [];
+            $result[]['order_id'] = $order->getId();;
+
+            return new View($result);
+        }
+
         // generate order number
         $orderNumber = $this->getOrderNumber(ServiceOrder::LETTER_HEAD);
 
+        $serviceOrder = new ServiceOrder();
         $serviceOrder->setUserId($userId);
         $serviceOrder->setService($service);
         $serviceOrder->setOrderNumber($orderNumber);
         $serviceOrder->setPrice($service->getPrice());
         $serviceOrder->setCompanyId($salesCompanyId);
         $serviceOrder->setCustomerId($customerId);
-
-        if ($salesCompanyId) {
-            $serviceOrder->setCustomerId($customerId);
-        }
 
         // set status
         if (0 == $serviceOrder->getPrice() || null == $serviceOrder->getPrice()) {
@@ -425,13 +434,11 @@ class ClientServiceOrderController extends PaymentController
     }
 
     /**
-     * @param $userId
      * @param Service $service
      * @param $now
      * @param $error
      */
     private function checkIfAvailable(
-        $userId,
         $service,
         $now,
         $error
@@ -446,19 +453,6 @@ class ClientServiceOrderController extends PaymentController
         ) {
             $error->setCode(self::SERVICE_NOT_AVAILABLE_CODE);
             $error->setMessage(self::SERVICE_NOT_AVAILABLE_MESSAGE);
-        }
-
-        // check service order exists
-        $serviceId = $service->getId();
-        $order = $this->getDoctrine()->getManager()
-            ->getRepository('SandboxApiBundle:Service\ServiceOrder')
-            ->getUserLastOrder(
-                $userId,
-                $serviceId
-            );
-        if(!is_null($order)){
-            $error->setCode(self::SERVICE_ORDER_EXIST_CODE);
-            $error->setMessage(self::SERVICE_ORDER_EXIST_MESSAGE);
         }
     }
 
