@@ -29,32 +29,18 @@ parameters:
     expired_verification_time: +10 minutes
     time_for_half_hour_early: -30 minutes
     time_for_preorder_cancel: + 1 day
-    xmpp_domain: devxmpp.sandbox3.cn
-    openfire_innet_url: http://127.0.0.1:9090
-    openfire_plugin_bstuser: /plugins/bstuser
-    openfire_plugin_bstuser_users: /users
-    openfire_plugin_bstuser_property_name_ezuser: ezuser
-    openfire_plugin_bstuser_property_secret_ezuser: DB93819516EA9C8E73C0374595ED0F19
-    openfire_plugin_sandbox: /plugins/sandbox
-    openfire_plugin_sandbox_notification: /notification
-    openfire_plugin_sandbox_notification_broadcast: /broadcast
-    openfire_plugin_bstgroupchat: /plugins/bstgroupchat
-    openfire_plugin_bstgroupchat_room: /rooms
-    openfire_plugin_bstgroupchat_room_member: /members
-    openfire_plugin_bstios: /plugins/bstios
-    openfire_plugin_bstios_chatconfig: /chatconfig
-    openfire_plugin_bstios_apns: /apns
-    openfire_plugin_file_server: /plugins/fileServer/fileservice
+
     sms_api_url: http://yunpian.com/v1/sms/send.json
     sms_api_key: 21c29536f85636a862306aa6f8ffdf74
     sms_v2_api_url: https://sms.yunpian.com/v2/sms/batch_send.json
     sms_marketing_api_key: c9332ec598c7dda0bbe42a7e799c0c8a
+
     email_from_address: notification@sandbox3.cn
     email_from_name: 展想创合
     sandbox_auth_key: sandbox_auth_test
     food_api_url: http://testfood.sandbox3.cn
     food_api_payment_callback: /index.php?route=payment/sandbox_wechat/callback
-    crm_api_url: http://devcrm.sandbox3.cn
+    crm_api_url: crmserver
     crm_api_client_user_account_authentication: /client/user/account/authentication
     crm_api_client_user_account_vip: /client/user/account/vip
     crm_api_admin_user_account_vip: /admin/useraccounts/{userId}/vip
@@ -106,20 +92,33 @@ parameters:
     union_refund_fee_multiplier: 0
     wechat_refund_fee_multiplier: 0
     foreign_credit_refund_fee_multiplier: 0
-    rest_api_local_url: localhost.api.rest
-    image_url: http://devimage.sandbox3.cn
-    file_server_url: http://devxmpp.sandbox3.cn/plugins/fileServer/fileservice
+
+    top_level_domain: sandbox3.cn
     rest_file_server_url: http://devrest.sandbox3.cn/plugins/fileServer/fileservice
+
+    image_url: http://devimage.sandbox3.cn
     mobile_url: http://devm.sandbox3.cn
     room_mobile_url: http://devmobile.sandbox3.cn
-    top_level_domain: sandbox3.cn
-    jpush_apns_option: false
     orders_url: http://devorders.sandbox3.cn
     coffee_url: http://devcoffee.sandbox3.cn
     invoice_url: http://devinvoice.sandbox3.cn
+    property_client_apply_url: http://devvsales.sandbox3.cn
+    property_client_customer_url: http://devasales.sandbox3.cn
 
-    openfire_url: http://devxmpp.sandbox3.cn/plugins/restapi/v1
-    openfire_secret: TKv28StIabbAw49o
-    openfire_servicename: conference
-    openfire_servername: devxmpp.sandbox3.cn
-    openfire_service: 'jean553\OpenfireBundle\Services\OpenfireService'
+    duiba_app_key: 2rc4ZQm9csJapqvKnx92AKsNdLRr
+    duiba_app_secret: AfdCJZ6T4vHboHkuVSkwWUwMRra
+    duiba_app_env: dev
+
+    jpush_apns_option: false
+    jpush_key: 24549eef0e5dfe83b1483586
+    jpush_secret: 83aa0ae09df6f9e1a302cae0
+    jpush_property_key: 6edbdf8bd11a5cc27212a01b
+    jpush_property_secret: 0cd15d94296076c69bd9faa7
+
+    oss_access_key_id: LTAIlrwRyGc3PpVH
+    oss_access_key_secret: mxnsEPGC4OgwOLTqB3HX6YMB34wUqh
+    oss_role_arn: acs:ram::1805038742091034:role/aliyunosstokengeneratorrole
+    oss_endpoint: oss-cn-shanghai-internal.aliyuncs.com
+    oss_bucket: sandbox3-dev-image
+
+    error_log_dir: /var/log/app/error.log

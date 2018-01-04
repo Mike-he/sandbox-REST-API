@@ -237,6 +237,8 @@ class EventOrderRepository extends EntityRepository
     /**
      * @param $city
      * @param array $channel
+     * @param array $status
+     * @param array $eventStatus
      * @param $keyword
      * @param $keywordSearch
      * @param $payDate
@@ -247,10 +249,211 @@ class EventOrderRepository extends EntityRepository
      * @param $createEnd
      * @param $salesCompanyId
      * @param $userId
+     * @param $limit
+     * @param $offset
+     * @param $sortColumn
+     * @param $direction
      *
      * @return array
      */
     public function getEventOrdersForSalesAdmin(
+        $city,
+        $channel,
+        $status,
+        $eventStatus,
+        $keyword,
+        $keywordSearch,
+        $payDate,
+        $payStart,
+        $payEnd,
+        $createDateRange,
+        $createStart,
+        $createEnd,
+        $orderCreateStart,
+        $orderCreateEnd,
+        $salesCompanyId,
+        $userId = null,
+        $limit = null,
+        $offset = null,
+        $sortColumn = null,
+        $direction = null
+    ) {
+        $query = $this->createQueryBuilder('eo')
+            ->leftJoin('SandboxApiBundle:Event\Event', 'e', 'WITH', 'e.id = eo.eventId')
+            ->where('eo.status != :unpaid')
+            ->andWhere('eo.paymentDate IS NOT NULL')
+            ->andWhere('e.salesCompanyId = :salesCompanyId')
+            ->setParameter('unpaid', EventOrder::STATUS_UNPAID)
+            ->setParameter('salesCompanyId', $salesCompanyId);
+
+        // filter by city
+        if (!is_null($city)) {
+            $query->andWhere('e.city = :city');
+            $query->setParameter('city', $city);
+        }
+
+        if (!is_null($channel) && !empty($channel)) {
+            if (in_array('sandbox', $channel)) {
+                $channel[] = ProductOrder::CHANNEL_ACCOUNT;
+                $channel[] = ProductOrder::CHANNEL_ALIPAY;
+                $channel[] = ProductOrder::CHANNEL_UNIONPAY;
+                $channel[] = ProductOrder::CHANNEL_WECHAT;
+                $channel[] = ProductOrder::CHANNEL_WECHAT_PUB;
+            }
+            $query->andWhere('eo.payChannel in (:channel)')
+                ->setParameter('channel', $channel);
+        }
+
+        if (!is_null($status) && !empty($status)) {
+            $query->andWhere('eo.status in (:status)')
+                ->setParameter('status', $status);
+        }
+
+        if (!is_null($eventStatus) && !empty($eventStatus)) {
+            $query->andWhere('e.status in (:eventStatus)')
+                ->setParameter('eventStatus', $eventStatus);
+        }
+
+        if (!is_null($keyword) && !is_null($keywordSearch)) {
+            switch ($keyword) {
+                case 'all':
+                    $query ->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.id = eo.customerId')
+                            ->andWhere('
+                                eo.orderNumber LIKE :search OR
+                                e.name LIKE :search OR
+                                uc.name LIKE :search OR
+                                uc.phone LIKE :search
+                            ');
+                    break;
+                case 'number':
+                    $query->andWhere('eo.orderNumber LIKE :search');
+                    break;
+                case 'event':
+                    $query->andWhere('e.name LIKE :search');
+                    break;
+                default:
+                    $query->andWhere('eo.orderNumber LIKE :search');
+            }
+            $query->setParameter('search', '%'.$keywordSearch.'%');
+        }
+
+        //filter by payDate
+        if (!is_null($payDate)) {
+            $payDateStart = new \DateTime($payDate);
+            $payDateEnd = new \DateTime($payDate);
+            $payDateEnd->setTime(23, 59, 59);
+
+            $query->andWhere('eo.paymentDate >= :payStart')
+                ->andWhere('eo.paymentDate <= :payEnd')
+                ->setParameter('payStart', $payDateStart)
+                ->setParameter('payEnd', $payDateEnd);
+        } else {
+            //filter by payStart
+            if (!is_null($payStart)) {
+                $payStart = new \DateTime($payStart);
+                $query->andWhere('eo.paymentDate >= :payStart')
+                    ->setParameter('payStart', $payStart);
+            }
+
+            //filter by payEnd
+            if (!is_null($payEnd)) {
+                $payEnd = new \DateTime($payEnd);
+                $payEnd->setTime(23, 59, 59);
+                $query->andWhere('eo.paymentDate <= :payEnd')
+                    ->setParameter('payEnd', $payEnd);
+            }
+        }
+
+        if (!is_null($createDateRange)) {
+            $now = new \DateTime();
+            switch ($createDateRange) {
+                case 'last_week':
+                    $lastDate = $now->sub(new \DateInterval('P7D'));
+                    break;
+                case 'last_month':
+                    $lastDate = $now->sub(new \DateInterval('P1M'));
+                    break;
+                default:
+                    $lastDate = new \DateTime();
+            }
+            $query->andWhere('e.eventEndDate >= :createStart')
+                ->setParameter('createStart', $lastDate);
+        } else {
+            // filter by order start point
+            if (!is_null($createStart)) {
+                $createStart = new \DateTime($createStart);
+                $createStart->setTime(00, 00, 00);
+                $query->andWhere('e.eventEndDate >= :createStart')
+                    ->setParameter('createStart', $createStart);
+            }
+
+            // filter by order end point
+            if (!is_null($createEnd)) {
+                $createEnd = new \DateTime($createEnd);
+                $createEnd->setTime(23, 59, 59);
+                $query->andWhere('e.eventStartDate <= :createEnd')
+                    ->setParameter('createEnd', $createEnd);
+            }
+        }
+
+        if (!is_null($orderCreateStart)) {
+            $orderCreateStart = new \DateTime($orderCreateStart);
+            $query->andWhere('eo.creationDate >= :orderCreateStart')
+                ->setParameter('orderCreateStart', $orderCreateStart);
+        }
+
+        // filter by order end point
+        if (!is_null($orderCreateEnd)) {
+            $orderCreateEnd = new \DateTime($orderCreateEnd);
+            $orderCreateEnd->setTime(23, 59, 59);
+            $query->andWhere('eo.creationDate <= :orderCreateEnd')
+                ->setParameter('orderCreateEnd', $orderCreateEnd);
+        }
+
+        // filter by user
+        if (!is_null($userId)) {
+            $query->andWhere('eo.userId = :userId')
+                ->setParameter('userId', $userId);
+        }
+
+        if (!is_null($sortColumn) && !is_null($direction)) {
+            $sortArray = [
+                'event_start_date' => 'e.eventStartDate',
+                'price' => 'eo.price',
+                'creation_date' => 'eo.creationDate',
+                'payment_date' => 'eo.paymentDate',
+            ];
+            $direction = strtoupper($direction);
+            $query->orderBy($sortArray[$sortColumn], $direction);
+        } else {
+            $query->orderBy('eo.creationDate', 'DESC');
+        }
+
+        if (!is_null($limit) && !is_null($offset)) {
+            $query->setMaxResults($limit)
+                ->setFirstResult($offset);
+        }
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $city
+     * @param $channel
+     * @param $keyword
+     * @param $keywordSearch
+     * @param $payDate
+     * @param $payStart
+     * @param $payEnd
+     * @param $createDateRange
+     * @param $createStart
+     * @param $createEnd
+     * @param $salesCompanyId
+     * @param null $userId
+     *
+     * @return mixed
+     */
+    public function countEventOrdersForSalesAdmin(
         $city,
         $channel,
         $keyword,
@@ -261,10 +464,13 @@ class EventOrderRepository extends EntityRepository
         $createDateRange,
         $createStart,
         $createEnd,
+        $orderCreateStart,
+        $orderCreateEnd,
         $salesCompanyId,
         $userId = null
     ) {
         $query = $this->createQueryBuilder('eo')
+            ->select('count(eo.id)')
             ->leftJoin('SandboxApiBundle:Event\Event', 'e', 'WITH', 'e.id = eo.eventId')
             ->where('eo.status != :unpaid')
             ->andWhere('eo.paymentDate IS NOT NULL')
@@ -362,16 +568,29 @@ class EventOrderRepository extends EntityRepository
             }
         }
 
+        if (!is_null($orderCreateStart)) {
+            $orderCreateStart = new \DateTime($orderCreateStart);
+            $query->andWhere('eo.creationDate >= :orderCreateStart')
+                ->setParameter('orderCreateStart', $orderCreateStart);
+        }
+
+        // filter by order end point
+        if (!is_null($orderCreateEnd)) {
+            $orderCreateEnd = new \DateTime($orderCreateEnd);
+            $orderCreateEnd->setTime(23, 59, 59);
+            $query->andWhere('eo.creationDate <= :orderCreateEnd')
+                ->setParameter('orderCreateEnd', $orderCreateEnd);
+        }
+
         // filter by user
         if (!is_null($userId)) {
             $query->andWhere('eo.userId = :userId')
                 ->setParameter('userId', $userId);
         }
 
-        // order by
-        $query->orderBy('eo.creationDate', 'DESC');
+        $result = $query->getQuery()->getSingleScalarResult();
 
-        return $query->getQuery()->getResult();
+        return $result;
     }
 
     /**
@@ -391,7 +610,7 @@ class EventOrderRepository extends EntityRepository
         $search
     ) {
         $query = $this->createQueryBuilder('eo')
-            ->leftJoin('SandboxApiBundle:Event\Event', 'e', 'WITH', 'eo.eventId = e.id')
+            ->leftJoin('eo.event','e')
             ->leftJoin('SandboxApiBundle:Event\EventRegistration', 'er', 'WITH', 'er.eventId = e.id')
             ->where('eo.userId = :userId')
             ->andWhere('er.userId = :userId')
@@ -399,10 +618,12 @@ class EventOrderRepository extends EntityRepository
             ->setMaxResults($limit)
             ->setParameter('userId', $userId);
 
+        $now = new \DateTime();
+
         // filter by status
         if (!is_null($status)) {
             switch ($status) {
-                case EventOrder::CLIENT_STATUS_IN_PROCESS:
+                case EventOrder::CLIENT_STATUS_PENDING:
                     $query->andWhere('
                             (
                                 eo.status = :unpaid OR
@@ -414,18 +635,28 @@ class EventOrderRepository extends EntityRepository
                         ->setParameter('userId', $userId)
                         ->setParameter('pending', EventRegistration::STATUS_PENDING);
                     break;
-                case EventOrder::CLIENT_STATUS_PASSED:
+                case EventOrder::CLIENT_STATUS_IN_PROCESS:
                     $query->andWhere('
                             (
+                                eo.status = :unpaid OR
+                                (e.verify = TRUE AND er.status = :pending AND eo.status = :paid) OR
                                 (e.verify = TRUE AND (er.status = :accepted OR er.status = :rejected)) OR 
                                 (e.verify = FAlSE AND (eo.status = :paid OR eo.status = :completed))
                             )
                         ')
+                        ->andWhere('e.eventEndDate >= :now')
+                        ->setParameter('now', $now)
                         ->setParameter('rejected', EventRegistration::STATUS_REJECTED)
+                        ->setParameter('unpaid', EventOrder::STATUS_UNPAID)
                         ->setParameter('paid', EventOrder::STATUS_PAID)
                         ->setParameter('userId', $userId)
+                        ->setParameter('pending', EventRegistration::STATUS_PENDING)
                         ->setParameter('accepted', EventRegistration::STATUS_ACCEPTED)
                         ->setParameter('completed', EventOrder::STATUS_COMPLETED);
+                    break;
+                case EventOrder::CLIENT_STATUS_PASSED:
+                    $query->andWhere('e.eventEndDate < :now')
+                        ->setParameter('now', $now);
                     break;
                 default:
                     break;
@@ -549,4 +780,226 @@ class EventOrderRepository extends EntityRepository
 
         return (int) $result;
     }
+
+    /**
+     * @param $createStart
+     * @param $createEnd
+     * @param $salesCompanyId
+     * @param $channel
+     * @param $status
+     * @param $eventStatus
+     * @param $keyword
+     * @param $keywordSearch
+     * @param $payStart
+     * @param $payEnd
+     * @param $eventStart
+     * @param $eventEnd
+     * @param $limit
+     * @param $offset
+     *
+     * @return array
+     */
+    public function getEventOrdersForPropertyClient(
+        $createStart,
+        $createEnd,
+        $salesCompanyId,
+        $channel,
+        $status,
+        $eventStatus,
+        $keyword,
+        $keywordSearch,
+        $payStart,
+        $payEnd,
+        $eventStart,
+        $eventEnd,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('eo')
+            ->leftJoin('SandboxApiBundle:Event\Event', 'e', 'WITH', 'e.id = eo.eventId')
+            ->where('eo.status != :unpaid')
+            ->andWhere('eo.paymentDate IS NOT NULL')
+            ->andWhere('e.salesCompanyId = :salesCompanyId')
+            ->setParameter('unpaid', EventOrder::STATUS_UNPAID)
+            ->setParameter('salesCompanyId', $salesCompanyId);
+
+
+        if (!is_null($channel) && !empty($channel)) {
+            if (in_array('sandbox', $channel)) {
+                $channel[] = ProductOrder::CHANNEL_ACCOUNT;
+                $channel[] = ProductOrder::CHANNEL_ALIPAY;
+                $channel[] = ProductOrder::CHANNEL_UNIONPAY;
+                $channel[] = ProductOrder::CHANNEL_WECHAT;
+                $channel[] = ProductOrder::CHANNEL_WECHAT_PUB;
+            }
+            $query->andWhere('eo.payChannel in (:channel)')
+                ->setParameter('channel', $channel);
+        }
+
+        if (!is_null($status) && !empty($status)) {
+            $query->andWhere('eo.status in (:status)')
+                ->setParameter('status', $status);
+        }
+
+        if (!is_null($eventStatus) && !empty($eventStatus)) {
+            $query->andWhere('e.status in (:eventStatus)')
+                ->setParameter('eventStatus', $eventStatus);
+        }
+
+        if (!is_null($keyword) && !is_null($keywordSearch)) {
+            switch ($keyword) {
+                case 'all':
+                    $query ->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.id = eo.customerId')
+                        ->andWhere('
+                                (eo.orderNumber LIKE :search OR
+                                e.name LIKE :search OR
+                                uc.name LIKE :search OR
+                                uc.phone LIKE :search)
+                            ');
+                    break;
+                default:
+                    $query->andWhere('eo.orderNumber LIKE :search');
+            }
+            $query->setParameter('search', '%'.$keywordSearch.'%');
+        }
+
+
+        //filter by payStart
+        if (!is_null($payStart)) {
+            $payStart = new \DateTime($payStart);
+            $query->andWhere('eo.paymentDate >= :payStart')
+                ->setParameter('payStart', $payStart);
+        }
+
+        //filter by payEnd
+        if (!is_null($payEnd)) {
+            $payEnd = new \DateTime($payEnd);
+            $payEnd->setTime(23, 59, 59);
+            $query->andWhere('eo.paymentDate <= :payEnd')
+                ->setParameter('payEnd', $payEnd);
+        }
+
+        if (!is_null($eventStart)) {
+            $eventStart = new \DateTime($eventStart);
+            $eventStart->setTime(00, 00, 00);
+            $query->andWhere('e.eventEndDate >= :eventStart')
+                ->setParameter('eventStart', $eventStart);
+        }
+
+        if (!is_null($eventEnd)) {
+            $eventEnd = new \DateTime($eventEnd);
+            $eventEnd->setTime(23, 59, 59);
+            $query->andWhere('e.eventStartDate <= :eventEnd')
+                ->setParameter('eventEnd', $eventEnd);
+        }
+
+        // filter by order start point
+        if (!is_null($createStart)) {
+            $query->andWhere('eo.creationDate >= :createStart')
+                    ->setParameter('createStart', $createStart);
+        }
+
+        // filter by order end point
+        if (!is_null($createEnd)) {
+            $query->andWhere('eo.creationDate <= :createEnd')
+                    ->setParameter('createEnd', $createEnd);
+        }
+
+        $query->orderBy('eo.creationDate', 'DESC');
+
+        if (!is_null($limit) && !is_null($offset)) {
+            $query->setMaxResults($limit)
+                ->setFirstResult($offset);
+        }
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $createStart
+     * @param $createEnd
+     * @param $salesCompanyId
+     *
+     * @return int
+     */
+    public function countEventOrdersForPropertyClient(
+        $createStart,
+        $createEnd,
+        $salesCompanyId
+    ) {
+        $query = $this->createQueryBuilder('eo')
+            ->select('count(eo.id)')
+            ->leftJoin('SandboxApiBundle:Event\Event', 'e', 'WITH', 'e.id = eo.eventId')
+            ->where('eo.status != :unpaid')
+            ->andWhere('eo.paymentDate IS NOT NULL')
+            ->andWhere('e.salesCompanyId = :salesCompanyId')
+            ->setParameter('unpaid', EventOrder::STATUS_UNPAID)
+            ->setParameter('salesCompanyId', $salesCompanyId);
+
+        // filter by order start point
+        if (!is_null($createStart)) {
+            $query->andWhere('eo.creationDate >= :createStart')
+                ->setParameter('createStart', $createStart);
+        }
+
+        // filter by order end point
+        if (!is_null($createEnd)) {
+            $query->andWhere('eo.creationDate <= :createEnd')
+                ->setParameter('createEnd', $createEnd);
+        }
+
+        $result = $query->getQuery()->getSingleScalarResult();
+
+        return (int) $result;
+    }
+
+    /**
+     * @param $customerId
+     * @param $salesCompanyId
+     *
+     * @return mixed
+     */
+    public function countCustomerAllEventOrders(
+        $customerId,
+        $salesCompanyId
+    ) {
+        $query = $this->createqueryBUilder('eo')
+            ->select('count(eo.id)')
+            ->leftJoin('SandboxApiBundle:Event\Event', 'e', 'WITH', 'e.id = eo.eventId')
+            ->where('eo.customerId = :customerId')
+            ->andWhere('e.salesCompanyId = :salesCompanyId')
+            ->setParameter('customerId', $customerId)
+            ->setParameter('salesCompanyId',$salesCompanyId);
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
+
+    /**
+     * @param $customerId
+     * @param $salesCompanyId
+     * @param $limit
+     * @param $offset
+     * @return array
+     */
+    public function findCustomerEventOrder(
+        $customerId,
+        $salesCompanyId,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createqueryBUilder('eo')
+            ->leftJoin('SandboxApiBundle:Event\Event', 'e', 'WITH', 'e.id = eo.eventId')
+            ->where('eo.customerId = :customerId')
+            ->andWhere('e.salesCompanyId = :salesCompanyId')
+            ->setParameter('customerId', $customerId)
+            ->setParameter('salesCompanyId',$salesCompanyId);
+
+        $query->orderBy('eo.creationDate','DESC');
+
+        $query->setMaxResults($limit)
+            ->setFirstResult($offset);
+
+        return $query->getQuery()->getResult();
+    }
+
 }

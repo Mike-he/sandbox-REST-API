@@ -21,11 +21,18 @@ class SalesCompanyPostType extends AbstractType
             ->add('contacter')
             ->add('contacter_phone')
             ->add('contacter_email')
+            ->add('website')
+            ->add('financial_contacter')
+            ->add('financial_contacter_phone')
+            ->add('financial_contacter_email')
+            ->add('onlineSales')
             ->add('description')
             ->add('admins')
             ->add('coffee_admins')
             ->add('services')
-            ->add('exclude_permissions');
+            ->add('exclude_permissions')
+            ->add('application_id')
+        ;
     }
 
     /**

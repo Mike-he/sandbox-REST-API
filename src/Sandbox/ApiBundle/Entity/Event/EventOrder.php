@@ -13,6 +13,7 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class EventOrder
 {
+    const CLIENT_STATUS_PENDING = 'pending';
     const CLIENT_STATUS_IN_PROCESS = 'in_process';
     const CLIENT_STATUS_PASSED = 'passed';
 
@@ -145,6 +146,15 @@ class EventOrder
      * @ORM\Column(name="serviceFee", type="float", options={"default": 0})
      */
     private $serviceFee = 0;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="customer_id", type="integer", nullable=true)
+     *
+     * @Serializer\Groups({"main", "client_event"})
+     */
+    private $customerId;
 
     /**
      * @var array
@@ -481,5 +491,21 @@ class EventOrder
     public function setRegistration($registration)
     {
         $this->registration = $registration;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCustomerId()
+    {
+        return $this->customerId;
+    }
+
+    /**
+     * @param int $customerId
+     */
+    public function setCustomerId($customerId)
+    {
+        $this->customerId = $customerId;
     }
 }

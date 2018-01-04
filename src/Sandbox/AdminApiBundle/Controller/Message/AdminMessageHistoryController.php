@@ -20,6 +20,14 @@ class AdminMessageHistoryController extends AdminMessagePushController
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
+     * @Annotations\QueryParam(
+     *     name="xmpp_username",
+     *     array=false,
+     *     nullable=true,
+     *     default="service",
+     *     strict=true
+     * )
+     *
      * @Route("/messages/service_authorization")
      * @Method({"GET"})
      *
@@ -30,16 +38,21 @@ class AdminMessageHistoryController extends AdminMessagePushController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminMessagePermission(AdminPermission::OP_LEVEL_VIEW);
+
+        $xmppUsername = $paramFetcher->get('xmpp_username');
 
         $user = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\User')
             ->findOneBy(array(
-                'xmppUsername' => 'service',
+                'xmppUsername' => $xmppUsername,
             ));
 
+        if (is_null($user)) {
+            return new View([]);
+        }
+
         return new View(array(
-            'xmpp_username' => 'service',
+            'xmpp_username' => $xmppUsername,
             'xmpp_code' => $this->get('sandbox_api.des_encrypt')->encrypt($user->getPassword()),
         ));
     }

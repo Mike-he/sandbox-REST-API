@@ -18,9 +18,9 @@ trait CurlUtil
         $headers = null,
         $data = null
     ) {
-        if ($method === 'POST') {
+        if ('POST' === $method) {
             curl_setopt($ch, CURLOPT_POST, 1);
-        } elseif ($method === 'PUT' || $method === 'DELETE') {
+        } elseif ('PUT' === $method || 'DELETE' === $method) {
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
         }
 
@@ -55,9 +55,9 @@ trait CurlUtil
         $headers = null,
         $data = null
     ) {
-        if ($method === 'POST') {
+        if ('POST' === $method) {
             curl_setopt($ch, CURLOPT_POST, 1);
-        } elseif ($method === 'PUT' || $method === 'DELETE') {
+        } elseif ('PUT' === $method || 'DELETE' === $method) {
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
         }
 

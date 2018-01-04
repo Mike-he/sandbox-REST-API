@@ -159,7 +159,7 @@ class Lease
      *
      * @ORM\Column(name="start_date", type="datetime", nullable=true)
      *
-     * @Serializer\Groups({"main", "lease_list", "room_usage","log"})
+     * @Serializer\Groups({"main", "lease_list", "room_usage","log", "lease_bill"})
      */
     private $startDate;
 
@@ -168,7 +168,7 @@ class Lease
      *
      * @ORM\Column(name="end_date", type="datetime", nullable=true)
      *
-     * @Serializer\Groups({"main", "lease_list", "room_usage","log"})
+     * @Serializer\Groups({"main", "lease_list", "room_usage","log", "lease_bill"})
      */
     private $endDate;
 
@@ -396,9 +396,15 @@ class Lease
 
     /**
      * @var int
-     * @Serializer\Groups({"main"})
+     * @Serializer\Groups({"main", "lease_list"})
      */
     private $unpaidLeaseBillsAmount;
+
+    /**
+     * @var int
+     * @Serializer\Groups({"main", "lease_list"})
+     */
+    private $paidBillsAmount;
 
     /**
      * @var User
@@ -420,6 +426,13 @@ class Lease
      * @Serializer\Groups({"main","lease_list"})
      */
     private $pushedLeaseBillsFees;
+
+    /**
+     * @var float
+     *
+     * @Serializer\Groups({"main","lease_list"})
+     */
+    private $paidLeaseBillsFees;
 
     /**
      * @var string
@@ -1040,6 +1053,7 @@ class Lease
                     'attachment' => $this->product->getRoom()->degenerateAttachment(),
                 ],
                 'lease_rent_types' => $this->product->getLeaseRentTypes(),
+                'rent_set' =>  $this->product->getRentSet(),
             ];
         } else {
             return null;
@@ -1421,5 +1435,37 @@ class Lease
     public function setLesseeEnterpriseName($lesseeEnterpriseName)
     {
         $this->lesseeEnterpriseName = $lesseeEnterpriseName;
+    }
+
+    /**
+     * @return float
+     */
+    public function getPaidLeaseBillsFees()
+    {
+        return $this->paidLeaseBillsFees;
+    }
+
+    /**
+     * @param float $paidLeaseBillsFees
+     */
+    public function setPaidLeaseBillsFees($paidLeaseBillsFees)
+    {
+        $this->paidLeaseBillsFees = $paidLeaseBillsFees;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPaidBillsAmount()
+    {
+        return $this->paidBillsAmount;
+    }
+
+    /**
+     * @param int $paidBillsAmount
+     */
+    public function setPaidBillsAmount($paidBillsAmount)
+    {
+        $this->paidBillsAmount = $paidBillsAmount;
     }
 }

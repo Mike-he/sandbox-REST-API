@@ -405,5 +405,39 @@ lease:
     lease_bill_unpaid_second: bill(s) is(are) waiting for payment. Click to view details.
     lease_bill_transfer_returned: A remittance receipt has been returned, click to view.
   order_method:
-      backend: Backend
-      auto: Auto
+    backend: Backend
+    auto: Auto
+  lease_status:
+    drafting: drafting
+    performing: performing
+    terminated: terminated
+    matured: matured
+    end: end
+    closed: closed
+  clue_status:
+    clue: clue
+    offer: offer
+    contract: contract
+    closed: closed
+  offer_status:
+    offer: offer
+    contract: contract
+    closed: closed
+  bill_status:
+    pending: pending
+    unpaid: unpaid
+    paid: paid
+    cancelled: cancelled
+    verify: verify
+
+
+client_property:
+  menu:
+    dashboard: 控制台
+    space: 空间管理
+    message: 客户消息
+    apply: 看房预约
+    trade: 交易管理
+    lease: 合同租赁
+    customer: 客户关系
+    setting: 设置

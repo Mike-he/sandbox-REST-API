@@ -213,6 +213,20 @@ class AdminMembershipCardOrderController extends SalesRestController
      *     strict=true
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="sort_column",
+     *    default=null,
+     *    nullable=true,
+     *    description="sort column"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="direction",
+     *    default=null,
+     *    nullable=true,
+     *    description="sort direction"
+     * )
+     *
      * @Method({"GET"})
      * @Route("/membership/cards/orders/list")
      *
@@ -240,6 +254,10 @@ class AdminMembershipCardOrderController extends SalesRestController
         $createEnd = $paramFetcher->get('create_end');
         $userId = $paramFetcher->get('user');
 
+        //sort
+        $sortColumn = $paramFetcher->get('sort_column');
+        $direction = $paramFetcher->get('direction');
+
         $limit = $pageLimit;
         $offset = ($pageIndex - 1) * $pageLimit;
 
@@ -257,7 +275,9 @@ class AdminMembershipCardOrderController extends SalesRestController
                 $offset,
                 $companyId,
                 null,
-                $userId
+                $userId,
+                $sortColumn,
+                $direction
             );
 
         $count = $this->getDoctrine()
@@ -282,6 +302,16 @@ class AdminMembershipCardOrderController extends SalesRestController
             if (!is_null($profile)) {
                 $order->setUserInfo(['username' => $profile->getName()]);
             }
+
+            $card = $order->getCard();
+            $doorBuildingIds = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserGroupDoors')
+                ->getBuildingIdsByGroup(
+                    null,
+                    $card->getId()
+                );
+
+            $order->setBuilding($doorBuildingIds);
         }
 
         $view = new View();

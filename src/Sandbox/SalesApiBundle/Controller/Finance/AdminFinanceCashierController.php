@@ -9,6 +9,7 @@ use Sandbox\ApiBundle\Entity\GenericList\GenericList;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Lease\LeaseRentTypes;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
+use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Symfony\Component\HttpFoundation\Request;
@@ -113,6 +114,20 @@ class AdminFinanceCashierController extends SalesRestController
      *    description="page number "
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="sort_column",
+     *    default=null,
+     *    nullable=true,
+     *    description="sort column"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="direction",
+     *    default=null,
+     *    nullable=true,
+     *    description="sort direction"
+     * )
+     *
      * @Route("/finance/cashier")
      * @Method({"GET"})
      *
@@ -143,6 +158,10 @@ class AdminFinanceCashierController extends SalesRestController
         $endDate = $paramFetcher->get('end_date');
         $keyword = $paramFetcher->get('keyword');
         $keywordSearch = $paramFetcher->get('keyword_search');
+
+        //sort
+        $sortColumn = $paramFetcher->get('sort_column');
+        $direction = $paramFetcher->get('direction');
 
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
@@ -211,6 +230,10 @@ class AdminFinanceCashierController extends SalesRestController
                 }
 
                 $result = array_merge($cashierOrders, $cashierBills);
+        }
+
+        if(!is_null($sortColumn) && !is_null($direction)){
+            $result = $this->sortLists($result, $sortColumn, $direction);
         }
 
         $count = count($result);
@@ -481,6 +504,7 @@ class AdminFinanceCashierController extends SalesRestController
             'description' => '',
             'room_name' => $roomData['room_name'],
             'room_type_tag' => $roomData['room_type_tag'],
+            'building_id' => $roomData['building_id']
         );
 
         return $data;
@@ -528,6 +552,7 @@ class AdminFinanceCashierController extends SalesRestController
             'description' => $bill->getDescription(),
             'room_name' => $roomData['room_name'],
             'room_type_tag' => $roomData['room_type_tag'],
+            'building_id' => $roomData['building_id']
         );
 
         return $data;
@@ -543,24 +568,62 @@ class AdminFinanceCashierController extends SalesRestController
     ) {
         $roomName = null;
         $roomTypeTag = null;
+        $buildingId = null;
         if ($productId) {
             $product = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Product\Product')
                 ->find($productId);
 
             if ($product) {
-                $roomName = $product->getRoom()->getName();
-                $tag = $product->getRoom()->getTypeTag();
-
+                /** @var Room $room */
+                $room = $product->getRoom();
+                $roomName = $room->getName();
+                $tag = $room->getTypeTag();
                 $roomTypeTag = $this->get('translator')->trans(ProductOrderExport::TRANS_PREFIX.$tag);
+                $buildingId = $room->getBuilding()->getId();
             }
         }
 
         $result = array(
             'room_name' => $roomName,
             'room_type_tag' => $roomTypeTag,
+            'building_id' => $buildingId,
         );
 
         return $result;
+    }
+
+    /**
+     * @param $lists
+     * @param $sortColumn
+     * @param $direction
+     * @return mixed
+     */
+    private function sortLists(
+        $lists,
+        $sortColumn,
+        $direction
+    ) {
+        $arr = [];
+        foreach( $lists as $list){
+            if ($sortColumn == 'base_price'){
+                $arr[] = intval($list[$sortColumn]);
+            }else{
+                $arr[] = $list[$sortColumn];
+            }
+        }
+
+        switch ($direction){
+            case 'asc':
+                array_multisort($arr,SORT_ASC,$lists);
+                break;
+            case 'desc':
+                array_multisort($arr,SORT_DESC,$lists);
+                break;
+            default:
+                break;
+        }
+
+        return $lists;
     }
 }

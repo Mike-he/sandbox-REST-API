@@ -9,7 +9,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * SalesAdmin.
  *
  * @ORM\Table(name="sales_admin")
- * @ORM\Entity()
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\SalesAdmin\SalesAdminRepository")
  */
 class SalesAdmin
 {

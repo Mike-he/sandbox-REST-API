@@ -16,7 +16,7 @@ use Symfony\Component\Security\Acl\Exception\Exception;
  * @author   Leo Xu <leox@gobeta.com.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 trait LeaseNotificationTrait
 {

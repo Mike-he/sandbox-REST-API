@@ -3,6 +3,7 @@
 namespace Sandbox\AdminApiBundle\Controller;
 
 use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdmin;
 use Sandbox\ApiBundle\Entity\User\User;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
@@ -25,7 +26,7 @@ class AdminRestController extends SandboxRestController
     const ERROR_EXPIRED_VERIFICATION_MESSAGE = 'client.account.expired_verification';
 
     /**
-     * @return User $admin
+     * @return SalesAdmin $admin
      *
      * @throws UnauthorizedHttpException
      */
@@ -34,10 +35,12 @@ class AdminRestController extends SandboxRestController
         $auth = $this->getSandboxAuthorization(self::SANDBOX_ADMIN_LOGIN_HEADER);
         $usernameArray = explode('-', $auth->getUsername());
 
-        $admin = $this->getRepo('User\User')->findOneBy(array(
-            'phone' => $usernameArray[1],
-            'password' => $auth->getPassword(),
-        ));
+        $admin = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
+            ->findOneBy(array(
+                'phone' => $usernameArray[1],
+                'password' => $auth->getPassword(),
+            ));
 
         if (is_null($admin)) {
             throw new UnauthorizedHttpException(null, self::UNAUTHED_API_CALL);
@@ -73,10 +76,12 @@ class AdminRestController extends SandboxRestController
         $phone = $usernameArray[1];
 
         // check current user is existed
-        $admin = $this->getRepo('User\User')->findOneBy(array(
-            'phoneCode' => $phoneCode,
-            'phone' => $phone,
-        ));
+        $admin = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
+            ->findOneBy(array(
+                'phoneCode' => $phoneCode,
+                'phone' => $phone,
+            ));
 
         if (is_null($admin)) {
             $error->setCode(self::ERROR_ACCOUNT_NONEXISTENT_CODE);
@@ -94,9 +99,9 @@ class AdminRestController extends SandboxRestController
         }
 
         // check admin is existed
-        $adminPositionUser = $this->getRepo('Admin\AdminPositionUserBinding')->findOneBy(array(
-            'userId' => $admin->getId(),
-        ));
+        $adminPositionUser = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
+            ->findOneBy(['userId' => $admin->getUserId()]);
 
         if (is_null($adminPositionUser)) {
             $error->setCode(self::ERROR_CURRENT_USER_IS_NOT_AN_ADMIN_CODE);

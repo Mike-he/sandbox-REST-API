@@ -19,7 +19,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  * @author   Albert Feng <albert.f@sandbox3.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 class AdminAuthController extends AuthController
 {
@@ -44,6 +44,8 @@ class AdminAuthController extends AuthController
         $platform = $request->query->get('platform');
         $salesCompanyId = $request->query->get('sales_company_id');
 
+        $etag = $request->headers->get('etag');
+
         // response for openfire
         if (is_null($platform)) {
             return new View(array(
@@ -54,7 +56,7 @@ class AdminAuthController extends AuthController
         }
 
         // response my permissions
-        if ($platform !== 'official') {
+        if ('official' !== $platform) {
             if (is_null($salesCompanyId)) {
                 throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
             }
@@ -97,23 +99,55 @@ class AdminAuthController extends AuthController
 
         $salesAdmin = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
-            ->findOneBy(array('userId'=>$adminId));
+            ->findOneBy(array('userId' => $adminId));
 
-        // response
-        return new View(
-            array(
-                'permissions' => $this->remove_duplicate($permissions),
-                'admin' => [
-                    'id' => $admin->getId(),
-                    'name' => $admin->getName(),
-                    'phone' => $admin->getPhone(),
-                    'is_super_admin' => $condition,
-                    'client_id' => $this->getUser()->getClientId(),
-                    'xmpp_username' => $salesAdmin->getXmppUsername(),
-                    'xmpp_code' => $this->get('sandbox_api.des_encrypt')->encrypt($salesAdmin->getPassword())
-                ],
-            )
+        $adminProfile = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
+            ->findOneBy([
+                'userId' => $adminId,
+                'salesCompanyId' => $salesCompanyId,
+            ]);
+
+        if (is_null($adminProfile)) {
+            $adminProfile = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
+                ->findOneBy([
+                    'userId' => $adminId,
+                    'salesCompanyId' => null,
+                ]);
+        }
+
+        $name = !is_null($adminProfile) ? $adminProfile->getNickname() : '';
+
+        $data = array(
+            'permissions' => $this->remove_duplicate($permissions),
+            'admin' => [
+                'id' => $admin->getId(),
+                'name' => $name,
+                'phone' => $admin->getPhone(),
+                'is_super_admin' => $condition,
+                'client_id' => $this->getUser()->getClientId(),
+                'xmpp_username' => $salesAdmin->getXmppUsername(),
+                'xmpp_code' => $this->get('sandbox_api.des_encrypt')->encrypt($salesAdmin->getPassword()),
+            ],
         );
+
+        // return view
+        $view = new View();
+
+        $dataHash = hash('sha256', json_encode($data));
+
+        // check hash
+        if ($etag == $dataHash) {
+            $view->setStatusCode(304);
+
+            return $view;
+        }
+
+        $view->setHeader('etag', $dataHash);
+        $view->setData($data);
+        // response
+        return $view;
     }
 
     /**

@@ -20,6 +20,8 @@ class LeaseOfferRepository extends EntityRepository
      * @param $endDate
      * @param $limit
      * @param $offset
+     * @param $sortColumn
+     * @param $direction
      *
      * @return array|\Doctrine\ORM\QueryBuilder
      */
@@ -35,7 +37,9 @@ class LeaseOfferRepository extends EntityRepository
         $startDate,
         $endDate,
         $limit = null,
-        $offset = null
+        $offset = null,
+        $sortColumn = null,
+        $direction = null
     ) {
         $query = $this->createQueryBuilder('lo')
             ->where('lo.buildingId in (:buildingIds)')
@@ -125,7 +129,21 @@ class LeaseOfferRepository extends EntityRepository
                 ->setParameter('endDate', $endDate);
         }
 
-        $query->orderBy('lo.id', 'DESC');
+        if (!is_null($sortColumn) && !is_null($direction)) {
+            $direction = strtoupper($direction);
+            $sortArray = array(
+                'start_date' => 'lo.startDate',
+                'end_date' => 'lo.endDate',
+                'monthly_rent' => 'lo.monthlyRent',
+                'deposit' => 'lo.deposit',
+                'creation_date' => 'lo.creationDate',
+                'total_rent' => 'lo.creationDate',
+            );
+
+            $query->orderBy($sortArray[$sortColumn], $direction);
+        } else {
+            $query->orderBy('lo.creationDate', 'DESC');
+        }
 
         if (!is_null($limit) && !is_null($offset)) {
             $query->setMaxResults($limit)
@@ -253,6 +271,100 @@ class LeaseOfferRepository extends EntityRepository
         }
 
         $result = $query->getQuery()->getSingleScalarResult();
+
+        return $result;
+    }
+
+    public function findOffersForPropertyClient(
+        $myBuildingIds,
+        $buildingId,
+        $status,
+        $source,
+        $keyword,
+        $keywordSearch,
+        $createStart,
+        $createEnd,
+        $startDate,
+        $endDate
+    ) {
+        $query = $this->createQueryBuilder('lo')
+            ->select('lo.id')
+            ->where('lo.buildingId in (:buildingIds)')
+            ->setParameter('buildingIds', $myBuildingIds);
+
+        if (!is_null($buildingId) && !empty($buildingId)) {
+            $query->andWhere('lo.buildingId in (:building)')
+                ->setParameter('building', $buildingId);
+        }
+
+        if ($status) {
+            $query->andWhere('lo.status = :status')
+                ->setParameter('status', $status);
+        }
+
+        if ($source) {
+            if ('clue' == $source) {
+                $query->andWhere('lo.LeaseClueId is not null');
+            } elseif ('created' == $source) {
+                $query->andWhere('lo.LeaseClueId is null');
+            }
+        }
+
+        if ($keyword && $keywordSearch) {
+            switch ($keyword) {
+                case 'all':
+                    $query->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'lo.lesseeCustomer = uc.id')
+                        ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'lo.productId = p.id')
+                        ->leftJoin('p.room', 'r')
+                        ->andWhere('
+                            (lo.serialNumber LIKE :keywordSearch OR
+                            uc.phone LIKE :keywordSearch OR
+                            uc.name LIKE :keywordSearch OR
+                            r.name LIKE :keywordSearch)
+                        ');
+                    break;
+                default:
+                    $query->andWhere(' lo.serialNumber LIKE :keywordSearch');
+            }
+
+            $query->setParameter('keywordSearch', "%$keywordSearch%");
+        }
+
+        if ($createStart) {
+            $createStart = new \DateTime($createStart);
+
+            $query->andWhere('lo.creationDate >= :createStart')
+                ->setParameter('createStart', $createStart);
+        }
+
+        if ($createEnd) {
+            $createEnd = new \DateTime($createEnd);
+            $createEnd->setTime(23, 59, 59);
+
+            $query->andWhere('lo.creationDate <= :createEnd')
+                ->setParameter('createEnd', $createEnd);
+        }
+
+        if ($startDate && $endDate) {
+            $startDate = new \DateTime($startDate);
+            $endDate = new \DateTime($endDate);
+            $endDate->setTime(23, 59, 59);
+
+            $query->andWhere(
+                '(
+                    (lo.startDate <= :startDate AND lo.endDate > :startDate) OR
+                    (lo.startDate < :endDate AND lo.endDate >= :endDate) OR
+                    (lo.startDate >= :startDate AND lo.endDate <= :endDate)
+                )'
+            )
+                ->setParameter('startDate', $startDate)
+                ->setParameter('endDate', $endDate);
+        }
+
+        $query->orderBy('lo.creationDate', 'DESC');
+
+        $result = $query->getQuery()->getResult();
+        $result = array_map('current', $result);
 
         return $result;
     }

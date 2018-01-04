@@ -2,6 +2,7 @@
 
 namespace Sandbox\ApiBundle\Traits;
 
+use Sandbox\ApiBundle\Entity\Event\Event;
 use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentServiceBill;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
@@ -16,7 +17,7 @@ use Sandbox\ApiBundle\Entity\User\UserBeanFlow;
  * @author   Leo Xu <leox@gobeta.com.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 trait SetStatusTrait
 {
@@ -35,8 +36,8 @@ trait SetStatusTrait
         $type = $order->getType();
         $payChannel = $order->getPayChannel();
 
-        if ($payChannel != ProductOrder::CHANNEL_SALES_OFFLINE) {
-            if ($type == ProductOrder::PREORDER_TYPE) {
+        if (ProductOrder::CHANNEL_SALES_OFFLINE != $payChannel) {
+            if (ProductOrder::PREORDER_TYPE == $type) {
                 $parameter = Parameter::KEY_BEAN_PRODUCT_ORDER_PREORDER;
 
                 $this->generateLongRentServiceFee(
@@ -126,6 +127,43 @@ trait SetStatusTrait
                 $price,
                 $order->getOrderNumber()
             );
+        }
+    }
+
+    /**
+     * @param Event $event
+     */
+    protected function setEventStatus(
+        $event
+    ) {
+        $now = new \DateTime();
+
+        $registrationStartDate = $event->getRegistrationStartDate();
+        $registrationEndDate = $event->getRegistrationEndDate();
+
+        $eventStartDate = $event->getEventStartDate();
+        $eventEndDate = $event->getEventEndDate();
+
+        $status = $event->getStatus();
+
+        if ($now >= $registrationStartDate &&
+            $now <= $registrationEndDate &&
+            Event::STATUS_REGISTERING != $status) {
+            $event->setStatus(Event::STATUS_REGISTERING);
+        } elseif ($now > $registrationEndDate &&
+            $now < $eventStartDate &&
+            Event::STATUS_WAITING != $status
+        ) {
+            $event->setStatus(Event::STATUS_WAITING);
+        } elseif ($now >= $eventStartDate &&
+            $now <= $eventEndDate &&
+            Event::STATUS_ONGOING != $status
+        ) {
+            $event->setStatus(Event::STATUS_ONGOING);
+        } elseif ($now > $eventEndDate &&
+            Event::STATUS_END != $status
+        ) {
+            $event->setStatus(Event::STATUS_END);
         }
     }
 }

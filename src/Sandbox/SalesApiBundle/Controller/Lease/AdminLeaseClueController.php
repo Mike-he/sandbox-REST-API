@@ -118,6 +118,20 @@ class AdminLeaseClueController extends SalesRestController
      *    description="status of lease"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="sort_column",
+     *    default=null,
+     *    nullable=true,
+     *    description="sort column"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="direction",
+     *    default=null,
+     *    nullable=true,
+     *    description="sort direction"
+     * )
+     *
      * @Route("/lease/clues")
      * @Method({"GET"})
      *
@@ -145,12 +159,25 @@ class AdminLeaseClueController extends SalesRestController
         $keywordSearch = $paramFetcher->get('keyword_search');
 
         $createStart = $paramFetcher->get('create_start');
+        if ($createStart) {
+            $createStart = new \DateTime($createStart);
+            $createStart->setTime(0, 0, 0);
+        }
+
         $createEnd = $paramFetcher->get('create_end');
+        if ($createEnd) {
+            $createEnd = new \DateTime($createEnd);
+            $createEnd->setTime(23, 59, 59);
+        }
 
         // rent date filter
         $rentFilter = $paramFetcher->get('rent_filter');
         $startDate = $paramFetcher->get('start_date');
         $endDate = $paramFetcher->get('end_date');
+
+        //sort
+        $sortColumn = $paramFetcher->get('sort_column');
+        $direction = $paramFetcher->get('direction');
 
         //get my buildings list
         $myBuildingIds = $this->getMySalesBuildingIds(
@@ -174,7 +201,9 @@ class AdminLeaseClueController extends SalesRestController
                 $startDate,
                 $endDate,
                 $limit,
-                $offset
+                $offset,
+                $sortColumn,
+                $direction
             );
 
         $count = $this->getDoctrine()
@@ -343,7 +372,7 @@ class AdminLeaseClueController extends SalesRestController
 
         $em->flush();
 
-        if ($newStatus == LeaseClue::LEASE_CLUE_STATUS_CLOSED) {
+        if (LeaseClue::LEASE_CLUE_STATUS_CLOSED == $newStatus) {
             $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
             $salesCompanyId = $adminPlatform['sales_company_id'];
             $platform = $adminPlatform['platform'];
@@ -364,7 +393,9 @@ class AdminLeaseClueController extends SalesRestController
                 $newStatus,
                 $logMessage,
                 AdminStatusLog::OBJECT_LEASE_CLUE,
-                $clue->getId()
+                $clue->getId(),
+                AdminStatusLog::TYPE_SALES_ADMIN,
+                $clue->getCompanyId()
             );
         }
 
@@ -387,7 +418,7 @@ class AdminLeaseClueController extends SalesRestController
         $platform = $adminPlatform['platform'];
 
         $status = $clue->getStatus();
-        if ($status != LeaseClue::LEASE_CLUE_STATUS_CLUE) {
+        if (LeaseClue::LEASE_CLUE_STATUS_CLUE != $status) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
@@ -421,7 +452,7 @@ class AdminLeaseClueController extends SalesRestController
             $clue->setEndDate(new \DateTime($endDate));
         }
 
-        if ($method == 'POST') {
+        if ('POST' == $method) {
             $serialNumber = $this->generateSerialNumber(LeaseClue::LEASE_CLUE_LETTER_HEAD);
             $clue->setSerialNumber($serialNumber);
             $clue->setCompanyId($salesCompanyId);
@@ -443,14 +474,16 @@ class AdminLeaseClueController extends SalesRestController
             $clue->getId()
         );
 
-        if ($method == 'POST') {
+        if ('POST' == $method) {
             $logMessage = '创建线索';
             $this->get('sandbox_api.admin_status_log')->autoLog(
                 $this->getAdminId(),
                 $status,
                 $logMessage,
                 AdminStatusLog::OBJECT_LEASE_CLUE,
-                $clue->getId()
+                $clue->getId(),
+                AdminStatusLog::TYPE_SALES_ADMIN,
+                $clue->getCompanyId()
             );
 
             $response = array(
@@ -477,6 +510,10 @@ class AdminLeaseClueController extends SalesRestController
             /** @var Room $room */
             $room = $product->getRoom();
 
+            $attachment = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomAttachmentBinding')
+                ->findAttachmentsByRoom($room->getId(), 1);
+
             $typeTagDescription = $this->get('translator')->trans(RoomTypeTags::TRANS_PREFIX.$room->getTypeTag());
             $productData = array(
                 'id' => $clue->getProductId(),
@@ -485,6 +522,7 @@ class AdminLeaseClueController extends SalesRestController
                     'name' => $room->getName(),
                     'type_tag' => $room->getTypeTag(),
                     'type_tag_description' => $typeTagDescription,
+                    'attachment' => $attachment,
                 ),
             );
             $clue->setProduct($productData);

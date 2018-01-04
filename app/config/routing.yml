@@ -1,3 +1,7 @@
+sandbox_client_property_api:
+    resource: "@SandboxClientPropertyApiBundle/Resources/config/routing.yml"
+    prefix:   /property/client
+
 sandbox_sales_api:
     resource: "@SandboxSalesApiBundle/Resources/config/routing.yml"
     type: rest

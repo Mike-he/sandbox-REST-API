@@ -5,15 +5,14 @@ namespace Sandbox\ApiBundle\Constants;
 class CustomErrorMessagesConstants
 {
     // 400 BAD REQUEST
-    // LEASE
-    const ERROR_LEASE_STATUS_NOT_CORRECT_MESSAGE = 'The status of lease does not correct';
-    const ERROR_LEASE_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE = 'The format of payload for lease does not correct';
-    const ERROR_LEASE_KEEP_AT_LEAST_ONE_BILL_MESSAGE = 'Sorry, you can not remove all bills, please keeping at least one bill.';
-    const ERROR_LEASE_END_BILL_UNPAID_MESSAGE = 'Sorry, you can not end lease, there are bills unpaid.';
+    const ERROR_STATUS_NOT_CORRECT_CODE = 400001;
+    const ERROR_STATUS_NOT_CORRECT_MESSAGE = 'The status does not correct';
+    const ERROR_PAYLOAD_FORMAT_NOT_CORRECT_CODE = 400002;
+    const ERROR_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE = 'The format of payload does not correct';
 
-    // LEASE BILL
-    const ERROR_BILL_STATUS_NOT_CORRECT_MESSAGE = 'The status of bill does not correct';
-    const ERROR_BILLS_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE = 'The format of payload for bills does not correct';
+    // LEASE
+    const ERROR_LEASE_KEEP_AT_LEAST_ONE_BILL_MESSAGE = 'Sorry, you can not remove all bills, please keeping at least one bill.';
+
 
     // SALES COMPANY
     const ERROR_SALES_COMPANY_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE = 'The format of payload for sales company does not correct';
@@ -37,11 +36,11 @@ class CustomErrorMessagesConstants
     const ERROR_CUSTOMER_SERVICE_PAYLOAD_NOT_CORRECT_CODE = 'The format of payload for customer service does not correct';
 
     // Membership Card && Group
-    const ERROR_CARD_GROUP_CAN_NOT_BE_EDITED_CODE = 400001;
+    const ERROR_CARD_GROUP_CAN_NOT_BE_EDITED_CODE = 400011;
     const ERROR_CARD_GROUP_CAN_NOT_BE_EDITED_MESSAGE = 'The card group cannot be edited';
 
     //Bean
-    const ERROR_BEAN_OPERATION_TODAY_CODE = 400005;
+    const ERROR_BEAN_OPERATION_TODAY_CODE = 400012;
     const ERROR_BEAN_OPERATION_TODAY_MESSAGE = 'Today has been operating';
 
     //Offline Transfer

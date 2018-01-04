@@ -39,6 +39,8 @@ class ClientCustomerServiceController extends ChatGroupController
     ) {
         $em = $this->getDoctrine()->getManager();
 
+        $appKey = $this->getParameter('jpush_property_key');
+
         /**
          * 1. check user is not banned done
          * 2. check building exist and get building done
@@ -46,7 +48,8 @@ class ClientCustomerServiceController extends ChatGroupController
          * 4. get customer services of the building
          * 5. create chat group
          * 6. save chat group members
-         * 7. create openfire chat group.
+         * 7. create Jmessage chat group.
+         * 8. add Customer Service member into Jmessage group.
          */
         $myUserId = $this->getUserId();
         $myUser = $this->getRepo('User\User')->find($myUserId);
@@ -76,12 +79,14 @@ class ClientCustomerServiceController extends ChatGroupController
         }
 
         // get customer services
-        $customerServices = $this->getServiceMemberRepo()->findBy(
-            array(
-                'buildingId' => $building->getId(),
-                'tag' => $tag,
-            )
-        );
+        $customerServices = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomBuildingServiceMember')
+            ->findBy(
+                array(
+                    'buildingId' => $building->getId(),
+                    'tag' => $tag,
+                )
+            );
 
         if (empty($customerServices)) {
             throw new NotFoundHttpException(self::NOT_FOUND_MESSAGE);
@@ -102,6 +107,24 @@ class ClientCustomerServiceController extends ChatGroupController
 
                 $existChatGroup->setGid($gid);
                 $em->flush();
+
+                $chatGroupMembers = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:ChatGroup\ChatGroupMember')
+                    ->findBy(array('chatGroup' => $existChatGroup));
+
+                $memberIds = [];
+                foreach ($chatGroupMembers as $chatGroupMember) {
+                    $userId = $chatGroupMember->getUser();
+
+                    $salesAdmin = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
+                        ->findOneBy(array('userId' => $userId));
+                    if ($salesAdmin) {
+                        $memberIds[] = $salesAdmin->getXmppUsername();
+                    }
+                }
+
+                $this->addXmppChatGroupMember($existChatGroup, $memberIds, $appKey);
             }
 
             return new View([
@@ -109,25 +132,6 @@ class ClientCustomerServiceController extends ChatGroupController
                 'name' => $existChatGroup->getName(),
                 'gid' => $gid,
             ]);
-        }
-
-        // get services group members
-        $members = [];
-        foreach ($customerServices as $customerService) {
-            $memberId = $customerService->getUserId();
-            
-            $member = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:User\User')
-                ->findOneBy([
-                    'id' => $memberId,
-                    'banned' => false,
-                ]);
-
-            if (is_null($member)) {
-                continue;
-            }
-
-            $members[] = $member;
         }
 
         // get company
@@ -146,21 +150,32 @@ class ClientCustomerServiceController extends ChatGroupController
         $em->persist($chatGroup);
 
         // set chat group members
-        foreach ($members as $member) {
-            $chatGroupMember = new ChatGroupMember();
-            $chatGroupMember->setChatGroup($chatGroup);
-            $chatGroupMember->setUser($member);
-            $chatGroupMember->setAddBy($myUser);
+        $memberIds = [];
+        foreach ($customerServices as $customerService) {
+            $userId = $customerService->getUserId();
 
-            $em->persist($chatGroupMember);
+            $salesAdmin = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
+                ->findOneBy(array('userId' => $userId));
+            if ($salesAdmin) {
+                $memberIds[] = $salesAdmin->getXmppUsername();
+
+                $chatGroupMember = new ChatGroupMember();
+                $chatGroupMember->setChatGroup($chatGroup);
+                $chatGroupMember->setUser($userId);
+                $chatGroupMember->setAddBy($myUser);
+
+                $em->persist($chatGroupMember);
+            }
         }
-
         // save to db
         $em->flush();
 
         // create chat group in Openfire
         $gid = $this->createXmppChatGroup($chatGroup);
         $chatGroup->setGid($gid);
+
+        $this->addXmppChatGroupMember($chatGroup, $memberIds, $appKey);
 
         $em->flush();
 

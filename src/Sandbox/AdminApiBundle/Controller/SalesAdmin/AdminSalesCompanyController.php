@@ -15,6 +15,7 @@ use Sandbox\ApiBundle\Entity\Finance\FinanceSalesWallet;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdmin;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany;
+use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyApply;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesCompanyPatchType;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesCompanyPostType;
@@ -301,6 +302,21 @@ class AdminSalesCompanyController extends SandboxRestController
                 ->getRepository('SandboxApiBundle:User\User')
                 ->find($admin->getUserId());
 
+            $adminProfile = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
+                ->findOneBy([
+                    'userId' => $admin->getUserId(),
+                    'salesCompanyId' => null,
+                ]);
+
+            $avatar = !is_null($adminProfile) ? $adminProfile->getAvatar() : '';
+            $name = !is_null($adminProfile) ? $adminProfile->getNickname() : '';
+
+            $user->setAdminProfile([
+                'avatar' => $avatar,
+                'name' => $name,
+            ]);
+
             array_push($userArray, $user);
         }
 
@@ -326,6 +342,21 @@ class AdminSalesCompanyController extends SandboxRestController
             $coffeeUser = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:User\User')
                 ->find($coffeeAdmin->getUserId());
+
+            $adminProfile = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
+                ->findOneBy([
+                    'userId' => $coffeeAdmin->getUserId(),
+                    'salesCompanyId' => null,
+                ]);
+
+            $avatar = !is_null($adminProfile) ? $adminProfile->getAvatar() : '';
+            $name = !is_null($adminProfile) ? $adminProfile->getNickname() : '';
+
+            $coffeeUser->setAdminProfile([
+                'avatar' => $avatar,
+                'name' => $name,
+            ]);
 
             array_push($coffeeUserArray, $coffeeUser);
         }
@@ -455,6 +486,18 @@ class AdminSalesCompanyController extends SandboxRestController
         $wallet->setCompanyId($salesCompany->getId());
 
         $em->persist($wallet);
+
+        // delete sales company application
+        if (!is_null($salesCompany->getApplicationId())) {
+            $application = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyApply')
+                ->find($salesCompany->getApplicationId());
+
+            if (!is_null($application)) {
+                $application->setStatus(SalesCompanyApply::STATUS_CLOSED);
+            }
+        }
+
         $em->flush();
 
         $this->addDefaultPositionsForSales($salesCompany, $excludePermissions);
@@ -489,7 +532,9 @@ class AdminSalesCompanyController extends SandboxRestController
         // check user permission
         $this->checkSalesAdminPermission(AdminPermission::OP_LEVEL_EDIT);
 
-        $salesCompany = $this->getSalesCompanyRepo()->find($id);
+        $salesCompany = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
+            ->find($id);
         $this->throwNotFoundIfNull($salesCompany, CustomErrorMessagesConstants::ERROR_SALES_COMPANY_NOT_FOUND_MESSAGE);
 
         $em = $this->getDoctrine()->getManager();
@@ -515,6 +560,23 @@ class AdminSalesCompanyController extends SandboxRestController
             $coffeeAdmins = $salesCompany->getCoffeeAdmins();
             $servicesInfos = $salesCompany->getServices();
             $excludePermissions = $salesCompany->getExcludePermissions();
+
+            $isOnlineSales = $salesCompany->isOnlineSales();
+            if (!$isOnlineSales) {
+                $buildings = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                    ->findBy(['companyId' => $id]);
+
+                foreach ($buildings as $building) {
+                    $products = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:Product\Product')
+                        ->getSalesProductsByBuilding($building);
+
+                    foreach ($products as $product) {
+                        $product->setVisible(false);
+                    }
+                }
+            }
 
             // update admins
             $this->updateAdmins(
@@ -793,7 +855,6 @@ class AdminSalesCompanyController extends SandboxRestController
         $buildingStatus,
         $shopOnline
     ) {
-
         // set buildings visible and status
         $buildings = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')->findByCompanyId($companyId);
 

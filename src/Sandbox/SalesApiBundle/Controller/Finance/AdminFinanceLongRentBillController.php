@@ -290,7 +290,7 @@ class AdminFinanceLongRentBillController extends SalesRestController
 
         $oldStatus = $bill->getStatus();
 
-        if ($oldStatus != FinanceLongRentBill::STATUS_PENDING) {
+        if (FinanceLongRentBill::STATUS_PENDING != $oldStatus) {
             return $this->customErrorView(
                 400,
                 CustomErrorMessagesConstants::ERROR_FINANCE_BILL_STATUS_NOT_CORRECT_CODE,
@@ -304,7 +304,7 @@ class AdminFinanceLongRentBillController extends SalesRestController
         $form = $this->createForm(new FinanceBillPatchType(), $bill);
         $form->submit(json_decode($billJson, true));
 
-        if ($bill->getStatus() != FinanceLongRentBill::STATUS_CANCELLED) {
+        if (FinanceLongRentBill::STATUS_CANCELLED != $bill->getStatus()) {
             return $this->customErrorView(
                 400,
                 CustomErrorMessagesConstants::ERROR_FINANCE_BILLS_PAYLOAD_FORMAT_NOT_CORRECT_CODE,

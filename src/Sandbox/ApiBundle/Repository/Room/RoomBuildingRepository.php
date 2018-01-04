@@ -210,10 +210,8 @@ class RoomBuildingRepository extends EntityRepository
         $visible = null,
         $excludeIds = null
     ) {
-        $buildingsQuery = $this->createQueryBuilder('rb');
-
-        // filter by building delete
-        $buildingsQuery->where('rb.isDeleted = FALSE');
+        $buildingsQuery = $this->createQueryBuilder('rb')
+            ->where('rb.isDeleted = FALSE');
 
         // query by city id
         if (!is_null($cityId)) {
@@ -403,7 +401,7 @@ class RoomBuildingRepository extends EntityRepository
         }
 
         // 0 means user disable location
-        if ($lat == 0 && $lng == 0) {
+        if (0 == $lat && 0 == $lng) {
             $buildingsQuery->select('
                 rb.id,
                 rb.name,
@@ -733,14 +731,14 @@ class RoomBuildingRepository extends EntityRepository
         return $buildingsQuery->getQuery()->getResult();
     }
 
-
     /**
      * @param $companyId
      * @param $buidingName
+     *
      * @return array
      */
     public function getCompanyBuildingsByName(
-        $companyId,$buildingName
+        $companyId, $buildingName
     ) {
         $query = $this->createQueryBuilder('b')
             ->select('b.id')
@@ -751,6 +749,7 @@ class RoomBuildingRepository extends EntityRepository
             ->setParameter('status', 'accept')
             ->setParameter('companyId', $companyId)
             ->setParameter('name', $buildingName);
+
         return $query->getQuery()->getResult();
     }
 }

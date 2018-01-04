@@ -77,13 +77,19 @@ class AdminUserLoginController extends AdminRestController
 
         $em = $this->getDoctrine()->getManager();
 
+        $admin = $this->getDoctrine()->getRepository('SandboxApiBundle:User\User')
+            ->find($admin->getUserId());
+
         // save or update user check code
         $userCheckCode = $this->saveUserCheckCode($admin, $em);
 
-        // send verification code by sms
-        $this->sendSMSNotification(
-            $userCheckCode
-        );
+        $noSms = $request->query->get('no_sms');
+        if (!$noSms) {
+            // send verification code by sms
+            $this->sendSMSNotification(
+                $userCheckCode
+            );
+        }
 
         $salesAdmin = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
@@ -165,12 +171,15 @@ class AdminUserLoginController extends AdminRestController
             return $error;
         }
 
-        return $this->handleAdminUserLogin($request, $admin);
+        $user = $this->getDoctrine()->getRepository('SandboxApiBundle:User\User')
+            ->find($admin->getUserId());
+
+        return $this->handleAdminUserLogin($request, $user);
     }
 
     /**
      * @param Request $request
-     * @param User    $admin
+     * @param SalesAdmin    $admin
      *
      * @return View
      *
@@ -209,7 +218,7 @@ class AdminUserLoginController extends AdminRestController
             );
 
             // set admin cookie
-            setrawcookie(self::ADMIN_COOKIE_NAME, $adminToken->getToken(), null, '/', $request->getHost());
+            setrawcookie(self::ADMIN_COOKIE_NAME, $adminToken->getToken(), null, '/', $this->getParameter('top_level_domain'));
 
             return $view->setData(
                 array(

@@ -22,7 +22,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  * @author   Leo Xu
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 class AdminChatGroupController extends ChatGroupController
 {
@@ -122,34 +122,33 @@ class AdminChatGroupController extends ChatGroupController
 
         $finalMembers = [];
         foreach ($memberArray as $item) {
-            $user = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:User\User')
+            $salesAdminProfile = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
                 ->findOneBy([
-                    'id' => $item,
-                    'banned' => false,
+                    'userId' => $item,
+                    'salesCompanyId' => $companyId,
                 ]);
 
-            if (is_null($user)) {
-                continue;
+            if (!$salesAdminProfile) {
+                $salesAdminProfile = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
+                    ->findOneBy([
+                        'userId' => $item,
+                        'salesCompanyId' => null,
+                    ]);
             }
 
-            $profile = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:User\UserProfile')
-                ->findOneBy(['userId' => $item]);
+            $salesAdmin = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
+                ->findOneBy([
+                    'userId' => $item,
+                ]);
 
-            $name = '';
-            if (!is_null($profile)) {
-                $name = $profile->getName();
-            }
-
-            $xmpp = $user->getXmppUsername();
-            array_push(
-                $finalMembers,
-                [
-                    'user_id' => $item,
-                    'xmpp_user' => $xmpp,
-                    'username' => $name,
-                ]
+            $finalMembers[] = array(
+                'user_id' => $item,
+                'username' => $salesAdminProfile ? $salesAdminProfile->getNickname() : null,
+                'avatar' => $salesAdminProfile ? $salesAdminProfile->getAvatar() : null,
+                'xmpp_user' => $salesAdmin->getXmppUsername(),
             );
         }
 
@@ -220,7 +219,7 @@ class AdminChatGroupController extends ChatGroupController
      * Retrieve a given chat group.
      *
      * @param Request $request the request object
-     * @param string     $gid
+     * @param string  $gid
      *
      * @Route("/chatgroups/{gid}")
      * @Method({"GET"})
@@ -278,6 +277,7 @@ class AdminChatGroupController extends ChatGroupController
         Request $request
     ) {
         $em = $this->getDoctrine()->getManager();
+        $appKey = $this->getParameter('jpush_property_key');
 
         $userId = $this->getUserId();
         $user = $this->getDoctrine()
@@ -340,6 +340,24 @@ class AdminChatGroupController extends ChatGroupController
             if (!$gid) {
                 $gid = $this->createXmppChatGroup($existGroup);
 
+                $chatGroupMembers = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:ChatGroup\ChatGroupMember')
+                    ->findBy(array('chatGroup' => $existGroup));
+
+                $memberIds = [];
+                foreach ($chatGroupMembers as $chatGroupMember) {
+                    $userId = $chatGroupMember->getUser();
+
+                    $salesAdmin = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
+                        ->findOneBy(array('userId' => $userId));
+                    if ($salesAdmin) {
+                        $memberIds[] = $salesAdmin->getXmppUsername();
+                    }
+                }
+
+                $this->addXmppChatGroupMember($existGroup, $memberIds, $appKey);
+
                 $existGroup->setGid($gid);
                 $em->flush();
             }
@@ -359,43 +377,39 @@ class AdminChatGroupController extends ChatGroupController
         $em->persist($chatGroup);
 
         // set members
-        $members = $this->getDoctrine()
+        $customerServices = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\RoomBuildingServiceMember')
             ->findBy([
                 'buildingId' => $buildingId,
                 'tag' => $chatGroup->getTag(),
             ]);
 
-        $finalMembers = [];
-        foreach ($members as $member) {
-            $user = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:User\User')
-                ->findOneBy([
-                    'id' => $member->getUserId(),
-                    'banned' => false,
-                ]);
-            
-            if (is_null($user)) {
-                continue;
+        $memberIds = [];
+        foreach ($customerServices as $customerService) {
+            $userId = $customerService->getUserId();
+
+            $salesAdmin = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
+                ->findOneBy(array('userId' => $userId));
+            if ($salesAdmin) {
+                $memberIds[] = $salesAdmin->getXmppUsername();
+
+                $chatGroupMember = new ChatGroupMember();
+                $chatGroupMember->setChatGroup($chatGroup);
+                $chatGroupMember->setUser($userId);
+                $chatGroupMember->setAddBy($creator);
+
+                $em->persist($chatGroupMember);
             }
-
-            $finalMembers[] = $user;
-        }
-
-        foreach ($finalMembers as $finalMember) {
-            $newMember = new ChatGroupMember();
-            $newMember->setAddBy($creator);
-            $newMember->setUser($finalMember);
-            $newMember->setChatGroup($chatGroup);
-
-            $em->persist($newMember);
         }
 
         $em->flush();
 
         $gid = $this->createXmppChatGroup($chatGroup);
-
         $chatGroup->setGid($gid);
+
+        $this->addXmppChatGroupMember($chatGroup, $memberIds, $appKey);
+
         $em->flush();
 
         // response

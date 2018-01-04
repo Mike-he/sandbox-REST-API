@@ -4,8 +4,6 @@ namespace Sandbox\SalesApiBundle\Controller\Event;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
-use Knp\Component\Pager\Paginator;
-use Sandbox\ApiBundle\Constants\EventOrderExport;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\GenericList\GenericList;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
@@ -14,7 +12,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\Controller\Annotations;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
-use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 class AdminEventOrderController extends SalesRestController
 {
@@ -122,6 +119,27 @@ class AdminEventOrderController extends SalesRestController
      * )
      *
      * @Annotations\QueryParam(
+     *    name="order_create_start",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="start date. Must be YYYY-mm-dd"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="order_create_end",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])$",
+     *    strict=true,
+     *    description="end date. Must be YYYY-mm-dd"
+     * )
+     *
+     *
+     * @Annotations\QueryParam(
      *    name="user",
      *    array=false,
      *    default=null,
@@ -129,6 +147,20 @@ class AdminEventOrderController extends SalesRestController
      *    requirements="\d+",
      *    strict=true,
      *    description="Filter by user id"
+     * )
+     *
+     *  @Annotations\QueryParam(
+     *    name="sort_column",
+     *    default=null,
+     *    nullable=true,
+     *    description="sort column"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="direction",
+     *    default=null,
+     *    nullable=true,
+     *    description="sort direction"
      * )
      *
      * @Route("/events/orders")
@@ -146,8 +178,6 @@ class AdminEventOrderController extends SalesRestController
             AdminPermission::OP_LEVEL_VIEW
         );
 
-        $pageLimit = $paramFetcher->get('pageLimit');
-        $pageIndex = $paramFetcher->get('pageIndex');
         $channel = $paramFetcher->get('channel');
         $keyword = $paramFetcher->get('keyword');
         $keywordSearch = $paramFetcher->get('keyword_search');
@@ -158,10 +188,46 @@ class AdminEventOrderController extends SalesRestController
         $createStart = $paramFetcher->get('create_start');
         $createEnd = $paramFetcher->get('create_end');
         $userId = $paramFetcher->get('user');
+        $orderCreateStart = $paramFetcher->get('order_create_start');
+        $orderCreateEnd = $paramFetcher->get('order_create_end');
+
+        //sort
+        $sortColumn = $paramFetcher->get('sort_column');
+        $direction = $paramFetcher->get('direction');
+
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+        $limit = $pageLimit;
+        $offset = ($pageIndex - 1) * $pageLimit;
 
         $orders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Event\EventOrder')
             ->getEventOrdersForSalesAdmin(
+                null,
+                $channel,
+                null,
+                null,
+                $keyword,
+                $keywordSearch,
+                $payDate,
+                $payStart,
+                $payEnd,
+                $createDateRange,
+                $createStart,
+                $createEnd,
+                $orderCreateStart,
+                $orderCreateEnd,
+                $this->getSalesCompanyId(),
+                $userId,
+                $limit,
+                $offset,
+                $sortColumn,
+                $direction
+            );
+
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventOrder')
+            ->countEventOrdersForSalesAdmin(
                 null,
                 $channel,
                 $keyword,
@@ -172,6 +238,8 @@ class AdminEventOrderController extends SalesRestController
                 $createDateRange,
                 $createStart,
                 $createEnd,
+                $orderCreateStart,
+                $orderCreateEnd,
                 $this->getSalesCompanyId(),
                 $userId
             );
@@ -190,22 +258,20 @@ class AdminEventOrderController extends SalesRestController
             $event->setAttachments($attachments);
         }
 
-        $orders = $this->get('serializer')->serialize(
-            $orders,
-            'json',
-            SerializationContext::create()->setGroups(['client_event'])
-        );
-        $orders = json_decode($orders, true);
-
-        $paginator = new Paginator();
-        $pagination = $paginator->paginate(
-            $orders,
-            $pageIndex,
-            $pageLimit
+        $view = new View();
+        $view->setSerializationContext(SerializationContext::create()->setGroups(['client_event']));
+        $view->setData(
+            array(
+                'current_page_number' => $pageIndex,
+                'num_items_per_page' => (int) $pageLimit,
+                'items' => $orders,
+                'total_count' => (int) $count,
+            )
         );
 
-        return new View($pagination);
+        return $view;
     }
+
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
@@ -346,6 +412,8 @@ class AdminEventOrderController extends SalesRestController
             ->getEventOrdersForSalesAdmin(
                 null,
                 $channel,
+                null,
+                null,
                 $keyword,
                 $keywordSearch,
                 $payDate,
@@ -354,6 +422,8 @@ class AdminEventOrderController extends SalesRestController
                 $createDateRange,
                 $createStart,
                 $createEnd,
+                null,
+                null,
                 $companyId
             );
 

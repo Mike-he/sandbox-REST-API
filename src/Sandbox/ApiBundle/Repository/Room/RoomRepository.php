@@ -56,7 +56,7 @@ class RoomRepository extends EntityRepository
 
         // filter by order status
         if (!is_null($status)) {
-            if ($status == self::ROOM_STATUS_USE) {
+            if (self::ROOM_STATUS_USE == $status) {
                 $where = '
                     (
                         r.orderStartDate <= :now
@@ -213,7 +213,7 @@ class RoomRepository extends EntityRepository
             throw new BadRequestHttpException();
         }
 
-        if ($type != 'fixed') {
+        if ('fixed' != $type) {
             $query = $this->createQueryBuilder('r')
                 ->where('r.floor = :floor')
                 ->andWhere('
@@ -360,7 +360,7 @@ class RoomRepository extends EntityRepository
 
         // filter by order status
         if (!is_null($status)) {
-            if ($status == self::ROOM_STATUS_USE) {
+            if (self::ROOM_STATUS_USE == $status) {
                 $where = '
                     (
                         r.orderStartDate <= :now
@@ -431,6 +431,7 @@ class RoomRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
     /**
      * @param array    $types
      * @param RoomCity $city
@@ -587,7 +588,7 @@ class RoomRepository extends EntityRepository
             throw new BadRequestHttpException();
         }
 
-        if ($type != Room::TYPE_DESK) {
+        if (Room::TYPE_DESK != $type) {
             $query = $this->createQueryBuilder('r')
                 ->where('r.floor = :floor')
                 ->andWhere('

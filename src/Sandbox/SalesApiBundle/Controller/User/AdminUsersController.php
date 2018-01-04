@@ -4,6 +4,7 @@ namespace Sandbox\SalesApiBundle\Controller\User;
 
 use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminProfiles;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesUser;
 use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
@@ -468,6 +469,10 @@ class AdminUsersController extends DoorController
         $ids = $paramFetcher->get('id');
         $search = $paramFetcher->get('query');
 
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $platform = $adminPlatform['platform'];
+        $companyId = $adminPlatform['sales_company_id'];
+
         $users = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserView')
             ->searchUser(
@@ -490,6 +495,101 @@ class AdminUsersController extends DoorController
             );
 
         return new View($users);
+    }
+
+    /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="id",
+     *    array=true,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="Filter by id"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="query",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     * )
+     *
+     * @Route("/open/admins")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getOpenAdminsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $ids = $paramFetcher->get('id');
+        $search = $paramFetcher->get('query');
+
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $platform = $adminPlatform['platform'];
+        $companyId = $adminPlatform['sales_company_id'];
+
+        $users = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserView')
+            ->searchUser(
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                $ids,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                $search
+            );
+
+        $response = [];
+        foreach ($users as $user) {
+            $userId = $user->getId();
+
+            $adminProfile = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
+                ->findOneBy([
+                    'userId' => $userId,
+                    'salesCompanyId' => $companyId,
+                ]);
+
+            if (is_null($adminProfile)) {
+                $adminProfile = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
+                    ->findOneBy([
+                        'userId' => $userId,
+                        'salesCompanyId' => null,
+                    ]);
+            }
+
+            $admin = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
+                ->findOneBy(['userId' => $userId]);
+            $adminPhone = is_null($admin) ? null : $admin->getPhone();
+
+            array_push($response, [
+                'user_id' => $userId,
+                'admin_profile' => $adminProfile,
+                'admin' => [
+                    'phone' => $adminPhone,
+                ],
+            ]);
+        }
+
+        return new View($response);
     }
 
     /**

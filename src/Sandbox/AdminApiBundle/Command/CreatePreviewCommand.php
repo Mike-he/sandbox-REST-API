@@ -50,10 +50,10 @@ EOT
             ->findAll();
 
         switch ($entityName) {
-            case $entityName == 'Room\RoomAttachment':
+            case 'Room\RoomAttachment' == $entityName:
                 $target = 'building';
                 break;
-            case $entityName == 'Event\EventAttachment':
+            case 'Event\EventAttachment' == $entityName:
                 $target = 'event';
                 break;
             default:

@@ -23,7 +23,7 @@ class ProductRentSet
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      *
-     * @Serializer\Groups({"main", "admin_room", "admin_detail", "client"})
+     * @Serializer\Groups({"main", "admin_room", "admin_detail", "client", "lease_bill"})
      */
     private $id;
 
@@ -40,7 +40,7 @@ class ProductRentSet
      *
      * @ORM\Column(name="base_price", type="decimal", precision=10, scale=2)
      *
-     * @Serializer\Groups({"main", "admin_room", "admin_detail", "client", "client_appointment_list", "client_appointment_detail"})
+     * @Serializer\Groups({"main", "admin_room", "admin_detail", "client", "client_appointment_list", "client_appointment_detail", "lease_bill"})
      */
     private $basePrice;
 
@@ -49,7 +49,7 @@ class ProductRentSet
      *
      * @ORM\Column(name="unit_price", type="string", length=255)
      *
-     * @Serializer\Groups({"main", "admin_room", "admin_detail", "client", "client_appointment_list", "client_appointment_detail"})
+     * @Serializer\Groups({"main", "admin_room", "admin_detail", "client", "client_appointment_list", "client_appointment_detail", "lease_bill"})
      */
     private $unitPrice;
 
@@ -58,7 +58,7 @@ class ProductRentSet
      *
      * @ORM\Column(name="earliest_rent_date", type="datetime")
      *
-     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "client_appointment_list", "client_appointment_detail"})
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "client_appointment_list", "client_appointment_detail", "lease_bill"})
      */
     private $earliestRentDate;
 
@@ -67,7 +67,7 @@ class ProductRentSet
      *
      * @ORM\Column(name="deposit", type="decimal", precision=10, scale=2)
      *
-     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "client_appointment_list", "client_appointment_detail"})
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "client_appointment_list", "client_appointment_detail", "lease_bill"})
      */
     private $deposit;
 
@@ -76,7 +76,7 @@ class ProductRentSet
      *
      * @ORM\Column(name="rental_info", type="text")
      *
-     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "client_appointment_list", "client_appointment_detail"})
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "client_appointment_list", "client_appointment_detail", "lease_bill"})
      */
     private $rentalInfo;
 
@@ -94,7 +94,7 @@ class ProductRentSet
      *
      * @ORM\Column(name="status", type="boolean")
      *
-     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "client_appointment_list", "client_appointment_detail"})
+     * @Serializer\Groups({"main", "admin_room", "client", "admin_detail", "client_appointment_list", "client_appointment_detail", "lease_bill"})
      */
     private $status = true;
 

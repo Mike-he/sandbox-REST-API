@@ -20,6 +20,10 @@ class AdminStatusLog
     const OBJECT_LEASE_OFFER = 'lease_offer';
     const OBJECT_LEASE = 'lease';
 
+    const TYPE_CLIENT = 'client';
+    const TYPE_SALES_ADMIN = 'sales_admin';
+    const TYPE_OFFICIAL_ADMIN = 'official_admin';
+
     /**
      * @var int
      *

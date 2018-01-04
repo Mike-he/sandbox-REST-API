@@ -41,6 +41,8 @@ class RemoveGroupUserToDoorsCommand extends ContainerAwareCommand
             }
         }
 
+        $em->flush();
+
         foreach ($removeUsers as $user) {
             $doorDepartmentUsers = $em->getRepository('SandboxApiBundle:Door\DoorDepartmentUsers')
                 ->findBy(array('userId' => $user));

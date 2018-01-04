@@ -159,3 +159,8 @@ sandbox_api_door_public:
     resource: "@SandboxApiBundle/Controller/DoorV2/DoorPublicController.php"
     type:     annotation
     prefix:   /
+
+sandbox_rpc_sample:
+    resource: "@SandboxApiBundle/Controller/RpcSample/RpcSampleController.php"
+    type:     annotation
+    prefix:   /

@@ -60,7 +60,7 @@ class Reservation
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="view_time", type="string", length=64)
+     * @ORM\Column(name="view_time", type="datetime", nullable=false)
      */
     private $viewTime;
 

@@ -746,8 +746,6 @@ class AdminProductController extends ProductController
             );
         }
 
-        $product->setModificationDate(new \DateTime('now'));
-
         $em = $this->getDoctrine()->getManager();
         $em->flush();
 
@@ -788,6 +786,7 @@ class AdminProductController extends ProductController
         $rentDate
     ) {
         if (!is_null($rentDate) && !empty($rentDate)) {
+            $rentDate = new \DateTime($rentDate);
             $rentDate->setTime(0, 0, 0);
 
             $productRentSet = $this->getDoctrine()

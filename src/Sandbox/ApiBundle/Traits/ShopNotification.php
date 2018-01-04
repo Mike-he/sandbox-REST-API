@@ -26,11 +26,11 @@ trait ShopNotification
             $userId = $user->getId();
 
             $key = null;
-            if ($action == ShopOrder::STATUS_READY) {
+            if (ShopOrder::STATUS_READY == $action) {
                 $key = ShopOrder::READY_NOTIFICATION;
-            } elseif ($action == ShopOrder::STATUS_ISSUE) {
+            } elseif (ShopOrder::STATUS_ISSUE == $action) {
                 $key = ShopOrder::ISSUE_NOTIFICATION;
-            } elseif ($action == ShopOrder::STATUS_REFUNDED) {
+            } elseif (ShopOrder::STATUS_REFUNDED == $action) {
                 $key = ShopOrder::REFUNDED_NOTIFICATION;
             }
 

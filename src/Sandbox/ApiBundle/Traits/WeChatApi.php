@@ -79,7 +79,7 @@ trait WeChatApi
         $result = json_decode($response, true);
 
         $errCode = $result['errcode'];
-        if ($errCode != 0) {
+        if (0 != $errCode) {
             throw new UnauthorizedHttpException('WeChat login unauthorized!');
         }
 

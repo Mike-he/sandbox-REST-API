@@ -120,6 +120,20 @@ class AdminLeaseOfferController extends SalesRestController
      *    description="status of lease"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="sort_column",
+     *    default=null,
+     *    nullable=true,
+     *    description="sort column"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="direction",
+     *    default=null,
+     *    nullable=true,
+     *    description="sort direction"
+     * )
+     *
      * @Route("/lease/offers")
      * @Method({"GET"})
      *
@@ -154,6 +168,10 @@ class AdminLeaseOfferController extends SalesRestController
         $startDate = $paramFetcher->get('start_date');
         $endDate = $paramFetcher->get('end_date');
 
+        //sort
+        $sortColumn = $paramFetcher->get('sort_column');
+        $direction = $paramFetcher->get('direction');
+
         //get my buildings list
         $myBuildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
@@ -176,7 +194,9 @@ class AdminLeaseOfferController extends SalesRestController
                 $startDate,
                 $endDate,
                 $limit,
-                $offset
+                $offset,
+                $sortColumn,
+                $direction
             );
 
         $count = $this->getDoctrine()
@@ -351,7 +371,7 @@ class AdminLeaseOfferController extends SalesRestController
 
         $em->flush();
 
-        if ($newStatus == LeaseOffer::LEASE_OFFER_STATUS_CLOSED) {
+        if (LeaseOffer::LEASE_OFFER_STATUS_CLOSED == $newStatus) {
             $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
             $salesCompanyId = $adminPlatform['sales_company_id'];
             $platform = $adminPlatform['platform'];
@@ -372,7 +392,9 @@ class AdminLeaseOfferController extends SalesRestController
                 $newStatus,
                 $logMessage,
                 AdminStatusLog::OBJECT_LEASE_OFFER,
-                $offer->getId()
+                $offer->getId(),
+                AdminStatusLog::TYPE_SALES_ADMIN,
+                $salesCompanyId
             );
         }
 
@@ -405,7 +427,7 @@ class AdminLeaseOfferController extends SalesRestController
             $this->throwNotFoundIfNull($customer, self::NOT_FOUND_MESSAGE);
         }
 
-        if ($offer->getLesseeType() == LeaseOffer::LEASE_OFFER_LESSEE_TYPE_ENTERPRISE) {
+        if (LeaseOffer::LEASE_OFFER_LESSEE_TYPE_ENTERPRISE == $offer->getLesseeType()) {
             $enterpriseId = $offer->getLesseeEnterprise();
             if (is_null($enterpriseId)) {
                 throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
@@ -456,7 +478,7 @@ class AdminLeaseOfferController extends SalesRestController
             $offer->setEndDate($endDate);
         }
 
-        if ($method == 'POST') {
+        if ('POST' == $method) {
             $serialNumber = $this->generateSerialNumber(LeaseOffer::LEASE_OFFER_LETTER_HEAD);
             $offer->setSerialNumber($serialNumber);
             $offer->setCompanyId($salesCompanyId);
@@ -490,7 +512,7 @@ class AdminLeaseOfferController extends SalesRestController
             $offer->getId()
         );
 
-        if ($method == 'POST') {
+        if ('POST' == $method) {
             if ($leaseClueId) {
                 $leaseClue = $em->getRepository('SandboxApiBundle:Lease\LeaseClue')->find($leaseClueId);
                 $leaseClue->setStatus(LeaseClue::LEASE_CLUE_STATUS_OFFER);
@@ -520,7 +542,9 @@ class AdminLeaseOfferController extends SalesRestController
                     LeaseClue::LEASE_CLUE_STATUS_OFFER,
                     $leaseLogMessage,
                     AdminStatusLog::OBJECT_LEASE_CLUE,
-                    $leaseClueId
+                    $leaseClueId,
+                    AdminStatusLog::TYPE_SALES_ADMIN,
+                    $salesCompanyId
                 );
 
                 $logMessage = '从线索：'.$leaseClue->getSerialNumber().' 转为报价';
@@ -533,7 +557,9 @@ class AdminLeaseOfferController extends SalesRestController
                 $offer->getStatus(),
                 $logMessage,
                 AdminStatusLog::OBJECT_LEASE_OFFER,
-                $offer->getId()
+                $offer->getId(),
+                AdminStatusLog::TYPE_SALES_ADMIN,
+                $salesCompanyId
             );
 
             $response = array(

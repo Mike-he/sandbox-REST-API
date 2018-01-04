@@ -260,6 +260,27 @@ class AdminAdminsController extends SandboxRestController
             );
             $bind = json_decode($bind, true);
 
+            $adminProfile = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
+                ->findOneBy([
+                    'userId' => $userId['userId'],
+                    'salesCompanyId' => $companyId,
+                ]);
+
+            if (is_null($adminProfile)) {
+                $adminProfile = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
+                    ->findOneBy([
+                        'userId' => $userId['userId'],
+                        'salesCompanyId' => null,
+                    ]);
+            }
+
+            $admin = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
+                ->findOneBy(['userId' => $userId['userId']]);
+            $adminPhone = is_null($admin) ? null : $admin->getPhone();
+
             $result[] = array(
                 'user_id' => $userId['userId'],
                 'user' => $user,
@@ -268,6 +289,10 @@ class AdminAdminsController extends SandboxRestController
                 'building' => $buildingArr,
                 'shop' => $shopArr,
                 'bind' => $bind,
+                'admin_profile' => $adminProfile,
+                'admin' => [
+                    'phone' => $adminPhone,
+                ],
             );
         }
 
@@ -384,7 +409,41 @@ class AdminAdminsController extends SandboxRestController
 
         $result = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserView')->searchUserInfo($diff, $search);
 
-        return new View($result);
+        $response = [];
+        foreach ($result as $item) {
+            $userId = $item->getId();
+
+            $adminProfile = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
+                ->findOneBy([
+                    'userId' => $userId,
+                    'salesCompanyId' => $companyId,
+                ]);
+
+            if (is_null($adminProfile)) {
+                $adminProfile = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
+                    ->findOneBy([
+                        'userId' => $userId,
+                        'salesCompanyId' => null,
+                    ]);
+            }
+
+            $admin = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
+                ->findOneBy(['userId' => $userId]);
+            $adminPhone = is_null($admin) ? null : $admin->getPhone();
+
+            array_push($response, [
+                'user_id' => $userId,
+                'admin_profile' => $adminProfile,
+                'admin' => [
+                    'phone' => $adminPhone,
+                ],
+            ]);
+        }
+
+        return new View($response);
     }
 
     /**
@@ -620,6 +679,68 @@ class AdminAdminsController extends SandboxRestController
         );
 
         return new View($positions);
+    }
+
+    /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *     name="phone",
+     *     array=false,
+     *     nullable=false,
+     *     strict=true
+     * )
+     *
+     * @Route("/admins/search")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function searchAdminsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $phone = $paramFetcher->get('phone');
+
+        $admins = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
+            ->searchAdmins(
+                $phone
+            );
+
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
+        $response = [];
+        foreach ($admins as $admin) {
+            $userId = $admin['user_id'];
+
+            $adminProfile = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
+                ->findOneBy([
+                    'userId' => $userId,
+                    'salesCompanyId' => $salesCompanyId,
+                ]);
+
+            if (is_null($adminProfile)) {
+                $adminProfile = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
+                    ->findOneBy([
+                        'userId' => $userId,
+                        'salesCompanyId' => null,
+                    ]);
+            }
+
+            if ($adminProfile) {
+                $admin['avatar'] = $adminProfile->getAvatar();
+                $admin['nickname'] = $adminProfile->getNickname();
+            }
+
+            array_push($response, $admin);
+        }
+
+        return new View($response);
     }
 
     /**

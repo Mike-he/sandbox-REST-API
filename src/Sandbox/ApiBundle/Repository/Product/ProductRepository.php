@@ -1971,43 +1971,120 @@ class ProductRepository extends EntityRepository
                     GROUP BY pid
                     HAVING (DATEDIFF($endDate, $startDate) + 1) > (IFNULL(SUM(sum_day1), 0) + IFNULL(SUM(sum_day2), 0) + IFNULL(SUM(sum_day3), 0) + IFNULL(SUM(`count`), 0))
                     
-                    UNION 
-
-                    SELECT p.id
-                    FROM product AS p
-                      LEFT JOIN product_order AS po ON po.productId = p.id
-                      LEFT JOIN room AS r ON r.id = p.roomId
-                    WHERE po.id IS NULL OR `po`.status = '$status'
-                    AND r.type = '$roomType'
                     ;
               ");
             $stat->execute();
-            $pids = array_map('current', $stat->fetchAll());
+            $pids1 = array_map('current', $stat->fetchAll());
 
-            $em = $this->getEntityManager();
-            $connection = $em->getConnection();
             $stat = $connection->prepare("
-                    SELECT p.id,r.allowedPeople
+                SELECT  
+                    po.productId
+                FROM 
+                   product_order `po`
+                WHERE 
+                   po.status = '$status'
+                GROUP BY  po.productId
+            ");
+            $stat->execute();
+            $pidsCancelled = array_map('current', $stat->fetchAll());
+            $str = substr(implode(',',$pidsCancelled),1);
+
+            $stat = $connection->prepare("
+                  SELECT
+                      pid
+                    FROM (SELECT
+                        (CASE
+                          WHEN (po.startDate >= $startDate AND po.endDate <= $endDate)
+                            THEN DATEDIFF(po.endDate, po.startDate)
+                          END) AS sum_day1,
+                        (CASE
+                          WHEN (po.startDate <= $startDate AND po.endDate >= $startDate)
+                            THEN DATEDIFF(po.endDate, $startDate)
+                          END) AS sum_day2,
+                        (CASE
+                          WHEN (po.startDate <= $endDate AND po.endDate >= $endDate)
+                            THEN DATEDIFF($endDate, po.startDate)
+                          END) AS sum_day3,
+                        (CASE
+                          WHEN (po.startDate >= $startDate AND po.endDate <= $endDate) OR
+                               (po.startDate <= $startDate AND po.endDate >= $startDate) OR
+                               (po.startDate <= $endDate AND po.endDate >= $endDate)
+                            THEN
+                              COUNT(id)
+                          END) AS count,
+                        po.productId AS pid
+                      FROM product_order `po`
+                      WHERE po.status != '$status' 
+                      AND po.productId IN ($str)
+                      GROUP BY po.id
+                    ) AS p
+                    GROUP BY pid
+                    HAVING (DATEDIFF($endDate, $startDate) + 1) <= (IFNULL(SUM(sum_day1), 0) + IFNULL(SUM(sum_day2), 0) + IFNULL(SUM(sum_day3), 0) + IFNULL(SUM(`count`), 0))      
+                    ;
+              ");
+            $stat->execute();
+            $pids2 = array_map('current', $stat->fetchAll());
+            $str2 = substr(implode(',',$pids2),1);
+
+            $stat = $connection->prepare("
+                SELECT p.id
                     FROM product AS p
                       LEFT JOIN product_order AS po ON po.productId = p.id
                       LEFT JOIN room AS r ON r.id = p.roomId
-                    WHERE r.type = '$roomType'
-                    AND ((po.startDate >= $startDate AND po.endDate <= $endDate) OR
-                       (po.startDate <= $startDate AND po.endDate >= $startDate) OR
-                       (po.startDate <= $endDate AND po.endDate >= $endDate))
+                    WHERE po.id IS NULL 
+                    OR po.status = '$status' 
+                    AND p.id NOT IN ($str2)
+                    AND r.type = '$roomType'
                     GROUP BY p.id
-                    HAVING COUNT(po.id) < r.allowedPeople
-                    ;
-              ");
+                
+            ");
+            $stat->execute();
+            $pids3 = array_map('current', $stat->fetchAll());
+
+            $pids = array_merge($pids1,$pids3);
+
+//            $em = $this->getEntityManager();
+//            $connection = $em->getConnection();
+//            $stat = $connection->prepare("
+//                    SELECT p.id,r.allowedPeople
+//                    FROM product AS p
+//                      LEFT JOIN product_order AS po ON po.productId = p.id
+//                      LEFT JOIN room AS r ON r.id = p.roomId
+//                    WHERE r.type = '$roomType'
+//                    AND ((po.startDate >= $startDate AND po.endDate <= $endDate) OR
+//                       (po.startDate <= $startDate AND po.endDate >= $startDate) OR
+//                       (po.startDate <= $endDate AND po.endDate >= $endDate))
+//                    GROUP BY p.id
+//                    HAVING COUNT(po.id) < r.allowedPeople
+//                    ;
+//              ");
+//            $stat->execute();
+//            $pidsTwo = array_map('current', $stat->fetchAll());
+
+            $stat = $connection->prepare(
+                "
+                    SELECT p.id
+                    FROM product AS p
+                      LEFT JOIN leases as l ON l.product_id = p.id
+                      LEFT JOIN room AS r ON r.id = p.roomId
+                    WHERE r.type = '$roomType'
+                    AND(
+                     (l.start_date <= $startDate AND l.end_date >= $endDate)
+                    )
+                    AND l.status != 'closed'
+                    GROUP BY p.id;
+                "
+            );
             $stat->execute();
             $pidsTwo = array_map('current', $stat->fetchAll());
 
             $query->andWhere('p.startDate <= :startDate')
                 ->andWhere('p.endDate >= :startDate')
-                ->andWhere('p.id IN (:pids) OR p.id IN (:pidsTwo)')
+                ->andWhere('p.id IN (:pids) AND p.id NOT IN (:pidsTwo)')
                 ->setParameter('startDate', $startTime)
                 ->setParameter('pids', $pids)
-                ->setParameter('pidsTwo', $pidsTwo);
+                ->setParameter('pidsTwo', $pidsTwo)
+            ;
         }
 
         return $query;
@@ -2230,11 +2307,13 @@ class ProductRepository extends EntityRepository
 
     /**
      * @param $buildingId
+     * @param $search
      *
      * @return array
      */
     public function searchLeasesProducts(
-        $buildingId
+        $buildingId,
+        $search
     ) {
         $query = $this->createQueryBuilder('p')
             ->select('
@@ -2255,6 +2334,68 @@ class ProductRepository extends EntityRepository
                 ->setParameter('buildingId', $buildingId);
         }
 
+        if (!is_null($search)) {
+            $query->andWhere('r.name LIKE :search')
+                ->setParameter('search', '%'.$search.'%');
+        }
+
+
         return $query->getQuery()->getResult();
+    }
+
+    public function getProductsForPropertyClient(
+        $myBuildingIds,
+        $type,
+        $building,
+        $keyword,
+        $keywordSearch,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('p')
+            ->leftJoin('p.room','r')
+            ->leftJoin('r.building','b')
+            ->leftJoin('SandboxApiBundle:Product\ProductRentSet', 'prs', 'WITH', 'prs.product = p.id')
+            ->leftJoin('SandboxApiBundle:Product\ProductLeasingSet', 'ls', 'WITH', 'ls.product = p.id')
+            ->where('p.isDeleted = FALSE')
+            ->andWhere('prs.id is  NOT NULL or ls.id is NOT NULL')
+            ->andWhere('r.buildingId in (:buildingIds)')
+            ->setParameter('buildingIds', $myBuildingIds);
+
+        // filter by type
+        if (!is_null($type) && !empty($type)) {
+            $query->andWhere('r.type in (:type)')
+                ->setParameter('type', $type);
+        }
+
+        if (!is_null($building) && !empty($building)) {
+            $query->andWhere('r.building in (:building)')
+                ->setParameter('building', $building);
+        }
+
+        if (!is_null($keyword) && !is_null($keywordSearch)) {
+            switch ($keyword) {
+                case 'all':
+                    $query->andWhere(
+                        'r.name LIKE :search 
+                            ');
+                    break;
+                default:
+                    $query->andWhere('r.name LIKE :search');
+            }
+            $query->setParameter('search', '%'.$keywordSearch.'%');
+        }
+
+        $query->orderBy('b.name', 'asc')
+            ->addOrderBy('r.name','asc');
+
+        $query->groupBy('p.id');
+
+        $query->setMaxResults($limit)
+            ->setFirstResult($offset);
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
     }
 }

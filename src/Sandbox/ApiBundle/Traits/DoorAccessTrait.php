@@ -18,7 +18,7 @@ use Sandbox\ApiBundle\Constants\DoorAccessConstants;
  * @author   Leo Xu <leox@gobeta.com.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 trait DoorAccessTrait
 {
@@ -36,11 +36,11 @@ trait DoorAccessTrait
         $method,
         $data
     ) {
-        if ($method === 'POST') {
+        if ('POST' === $method) {
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/x-www-form-urlencoded'));
             curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        } elseif ($method === 'PUT' || $method === 'DELETE') {
+        } elseif ('PUT' === $method || 'DELETE' === $method) {
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
         }
 
@@ -193,7 +193,7 @@ trait DoorAccessTrait
             $periodArray = $this->postDoorApi($base.$globals['door_api_set_employee_card'], $data);
             $this->logOut($sessionId, $base);
 
-            if ($periodArray['result'] != DoorAccessConstants::RESULT_OK) {
+            if (DoorAccessConstants::RESULT_OK != $periodArray['result']) {
                 error_log('Door Access Error');
             }
         } catch (\Exception $e) {
@@ -249,7 +249,7 @@ trait DoorAccessTrait
             $periodArray = $this->postDoorApi($base.$globals['door_api_set_employee_card'], $data);
             $this->logOut($sessionId, $base);
 
-            if ($periodArray['result'] != DoorAccessConstants::RESULT_OK) {
+            if (DoorAccessConstants::RESULT_OK != $periodArray['result']) {
                 error_log('Door Access Error');
             } else {
                 $em = $this->getContainer()->get('doctrine')->getManager();
@@ -335,18 +335,18 @@ trait DoorAccessTrait
             $periodArray = $this->postDoorApi($base.$globals['door_api_set_room_order'], $data);
             $this->logOut($sessionId, $base);
 
-            if ($periodArray['result'] == DoorAccessConstants::RESULT_OK) {
+            if (DoorAccessConstants::RESULT_OK == $periodArray['result']) {
                 $this->updateDoorAccess(
                     $userArray,
                     $accessNo
                 );
-            } elseif ($periodArray['exceptionmsg'] == '订单号重复，不能添加订单') {
+            } elseif ('订单号重复，不能添加订单' == $periodArray['exceptionmsg']) {
                 $this->addEmployeeToOrder(
                     $base,
                     $accessNo,
                     $userArray
                 );
-            } elseif ($periodArray['result'] != DoorAccessConstants::RESULT_OK) {
+            } elseif (DoorAccessConstants::RESULT_OK != $periodArray['result']) {
                 error_log('Door Access Error');
             }
         } catch (\Exception $e) {
@@ -378,7 +378,7 @@ trait DoorAccessTrait
             $periodArray = $this->postDoorApi($base.$globals['door_api_repeal_room_order'], $data);
             $this->logOut($sessionId, $base);
 
-            if ($periodArray['result'] == DoorAccessConstants::RESULT_OK) {
+            if (DoorAccessConstants::RESULT_OK == $periodArray['result']) {
                 $this->updateDoorAccess(
                     null,
                     $accessNo,
@@ -386,7 +386,7 @@ trait DoorAccessTrait
                 );
             }
 
-            if ($periodArray['result'] != DoorAccessConstants::RESULT_OK) {
+            if (DoorAccessConstants::RESULT_OK != $periodArray['result']) {
                 error_log('Door Access Error');
             }
         } catch (\Exception $e) {
@@ -427,13 +427,13 @@ trait DoorAccessTrait
             $periodArray = $this->postDoorApi($base.$globals['door_api_order_add_emp'], $data);
             $this->logOut($sessionId, $base);
 
-            if ($periodArray['result'] == DoorAccessConstants::RESULT_OK) {
+            if (DoorAccessConstants::RESULT_OK == $periodArray['result']) {
                 $this->updateDoorAccess(
                     $userArray,
                     $accessNo
                 );
             }
-            if ($periodArray['result'] != DoorAccessConstants::RESULT_OK) {
+            if (DoorAccessConstants::RESULT_OK != $periodArray['result']) {
                 error_log('Door Access Error');
             }
         } catch (\Exception $e) {
@@ -474,7 +474,7 @@ trait DoorAccessTrait
             $periodArray = $this->postDoorApi($base.$globals['door_api_order_delete_emp'], $data);
             $this->logOut($sessionId, $base);
 
-            if ($periodArray['result'] == DoorAccessConstants::RESULT_OK) {
+            if (DoorAccessConstants::RESULT_OK == $periodArray['result']) {
                 $this->updateDoorAccess(
                     $userArray,
                     $accessNo,
@@ -482,7 +482,7 @@ trait DoorAccessTrait
                 );
             }
 
-            if ($periodArray['result'] != DoorAccessConstants::RESULT_OK) {
+            if (DoorAccessConstants::RESULT_OK != $periodArray['result']) {
                 error_log('Door Access Error');
             }
         } catch (\Exception $e) {
@@ -804,7 +804,7 @@ trait DoorAccessTrait
                 $result = $this->getCardNoByUser($userId);
                 if (
                     !is_null($result) &&
-                    $result['status'] === DoorController::STATUS_AUTHED
+                    DoorController::STATUS_AUTHED === $result['status']
                 ) {
                     $this->setMembershipEmployeeCardForOneBuilding(
                         $base,

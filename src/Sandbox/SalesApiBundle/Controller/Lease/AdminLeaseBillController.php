@@ -4,7 +4,6 @@ namespace Sandbox\SalesApiBundle\Controller\Lease;
 
 use Knp\Component\Pager\Paginator;
 use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
-use Sandbox\ApiBundle\Constants\LeaseConstants;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Admin\AdminStatusLog;
 use Sandbox\ApiBundle\Entity\Lease\Lease;
@@ -141,6 +140,41 @@ class AdminLeaseBillController extends SalesRestController
      *    description="Filter by building id"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="rent_filter",
+     *    default=null,
+     *    nullable=true,
+     *    description="rent time filter keywords"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="start_date",
+     *    default=null,
+     *    nullable=true,
+     *    description="bill start date"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="end_date",
+     *    default=null,
+     *    nullable=true,
+     *    description="bill end date"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="sort_column",
+     *    default=null,
+     *    nullable=true,
+     *    description="sort column"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="direction",
+     *    default=null,
+     *    nullable=true,
+     *    description="sort direction"
+     * )
+     *
      * @Route("/lease/bills")
      * @Method({"GET"})
      *
@@ -154,9 +188,6 @@ class AdminLeaseBillController extends SalesRestController
     ) {
         // check user permission
         $this->checkAdminLeasePermission(AdminPermission::OP_LEVEL_VIEW);
-
-        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
-        $company = $adminPlatform['sales_company_id'];
 
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
@@ -172,6 +203,14 @@ class AdminLeaseBillController extends SalesRestController
         $payEndDate = $paramFetcher->get('pay_end_date');
         $status = $paramFetcher->get('status');
         $building = $paramFetcher->get('building');
+
+        $rentFilter = $paramFetcher->get('rent_filter');
+        $startDate = $paramFetcher->get('start_date');
+        $endDate = $paramFetcher->get('end_date');
+
+        //sort
+        $sortColumn = $paramFetcher->get('sort_column');
+        $direction = $paramFetcher->get('direction');
 
         $myBuildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
@@ -202,8 +241,13 @@ class AdminLeaseBillController extends SalesRestController
                 $payStartDate,
                 $payEndDate,
                 $leaseStatus,
+                $rentFilter,
+                $startDate,
+                $endDate,
                 $limit,
-                $offset
+                $offset,
+                $sortColumn,
+                $direction
             );
 
         $count = $this->getDoctrine()
@@ -219,7 +263,10 @@ class AdminLeaseBillController extends SalesRestController
                 $sendEnd,
                 $payStartDate,
                 $payEndDate,
-                $leaseStatus
+                $leaseStatus,
+                $rentFilter,
+                $startDate,
+                $endDate
             );
 
         $bills = $this->get('serializer')->serialize(
@@ -639,7 +686,11 @@ class AdminLeaseBillController extends SalesRestController
         );
 
         if (!in_array($oldStatus, $status)) {
-            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILL_STATUS_NOT_CORRECT_MESSAGE);
+            return $this->customErrorView(
+                400,
+                CustomErrorMessagesConstants::ERROR_STATUS_NOT_CORRECT_CODE,
+                CustomErrorMessagesConstants::ERROR_STATUS_NOT_CORRECT_MESSAGE
+            );
         }
 
         $billJson = $this->container->get('serializer')->serialize($bill, 'json');
@@ -648,8 +699,14 @@ class AdminLeaseBillController extends SalesRestController
         $form = $this->createForm(new LeaseBillPatchType(), $bill);
         $form->submit(json_decode($billJson, true));
 
-        if ($bill->getStatus() != LeaseBill::STATUS_UNPAID) {
-            throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILLS_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE);
+        if (LeaseBill::STATUS_UNPAID != $bill->getStatus()) {
+            if (LeaseBill::STATUS_UNPAID != $bill->getStatus()) {
+                return $this->customErrorView(
+                    400,
+                    CustomErrorMessagesConstants::ERROR_PAYLOAD_FORMAT_NOT_CORRECT_CODE,
+                    CustomErrorMessagesConstants::ERROR_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE
+                );
+            }
         }
 
         if (is_null($bill->getRevisedAmount())) {
@@ -660,22 +717,29 @@ class AdminLeaseBillController extends SalesRestController
         $bill->setSender($this->getUserId());
         $bill->setSalesInvoice(true);
 
-        if ($oldStatus == LeaseBill::STATUS_PENDING) {
-            $this->pushBillMessage($bill);
-        }
-
         $em = $this->getDoctrine()->getManager();
         $em->persist($bill);
         $em->flush();
 
-        $logMessage = '推送账单';
-        $this->get('sandbox_api.admin_status_log')->autoLog(
-            $this->getAdminId(),
-            LeaseBill::STATUS_UNPAID,
-            $logMessage,
-            AdminStatusLog::OBJECT_LEASE_BILL,
-            $id
-        );
+        if (LeaseBill::STATUS_PENDING == $oldStatus &&
+            LeaseBill::STATUS_UNPAID == $bill->getStatus()
+        ) {
+            $this->pushBillMessage($bill);
+
+            /** @var Lease $lease */
+            $lease =  $bill->getLease();
+
+            $logMessage = '推送账单';
+            $this->get('sandbox_api.admin_status_log')->autoLog(
+                $this->getAdminId(),
+                LeaseBill::STATUS_UNPAID,
+                $logMessage,
+                AdminStatusLog::OBJECT_LEASE_BILL,
+                $id,
+                AdminStatusLog::TYPE_SALES_ADMIN,
+                $lease->getCompanyId()
+            );
+        }
 
         // generate log
         $this->generateAdminLogs(array(
@@ -810,7 +874,7 @@ class AdminLeaseBillController extends SalesRestController
             if (isset($payload['revised_amount']) && !is_null($payload['revised_amount'])) {
                 $bill->setRevisedAmount($payload['revised_amount']);
                 if (is_null($payload['revision_note'])) {
-                    throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_BILLS_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE);
+                    throw new BadRequestHttpException(CustomErrorMessagesConstants::ERROR_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE);
                 }
                 $bill->setRevisionNote($payload['revision_note']);
             } else {
@@ -835,44 +899,6 @@ class AdminLeaseBillController extends SalesRestController
                 'logObjectKey' => Log::OBJECT_LEASE_BILL,
                 'logObjectId' => $bill->getId(),
             ));
-        }
-    }
-
-    /**
-     * @param LeaseBill $bill
-     */
-    private function pushBillMessage(
-        $bill
-    ) {
-        /** @var Lease $lease */
-        $lease = $bill->getLease();
-        $leaseId = $lease->getId();
-
-        $billsAmount = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
-            ->countBills(
-                $leaseId,
-                null,
-                LeaseBill::STATUS_UNPAID
-            );
-
-        $userId = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserCustomer')
-            ->getUserIdByCustomerId($lease->getLesseeCustomer());
-
-        if ($userId) {
-            $urlParam = 'ptype=billsList&status=unpaid&leasesId='.$leaseId;
-            $contentArray = $this->generateLeaseContentArray($urlParam);
-            // send Jpush notification
-            $this->generateJpushNotification(
-                [
-                    $userId,
-                ],
-                LeaseConstants::LEASE_BILL_UNPAID_MESSAGE_PART1,
-                LeaseConstants::LEASE_BILL_UNPAID_MESSAGE_PART2,
-                $contentArray,
-                ' '.$billsAmount.' '
-            );
         }
     }
 

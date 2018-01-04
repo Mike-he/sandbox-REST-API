@@ -47,12 +47,12 @@ class EventRepository extends EntityRepository
                         ->andWhere('e.isSaved = FALSE')
                         ->setParameter('now', new \DateTime('now'));
                     break;
-                case $status == Event::STATUS_END:
+                case Event::STATUS_END == $status:
                     $query->andwhere('e.eventEndDate < :now')
                         ->andWhere('e.isSaved = FALSE')
                         ->setParameter('now', new \DateTime('now'));
                     break;
-                case $status == Event::STATUS_SAVED:
+                case Event::STATUS_SAVED == $status:
                     $query->andWhere('e.isSaved = TRUE');
                     break;
                 default:
@@ -178,12 +178,12 @@ class EventRepository extends EntityRepository
                         ->andWhere('e.isSaved = FALSE')
                         ->setParameter('now', new \DateTime('now'));
                     break;
-                case $status == Event::STATUS_END:
+                case Event::STATUS_END == $status:
                     $query->andwhere('e.eventEndDate < :now')
                         ->andWhere('e.isSaved = FALSE')
                         ->setParameter('now', new \DateTime('now'));
                     break;
-                case $status == Event::STATUS_SAVED:
+                case Event::STATUS_SAVED == $status:
                     $query->andWhere('e.isSaved = TRUE');
                     break;
                 default:

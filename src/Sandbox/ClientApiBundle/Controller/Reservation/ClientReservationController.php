@@ -55,6 +55,7 @@ class ClientReservationController extends SandboxRestController
         $productId = $reservation->getProductId();
         $product = $this->getDoctrine()->getRepository('SandboxApiBundle:Product\Product')->find($productId);
         $viewTime = new \DateTime($viewTime);
+        $reservation->setViewTime($viewTime);
         $error = $this->checkIfProductAvailable(
             $product,
             $now,

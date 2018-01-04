@@ -113,7 +113,9 @@ class AdminFinanceReceivableController extends SalesRestController
                         LeaseBill::STATUS_PAID,
                         $logMessage,
                         AdminStatusLog::OBJECT_LEASE_BILL,
-                        $bill->getId()
+                        $bill->getId(),
+                        AdminStatusLog::TYPE_SALES_ADMIN,
+                        $salesCompanyId
                     );
 
                     $amount = $bill->getRevisedAmount();
@@ -122,7 +124,7 @@ class AdminFinanceReceivableController extends SalesRestController
                     continue;
             }
 
-            if ($payload['pay_channel'] == 'sales_cash') {
+            if ('sales_cash' == $payload['pay_channel']) {
                 if (!isset($payload['amount'])) {
                     throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
                 }

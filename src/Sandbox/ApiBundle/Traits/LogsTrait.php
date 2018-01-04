@@ -14,7 +14,7 @@ use Sandbox\ApiBundle\Entity\Log\Log;
  * @author   Mike He <mike.he@sandbox3.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 trait LogsTrait
 {
@@ -253,10 +253,35 @@ trait LogsTrait
             ));
         }
 
+        $adminProfile = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
+            ->findOneBy([
+                'userId' => $objectId,
+                'salesCompanyId' => $companyId,
+            ]);
+
+        if (is_null($adminProfile)) {
+            $adminProfile = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
+                ->findOneBy([
+                    'userId' => $objectId,
+                    'salesCompanyId' => null,
+                ]);
+        }
+
+        $admin = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
+            ->findOneBy(['userId' => $objectId]);
+        $adminPhone = is_null($admin) ? null : $admin->getPhone();
+
         $admin = array(
             'user_id' => $objectId,
             'user' => $user,
             'bind' => $bindArr,
+            'admin_profile' => $adminProfile,
+            'admin' => [
+                'phone' => $adminPhone,
+            ],
         );
 
         return $this->transferToJson($admin);

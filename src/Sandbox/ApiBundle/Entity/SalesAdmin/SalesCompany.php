@@ -183,6 +183,41 @@ class SalesCompany
     private $services;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="website", type="string", length=255, nullable=true)
+     */
+    private $website;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="financial_contacter", type="string", length=255, nullable=true)
+     */
+    private $financialContacter;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="financial_contacter_phone", type="string", length=255, nullable=true)
+     */
+    private $financialContacterPhone;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="financial_contacter_email", type="string", length=255, nullable=true)
+     */
+    private $financialContacterEmail;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="online_sales", type="boolean", nullable=false)
+     */
+    private $onlineSales;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="creation_date", type="datetime")
@@ -201,6 +236,11 @@ class SalesCompany
      * @Serializer\Groups({"main", "admin"})
      */
     private $modificationDate;
+
+    /**
+     * @var int
+     */
+    private $applicationId;
 
     /**
      * Get id.
@@ -554,5 +594,101 @@ class SalesCompany
     public function setExcludePermissions($excludePermissions)
     {
         $this->excludePermissions = $excludePermissions;
+    }
+
+    /**
+     * @return string
+     */
+    public function getWebsite()
+    {
+        return $this->website;
+    }
+
+    /**
+     * @param string $website
+     */
+    public function setWebsite($website)
+    {
+        $this->website = $website;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFinancialContacter()
+    {
+        return $this->financialContacter;
+    }
+
+    /**
+     * @param string $financialContacter
+     */
+    public function setFinancialContacter($financialContacter)
+    {
+        $this->financialContacter = $financialContacter;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFinancialContacterPhone()
+    {
+        return $this->financialContacterPhone;
+    }
+
+    /**
+     * @param string $financialContacterPhone
+     */
+    public function setFinancialContacterPhone($financialContacterPhone)
+    {
+        $this->financialContacterPhone = $financialContacterPhone;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFinancialContacterEmail()
+    {
+        return $this->financialContacterEmail;
+    }
+
+    /**
+     * @param string $financialContacterEmail
+     */
+    public function setFinancialContacterEmail($financialContacterEmail)
+    {
+        $this->financialContacterEmail = $financialContacterEmail;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isOnlineSales()
+    {
+        return $this->onlineSales;
+    }
+
+    /**
+     * @param bool $onlineSales
+     */
+    public function setOnlineSales($onlineSales)
+    {
+        $this->onlineSales = $onlineSales;
+    }
+
+    /**
+     * @return int
+     */
+    public function getApplicationId()
+    {
+        return $this->applicationId;
+    }
+
+    /**
+     * @param int $applicationId
+     */
+    public function setApplicationId($applicationId)
+    {
+        $this->applicationId = $applicationId;
     }
 }

@@ -22,7 +22,7 @@ use Sandbox\ApiBundle\Service\AdminSalesWalletService;
  * @author   Feng Li <feng.li@sandbox3.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 trait FinanceTrait
 {
@@ -1227,9 +1227,9 @@ trait FinanceTrait
         $headers = null,
         $data = null
     ) {
-        if ($method === 'POST') {
+        if ('POST' === $method) {
             curl_setopt($ch, CURLOPT_POST, 1);
-        } elseif ($method === 'PUT' || $method === 'DELETE') {
+        } elseif ('PUT' === $method || 'DELETE' === $method) {
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
         }
 

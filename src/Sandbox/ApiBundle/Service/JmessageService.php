@@ -2,6 +2,7 @@
 
 namespace Sandbox\ApiBundle\Service;
 
+use JMessage\Cross\Member;
 use JMessage\IM\Friend;
 use JMessage\IM\Resource;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -55,6 +56,11 @@ class JmessageService
      */
     private $friend;
 
+    /**
+     * @var Member
+     */
+    private $member;
+
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
@@ -66,6 +72,7 @@ class JmessageService
         $this->resource = new Resource($this->client);
         $this->report = new Report($this->client);
         $this->friend = new Friend($this->client);
+        $this->member = new Member($this->client);
     }
 
     public function createUser(
@@ -123,16 +130,30 @@ class JmessageService
 
     public function addGroupMembers(
         $gid,
-        $usernames
+        $usernames,
+        $appKey = null
     ) {
-        $this->group->addMembers($gid, $usernames);
+        if (is_null($appKey)) {
+            $response = $this->group->addMembers($gid, $usernames);
+        } else {
+            $response = $this->member->add($gid, $appKey, $usernames);
+        }
+
+        return $response;
     }
 
     public function deleteGroupMembers(
         $gid,
-        $usernames
+        $usernames,
+        $appKey = null
     ) {
-        $this->group->removeMembers($gid, $usernames);
+        if (is_null($appKey)) {
+            $response = $this->group->removeMembers($gid, $usernames);
+        } else {
+            $response = $this->member->remove($gid, $appKey, $usernames);
+        }
+
+        return $response;
     }
 
     public function getMedia(

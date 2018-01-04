@@ -142,6 +142,19 @@ class AdminReservationController extends SalesRestController
      *    nullable=true
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="sort_column",
+     *    default=null,
+     *    nullable=true,
+     *    description="sort column"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="direction",
+     *    default=null,
+     *    nullable=true,
+     *    description="sort direction"
+     * )
      *
      * @Route("/reservation/list")
      * @Method({"GET"})
@@ -167,6 +180,10 @@ class AdminReservationController extends SalesRestController
         $buildingId = $paramFetcher->get('building');
         $limit = $pageLimit;
         $offset = ($pageIndex - 1) * $pageLimit;
+
+        //sort
+        $sortColumn = $paramFetcher->get('sort_column');
+        $direction = $paramFetcher->get('direction');
 
         $productIds = array();
         if ($buildingId) {
@@ -194,7 +211,9 @@ class AdminReservationController extends SalesRestController
                 $grabStart,
                 $grabEnd,
                 $limit,
-                $offset
+                $offset,
+                $sortColumn,
+                $direction
             );
 
         $count = $this->getDoctrine()
@@ -216,6 +235,22 @@ class AdminReservationController extends SalesRestController
         $result = [];
         foreach ($reservations as $k=>$reservation) {
             $result[$k] = $this->getProductInfo($reservation);
+        }
+
+        if($sortColumn == 'price'){
+            $price = [];
+            foreach ($result as $k => $v) {
+                if(array_key_exists('leasing',$v['product'])){
+                    $price[] = $v['product']['leasing']['base_price'];
+                }else{
+                    $price[] = $v['product']['rent']['rent_price'];
+                }
+            }
+            if($direction == 'asc'){
+                array_multisort($price, SORT_ASC, $result);
+            }elseif ($direction == 'desc'){
+                array_multisort($price, SORT_DESC, $result);
+            }
         }
 
         $view = new View();
@@ -243,9 +278,13 @@ class AdminReservationController extends SalesRestController
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
+        $now = new \DateTime();
         $reservations = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Reservation\Reservation')
-            ->findCompanyUngrabedReservation($salesCompanyId);
+            ->findCompanyUngrabedReservation(
+                $salesCompanyId,
+                $now
+            );
 
         $result = [];
         foreach ($reservations as $k=>$reservation) {
@@ -263,7 +302,6 @@ class AdminReservationController extends SalesRestController
         );
 
         return $view;
-
     }
 
     /**
@@ -272,6 +310,14 @@ class AdminReservationController extends SalesRestController
      */
     private function getProductInfo($reservation)
     {
+        $viewTime = $reservation->getViewTime();
+        $status = $reservation->getStatus();
+        $now = new \DateTime();
+
+        if($now > $viewTime){
+            $status = 'expired';
+        }
+
         $data = [];
         /** @var Reservation $reservation */
         $data['id'] = $reservation->getId();
@@ -285,9 +331,16 @@ class AdminReservationController extends SalesRestController
         $data['viewTime'] = $reservation->getViewTime();
         $data['creationDate'] = $reservation->getCreationDate();
         $data['modificationDate'] = $reservation->getModificationDate();
-        $data['status'] = $reservation->getStatus();
+        $data['status'] = $status;
         $data['grabDate'] = $reservation->getGrabDate();
         $data['companyId'] = $reservation->getCompanyId();
+
+        $customer = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->findOneBy(array('userId'=>$data['userId'],'companyId'=>$data['companyId']));
+        if(!is_null($customer)){
+            $data['customerId'] = $customer->getId();
+        }
 
         $productId = $reservation->getProductId();
         $product = $this->getDoctrine()
@@ -303,17 +356,24 @@ class AdminReservationController extends SalesRestController
         $data['product']['content'] = $attachment[0]['content'];
         $data['product']['type_tag_description'] = $typeTagDescription;
 
-
         $user = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserProfile')
-            ->findByUserId($reservation->getUserId());
-        $data['userName'] = $user->getName();
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->findOneBy(array('userId'=>$reservation->getUserId()));
+        if($user){
+            $data['userName'] = $user->getName();
+        }
 
         if($reservation->getAdminId()){
             $admin = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:User\UserProfile')
-                ->findByUserId($reservation->getAdminId());
-            $data['adminName'] = $admin->getName();
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
+                ->findOneBy(array('userId'=>$reservation->getAdminId(),'salesCompanyId'=>$reservation->getCompanyId()));
+
+            if(is_null($admin)){
+                $admin = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
+                    ->findOneBy(array('userId'=>$reservation->getAdminId()));
+            }
+            $data['adminName'] = $admin->getNickname();
         }
 
         $rent = $this->getDoctrine()

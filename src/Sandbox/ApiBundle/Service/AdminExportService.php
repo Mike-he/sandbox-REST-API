@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Service;
 
 use Sandbox\ApiBundle\Constants\EventOrderExport;
+use Sandbox\ApiBundle\Constants\LeaseConstants;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Event\Event;
@@ -14,6 +15,7 @@ use Sandbox\ApiBundle\Entity\Lease\LeaseClue;
 use Sandbox\ApiBundle\Entity\Lease\LeaseOffer;
 use Sandbox\ApiBundle\Entity\Lease\LeaseRentTypes;
 use Sandbox\ApiBundle\Entity\MembershipCard\MembershipOrder;
+use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class AdminExportService
@@ -204,7 +206,7 @@ class AdminExportService
                 'room_type_tag' => $roomData['room_type_tag'],
                 'lessee_name' => $clue->getLesseeName(),
                 'lessee_address' => $clue->getLesseeAddress(),
-                'lessee_customer' => $customer->getName(),
+                'lessee_customer' => $customer ? $customer->getName() : '',
                 'lessee_email' => $clue->getLesseeEmail(),
                 'lessee_phone' => $clue->getLesseePhone(),
                 'start_date' => $clue->getStartDate() ? $clue->getStartDate()->format('Y-m-d H:i:s') : '',
@@ -306,7 +308,7 @@ class AdminExportService
             $leaseRentTypes = $offer->getLeaseRentTypes();
             $taxTypes = array();
             foreach ($leaseRentTypes as $leaseRentType) {
-                if ($leaseRentType->getType() == LeaseRentTypes::RENT_TYPE_TAX) {
+                if (LeaseRentTypes::RENT_TYPE_TAX == $leaseRentType->getType()) {
                     $taxTypes[] = $leaseRentType->getName();
                 }
             }
@@ -319,9 +321,9 @@ class AdminExportService
                 'serial_number' => $offer->getSerialNumber(),
                 'room_name' => $roomData['room_name'],
                 'room_type_tag' => $roomData['room_type_tag'],
-                'lessee_type' => $offer->getLesseeType() == LeaseOffer::LEASE_OFFER_LESSEE_TYPE_PERSONAL ? '个人承租' : '企业承租',
+                'lessee_type' => LeaseOffer::LEASE_OFFER_LESSEE_TYPE_PERSONAL == $offer->getLesseeType() ? '个人承租' : '企业承租',
                 'lessee_enterprise' => $enterpriseName,
-                'lessee_customer' => $customer->getName(),
+                'lessee_customer' => $customer ? $customer->getName() : '',
                 'start_date' => $startDate,
                 'end_date' => $endDate,
                 'monthly_rent' => $offer->getMonthlyRent() ? $offer->getMonthlyRent().'元/月起' : '',
@@ -355,15 +357,6 @@ class AdminExportService
         $lists,
         $language
     ) {
-        $status = array(
-            Lease::LEASE_STATUS_DRAFTING => '未生效',
-            Lease::LEASE_STATUS_PERFORMING => '履行中',
-            Lease::LEASE_STATUS_TERMINATED => '已终止',
-            Lease::LEASE_STATUS_MATURED => '已到期',
-            Lease::LEASE_STATUS_END => '已结束',
-            Lease::LEASE_STATUS_CLOSED => '已作废',
-        );
-
         $excelBody = array();
         foreach ($leases as $lease) {
             /** @var Lease $lease */
@@ -386,7 +379,7 @@ class AdminExportService
             $leaseRentTypes = $lease->getLeaseRentTypes();
             $taxTypes = array();
             foreach ($leaseRentTypes as $leaseRentType) {
-                if ($leaseRentType->getType() == LeaseRentTypes::RENT_TYPE_TAX) {
+                if (LeaseRentTypes::RENT_TYPE_TAX == $leaseRentType->getType()) {
                     $taxTypes[] = $leaseRentType->getName();
                 }
             }
@@ -409,11 +402,14 @@ class AdminExportService
                     LeaseBill::TYPE_OTHER
                 );
 
+            $status = $status = $this->container->get('translator')
+                ->trans(LeaseConstants::TRANS_LEASE_STATUS.$lease->getStatus());
+
             $leaseList = array(
                 'serial_number' => $lease->getSerialNumber(),
                 'room_name' => $roomData['room_name'],
                 'room_type_tag' => $roomData['room_type_tag'],
-                'lessee_type' => $lease->getLesseeType() == Lease::LEASE_LESSEE_TYPE_PERSONAL ? '个人承租' : '企业承租',
+                'lessee_type' => Lease::LEASE_LESSEE_TYPE_PERSONAL == $lease->getLesseeType() ? '个人承租' : '企业承租',
                 'lessee_enterprise' => $enterpriseName,
                 'lessee_customer' => $customer ? $customer->getName() : '',
                 'start_date' => $startDate,
@@ -422,7 +418,7 @@ class AdminExportService
                 'deposit' => $lease->getDeposit() ? $lease->getDeposit().'元' : '',
                 'lease_rent_types' => $taxTypes,
                 'creation_date' => $lease->getCreationDate()->format('Y-m-d H:i:s'),
-                'status' => $status[$lease->getStatus()],
+                'status' => $status,
                 'total_rent' => $lease->getTotalRent(),
                 'lease_bill' => $leaseBillsCount,
                 'other_bill' => $otherBillsCount,
@@ -451,14 +447,6 @@ class AdminExportService
         $lists,
         $language
     ) {
-        $status = array(
-            LeaseBill::STATUS_PENDING => '未推送',
-            LeaseBill::STATUS_UNPAID => '未付款',
-            LeaseBill::STATUS_PAID => '已付款',
-            LeaseBill::STATUS_VERIFY => '待确认',
-            LeaseBill::STATUS_CANCELLED => '已取消',
-        );
-
         $excelBody = array();
 
         $payments = $this->doctrine->getRepository('SandboxApiBundle:Payment\Payment')->findAll();
@@ -488,10 +476,13 @@ class AdminExportService
             $invoice = false;
             $leaseRentTypes = $bill->getLease()->getLeaseRentTypes();
             foreach ($leaseRentTypes as $leaseRentType) {
-                if ($leaseRentType->getType() == LeaseRentTypes::RENT_TYPE_TAX) {
+                if (LeaseRentTypes::RENT_TYPE_TAX == $leaseRentType->getType()) {
                     $invoice = true;
                 }
             }
+
+            $status = $this->container->get('translator')
+                ->trans(LeaseConstants::TRANS_LEASE_BILL_STATUS.$bill->getStatus());
 
             $billList = array(
                 'serial_number' => $bill->getSerialNumber(),
@@ -504,10 +495,10 @@ class AdminExportService
                 'start_date' => $startDate,
                 'end_date' => $endDate,
                 'drawee' => $drawee,
-                'order_method' => $bill->getOrderMethod() == LeaseBill::ORDER_METHOD_BACKEND ? '后台推送' : '自动推送',
+                'order_method' => LeaseBill::ORDER_METHOD_BACKEND == $bill->getOrderMethod() ? '后台推送' : '自动推送',
                 'pay_channel' => $bill->getPayChannel() ? $payChannel[$bill->getPayChannel()] : '',
                 'send_date' => $bill->getSendDate() ? $bill->getSendDate()->format('Y-m-d H:i:s') : '',
-                'status' => $status[$bill->getStatus()],
+                'status' => $status,
                 'revised_amount' => $bill->getRevisedAmount() ? $bill->getRevisedAmount() : '',
                 'remark' => $bill->getRemark(),
             );
@@ -539,8 +530,8 @@ class AdminExportService
         foreach ($crashiers as $crashier) {
             $body = array();
             foreach ($lists as $key => $value) {
-                if ($key == 'status') {
-                    $body[] = $value == 'unpaid' ? '未付款' : '已付款';
+                if ('status' == $key) {
+                    $body[] = 'unpaid' == $value ? '未付款' : '已付款';
                 } else {
                     $body[] = $crashier[$key];
                 }
@@ -553,7 +544,7 @@ class AdminExportService
     }
 
     /**
-     * @param $orders
+     * @param ProductOrder $orders
      * @param $lists
      * @param $language
      *
@@ -566,6 +557,7 @@ class AdminExportService
     ) {
         $excelBody = array();
         foreach ($orders as $order) {
+            /** @var ProductOrder $order */
             $productInfo = json_decode($order->getProductInfo(), true);
 
             // set product type
@@ -634,13 +626,8 @@ class AdminExportService
             $startTime = $order->getStartDate()->format('Y-m-d H:i:s');
             $endTime = $order->getEndDate()->format('Y-m-d H:i:s');
 
-            $orderType = $order->getType();
-            if (is_null($orderType) || empty($orderType)) {
-                $orderType = 'user';
-            }
-
             $orderType = $this->container->get('translator')->trans(
-                ProductOrderExport::TRANS_PRODUCT_ORDER_TYPE.$orderType,
+                ProductOrderExport::TRANS_PRODUCT_ORDER_TYPE.$order->getType(),
                 array(),
                 null,
                 $language

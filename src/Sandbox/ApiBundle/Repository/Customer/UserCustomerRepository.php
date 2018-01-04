@@ -198,6 +198,7 @@ class UserCustomerRepository extends EntityRepository
             ->select('
                     c.id AS customer_id,
                     c.userId as user_id,
+                    c.sex,
                     c.phone,
                     c.avatar,
                     c.name,
@@ -211,7 +212,10 @@ class UserCustomerRepository extends EntityRepository
         }
 
         if ($search) {
-            $query->andWhere('c.phone LIKE :search')
+            $query->andWhere('
+                     c.name LIKE :search
+                     OR c.phone LIKE :search
+                 ')
                 ->setParameter('search', '%'.$search.'%');
         }
 

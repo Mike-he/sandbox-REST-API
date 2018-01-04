@@ -16,7 +16,7 @@ use Sandbox\ApiBundle\Traits\CurlUtil;
  * @author   Yimo Zhang <yimo.zhang@Sandbox.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 class ChatGroupController extends SandboxRestController
 {
@@ -74,7 +74,7 @@ class ChatGroupController extends SandboxRestController
             // new chat group member
             $chatGroupMember = new ChatGroupMember();
             $chatGroupMember->setChatGroup($chatGroup);
-            $chatGroupMember->setUser($newUser);
+            $chatGroupMember->setUser($newUser->getId());
             $chatGroupMember->setAddBy($myUser);
             $em->persist($chatGroupMember);
         }
@@ -88,56 +88,50 @@ class ChatGroupController extends SandboxRestController
     protected function createXmppChatGroup(
         $chatGroup
     ) {
-        try {
-            $chatRoomName = $chatGroup->getName().'@'.$chatGroup->getTag();
-            $chatRoomDesc = array(
-                'tag' => $chatGroup->getTag(),
-            );
-            if ($chatGroup->getBuildingId()) {
-                $chatRoomDesc['building_id'] = $chatGroup->getBuildingId();
-                $building = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:Room\RoomBuilding')
-                    ->find($chatGroup->getBuildingId());
-                if ($building) {
-                    $chatRoomDesc['avatar'] = $building->getAvatar();
-                }
+        $chatRoomName = $chatGroup->getName().'@'.$chatGroup->getTag();
+        $chatRoomDesc = array(
+            'tag' => $chatGroup->getTag(),
+        );
+        if ($chatGroup->getBuildingId()) {
+            $chatRoomDesc['building_id'] = $chatGroup->getBuildingId();
+            $building = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                ->find($chatGroup->getBuildingId());
+            if ($building) {
+                $chatRoomDesc['avatar'] = $building->getAvatar();
             }
-            $chatRoomDesc = json_encode($chatRoomDesc);
-
-            $ownerName = $chatGroup->getCreator()->getXmppUsername();
-            $members = $this->getRepo('ChatGroup\ChatGroupMember')->findByChatGroup($chatGroup);
-
-            $membersIds = array();
-            foreach ($members as $member) {
-                /* @var ChatGroupMember $member */
-                if ($chatGroup->getTag() == ChatGroup::CUSTOMER_SERVICE) {
-                    $salesAdmin = $this->getDoctrine()
-                        ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
-                        ->findOneBy(array('userId' => $member->getUser()->getId()));
-                    if ($salesAdmin) {
-                        $salesMemberId = $salesAdmin->getXmppUsername();
-                        array_push($membersIds, $salesMemberId);
-                    }
-                } else {
-                    $memberId = $member->getUser()->getXmppUsername();
-                    if ($memberId != $ownerName) {
-                        array_push($membersIds, $memberId);
-                    }
-                }
-            }
-
-            $service = $this->get('sandbox_api.jmessage');
-            $result = $service->createGroup(
-                $ownerName,
-                $chatRoomName,
-                $chatRoomDesc,
-                $membersIds
-            );
-
-            return $result['body']['gid'];
-        } catch (\Exception $e) {
-            error_log('Create chat group went wrong!');
         }
+        $chatRoomDesc = json_encode($chatRoomDesc);
+
+        $ownerName = $chatGroup->getCreator()->getXmppUsername();
+        $members = $this->getRepo('ChatGroup\ChatGroupMember')->findByChatGroup($chatGroup);
+
+        $membersIds = [];
+        foreach ($members as $member) {
+            /* @var ChatGroupMember $member */
+            if (ChatGroup::GROUP_SERVICE == $chatGroup->getTag()) {
+                $memberId = $member->getUser()->getXmppUsername();
+                if ($memberId != $ownerName) {
+                    array_push($membersIds, $memberId);
+                }
+            }
+        }
+
+        $service = $this->get('sandbox_api.jmessage');
+        $result = $service->createGroup(
+            $ownerName,
+            $chatRoomName,
+            $chatRoomDesc,
+            $membersIds
+        );
+
+        if (201 != $result['http_code']) {
+            // TODO: create Jmessage Group Error
+            $errorLogDir = $this->getParameter('error_log_dir');
+            error_log('[jiguang]'.$result,3,$errorLogDir);
+        }
+
+        return $result['body']['gid'];
     }
 
     /**
@@ -148,33 +142,29 @@ class ChatGroupController extends SandboxRestController
     protected function updateXmppChatGroup(
         $chatGroup
     ) {
-        try {
-            $chatRoomName = $chatGroup->getName().'@'.$chatGroup->getTag();
-            $chatRoomDesc = array(
-                'tag' => $chatGroup->getTag(),
-            );
-            if ($chatGroup->getBuildingId()) {
-                $chatRoomDesc['building_id'] = $chatGroup->getBuildingId();
-                $building = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:Room\RoomBuilding')
-                    ->find($chatGroup->getBuildingId());
-                if ($building) {
-                    $chatRoomDesc['avatar'] = $building->getAvatar();
-                }
+        $chatRoomName = $chatGroup->getName().'@'.$chatGroup->getTag();
+        $chatRoomDesc = array(
+            'tag' => $chatGroup->getTag(),
+        );
+        if ($chatGroup->getBuildingId()) {
+            $chatRoomDesc['building_id'] = $chatGroup->getBuildingId();
+            $building = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                ->find($chatGroup->getBuildingId());
+            if ($building) {
+                $chatRoomDesc['avatar'] = $building->getAvatar();
             }
-            $chatRoomDesc = json_encode($chatRoomDesc);
-
-            $gid = $chatGroup->getGid();
-
-            $service = $this->get('sandbox_api.jmessage');
-            $service->updateGroup(
-                $gid,
-                $chatRoomName,
-                $chatRoomDesc
-            );
-        } catch (\Exception $e) {
-            error_log('Update chat group went wrong!');
         }
+        $chatRoomDesc = json_encode($chatRoomDesc);
+
+        $gid = $chatGroup->getGid();
+
+        $service = $this->get('sandbox_api.jmessage');
+        $service->updateGroup(
+            $gid,
+            $chatRoomName,
+            $chatRoomDesc
+        );
     }
 
     /**
@@ -183,47 +173,51 @@ class ChatGroupController extends SandboxRestController
     protected function deleteXmppChatGroup(
         $gid
     ) {
-        try {
-            $service = $this->get('sandbox_api.jmessage');
-            $service->deleteGroup($gid);
-        } catch (\Exception $e) {
-            error_log('Delete chat group went wrong!');
-        }
+        $service = $this->get('sandbox_api.jmessage');
+        $service->deleteGroup($gid);
     }
 
     /**
      * @param ChatGroup $chatGroup
      * @param $memberIds
+     * @param $appKey
      */
     protected function addXmppChatGroupMember(
         $chatGroup,
-        $memberIds
+        $memberIds,
+        $appKey = null
     ) {
-        try {
-            $gid = $chatGroup->getGid();
+        $gid = $chatGroup->getGid();
 
-            $service = $this->get('sandbox_api.jmessage');
-            $service->addGroupMembers($gid, $memberIds);
-        } catch (\Exception $e) {
-            error_log('Add chat group members went wrong!');
+        $service = $this->get('sandbox_api.jmessage');
+        $result = $service->addGroupMembers($gid, $memberIds, $appKey);
+
+        if (204 != $result['http_code']) {
+            // TODO: create Jmessage Group Error
+            $errorLogDir = $this->getParameter('error_log_dir');
+            error_log('[jiguang]'.$result,3,$errorLogDir);
         }
     }
 
     /**
      * @param ChatGroup $chatGroup
      * @param $memberIds
+     * @param null $appKey
      */
     protected function deleteXmppChatGroupMember(
         $chatGroup,
-        $memberIds
+        $memberIds,
+        $appKey = null
     ) {
-        try {
-            $gid = $chatGroup->getGid();
+        $gid = $chatGroup->getGid();
 
-            $service = $this->get('sandbox_api.jmessage');
-            $service->deleteGroupMembers($gid, $memberIds);
-        } catch (\Exception $e) {
-            error_log('Delete chat group members went wrong!');
+        $service = $this->get('sandbox_api.jmessage');
+        $result = $service->deleteGroupMembers($gid, $memberIds, $appKey);
+
+        if (204 != $result['http_code']) {
+            // TODO: create Jmessage Group Error
+            $errorLogDir = $this->getParameter('error_log_dir');
+            error_log('[jiguang]'.$result,3,$errorLogDir);
         }
     }
 }

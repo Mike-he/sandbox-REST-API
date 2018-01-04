@@ -33,7 +33,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Sandbox\ApiBundle\Traits\ProductOrderNotification;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
-use Sandbox\ApiBundle\Constants\ProductOrderExport;
 
 /**
  * Admin order controller.
@@ -43,7 +42,7 @@ use Sandbox\ApiBundle\Constants\ProductOrderExport;
  * @author   Mike He <mike.he@easylinks.com.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 class AdminOrderController extends OrderController
 {
@@ -432,14 +431,14 @@ class AdminOrderController extends OrderController
         $status = $order->getStatus();
 
         if ($newRejected) {
-            if ($channel == ProductOrder::CHANNEL_OFFLINE && $status == ProductOrder::STATUS_UNPAID) {
+            if (ProductOrder::CHANNEL_OFFLINE == $channel && ProductOrder::STATUS_UNPAID == $status) {
                 $existTransfer = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Order\OrderOfflineTransfer')
                     ->findOneByOrderId($order->getId());
                 $this->throwNotFoundIfNull($existTransfer, self::NOT_FOUND_MESSAGE);
 
                 $transferStatus = $existTransfer->getTransferStatus();
-                if ($transferStatus == OrderOfflineTransfer::STATUS_UNPAID) {
+                if (OrderOfflineTransfer::STATUS_UNPAID == $transferStatus) {
                     $order->setStatus(ProductOrder::STATUS_CANCELLED);
                     $order->setCancelledDate(new \DateTime());
                     $order->setModificationDate(new \DateTime());
@@ -491,7 +490,7 @@ class AdminOrderController extends OrderController
         } else {
             $action = Log::ACTION_AGREE;
 
-            if ($status != ProductOrder::STATUS_PAID) {
+            if (ProductOrder::STATUS_PAID != $status) {
                 return $this->customErrorView(
                     400,
                     self::WRONG_ORDER_STATUS_CODE,
@@ -520,7 +519,7 @@ class AdminOrderController extends OrderController
                 $order->setModificationDate($now);
 
                 if ($price > 0 &&
-                    $channel != ProductOrder::CHANNEL_ACCOUNT &&
+                    ProductOrder::CHANNEL_ACCOUNT != $channel &&
                     !$order->isSalesInvoice()
                 ) {
                     $amount = $this->postConsumeBalance(
@@ -884,6 +883,30 @@ class AdminOrderController extends OrderController
      *    description="Filter by building id"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="all_order",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="Filter get All Order Data"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="sort_column",
+     *    default=null,
+     *    nullable=true,
+     *    description="sort column"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="direction",
+     *    default=null,
+     *    nullable=true,
+     *    description="sort direction"
+     * )
+     *
      * @Route("/orders")
      * @Method({"GET"})
      *
@@ -931,6 +954,11 @@ class AdminOrderController extends OrderController
         $roomId = $paramFetcher->get('room');
         $userId = $paramFetcher->get('user');
         $buildingId = $paramFetcher->get('building');
+        $allOrder = $paramFetcher->get('all_order');
+
+        //sort
+        $sortColumn = $paramFetcher->get('sort_column');
+        $direction = $paramFetcher->get('direction');
 
         $limit = $pageLimit;
         $offset = ($pageIndex - 1) * $pageLimit;
@@ -946,6 +974,7 @@ class AdminOrderController extends OrderController
         $orders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->getSalesOrdersForAdmin(
+                $allOrder,
                 $channel,
                 $type,
                 null,
@@ -964,14 +993,19 @@ class AdminOrderController extends OrderController
                 $createStart,
                 $createEnd,
                 $status,
+                null,
+                null,
                 $roomId,
                 $limit,
-                $offset
+                $offset,
+                $sortColumn,
+                $direction
             );
 
         $count = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->countSalesOrdersForAdmin(
+                $allOrder,
                 $channel,
                 $type,
                 null,
@@ -990,6 +1024,8 @@ class AdminOrderController extends OrderController
                 $createStart,
                 $createEnd,
                 $status,
+                null,
+                null,
                 $roomId
             );
 
@@ -1207,6 +1243,7 @@ class AdminOrderController extends OrderController
         $orders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->getSalesOrdersForAdmin(
+                null,
                 $channel,
                 $type,
                 null,
@@ -1225,6 +1262,8 @@ class AdminOrderController extends OrderController
                 $createStart,
                 $createEnd,
                 $status,
+                null,
+                null,
                 $roomId
             );
 
@@ -2005,14 +2044,14 @@ class AdminOrderController extends OrderController
             $userId = $rejectedOrder->getUserId();
             $price = $rejectedOrder->getDiscountPrice();
 
-            if ($channel == ProductOrder::CHANNEL_OFFLINE && $status == ProductOrder::STATUS_UNPAID) {
+            if (ProductOrder::CHANNEL_OFFLINE == $channel && ProductOrder::STATUS_UNPAID == $status) {
                 $existTransfer = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Order\OrderOfflineTransfer')
                     ->findOneByOrderId($rejectedOrder->getId());
                 $this->throwNotFoundIfNull($existTransfer, self::NOT_FOUND_MESSAGE);
 
                 $transferStatus = $existTransfer->getTransferStatus();
-                if ($transferStatus == OrderOfflineTransfer::STATUS_UNPAID) {
+                if (OrderOfflineTransfer::STATUS_UNPAID == $transferStatus) {
                     $rejectedOrder->setStatus(ProductOrder::STATUS_CANCELLED);
                     $rejectedOrder->setCancelledDate(new \DateTime());
                     $rejectedOrder->setModificationDate(new \DateTime());
@@ -2047,24 +2086,24 @@ class AdminOrderController extends OrderController
                         }
                     }
 
-                    if ($status == ProductOrder::STATUS_UNPAID) {
+                    if (ProductOrder::STATUS_UNPAID == $status) {
                         $rejectedOrder->setNeedToRefund(false);
                     }
                 }
             }
-            $em->flush();
+        }
+        $em->flush();
 
-            if (!empty($orders)) {
-                // send message
-                $this->sendXmppProductOrderNotification(
-                    null,
-                    null,
-                    ProductOrder::ACTION_REJECTED,
-                    null,
-                    $orders,
-                    ProductOrderMessage::OFFICE_REJECTED_MESSAGE
-                );
-            }
+        if (!empty($orders)) {
+            // send message
+            $this->sendXmppProductOrderNotification(
+                null,
+                null,
+                ProductOrder::ACTION_REJECTED,
+                null,
+                $orders,
+                ProductOrderMessage::OFFICE_REJECTED_MESSAGE
+            );
         }
     }
 
@@ -2273,6 +2312,7 @@ class AdminOrderController extends OrderController
         $orders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
             ->getSalesOrdersForAdmin(
+                null,
                 $channel,
                 $type,
                 null,
@@ -2291,6 +2331,8 @@ class AdminOrderController extends OrderController
                 $createStart,
                 $createEnd,
                 $status,
+                null,
+                null,
                 $roomId
             );
 

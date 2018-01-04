@@ -83,6 +83,9 @@ class LeaseRepository extends EntityRepository
      * @param $limit
      * @param $offset
      * @param $customerIds
+     * @param $sortColumn,
+     * @param $direction,
+     * @param $customerIds
      *
      * @return array
      */
@@ -101,12 +104,13 @@ class LeaseRepository extends EntityRepository
         $roomId,
         $limit = null,
         $offset = null,
-        $customerIds = null
+        $customerIds = null,
+        $sortColumn = null,
+        $direction = null
     ) {
         $query = $this->createQueryBuilder('l')
             ->leftJoin('l.product', 'p')
-            ->leftJoin('p.room', 'r')
-            ->orderBy('l.id', 'DESC');
+            ->leftJoin('p.room', 'r');
 
         $query = $this->generateQueryForLeases(
             $query,
@@ -122,7 +126,9 @@ class LeaseRepository extends EntityRepository
             $endDate,
             $companyId,
             $roomId,
-            $customerIds
+            $customerIds,
+            $sortColumn,
+            $direction
         );
 
         if (!is_null($limit) && !is_null($offset)) {
@@ -148,6 +154,8 @@ class LeaseRepository extends EntityRepository
      * @param $companyId
      * @param $roomId
      * @param $customerIds
+     * @param $sortColumn,
+     * @param $direction
      *
      * @return $query
      */
@@ -165,7 +173,9 @@ class LeaseRepository extends EntityRepository
         $endDate,
         $companyId,
         $roomId,
-        $customerIds = null
+        $customerIds = null,
+        $sortColumn = null,
+        $direction = null
     ) {
         if (!is_null($myBuildingIds) && !empty($myBuildingIds)) {
             $query->andWhere('r.buildingId IN (:buildingIds)')
@@ -217,9 +227,9 @@ class LeaseRepository extends EntityRepository
         if (!is_null($createRange) && !empty($createRange)) {
             $now = new \DateTime();
 
-            if ($createRange == ProductAppointment::RANGE_LAST_WEEK) {
+            if (ProductAppointment::RANGE_LAST_WEEK == $createRange) {
                 $last = $now->modify('-1 week');
-            } elseif ($createRange == ProductAppointment::RANGE_LAST_MONTH) {
+            } elseif (ProductAppointment::RANGE_LAST_MONTH == $createRange) {
                 $last = $now->modify('-1 month');
             } else {
                 $last = $now;
@@ -282,6 +292,22 @@ class LeaseRepository extends EntityRepository
 
             $query->setParameter('startDate', $startDate)
                 ->setParameter('endDate', $endDate);
+        }
+
+        if (!is_null($sortColumn) && !is_null($direction)) {
+            $direction = strtoupper($direction);
+            $sortArray = array(
+                'start_date' => 'l.startDate',
+                'end_date' => 'l.endDate',
+                'monthly_rent' => 'l.monthlyRent',
+                'deposit' => 'l.deposit',
+                'creation_date' => 'l.creationDate',
+                'total_rent' => 'l.totalRent',
+            );
+
+            $query->orderBy($sortArray[$sortColumn], $direction);
+        } else {
+            $query->orderBy('l.creationDate', 'DESC');
         }
 
         if (!is_null($customerIds) && !empty($customerIds)) {
@@ -451,5 +477,254 @@ class LeaseRepository extends EntityRepository
         $result = $query->getQuery()->getSingleScalarResult();
 
         return (int) $result;
+    }
+
+    /**
+     * @param $myBuildingIds
+     * @param $status
+     * @param $startDate
+     * @param $endDate
+     *
+     * @return int
+     */
+    public function countExpiringContract(
+        $myBuildingIds,
+        $status,
+        $startDate,
+        $endDate
+    ) {
+        $query = $this->createQueryBuilder('l')
+            ->select('count(l.id)')
+            ->where('l.status = :status')
+            ->andWhere('l.buildingId in (:buildingIds)')
+            ->andWhere('l.endDate >= :startDate')
+            ->andWhere('l.endDate <= :endDate')
+            ->setParameter('status', $status)
+            ->setParameter('buildingIds', $myBuildingIds)
+            ->setParameter('startDate', $startDate)
+            ->setParameter('endDate', $endDate);
+
+        $result = $query->getQuery()->getSingleScalarResult();
+
+        return (int) $result;
+    }
+
+    /*
+     * @param $customerId
+     * @param $myBuildingIds
+     *
+     * @return mixed
+     */
+    public function countCustomerAllLeases(
+        $customerId,
+        $myBuildingIds
+    ) {
+        $query = $this->createQueryBuilder('l')
+            ->select('count(l.id)')
+            ->where('l.lesseeCustomer = :customerId')
+            ->andWhere('l.buildingId IN (:buildingIds)')
+            ->setParameter('customerId', $customerId)
+            ->setParameter('buildingIds', $myBuildingIds);
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
+
+    /**
+     * @param $enterprise
+     *
+     * @return mixed
+     */
+    public function countEnterpriseCustomerLease(
+        $enterprise
+    ) {
+        $query = $this->createQueryBuilder('l')
+                ->select('count(l.id)')
+                ->where('l.lesseeEnterprise = :enterprise')
+                ->setParameter('enterprise', $enterprise);
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
+
+    /**
+     * @param $myBuildingIds
+     * @param $buildingId
+     * @param $productId
+     * @param $status
+     * @param $lesseeType
+     * @param $keyword
+     * @param $keywordSearch
+     * @param $createStart
+     * @param $createEnd
+     * @param $rentFilter
+     * @param $startDate
+     * @param $endDate
+     * @param $source
+     *
+     * @return array
+     */
+    public function findLeasesForPropertyClient(
+        $myBuildingIds,
+        $buildingId,
+        $productId,
+        $status,
+        $lesseeType,
+        $keyword,
+        $keywordSearch,
+        $createStart,
+        $createEnd,
+        $rentFilter,
+        $startDate,
+        $endDate,
+        $source
+    ) {
+        $query = $this->createQueryBuilder('l')
+            ->select('l.id')
+            ->where('l.buildingId IN (:buildingIds)')
+            ->setParameter('buildingIds', $myBuildingIds);
+
+        if (!is_null($buildingId) && !empty($buildingId)) {
+            $query->andWhere('l.buildingId in (:building)')
+                ->setParameter('building', $buildingId);
+        }
+
+        if ($productId) {
+            $query->andWhere('l.product = :product')
+                ->setParameter('product', $productId);
+        }
+
+        if ($status) {
+            $query->andWhere('l.status = :status')
+                ->setParameter('status', $status);
+        }
+
+        if (!is_null($lesseeType) && !empty($lesseeType)) {
+            $query->andWhere('l.lesseeType in (:lesseeType)')
+                ->setParameter('lesseeType', $lesseeType);
+        }
+
+        if (!is_null($source) && !empty($source)) {
+            switch ($source) {
+                case 'clue':
+                    $query->andWhere('l.LeaseClueId is not null');
+                    break;
+                case 'offer':
+                    $query->andWhere('l.LeaseClueId is null')
+                        ->andWhere('l.LeaseOfferId is not null');
+                    break;
+                case 'created':
+                    $query->andWhere('l.LeaseClueId is null')
+                        ->andWhere('l.LeaseOfferId is null');
+                    break;
+                default:
+            }
+        }
+
+        if (!is_null($keyword) && !empty($keyword) &&
+            !is_null($keywordSearch) && !empty($keywordSearch)
+        ) {
+            switch ($keyword) {
+                case 'all':
+                    $query
+                        ->leftJoin('l.product', 'p')
+                        ->leftJoin('p.room', 'r')
+                        ->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'l.lesseeCustomer = uc.id')
+                        ->andWhere('
+                            (l.serialNumber LIKE :keywordSearch OR
+                            r.name  LIKE :keywordSearch OR
+                            uc.name LIKE :keywordSearch OR
+                            uc.phone LIKE :keywordSearch)
+                        ');
+                    break;
+                default:
+                    $query->andWhere('l.serialNumber LIKE :keywordSearch');
+            }
+
+            $query->setParameter('keywordSearch', "%$keywordSearch%");
+        }
+
+        if (!is_null($createStart) && !empty($createStart)) {
+            $createStart = new \DateTime($createStart);
+            $createStart->setTime(0, 0, 0);
+
+            $query->andWhere('l.creationDate >= :createStart')
+                    ->setParameter('createStart', $createStart);
+        }
+
+        if (!is_null($createEnd) && !empty($createEnd)) {
+            $createEnd = new \DateTime($createEnd);
+            $createEnd->setTime(23, 59, 59);
+
+            $query->andWhere('l.creationDate <= :createEnd')
+                    ->setParameter('createEnd', $createEnd);
+        }
+
+        if (!is_null($rentFilter) && !empty($rentFilter) &&
+            !is_null($startDate) && !empty($startDate) &&
+            !is_null($endDate) && !empty($endDate)
+        ) {
+            $startDate = new \DateTime($startDate);
+            $startDate->setTime(0, 0, 0);
+
+            $endDate = new \DateTime($endDate);
+            $endDate->setTime(23, 59, 59);
+
+            switch ($rentFilter) {
+                case 'rent_start':
+                    $query->andWhere('l.startDate >= :startDate')
+                        ->andWhere('l.startDate <= :endDate');
+                    break;
+                case 'rent_range':
+                    $query->andWhere(
+                        '(
+                            (l.startDate <= :startDate AND l.endDate > :startDate) OR
+                            (l.startDate < :endDate AND l.endDate >= :endDate) OR
+                            (l.startDate >= :startDate AND l.endDate <= :endDate)
+                        )'
+                    );
+                    break;
+                case 'rent_end':
+                    $query->andWhere('l.endDate >= :startDate')
+                        ->andWhere('l.endDate <= :endDate');
+                    break;
+                default:
+            }
+
+            $query->setParameter('startDate', $startDate)
+                ->setParameter('endDate', $endDate);
+        }
+
+        $query->orderBy('l.creationDate', 'DESC');
+
+        $result = $query->getQuery()->getResult();
+        $result = array_map('current', $result);
+
+        return $result;
+    }
+
+    /**
+     * @param $customerId
+     * @param $myBuildingIds
+     * @param $limit
+     * @param $offset
+     * @return array
+     */
+    public function findCustomerLease(
+        $customerId,
+        $myBuildingIds,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('l')
+            ->where('l.lesseeCustomer = :customerId')
+            ->andWhere('l.buildingId IN (:buildingIds)')
+            ->setParameter('customerId', $customerId)
+            ->setParameter('buildingIds', $myBuildingIds);
+
+        $query->orderBy('l.creationDate','DESC');
+
+        $query->setMaxResults($limit)
+            ->setFirstResult($offset);
+
+        return $query->getQuery()->getResult();
     }
 }

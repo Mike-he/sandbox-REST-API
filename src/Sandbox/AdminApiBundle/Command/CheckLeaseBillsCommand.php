@@ -49,7 +49,7 @@ class CheckLeaseBillsCommand extends ContainerAwareCommand
             $urlParam = 'ptype=billsList&status=unpaid&leasesId='.$leaseId;
             $contentArray = $this->generateLeaseContentArray($urlParam);
             // send Jpush notification
-            if ($billCount == 0) {
+            if (0 == $billCount) {
                 $this->generateJpushNotification(
                     [
                         $lease->getSupervisorId(),
