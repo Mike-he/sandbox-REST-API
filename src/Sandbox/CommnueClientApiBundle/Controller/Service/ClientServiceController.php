@@ -135,8 +135,12 @@ class ClientServiceController extends SalesRestController
             );
 
         foreach ($services as $service) {
-            $attachments = $this->getRepo('Service\ServiceAttachment')->findByService($service);
-            $times = $this->getRepo('Service\ServiceTime')->findByService($service);
+            $attachments = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Service\ServiceAttachment')
+                ->findBy(['service'=>$service]);
+            $times = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Service\ServiceTime')
+                ->findBy(['service'=>$service]);
 
             $service->setAttachments($attachments);
             $service->setTimes($times);
@@ -167,16 +171,28 @@ class ClientServiceController extends SalesRestController
         }
 
         $result = [];
-        $attachment = $this->getRepo('Service\ServiceAttachment')->findByService($service);
-        $forms = $this->getRepo('Service\ServiceForm')->findByService($service);
-        $times = $this->getRepo('Service\ServiceTime')->findByService($service);
+        $attachments = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Service\ServiceAttachment')
+            ->findBy(['service'=>$service]);
+        $times = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Service\ServiceTime')
+            ->findBy(['service'=>$service]);
+        $forms = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Service\ServiceForm')
+            ->findBy(['service'=>$service]);
 
-        $city = $this->getRepo('Room\RoomCity')->find($service->getCityId())->getName();
-        $district = $this->getRepo('Room\RoomCity')->find($service->getDistrictId())->getName();
+        $city = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomCity')
+            ->find($service->getCityId())
+            ->getName();
+        $district = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomCity')
+            ->find($service->getDistrictId())
+            ->getName();
 
         $addresss = $city.$district;
 
-        $service->setAttachments($attachment);
+        $service->setAttachments($attachments);
         $service->setForms($forms);
         $service->setTimes($times);
         $service->setAddress($addresss);

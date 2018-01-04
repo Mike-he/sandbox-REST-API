@@ -169,7 +169,7 @@ class ClientServiceOrderController extends PaymentController
         $em->remove($order);
 
         $purchaseForms = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServicePurchaseForm')
-            ->findByOrder($order);
+            ->findBy(['order'=>$order]);
         foreach ($purchaseForms as $purchaseForm){
             $em->remove($purchaseForm);
         }
@@ -196,7 +196,9 @@ class ClientServiceOrderController extends PaymentController
         $now = new \DateTime();
 
         // get service order
-        $order = $this->getRepo('Service\ServiceOrder')->find($id);
+        $order = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Service\ServiceOrder')
+            ->find($id);
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
 
         $status = $order->getStatus();
@@ -215,8 +217,9 @@ class ClientServiceOrderController extends PaymentController
                 $seconds = 0;
                 $em->remove($order);
 
-                $purchaseForms = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServicePurchaseForm')
-                    ->findByOrder($order);
+                $purchaseForms = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Service\ServicePurchaseForm')
+                    ->findBy(['order'=>$order]);
                 foreach ($purchaseForms as $purchaseForm){
                     $em->remove($purchaseForm);
                 }
@@ -249,7 +252,9 @@ class ClientServiceOrderController extends PaymentController
         $id
     ) {
         // get service order
-        $order = $this->getRepo('Service\ServiceOrder')->find($id);
+        $order = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Service\ServiceOrder')
+            ->find($id);
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
 
         // check if request user is the same as order user
@@ -318,7 +323,9 @@ class ClientServiceOrderController extends PaymentController
         $service = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\Service')->find($id);
         $this->throwNotFoundIfNull($service, self::NOT_FOUND_MESSAGE);
 
-        $serviceForm = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServiceForm')->findByService($service);
+        $serviceForm = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Service\ServiceForm')
+            ->findBy(['service'=>$service]);
 
         return new View($serviceForm);
     }
@@ -479,7 +486,9 @@ class ClientServiceOrderController extends PaymentController
                 );
             }
 
-            $serviceForm = $this->getRepo('Service\ServiceForm')->find($form['id']);
+            $serviceForm = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Service\ServiceForm')
+                ->find($form['id']);
             if (is_null($serviceForm)) {
                 throw new BadRequestHttpException(self::ERROR_SERVICE_INVALID);
             }
@@ -505,10 +514,12 @@ class ClientServiceOrderController extends PaymentController
                     );
                 }
             } elseif (ServiceForm::TYPE_RADIO == $formType) {
-                $formOption = $this->getRepo('Service\ServiceFormOption')->findOneBy(array(
-                    'id' => (int) $userInput,
-                    'formId' => $formId,
-                ));
+                $formOption = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Service\ServiceFormOption')
+                    ->findOneBy(array(
+                        'id' => (int) $userInput,
+                        'formId' => $formId,
+                    ));
                 if (is_null($formOption)) {
                     return $this->customErrorView(
                         400,
@@ -521,10 +532,12 @@ class ClientServiceOrderController extends PaymentController
                 $ids = explode($delimiter, $userInput);
 
                 foreach ($ids as $id) {
-                    $formOption = $this->getRepo('Service\ServiceFormOption')->findOneBy(array(
-                        'id' => (int) $id,
-                        'formId' => $formId,
-                    ));
+                    $formOption =  $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:Service\ServiceFormOption')
+                        ->findOneBy(array(
+                            'id' => (int) $id,
+                            'formId' => $formId,
+                        ));
                     if (is_null($formOption)) {
                         return $this->customErrorView(
                             400,
@@ -598,8 +611,12 @@ class ClientServiceOrderController extends PaymentController
         $service
     ) {
         $this->handleServicesData($service);
-        $forms = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServiceAttachment')->findByService($service);
-        $times = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServiceTime')->findByService($service);
+        $forms = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Service\ServiceAttachment')
+            ->findBy(['service'=>$service]);
+        $times = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Service\ServiceTime')
+            ->findBy(['service'=>$service]);
         $service->setAttachments($forms);
         $service->setTimes($times);
 

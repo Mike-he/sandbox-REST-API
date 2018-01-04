@@ -19,7 +19,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Knp\Component\Pager\Paginator;
 use FOS\RestBundle\Controller\Annotations;
 use Rs\Json\Patch;
 
@@ -131,26 +130,11 @@ class AdminServiceController extends SalesRestController
         );
 
         foreach ($services as $serviceArray) {
+
+            /** @var Service $service */
             $service = $serviceArray['service'];
-            $attachments = $this->getRepo('Service\ServiceAttachment')->findByService($service);
-            $times = $this->getRepo('Service\ServiceTime')->findByService($service);
-            $forms = $this->getRepo('Service\ServiceForm')->findByService($service);
 
-            $city = $this->getRepo('Room\RoomCity')->find($service->getCityId())->getName();
-            $country = $this->getRepo('Room\RoomCity')->find($service->getCountryId())->getName();
-            $province = $this->getRepo('Room\RoomCity')->find($service->getProvinceId())->getName();
-            $district = '';
-            if ($service->getDistrictId()) {
-                $district = $this->getRepo('Room\RoomCity')->find($service->getDistrictId())->getName();
-            }
-
-            $purchaseNumber = $this->getRepo('Service\ServiceOrder')->getServicePurchaseCount($service->getId());
-            $addresss = $country.$province.$city.$district;
-            $service->setAttachments($attachments);
-            $service->setTimes($times);
-            $service->setForms($forms);
-            $service->setAddress($addresss);
-            $service->setPurchaseNumber($purchaseNumber);
+            $this->handleServiceInfo($service);
         }
 
         $view = new View();
@@ -182,10 +166,12 @@ class AdminServiceController extends SalesRestController
         // check user permission
         $this->checkSalesAdminServicePermission(AdminPermission::OP_LEVEL_VIEW);
 
-        $service = $this->getRepo('Service\Service')->findOneBy(array(
-            'id' => $id,
-            'salesCompanyId' => $this->getSalesCompanyId(),
-        ));
+        $service = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Service\Service')
+            ->findOneBy(array(
+                'id' => $id,
+                'salesCompanyId' => $this->getSalesCompanyId(),
+            ));
 
         $this->throwNotFoundIfNull($service, self::NOT_FOUND_MESSAGE);
 
@@ -205,7 +191,7 @@ class AdminServiceController extends SalesRestController
     public function getTypesAction(
         Request $request
     ) {
-        $types = $this->getDoctrine()->getManager()
+        $types = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Service\ServiceTypes')
             ->findAll();
 
@@ -267,10 +253,12 @@ class AdminServiceController extends SalesRestController
         // check user permission
         $this->checkSalesAdminServicePermission(AdminPermission::OP_LEVEL_EDIT);
 
-        $service = $this->getRepo('Service\Service')->findOneBy(array(
-            'id' => $id,
-            'salesCompanyId' => $this->getSalesCompanyId(),
-        ));
+        $service = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Service\Service')
+            ->findOneBy(array(
+                'id' => $id,
+                'salesCompanyId' => $this->getSalesCompanyId(),
+            ));
 
         if (is_null($service)) {
             $this->throwNotFoundIfNull($service, self::NOT_FOUND_MESSAGE);
@@ -675,7 +663,9 @@ class AdminServiceController extends SalesRestController
         $em = $this->getDoctrine()->getManager();
 
         if (!is_null($attachments) || !empty($attachments)) {
-            $serviceAttachments = $this->getRepo('Service\ServiceAttachment')->findByService($service);
+            $serviceAttachments = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Service\ServiceAttachment')
+                ->findBy(['service'=>$service]);
             foreach ($serviceAttachments as $serviceAttachment) {
                 $em->remove($serviceAttachment);
             }
@@ -698,7 +688,9 @@ class AdminServiceController extends SalesRestController
         $em = $this->getDoctrine()->getManager();
 
         if (!is_null($times) || !empty($times)) {
-            $serviceTimes = $this->getRepo('Service\ServiceTime')->findByService($service);
+            $serviceTimes = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Service\ServiceTime')
+                ->findBy(['service'=>$service]);
             foreach ($serviceTimes as $serviceTime) {
                 $em->remove($serviceTime);
             }
@@ -728,7 +720,9 @@ class AdminServiceController extends SalesRestController
         }
 
         if (!is_null($serviceForms) || !empty($serviceForms)) {
-            $serviceFormArray = $this->getRepo('Service\ServiceForm')->findByService($service);
+            $serviceFormArray = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Service\ServiceForm')
+                ->findBy(['service'=>$service]);
             foreach ($serviceFormArray as $serviceForm) {
                 $em->remove($serviceForm);
             }
@@ -747,19 +741,33 @@ class AdminServiceController extends SalesRestController
     private function handleServiceInfo(
         $service
     ) {
-        $attachments = $this->getRepo('Service\ServiceAttachment')->findByService($service);
-        $times = $this->getRepo('Service\ServiceTime')->findByService($service);
-        $forms = $this->getRepo('Service\ServiceForm')->findByService($service);
+        $attachments = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Service\ServiceAttachment')
+            ->findBy(['service'=>$service]);
+        $times = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Service\ServiceTime')
+            ->findBy(['service'=>$service]);
+        $forms = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Service\ServiceForm')
+            ->findBy(['service'=>$service]);
 
-        $city = $this->getRepo('Room\RoomCity')->find($service->getCityId());
-        $country = $this->getRepo('Room\RoomCity')->find($service->getCountryId());
-        $province = $this->getRepo('Room\RoomCity')->find($service->getProvinceId());
+        $city = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomCity')
+            ->find($service->getCityId());
+        $country = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomCity')
+            ->find($service->getCountryId());
+        $province = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomCity')
+            ->find($service->getProvinceId());
         $cityName = $city->getName();
         $countryName = $country->getName();
         $provinceName = $province->getName();
         $districtName = '';
         if($service->getDistrictId()){
-            $district = $this->getRepo('Room\RoomCity')->find($service->getDistrictId());
+            $district = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomCity')
+                ->find($service->getDistrictId());
             $districtName = $district->getName();
             $service->setDistrict($district);
         }
@@ -774,7 +782,9 @@ class AdminServiceController extends SalesRestController
         $service->setAddress($addresss);
 
         $id = $service->getId();
-        $purchaseNumber = $this->getRepo('Service\ServiceOrder')->getServicePurchaseCount($id);
+        $purchaseNumber = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Service\ServiceOrder')
+            ->getServicePurchaseCount($id);
         $service->setPurchaseNumber($purchaseNumber);
 
         return $service;
