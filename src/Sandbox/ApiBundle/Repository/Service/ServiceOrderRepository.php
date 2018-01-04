@@ -203,12 +203,14 @@ class ServiceOrderRepository extends EntityRepository
     /**
      * @param $firstDate
      * @param $lastDate
+     * @param $salesCompanyId
      *
      * @return array
      */
     public function getServiceOrdersByDate(
         $firstDate,
-        $lastDate
+        $lastDate,
+        $salesCompanyId = null
     ) {
         $query = $this->createQueryBuilder('so')
             ->where('so.status = :paid OR so.status = :completed')
@@ -218,6 +220,11 @@ class ServiceOrderRepository extends EntityRepository
             ->setParameter('end', $lastDate)
             ->setParameter('paid', ServiceOrder::STATUS_PAID)
             ->setParameter('completed', ServiceOrder::STATUS_COMPLETED);
+
+        if (!is_null($salesCompanyId)) {
+            $query->andWhere('so.companyId = :companyId')
+                ->setParameter('companyId', $salesCompanyId);
+        }
 
         return $query->getQuery()->getResult();
     }
