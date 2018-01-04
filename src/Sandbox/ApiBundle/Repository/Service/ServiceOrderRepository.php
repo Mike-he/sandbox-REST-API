@@ -65,6 +65,8 @@ class ServiceOrderRepository extends EntityRepository
 
     /**
      * @param $companyId
+     * @param $keyword
+     * @param $keywordSearch
      * @param $limit
      * @param $offset
      *
@@ -72,12 +74,32 @@ class ServiceOrderRepository extends EntityRepository
      */
     public function getServiceOrders(
         $companyId,
+        $keyword,
+        $keywordSearch,
         $limit,
         $offset
     ) {
         $query = $this->createQueryBuilder('so')
             ->where('so.companyId = :companyId')
             ->setParameter('companyId', $companyId);
+
+        if (!is_null($keyword) && !empty($keyword) &&
+            !is_null($keywordSearch) && !empty($keywordSearch)
+        ) {
+            switch ($keyword) {
+                case 'order_number':
+                    $query->andWhere('so.orderNumber LIKE :keywordSearch');
+                    break;
+                case 'service_name':
+                    $query->leftJoin('so.service', 's')
+                        ->andWhere('s.name LIKE :keywordSearch');
+                    break;
+                default:
+                    $query->andWhere('so.orderNumber LIKE :keywordSearch');
+            }
+
+            $query->setParameter('keywordSearch', "%$keywordSearch%");
+        }
 
         $query->orderBy('so.id', 'DESC');
 
@@ -91,24 +113,53 @@ class ServiceOrderRepository extends EntityRepository
 
     /**
      * @param $companyId
+     * @param $keyword
+     * @param $keywordSearch
      *
-     * @return mixed
+     * @return int
+     *
+     * @throws \Doctrine\ORM\Query\QueryException
      */
     public function countServiceOrders(
-        $companyId
+        $companyId,
+        $keyword,
+        $keywordSearch
     ) {
         $query = $this->createQueryBuilder('so')
             ->select('count(so.id)')
             ->where('so.companyId = :companyId')
             ->setParameter('companyId', $companyId);
 
-        return $query->getQuery()->getSingleScalarResult();
+        if (!is_null($keyword) && !empty($keyword) &&
+            !is_null($keywordSearch) && !empty($keywordSearch)
+        ) {
+            switch ($keyword) {
+                case 'order_number':
+                    $query->andWhere('so.orderNumber LIKE :keywordSearch');
+                    break;
+                case 'service_name':
+                    $query->leftJoin('so.service', 's')
+                        ->andWhere('s.name LIKE :keywordSearch');
+                    break;
+                default:
+                    $query->andWhere('so.orderNumber LIKE :keywordSearch');
+            }
+
+            $query->setParameter('keywordSearch', "%$keywordSearch%");
+        }
+
+        $result = $query->getQuery()->getSingleScalarResult();
+
+        return (int) $result;
     }
 
     /**
      * @param $userId
      * @param $serviceId
-     * @return array
+     *
+     * @return mixed
+     *
+     * @throws \Doctrine\ORM\NonUniqueResultException
      */
     public function getUserLastOrder(
         $userId,
@@ -130,6 +181,7 @@ class ServiceOrderRepository extends EntityRepository
      * @param $companyId
      * @param $limit
      * @param $offset
+     *
      * @return array
      */
     public function findPurchaseOrders(
@@ -146,7 +198,7 @@ class ServiceOrderRepository extends EntityRepository
             ->setParameter('serviceId', $serviceId)
             ->setParameter('status', ServiceOrder::STATUS_UNPAID);
 
-        $query->orderBy('so.id','DESC')
+        $query->orderBy('so.id', 'DESC')
             ->setFirstResult($offset)
             ->setMaxResults($limit);
 
@@ -158,6 +210,7 @@ class ServiceOrderRepository extends EntityRepository
      * @param $status
      * @param $limit
      * @param $offset
+     *
      * @return array
      */
     public function findClientServiceOrders(
@@ -185,6 +238,7 @@ class ServiceOrderRepository extends EntityRepository
 
     /**
      * @param $serviceId
+     *
      * @return mixed
      */
     public function getServicePurchaseCount(

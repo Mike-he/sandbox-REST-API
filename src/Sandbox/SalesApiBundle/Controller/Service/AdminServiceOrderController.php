@@ -23,6 +23,20 @@ class AdminServiceOrderController extends SalesRestController
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
+     *    name="keyword",
+     *    default=null,
+     *    nullable=true,
+     *    description="applicant, room, number"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="keyword_search",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="pageLimit",
      *    array=false,
      *    default="20",
@@ -57,6 +71,10 @@ class AdminServiceOrderController extends SalesRestController
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $companyId = $adminPlatform['sales_company_id'];
 
+        // search keyword and query
+        $keyword = $paramFetcher->get('keyword');
+        $keywordSearch = $paramFetcher->get('keyword_search');
+
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
         $limit = $pageLimit;
@@ -66,6 +84,8 @@ class AdminServiceOrderController extends SalesRestController
             ->getRepository('SandboxApiBundle:Service\ServiceOrder')
             ->getServiceOrders(
                 $companyId,
+                $keyword,
+                $keywordSearch,
                 $limit,
                 $offset
             );
@@ -73,7 +93,9 @@ class AdminServiceOrderController extends SalesRestController
         $count = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Service\ServiceOrder')
             ->countServiceOrders(
-                $companyId
+                $companyId,
+                $keyword,
+                $keywordSearch
             );
 
         foreach ($orders as $order) {
@@ -81,7 +103,6 @@ class AdminServiceOrderController extends SalesRestController
              * @var ServiceOrder
              */
             $service = $order->getService();
-
             $this->handleServicesData($service);
         }
 
@@ -124,6 +145,9 @@ class AdminServiceOrderController extends SalesRestController
                 'companyId' => $companyId,
             ));
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
+
+        $service = $order->getService();
+        $this->handleServicesData($service);
 
         $view = new View($order);
 
