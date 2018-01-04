@@ -108,7 +108,8 @@ class ServiceRepository extends EntityRepository
         $type,
         $sort,
         $limit = null,
-        $offset = null
+        $offset = null,
+        $serviceIds = null
     ) {
         $now = new \DateTime();
 
@@ -168,6 +169,11 @@ class ServiceRepository extends EntityRepository
         if (!is_null($limit) && !is_null($offset)) {
             $query->setFirstResult($offset)
                 ->setMaxResults($limit);
+        }
+
+        if (!is_null($serviceIds)) {
+            $query->andWhere('s.id IN (:ids)')
+                ->setParameter('ids', $serviceIds);
         }
 
         return $query->getQuery()->getResult();

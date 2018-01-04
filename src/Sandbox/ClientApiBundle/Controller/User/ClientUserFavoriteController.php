@@ -220,6 +220,36 @@ class ClientUserFavoriteController extends LocationController
                 $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
 
                 break;
+            case UserFavorite::OBJECT_SERVICE:
+                $services = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Service\Service')
+                    ->getClientServices(
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        $limit,
+                        $offset,
+                        $objectIds
+                    );
+
+                foreach ($services as $service) {
+                    $attachments = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:Service\ServiceAttachment')
+                        ->findBy(['service' => $service]);
+                    $times = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:Service\ServiceTime')
+                        ->findBy(['service' => $service]);
+
+                    $service->setAttachments($attachments);
+                    $service->setTimes($times);
+
+                    array_push($objects, $service);
+                }
+
+                break;
             default:
                 return $view;
 
