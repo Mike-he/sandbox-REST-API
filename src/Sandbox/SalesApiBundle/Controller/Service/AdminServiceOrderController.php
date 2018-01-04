@@ -81,7 +81,6 @@ class AdminServiceOrderController extends SalesRestController
              * @var ServiceOrder
              */
             $service = $order->getService();
-
             $this->handleServicesData($service);
         }
 
@@ -124,6 +123,9 @@ class AdminServiceOrderController extends SalesRestController
                 'companyId' => $companyId,
             ));
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
+
+        $service = $order->getService();
+        $this->handleServicesData($service);
 
         $view = new View($order);
 
