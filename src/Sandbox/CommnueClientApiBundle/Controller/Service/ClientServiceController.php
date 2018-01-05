@@ -181,16 +181,23 @@ class ClientServiceController extends SalesRestController
             ->getRepository('SandboxApiBundle:Service\ServiceForm')
             ->findBy(['service'=>$service]);
 
+        $province = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomCity')
+            ->find($service->getProvinceId())
+            ->getName();
         $city = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\RoomCity')
             ->find($service->getCityId())
             ->getName();
-        $district = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Room\RoomCity')
-            ->find($service->getDistrictId())
-            ->getName();
+        $district = '';
+        if($service->getDistrictId()){
+            $district = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomCity')
+                ->find($service->getDistrictId())
+                ->getName();
+        }
 
-        $addresss = $city.$district;
+        $addresss = $province.$city.$district;
 
         $service->setAttachments($attachments);
         $service->setForms($forms);

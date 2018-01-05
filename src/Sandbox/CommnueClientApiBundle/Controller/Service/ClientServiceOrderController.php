@@ -129,16 +129,15 @@ class ClientServiceOrderController extends PaymentController
         $em = $this->getDoctrine()->getManager();
 
         $em->persist($serviceOrder);
-        $em->flush();
-
-        $result = [];
-        $result[]['order_id'] = $serviceOrder->getId();
 
         $this->handlePurchaseForm(
             $serviceOrder,
             $request,
             $em
         );
+
+        $result = [];
+        $result[]['order_id'] = $serviceOrder->getId();
 
         return new View($result);
     }

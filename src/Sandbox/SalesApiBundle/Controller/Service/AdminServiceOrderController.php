@@ -6,7 +6,9 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\Tests\Fixtures\VehicleInterfaceGarage;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Service\Service;
+use Sandbox\ApiBundle\Entity\Service\ServiceForm;
 use Sandbox\ApiBundle\Entity\Service\ServiceOrder;
+use Sandbox\ApiBundle\Entity\Service\ServicePurchaseForm;
 use Sandbox\ApiBundle\Traits\HandleServiceDataTrait;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -247,16 +249,19 @@ class AdminServiceOrderController extends SalesRestController
         // check user permission
         $this->checkPermission(AdminPermission::OP_LEVEL_VIEW);
 
-        $order = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServiceOrder')
+        $order = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Service\ServiceOrder')
             ->find($id);
 
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
         $result = array();
 
-        $user = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserCustomer')
+        $user = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
             ->find($order->getCustomerId());
-        $purchaseForm = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServicePurchaseForm')
-            ->findByOrder($order);
+        $purchaseForm = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Service\ServicePurchaseForm')
+            ->findBy(['order'=>$order]);
 
         $result['user'] = $user;
         $result['form'] = $purchaseForm;
