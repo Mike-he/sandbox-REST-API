@@ -15,7 +15,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 class AdminUserProfilesController extends AdminRestController
 {
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/admin_profiles")
@@ -51,6 +51,28 @@ class AdminUserProfilesController extends AdminRestController
             $adminProfileOrigin->setNickname($adminProfile->getNickname());
 
             $adminProfile = $adminProfileOrigin;
+
+            $service = $this->get('sandbox_api.jmessage_property');
+
+            $data = array();
+            if ($adminProfile->getNickname()) {
+                $data['name'] = $adminProfile->getNickname();
+            }
+
+            if ($adminProfile->getAvatar()) {
+                $data['avatar'] = $adminProfile->getAvatar();
+            }
+
+            $options = [
+                'extras' => $data,
+            ];
+
+            $salesAdmin = $em->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
+                ->findOneBy(array('userId' => $userId));
+
+            $xmpp = $salesAdmin->getXmppUsername();
+
+            $service->updateUserInfo($xmpp, $options);
         }
 
         $adminProfile->setUserId($userId);
@@ -65,7 +87,7 @@ class AdminUserProfilesController extends AdminRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/admin_profiles")
