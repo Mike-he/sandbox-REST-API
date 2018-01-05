@@ -187,12 +187,16 @@ class UserCustomerRepository extends EntityRepository
     /**
      * @param $salesCompanyId
      * @param $search
+     * @param null $limit
+     * @param null $offset
      *
      * @return array
      */
     public function searchSalesCustomers(
         $salesCompanyId,
-        $search
+        $search,
+        $limit = null,
+        $offset = null
     ) {
         $query = $this->createQueryBuilder('c')
             ->select('
@@ -219,8 +223,46 @@ class UserCustomerRepository extends EntityRepository
                 ->setParameter('search', '%'.$search.'%');
         }
 
+        if(!is_null($limit) && !is_null($offset)){
+            $query->setFirstResult($offset)
+                ->setMaxResults($limit);
+        }
+
         $result = $query->getQuery()->getResult();
 
         return $result;
+    }
+
+    /**
+     * @param $salesCompanyId
+     * @param $search
+     * @return int
+     */
+    public function countSalesCustomers(
+        $salesCompanyId,
+        $search
+    ) {
+        $query = $this->createQueryBuilder('c')
+            ->select('
+                   COUNT(c.id)
+                ')
+            ->where('1=1');
+
+        if ($salesCompanyId) {
+            $query->andWhere('c.companyId = :company')
+                ->setParameter('company', $salesCompanyId);
+        }
+
+        if ($search) {
+            $query->andWhere('
+                     c.name LIKE :search
+                     OR c.phone LIKE :search
+                 ')
+                ->setParameter('search', '%'.$search.'%');
+        }
+
+        $result = $query->getQuery()->getSingleScalarResult();
+
+        return (int) $result;
     }
 }
