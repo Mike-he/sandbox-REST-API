@@ -1241,7 +1241,7 @@ class LeaseBillRepository extends EntityRepository
         if (!is_null($keyword) && !is_null($keywordSearch)) {
             switch ($keyword) {
                 case 'all':
-                    $query->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.id = lb.customerId')
+                    $query->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.id = l.lesseeCustomer')
                         ->leftJoin('l.product', 'p')
                         ->leftJoin('p.room', 'r')
                         ->andWhere('
