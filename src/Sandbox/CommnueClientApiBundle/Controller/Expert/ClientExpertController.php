@@ -421,7 +421,7 @@ class ClientExpertController extends SandboxRestController
             'id' => $expert->getId(),
             'user_id' => $expert->getUserId(),
             'xmpp_username' => $user->getXmppUsername(),
-            'baned' => $expert->isBanned(),
+            'banned' => $expert->isBanned(),
             'is_service' => $expert->isService(),
             'photo' => $expert->getPhoto(),
             'name' => $expert->getName(),
