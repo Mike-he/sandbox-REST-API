@@ -32,6 +32,26 @@ class ClientCustomerController extends SalesRestController
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit for the page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="offset",
+     *    array=false,
+     *    default="0",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="start of the page"
+     * )
+     *
+     * @Annotations\QueryParam(
      *     name="search",
      *     array=false,
      *     default=null,
@@ -48,6 +68,8 @@ class ClientCustomerController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
         $search = $paramFetcher->get('search');
 
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
@@ -57,10 +79,17 @@ class ClientCustomerController extends SalesRestController
             ->getRepository('SandboxApiBundle:User\UserCustomer')
             ->searchSalesCustomers(
                 $salesCompanyId,
-                $search
+                $search,
+                $limit,
+                $offset
             );
 
-        $count = count($customers);
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->countSalesCustomers(
+                $salesCompanyId,
+                $search
+            );
 
         return new View([
             'items' => $customers,
@@ -738,6 +767,26 @@ class ClientCustomerController extends SalesRestController
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
+     *    name="limit",
+     *    array=false,
+     *    default="10",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="limit for the page"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="offset",
+     *    array=false,
+     *    default="0",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="start of the page"
+     * )
+     *
+     * @Annotations\QueryParam(
      *     name="query",
      *     array=false,
      *     default=null,
@@ -754,6 +803,8 @@ class ClientCustomerController extends SalesRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
+        $limit = $paramFetcher->get('limit');
+        $offset = $paramFetcher->get('offset');
         $search = $paramFetcher->get('query');
 
         if (is_null($search)) {
@@ -768,7 +819,9 @@ class ClientCustomerController extends SalesRestController
                 ->getRepository('SandboxApiBundle:User\UserCustomer')
                 ->searchSalesCustomers(
                     $salesCompanyId,
-                    $search
+                    $search,
+                    $limit,
+                    $offset
                 );
 
             if (!empty($customers)) {
