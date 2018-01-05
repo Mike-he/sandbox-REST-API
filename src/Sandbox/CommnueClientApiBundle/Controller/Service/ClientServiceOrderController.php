@@ -46,6 +46,8 @@ class ClientServiceOrderController extends PaymentController
     const ERROR_MISSING_USER_INPUT_MESSAGE = 'Missing user input';
     const ERROR_OVER_LIMIT_NUMBER_CODE = 400010;
     const ERROR_OVER_LIMIT_NUMBER_MESSAGE = 'Over purchaselimit number';
+    const ERROR_EMPTY_FORM_CODE = 400011;
+    const ERROR_EMPTY_FORM_MESSAGE = 'Form should be given';
 
     /**
      * @param Request $request
@@ -130,11 +132,28 @@ class ClientServiceOrderController extends PaymentController
 
         $em->persist($serviceOrder);
 
-        $this->handlePurchaseForm(
-            $serviceOrder,
-            $request,
-            $em
-        );
+        $forms = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Service\ServiceForm')
+                ->findBy(['service'=>$service]);
+
+        if(!is_null($forms) && !empty($forms)){
+            $requestContent = json_decode($request->getContent(), true);
+            if(is_null($requestContent)){
+               return  $this->customErrorView(
+                            400,
+                            self::ERROR_EMPTY_FORM_CODE,
+                            self::ERROR_EMPTY_FORM_MESSAGE
+                        );
+            }
+
+            $this->handlePurchaseForm(
+                $serviceOrder,
+                $requestContent,
+                $em
+            );
+        }
+
+        $em->flush();
 
         $result = [];
         $result[]['order_id'] = $serviceOrder->getId();
@@ -464,17 +483,15 @@ class ClientServiceOrderController extends PaymentController
 
     /**
      * @param $serviceOrder
-     * @param $request
+     * @param $requestContent
      * @param $em
      * @return View
      */
     private function handlePurchaseForm(
         $serviceOrder,
-        $request,
+        $requestContent,
         $em
     ) {
-        $requestContent = json_decode($request->getContent(), true);
-
         foreach ($requestContent as $form) {
             $userInput = $form['user_input'];
             if (is_null($userInput)) {
