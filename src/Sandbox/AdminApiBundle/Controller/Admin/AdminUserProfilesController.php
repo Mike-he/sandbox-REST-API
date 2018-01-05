@@ -51,28 +51,6 @@ class AdminUserProfilesController extends AdminRestController
             $adminProfileOrigin->setNickname($adminProfile->getNickname());
 
             $adminProfile = $adminProfileOrigin;
-
-            $service = $this->get('sandbox_api.jmessage_property');
-
-            $data = array();
-            if ($adminProfile->getNickname()) {
-                $data['name'] = $adminProfile->getNickname();
-            }
-
-            if ($adminProfile->getAvatar()) {
-                $data['avatar'] = $adminProfile->getAvatar();
-            }
-
-            $options = [
-                'extras' => $data,
-            ];
-
-            $salesAdmin = $em->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
-                ->findOneBy(array('userId' => $userId));
-
-            $xmpp = $salesAdmin->getXmppUsername();
-
-            $service->updateUserInfo($xmpp, $options);
         }
 
         $adminProfile->setUserId($userId);
@@ -80,6 +58,40 @@ class AdminUserProfilesController extends AdminRestController
         $em->persist($adminProfile);
 
         $em->flush();
+
+
+        $service = $this->get('sandbox_api.jmessage_property');
+
+        $profiles = $em->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
+            ->findBy(array('userId'=>$userId));
+
+        $data = [];
+        foreach ($profiles as $profile) {
+            $companyId = $profile->getSalesCompanyId();
+            if (is_null($companyId)) {
+                $data['name'] = $profile->getNickname();
+                if ($profile->getAvatar()) {
+                    $data['avatar'] = $profile->getAvatar();
+                }
+            } else {
+                $data['name-'.$companyId] = $profile->getNickname();
+
+                if ($profile->getAvatar()) {
+                    $data['avatar-'.$companyId] = $profile->getAvatar();
+                }
+            }
+        }
+
+        $options = [
+            'extras' => $data,
+        ];
+
+        $salesAdmin = $em->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
+            ->findOneBy(array('userId' => $userId));
+
+        $xmpp = $salesAdmin->getXmppUsername();
+
+        $service->updateUserInfo($xmpp, $options);
 
         return new View([
             'id' => $adminProfile->getId(),
