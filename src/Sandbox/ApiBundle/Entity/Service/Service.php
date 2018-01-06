@@ -129,7 +129,7 @@ class Service
     /**
      * @var object
      */
-    private  $district;
+    private $district;
 
     /**
      * @var string

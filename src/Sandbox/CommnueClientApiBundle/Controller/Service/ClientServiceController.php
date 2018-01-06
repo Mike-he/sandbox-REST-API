@@ -137,10 +137,10 @@ class ClientServiceController extends SalesRestController
         foreach ($services as $service) {
             $attachments = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Service\ServiceAttachment')
-                ->findBy(['service'=>$service]);
+                ->findBy(['service' => $service]);
             $times = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Service\ServiceTime')
-                ->findBy(['service'=>$service]);
+                ->findBy(['service' => $service]);
 
             $service->setAttachments($attachments);
             $service->setTimes($times);
@@ -173,13 +173,13 @@ class ClientServiceController extends SalesRestController
         $result = [];
         $attachments = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Service\ServiceAttachment')
-            ->findBy(['service'=>$service]);
+            ->findBy(['service' => $service]);
         $times = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Service\ServiceTime')
-            ->findBy(['service'=>$service]);
+            ->findBy(['service' => $service]);
         $forms = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Service\ServiceForm')
-            ->findBy(['service'=>$service]);
+            ->findBy(['service' => $service]);
 
         $province = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\RoomCity')
@@ -190,7 +190,7 @@ class ClientServiceController extends SalesRestController
             ->find($service->getCityId())
             ->getName();
         $district = '';
-        if($service->getDistrictId()){
+        if ($service->getDistrictId()) {
             $district = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Room\RoomCity')
                 ->find($service->getDistrictId())
@@ -211,11 +211,11 @@ class ClientServiceController extends SalesRestController
                 $userId,
                 $id
             );
-        if(!is_null($order)){
-           $result['order_id'] = $order->getId();
+        if (!is_null($order)) {
+            $result['order_id'] = $order->getId();
         }
 
-        $result['like'] =  $this->getDoctrine()
+        $result['like'] = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserFavorite')
             ->findOneBy(
                 [

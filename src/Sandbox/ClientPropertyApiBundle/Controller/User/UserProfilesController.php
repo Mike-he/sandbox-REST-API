@@ -81,7 +81,7 @@ class UserProfilesController extends SalesRestController
         $service = $this->get('sandbox_api.jmessage_property');
 
         $profiles = $em->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
-            ->findBy(array('userId'=>$userId));
+            ->findBy(array('userId' => $userId));
 
         $data = [];
         $options = [];

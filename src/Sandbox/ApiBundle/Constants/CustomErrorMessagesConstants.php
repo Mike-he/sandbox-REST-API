@@ -63,7 +63,6 @@ class CustomErrorMessagesConstants
     const ERROR_ONLY_MY_OWN_OPERATION_CODE = 400020;
     const ERROR_ONLY_MY_OWN_OPERATION_MESSAGE = '只能本人操作';
 
-
     // 404 NOT FOUND MESSAGE
     // LEASE
     const ERROR_LEASE_NOT_FOUND_MESSAGE = 'The lease does not exist';

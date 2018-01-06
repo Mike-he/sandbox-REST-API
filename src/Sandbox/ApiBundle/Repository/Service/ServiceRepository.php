@@ -4,7 +4,6 @@ namespace Sandbox\ApiBundle\Repository\Service;
 
 use Doctrine\ORM\EntityRepository;
 use Sandbox\ApiBundle\Entity\Service\Service;
-use Sandbox\ApiBundle\Entity\Service\ServiceOrder;
 use Sandbox\ApiBundle\Entity\Service\ViewCounts;
 
 class ServiceRepository extends EntityRepository
@@ -15,6 +14,7 @@ class ServiceRepository extends EntityRepository
      * @param $salesCompanyId
      * @param $limit
      * @param $offset
+     *
      * @return array
      */
     public function getSalesServices(
@@ -57,13 +57,14 @@ class ServiceRepository extends EntityRepository
      * @param $type
      * @param $visible
      * @param $salesCompanyId
+     *
      * @return mixed
      */
     public function getSalesServiceCount(
         $type,
         $visible,
         $salesCompanyId
-    ){
+    ) {
         $query = $this->createQueryBuilder('s')
             ->select(
                 '

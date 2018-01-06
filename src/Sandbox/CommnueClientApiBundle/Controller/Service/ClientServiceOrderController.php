@@ -7,18 +7,15 @@ use FOS\RestBundle\View\View;
 use Sandbox\ApiBundle\Controller\Payment\PaymentController;
 use Sandbox\ApiBundle\Entity\Error\Error;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Sandbox\ApiBundle\Entity\Service\ServiceForm;
 use Sandbox\ApiBundle\Entity\Service\ServiceOrder;
 use Sandbox\ApiBundle\Entity\Service\ServicePurchaseForm;
-use Sandbox\ApiBundle\Entity\User\UserFavorite;
 use Sandbox\ApiBundle\Traits\HandleServiceDataTrait;
 use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations;
-use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sandbox\ApiBundle\Entity\Service\Service;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -69,8 +66,8 @@ class ClientServiceOrderController extends PaymentController
         $service = $this->getDoctrine()->getManager()
             ->getRepository('SandboxApiBundle:Service\Service')
             ->findOneBy(array(
-                'id'=>$id,
-                'visible' => true
+                'id' => $id,
+                'visible' => true,
             ));
         $this->throwNotFoundIfNull($service, self::NOT_FOUND_MESSAGE);
         $salesCompanyId = $service->getSalesCompanyId();
@@ -103,9 +100,9 @@ class ClientServiceOrderController extends PaymentController
                 $userId,
                 $serviceId
             );
-        if(!is_null($order)){
+        if (!is_null($order)) {
             $result = [];
-            $result[]['order_id'] = $order->getId();;
+            $result[]['order_id'] = $order->getId();
 
             return new View($result);
         }
@@ -134,12 +131,12 @@ class ClientServiceOrderController extends PaymentController
 
         $forms = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Service\ServiceForm')
-                ->findBy(['service'=>$service]);
+                ->findBy(['service' => $service]);
 
-        if(!is_null($forms) && !empty($forms)){
+        if (!is_null($forms) && !empty($forms)) {
             $requestContent = json_decode($request->getContent(), true);
-            if(is_null($requestContent)){
-               return  $this->customErrorView(
+            if (is_null($requestContent)) {
+                return  $this->customErrorView(
                             400,
                             self::ERROR_EMPTY_FORM_CODE,
                             self::ERROR_EMPTY_FORM_MESSAGE
@@ -178,7 +175,7 @@ class ClientServiceOrderController extends PaymentController
             ->findOneBy(array(
                 'id' => $id,
                 'userId' => $userId,
-                'status' => ServiceOrder::STATUS_UNPAID
+                'status' => ServiceOrder::STATUS_UNPAID,
             ));
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
 
@@ -187,8 +184,8 @@ class ClientServiceOrderController extends PaymentController
         $em->remove($order);
 
         $purchaseForms = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServicePurchaseForm')
-            ->findBy(['order'=>$order]);
-        foreach ($purchaseForms as $purchaseForm){
+            ->findBy(['order' => $order]);
+        foreach ($purchaseForms as $purchaseForm) {
             $em->remove($purchaseForm);
         }
 
@@ -237,8 +234,8 @@ class ClientServiceOrderController extends PaymentController
 
                 $purchaseForms = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Service\ServicePurchaseForm')
-                    ->findBy(['order'=>$order]);
-                foreach ($purchaseForms as $purchaseForm){
+                    ->findBy(['order' => $order]);
+                foreach ($purchaseForms as $purchaseForm) {
                     $em->remove($purchaseForm);
                 }
                 $em->flush();
@@ -343,7 +340,7 @@ class ClientServiceOrderController extends PaymentController
 
         $serviceForm = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Service\ServiceForm')
-            ->findBy(['service'=>$service]);
+            ->findBy(['service' => $service]);
 
         return new View($serviceForm);
     }
@@ -388,7 +385,7 @@ class ClientServiceOrderController extends PaymentController
     public function getServiceOrdersAction(
         Request $request,
         ParamFetcherInterface $paramFetcher
-    ){
+    ) {
         $userId = $this->getUserId();
 
         $limit = $paramFetcher->get('limit');
@@ -403,8 +400,8 @@ class ClientServiceOrderController extends PaymentController
                 $offset
             );
 
-        if($orders){
-            foreach ($orders as $order){
+        if ($orders) {
+            foreach ($orders as $order) {
                 $this->handleServiceInfo($order->getService());
             }
         }
@@ -436,18 +433,18 @@ class ClientServiceOrderController extends PaymentController
         $userId = $this->getUserId();
         $status = $paramFetcher->get('status');
 
-        if(!is_null($status)){
+        if (!is_null($status)) {
             $order = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServiceOrder')
                 ->findOneBy(array(
-                    'id'=>$id,
-                    'userId'=>$userId,
-                    'status' => $status
+                    'id' => $id,
+                    'userId' => $userId,
+                    'status' => $status,
                 ));
-        }else{
+        } else {
             $order = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServiceOrder')
                 ->findOneBy(array(
-                    'id'=>$id,
-                    'userId'=>$userId,
+                    'id' => $id,
+                    'userId' => $userId,
                 ));
         }
 
@@ -470,7 +467,7 @@ class ClientServiceOrderController extends PaymentController
     ) {
         $serviceEnd = $service->getServiceEndDate();
 
-        if(
+        if (
             $serviceEnd < $now ||
             !$service->isCharge() ||
             is_null($service->getPrice()) ||
@@ -485,6 +482,7 @@ class ClientServiceOrderController extends PaymentController
      * @param $serviceOrder
      * @param $requestContent
      * @param $em
+     *
      * @return View
      */
     private function handlePurchaseForm(
@@ -548,7 +546,7 @@ class ClientServiceOrderController extends PaymentController
                 $ids = explode($delimiter, $userInput);
 
                 foreach ($ids as $id) {
-                    $formOption =  $this->getDoctrine()
+                    $formOption = $this->getDoctrine()
                         ->getRepository('SandboxApiBundle:Service\ServiceFormOption')
                         ->findOneBy(array(
                             'id' => (int) $id,
@@ -575,7 +573,7 @@ class ClientServiceOrderController extends PaymentController
 
     /**
      * @param ServiceOrder $order
-     * @param            $channel
+     * @param              $channel
      *
      * @return View
      */
@@ -620,6 +618,7 @@ class ClientServiceOrderController extends PaymentController
 
     /**
      * @param Service $service
+     *
      * @return mixed
      */
     private function handleServiceInfo(
@@ -628,10 +627,10 @@ class ClientServiceOrderController extends PaymentController
         $this->handleServicesData($service);
         $forms = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Service\ServiceAttachment')
-            ->findBy(['service'=>$service]);
+            ->findBy(['service' => $service]);
         $times = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Service\ServiceTime')
-            ->findBy(['service'=>$service]);
+            ->findBy(['service' => $service]);
         $service->setAttachments($forms);
         $service->setTimes($times);
 

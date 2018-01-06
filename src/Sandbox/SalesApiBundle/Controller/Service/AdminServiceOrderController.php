@@ -3,12 +3,9 @@
 namespace Sandbox\SalesApiBundle\Controller\Service;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
-use JMS\Serializer\Tests\Fixtures\VehicleInterfaceGarage;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Service\Service;
-use Sandbox\ApiBundle\Entity\Service\ServiceForm;
 use Sandbox\ApiBundle\Entity\Service\ServiceOrder;
-use Sandbox\ApiBundle\Entity\Service\ServicePurchaseForm;
 use Sandbox\ApiBundle\Traits\HandleServiceDataTrait;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -157,7 +154,7 @@ class AdminServiceOrderController extends SalesRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      * @param $id
      *
@@ -201,7 +198,7 @@ class AdminServiceOrderController extends SalesRestController
         $pageIndex = $paramFetcher->get('pageIndex');
 
         $limit = $pageLimit;
-        $offset = ($pageIndex-1)*$pageLimit;
+        $offset = ($pageIndex - 1) * $pageLimit;
 
         $orders = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServiceOrder')
             ->findPurchaseOrders(
@@ -212,11 +209,11 @@ class AdminServiceOrderController extends SalesRestController
             );
         $this->throwNotFoundIfNull($orders, self::NOT_FOUND_MESSAGE);
 
-        $count =  $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServiceOrder')
+        $count = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServiceOrder')
         ->getServicePurchaseCount($id);
 
         $result = [];
-        foreach ($orders as $order){
+        foreach ($orders as $order) {
             $result[] = $this->handlePurchaseInfo($order);
         }
 
@@ -261,7 +258,7 @@ class AdminServiceOrderController extends SalesRestController
             ->find($order->getCustomerId());
         $purchaseForm = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Service\ServicePurchaseForm')
-            ->findBy(['order'=>$order]);
+            ->findBy(['order' => $order]);
 
         $result['user'] = $user;
         $result['form'] = $purchaseForm;
@@ -288,9 +285,9 @@ class AdminServiceOrderController extends SalesRestController
 
         $order = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServiceOrder')
             ->findOneBy(array(
-                'id'=>$id,
-                'status'=>ServiceOrder::STATUS_PAID,
-                'companyId'=>$companyId
+                'id' => $id,
+                'status' => ServiceOrder::STATUS_PAID,
+                'companyId' => $companyId,
             ));
 
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
@@ -305,6 +302,7 @@ class AdminServiceOrderController extends SalesRestController
 
     /**
      * @param ServiceOrder $order
+     *
      * @return array
      */
     private function handlePurchaseInfo(

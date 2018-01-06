@@ -19,7 +19,7 @@ class AdminExpertFieldController extends SandboxRestController
     const ERROR_OVER_LIMIT_MESSAGE = 'Over limit';
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/expert/fields")
@@ -61,7 +61,7 @@ class AdminExpertFieldController extends SandboxRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/expert/fields")
@@ -72,7 +72,7 @@ class AdminExpertFieldController extends SandboxRestController
     public function getExpertFieldsAction(
         Request $request,
         ParamFetcherInterface $paramFetcher
-    ){
+    ) {
         $currentExpertFields = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Expert\ExpertField')
             ->findAll();

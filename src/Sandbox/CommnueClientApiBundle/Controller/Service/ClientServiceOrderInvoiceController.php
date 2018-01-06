@@ -172,7 +172,6 @@ class ClientServiceOrderInvoiceController extends SandboxRestController
         return new View();
     }
 
-
     /**
      * @param Request $request
      * @param int     $id

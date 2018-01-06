@@ -3,7 +3,6 @@
 namespace Sandbox\AdminApiBundle\Command;
 
 use Doctrine\ORM\EntityManager;
-use Sandbox\ApiBundle\Entity\Message\JMessageHistory;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -27,11 +26,11 @@ class SyncJmessageUserCommand extends ContainerAwareCommand
             ->findAll();
 
         foreach ($salesAdmins as $admin) {
-            $userId  = $admin->getUserId();
+            $userId = $admin->getUserId();
             $xmpp = $admin->getXmppUsername();
 
             $profiles = $em->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
-                ->findBy(array('userId'=>$userId));
+                ->findBy(array('userId' => $userId));
 
             $data = [];
             $options = [];
@@ -51,7 +50,7 @@ class SyncJmessageUserCommand extends ContainerAwareCommand
 
             $options['extras'] = $data;
 
-            $service->updateUserInfo($xmpp,$options);
+            $service->updateUserInfo($xmpp, $options);
         }
 
         $output->writeln('Sync Success!');

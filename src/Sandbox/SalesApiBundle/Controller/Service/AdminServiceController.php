@@ -665,7 +665,7 @@ class AdminServiceController extends SalesRestController
         if (!is_null($attachments) || !empty($attachments)) {
             $serviceAttachments = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Service\ServiceAttachment')
-                ->findBy(['service'=>$service]);
+                ->findBy(['service' => $service]);
             foreach ($serviceAttachments as $serviceAttachment) {
                 $em->remove($serviceAttachment);
             }
@@ -690,7 +690,7 @@ class AdminServiceController extends SalesRestController
         if (!is_null($times) || !empty($times)) {
             $serviceTimes = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Service\ServiceTime')
-                ->findBy(['service'=>$service]);
+                ->findBy(['service' => $service]);
             foreach ($serviceTimes as $serviceTime) {
                 $em->remove($serviceTime);
             }
@@ -722,7 +722,7 @@ class AdminServiceController extends SalesRestController
         if (!is_null($serviceForms) || !empty($serviceForms)) {
             $serviceFormArray = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Service\ServiceForm')
-                ->findBy(['service'=>$service]);
+                ->findBy(['service' => $service]);
             foreach ($serviceFormArray as $serviceForm) {
                 $em->remove($serviceForm);
             }
@@ -735,7 +735,8 @@ class AdminServiceController extends SalesRestController
     }
 
     /**
-     * @param  Service $service
+     * @param Service $service
+     *
      * @return mixed
      */
     private function handleServiceInfo(
@@ -743,13 +744,13 @@ class AdminServiceController extends SalesRestController
     ) {
         $attachments = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Service\ServiceAttachment')
-            ->findBy(['service'=>$service]);
+            ->findBy(['service' => $service]);
         $times = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Service\ServiceTime')
-            ->findBy(['service'=>$service]);
+            ->findBy(['service' => $service]);
         $forms = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Service\ServiceForm')
-            ->findBy(['service'=>$service]);
+            ->findBy(['service' => $service]);
 
         $city = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\RoomCity')
@@ -764,7 +765,7 @@ class AdminServiceController extends SalesRestController
         $countryName = $country->getName();
         $provinceName = $province->getName();
         $districtName = '';
-        if($service->getDistrictId()){
+        if ($service->getDistrictId()) {
             $district = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Room\RoomCity')
                 ->find($service->getDistrictId());
@@ -775,9 +776,9 @@ class AdminServiceController extends SalesRestController
         $now = new \DateTime();
         $startDate = $service->getServiceStartDate();
         $endDate = $service->getServiceEndDate();
-        if($startDate <= $now && $endDate >= $now){
+        if ($startDate <= $now && $endDate >= $now) {
             $service->setStatus('ongoing');
-        }else if($endDate < $now){
+        } elseif ($endDate < $now) {
             $service->setStatus('end');
         }
 
@@ -801,15 +802,16 @@ class AdminServiceController extends SalesRestController
 
     /**
      * @param Service $service
+     *
      * @return View
      */
     private function checkPatchValid(
         $service
     ) {
-        if($service->isVisible()){
+        if ($service->isVisible()) {
             $now = new \DateTime();
             $startDate = $service->getServiceStartDate();
-            if($startDate < $now){
+            if ($startDate < $now) {
                 return $this->customErrorView(
                     400,
                     self::ERROR_SERVICE_STSRTDATE_CODE,
@@ -821,11 +823,11 @@ class AdminServiceController extends SalesRestController
         }
         $orders = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServiceOrder')
             ->findOneBy(array(
-                'serviceId'=>$service->getId(),
-                'status'=>ServiceOrder::STATUS_PAID
+                'serviceId' => $service->getId(),
+                'status' => ServiceOrder::STATUS_PAID,
             ));
-        if(!is_null($orders)){
-           return $this->customErrorView(
+        if (!is_null($orders)) {
+            return $this->customErrorView(
                     400,
                     self::ERROR_INVALID_PATCH_CODE,
                     self::ERROR_INVALID_PATCH_MESSAGE
