@@ -34,13 +34,12 @@ class SyncJmessageUserCommand extends ContainerAwareCommand
                 ->findBy(array('userId'=>$userId));
 
             $data = [];
+            $options = [];
             foreach ($profiles as $profile) {
                 $companyId = $profile->getSalesCompanyId();
                 if (is_null($companyId)) {
-                    $data['name'] = $profile->getNickname();
-                    if ($profile->getAvatar()) {
-                        $data['avatar'] = $profile->getAvatar();
-                    }
+                    $options['nickname'] = $profile->getNickname();
+                    $options['avatar'] = $profile->getAvatar();
                 } else {
                     $data['name-'.$companyId] = $profile->getNickname();
 
@@ -50,9 +49,7 @@ class SyncJmessageUserCommand extends ContainerAwareCommand
                 }
             }
 
-            $options = [
-                'extras' => $data,
-            ];
+            $options['extras'] = $data;
 
             $service->updateUserInfo($xmpp,$options);
         }
