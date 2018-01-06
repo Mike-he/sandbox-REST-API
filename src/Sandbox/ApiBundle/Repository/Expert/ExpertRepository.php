@@ -110,4 +110,37 @@ class ExpertRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param $banned
+     * @param $name
+     * @param $phone
+     *
+     * @return array
+     */
+    public function getAdminExperts(
+        $banned,
+        $name,
+        $phone
+    ) {
+        $query = $this->createQueryBuilder('e')
+            ->where('e.id > 0');
+
+        if (!is_null($banned)) {
+            $query->andWhere('e.banned = :banned')
+                ->setParameter('banned', $banned);
+        }
+
+        if (!is_null($name)) {
+            $query->andWhere('e.name = :name')
+                ->setParameter('name', $name);
+        }
+
+        if (!is_null($phone)) {
+            $query->andWhere('e.phone = :phone')
+                ->setParameter('phone', $phone);
+        }
+
+        return $query->getQuery()->getResult();
+    }
 }
