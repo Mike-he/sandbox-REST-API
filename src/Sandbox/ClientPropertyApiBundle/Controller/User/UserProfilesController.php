@@ -84,13 +84,12 @@ class UserProfilesController extends SalesRestController
             ->findBy(array('userId'=>$userId));
 
         $data = [];
+        $options = [];
         foreach ($profiles as $profile) {
             $companyId = $profile->getSalesCompanyId();
             if (is_null($companyId)) {
-                $data['name'] = $profile->getNickname();
-                if ($profile->getAvatar()) {
-                    $data['avatar'] = $profile->getAvatar();
-                }
+                $options['nickname'] = $profile->getNickname();
+                $options['avatar'] = $profile->getAvatar();
             } else {
                 $data['name-'.$companyId] = $profile->getNickname();
 
@@ -100,9 +99,7 @@ class UserProfilesController extends SalesRestController
             }
         }
 
-        $options = [
-            'extras' => $data,
-        ];
+        $options['extras'] = $data;
 
         $salesAdmin = $em->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
             ->findOneBy(array('userId' => $userId));
