@@ -63,3 +63,8 @@ commnue_admin_expert_field:
     resource: "@CommnueAdminApiBundle/Controller/Expert/AdminExpertFieldController.php"
     type:     annotation
     prefix:   /
+
+commnue_admin_experts:
+    resource: "@CommnueAdminApiBundle/Controller/Expert/AdminExpertController.php"
+    type:     annotation
+    prefix:   /
