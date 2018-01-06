@@ -250,6 +250,21 @@ class ClientUserFavoriteController extends LocationController
                 }
 
                 break;
+            case UserFavorite::OBJECT_EXPERT:
+                $objects = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Expert\Expert')
+                    ->getExperts(
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        $limit,
+                        $offset,
+                        $objectIds
+                    );
+                break;
             default:
                 return $view;
 
@@ -455,6 +470,20 @@ class ClientUserFavoriteController extends LocationController
                             'isDeleted' => false,
                         ]);
                     $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
+
+                    break;
+                case UserFavorite::OBJECT_EXPERT:
+                    $expert = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:Expert\Expert')
+                        ->find($objectId);
+                    $this->throwNotFoundIfNull($expert, self::NOT_FOUND_MESSAGE);
+
+                    break;
+                case UserFavorite::OBJECT_SERVICE:
+                    $service = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:Service\Service')
+                        ->find($objectId);
+                    $this->throwNotFoundIfNull($service, self::NOT_FOUND_MESSAGE);
 
                     break;
                 default:

@@ -85,7 +85,7 @@ class ClientUserLoginController extends UserLoginController
 
         $platform = $paramFetcher->get('platform');
 
-        if ($platform == 'commnue') {
+        if ('commnue' == $platform) {
             $checkUser = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Commnue\CommnueUser')
                 ->findOneBy(['userId' => $user->getId()]);
@@ -163,7 +163,7 @@ class ClientUserLoginController extends UserLoginController
             ->findOneBy(['userId' => $userId]);
 
         if (is_null($userPlatform)) {
-            if ($platform == 'commnue') {
+            if ('commnue' == $platform) {
                 $userPlatform = new UserPlatform();
                 $userPlatform->setUserId($userId);
             } else {

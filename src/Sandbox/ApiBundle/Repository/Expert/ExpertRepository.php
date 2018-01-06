@@ -15,7 +15,8 @@ class ExpertRepository extends EntityRepository
         $district,
         $sort,
         $limit,
-        $offset
+        $offset,
+        $expertIds = null
     ) {
         $query = $this->createQueryBuilder('e')
             ->select('
@@ -81,6 +82,11 @@ class ExpertRepository extends EntityRepository
             default:
                 $query->orderBy('e.creationDate', 'DESC');
                 break;
+        }
+
+        if ($expertIds) {
+            $query->andWhere('e.id IN (:ids)')
+                ->setParameter('ids', $expertIds);
         }
 
         $query->setMaxResults($limit)
