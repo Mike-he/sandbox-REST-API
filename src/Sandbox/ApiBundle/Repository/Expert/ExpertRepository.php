@@ -88,4 +88,20 @@ class ExpertRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param $fieldId
+     *
+     * @return array
+     */
+    public function checkExpertField(
+        $fieldId
+    ) {
+        $query = $this->createQueryBuilder('e')
+            ->innerJoin('e.expertFields', 'ef')
+            ->andWhere('ef.id  = :field')
+            ->setParameter('field', $fieldId);
+
+        return $query->getQuery()->getResult();
+    }
 }
