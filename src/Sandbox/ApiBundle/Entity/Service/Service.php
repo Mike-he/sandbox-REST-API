@@ -14,7 +14,6 @@ use JMS\Serializer\Annotation as Serializer;
 class Service
 {
     const STATUS_PREHEATING = 'preheating';
-    const STATUS_WAITING = 'waiting';
     const STATUS_ONGOING = 'ongoing';
     const STATUS_END = 'end';
     const STATUS_SAVED = 'saved';
@@ -895,6 +894,4 @@ class Service
     {
         $this->district = $district;
     }
-
-
 }

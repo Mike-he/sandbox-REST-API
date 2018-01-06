@@ -204,6 +204,17 @@ class ClientServiceController extends SalesRestController
         $service->setTimes($times);
         $service->setAddress($addresss);
         $result['service'] = $service;
+
+        $order = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Service\ServiceOrder')
+            ->getUserLastOrder(
+                $userId,
+                $id
+            );
+        if(!is_null($order)){
+           $result['order_id'] = $order->getId();
+        }
+
         $result['like'] =  $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserFavorite')
             ->findOneBy(

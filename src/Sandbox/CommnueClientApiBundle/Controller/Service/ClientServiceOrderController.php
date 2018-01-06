@@ -570,7 +570,6 @@ class ClientServiceOrderController extends PaymentController
             $purchaseForm->setUserInput($userInput);
 
             $em->persist($purchaseForm);
-            $em->flush();
         }
     }
 
