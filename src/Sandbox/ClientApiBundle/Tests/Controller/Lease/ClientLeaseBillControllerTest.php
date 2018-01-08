@@ -22,14 +22,13 @@ class ClientLeaseBillControllerTest extends WebTestCase
         $fixtures = [
             'Sandbox\ApiBundle\DataFixtures\ORM\User\LoadUserData',
             'Sandbox\ApiBundle\DataFixtures\ORM\Sales\LoadSalesCompanyData',
-            'Sandbox\ApiBundle\DataFixtures\ORM\Admin\LoadAdminPositionData',
-            'Sandbox\ApiBundle\DataFixtures\ORM\Admin\LoadAdminPositionBindingData',
             'Sandbox\ApiBundle\DataFixtures\ORM\Room\LoadRoomCityData',
             'Sandbox\ApiBundle\DataFixtures\ORM\Room\LoadRoomBuildingData',
             'Sandbox\ApiBundle\DataFixtures\ORM\Room\LoadRoomTypesData',
             'Sandbox\ApiBundle\DataFixtures\ORM\Room\LoadRoomData',
             'Sandbox\ApiBundle\DataFixtures\ORM\Room\LoadRoomFixedData',
             'Sandbox\ApiBundle\DataFixtures\ORM\Product\LoadProductData',
+            'Sandbox\ApiBundle\DataFixtures\ORM\User\LoadUserCustomerData',
             'Sandbox\ApiBundle\DataFixtures\ORM\Lease\LoadLeaseData',
         ];
 
