@@ -3,10 +3,8 @@
 namespace Sandbox\ClientPropertyApiBundle\Controller\Customer;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
-use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\User\UserCustomer;
 use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
@@ -102,6 +100,58 @@ class ClientCustomerController extends SalesRestController
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *     name="xmpp_username",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Route("/customer/detail")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getCustomerDetailAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
+        $xmppUsername = $paramFetcher->get('xmpp_username');
+
+        $user = $this->getDoctrine()->getRepository('SandboxApiBundle:User\User')
+            ->findOneBy(array('xmppUsername' => $xmppUsername));
+        $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
+
+        $customer = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->findOneBy(array(
+                'userId' => $user->getId(),
+                'companyId' => $salesCompanyId,
+            ));
+        $this->throwNotFoundIfNull($customer, self::NOT_FOUND_MESSAGE);
+
+        $this->generateCustomer($customer);
+
+        $userId = $customer->getUserId();
+        if ($userId) {
+            $user = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\User')
+                ->find($userId);
+
+            $customer->setCardNo($user->getCardNo());
+        }
+
+        return new View($customer);
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
      * @param $id
      *
      * @Route("/customer/{id}")
@@ -138,7 +188,6 @@ class ClientCustomerController extends SalesRestController
 
         return new View($customer);
     }
-
 
     /**
      * @param Request               $request
@@ -272,19 +321,19 @@ class ClientCustomerController extends SalesRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      * @param $id
      * @Route("/customer/{id}/orders/number")
      * @Method({"GET"})
+     *
      * @return View
      */
-    public function getCustomerAllOrdersNumAction
-    (
+    public function getCustomerAllOrdersNumAction(
         Request $request,
         ParamFetcherInterface  $paramFetcher,
         $id
-    ){
+    ) {
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
@@ -305,7 +354,7 @@ class ClientCustomerController extends SalesRestController
 
         $eventOrdersCount = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Event\EventOrder')
-            ->countCustomerAllEventOrders($id,$salesCompanyId);
+            ->countCustomerAllEventOrders($id, $salesCompanyId);
 
         $membershipOrdersCount = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:MembershipCard\MembershipOrder')
@@ -313,20 +362,20 @@ class ClientCustomerController extends SalesRestController
 
         $billsCount = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\LeaseBill')
-            ->countCustomerAllLeaseBills($id,$myBuildingIds);
+            ->countCustomerAllLeaseBills($id, $myBuildingIds);
 
         $leaseCount = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\Lease')
-            ->countCustomerAllLeases($id,$myBuildingIds);
+            ->countCustomerAllLeases($id, $myBuildingIds);
 
         $view = new View();
         $view->setData(
             array(
-                'productOrdersCount'=>$productOrdersCount,
-                'eventOrdersCount'=>$eventOrdersCount,
-                'membershipOrdersCount'=>$membershipOrdersCount,
-                'billCount' =>$billsCount,
-                'leaseCount' => $leaseCount
+                'productOrdersCount' => $productOrdersCount,
+                'eventOrdersCount' => $eventOrdersCount,
+                'membershipOrdersCount' => $membershipOrdersCount,
+                'billCount' => $billsCount,
+                'leaseCount' => $leaseCount,
             )
         );
 
@@ -334,7 +383,7 @@ class ClientCustomerController extends SalesRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -360,6 +409,7 @@ class ClientCustomerController extends SalesRestController
      * @param $id
      * @Route("/customer/{id}/product_orders")
      * @Method({"GET"})
+     *
      * @return View
      */
     public function getCustomerProductOrdersAction(
@@ -385,7 +435,7 @@ class ClientCustomerController extends SalesRestController
                 $limit,
                 $offset
             );
-           // ->findBy(array('customerId'=>$id),array('creationDate'=>'DESC'), $limit, $offset);
+        // ->findBy(array('customerId'=>$id),array('creationDate'=>'DESC'), $limit, $offset);
 
         $receivableTypes = [
             'sales_wx' => '微信',
@@ -404,11 +454,12 @@ class ClientCustomerController extends SalesRestController
                 $receivableTypes
             );
         }
+
         return new View($orderLists);
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -434,6 +485,7 @@ class ClientCustomerController extends SalesRestController
      * @param $id
      * @Route("/customer/{id}/event_orders")
      * @Method({"GET"})
+     *
      * @return View
      */
     public function getCustomerEventOrdersAction(
@@ -458,14 +510,14 @@ class ClientCustomerController extends SalesRestController
 
         $orderLists = [];
         foreach ($eventOrders as $order) {
-            $orderLists[] = $this->handleEventOrderData($id,$order);
+            $orderLists[] = $this->handleEventOrderData($id, $order);
         }
 
         return new View($orderLists);
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -491,6 +543,7 @@ class ClientCustomerController extends SalesRestController
      * @param $id
      * @Route("/customer/{id}/membership_orders")
      * @Method({"GET"})
+     *
      * @return View
      */
     public function getCustomerMembershipOrdersAction(
@@ -507,18 +560,18 @@ class ClientCustomerController extends SalesRestController
 
         $MembershipOrders = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:MembershipCard\MembershipOrder')
-            ->findBy(array('user'=>$userId),array('creationDate'=>'DESC'), $limit, $offset);
+            ->findBy(array('user' => $userId), array('creationDate' => 'DESC'), $limit, $offset);
 
         $orderLists = [];
         foreach ($MembershipOrders as $order) {
-            $orderLists[] = $this->handleMembershipOrderData($id,$order);
+            $orderLists[] = $this->handleMembershipOrderData($id, $order);
         }
 
         return new View($orderLists);
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -543,6 +596,7 @@ class ClientCustomerController extends SalesRestController
      *
      * @param $id
      * @Route("/customer/{id}/lease_bills")
+     *
      * @return View
      */
     public function getCustomerLeaseBillsAction(
@@ -578,7 +632,7 @@ class ClientCustomerController extends SalesRestController
             'others' => '其他',
             'sales_pos' => 'POS机',
             'sales_remit' => '线下汇款',
-            'remit' => '线下汇款'
+            'remit' => '线下汇款',
         ];
 
         $bills = $this->handleBillData($bills, $limit, $offset, $receivableTypes);
@@ -587,7 +641,7 @@ class ClientCustomerController extends SalesRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -612,6 +666,7 @@ class ClientCustomerController extends SalesRestController
      *
      * @param $id
      * @Route("/customer/{id}/leases")
+     *
      * @return View
      */
     public function getCustomerLeasesAction(
@@ -639,7 +694,7 @@ class ClientCustomerController extends SalesRestController
             );
 
         $ids = array();
-        foreach($leases as $lease){
+        foreach ($leases as $lease) {
             $ids[] = $lease->getId();
         }
 
@@ -760,7 +815,7 @@ class ClientCustomerController extends SalesRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -842,6 +897,7 @@ class ClientCustomerController extends SalesRestController
      * @param $limit
      * @param $offset
      * @param $receivableTypes
+     *
      * @return array
      */
     private function handleBillData(

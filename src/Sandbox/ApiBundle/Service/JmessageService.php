@@ -103,6 +103,15 @@ class JmessageService
         $this->user->update($username, $options);
     }
 
+    public function updateUserInfo(
+        $username,
+        $options
+    ) {
+        $response = $this->user->update($username, $options);
+
+        return $response;
+    }
+
     public function createGroup(
         $owner,
         $name,
