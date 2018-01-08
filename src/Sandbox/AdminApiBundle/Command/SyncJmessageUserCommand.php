@@ -38,15 +38,15 @@ class SyncJmessageUserCommand extends ContainerAwareCommand
         $data = [];
         foreach ($customers as $customer) {
             $companyId = $customer->getCompanyId();
-            $data['cus-name-'.$companyId] = $customer->getName();
+            $data['cname-'.$companyId] = $customer->getName();
             if ($customer->getAvatar()) {
-                $data['cus-avatar-'.$companyId] = $customer->getAvatar();
+                $data['cavatar-'.$companyId] = $customer->getAvatar();
             }
         }
+        $data['phone'] = $user->getPhone();
 
         $options = array(
             'nickname' => $profile ? $profile->getName() : '',
-            'avatar' => $this->getContainer()->getParameter('image_url').'/person/'.$userId.'/avatar_small.jpg',
             'extras' => $data,
         );
 
