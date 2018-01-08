@@ -100,9 +100,9 @@ class ClientChatGroupMemberController extends ChatGroupController
 
     /**
      * @param Request $request
-     * @param $gid
+     * @param $userId
      *
-     * @Route("/chatgroups/{gid}/creator")
+     * @Route("/chatgroups/creator/{userId}")
      * @Method({"POST"})
      *
      * @return View
@@ -111,22 +111,13 @@ class ClientChatGroupMemberController extends ChatGroupController
      */
     public function UpdateCreatorInfoAction(
         Request $request,
-        $gid
+        $userId
     ) {
-        $chatGroup = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:ChatGroup\ChatGroup')
-            ->findOneBy(array(
-                'gid' => $gid,
-            ));
-        $this->throwNotFoundIfNull($chatGroup, self::NOT_FOUND_MESSAGE);
-
-        $creatorId = $chatGroup->getCreatorId();
-
         //execute SyncJmessageUserCommand
         $command = new SyncJmessageUserCommand();
         $command->setContainer($this->container);
 
-        $input = new ArrayInput(array('userId' => $creatorId));
+        $input = new ArrayInput(array('userId' => $userId));
         $output = new NullOutput();
 
         $command->run($input, $output);
