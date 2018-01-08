@@ -269,8 +269,8 @@ class AdminServiceOrderController extends SalesRestController
     /**
      * @param $id
      *
-     * @Route("/service/orders/{id}")
-     * @Method({"PATCH"})
+     * @Route("/service/orders/{id}/completed")
+     * @Method({"POST"})
      *
      * @return View
      */

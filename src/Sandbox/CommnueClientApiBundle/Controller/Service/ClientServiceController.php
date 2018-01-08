@@ -88,7 +88,6 @@ class ClientServiceController extends SalesRestController
      *    array=false,
      *    default=null,
      *    nullable=true,
-     *    requirements="string",
      *    description="services typeId"
      * )
      *
@@ -97,7 +96,6 @@ class ClientServiceController extends SalesRestController
      *    array=false,
      *    default=null,
      *    nullable=true,
-     *    requirements="string",
      *    description="services typeId"
      * )
      *
