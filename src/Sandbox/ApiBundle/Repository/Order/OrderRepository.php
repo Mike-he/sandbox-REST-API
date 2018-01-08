@@ -4270,12 +4270,10 @@ class OrderRepository extends EntityRepository
         $productOrderAmountQuery = $this->getEntityManager()->createQueryBuilder()
             ->from('SandboxApiBundle:Order\ProductOrder', 'o')
             ->select('SUM(o.discountPrice)')
-            ->where('o.status = :completed')
-            ->andWhere('o.paymentDate >= :start')
+            ->where('o.paymentDate >= :start')
             ->andWhere('o.paymentDate <= :end')
             ->andWhere('o.payChannel = :account')
             ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
-            ->setParameter('completed', ProductOrder::STATUS_COMPLETED)
             ->setParameter('start', $startDate)
             ->setParameter('end', $endDate);
 
@@ -4300,12 +4298,10 @@ class OrderRepository extends EntityRepository
         $productOrderCountQuery = $this->getEntityManager()->createQueryBuilder()
             ->from('SandboxApiBundle:Order\ProductOrder', 'o')
             ->select('COUNT(o.discountPrice)')
-            ->where('o.status = :completed')
-            ->andWhere('o.paymentDate >= :start')
+            ->where('o.paymentDate >= :start')
             ->andWhere('o.paymentDate <= :end')
             ->andWhere('o.payChannel = :account')
             ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
-            ->setParameter('completed', ProductOrder::STATUS_COMPLETED)
             ->setParameter('start', $startDate)
             ->setParameter('end', $endDate);
 
@@ -4387,12 +4383,10 @@ class OrderRepository extends EntityRepository
         $eventOrderAmountQuery = $this->getEntityManager()->createQueryBuilder()
             ->from('SandboxApiBundle:Event\EventOrder', 'eo')
             ->select('SUM(eo.price)')
-            ->where('eo.status = :completed')
-            ->andWhere('eo.paymentDate >= :start')
+            ->where('eo.paymentDate >= :start')
             ->andWhere('eo.paymentDate <= :end')
             ->andWhere('eo.payChannel = :account')
             ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
-            ->setParameter('completed', EventOrder::STATUS_COMPLETED)
             ->setParameter('start', $startDate)
             ->setParameter('end', $endDate);
 
@@ -4416,12 +4410,10 @@ class OrderRepository extends EntityRepository
         $eventOrderCountQuery = $this->getEntityManager()->createQueryBuilder()
             ->from('SandboxApiBundle:Event\EventOrder', 'eo')
             ->select('COUNT(eo.price)')
-            ->where('eo.status = :completed')
-            ->andWhere('eo.paymentDate >= :start')
+            ->where('eo.paymentDate >= :start')
             ->andWhere('eo.paymentDate <= :end')
             ->andWhere('eo.payChannel = :account')
             ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
-            ->setParameter('completed', EventOrder::STATUS_COMPLETED)
             ->setParameter('start', $startDate)
             ->setParameter('end', $endDate);
 
