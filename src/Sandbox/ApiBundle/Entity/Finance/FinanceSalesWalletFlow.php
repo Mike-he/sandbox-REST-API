@@ -16,6 +16,7 @@ class FinanceSalesWalletFlow
     const MONTHLY_ORDER_AMOUNT = '秒租月结入账';
     const REALTIME_ORDERS_AMOUNT = '订单实时入账';
     const REALTIME_BILLS_AMOUNT = '账单实时入账';
+    const REALTIME_SERVICE_ORDERS_AMOUNT = '服务订单实时入账';
     const WITHDRAW_AMOUNT = '提现';
     const WITHDRAW_FAILED_AMOUNT = '提现失败';
     const REFUND_ORDERS_AMOUNT = '订单退款';
