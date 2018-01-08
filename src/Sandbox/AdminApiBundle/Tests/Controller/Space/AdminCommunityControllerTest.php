@@ -23,6 +23,7 @@ class AdminCommunityControllerTest extends WebTestCase
             'Sandbox\ApiBundle\DataFixtures\ORM\Sales\LoadSalesCompanyData',
             'Sandbox\ApiBundle\DataFixtures\ORM\Admin\LoadAdminPositionData',
             'Sandbox\ApiBundle\DataFixtures\ORM\Admin\LoadAdminPositionBindingData',
+            'Sandbox\ApiBundle\DataFixtures\ORM\Admin\LoadAdminPermissionData',
             'Sandbox\ApiBundle\DataFixtures\ORM\Room\LoadRoomCityData',
             'Sandbox\ApiBundle\DataFixtures\ORM\Room\LoadRoomBuildingData',
             'Sandbox\ApiBundle\DataFixtures\ORM\Room\LoadRoomTypesData',

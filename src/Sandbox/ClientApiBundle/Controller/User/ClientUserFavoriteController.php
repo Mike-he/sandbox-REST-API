@@ -245,9 +245,9 @@ class ClientUserFavoriteController extends LocationController
 
                     $service->setAttachments($attachments);
                     $service->setTimes($times);
-
-                    array_push($objects, $service);
                 }
+                
+                $objects = $services;
 
                 break;
             case UserFavorite::OBJECT_EXPERT:

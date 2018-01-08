@@ -4,6 +4,7 @@ namespace Sandbox\SalesApiBundle\Controller\Service;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Finance\FinanceSalesWalletFlow;
 use Sandbox\ApiBundle\Entity\Service\Service;
 use Sandbox\ApiBundle\Entity\Service\ServiceOrder;
 use Sandbox\ApiBundle\Traits\HandleServiceDataTrait;
@@ -293,6 +294,30 @@ class AdminServiceOrderController extends SalesRestController
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
 
         $order->setStatus(ServiceOrder::STATUS_COMPLETED);
+
+        $wallet = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Finance\FinanceSalesWallet')
+            ->findOneBy(['companyId' => $companyId]);
+
+        if (!is_null($wallet)) {
+            $totalAmount = $wallet->getTotalAmount();
+            $withdrawAmount = $wallet->getWithdrawableAmount();
+
+            $price = $order->getPrice();
+            $currentWithdrawAmount = $withdrawAmount + $price;
+
+            $wallet->setTotalAmount($totalAmount + $price);
+            $wallet->setWithdrawableAmount($currentWithdrawAmount);
+
+            $this->container->get('sandbox_api.sales_wallet')
+                ->generateSalesWalletFlows(
+                    FinanceSalesWalletFlow::REALTIME_SERVICE_ORDERS_AMOUNT,
+                    "+$price",
+                    $companyId,
+                    $order->getOrderNumber(),
+                    $currentWithdrawAmount
+                );
+        }
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();

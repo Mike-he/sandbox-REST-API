@@ -6,52 +6,52 @@ use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Input\InputArgument;
 
 class SyncJmessageUserCommand extends ContainerAwareCommand
 {
     protected function configure()
     {
         $this->setName('sandbox:api-bundle:sync:JemssageUser')
-            ->setDescription('Sync Jmessage User Data');
+            ->setDescription('Sync Jmessage User Data')
+            ->addArgument('userId', InputArgument::REQUIRED, 'user ID')
+        ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $arguments = $input->getArguments();
+        $userId = $arguments['userId'];
+
+        $service = $this->getContainer()->get('sandbox_api.jmessage');
+
         /** @var EntityManager $em */
         $em = $this->getContainer()->get('doctrine')->getManager();
 
-        $service = $this->getContainer()->get('sandbox_api.jmessage_property');
+        $user = $em->getRepository('SandboxApiBundle:User\User')->find($userId);
+        $profile = $em->getRepository('SandboxApiBundle:User\UserProfile')
+            ->findOneBy(array('userId' => $userId));
 
-        $salesAdmins = $em->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
-            ->findAll();
+        $customers = $em->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->findBy(array('userId' => $userId));
 
-        foreach ($salesAdmins as $admin) {
-            $userId = $admin->getUserId();
-            $xmpp = $admin->getXmppUsername();
-
-            $profiles = $em->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
-                ->findBy(array('userId' => $userId));
-
-            $data = [];
-            $options = [];
-            foreach ($profiles as $profile) {
-                $companyId = $profile->getSalesCompanyId();
-                if (is_null($companyId)) {
-                    $options['nickname'] = $profile->getNickname();
-                    $options['avatar'] = $profile->getAvatar();
-                } else {
-                    $data['name-'.$companyId] = $profile->getNickname();
-
-                    if ($profile->getAvatar()) {
-                        $data['avatar-'.$companyId] = $profile->getAvatar();
-                    }
-                }
+        $data = [];
+        foreach ($customers as $customer) {
+            $companyId = $customer->getCompanyId();
+            $data['cname-'.$companyId] = $customer->getName();
+            if ($customer->getAvatar()) {
+                $data['cavatar-'.$companyId] = $customer->getAvatar();
             }
-
-            $options['extras'] = $data;
-
-            $service->updateUserInfo($xmpp, $options);
         }
+        $data['phone'] = $user->getPhone();
+
+        $options = array(
+            'nickname' => $profile ? $profile->getName() : '',
+            'extras' => $data,
+        );
+
+        $xmpp = $user->getXmppUsername();
+        $service->updateUserInfo($xmpp, $options);
 
         $output->writeln('Sync Success!');
     }

@@ -1162,12 +1162,21 @@ class LocationController extends SalesRestController
                 $building['building_tags'] = $tags;
             }
 
+            $building['location'] = '';
+            if (isset($building['city_id'])) {
+                $city = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomCity')
+                    ->find($building['city_id']);
+
+                $building['location'] = $city->getName();
+            }
+
             if (!is_null($building['district_id'])) {
                 $district = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Room\RoomCity')
                     ->find($building['district_id']);
 
-                $building['location'] = $district->getName();
+                $building['location'] .= $district->getName();
                 unset($building['district_id']);
             }
 
