@@ -2,11 +2,14 @@
 
 namespace Sandbox\ClientApiBundle\Controller\CustomerService;
 
+use Sandbox\AdminApiBundle\Command\SyncJmessageUserCommand;
 use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
 use Sandbox\ApiBundle\Controller\ChatGroup\ChatGroupController;
 use Sandbox\ApiBundle\Entity\ChatGroup\ChatGroup;
 use Sandbox\ApiBundle\Entity\ChatGroup\ChatGroupMember;
 use Sandbox\ApiBundle\Traits\HasAccessToEntityRepositoryTrait;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -178,6 +181,15 @@ class ClientCustomerServiceController extends ChatGroupController
         $this->addXmppChatGroupMember($chatGroup, $memberIds, $appKey);
 
         $em->flush();
+
+        //execute SyncJmessageUserCommand
+        $command = new SyncJmessageUserCommand();
+        $command->setContainer($this->container);
+
+        $input = new ArrayInput(array('userId' => $chatGroup->getCreatorId()));
+        $output = new NullOutput();
+
+        $command->run($input, $output);
 
         // response
         $view = new View();
