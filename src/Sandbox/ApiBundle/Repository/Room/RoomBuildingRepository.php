@@ -512,7 +512,9 @@ class RoomBuildingRepository extends EntityRepository
             rb.avatar,
             rb.lat,
             rb.lng,
-            (rb.orderEvaluationNumber + rb.buildingEvaluationNumber) as total_comments_amount
+            (rb.orderEvaluationNumber + rb.buildingEvaluationNumber) as total_comments_amount,
+            rb.cityId as city_id,
+            rb.districtId as district_id
         ')
             ->setParameter('latitude', $lat)
             ->setParameter('longitude', $lng);
