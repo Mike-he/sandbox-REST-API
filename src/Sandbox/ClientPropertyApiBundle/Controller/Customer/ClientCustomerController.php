@@ -100,6 +100,58 @@ class ClientCustomerController extends SalesRestController
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *     name="xmpp_username",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Route("/customer/detail")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getCustomerDetailAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
+
+        $xmppUsername = $paramFetcher->get('xmpp_username');
+
+        $user = $this->getDoctrine()->getRepository('SandboxApiBundle:User\User')
+            ->findOneBy(array('xmppUsername' => $xmppUsername));
+        $this->throwNotFoundIfNull($user, self::NOT_FOUND_MESSAGE);
+
+        $customer = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserCustomer')
+            ->findOneBy(array(
+                'userId' => $user->getId(),
+                'companyId' => $salesCompanyId,
+            ));
+        $this->throwNotFoundIfNull($customer, self::NOT_FOUND_MESSAGE);
+
+        $this->generateCustomer($customer);
+
+        $userId = $customer->getUserId();
+        if ($userId) {
+            $user = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\User')
+                ->find($userId);
+
+            $customer->setCardNo($user->getCardNo());
+        }
+
+        return new View($customer);
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
      * @param $id
      *
      * @Route("/customer/{id}")
@@ -383,7 +435,7 @@ class ClientCustomerController extends SalesRestController
                 $limit,
                 $offset
             );
-           // ->findBy(array('customerId'=>$id),array('creationDate'=>'DESC'), $limit, $offset);
+        // ->findBy(array('customerId'=>$id),array('creationDate'=>'DESC'), $limit, $offset);
 
         $receivableTypes = [
             'sales_wx' => '微信',

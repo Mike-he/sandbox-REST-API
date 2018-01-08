@@ -57,7 +57,6 @@ class ClientEnterpriseCustomerController extends SalesRestController
         return new View([
             'item' => $enterpriseCustomers,
             'total_count' => $count,
-
         ]);
     }
 

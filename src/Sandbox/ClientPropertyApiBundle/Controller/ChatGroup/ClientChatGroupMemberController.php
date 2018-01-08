@@ -2,10 +2,13 @@
 
 namespace Sandbox\ClientPropertyApiBundle\Controller\ChatGroup;
 
+use Sandbox\AdminApiBundle\Command\SyncJmessageUserCommand;
 use Sandbox\ApiBundle\Controller\ChatGroup\ChatGroupController;
 use Sandbox\ApiBundle\Entity\ChatGroup\ChatGroupMember;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
 
@@ -91,6 +94,44 @@ class ClientChatGroupMemberController extends ChatGroupController
 
         // set view
         $view = new View($membersArray);
+
+        return $view;
+    }
+
+    /**
+     * @param Request $request
+     * @param $gid
+     *
+     * @Route("/chatgroups/{gid}/creator")
+     * @Method({"POST"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function UpdateCreatorInfoAction(
+        Request $request,
+        $gid
+    ) {
+        $chatGroup = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:ChatGroup\ChatGroup')
+            ->findOneBy(array(
+                'gid' => $gid,
+            ));
+        $this->throwNotFoundIfNull($chatGroup, self::NOT_FOUND_MESSAGE);
+
+        $creatorId = $chatGroup->getCreatorId();
+
+        //execute SyncJmessageUserCommand
+        $command = new SyncJmessageUserCommand();
+        $command->setContainer($this->container);
+
+        $input = new ArrayInput(array('userId' => $creatorId));
+        $output = new NullOutput();
+
+        $command->run($input, $output);
+
+        $view = new View();
 
         return $view;
     }
