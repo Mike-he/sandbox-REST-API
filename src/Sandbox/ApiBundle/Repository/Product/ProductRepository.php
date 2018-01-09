@@ -2357,6 +2357,7 @@ class ProductRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Product\ProductRentSet', 'prs', 'WITH', 'prs.product = p.id')
             ->leftJoin('SandboxApiBundle:Product\ProductLeasingSet', 'ls', 'WITH', 'ls.product = p.id')
             ->where('p.isDeleted = FALSE')
+            ->andWhere('r.isDeleted = FALSE')
             ->andWhere('prs.id is  NOT NULL or ls.id is NOT NULL')
             ->andWhere('r.buildingId in (:buildingIds)')
             ->setParameter('buildingIds', $myBuildingIds);
@@ -2385,8 +2386,9 @@ class ProductRepository extends EntityRepository
             $query->setParameter('search', '%'.$keywordSearch.'%');
         }
 
-        $query->orderBy('b.name', 'asc')
-            ->addOrderBy('r.name', 'asc');
+        $query->orderBy('p.visible', 'desc')
+            ->addorderBy('b.name', 'asc')
+            ->addOrderBy('r.name','asc');
 
         $query->groupBy('p.id');
 
