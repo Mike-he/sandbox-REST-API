@@ -159,6 +159,11 @@ class Expert
     private $modificationDate;
 
     /**
+     * @var string
+     */
+    private $location;
+
+    /**
      * @var expertFields
      *
      * @ORM\ManyToMany(targetEntity="Sandbox\ApiBundle\Entity\Expert\ExpertField")
@@ -509,5 +514,21 @@ class Expert
     public function removeExpertFields($expertField)
     {
         return $this->expertFields->removeElement($expertField);
+    }
+
+    /**
+     * @return string
+     */
+    public function getLocation()
+    {
+        return $this->location;
+    }
+
+    /**
+     * @param string $location
+     */
+    public function setLocation($location)
+    {
+        $this->location = $location;
     }
 }

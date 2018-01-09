@@ -8,6 +8,7 @@ use FOS\RestBundle\Controller\Annotations;
 use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Sandbox\ApiBundle\Entity\Expert\Expert;
 use Sandbox\ApiBundle\Form\Expert\ExpertPatchType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -84,6 +85,10 @@ class AdminExpertController extends SandboxRestController
                 $phone
             );
 
+        foreach ($experts as $expert) {
+            $this->setExpertLocation($expert);
+        }
+
         $paginator = new Paginator();
         $pagination = $paginator->paginate(
             $experts,
@@ -112,6 +117,8 @@ class AdminExpertController extends SandboxRestController
         $expert = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Expert\Expert')
             ->find($id);
+
+        $this->setExpertLocation($expert);
 
         return new View($expert);
     }
@@ -149,5 +156,52 @@ class AdminExpertController extends SandboxRestController
         $em->flush();
 
         return new View();
+    }
+
+    /**
+     * @param Expert $expert
+     */
+    private function setExpertLocation(
+        $expert
+    ) {
+        $countryId = $expert->getCountryId();
+        $provinceId = $expert->getProvinceId();
+        $cityId = $expert->getCityId();
+        $districtId = $expert->getProvinceId();
+
+        $location = '';
+        if (!is_null($countryId)) {
+            $country = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomCity')
+                ->find($countryId);
+
+            $location .= $country->getName();
+        }
+
+        if (!is_null($provinceId)) {
+            $province = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomCity')
+                ->find($provinceId);
+
+            $location .= $province->getName();
+        }
+
+        if (!is_null($cityId)) {
+            $city = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomCity')
+                ->find($cityId);
+
+            $location .= $city->getName();
+        }
+
+        if (!is_null($districtId)) {
+            $district = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomCity')
+                ->find($districtId);
+
+            $location .= $district->getName();
+        }
+
+        $expert->setLocation($location);
     }
 }
