@@ -92,7 +92,7 @@ class ServiceRepository extends EntityRepository
      * @param $country
      * @param $province
      * @param $city
-     * @param $dictrict
+     * @param $district
      * @param $type
      * @param $sort
      * @param null $limit
@@ -104,7 +104,7 @@ class ServiceRepository extends EntityRepository
         $country,
         $province,
         $city,
-        $dictrict,
+        $district,
         $type,
         $sort,
         $limit = null,
@@ -139,9 +139,9 @@ class ServiceRepository extends EntityRepository
                 ->setParameter('provinceId', $province);
         }
 
-        if (!is_null($dictrict)) {
-            $query->andWhere('s.dictrictId = :districtId')
-                ->setParameter('districtId', $dictrict);
+        if (!is_null($district)) {
+            $query->andWhere('s.districtId = :districtId')
+                ->setParameter('districtId', $district);
         }
 
         if (!is_null($type)) {
