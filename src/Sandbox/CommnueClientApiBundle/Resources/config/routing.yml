@@ -58,3 +58,8 @@ commnue_client_expert_order_remark:
     resource: "@CommnueClientApiBundle/Controller/Expert/ClientExpertOrderRemarkController.php"
     type:     annotation
     prefix:   /
+
+commnue_client_order_expert_orders:
+    resource: "@CommnueClientApiBundle/Controller/Order/ClientExpertOrderController.php"
+    type:     annotation
+    prefix:   /

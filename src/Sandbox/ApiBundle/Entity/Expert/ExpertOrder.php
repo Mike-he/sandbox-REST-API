@@ -92,6 +92,11 @@ class ExpertOrder
     private $modificationDate;
 
     /**
+     * @var mixed
+     */
+    private $expert;
+
+    /**
      * @return int
      */
     public function getId()
@@ -241,5 +246,21 @@ class ExpertOrder
     public function setUserId($userId)
     {
         $this->userId = $userId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getExpert()
+    {
+        return $this->expert;
+    }
+
+    /**
+     * @param mixed $expert
+     */
+    public function setExpert($expert)
+    {
+        $this->expert = $expert;
     }
 }
