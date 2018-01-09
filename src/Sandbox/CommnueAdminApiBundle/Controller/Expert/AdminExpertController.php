@@ -5,7 +5,10 @@ namespace Sandbox\CommnueAdminApiBundle\Controller\Expert;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations;
+use Knp\Component\Pager\Paginator;
+use Rs\Json\Patch;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Sandbox\ApiBundle\Form\Expert\ExpertPatchType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
@@ -81,6 +84,70 @@ class AdminExpertController extends SandboxRestController
                 $phone
             );
 
-        return new View($experts);
+        $paginator = new Paginator();
+        $pagination = $paginator->paginate(
+            $experts,
+            $pageIndex,
+            $pageLimit
+        );
+
+        return new View($pagination);
+    }
+
+    /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     * @param $id
+     *
+     * @Route("/experts/{id}")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getExpertAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        $expert = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Expert\Expert')
+            ->find($id);
+
+        return new View($expert);
+    }
+
+    /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     * @param $id
+     *
+     * @Route("/experts/{id}")
+     * @Method({"PATCH"})
+     *
+     * @return View
+     *
+     * @throws \Exception
+     */
+    public function patchExpertAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher,
+        $id
+    ) {
+        $expert = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Expert\Expert')
+            ->find($id);
+        $this->throwNotFoundIfNull($expert, self::NOT_FOUND_MESSAGE);
+
+        $expertJson = $this->container->get('serializer')->serialize($expert, 'json');
+        $patch = new Patch($expertJson, $request->getContent());
+        $expertJson = $patch->apply();
+
+        $form = $this->createForm(new ExpertPatchType(), $expert);
+        $form->submit(json_decode($expertJson, true));
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        return new View();
     }
 }
