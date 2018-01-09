@@ -132,13 +132,13 @@ class ExpertRepository extends EntityRepository
         }
 
         if (!is_null($name)) {
-            $query->andWhere('e.name = :name')
-                ->setParameter('name', $name);
+            $query->andWhere('e.name LIKE :name')
+                ->setParameter('name', '%'.$name.'%');
         }
 
         if (!is_null($phone)) {
-            $query->andWhere('e.phone = :phone')
-                ->setParameter('phone', $phone);
+            $query->andWhere('e.phone LIKE :phone')
+                ->setParameter('phone', '%'.$phone.'%');
         }
 
         return $query->getQuery()->getResult();
