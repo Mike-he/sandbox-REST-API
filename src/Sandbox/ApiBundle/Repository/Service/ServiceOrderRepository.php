@@ -238,20 +238,24 @@ class ServiceOrderRepository extends EntityRepository
 
     /**
      * @param $serviceId
-     *
-     * @return mixed
+     * @param null $client
+     * @return int
      */
     public function getServicePurchaseCount(
-        $serviceId
+        $serviceId,
+        $client = null
     ) {
         $query = $this->createQueryBuilder('so')
             ->select('count(so.id)')
             ->where('so.serviceId = :serviceId')
-            ->andWhere('so.status != :status')
-            ->setParameter('serviceId', $serviceId)
-            ->setParameter('status', ServiceOrder::STATUS_UNPAID);
+            ->setParameter('serviceId', $serviceId);
 
-        return $query->getQuery()->getSingleScalarResult();
+        if(is_null($client)) {
+            $query->andWhere('so.status != :status')
+                ->setParameter('status', ServiceOrder::STATUS_UNPAID);
+        }
+
+        return (int) $query->getQuery()->getSingleScalarResult();
     }
 
     /**

@@ -476,6 +476,20 @@ class ClientServiceOrderController extends PaymentController
             $error->setCode(self::SERVICE_NOT_AVAILABLE_CODE);
             $error->setMessage(self::SERVICE_NOT_AVAILABLE_MESSAGE);
         }
+
+        // check purchase limit number
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Service\ServiceOrder')
+            ->getServicePurchaseCount(
+                $service->getId(),
+                true
+            );
+        $limitNumber = $service->getLimitNumber();
+
+        if ($count >= $limitNumber) {
+            $error->setCode(self::SERVICE_PURCHASE_NOT_AVAILABLE_CODE);
+            $error->setMessage(self::SERVICE_PURCHASE_NOT_AVAILABLE_MESSAGE);
+        }
     }
 
     /**

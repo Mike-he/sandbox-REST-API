@@ -24,22 +24,16 @@ use Rs\Json\Patch;
 
 class AdminServiceController extends SalesRestController
 {
-    const ERROR_NOT_ALLOWED_MODIFY_CODE = 400001;
-    const ERROR_NOT_ALLOWED_MODIFY_MESSAGE = 'Not allowed to modify - 不允许被修改';
-    const ERROR_NOT_ALLOWED_DELETE_CODE = 400002;
-    const ERROR_NOT_ALLOWED_DELETE_MESSAGE = 'Not allowed to delete - 不允许被删除';
+    const ERROR_INVALID_PATCH_CODE = 400001;
+    const ERROR_INVALID_PATCH_MESSAGE = 'Have uncompleted service order';
+    const ERROR_SERVICE_STARTDATE_CODE = 400002;
+    const ERROR_SERVICE_STARTDATE_MESSAGE = 'Service startDate should later than now';
     const ERROR_INVALID_LIMIT_NUMBER_CODE = 400003;
     const ERROR_INVALID_LIMIT_NUMBER_MESSAGE = 'Invalid limit number';
-    const ERROR_INVALID_SERVICE_TIME_CODE = 400006;
+    const ERROR_INVALID_SERVICE_TIME_CODE = 400004;
     const ERROR_INVALID_SERVICE_TIME_MESSAGE = 'Service start time should before service end time';
-    const ERROR_INVALID_SERVICE_PRICE_CODE = 400007;
+    const ERROR_INVALID_SERVICE_PRICE_CODE = 400005;
     const ERROR_INVALID_SERVICE_PRICE_MESSAGE = 'Service can not be null while need charge';
-    const ERROR_INVALID_PATCH_CODE = 400008;
-    const ERROR_INVALID_PATCH_MESSAGE = 'Have uncompleted service order';
-    const ERROR_SERVICE_STSRTDATE_CODE = 400009;
-    const ERROR_SERVICE_STSRTDATE_MESSAGE = 'Service startDate should later than now';
-
-    const ERROR_ROOM_INVALID = 'Invalid room';
 
     /**
      * Get Services.
@@ -260,9 +254,7 @@ class AdminServiceController extends SalesRestController
                 'salesCompanyId' => $this->getSalesCompanyId(),
             ));
 
-        if (is_null($service)) {
-            $this->throwNotFoundIfNull($service, self::NOT_FOUND_MESSAGE);
-        }
+        $this->throwNotFoundIfNull($service, self::NOT_FOUND_MESSAGE);
 
         // bind form
         $form = $this->createForm(
@@ -612,15 +604,13 @@ class AdminServiceController extends SalesRestController
     }
 
     /**
-     * @param $service
+     * @param Service $service
      * @param $submit
      */
     private function modifyService(
         $service,
         $submit
     ) {
-        $em = $this->getDoctrine()->getManager();
-
         $now = new \DateTime('now');
 
         $serviceStartDate = new \DateTime($service->getServiceStartDate());
@@ -633,27 +623,22 @@ class AdminServiceController extends SalesRestController
 
         $service->setServiceStartDate($serviceStartDate);
         $service->setServiceEndDate($serviceEndDate);
-        $service->setSalesCompanyId($this->getSalesCompanyId());
         $service->setIsCharge(true);
-        $service->setCreationDate($now);
         $service->setModificationDate($now);
 
         // set visible & isSaved
         if ($submit) {
             $service->setVisible(true);
             $service->setIsSaved(false);
-            $service->setStatus(Service::STATUS_PREHEATING);
         } else {
             $service->setVisible(false);
             $service->setIsSaved(true);
             $service->setStatus(Service::STATUS_SAVED);
         }
-
-        $em->persist($service);
     }
 
     /**
-     * @param $service
+     * @param Service $service
      * @param $attachments
      */
     private function modifyServiceAttachments(
@@ -678,7 +663,7 @@ class AdminServiceController extends SalesRestController
     }
 
     /**
-     * @param $service
+     * @param Service $service
      * @param $times
      */
     private function modifyServiceTimes(
@@ -703,7 +688,7 @@ class AdminServiceController extends SalesRestController
     }
 
     /**
-     * @param $service
+     * @param Service $service
      * @param $serviceForms
      */
     private function modifyServiceForms(
@@ -814,8 +799,8 @@ class AdminServiceController extends SalesRestController
             if ($startDate < $now) {
                 return $this->customErrorView(
                     400,
-                    self::ERROR_SERVICE_STSRTDATE_CODE,
-                    self::ERROR_SERVICE_STSRTDATE_MESSAGE
+                    self::ERROR_SERVICE_STARTDATE_CODE,
+                    self::ERROR_SERVICE_STARTDATE_MESSAGE
                 );
             }
 

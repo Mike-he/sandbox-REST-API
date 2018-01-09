@@ -62,7 +62,7 @@ class ClientServiceController extends SandboxRestController
      *    default=null,
      *    nullable=true,
      *    requirements="\d+",
-     *    description="services typeId"
+     *    description="provinceId"
      * )
      *
      * @Annotations\QueryParam(
@@ -71,7 +71,7 @@ class ClientServiceController extends SandboxRestController
      *    default=null,
      *    nullable=true,
      *    requirements="\d+",
-     *    description="services typeId"
+     *    description="cityId"
      * )
      *
      * @Annotations\QueryParam(
@@ -80,7 +80,7 @@ class ClientServiceController extends SandboxRestController
      *    default=null,
      *    nullable=true,
      *    requirements="\d+",
-     *    description="services typeId"
+     *    description="districtId"
      * )
      *
      * @Annotations\QueryParam(
@@ -96,7 +96,7 @@ class ClientServiceController extends SandboxRestController
      *    array=false,
      *    default=null,
      *    nullable=true,
-     *    description="services typeId"
+     *    description="sort string"
      * )
      *
      * @Route("/services")
@@ -164,9 +164,7 @@ class ClientServiceController extends SandboxRestController
             ->getRepository('SandboxApiBundle:Service\Service')
             ->find($id);
 
-        if (is_null($service)) {
-            $this->throwNotFoundIfNull($service, self::NOT_FOUND_MESSAGE);
-        }
+        $this->throwNotFoundIfNull($service, self::NOT_FOUND_MESSAGE);
 
         $result = [];
         $attachments = $this->getDoctrine()
