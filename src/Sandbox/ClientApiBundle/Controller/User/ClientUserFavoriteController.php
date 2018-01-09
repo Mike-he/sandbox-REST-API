@@ -246,7 +246,7 @@ class ClientUserFavoriteController extends LocationController
                     $service->setAttachments($attachments);
                     $service->setTimes($times);
                 }
-                
+
                 $objects = $services;
 
                 break;

@@ -408,7 +408,7 @@ class AdminServiceController extends SalesRestController
             'id' => $service->getId(),
         );
 
-        return new View($response);
+        return new View($response, 201);
     }
 
     /**

@@ -22,7 +22,6 @@ class LoadUserCustomerData extends AbstractFixture implements OrderedFixtureInte
         $uc1->setCompanyId($company->getId());
         $this->addReference('user-customer-1', $uc1);
 
-
         $manager->persist($uc1);
 
         $manager->flush();

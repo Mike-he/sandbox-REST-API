@@ -4,7 +4,6 @@ namespace Sandbox\ClientPropertyApiBundle\Controller\ChatGroup;
 
 use Sandbox\AdminApiBundle\Command\SyncJmessageUserCommand;
 use Sandbox\ApiBundle\Controller\ChatGroup\ChatGroupController;
-use Sandbox\ApiBundle\Entity\ChatGroup\ChatGroupMember;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\Console\Input\ArrayInput;

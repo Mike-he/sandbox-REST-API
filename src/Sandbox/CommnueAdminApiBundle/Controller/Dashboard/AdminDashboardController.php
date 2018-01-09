@@ -1,6 +1,6 @@
 <?php
 
-namespace Sandbox\CommnueAdminApiBundle\Controller\Dashboard;
+namespace Sandbox\CommnueAdminApiBundle\Controller\DashBoard;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;

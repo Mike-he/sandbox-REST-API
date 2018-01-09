@@ -155,7 +155,7 @@ class ClientServiceOrderController extends PaymentController
         $result = [];
         $result[]['order_id'] = $serviceOrder->getId();
 
-        return new View($result);
+        return new View($result, 201);
     }
 
     /**

@@ -4,7 +4,6 @@ namespace Sandbox\ApiBundle\Entity\Lease;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
-use Sandbox\ApiBundle\Entity\Product\ProductAppointment;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\User\User;
@@ -297,7 +296,6 @@ class Lease
      * @Serializer\Groups({"log"})
      */
     private $LeaseOfferId;
-
 
     /**
      * The creation date of formal lease.
