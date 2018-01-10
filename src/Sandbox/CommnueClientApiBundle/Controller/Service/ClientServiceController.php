@@ -221,7 +221,7 @@ class ClientServiceController extends SandboxRestController
 
         $result['service_member'] = $serviceMember ? true : false;
 
-        $result['like'] = $this->getDoctrine()
+        $favorite = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserFavorite')
             ->findOneBy(
                 [
@@ -230,6 +230,8 @@ class ClientServiceController extends SandboxRestController
                     'objectId' => $id,
                 ]
             );
+
+        $result['like'] = $favorite ? true : false;
 
         $this->get('sandbox_api.view_count')->autoCounting(
             ViewCounts::OBJECT_SERVICE,
