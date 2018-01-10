@@ -631,6 +631,7 @@ class AdminServiceController extends SalesRestController
         if ($submit) {
             $service->setVisible(true);
             $service->setIsSaved(false);
+            $service->setStatus(Service::STATUS_PREHEATING);
         } else {
             $service->setVisible(false);
             $service->setIsSaved(true);
@@ -808,6 +809,7 @@ class AdminServiceController extends SalesRestController
             }
 
             $service->setIsSaved(false);
+            $service->setStatus(Service::STATUS_PREHEATING);
         } else {
             $orders = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServiceOrder')
                 ->findOneBy(array(
