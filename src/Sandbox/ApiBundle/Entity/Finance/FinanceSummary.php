@@ -93,6 +93,20 @@ class FinanceSummary
     private $membershipOrderCount;
 
     /**
+     * @var float
+     *
+     * @ORM\Column(name="service_order_balance", type="float")
+     */
+    private $serviceOrderBalance;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="service_order_count", type="integer")
+     */
+    private $serviceOrderCount;
+
+    /**
      * @var \DateTime
      *
      * @Gedmo\Timestampable(on="create")
@@ -394,5 +408,37 @@ class FinanceSummary
     public function getCompanyId()
     {
         return $this->companyId;
+    }
+
+    /**
+     * @return float
+     */
+    public function getServiceOrderBalance()
+    {
+        return $this->serviceOrderBalance;
+    }
+
+    /**
+     * @param float $serviceOrderBalance
+     */
+    public function setServiceOrderBalance($serviceOrderBalance)
+    {
+        $this->serviceOrderBalance = $serviceOrderBalance;
+    }
+
+    /**
+     * @return int
+     */
+    public function getServiceOrderCount()
+    {
+        return $this->serviceOrderCount;
+    }
+
+    /**
+     * @param int $serviceOrderCount
+     */
+    public function setServiceOrderCount($serviceOrderCount)
+    {
+        $this->serviceOrderCount = $serviceOrderCount;
     }
 }

@@ -4,7 +4,6 @@ namespace Sandbox\ApiBundle\Entity\Lease;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
-use Sandbox\ApiBundle\Entity\Product\ProductAppointment;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\User\User;
@@ -55,7 +54,7 @@ class Lease
     private $serialNumber;
 
     /**
-     * @var Sandbox\ApiBundle\Entity\Room\RoomBuilding
+     * @var \Sandbox\ApiBundle\Entity\Room\RoomBuilding
      *
      * @ORM\Column(name="building_id",type="integer", nullable=true)
      *
@@ -64,7 +63,7 @@ class Lease
     private $buildingId;
 
     /**
-     * @var Sandbox\ApiBundle\Entity\Product\Product
+     * @var \Sandbox\ApiBundle\Entity\Product\Product
      *
      * @ORM\Column(name="product_id",type="integer", nullable=true)
      *
@@ -281,7 +280,7 @@ class Lease
     private $leaseRentTypes;
 
     /**
-     * @var Sandbox\ApiBundle\Entity\Lease\LeaseClue
+     * @var \Sandbox\ApiBundle\Entity\Lease\LeaseClue
      *
      * @ORM\Column(name="lease_clue_id", type="integer", nullable=true)
      *
@@ -290,31 +289,13 @@ class Lease
     private $LeaseClueId;
 
     /**
-     * @var Sandbox\ApiBundle\Entity\Lease\LeaseOffer
+     * @var \Sandbox\ApiBundle\Entity\Lease\LeaseOffer
      *
      * @ORM\Column(name="lease_offer_id", type="integer", nullable=true)
      *
      * @Serializer\Groups({"log"})
      */
     private $LeaseOfferId;
-
-    /**
-     * @var User
-     *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User")
-     * @ORM\JoinColumn(name="drawee", referencedColumnName="id", onDelete="SET NULL")
-     */
-    private $drawee;
-
-    /**
-     * Person in charge.
-     *
-     * @var User
-     *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User")
-     * @ORM\JoinColumn(name="supervisor", referencedColumnName="id", onDelete="SET NULL")
-     */
-    private $supervisor;
 
     /**
      * The creation date of formal lease.
@@ -326,14 +307,6 @@ class Lease
      * @Serializer\Groups({"main", "lease_list"})
      */
     private $confirmingDate;
-
-    /**
-     * @var ProductAppointment
-     *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Product\ProductAppointment")
-     * @ORM\JoinColumn(name="product_appointment_id", referencedColumnName="id", onDelete="SET NULL")
-     */
-    private $productAppointment;
 
     /**
      * @var string
@@ -519,22 +492,6 @@ class Lease
     }
 
     /**
-     * @return User
-     */
-    public function getDrawee()
-    {
-        return $this->drawee;
-    }
-
-    /**
-     * @param User $drawee
-     */
-    public function setDrawee($drawee)
-    {
-        $this->drawee = $drawee;
-    }
-
-    /**
      * @return string
      */
     public function getProduct()
@@ -548,22 +505,6 @@ class Lease
     public function setProduct($product)
     {
         $this->product = $product;
-    }
-
-    /**
-     * @return User
-     */
-    public function getSupervisor()
-    {
-        return $this->supervisor;
-    }
-
-    /**
-     * @param User $supervisor
-     */
-    public function setSupervisor($supervisor)
-    {
-        $this->supervisor = $supervisor;
     }
 
     /**
@@ -740,22 +681,6 @@ class Lease
     public function setDeposit($deposit)
     {
         $this->deposit = $deposit;
-    }
-
-    /**
-     * @return ProductAppointment
-     */
-    public function getProductAppointment()
-    {
-        return $this->productAppointment;
-    }
-
-    /**
-     * @param ProductAppointment $productAppointment
-     */
-    public function setProductAppointment($productAppointment)
-    {
-        $this->productAppointment = $productAppointment;
     }
 
     /**
@@ -1053,7 +978,7 @@ class Lease
                     'attachment' => $this->product->getRoom()->degenerateAttachment(),
                 ],
                 'lease_rent_types' => $this->product->getLeaseRentTypes(),
-                'rent_set' =>  $this->product->getRentSet(),
+                'rent_set' => $this->product->getRentSet(),
             ];
         } else {
             return null;
@@ -1342,7 +1267,7 @@ class Lease
     }
 
     /**
-     * @return Sandbox\ApiBundle\Entity\Room\RoomBuilding
+     * @return \Sandbox\ApiBundle\Entity\Room\RoomBuilding
      */
     public function getBuildingId()
     {
@@ -1350,7 +1275,7 @@ class Lease
     }
 
     /**
-     * @param Sandbox\ApiBundle\Entity\Room\RoomBuilding $buildingId
+     * @param \Sandbox\ApiBundle\Entity\Room\RoomBuilding $buildingId
      */
     public function setBuildingId($buildingId)
     {
@@ -1358,7 +1283,7 @@ class Lease
     }
 
     /**
-     * @return Sandbox\ApiBundle\Entity\Product\Product
+     * @return \Sandbox\ApiBundle\Entity\Product\Product
      */
     public function getProductId()
     {
@@ -1366,7 +1291,7 @@ class Lease
     }
 
     /**
-     * @param Sandbox\ApiBundle\Entity\Product\Product $productId
+     * @param Product $productId
      */
     public function setProductId($productId)
     {
@@ -1374,7 +1299,7 @@ class Lease
     }
 
     /**
-     * @return Sandbox\ApiBundle\Entity\Lease\LeaseClue
+     * @return \Sandbox\ApiBundle\Entity\Lease\LeaseClue
      */
     public function getLeaseClueId()
     {
@@ -1382,7 +1307,7 @@ class Lease
     }
 
     /**
-     * @param Sandbox\ApiBundle\Entity\Lease\LeaseClue $LeaseClueId
+     * @param \Sandbox\ApiBundle\Entity\Lease\LeaseClue $LeaseClueId
      */
     public function setLeaseClueId($LeaseClueId)
     {

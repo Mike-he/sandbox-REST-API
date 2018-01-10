@@ -164,3 +164,8 @@ sandbox_rpc_sample:
     resource: "@SandboxApiBundle/Controller/RpcSample/RpcSampleController.php"
     type:     annotation
     prefix:   /
+
+sandbox_api_expert_field:
+    resource: "@SandboxApiBundle/Controller/Expert/ExpertFieldController.php"
+    type:     annotation
+    prefix:   /

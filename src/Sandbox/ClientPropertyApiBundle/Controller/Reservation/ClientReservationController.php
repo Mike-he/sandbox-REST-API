@@ -5,26 +5,25 @@ namespace Sandbox\ClientPropertyApiBundle\Controller\Reservation;
 use Sandbox\ApiBundle\Entity\Room\RoomTypeTags;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sandbox\ApiBundle\Entity\Reservation\Reservation;
-use Sandbox\ApiBundle\Repository\Reservation\ReservationRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\View\View;
-use Knp\Component\Pager\Paginator;
 
 class ClientReservationController extends SalesRestController
 {
     /**
-     * ClientReservation
+     * ClientReservation.
      *
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      * @param $id
      *
      * @Route("/reservation/{id}")
      * @Method({"PATCH"})
+     *
      * @return View
      */
     public function grabReservationAction(
@@ -34,8 +33,8 @@ class ClientReservationController extends SalesRestController
     ) {
         $adminId = $this->getAdminId();
         $reservation = $this->getDoctrine()->getRepository('SandboxApiBundle:Reservation\Reservation')->findOneBy(array(
-            'id'=> $id,
-            'status'=>Reservation::UNGRABED
+            'id' => $id,
+            'status' => Reservation::UNGRABED,
         ));
 
         $this->throwNotFoundIfNull($reservation, self::NOT_FOUND_MESSAGE);
@@ -55,7 +54,7 @@ class ClientReservationController extends SalesRestController
         $view = new View();
         $view->setData(
             array(
-                'serial_number' => $seriaLNumber
+                'serial_number' => $seriaLNumber,
             )
         );
 
@@ -63,7 +62,7 @@ class ClientReservationController extends SalesRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -88,6 +87,7 @@ class ClientReservationController extends SalesRestController
      *
      * @Route("/reservation/lists")
      * @Method({"GET"})
+     *
      * @return View
      */
     public function getReservationAction(
@@ -103,24 +103,24 @@ class ClientReservationController extends SalesRestController
         $reservations = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Reservation\Reservation')
             ->findBy(array(
-                    'companyId'=>$salesCompanyId
+                    'companyId' => $salesCompanyId,
                 ),
                 array(
-                    'creationDate'=>'DESC'
+                    'creationDate' => 'DESC',
                 ),
                 $limit,
                 $offset
             );
 
         $result = [];
-        foreach ($reservations as $k=>$reservation) {
+        foreach ($reservations as $k => $reservation) {
             $result[$k] = $this->getProductInfo($reservation);
         }
 
         $view = new View();
         $view->setData(
             array(
-                'items' => $result
+                'items' => $result,
             )
         );
 
@@ -128,7 +128,7 @@ class ClientReservationController extends SalesRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -153,6 +153,7 @@ class ClientReservationController extends SalesRestController
      *
      * @Route("/reservation/ungrabed/list")
      * @Method({"GET"})
+     *
      * @return View
      */
     public function getUngrabedReservationAction(
@@ -176,7 +177,7 @@ class ClientReservationController extends SalesRestController
             );
 
         $result = [];
-        foreach ($reservations as $k=>$reservation) {
+        foreach ($reservations as $k => $reservation) {
             $result[$k] = $this->getProductInfo($reservation);
         }
 
@@ -186,7 +187,7 @@ class ClientReservationController extends SalesRestController
         $view->setData(
             array(
                 'items' => $result,
-                'total_count' => (int)$count,
+                'total_count' => (int) $count,
             )
         );
 
@@ -195,20 +196,21 @@ class ClientReservationController extends SalesRestController
 
     /**
      * @param $reservation
+     *
      * @return mixed
      */
     private function getProductInfo($reservation)
     {
-        $viewTime =  $reservation->getViewTime();
+        $viewTime = $reservation->getViewTime();
         $status = $reservation->getStatus();
         $now = new \DateTime();
 
-        if($now > $viewTime){
+        if ($now > $viewTime) {
             $status = 'expired';
         }
 
         $data = [];
-        /** @var Reservation $reservation */
+        /* @var Reservation $reservation */
         $data['id'] = $reservation->getId();
         $data['userId'] = $reservation->getUserId();
         $data['adminId'] = $reservation->getAdminId();
@@ -226,8 +228,8 @@ class ClientReservationController extends SalesRestController
 
         $customer = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserCustomer')
-            ->findOneBy(array('userId'=>$data['userId'],'companyId'=>$data['companyId']));
-        if(!is_null($customer)){
+            ->findOneBy(array('userId' => $data['userId'], 'companyId' => $data['companyId']));
+        if (!is_null($customer)) {
             $data['customerId'] = $customer->getId();
         }
 
@@ -244,23 +246,23 @@ class ClientReservationController extends SalesRestController
         $data['product'] = $product;
         $data['product']['content'] = $attachment[0]['content'];
         $data['product']['type_tag_description'] = $typeTagDescription;
-        
+
         $user = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserCustomer')
-            ->findOneBy(array('userId'=>$reservation->getUserId()));
-        if($user){
+            ->findOneBy(array('userId' => $reservation->getUserId()));
+        if ($user) {
             $data['userName'] = $user->getName();
         }
 
-        if($reservation->getAdminId()){
+        if ($reservation->getAdminId()) {
             $admin = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
-                ->findOneBy(array('userId'=>$reservation->getAdminId(),'salesCompanyId'=>$reservation->getCompanyId()));
+                ->findOneBy(array('userId' => $reservation->getAdminId(), 'salesCompanyId' => $reservation->getCompanyId()));
 
-            if(is_null($admin)){
+            if (is_null($admin)) {
                 $admin = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
-                    ->findOneBy(array('userId'=>$reservation->getAdminId()));
+                    ->findOneBy(array('userId' => $reservation->getAdminId()));
             }
             $data['adminName'] = $admin->getNickname();
         }
@@ -268,7 +270,7 @@ class ClientReservationController extends SalesRestController
         $rent = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Product\ProductRentSet')
             ->findOneBy(array('product' => $productId));
-        if(!is_null($rent)){
+        if (!is_null($rent)) {
             $data['product']['rent']['rent_price'] = $rent->getbasePrice();
             $data['product']['rent']['unit_price'] = $rent->getUnitPrice();
         }
@@ -277,7 +279,7 @@ class ClientReservationController extends SalesRestController
             ->getRepository('SandboxApiBundle:Product\ProductLeasingSet')
             ->findOneBy(array('product' => $productId));
 
-        if(!is_null($leasing)){
+        if (!is_null($leasing)) {
             $data['product']['leasing']['base_price'] = $leasing->getbasePrice();
             $data['product']['leasing']['unit_price'] = $leasing->getUnitPrice();
         }
@@ -286,7 +288,7 @@ class ClientReservationController extends SalesRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -311,13 +313,13 @@ class ClientReservationController extends SalesRestController
      *
      * @Route("/my/grabed/lists")
      * @Method("GET")
+     *
      * @return View
      */
-    public function myGrabedListsAction
-    (
+    public function myGrabedListsAction(
         Request $request,
         ParamFetcherInterface $paramFetcher
-    ){
+    ) {
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
         $adminId = $this->getAdminId();
@@ -328,25 +330,25 @@ class ClientReservationController extends SalesRestController
         $reservations = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Reservation\Reservation')
             ->findBy(array(
-                    'adminId'=>$adminId,
-                    'companyId'=>$salesCompanyId
+                    'adminId' => $adminId,
+                    'companyId' => $salesCompanyId,
                 ),
                 array(
-                    'grabDate'=>'DESC'
+                    'grabDate' => 'DESC',
                 ),
                 $limit,
                 $offset
             );
 
         $result = [];
-        foreach ($reservations as $k=>$reservation) {
+        foreach ($reservations as $k => $reservation) {
             $result[$k] = $this->getProductInfo($reservation);
         }
 
         $view = new View();
         $view->setData(
             array(
-                'items'=>$result
+                'items' => $result,
             )
         );
 
@@ -354,7 +356,7 @@ class ClientReservationController extends SalesRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -379,13 +381,13 @@ class ClientReservationController extends SalesRestController
      *
      * @Route("/my/latest/grabed/lists")
      * @Method({"GET"})
+     *
      * @return View
      */
-    public function myLatestGrabedListAction
-    (
+    public function myLatestGrabedListAction(
         Request $request,
         ParamFetcherInterface $paramFetcher
-    ){
+    ) {
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $salesCompanyId = $adminPlatform['sales_company_id'];
         $adminId = $this->getAdminId();
@@ -412,14 +414,14 @@ class ClientReservationController extends SalesRestController
             );
 
         $result = [];
-        foreach ($reservations as $k=>$reservation) {
+        foreach ($reservations as $k => $reservation) {
             $result[$k] = $this->getProductInfo($reservation);
         }
 
         $view = new View();
         $view->setData(
             array(
-                'items'=>$result
+                'items' => $result,
             )
         );
 

@@ -3,34 +3,17 @@
 namespace Sandbox\ClientApiBundle\Controller\Feed;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
-use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Controller\Feed\FeedCommentController;
-use Sandbox\ApiBundle\Entity\Feed\FeedComment;
-use Sandbox\ApiBundle\Form\Feed\FeedCommentType;
 use FOS\RestBundle\Controller\Annotations;
-use FOS\RestBundle\Controller\Annotations\Get;
-use FOS\RestBundle\Controller\Annotations\Post;
-use FOS\RestBundle\Controller\Annotations\Delete;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Sandbox\ApiBundle\Traits\FeedNotification;
 
-/**
- * Manipulate the comments of a feed.
- *
- * @category Sandbox
- *
- * @author   Sergi Uceda <sergiu@gobeta.com.cn>
- * @license  http://www.Sandbox.cn/ Proprietary
- *
- * @link     http://www.Sandbox.cn/
- */
 class ClientFeedCommentController extends FeedCommentController
 {
-    use FeedNotification;
+    //    use FeedNotification;
 
     /**
      * Get all comments of a given feed.
@@ -52,7 +35,7 @@ class ClientFeedCommentController extends FeedCommentController
      * @Annotations\QueryParam(
      *    name="last_id",
      *    array=false,
-     *    default=null,
+     *    default="0",
      *    nullable=true,
      *    requirements="\d+",
      *    strict=true,
@@ -74,48 +57,64 @@ class ClientFeedCommentController extends FeedCommentController
         $limit = $paramFetcher->get('limit');
         $lastId = $paramFetcher->get('last_id');
 
-        $feed = $this->getRepo('Feed\Feed')->find($id);
-        $this->throwNotFoundIfNull($feed, self::NOT_FOUND_MESSAGE);
-
-        $comments = $this->getRepo('Feed\FeedComment')->getComments(
-            $id,
-            $limit,
-            $lastId
+        $params = array(
+            'feed' => $id,
+            'limit' => $limit,
+            'offset' => $lastId,
         );
+
+        $result = $this->get('sandbox_rpc.client')->callRpcServer(
+            $this->getParameter('rpc_server_feed'),
+            'FeedCommentService.lists',
+            $params
+        );
+
+        $comments = $result['result'];
 
         $commentsResponse = array();
 
         foreach ($comments as $comment) {
-            $authorId = $comment->getAuthorId();
+            $authorId = $comment['author'];
             if (is_null($authorId)) {
                 continue;
             }
 
-            $authorProfile = $this->getRepo('User\UserProfile')->findOneByUserId($authorId);
+            $authorProfile = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserProfile')
+                ->findOneByUserId($authorId);
             if (is_null($authorProfile) || empty($authorProfile)) {
                 continue;
             }
 
-            $replyToUserId = $comment->getReplyToUserId();
-            $replyToUser = null;
-            if (!is_null($replyToUserId)) {
-                $replyToUser = $this->getRepo('User\UserProfile')->findOneByUserId($replyToUserId);
-            }
-
-            $comment_array = array(
-                'id' => $comment->getId(),
-                'feed_id' => $comment->getFeedId(),
-                'author' => $authorProfile,
-                'payload' => $comment->getPayload(),
-                'creation_date' => $comment->getCreationDate(),
-                'reply_to_user' => $replyToUser,
+            $author = array(
+                'user_id' => $authorId,
+                'name' => $authorProfile->getName(),
             );
 
-            array_push($commentsResponse, $comment_array);
+            $replyToUserId = $comment['replyToUserId'];
+            $replyToUser = null;
+            if (!is_null($replyToUserId)) {
+                $replyUser = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:User\UserProfile')
+                    ->findOneByUserId($replyToUserId);
+
+                $replyToUser = array(
+                    'user_id' => $replyToUserId,
+                    'name' => $replyUser->getName(),
+                );
+            }
+
+            $commentsResponse[] = array(
+                'id' => $comment['id'],
+                'feed_id' => $comment['feed'],
+                'author' => $author,
+                'payload' => $comment['payload'],
+                'creation_date' => $comment['creationDate'],
+                'reply_to_user' => $replyToUser,
+            );
         }
 
         $view = new View($commentsResponse);
-        $view->setSerializationContext(SerializationContext::create()->setGroups(['feed']));
 
         return $view;
     }
@@ -138,21 +137,10 @@ class ClientFeedCommentController extends FeedCommentController
         $id
     ) {
         $myUserId = $this->getUserId();
-        $myUser = $this->getRepo('User\User')->find($myUserId);
 
-        $feed = $this->getRepo('Feed\Feed')->find($id);
-        $this->throwNotFoundIfNull($feed, self::NOT_FOUND_MESSAGE);
+        $content = json_decode($request->getContent(), true);
 
-        // get request payload
-        $comment = new FeedComment();
-
-        $form = $this->createForm(new FeedCommentType(), $comment);
-        $form->handleRequest($request);
-        if (!$form->isValid()) {
-            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
-
-        $payload = $comment->getPayload();
+        $payload = $content['payload'];
         if (is_null($payload)) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
@@ -162,49 +150,30 @@ class ClientFeedCommentController extends FeedCommentController
         }
 
         // get reply to user
-        $replyToUserId = $comment->getReplyToUserId();
-        $replyToUser = !is_null($replyToUserId) ? $this->getRepo('User\User')->find($replyToUserId) : null;
-
-        // set comment
-        $comment->setFeed($feed);
-        $comment->setAuthor($myUser);
-        $comment->setCreationdate(new \DateTime('now'));
-
-        if (!is_null($replyToUser)) {
-            $comment->setReplyToUserId($replyToUserId);
-        } else {
-            $comment->setReplyToUserId(null);
+        $replyToUser = null;
+        if (isset($content['reply_to_user_id'])) {
+            $replyToUserId = $content['reply_to_user_id'];
+            $replyToUser = !is_null($replyToUserId) ? $this->getRepo('User\User')->find($replyToUserId) : null;
         }
 
-        // save to db
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($comment);
-        $em->flush();
+        $params = array(
+            'feed' => $id,
+            'author' => $myUserId,
+            'payload' => $payload,
+            'reply' => $replyToUser,
+        );
 
-        // send notification
-        $recvUsers = array();
+        $result = $this->get('sandbox_rpc.client')->callRpcServer(
+            $this->getParameter('rpc_server_feed'),
+            'FeedCommentService.create',
+            $params
+        );
 
-        $owner = $feed->getOwner();
-        if ($myUser != $owner) {
-            $recvUsers[] = $owner;
-        }
-
-        if (!is_null($replyToUser) && $replyToUser != $owner) {
-            $recvUsers[] = $replyToUser;
-        }
-
-        if (!empty($recvUsers)) {
-            $this->sendXmppFeedNotification(
-                $feed, $myUser, $recvUsers, 'comment', $comment
-            );
-        }
+        $comment = $result['result'];
 
         // set view
         $view = new View();
-        $view->setData(array(
-            'id' => $comment->getId(),
-            'creationDate' => $comment->getCreationDate(),
-        ));
+        $view->setData($comment, 201);
 
         return $view;
     }
@@ -218,36 +187,22 @@ class ClientFeedCommentController extends FeedCommentController
      *
      * @Route("/feeds/{id}/comments/{commentId}")
      * @Method({"DELETE"})
-     *
-     * @throws \Exception
-     *
-     * @return View
      */
     public function deleteFeedCommentAction(
         Request $request,
         $id,
         $commentId
     ) {
-        $feed = $this->getRepo('Feed\Feed')->find($id);
-        $this->throwNotFoundIfNull($feed, self::NOT_FOUND_MESSAGE);
+        $params = array(
+            'feed' => $id,
+            'comment' => $commentId,
+            'user' => $this->getUserId(),
+        );
 
-        // get comment by id and commentId
-        $comment = $this->getRepo('Feed\FeedComment')->findOneBy(array(
-            'id' => $commentId,
-            'feedId' => $id,
-        ));
-        $this->throwNotFoundIfNull($comment, self::NOT_FOUND_MESSAGE);
-
-        // if user is not the author of this comment
-        if ($this->getUserId() != $comment->getAuthorId()) {
-            throw new BadRequestHttpException(self::NOT_ALLOWED_MESSAGE);
-        }
-
-        // delete from db
-        $em = $this->getDoctrine()->getManager();
-        $em->remove($comment);
-        $em->flush();
-
-        return new View();
+        $this->get('sandbox_rpc.client')->callRpcServer(
+            $this->getParameter('rpc_server_feed'),
+            'FeedCommentService.remove',
+            $params
+        );
     }
 }

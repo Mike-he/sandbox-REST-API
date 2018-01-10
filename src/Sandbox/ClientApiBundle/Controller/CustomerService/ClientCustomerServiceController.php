@@ -4,6 +4,7 @@ namespace Sandbox\ClientApiBundle\Controller\CustomerService;
 
 use Sandbox\AdminApiBundle\Command\SyncJmessageUserCommand;
 use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
+use Sandbox\ApiBundle\Constants\PlatformConstants;
 use Sandbox\ApiBundle\Controller\ChatGroup\ChatGroupController;
 use Sandbox\ApiBundle\Entity\ChatGroup\ChatGroup;
 use Sandbox\ApiBundle\Entity\ChatGroup\ChatGroupMember;
@@ -64,6 +65,12 @@ class ClientCustomerServiceController extends ChatGroupController
 
         // get building
         $data = json_decode($request->getContent(), true);
+
+        $platform = $data['platform'];
+        if (is_null($platform)) {
+            $platform = PlatformConstants::PLATFORM_OFFICIAL;
+        }
+
         if (!isset($data['tag'])) {
             throw new BadRequestHttpException(
                 CustomErrorMessagesConstants::ERROR_CUSTOMER_SERVICE_PAYLOAD_NOT_CORRECT_CODE
@@ -72,43 +79,101 @@ class ClientCustomerServiceController extends ChatGroupController
 
         $tag = $data['tag'];
 
-        $building = $this->getRoomBuildingRepo()
-            ->find($data['building_id']);
+        switch ($tag) {
+            case ChatGroup::CUSTOMER_SERVICE:
+                $buildingId = $data['building_id'];
 
-        if (is_null($building)) {
-            throw new BadRequestHttpException(
-                CustomErrorMessagesConstants::ERROR_SALES_COMPANY_ROOM_BUILDING_NOT_FOUND_MESSAGE
-            );
+                $building = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                    ->find($buildingId);
+
+                if (is_null($building)) {
+                    throw new BadRequestHttpException(
+                        CustomErrorMessagesConstants::ERROR_SALES_COMPANY_ROOM_BUILDING_NOT_FOUND_MESSAGE
+                    );
+                }
+
+                // get customer services
+                $customerServices = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomBuildingServiceMember')
+                    ->findBy(
+                        array(
+                            'buildingId' => $buildingId,
+                            'tag' => $tag,
+                        )
+                    );
+
+                if (empty($customerServices)) {
+                    throw new NotFoundHttpException(self::NOT_FOUND_MESSAGE);
+                }
+
+                $existChatGroup = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:ChatGroup\ChatGroup')
+                    ->findOneBy([
+                        'buildingId' => $buildingId,
+                        'creatorId' => $myUserId,
+                        'tag' => $tag,
+                        'platform' => $platform,
+                    ]);
+
+                $companyId = $building->getCompanyId();
+                $chatGroupName = $building->getName().'客服';
+
+                break;
+            case ChatGroup::SERVICE_SERVICE:
+                $companyId = $data['company_id'];
+
+                $company = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
+                    ->find($companyId);
+
+                $customerServices = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomBuildingServiceMember')
+                    ->findBy(
+                        array(
+                            'companyId' => $companyId,
+                            'tag' => $tag,
+                        )
+                    );
+
+                if (empty($customerServices)) {
+                    throw new NotFoundHttpException(self::NOT_FOUND_MESSAGE);
+                }
+
+                $existChatGroup = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:ChatGroup\ChatGroup')
+                    ->findOneBy([
+                        'companyId' => $companyId,
+                        'creatorId' => $myUserId,
+                        'tag' => $tag,
+                        'platform' => $platform,
+                    ]);
+
+                $buildingId = null;
+                $chatGroupName = $company->getName().'客服';
+
+                break;
+            default:
+                throw new BadRequestHttpException(
+                    CustomErrorMessagesConstants::ERROR_CUSTOMER_SERVICE_PAYLOAD_NOT_CORRECT_CODE
+                );
         }
-
-        // get customer services
-        $customerServices = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Room\RoomBuildingServiceMember')
-            ->findBy(
-                array(
-                    'buildingId' => $building->getId(),
-                    'tag' => $tag,
-                )
-            );
-
-        if (empty($customerServices)) {
-            throw new NotFoundHttpException(self::NOT_FOUND_MESSAGE);
-        }
-
-        $existChatGroup = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:ChatGroup\ChatGroup')
-            ->findOneBy([
-                'buildingId' => $building->getId(),
-                'creatorId' => $myUserId,
-                'tag' => $tag,
-            ]);
 
         if (!is_null($existChatGroup)) {
             $gid = $existChatGroup->getGid();
             if (!$gid) {
-                $gid = $this->createXmppChatGroup($existChatGroup);
+                $result = $this->createXmppChatGroup($existChatGroup, $platform);
 
-                $existChatGroup->setGid($gid);
+                if (!isset($result['gid'])) {
+                    $em->remove($existChatGroup);
+                    $em->flush();
+
+                    throw new BadRequestHttpException(
+                        CustomErrorMessagesConstants::ERROR_JMESSAGE_ERROR_MESSAGE
+                    );
+                }
+
+                $existChatGroup->setGid($result['gid']);
                 $em->flush();
 
                 $chatGroupMembers = $this->getDoctrine()
@@ -133,22 +198,17 @@ class ClientCustomerServiceController extends ChatGroupController
             return new View([
                 'id' => $existChatGroup->getId(),
                 'name' => $existChatGroup->getName(),
-                'gid' => $gid,
+                'gid' => $existChatGroup->getGid(),
             ]);
         }
-
-        // get company
-        $company = $building->getCompany();
-
-        // create new chat group
-        $chatGroupName = $building->getName().'客服';
 
         $chatGroup = new ChatGroup();
         $chatGroup->setCreator($myUser);
         $chatGroup->setName($chatGroupName);
-        $chatGroup->setBuildingId($building->getId());
-        $chatGroup->setCompanyId($company->getId());
+        $chatGroup->setBuildingId($buildingId);
+        $chatGroup->setCompanyId($companyId);
         $chatGroup->setTag($tag);
+        $chatGroup->setPlatform($platform);
 
         $em->persist($chatGroup);
 
@@ -175,8 +235,18 @@ class ClientCustomerServiceController extends ChatGroupController
         $em->flush();
 
         // create chat group in Openfire
-        $gid = $this->createXmppChatGroup($chatGroup);
-        $chatGroup->setGid($gid);
+        $result = $this->createXmppChatGroup($chatGroup, $platform);
+
+        if (!isset($result['gid'])) {
+            $em->remove($chatGroup);
+            $em->flush();
+
+            throw new BadRequestHttpException(
+                CustomErrorMessagesConstants::ERROR_JMESSAGE_ERROR_MESSAGE
+            );
+        }
+
+        $chatGroup->setGid($result['gid']);
 
         $this->addXmppChatGroupMember($chatGroup, $memberIds, $appKey);
 
@@ -186,7 +256,7 @@ class ClientCustomerServiceController extends ChatGroupController
         $command = new SyncJmessageUserCommand();
         $command->setContainer($this->container);
 
-        $input = new ArrayInput(array('userId' => $chatGroup->getCreatorId()));
+        $input = new ArrayInput(array('userId' => $myUserId));
         $output = new NullOutput();
 
         $command->run($input, $output);
@@ -197,7 +267,7 @@ class ClientCustomerServiceController extends ChatGroupController
         $view->setData(array(
             'id' => $chatGroup->getId(),
             'name' => $chatGroupName,
-            'gid' => $gid,
+            'gid' => $chatGroup->getGid(),
         ));
 
         return $view;

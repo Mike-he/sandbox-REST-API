@@ -148,11 +148,10 @@ class ClientBuddyController extends BuddyController
         $myUser = $this->getRepo('User\User')->find($myUserId);
 
         // get buddies
-        $buddies = $this->getRepo('Buddy\Buddy')->getBuddies($myUser);
+        $buddies = $this->getDoctrine()->getRepository('SandboxApiBundle:Buddy\Buddy')->getBuddies($myUser);
         if (is_null($buddies) || empty($buddies)) {
             return new View(array());
         }
-        
 
         $myBuddies = array();
 

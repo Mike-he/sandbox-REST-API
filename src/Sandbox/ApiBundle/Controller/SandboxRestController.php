@@ -1092,7 +1092,6 @@ class SandboxRestController extends FOSRestController
         $mailer->send($message);
     }
 
-
     //--------------------generate default verification code and token--------------------//
     /**
      * @param $digits
@@ -1328,6 +1327,9 @@ class SandboxRestController extends FOSRestController
 
         $service = $this->get('sandbox_api.jmessage');
         $service->createUser($username, $password);
+
+        $commnueService = $this->get('sandbox_api.jmessage_commnue');
+        $commnueService->createUser($username, $password);
 
         return $username;
     }

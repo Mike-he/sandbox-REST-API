@@ -81,7 +81,7 @@ class ReservationRepository extends EntityRepository
                     $query->andWhere('re.phone LIKE :search');
                     break;
                 case 'adminName':
-                    $query->leftJoin('SandboxApiBundle:SalesAdmin\SalesAdminProfiles','sap','WITH','sap.userId = re.adminId')
+                    $query->leftJoin('SandboxApiBundle:SalesAdmin\SalesAdminProfiles', 'sap', 'WITH', 'sap.userId = re.adminId')
                         ->andWhere('sap.salesCompanyId =  :companyId OR sap.salesCompanyId is null')
                         ->andWhere('sap.nickname LIKE :search');
                     break;
@@ -145,10 +145,10 @@ class ReservationRepository extends EntityRepository
         }
 
         if (!is_null($status)) {
-            if($status == Reservation::UNGRABED) {
+            if ($status == Reservation::UNGRABED) {
                 $now = new \DateTime();
                 $query->andWhere('re.viewTime >= :viewTime')
-                    ->setParameter('viewTime',$now);
+                    ->setParameter('viewTime', $now);
             }
             $query->andWhere('re.status = :status')
                 ->setParameter('status', $status);
@@ -164,7 +164,7 @@ class ReservationRepository extends EntityRepository
             $sortArray = array(
                 'view_time' => 're.viewTime',
                 'creation_date' => 're.creationDate',
-                'grab_date' => 're.grabDate'
+                'grab_date' => 're.grabDate',
             );
             $query->orderBy($sortArray[$sortColumn], $direction);
         } else {
@@ -233,7 +233,7 @@ class ReservationRepository extends EntityRepository
                     $query->andWhere('re.phone LIKE :search');
                     break;
                 case 'adminName':
-                    $query->leftJoin('SandboxApiBundle:SalesAdmin\SalesAdminProfiles','sap','WITH','sap.userId = re.adminId')
+                    $query->leftJoin('SandboxApiBundle:SalesAdmin\SalesAdminProfiles', 'sap', 'WITH', 'sap.userId = re.adminId')
                         ->andWhere('sap.salesCompanyId =  :companyId OR sap.salesCompanyId is null')
                         ->andWhere('sap.nickname LIKE :search');
                     break;
@@ -297,10 +297,10 @@ class ReservationRepository extends EntityRepository
         }
 
         if (!is_null($status)) {
-            if($status == Reservation::UNGRABED) {
+            if ($status == Reservation::UNGRABED) {
                 $now = new \DateTime();
                 $query->andWhere('re.viewTime >= :viewTime')
-                    ->setParameter('viewTime',$now);
+                    ->setParameter('viewTime', $now);
             }
             $query->andWhere('re.status = :status')
                 ->setParameter('status', $status);
@@ -319,13 +319,14 @@ class ReservationRepository extends EntityRepository
      * @param null $time
      * @param $limit
      * @param $offset
+     *
      * @return array
      */
     public function findCompanyUngrabedReservation(
         $salesCompanyId,
-        $time=null,
-        $limit=null,
-        $offset=null
+        $time = null,
+        $limit = null,
+        $offset = null
     ) {
         $query = $this->createQueryBuilder('re')
             ->where('re.status = :status')
@@ -333,13 +334,13 @@ class ReservationRepository extends EntityRepository
             ->setParameter('status', Reservation::UNGRABED)
             ->setParameter('companyId', $salesCompanyId);
 
-        if(!is_null($time)){
+        if (!is_null($time)) {
             $query->andWhere('re.viewTime > :viewTime')
-                ->setParameter('viewTime',$time);
+                ->setParameter('viewTime', $time);
         }
-            $query->orderBy('re.viewTime', 'ASC');
+        $query->orderBy('re.viewTime', 'ASC');
 
-        if(!is_null($limit) && !is_null($offset)){
+        if (!is_null($limit) && !is_null($offset)) {
             $query->setFirstResult($offset)
                 ->setMaxResults($limit);
         }
@@ -407,8 +408,7 @@ class ReservationRepository extends EntityRepository
         $status,
         $grabStart,
         $grabEnd
-    )
-    {
+    ) {
         $query = $this->createQueryBuilder('re')
             ->select('COUNT(re)')
             ->where('re.companyId = :companyId')
@@ -433,7 +433,7 @@ class ReservationRepository extends EntityRepository
 
         $result = $query->getQuery()->getSingleScalarResult();
 
-        return (int)$result;
+        return (int) $result;
     }
 
     /**
@@ -444,6 +444,7 @@ class ReservationRepository extends EntityRepository
      * @param $status
      * @param $limit
      * @param $offset
+     *
      * @return array
      */
     public function getMylatestGradedLists(
@@ -454,7 +455,7 @@ class ReservationRepository extends EntityRepository
         $status,
         $limit,
         $offset
-    ){
+    ) {
         $query = $this->createQueryBuilder('re')
             ->where('re.companyId = :companyId')
             ->andWhere('re.adminId = :adminId')
@@ -467,7 +468,7 @@ class ReservationRepository extends EntityRepository
             ->setParameter('grabEnd', $grabEnd)
             ->setParameter('status', $status);
 
-        $query->orderBy('re.viewTime','ASC');
+        $query->orderBy('re.viewTime', 'ASC');
 
         $query->setFirstResult($offset)
             ->setMaxResults($limit);

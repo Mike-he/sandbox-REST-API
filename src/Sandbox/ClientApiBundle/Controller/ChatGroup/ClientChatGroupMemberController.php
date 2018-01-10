@@ -33,7 +33,7 @@ class ClientChatGroupMemberController extends ClientChatGroupController
      * Get members.
      *
      * @param Request $request contains request info
-     * @param int     $gid      id of the company
+     * @param int     $gid     id of the company
      *
      * @Get("/chatgroups/{gid}/members")
      *
@@ -98,6 +98,7 @@ class ClientChatGroupMemberController extends ClientChatGroupController
         $chatGroup = $this->getRepo('ChatGroup\ChatGroup')->findOneBy(array('gid' => $gid));
         $this->throwNotFoundIfNull($chatGroup, self::NOT_FOUND_MESSAGE);
 
+        $platform = $chatGroup->getPlatform();
         //add member
         $em = $this->getDoctrine()->getManager();
 

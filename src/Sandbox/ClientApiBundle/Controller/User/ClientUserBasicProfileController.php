@@ -24,7 +24,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  * @author   Josh Yang
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  * @Route("/profile")
  */
 class ClientUserBasicProfileController extends UserProfileController
@@ -170,8 +170,6 @@ class ClientUserBasicProfileController extends UserProfileController
         return new View();
     }
 
-
-
     /**
      * @param Request     $request
      * @param User        $user
@@ -202,6 +200,12 @@ class ClientUserBasicProfileController extends UserProfileController
         $em->flush();
 
         $this->get('sandbox_api.jmessage')
+            ->updateNickname(
+                $user->getXmppUsername(),
+                $profile->getName()
+            );
+
+        $this->get('sandbox_api.jmessage_commnue')
             ->updateNickname(
                 $user->getXmppUsername(),
                 $profile->getName()

@@ -18,7 +18,7 @@ use FOS\RestBundle\View\View;
  * @author   Albert Feng
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 class ClientUserLogoutController extends UserLogoutController
 {

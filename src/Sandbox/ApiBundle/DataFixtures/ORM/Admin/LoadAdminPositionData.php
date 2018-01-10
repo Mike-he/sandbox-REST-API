@@ -34,7 +34,7 @@ class LoadAdminPositionData extends AbstractFixture implements OrderedFixtureInt
         $this->addReference('admin-position-official-super', $p1);
 
         $p2 = new AdminPosition();
-        $p2->setName('展想创合销售方超级管理员');
+        $p2->setName('销售方超级管理员');
         $p2->setParentPositionId(null);
         $p2->setPlatform('sales');
         $p2->setSalesCompany($this->getReference('sales-company-sandbox'));
@@ -45,7 +45,7 @@ class LoadAdminPositionData extends AbstractFixture implements OrderedFixtureInt
         $this->addReference('admin-position-sales-sandbox-super', $p2);
 
         $p3 = new AdminPosition();
-        $p3->setName('展想创合店铺超级管理员');
+        $p3->setName('店铺超级管理员');
         $p3->setParentPositionId(null);
         $p3->setPlatform('shop');
         $p3->setSalesCompany($this->getReference('sales-company-sandbox'));

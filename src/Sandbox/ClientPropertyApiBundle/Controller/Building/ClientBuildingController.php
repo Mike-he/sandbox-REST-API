@@ -42,7 +42,7 @@ class ClientBuildingController extends LocationController
 
         $result = array();
         foreach ($buildings as $building) {
-            /** @var RoomBuilding $building */
+            /* @var RoomBuilding $building */
             $result[] = array(
 
                 'id' => $building->getId(),

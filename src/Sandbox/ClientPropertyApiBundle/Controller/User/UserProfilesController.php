@@ -16,7 +16,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 class UserProfilesController extends SalesRestController
 {
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/user/profiles")
@@ -81,7 +81,7 @@ class UserProfilesController extends SalesRestController
         $service = $this->get('sandbox_api.jmessage_property');
 
         $profiles = $em->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
-            ->findBy(array('userId'=>$userId));
+            ->findBy(array('userId' => $userId));
 
         $data = [];
         $options = [];
@@ -112,7 +112,7 @@ class UserProfilesController extends SalesRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(

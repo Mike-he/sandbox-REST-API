@@ -288,13 +288,15 @@ trait SendNotification
      * @param object $jsonData
      */
     protected function sendJpushNotification(
-        $jsonData
+        $jsonData,
+        $key = null,
+        $secret = null
     ) {
         try {
             $apiURL = 'https://api.jpush.cn/v3/push';
 
-            $appKey = $this->getContainer()->getParameter('jpush_key');
-            $masterSecret = $this->getContainer()->getParameter('jpush_secret');
+            $appKey = $key ? $key : $this->getContainer()->getParameter('jpush_key');
+            $masterSecret = $secret ? $secret : $this->getContainer()->getParameter('jpush_secret');
 
             $auth = base64_encode($appKey.':'.$masterSecret);
             // call JPush API

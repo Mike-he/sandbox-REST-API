@@ -182,6 +182,7 @@ class AdminPositionUserBindingRepository extends EntityRepository
             ->leftJoin('p.salesCompany', 'c')
             ->where('c.banned = 0')
             ->orWhere('p.platform = \'official\'')
+            ->orWhere('p.platform = \'commnue\'')
             ->andWhere('pb.userId = :admin')
             ->setParameter('admin', $admin)
             ->getQuery()
@@ -452,8 +453,8 @@ class AdminPositionUserBindingRepository extends EntityRepository
      * @param $permissions
      * @param $platform
      * @param null $salesCompanyId
-     * @return mixed
      *
+     * @return mixed
      */
     public function checkHasPermission(
         $userId,
@@ -486,7 +487,8 @@ class AdminPositionUserBindingRepository extends EntityRepository
     /**
      * @return array
      */
-    public function getDistinctUserIds() {
+    public function getDistinctUserIds()
+    {
         $query = $this->createQueryBuilder('pb')
             ->select('DISTINCT pb.userId');
 

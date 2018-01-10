@@ -30,7 +30,7 @@ use Doctrine\ORM\EntityManager;
  * @author   Mike He <mike.he@easylinks.com.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 class AdminSalesBuildingController extends LocationController
 {
@@ -260,7 +260,7 @@ class AdminSalesBuildingController extends LocationController
         $statusOld = $building->getStatus();
 
         // not allow change building that is refused
-        if ($statusOld == RoomBuilding::STATUS_REFUSE) {
+        if (RoomBuilding::STATUS_REFUSE == $statusOld) {
             return new View();
         }
 
@@ -310,14 +310,14 @@ class AdminSalesBuildingController extends LocationController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
-        if ($status == RoomBuilding::STATUS_BANNED) {
+        if (RoomBuilding::STATUS_BANNED == $status) {
             // banned all staff under this building
             $this->bannedAllUnderBuilding(
                 $building
             );
         } elseif (
-            $statusOld == RoomBuilding::STATUS_PENDING &&
-            $status == RoomBuilding::STATUS_ACCEPT
+            RoomBuilding::STATUS_PENDING == $statusOld &&
+            RoomBuilding::STATUS_ACCEPT == $status
         ) {
             $building->setVisible(true);
         }

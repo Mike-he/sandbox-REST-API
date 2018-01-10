@@ -1,0 +1,65 @@
+# Example
+#sandbox_client_api_feed:
+#    resource: "@SandboxClientApiBundle/Controller/Feed/ClientFeedController.php"
+#    type:     annotation
+#    prefix:   /
+
+commnue_admin_default_controller:
+    resource: "@CommnueClientApiBundle/Controller/DefaultController.php"
+    type:     annotation
+    prefix:   /
+
+commnue_client_commercial_controller:
+    resource: "@CommnueClientApiBundle/Controller/Commercial/ClientCommercialController.php"
+    type:     annotation
+    prefix:   /
+
+commnue_client_community_controller:
+    resource: "@CommnueClientApiBundle/Controller/Community/ClientCommunityController.php"
+    type:     annotation
+    prefix:   /
+
+commnue_client_event_hot_controller:
+    resource: "@CommnueClientApiBundle/Controller/Event/ClientEventHotController.php"
+    type:     annotation
+    prefix:   /
+
+commnue_client_customer:
+    resource: "@CommnueClientApiBundle/Controller/Customer/ClientCustomerController.php"
+    type:     annotation
+    prefix:   /
+
+commnue_client_service:
+    resource: "@CommnueClientApiBundle/Controller/Service/ClientServiceController.php"
+    type:     annotation
+    prefix:   /
+
+commnue_client_service_order:
+    resource: "@CommnueClientApiBundle/Controller/Service/ClientServiceOrderController.php"
+    type:     annotation
+    prefix:   /
+
+commnue_client_service_order_invoice:
+    resource: "@CommnueClientApiBundle/Controller/Service/ClientServiceOrderInvoiceController.php"
+    type:     annotation
+    prefix:   /
+
+commnue_client_expert:
+    resource: "@CommnueClientApiBundle/Controller/Expert/ClientExpertController.php"
+    type:     annotation
+    prefix:   /
+
+commnue_client_expert_order:
+    resource: "@CommnueClientApiBundle/Controller/Expert/ClientExpertOrderController.php"
+    type:     annotation
+    prefix:   /
+
+commnue_client_expert_order_remark:
+    resource: "@CommnueClientApiBundle/Controller/Expert/ClientExpertOrderRemarkController.php"
+    type:     annotation
+    prefix:   /
+
+commnue_client_order_expert_orders:
+    resource: "@CommnueClientApiBundle/Controller/Order/ClientExpertOrderController.php"
+    type:     annotation
+    prefix:   /

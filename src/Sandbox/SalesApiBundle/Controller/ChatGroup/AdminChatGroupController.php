@@ -3,6 +3,8 @@
 namespace Sandbox\SalesApiBundle\Controller\ChatGroup;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
+use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
+use Sandbox\ApiBundle\Constants\PlatformConstants;
 use Sandbox\AdminApiBundle\Command\SyncJmessageUserCommand;
 use Sandbox\ApiBundle\Controller\ChatGroup\ChatGroupController;
 use Sandbox\ApiBundle\Entity\ChatGroup\ChatGroup;
@@ -330,6 +332,12 @@ class AdminChatGroupController extends ChatGroupController
             ]);
         $this->throwAccessDeniedIfNull($member);
 
+        //get creator latest login client
+        $userPlatform = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserPlatform')
+            ->findOneBy(array('userId' => $creatorId));
+        $platform = $userPlatform ? $userPlatform->getPlatform() : PlatformConstants::PLATFORM_OFFICIAL;
+
         // check if chat group already exist
         $existGroup = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:ChatGroup\ChatGroup')
@@ -337,11 +345,24 @@ class AdminChatGroupController extends ChatGroupController
                 'creator' => $creator,
                 'buildingId' => $buildingId,
                 'tag' => $chatGroup->getTag(),
+                'platform' => $platform,
             ]);
+
         if (!is_null($existGroup)) {
             $gid = $existGroup->getGid();
             if (!$gid) {
-                $gid = $this->createXmppChatGroup($existGroup);
+                $result = $this->createXmppChatGroup($existGroup, $platform);
+
+                if (!isset($result['gid'])) {
+                    $em->remove($chatGroup);
+                    $em->flush();
+
+                    throw new BadRequestHttpException(
+                        CustomErrorMessagesConstants::ERROR_JMESSAGE_ERROR_MESSAGE
+                    );
+                }
+                $existGroup->setGid($result['gid']);
+                $em->flush();
 
                 $chatGroupMembers = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:ChatGroup\ChatGroupMember')
@@ -360,15 +381,12 @@ class AdminChatGroupController extends ChatGroupController
                 }
 
                 $this->addXmppChatGroupMember($existGroup, $memberIds, $appKey);
-
-                $existGroup->setGid($gid);
-                $em->flush();
             }
 
             return new View([
                     'id' => $existGroup->getId(),
                     'name' => $existGroup->getName(),
-                    'gid' => $gid,
+                    'gid' => $existGroup->getGid(),
                 ]);
         }
 
@@ -376,6 +394,7 @@ class AdminChatGroupController extends ChatGroupController
         $chatGroup->setCompanyId($companyId);
         $chatGroup->setCreator($creator);
         $chatGroup->setName($building->getName().'客服');
+        $chatGroup->setPlatform($platform);
 
         $em->persist($chatGroup);
 
@@ -408,8 +427,18 @@ class AdminChatGroupController extends ChatGroupController
 
         $em->flush();
 
-        $gid = $this->createXmppChatGroup($chatGroup);
-        $chatGroup->setGid($gid);
+        $result = $this->createXmppChatGroup($chatGroup, $platform);
+
+        if (!isset($result['gid'])) {
+            $em->remove($chatGroup);
+            $em->flush();
+
+            throw new BadRequestHttpException(
+                CustomErrorMessagesConstants::ERROR_JMESSAGE_ERROR_MESSAGE
+            );
+        }
+
+        $chatGroup->setGid($result['gid']);
 
         $this->addXmppChatGroupMember($chatGroup, $memberIds, $appKey);
 
@@ -430,7 +459,7 @@ class AdminChatGroupController extends ChatGroupController
         $view->setData(array(
             'id' => $chatGroup->getId(),
             'name' => $chatGroup->getName(),
-            'gid' => $gid,
+            'gid' => $chatGroup->getGid(),
         ));
 
         return $view;

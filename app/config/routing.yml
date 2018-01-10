@@ -28,5 +28,15 @@ sandbox_api:
 
 sandbox_admin_shop_api:
     resource: "@SandboxAdminShopApiBundle/Resources/config/routing.yml"
-    type: rest
-    prefix: /shop
+    type:     rest
+    prefix:   /shop
+
+commnue_admin_api:
+    resource: "@CommnueAdminApiBundle/Resources/config/routing.yml"
+    type:     rest
+    prefix:   /commnue/admin
+
+commnue_client_api:
+    resource: "@CommnueClientApiBundle/Resources/config/routing.yml"
+    type:     rest
+    prefix:   /commnue/client

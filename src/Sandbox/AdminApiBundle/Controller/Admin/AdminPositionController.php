@@ -169,13 +169,6 @@ class AdminPositionController extends PaymentController
      *
      * @param Request $request the request object
      *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     200 = "Returned when successful"
-     *   }
-     * )
-     *
      * @Method({"POST"})
      * @Route("/positions")
      *
@@ -750,6 +743,10 @@ class AdminPositionController extends PaymentController
                 }
 
                 break;
+            case AdminPosition::PLATFORM_COMMNUE:
+                //TODO: check official permissions
+
+                break;
             default:
                 throw new AccessDeniedHttpException();
 
@@ -864,7 +861,7 @@ class AdminPositionController extends PaymentController
         $companyId = $position->getSalesCompanyId();
         $platform = $position->getPlatform();
 
-        if ($platform == AdminPosition::PLATFORM_OFFICIAL && is_null($companyId)) {
+        if (($platform == AdminPosition::PLATFORM_OFFICIAL || $platform == AdminPosition::PLATFORM_COMMNUE) && is_null($companyId)) {
             return;
         } else {
             $company = $this->getDoctrine()
@@ -1050,6 +1047,7 @@ class AdminPositionController extends PaymentController
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ADMIN],
                 ['key' => AdminPermission::KEY_SALES_PLATFORM_ADMIN],
                 ['key' => AdminPermission::KEY_SHOP_PLATFORM_ADMIN],
+                ['key' => AdminPermission::KEY_COMMNUE_PLATFORM_ADMIN],
             ],
             $opLevel
         );

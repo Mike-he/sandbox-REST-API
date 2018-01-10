@@ -163,6 +163,7 @@ class EnterpriseCustomerContacts
      * Set userCustomer.
      *
      * @param $userCustomer
+     *
      * @return EnterpriseCustomerContacts
      */
     public function setUserCustomer($userCustomer)

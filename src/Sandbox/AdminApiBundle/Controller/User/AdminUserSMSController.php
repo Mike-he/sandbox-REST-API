@@ -18,7 +18,7 @@ class AdminUserSMSController extends AdminRestController
     const API_KEY = '21c29536f85636a862306aa6f8ffdf74';
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/sms")
@@ -30,7 +30,8 @@ class AdminUserSMSController extends AdminRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        var_dump(2);exit;
+        var_dump(2);
+        exit;
         $userCounts = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\User')
             ->countTotalUsers();
@@ -42,7 +43,7 @@ class AdminUserSMSController extends AdminRestController
         $pagesMax = (int) $pagesMax;
 
         $response = [];
-        for ($offset = 0; $offset <= $pagesMax; $offset++) {
+        for ($offset = 0; $offset <= $pagesMax; ++$offset) {
             $phonesArray = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:User\User')
                 ->getUsersByLimit(

@@ -18,7 +18,7 @@ use FOS\RestBundle\Controller\Annotations;
 class AdminSalesCompanyApplyController extends SalesRestController
 {
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/company/application")
@@ -52,7 +52,7 @@ class AdminSalesCompanyApplyController extends SalesRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -83,7 +83,7 @@ class AdminSalesCompanyApplyController extends SalesRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/company/applications/{id}")

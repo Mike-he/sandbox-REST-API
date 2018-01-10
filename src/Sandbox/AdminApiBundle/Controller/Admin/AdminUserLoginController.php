@@ -118,6 +118,13 @@ class AdminUserLoginController extends AdminRestController
                     $salesAdmin->getPassword(),
                     $nickname
                 );
+
+            $this->get('sandbox_api.jmessage_commnue')
+                ->createUser(
+                    $salesAdmin->getXmppUsername(),
+                    $salesAdmin->getPassword(),
+                    $nickname
+                );
         }
 
         // here is a back door for testing
@@ -178,8 +185,8 @@ class AdminUserLoginController extends AdminRestController
     }
 
     /**
-     * @param Request $request
-     * @param SalesAdmin    $admin
+     * @param Request    $request
+     * @param SalesAdmin $admin
      *
      * @return View
      *

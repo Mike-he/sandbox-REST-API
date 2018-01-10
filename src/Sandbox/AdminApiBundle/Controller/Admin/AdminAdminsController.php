@@ -131,7 +131,7 @@ class AdminAdminsController extends SandboxRestController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminAdvertisingPermission(AdminPermission::OP_LEVEL_VIEW);
+        $this->checkAdminPermission(AdminPermission::OP_LEVEL_VIEW);
 
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $platform = $adminPlatform['platform'];
@@ -363,7 +363,7 @@ class AdminAdminsController extends SandboxRestController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminAdvertisingPermission(AdminPermission::OP_LEVEL_VIEW);
+        $this->checkAdminPermission(AdminPermission::OP_LEVEL_VIEW);
 
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $platform = $adminPlatform['platform'];
@@ -470,7 +470,7 @@ class AdminAdminsController extends SandboxRestController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminAdvertisingPermission(AdminPermission::OP_LEVEL_VIEW);
+        $this->checkAdminPermission(AdminPermission::OP_LEVEL_VIEW);
 
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $platform = $adminPlatform['platform'];
@@ -590,6 +590,9 @@ class AdminAdminsController extends SandboxRestController
                     );
                 }
                 break;
+            case AdminPosition::PLATFORM_COMMNUE:
+
+                break;
             default:
                 return new View();
         }
@@ -661,7 +664,7 @@ class AdminAdminsController extends SandboxRestController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkAdminAdvertisingPermission(AdminPermission::OP_LEVEL_VIEW);
+        $this->checkAdminPermission(AdminPermission::OP_LEVEL_VIEW);
 
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $platform = $adminPlatform['platform'];
@@ -682,7 +685,7 @@ class AdminAdminsController extends SandboxRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -875,7 +878,7 @@ class AdminAdminsController extends SandboxRestController
      *
      * @param int $OpLevel
      */
-    private function checkAdminAdvertisingPermission(
+    private function checkAdminPermission(
         $OpLevel
     ) {
         $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
@@ -887,6 +890,7 @@ class AdminAdminsController extends SandboxRestController
                 ['key' => AdminPermission::KEY_SALES_PLATFORM_BUILDING],
                 ['key' => AdminPermission::KEY_SALES_BUILDING_SPACE],
                 ['key' => AdminPermission::KEY_SALES_BUILDING_BUILDING],
+                ['key' => AdminPermission::KEY_COMMNUE_PLATFORM_ADMIN],
             ],
             $OpLevel
         );

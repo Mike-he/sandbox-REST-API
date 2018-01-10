@@ -25,7 +25,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\Controller\Annotations;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class ClientLeaseController extends SandboxRestController
 {

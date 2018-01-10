@@ -816,6 +816,7 @@ class AdminBuildingController extends LocationController
         $building
     ) {
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
 
         $em = $this->getDoctrine()->getManager();
         $roomAttachments = $building->getRoomAttachments();
@@ -828,7 +829,7 @@ class AdminBuildingController extends LocationController
 
         $salesCompany = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
-            ->find($adminPlatform['sales_company_id']);
+            ->find($salesCompanyId);
         $buildingServices = $building->getBuildingServices();
 
         // check city
@@ -897,6 +898,7 @@ class AdminBuildingController extends LocationController
 
         // add customer services
 //        $this->addCustomerService(
+//            $salesCompanyId,
 //            $building,
 //            $customerServicesIds,
 //            $em
@@ -1077,7 +1079,10 @@ class AdminBuildingController extends LocationController
         $companyId = $building->getCompanyId();
         $chatGroups = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:ChatGroup\ChatGroup')
-            ->findBy(['buildingId' => $buildingId]);
+            ->findBy([
+                'buildingId' => $buildingId,
+                'tag' => ChatGroup::CUSTOMER_SERVICE,
+            ]);
 
         if (array_key_exists('add', $services)) {
             $this->addChatGroupMembers(
@@ -1155,6 +1160,7 @@ class AdminBuildingController extends LocationController
 
             $newMember = new RoomBuildingServiceMember();
             $newMember->setBuildingId($buildingId);
+            $newMember->setCompanyId($companyId);
             $newMember->setUserId($userId);
             $newMember->setTag($tag);
 
@@ -1717,6 +1723,7 @@ class AdminBuildingController extends LocationController
     }
 
     private function addCustomerService(
+        $salesCompanyId,
         $building,
         $customerServices,
         $em
@@ -1753,6 +1760,7 @@ class AdminBuildingController extends LocationController
                 }
 
                 $customerService = new RoomBuildingServiceMember();
+                $customerService->setCompanyId($salesCompanyId);
                 $customerService->setBuildingId($building->getId());
                 $customerService->setUserId($admin->getId());
 

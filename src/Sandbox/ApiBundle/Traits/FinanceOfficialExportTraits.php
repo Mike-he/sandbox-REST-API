@@ -400,7 +400,6 @@ trait FinanceOfficialExportTraits
                 }
             }
 
-
             $orderType = $this->get('translator')->trans(
                 ProductOrderExport::TRANS_PRODUCT_ORDER_TYPE.$order->getType(),
                 array(),

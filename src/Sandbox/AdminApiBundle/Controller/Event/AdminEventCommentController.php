@@ -21,7 +21,7 @@ use FOS\RestBundle\View\View;
  * @author   Mike He <mike.he@easylinks.com.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 class AdminEventCommentController extends EventCommentController
 {
@@ -134,6 +134,7 @@ class AdminEventCommentController extends EventCommentController
             $this->getAdminId(),
             [
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_EVENT],
+                ['key' => AdminPermission::KEY_COMMNUE_PLATFORM_EVENT],
             ],
             $opLevel
         );

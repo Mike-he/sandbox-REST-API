@@ -5,20 +5,20 @@ namespace Sandbox\SalesApiBundle\Controller\Reservation;
 use Sandbox\ApiBundle\Entity\Room\RoomTypeTags;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sandbox\ApiBundle\Entity\Reservation\Reservation;
-use Sandbox\ApiBundle\Repository\Reservation\ReservationRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\View\View;
-use Knp\Component\Pager\Paginator;
 
 class AdminReservationController extends SalesRestController
 {
     /**
      * @Route("/reservation/{reservationId}")
+     *
      * @param Request $request
+     *
      * @return mixed
      * @Method({"PATCH"})
      */
@@ -26,8 +26,8 @@ class AdminReservationController extends SalesRestController
     {
         $adminId = $this->getAdminId();
         $reservation = $this->getDoctrine()->getRepository('SandboxApiBundle:Reservation\Reservation')->findOneBy(array(
-            'id'=> $reservationId,
-            'status'=>Reservation::UNGRABED
+            'id' => $reservationId,
+            'status' => Reservation::UNGRABED,
         ));
 
         $this->throwNotFoundIfNull($reservation, self::NOT_FOUND_MESSAGE);
@@ -47,19 +47,17 @@ class AdminReservationController extends SalesRestController
         $view = new View();
         $view->setData(
             array(
-                'serial_number' => $seriaLNumber
+                'serial_number' => $seriaLNumber,
             )
         );
 
         return $view;
-
     }
 
     /**
-     *
      * Reservation.
      *
-     * @param Request $request the request object
+     * @param Request               $request      the request object
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -158,6 +156,7 @@ class AdminReservationController extends SalesRestController
      *
      * @Route("/reservation/list")
      * @Method({"GET"})
+     *
      * @return mixed
      */
     public function getReservationAction(
@@ -233,22 +232,22 @@ class AdminReservationController extends SalesRestController
             );
 
         $result = [];
-        foreach ($reservations as $k=>$reservation) {
+        foreach ($reservations as $k => $reservation) {
             $result[$k] = $this->getProductInfo($reservation);
         }
 
-        if($sortColumn == 'price'){
+        if ($sortColumn == 'price') {
             $price = [];
             foreach ($result as $k => $v) {
-                if(array_key_exists('leasing',$v['product'])){
+                if (array_key_exists('leasing', $v['product'])) {
                     $price[] = $v['product']['leasing']['base_price'];
-                }else{
+                } else {
                     $price[] = $v['product']['rent']['rent_price'];
                 }
             }
-            if($direction == 'asc'){
+            if ($direction == 'asc') {
                 array_multisort($price, SORT_ASC, $result);
-            }elseif ($direction == 'desc'){
+            } elseif ($direction == 'desc') {
                 array_multisort($price, SORT_DESC, $result);
             }
         }
@@ -257,9 +256,9 @@ class AdminReservationController extends SalesRestController
         $view->setData(
             array(
                 'current_page_number' => $pageIndex,
-                'num_items_per_page' => (int)$pageLimit,
+                'num_items_per_page' => (int) $pageLimit,
                 'items' => $result,
-                'total_count' => (int)$count,
+                'total_count' => (int) $count,
             )
         );
 
@@ -267,10 +266,11 @@ class AdminReservationController extends SalesRestController
     }
 
     /**
-     *
      * @Route("/reservation/ungrabed/list")
      * @Method({"GET"})
+     *
      * @param Request $request
+     *
      * @return View
      */
     public function getUngrabedReservationAction(Request $request)
@@ -287,7 +287,7 @@ class AdminReservationController extends SalesRestController
             );
 
         $result = [];
-        foreach ($reservations as $k=>$reservation) {
+        foreach ($reservations as $k => $reservation) {
             $result[$k] = $this->getProductInfo($reservation);
         }
 
@@ -297,7 +297,7 @@ class AdminReservationController extends SalesRestController
         $view->setData(
             array(
                 'items' => $result,
-                'total_count' => (int)$count,
+                'total_count' => (int) $count,
             )
         );
 
@@ -306,6 +306,7 @@ class AdminReservationController extends SalesRestController
 
     /**
      * @param $reservation
+     *
      * @return mixed
      */
     private function getProductInfo($reservation)
@@ -314,12 +315,12 @@ class AdminReservationController extends SalesRestController
         $status = $reservation->getStatus();
         $now = new \DateTime();
 
-        if($now > $viewTime){
+        if ($now > $viewTime) {
             $status = 'expired';
         }
 
         $data = [];
-        /** @var Reservation $reservation */
+        /* @var Reservation $reservation */
         $data['id'] = $reservation->getId();
         $data['userId'] = $reservation->getUserId();
         $data['adminId'] = $reservation->getAdminId();
@@ -337,8 +338,8 @@ class AdminReservationController extends SalesRestController
 
         $customer = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserCustomer')
-            ->findOneBy(array('userId'=>$data['userId'],'companyId'=>$data['companyId']));
-        if(!is_null($customer)){
+            ->findOneBy(array('userId' => $data['userId'], 'companyId' => $data['companyId']));
+        if (!is_null($customer)) {
             $data['customerId'] = $customer->getId();
         }
 
@@ -358,20 +359,20 @@ class AdminReservationController extends SalesRestController
 
         $user = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserCustomer')
-            ->findOneBy(array('userId'=>$reservation->getUserId()));
-        if($user){
+            ->findOneBy(array('userId' => $reservation->getUserId()));
+        if ($user) {
             $data['userName'] = $user->getName();
         }
 
-        if($reservation->getAdminId()){
+        if ($reservation->getAdminId()) {
             $admin = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
-                ->findOneBy(array('userId'=>$reservation->getAdminId(),'salesCompanyId'=>$reservation->getCompanyId()));
+                ->findOneBy(array('userId' => $reservation->getAdminId(), 'salesCompanyId' => $reservation->getCompanyId()));
 
-            if(is_null($admin)){
+            if (is_null($admin)) {
                 $admin = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
-                    ->findOneBy(array('userId'=>$reservation->getAdminId()));
+                    ->findOneBy(array('userId' => $reservation->getAdminId()));
             }
             $data['adminName'] = $admin->getNickname();
         }
@@ -379,16 +380,16 @@ class AdminReservationController extends SalesRestController
         $rent = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Product\ProductRentSet')
             ->findOneBy(array('product' => $productId));
-       if(!is_null($rent)){
-           $data['product']['rent']['rent_price'] = $rent->getbasePrice();
-           $data['product']['rent']['unit_price'] = $rent->getUnitPrice();
-       }
+        if (!is_null($rent)) {
+            $data['product']['rent']['rent_price'] = $rent->getbasePrice();
+            $data['product']['rent']['unit_price'] = $rent->getUnitPrice();
+        }
 
         $leasing = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Product\ProductLeasingSet')
             ->findOneBy(array('product' => $productId));
 
-        if(!is_null($leasing)){
+        if (!is_null($leasing)) {
             $data['product']['leasing']['base_price'] = $leasing->getbasePrice();
             $data['product']['leasing']['unit_price'] = $leasing->getUnitPrice();
         }

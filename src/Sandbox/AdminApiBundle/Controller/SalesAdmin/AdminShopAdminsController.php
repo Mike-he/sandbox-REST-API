@@ -20,7 +20,7 @@ use Nelmio\ApiDocBundle\Annotation\ApiDoc;
  * @author   Mike He <mike.he@easylinks.com.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 class AdminShopAdminsController extends SandboxRestController
 {

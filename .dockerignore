@@ -1,1 +1,12 @@
 .git/
+contrib/
+provisioning/
+Vagrantfile
+README.md
+php-cs-fixer.phar
+src/Sandbox/ApiBundle/DataFixtures/
+src/Sandbox/AdminApiBundle/Tests/
+src/Sandbox/ApiBundle/Tests/
+src/Sandbox/ClientApiBundle/Tests/
+src/Sandbox/ClientPropertyApiBundle/Tests/
+src/Sandbox/SalesApiBundle/Tests/

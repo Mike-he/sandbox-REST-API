@@ -643,4 +643,163 @@ class UserViewRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @param $name
+     * @param $phone
+     * @param $email
+     * @param $id
+     * @param $userIds
+     * @param $limit
+     * @param $offset
+     *
+     * @return array
+     */
+    public function getAdminCommnueUsers(
+        $startDate,
+        $endDate,
+        $name,
+        $phone,
+        $email,
+        $id,
+        $userIds,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('u')
+            ->select('
+                u.id,
+                u.name,
+                u.gender,
+                u.phone,
+                u.email
+            ')
+            ->where('u.id IS NOT NULL');
+
+        if (!is_null($startDate)) {
+            $query->andWhere('u.userRegistrationDate >= :startDate')
+                ->setParameter('startDate', $startDate);
+        }
+
+        if (!is_null($endDate)) {
+            $query->andWhere('u.userRegistrationDate <= :endDate')
+                ->setParameter('endDate', $endDate);
+        }
+
+        if (!is_null($name)) {
+            $query->andWhere('u.name LIKE :name')
+                ->setParameter('name', '%'.$name.'%');
+        }
+
+        if (!is_null($phone)) {
+            $query->andWhere('u.phone LIKE :phone')
+                ->setParameter('phone', '%'.$phone.'%');
+        }
+
+        if (!is_null($email)) {
+            $query->andWhere('u.email LIKE :email')
+                ->setParameter('email', '%'.$email.'%');
+        }
+
+        if (!is_null($id)) {
+            $query->andWhere('u.id = :id')
+                ->setParameter('id', $id);
+        }
+
+        if (!is_null($userIds)) {
+            $query->andWhere('u.id IN (:ids)')
+                ->setParameter('ids', $userIds);
+        }
+
+        if (!is_null($limit) && !is_null($offset)) {
+            $query->setFirstResult($offset)
+                ->setMaxResults($limit);
+        }
+
+        $query->orderBy('u.userRegistrationDate', 'DESC');
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @param $name
+     * @param $phone
+     * @param $email
+     * @param $id
+     * @param $userIds
+     *
+     * @return int
+     */
+    public function countAdminCommnueUsers(
+        $startDate,
+        $endDate,
+        $name,
+        $phone,
+        $email,
+        $id,
+        $userIds
+    ) {
+        $query = $this->createQueryBuilder('u')
+            ->select('COUNT(u)')
+            ->where('u.id IS NOT NULL');
+
+        if (!is_null($startDate)) {
+            $query->andWhere('u.userRegistrationDate >= :startDate')
+                ->setParameter('startDate', $startDate);
+        }
+
+        if (!is_null($endDate)) {
+            $query->andWhere('u.userRegistrationDate <= :endDate')
+                ->setParameter('endDate', $endDate);
+        }
+
+        if (!is_null($name)) {
+            $query->andWhere('u.name LIKE :name')
+                ->setParameter('name', '%'.$name.'%');
+        }
+
+        if (!is_null($phone)) {
+            $query->andWhere('u.phone LIKE :phone')
+                ->setParameter('phone', '%'.$phone.'%');
+        }
+
+        if (!is_null($phone)) {
+            $query->andWhere('u.email LIKE :email')
+                ->setParameter('email', '%'.$email.'%');
+        }
+
+        if (!is_null($id)) {
+            $query->andWhere('u.id = :id')
+                ->setParameter('id', $id);
+        }
+
+        if (!is_null($userIds)) {
+            $query->andWhere('u.id IN (:ids)')
+                ->setParameter('ids', $userIds);
+        }
+
+        return (int) $query->getQuery()->getSingleScalarResult();
+    }
+
+    /**
+     * @return array
+     */
+    public function getAllNotCommnueUserIds()
+    {
+        $query = $this->createQueryBuilder('u')
+            ->leftJoin('SandboxApiBundle:Commnue\CommnueUser', 'cu', 'WITH', 'cu.userId = u.id')
+            ->select(
+                'u.id'
+            )
+            ->where('cu.userId IS NULL');
+
+        $ids = $query->getQuery()->getScalarResult();
+        $ids = array_map('current', $ids);
+
+        return $ids;
+    }
 }

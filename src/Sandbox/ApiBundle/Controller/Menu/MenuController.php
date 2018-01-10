@@ -76,7 +76,7 @@ class MenuController extends SandboxRestController
     const URL_ORDERS = '{{orders}}';
     const URL_INVOICE = '{{invoice}}';
     const URL_PROPERTY_CLIENT_APPLY = '{{property-client-apply}}';
-    const URL_PROPERTY_CLIENT_CUSTOMER= '{{property-client-customer}}';
+    const URL_PROPERTY_CLIENT_CUSTOMER = '{{property-client-customer}}';
 
     /**
      * @param Request               $request

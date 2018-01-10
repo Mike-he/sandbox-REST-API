@@ -26,7 +26,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  * @author   Leo Xu
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 class ClientUserFavoriteController extends LocationController
 {
@@ -141,7 +141,7 @@ class ClientUserFavoriteController extends LocationController
                         $excludeIds = [9] // the company id of xiehe
                     );
 
-                if ($lat == 0 || $lng == 0) {
+                if (0 == $lat || 0 == $lng) {
                     $objectArray = [];
                     foreach ($objects as $object) {
                         $object['distance'] = 0;
@@ -167,7 +167,7 @@ class ClientUserFavoriteController extends LocationController
 
                 $objects = [];
                 foreach ($contents as $content) {
-                    if ($lat == 0 || $lng == 0) {
+                    if (0 == $lat || 0 == $lng) {
                         $content['distance'] = 0;
                     }
 
@@ -195,7 +195,7 @@ class ClientUserFavoriteController extends LocationController
                     }
                     $product->setLeasingSets($productLeasingSets);
 
-                    if ($roomType == Room::TYPE_DESK && $typeTag == Room::TAG_DEDICATED_DESK) {
+                    if (Room::TYPE_DESK == $roomType && Room::TAG_DEDICATED_DESK == $typeTag) {
                         $price = $this->getDoctrine()
                             ->getRepository('SandboxApiBundle:Room\RoomFixed')
                             ->getFixedSeats($room);
@@ -219,6 +219,51 @@ class ClientUserFavoriteController extends LocationController
 
                 $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
 
+                break;
+            case UserFavorite::OBJECT_SERVICE:
+                $services = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Service\Service')
+                    ->getClientServices(
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        $limit,
+                        $offset,
+                        $objectIds
+                    );
+
+                foreach ($services as $service) {
+                    $attachments = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:Service\ServiceAttachment')
+                        ->findBy(['service' => $service]);
+                    $times = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:Service\ServiceTime')
+                        ->findBy(['service' => $service]);
+
+                    $service->setAttachments($attachments);
+                    $service->setTimes($times);
+                }
+
+                $objects = $services;
+
+                break;
+            case UserFavorite::OBJECT_EXPERT:
+                $objects = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Expert\Expert')
+                    ->getExperts(
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        $limit,
+                        $offset,
+                        $objectIds
+                    );
                 break;
             default:
                 return $view;
@@ -427,9 +472,22 @@ class ClientUserFavoriteController extends LocationController
                     $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
 
                     break;
+                case UserFavorite::OBJECT_EXPERT:
+                    $expert = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:Expert\Expert')
+                        ->find($objectId);
+                    $this->throwNotFoundIfNull($expert, self::NOT_FOUND_MESSAGE);
+
+                    break;
+                case UserFavorite::OBJECT_SERVICE:
+                    $service = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:Service\Service')
+                        ->find($objectId);
+                    $this->throwNotFoundIfNull($service, self::NOT_FOUND_MESSAGE);
+
+                    break;
                 default:
                     throw new NotFoundHttpException();
-
                     break;
             }
 

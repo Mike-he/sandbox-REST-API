@@ -25,7 +25,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  * @author   Yimo Zhang <yimo.zhang@Sandbox.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  *
  * @Route("/email")
  */

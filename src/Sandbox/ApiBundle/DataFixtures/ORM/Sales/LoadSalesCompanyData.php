@@ -21,6 +21,7 @@ class LoadSalesCompanyData extends AbstractFixture implements OrderedFixtureInte
         $sc1->setDescription('咖啡销售');
         $sc1->setContacter('sandbox');
         $sc1->setContacterPhone('13010103232');
+        $sc1->setOnlineSales(1);
         $this->addReference('sales-company-sandbox', $sc1);
 
         $scs1 = new SalesCompanyServiceInfos();

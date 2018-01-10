@@ -12,7 +12,6 @@ use Sandbox\ApiBundle\Entity\Reservation\Reservation;
 use Sandbox\ApiBundle\Form\Reservation\ReservationType;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\Validator\Constraints\DateTime;
 
 class ClientReservationController extends SandboxRestController
 {
@@ -21,11 +20,11 @@ class ClientReservationController extends SandboxRestController
     const ROOMTYPE_NOT_ALLOWED_CODE = 400002;
     const ROOMTYPE_NOT_ALLOWED_MESSAGE = 'RoomType Is Not Allowed';
     const PRODUCT_NOT_AVAILABLE_CODE = 400003;
-    const PRODUCT_NOT_AVAILABLE_MESSAGE ='Product Is Not Available';
+    const PRODUCT_NOT_AVAILABLE_MESSAGE = 'Product Is Not Available';
     const NOT_WITHIN_DATE_RANGE_CODE = 400004;
     const NOT_WITHIN_DATE_RANGE_MESSAGE = 'Not Within 7 Days For Reservation';
-    CONST NOT_WITHIN_VIEW_TIME_CODE = 400005;
-    CONST NOT_WITHIN_VIEW_TIME_MESSAGE = 'ViewTime Shoule Be In 8:00~18:00';
+    const NOT_WITHIN_VIEW_TIME_CODE = 400005;
+    const NOT_WITHIN_VIEW_TIME_MESSAGE = 'ViewTime Shoule Be In 8:00~18:00';
     const WRONG_VIEWTIME_CODE = 400006;
     const WRONG_VIEWTIME_MESSAGE = 'Not Allowed Before Now';
     const VIEW_RANGE_LIMIT = 7;
@@ -82,7 +81,7 @@ class ClientReservationController extends SandboxRestController
         }
 
         $diff = $viewTime->diff($now)->days;
-        if( $diff > self::VIEW_RANGE_LIMIT ){
+        if ($diff > self::VIEW_RANGE_LIMIT) {
             return $this->customErrorView(
                 400,
                 self::NOT_WITHIN_DATE_RANGE_CODE,
@@ -90,7 +89,7 @@ class ClientReservationController extends SandboxRestController
             );
         }
 
-        if( $now >= $viewTime ){
+        if ($now >= $viewTime) {
             return $this->customErrorView(
                 400,
                 self::WRONG_VIEWTIME_CODE,
@@ -98,15 +97,15 @@ class ClientReservationController extends SandboxRestController
             );
         }
         $startdate = clone $viewTime;
-        $startdate = $startdate->setTime('08','00','00');
+        $startdate = $startdate->setTime('08', '00', '00');
 
         $enddate = clone $viewTime;
-        $enddate = $enddate->setTime('18','00','00');
+        $enddate = $enddate->setTime('18', '00', '00');
 
         $begin = $startdate > $viewTime;
         $end = $viewTime > $enddate;
 
-        if($begin || $end){
+        if ($begin || $end) {
             return $this->customErrorView(
                 400,
                 self::NOT_WITHIN_VIEW_TIME_CODE,
@@ -121,9 +120,9 @@ class ClientReservationController extends SandboxRestController
                 $viewTime
             );
 
-        if(!empty($sameReservation)){
+        if (!empty($sameReservation)) {
             return new View(
-                ['serial_number'=>$sameReservation[0]->getSerialNumber()]
+                ['serial_number' => $sameReservation[0]->getSerialNumber()]
             );
         }
 
@@ -150,7 +149,6 @@ class ClientReservationController extends SandboxRestController
 
         return $view;
     }
-
 
     /**
      * @param $product

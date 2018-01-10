@@ -12,6 +12,7 @@ class UserEnterpriseCustomerRepository extends EntityRepository
      * @param $keywordSearch
      * @param null $limit
      * @param null $offset
+     *
      * @return array
      */
     public function searchSalesEnterpriseCustomers(
@@ -28,7 +29,7 @@ class UserEnterpriseCustomerRepository extends EntityRepository
         $query->where('ec.companyId = :companyId')
             ->setParameter('companyId', $salesCompanyId);
 
-        if(!is_null($keyword) && !is_null($keywordSearch)){
+        if (!is_null($keyword) && !is_null($keywordSearch)) {
             switch ($keyword) {
                 case 'name':
                     $query->andWhere('ec.name LIKE :search');
@@ -47,7 +48,7 @@ class UserEnterpriseCustomerRepository extends EntityRepository
             }
             $query->setParameter('search', '%'.$keywordSearch.'%');
 
-            if(!is_null($limit) && !is_null($offset)){
+            if (!is_null($limit) && !is_null($offset)) {
                 $query->setMaxResults($limit)
                     ->setFirstResult($offset);
             }
@@ -60,14 +61,14 @@ class UserEnterpriseCustomerRepository extends EntityRepository
      * @param $salesCompanyId
      * @param $keyword
      * @param $keywordSearch
+     *
      * @return mixed
      */
     public function getCountSalesEnterpriseCustomers(
         $salesCompanyId,
         $keyword,
         $keywordSearch
-    )
-    {
+    ) {
         $query = $this->createQueryBuilder('ec')
             ->select('COUNT(ec)')
             ->leftJoin(
@@ -107,6 +108,7 @@ class UserEnterpriseCustomerRepository extends EntityRepository
     /**
      * @param $salesCompanyId
      * @param $search
+     *
      * @return array
      */
     public function getClientSalesEnterpriseCustomers(
@@ -116,11 +118,11 @@ class UserEnterpriseCustomerRepository extends EntityRepository
         $query = $this->createQueryBuilder('ec')
             ->select('ec.id, ec.name')
             ->where('ec.companyId = :companyId')
-            ->setParameter('companyId',$salesCompanyId);
+            ->setParameter('companyId', $salesCompanyId);
 
-        if(!is_null($search)){
+        if (!is_null($search)) {
             $query->andWhere('ec.name LIKE :search')
-                ->setParameter('search','%'.$search.'%');
+                ->setParameter('search', '%'.$search.'%');
         }
 
         return $query->getQuery()->getResult();

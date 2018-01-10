@@ -2,11 +2,14 @@
 
 namespace Sandbox\ApiBundle\Controller\ChatGroup;
 
+use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
+use Sandbox\ApiBundle\Constants\PlatformConstants;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\ChatGroup\ChatGroup;
 use Sandbox\ApiBundle\Entity\ChatGroup\ChatGroupMember;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Traits\CurlUtil;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Chat Group Controller.
@@ -82,11 +85,13 @@ class ChatGroupController extends SandboxRestController
 
     /**
      * @param ChatGroup $chatGroup
+     * @param $platform
      *
      * @return mixed|void
      */
     protected function createXmppChatGroup(
-        $chatGroup
+        $chatGroup,
+        $platform
     ) {
         $chatRoomName = $chatGroup->getName().'@'.$chatGroup->getTag();
         $chatRoomDesc = array(
@@ -110,14 +115,32 @@ class ChatGroupController extends SandboxRestController
         foreach ($members as $member) {
             /* @var ChatGroupMember $member */
             if (ChatGroup::GROUP_SERVICE == $chatGroup->getTag()) {
-                $memberId = $member->getUser()->getXmppUsername();
-                if ($memberId != $ownerName) {
-                    array_push($membersIds, $memberId);
+                $user = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:User\User')
+                    ->find($member->getUser());
+
+                if ($user) {
+                    $memberId = $user->getXmppUsername();
+                    if ($memberId != $ownerName) {
+                        array_push($membersIds, $memberId);
+                    }
                 }
             }
         }
 
-        $service = $this->get('sandbox_api.jmessage');
+        switch ($platform) {
+            case PlatformConstants::PLATFORM_OFFICIAL:
+                $service = $this->get('sandbox_api.jmessage');
+                break;
+            case PlatformConstants::PLATFORM_COMMNUE:
+                $service = $this->get('sandbox_api.jmessage_commnue');
+                break;
+            default:
+                throw new BadRequestHttpException(
+                    CustomErrorMessagesConstants::ERROR_CUSTOMER_SERVICE_PAYLOAD_NOT_CORRECT_CODE
+                );
+        }
+
         $result = $service->createGroup(
             $ownerName,
             $chatRoomName,
@@ -125,13 +148,7 @@ class ChatGroupController extends SandboxRestController
             $membersIds
         );
 
-        if (201 != $result['http_code']) {
-            // TODO: create Jmessage Group Error
-            $errorLogDir = $this->getParameter('error_log_dir');
-            error_log('[jiguang]'.$result,3,$errorLogDir);
-        }
-
-        return $result['body']['gid'];
+        return $result['body'];
     }
 
     /**
@@ -189,14 +206,22 @@ class ChatGroupController extends SandboxRestController
     ) {
         $gid = $chatGroup->getGid();
 
-        $service = $this->get('sandbox_api.jmessage');
-        $result = $service->addGroupMembers($gid, $memberIds, $appKey);
+        $platform = $chatGroup->getPlatform();
 
-        if (204 != $result['http_code']) {
-            // TODO: create Jmessage Group Error
-            $errorLogDir = $this->getParameter('error_log_dir');
-            error_log('[jiguang]'.$result,3,$errorLogDir);
+        switch ($platform) {
+            case PlatformConstants::PLATFORM_OFFICIAL:
+                $service = $this->get('sandbox_api.jmessage');
+                break;
+            case PlatformConstants::PLATFORM_COMMNUE:
+                $service = $this->get('sandbox_api.jmessage_commnue');
+                break;
+            default:
+                throw new BadRequestHttpException(
+                    CustomErrorMessagesConstants::ERROR_CUSTOMER_SERVICE_PAYLOAD_NOT_CORRECT_CODE
+                );
         }
+
+        $service->addGroupMembers($gid, $memberIds, $appKey);
     }
 
     /**
@@ -211,13 +236,21 @@ class ChatGroupController extends SandboxRestController
     ) {
         $gid = $chatGroup->getGid();
 
-        $service = $this->get('sandbox_api.jmessage');
-        $result = $service->deleteGroupMembers($gid, $memberIds, $appKey);
+        $platform = $chatGroup->getPlatform();
 
-        if (204 != $result['http_code']) {
-            // TODO: create Jmessage Group Error
-            $errorLogDir = $this->getParameter('error_log_dir');
-            error_log('[jiguang]'.$result,3,$errorLogDir);
+        switch ($platform) {
+            case PlatformConstants::PLATFORM_OFFICIAL:
+                $service = $this->get('sandbox_api.jmessage');
+                break;
+            case PlatformConstants::PLATFORM_COMMNUE:
+                $service = $this->get('sandbox_api.jmessage_commnue');
+                break;
+            default:
+                throw new BadRequestHttpException(
+                    CustomErrorMessagesConstants::ERROR_CUSTOMER_SERVICE_PAYLOAD_NOT_CORRECT_CODE
+                );
         }
+
+        $service->deleteGroupMembers($gid, $memberIds, $appKey);
     }
 }

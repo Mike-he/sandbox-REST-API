@@ -420,8 +420,6 @@ class LoadAdminPermissionData extends AbstractFixture implements OrderedFixtureI
         $p37->setOpLevelSelect('1,2');
         $manager->persist($p37);
 
-
-
         $salesPermission2 = new AdminPermission();
         $salesPermission2->setKey(AdminPermission::KEY_SALES_PLATFORM_MONTHLY_BILLS);
         $salesPermission2->setName('秒租月结账单权限');

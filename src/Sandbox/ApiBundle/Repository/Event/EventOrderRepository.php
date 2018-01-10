@@ -317,7 +317,7 @@ class EventOrderRepository extends EntityRepository
         if (!is_null($keyword) && !is_null($keywordSearch)) {
             switch ($keyword) {
                 case 'all':
-                    $query ->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.id = eo.customerId')
+                    $query->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.id = eo.customerId')
                             ->andWhere('
                                 eo.orderNumber LIKE :search OR
                                 e.name LIKE :search OR
@@ -610,7 +610,7 @@ class EventOrderRepository extends EntityRepository
         $search
     ) {
         $query = $this->createQueryBuilder('eo')
-            ->leftJoin('eo.event','e')
+            ->leftJoin('eo.event', 'e')
             ->leftJoin('SandboxApiBundle:Event\EventRegistration', 'er', 'WITH', 'er.eventId = e.id')
             ->where('eo.userId = :userId')
             ->andWhere('er.userId = :userId')
@@ -823,7 +823,6 @@ class EventOrderRepository extends EntityRepository
             ->setParameter('unpaid', EventOrder::STATUS_UNPAID)
             ->setParameter('salesCompanyId', $salesCompanyId);
 
-
         if (!is_null($channel) && !empty($channel)) {
             if (in_array('sandbox', $channel)) {
                 $channel[] = ProductOrder::CHANNEL_ACCOUNT;
@@ -849,7 +848,7 @@ class EventOrderRepository extends EntityRepository
         if (!is_null($keyword) && !is_null($keywordSearch)) {
             switch ($keyword) {
                 case 'all':
-                    $query ->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.id = eo.customerId')
+                    $query->leftJoin('SandboxApiBundle:User\UserCustomer', 'uc', 'WITH', 'uc.id = eo.customerId')
                         ->andWhere('
                                 (eo.orderNumber LIKE :search OR
                                 e.name LIKE :search OR
@@ -862,7 +861,6 @@ class EventOrderRepository extends EntityRepository
             }
             $query->setParameter('search', '%'.$keywordSearch.'%');
         }
-
 
         //filter by payStart
         if (!is_null($payStart)) {
@@ -969,7 +967,7 @@ class EventOrderRepository extends EntityRepository
             ->where('eo.customerId = :customerId')
             ->andWhere('e.salesCompanyId = :salesCompanyId')
             ->setParameter('customerId', $customerId)
-            ->setParameter('salesCompanyId',$salesCompanyId);
+            ->setParameter('salesCompanyId', $salesCompanyId);
 
         return $query->getQuery()->getSingleScalarResult();
     }
@@ -979,6 +977,7 @@ class EventOrderRepository extends EntityRepository
      * @param $salesCompanyId
      * @param $limit
      * @param $offset
+     *
      * @return array
      */
     public function findCustomerEventOrder(
@@ -992,14 +991,13 @@ class EventOrderRepository extends EntityRepository
             ->where('eo.customerId = :customerId')
             ->andWhere('e.salesCompanyId = :salesCompanyId')
             ->setParameter('customerId', $customerId)
-            ->setParameter('salesCompanyId',$salesCompanyId);
+            ->setParameter('salesCompanyId', $salesCompanyId);
 
-        $query->orderBy('eo.creationDate','DESC');
+        $query->orderBy('eo.creationDate', 'DESC');
 
         $query->setMaxResults($limit)
             ->setFirstResult($offset);
 
         return $query->getQuery()->getResult();
     }
-
 }

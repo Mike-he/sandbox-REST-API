@@ -1,4 +1,5 @@
 <?php
+
 namespace Sandbox\ClientPropertyApiBundle\Controller\Admin;
 
 use Sandbox\ApiBundle\Controller\SandboxRestController;

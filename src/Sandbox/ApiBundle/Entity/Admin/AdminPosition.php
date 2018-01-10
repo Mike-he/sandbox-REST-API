@@ -17,6 +17,7 @@ class AdminPosition
     const PLATFORM_OFFICIAL = 'official';
     const PLATFORM_SALES = 'sales';
     const PLATFORM_SHOP = 'shop';
+    const PLATFORM_COMMNUE = 'commnue';
 
     /**
      * @var int

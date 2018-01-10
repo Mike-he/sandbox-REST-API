@@ -29,7 +29,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  * @author   Yimo Zhang <yimo.zhang@Sandbox.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  *
  * @Route("/password")
  */
@@ -337,7 +337,7 @@ class ClientUserPasswordController extends UserPasswordController
     ) {
         $forgetPassword->setStatus($status);
 
-        if ($status === 'submit') {
+        if ('submit' === $status) {
             if (!is_null($email)) {
                 $forgetPassword->setEmail($email);
             }
@@ -372,7 +372,6 @@ class ClientUserPasswordController extends UserPasswordController
         $phoneCode
     ) {
         if (!is_null($email)) {
-
             // send verification URL to email
             $subject = '【创合秒租】'.$this->before('@', $email).'，您正在重置账号密码。';
             $this->sendEmail($subject, $email, $this->before('@', $email),
@@ -518,20 +517,19 @@ class ClientUserPasswordController extends UserPasswordController
         $forgetPassword,
         $auth = null
     ) {
-        // update xmpp user password
-        $result = $this->get('sandbox_api.jmessage')
+        // update Jmessage Sandbox user password
+        $this->get('sandbox_api.jmessage')
             ->updatePassword(
                 $user->getXmppUsername(),
                 $password
             );
 
-        if ($result['http_code'] != 204) {
-            return $this->customErrorView(
-                400,
-                self::ERROR_JMESSAGE_SYNC_FAIL_CODE,
-                self::ERROR_JMESSAGE_SYNC_FAIL_MESSAGE
+        // update Jmessage Commnue user password
+        $this->get('sandbox_api.jmessage_commnue')
+            ->updatePassword(
+                $user->getXmppUsername(),
+                $password
             );
-        }
 
         $em = $this->getDoctrine()->getManager();
 

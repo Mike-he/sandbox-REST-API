@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
- * FinanceSalesWalletFlow
+ * FinanceSalesWalletFlow.
  *
  * @ORM\Table(name="finance_sales_wallet_flows")
  * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Finance\FinanceSalesWalletFlowsRepository")
@@ -16,12 +16,13 @@ class FinanceSalesWalletFlow
     const MONTHLY_ORDER_AMOUNT = '秒租月结入账';
     const REALTIME_ORDERS_AMOUNT = '订单实时入账';
     const REALTIME_BILLS_AMOUNT = '账单实时入账';
+    const REALTIME_SERVICE_ORDERS_AMOUNT = '服务订单实时入账';
     const WITHDRAW_AMOUNT = '提现';
     const WITHDRAW_FAILED_AMOUNT = '提现失败';
     const REFUND_ORDERS_AMOUNT = '订单退款';
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -30,7 +31,7 @@ class FinanceSalesWalletFlow
     private $id;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="company_id", type="integer")
      */
@@ -72,11 +73,10 @@ class FinanceSalesWalletFlow
      */
     private $creationDate;
 
-
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -100,9 +100,10 @@ class FinanceSalesWalletFlow
     }
 
     /**
-     * Set title
+     * Set title.
      *
      * @param string $title
+     *
      * @return FinanceSalesWalletFlow
      */
     public function setTitle($title)
@@ -113,9 +114,9 @@ class FinanceSalesWalletFlow
     }
 
     /**
-     * Get title
+     * Get title.
      *
-     * @return string 
+     * @return string
      */
     public function getTitle()
     {
@@ -123,9 +124,10 @@ class FinanceSalesWalletFlow
     }
 
     /**
-     * Set changeAmount
+     * Set changeAmount.
      *
      * @param string $changeAmount
+     *
      * @return FinanceSalesWalletFlow
      */
     public function setChangeAmount($changeAmount)
@@ -136,9 +138,9 @@ class FinanceSalesWalletFlow
     }
 
     /**
-     * Get changeAmount
+     * Get changeAmount.
      *
-     * @return string 
+     * @return string
      */
     public function getChangeAmount()
     {
@@ -146,9 +148,10 @@ class FinanceSalesWalletFlow
     }
 
     /**
-     * Set walletTotalAmount
+     * Set walletTotalAmount.
      *
      * @param string $walletTotalAmount
+     *
      * @return FinanceSalesWalletFlow
      */
     public function setWalletTotalAmount($walletTotalAmount)
@@ -159,9 +162,9 @@ class FinanceSalesWalletFlow
     }
 
     /**
-     * Get walletTotalAmount
+     * Get walletTotalAmount.
      *
-     * @return string 
+     * @return string
      */
     public function getWalletTotalAmount()
     {
@@ -185,9 +188,10 @@ class FinanceSalesWalletFlow
     }
 
     /**
-     * Set creationDate
+     * Set creationDate.
      *
      * @param \DateTime $creationDate
+     *
      * @return FinanceSalesWalletFlow
      */
     public function setCreationDate($creationDate)
@@ -198,9 +202,9 @@ class FinanceSalesWalletFlow
     }
 
     /**
-     * Get creationDate
+     * Get creationDate.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getCreationDate()
     {

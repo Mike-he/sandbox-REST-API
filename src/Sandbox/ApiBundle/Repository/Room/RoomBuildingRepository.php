@@ -512,7 +512,9 @@ class RoomBuildingRepository extends EntityRepository
             rb.avatar,
             rb.lat,
             rb.lng,
-            (rb.orderEvaluationNumber + rb.buildingEvaluationNumber) as total_comments_amount
+            (rb.orderEvaluationNumber + rb.buildingEvaluationNumber) as total_comments_amount,
+            rb.cityId as city_id,
+            rb.districtId as district_id
         ')
             ->setParameter('latitude', $lat)
             ->setParameter('longitude', $lng);
@@ -749,6 +751,151 @@ class RoomBuildingRepository extends EntityRepository
             ->setParameter('status', 'accept')
             ->setParameter('companyId', $companyId)
             ->setParameter('name', $buildingName);
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $commnueStatus
+     * @param $search
+     *
+     * @return array
+     */
+    public function getAllCommnueRoomBuildings(
+        $commnueStatus,
+        $search
+    ) {
+        $query = $this->createQueryBuilder('rb')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'rb.id = r.building')
+            ->leftJoin('SandboxApiBundle:Room\CommnueBuildingHot', 'cbh', 'WITH', 'rb.id = cbh.buildingId')
+            ->select(
+                'rb.id',
+                'rb.name',
+                'rb.commnueStatus',
+                'COUNT(r.id) as roomNumber'
+            )
+            ->where('rb.isDeleted = FALSE')
+            ->andWhere('rb.visible = TRUE');
+
+        if (!is_null($commnueStatus)) {
+            $query->andWhere('rb.commnueStatus = :commnueStatus')
+                ->setParameter('commnueStatus', $commnueStatus);
+        } else {
+            $query->andWhere('rb.commnueStatus != :commnueStatus')
+                ->setParameter('commnueStatus', RoomBuilding::FREEZON);
+        }
+
+        if (!is_null($search)) {
+            $query->andWhere('rb.name LIKE :search')
+                ->setParameter('search', '%'.$search.'%');
+        }
+
+        $query = $query->groupBy('rb.id')
+            ->orderBy('cbh.id', 'DESC');
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $builingIds
+     * @param $limit
+     *
+     * @return array
+     */
+    public function getExtraHotCommnueClientBuilding(
+        $builingIds,
+        $limit
+    ) {
+        $query = $this->createQueryBuilder('rb')
+            ->select('rb.id')
+            ->andWhere('rb.isDeleted = FALSE')
+            ->andWhere('rb.visible = TRUE')
+            ->andWhere('rb.commnueStatus != :commnueStatus')
+            ->setParameter('commnueStatus', RoomBuilding::FREEZON);
+
+        if (!empty($builingIds)) {
+            $query->andWhere('rb.id NOT IN (:ids)')
+                ->setParameter('ids', $builingIds);
+        }
+
+        $query->setMaxResults($limit);
+
+        $ids = $query->getQuery()->getScalarResult();
+
+        return array_unique(array_map('current', $ids));
+    }
+
+    /*
+     * @param $commnueStatus
+     * @return mixed
+     */
+    public function getCommueDiffStatusCounts(
+        $commnueStatus
+    ) {
+        $query = $this->createQueryBuilder('rb')
+            ->select(
+                'COUNT(rb.id) as counts'
+            )
+            ->where('rb.isDeleted = FALSE')
+            ->andWhere('rb.visible = TRUE')
+            ->andWhere('rb.commnueStatus = :commnueStatus')
+            ->setParameter('commnueStatus', $commnueStatus);
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
+
+    /**
+     * @param $userId
+     * @param $lat
+     * @param $lng
+     * @param null $buildingIds
+     * @param null $limit
+     * @param null $offset
+     *
+     * @return array
+     */
+    public function getCommnueClientCommunityBuilding(
+        $userId,
+        $lat,
+        $lng,
+        $buildingIds = null,
+        $limit = null,
+        $offset = null
+    ) {
+        $query = $this->createQueryBuilder('rb')
+                      ->select('
+                        rb.id,
+                        rb.name,
+                        (6371
+                            * acos(cos(radians(:latitude)) * cos(radians(rb.lat))
+                            * cos(radians(rb.lng) - radians(:longitude))
+                            + sin(radians(:latitude)) * sin(radians(rb.lat)))
+                        ) as distance,
+                        rb.evaluationStar,
+                        rb.avatar,
+                        rb.address,
+                        rb.lat,
+                        rb.lng,                     
+                        (rb.orderEvaluationNumber + rb.buildingEvaluationNumber) as total_comments_amount
+                    ')
+                        ->where('rb.commnueStatus != :commnuestatus')
+                        ->andWhere('rb.isDeleted = FALSE')
+                        ->andWhere('rb.visible = TRUE')
+                        ->setParameter('commnuestatus', RoomBuilding::FREEZON)
+                        ->setParameter('latitude', $lat)
+                        ->setParameter('longitude', $lng);
+
+        if (!is_null($buildingIds)) {
+            $query->andWhere('rb.id IN (:ids)')
+                ->setParameter('ids', $buildingIds);
+        }
+
+        $query->orderBy('distance', 'ASC');
+
+        if (!is_null($limit) && !is_null($offset)) {
+            $query->setFirstResult($offset)
+                ->setMaxResults($limit);
+        }
 
         return $query->getQuery()->getResult();
     }

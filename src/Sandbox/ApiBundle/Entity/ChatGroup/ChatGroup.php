@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Entity\ChatGroup;
 
 use Doctrine\ORM\Mapping as ORM;
+use Sandbox\ApiBundle\Constants\PlatformConstants;
 use Sandbox\ApiBundle\Entity\User\User;
 use JMS\Serializer\Annotation as Serializer;
 
@@ -16,8 +17,9 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class ChatGroup
 {
-    const CUSTOMER_SERVICE = 'customer';
-    const GROUP_SERVICE = 'group';
+    const GROUP_SERVICE = 'group';        //普通群聊
+    const CUSTOMER_SERVICE = 'customer';  //社区客服
+    const SERVICE_SERVICE = 'service';    //服务客服
 
     /**
      * @var int
@@ -116,6 +118,14 @@ class ChatGroup
      * @Serializer\Groups({"chatgroup"})
      */
     private $gid;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="platform", type="string", length=64, options={"default": "official"})
+     * @Serializer\Groups({"chatgroup"})
+     */
+    private $platform = PlatformConstants::PLATFORM_OFFICIAL;
 
     /**
      * Get id.
@@ -328,5 +338,21 @@ class ChatGroup
     public function setGid($gid)
     {
         $this->gid = $gid;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPlatform()
+    {
+        return $this->platform;
+    }
+
+    /**
+     * @param string $platform
+     */
+    public function setPlatform($platform)
+    {
+        $this->platform = $platform;
     }
 }

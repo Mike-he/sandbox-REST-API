@@ -3,32 +3,42 @@
 namespace Sandbox\ClientApiBundle\Controller\Feed;
 
 use Sandbox\ApiBundle\Controller\Feed\FeedLikeController;
-use Sandbox\ApiBundle\Entity\Feed\FeedLike;
-use FOS\RestBundle\Controller\Annotations\Get;
-use FOS\RestBundle\Controller\Annotations\Post;
-use FOS\RestBundle\Controller\Annotations\Delete;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Sandbox\ApiBundle\Entity\Feed\Feed;
-use Sandbox\ApiBundle\Entity\User\User;
-use Sandbox\ApiBundle\Traits\FeedNotification;
 
-/**
- * Manipulate the likes of a feed.
- *
- * @category Sandbox
- *
- * @author   Sergi Uceda
- * @license  http://www.Sandbox.cn/ Proprietary
- *
- * @link     http://www.Sandbox.cn/
- */
 class ClientFeedLikeController extends FeedLikeController
 {
-    use FeedNotification;
+    //    use FeedNotification;
+
+    /**
+     * Get all likes of a given feed.
+     *
+     * @param Request $request the request object
+     * @param int     $id      the feed id
+     *
+     * @Route("/feeds/{id}/likes")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getFeedCommentsAction(
+        Request $request,
+        $id
+    ) {
+        $result = $this->get('sandbox_rpc.client')->callRpcServer(
+            $this->getParameter('rpc_server_feed'),
+            'FeedLikeService.getAuthor',
+            ['feed' => $id]
+        );
+
+        $likes = $result['result'];
+
+        $view = new View($likes);
+
+        return $view;
+    }
 
     /**
      * like a post.
@@ -39,8 +49,6 @@ class ClientFeedLikeController extends FeedLikeController
      * @Route("feeds/{id}/likes")
      * @Method({"POST"})
      *
-     * @throws \Exception
-     *
      * @return View
      */
     public function postFeedLikeAction(
@@ -48,34 +56,23 @@ class ClientFeedLikeController extends FeedLikeController
         $id
     ) {
         $myUserId = $this->getUserId();
-        $myUser = $this->getRepo('User\User')->find($myUserId);
 
-        $feed = $this->getRepo('Feed\Feed')->find($id);
-        $this->throwNotFoundIfNull($feed, self::NOT_FOUND_MESSAGE);
-
-        // get like
-        $like = $this->getRepo('Feed\FeedLike')->findOneBy(array(
-            'feedId' => $id,
-            'authorId' => $myUserId,
-        ));
-
-        if (is_null($like)) {
-            // create like
-            $like = $this->createLike($feed, $myUser);
-
-            if ($myUser != $feed->getOwner()) {
-                // send notification
-                $this->sendXmppFeedNotification(
-                    $feed, $myUser, array($feed->getOwner()), 'like'
-                );
-            }
-        }
-
-        $result = array(
-            'id' => $like->getId(),
+        $params = array(
+            'feed' => $id,
+            'user' => $myUserId,
         );
 
-        return new View($result);
+        $result = $this->get('sandbox_rpc.client')->callRpcServer(
+            $this->getParameter('rpc_server_feed'),
+            'FeedLikeService.create',
+            $params
+        );
+
+        $data = array(
+            'id' => $result['result'],
+        );
+
+        return new View($data, 201);
     }
 
     /**
@@ -86,74 +83,22 @@ class ClientFeedLikeController extends FeedLikeController
      *
      * @Route("feeds/{id}/likes")
      * @Method({"DELETE"})
-     *
-     * @throws \Exception
-     *
-     * @return View
      */
     public function feedUnlikeAction(
         Request $request,
         $id
     ) {
-        $feed = $this->getRepo('Feed\Feed')->find($id);
-        $this->throwNotFoundIfNull($feed, self::NOT_FOUND_MESSAGE);
-
         $myUserId = $this->getUserId();
 
-        // get like
-        $like = $this->getRepo('Feed\FeedLike')->findOneBy(array(
-            'feedId' => $id,
-            'authorId' => $myUserId,
-        ));
+        $params = array(
+            'feed' => $id,
+            'user' => $myUserId,
+        );
 
-        if (!is_null($like)) {
-            // remove like
-            $this->removeLike($myUserId, $like);
-        }
-
-        return new View();
-    }
-
-    /**
-     * @param Feed $feed
-     * @param User $myUser
-     *
-     * @return FeedLike
-     */
-    private function createLike(
-        $feed,
-        $myUser
-    ) {
-        // set new like
-        $like = new FeedLike();
-        $like->setFeed($feed);
-        $like->setAuthor($myUser);
-        $like->setCreationDate(new \DateTime('now'));
-
-        // save to db
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($like);
-        $em->flush();
-
-        return $like;
-    }
-
-    /**
-     * @param int      $myUserId
-     * @param FeedLike $like
-     */
-    private function removeLike(
-        $myUserId,
-        $like
-    ) {
-        // if user is not the author of this like
-        if ($myUserId != $like->getAuthorId()) {
-            throw new BadRequestHttpException(self::NOT_ALLOWED_MESSAGE);
-        }
-
-        // delete from db
-        $em = $this->getDoctrine()->getManager();
-        $em->remove($like);
-        $em->flush();
+        $this->get('sandbox_rpc.client')->callRpcServer(
+            $this->getParameter('rpc_server_feed'),
+            'FeedLikeService.remove',
+            $params
+        );
     }
 }
