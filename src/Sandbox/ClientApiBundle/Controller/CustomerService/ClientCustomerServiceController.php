@@ -252,16 +252,14 @@ class ClientCustomerServiceController extends ChatGroupController
 
         $em->flush();
 
-        if (ChatGroup::CUSTOMER_SERVICE == $tag) {
-            //execute SyncJmessageUserCommand
-            $command = new SyncJmessageUserCommand();
-            $command->setContainer($this->container);
+        //execute SyncJmessageUserCommand
+        $command = new SyncJmessageUserCommand();
+        $command->setContainer($this->container);
 
-            $input = new ArrayInput(array('userId' => $myUserId));
-            $output = new NullOutput();
+        $input = new ArrayInput(array('userId' => $myUserId));
+        $output = new NullOutput();
 
-            $command->run($input, $output);
-        }
+        $command->run($input, $output);
 
         // response
         $view = new View();
