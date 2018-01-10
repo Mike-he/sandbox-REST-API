@@ -469,8 +469,6 @@ class ClientServiceOrderController extends PaymentController
 
         if (
             $serviceEnd < $now ||
-            !$service->isCharge() ||
-            is_null($service->getPrice()) ||
             false == $service->isVisible()
         ) {
             $error->setCode(self::SERVICE_NOT_AVAILABLE_CODE);

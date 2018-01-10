@@ -225,6 +225,19 @@ class AdminServiceController extends SalesRestController
             $submit = true;
         }
 
+        // check charge valid
+        if ($service->isCharge()) {
+            if (is_null($service->getPrice())) {
+                return $this->customErrorView(
+                    400,
+                    self::ERROR_INVALID_SERVICE_PRICE_CODE,
+                    self::ERROR_INVALID_SERVICE_PRICE_MESSAGE
+                );
+            }
+        } else {
+            $service->setPrice(null);
+        }
+
         return $this->handleServicePost(
             $service,
             $submit
@@ -418,15 +431,9 @@ class AdminServiceController extends SalesRestController
         $serviceStartDate = new \DateTime($service->getServiceStartDate());
         $serviceEndDate = new \DateTime($service->getServiceEndDate());
 
-        // set price
-        if (!$service->isCharge()) {
-            $service->setPrice(0.00);
-        }
-
         $service->setServiceStartDate($serviceStartDate);
         $service->setServiceEndDate($serviceEndDate);
         $service->setSalesCompanyId($this->getSalesCompanyId());
-        $service->setIsCharge(true);
         $service->setCreationDate($now);
         $service->setModificationDate($now);
 
@@ -616,14 +623,8 @@ class AdminServiceController extends SalesRestController
         $serviceStartDate = new \DateTime($service->getServiceStartDate());
         $serviceEndDate = new \DateTime($service->getServiceEndDate());
 
-        // set price
-        if (!$service->isCharge()) {
-            $service->setPrice(0.00);
-        }
-
         $service->setServiceStartDate($serviceStartDate);
         $service->setServiceEndDate($serviceEndDate);
-        $service->setIsCharge(true);
         $service->setModificationDate($now);
 
         // set visible & isSaved
@@ -717,6 +718,8 @@ class AdminServiceController extends SalesRestController
                 $serviceForms
             );
         }
+
+        $em->flush();
     }
 
     /**
@@ -805,18 +808,19 @@ class AdminServiceController extends SalesRestController
             }
 
             $service->setIsSaved(false);
-        }
-        $orders = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServiceOrder')
-            ->findOneBy(array(
-                'serviceId' => $service->getId(),
-                'status' => ServiceOrder::STATUS_PAID,
-            ));
-        if (!is_null($orders)) {
-            return $this->customErrorView(
+        } else {
+            $orders = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServiceOrder')
+                ->findOneBy(array(
+                    'serviceId' => $service->getId(),
+                    'status' => ServiceOrder::STATUS_PAID,
+                ));
+            if ($orders) {
+                return $this->customErrorView(
                     400,
                     self::ERROR_INVALID_PATCH_CODE,
                     self::ERROR_INVALID_PATCH_MESSAGE
                 );
+            }
         }
 
         $em = $this->getDoctrine()->getManager();
