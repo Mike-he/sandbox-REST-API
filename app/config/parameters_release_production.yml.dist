@@ -118,6 +118,8 @@ parameters:
     jpush_secret: 99e8dd3ed9fdcb16eb111ed9
     jpush_property_key: d7dc994c2ccb7d7465cec161
     jpush_property_secret: 352701f39f503b04f99a5d74
+    jpush_commnue_key: b580a27cd4be7803784c5c64
+    jpush_commnue_secret: 5496888ebcaf5497269a1d2f
 
     oss_access_key_id: LTAIlrwRyGc3PpVH
     oss_access_key_secret: mxnsEPGC4OgwOLTqB3HX6YMB34wUqh

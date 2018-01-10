@@ -24,6 +24,7 @@ class SyncJmessageUserCommand extends ContainerAwareCommand
         $userId = $arguments['userId'];
 
         $service = $this->getContainer()->get('sandbox_api.jmessage');
+        $commnueService = $this->getContainer()->get('sandbox_api.jmessage_commnue');
 
         /** @var EntityManager $em */
         $em = $this->getContainer()->get('doctrine')->getManager();
@@ -51,7 +52,12 @@ class SyncJmessageUserCommand extends ContainerAwareCommand
         );
 
         $xmpp = $user->getXmppUsername();
+
+        // sync userinfo to Sandbox3 Jmessage
         $service->updateUserInfo($xmpp, $options);
+
+        // sync userinfo to Commnue Jmessage
+        $commnueService->updateUserInfo($xmpp, $options);
 
         $output->writeln('Sync Success!');
     }
