@@ -5,6 +5,7 @@ namespace Sandbox\CommnueClientApiBundle\Controller\Service;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Sandbox\ApiBundle\Entity\Room\RoomBuildingServiceMember;
 use Sandbox\ApiBundle\Entity\Service\ViewCounts;
 use Sandbox\ApiBundle\Entity\User\UserFavorite;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -209,6 +210,18 @@ class ClientServiceController extends SandboxRestController
             );
         if (!is_null($order)) {
             $result['order_id'] = $order->getId();
+        }
+
+        $serviceMember = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomBuildingServiceMember')
+            ->findBy([
+                'companyId' => $service->getSalesCompanyId(),
+                'tag' => 'service'
+            ]);
+        if(!is_null($serviceMember)) {
+            $result['service_member'] = true;
+        }else {
+            $result['service_member'] = false;
         }
 
         $result['like'] = $this->getDoctrine()
