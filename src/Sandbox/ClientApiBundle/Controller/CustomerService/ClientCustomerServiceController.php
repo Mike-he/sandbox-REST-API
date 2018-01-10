@@ -256,7 +256,7 @@ class ClientCustomerServiceController extends ChatGroupController
         $command = new SyncJmessageUserCommand();
         $command->setContainer($this->container);
 
-        $input = new ArrayInput(array('userId' => $chatGroup->getCreatorId()));
+        $input = new ArrayInput(array('userId' => $myUserId));
         $output = new NullOutput();
 
         $command->run($input, $output);
