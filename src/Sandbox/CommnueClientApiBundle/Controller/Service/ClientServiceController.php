@@ -214,15 +214,12 @@ class ClientServiceController extends SandboxRestController
 
         $serviceMember = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\RoomBuildingServiceMember')
-            ->findBy([
+            ->findOneBy([
                 'companyId' => $service->getSalesCompanyId(),
                 'tag' => 'service'
             ]);
-        if(!is_null($serviceMember)) {
-            $result['service_member'] = true;
-        }else {
-            $result['service_member'] = false;
-        }
+
+        $result['service_member'] = $serviceMember ? true : false;
 
         $result['like'] = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:User\UserFavorite')
