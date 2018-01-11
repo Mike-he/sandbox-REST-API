@@ -262,7 +262,7 @@ class AdminLeaseBillController extends LeaseController
         $status = $existTransfer->getTransferStatus();
         $now = new \DateTime();
 
-        if ($status != LeaseBillOfflineTransfer::STATUS_PAID) {
+        if (LeaseBillOfflineTransfer::STATUS_PAID != $status) {
             return $this->customErrorView(
                 400,
                 self::WRONG_BILL_STATUS_CODE,
@@ -270,7 +270,7 @@ class AdminLeaseBillController extends LeaseController
             );
         }
 
-        if ($oldStatus != LeaseBillOfflineTransfer::STATUS_PENDING) {
+        if (LeaseBillOfflineTransfer::STATUS_PENDING != $oldStatus) {
             return $this->customErrorView(
                 400,
                 self::WRONG_BILL_STATUS_CODE,

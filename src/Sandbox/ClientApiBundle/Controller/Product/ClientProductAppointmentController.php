@@ -6,14 +6,12 @@ use Rs\Json\Patch;
 use Sandbox\ApiBundle\Controller\Product\ProductController;
 use Sandbox\ApiBundle\Entity\Admin\AdminRemark;
 use Sandbox\ApiBundle\Entity\Admin\AdminStatusLog;
-use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Lease\LeaseClue;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Entity\Product\ProductAppointment;
 use Sandbox\ApiBundle\Form\Product\ProductAppointmentPatchType;
 use Sandbox\ApiBundle\Form\Product\ProductAppointmentPostType;
 use Sandbox\ApiBundle\Traits\GenerateSerialNumberTrait;
-use Sandbox\ApiBundle\Traits\HasAccessToEntityRepositoryTrait;
 use Sandbox\ApiBundle\Traits\StringUtil;
 use Sandbox\ApiBundle\Traits\YunPianSms;
 use Symfony\Component\HttpFoundation\Request;
@@ -37,7 +35,6 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  */
 class ClientProductAppointmentController extends ProductController
 {
-    use HasAccessToEntityRepositoryTrait;
     use YunPianSms;
     use StringUtil;
     use GenerateSerialNumberTrait;
@@ -191,20 +188,6 @@ class ClientProductAppointmentController extends ProductController
 
         $this->throwNotFoundIfNull($appointment, self::NOT_FOUND_MESSAGE);
 
-        return $this->handleProductAppointmentRecall(
-            $request,
-            $appointment
-        );
-    }
-
-    /**
-     * @param Request            $request
-     * @param ProductAppointment $appointment
-     */
-    private function handleProductAppointmentRecall(
-        $request,
-        $appointment
-    ) {
         $appointmentJson = $this->container->get('serializer')->serialize($appointment, 'json');
         $patch = new Patch($appointmentJson, $request->getContent());
         $appointmentJson = $patch->apply();
@@ -217,14 +200,6 @@ class ClientProductAppointmentController extends ProductController
         }
 
         $em = $this->getDoctrine()->getManager();
-
-        $lease = $this->getLeaseRepo()->findOneBy(['productAppointment' => $appointment]);
-        if (!is_null($lease)) {
-            if ($lease->getStatus() == Lease::LEASE_STATUS_DRAFTING) {
-                $em->remove($lease);
-            }
-        }
-
         $em->flush();
     }
 

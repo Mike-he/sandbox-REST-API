@@ -30,7 +30,7 @@ use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
  * @author   Mike He <mike.he@easylinks.com.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 class AdminProductRecommendController extends AdminProductController
 {
@@ -426,10 +426,10 @@ class AdminProductRecommendController extends AdminProductController
         $building = !is_null($buildingId) ? $this->getRepo('Room\RoomBuilding')->find($buildingId) : null;
 
         // move product
-        if ($action == ProductRecommendPosition::ACTION_TOP) {
+        if (ProductRecommendPosition::ACTION_TOP == $action) {
             $this->topProduct($product);
-        } elseif ($action == ProductRecommendPosition::ACTION_UP
-            || $action == ProductRecommendPosition::ACTION_DOWN) {
+        } elseif (ProductRecommendPosition::ACTION_UP == $action
+            || ProductRecommendPosition::ACTION_DOWN == $action) {
             $this->moveProduct($product, $action, $building);
         }
 

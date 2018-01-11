@@ -17,7 +17,6 @@ use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\User\UserFavorite;
 use Sandbox\ApiBundle\Form\Product\ProductPatchVisibleType;
 use Sandbox\ApiBundle\Form\Product\ProductType;
-use Sandbox\ApiBundle\Traits\HasAccessToEntityRepositoryTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -37,7 +36,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  * @author   Mike He <mike.he@easylinks.com.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 class AdminProductController extends ProductController
 {
@@ -46,8 +45,6 @@ class AdminProductController extends ProductController
     const NEED_SEAT_NUMBER = 'Fixed Room Needs A Seat Number';
     const PRODUCT_EXISTS = 'Product with this Room already exists';
     const ROOM_IS_FULL = 'This Room is Full';
-
-    use HasAccessToEntityRepositoryTrait;
 
     /**
      * Product.
@@ -486,7 +483,7 @@ class AdminProductController extends ProductController
         $this->handleLeasingSetsPost($leasingSets, $product);
 
         if (!empty($rentSet)) {
-            if ($rentSet['status'] == 1) {
+            if (1 == $rentSet['status']) {
                 $this->handleRentSetPost($rentSet, $product);
                 $this->handleRentTypesPost($rentTypeIds, $product);
             }
@@ -600,7 +597,7 @@ class AdminProductController extends ProductController
         $seats = $form['seats']->getData();
         $type = $room->getType();
 
-        if (!is_null($seats) && $type == Room::TYPE_DESK) {
+        if (!is_null($seats) && Room::TYPE_DESK == $type) {
             foreach ($seats as $seat) {
                 if (array_key_exists('id', $seat) && array_key_exists('price', $seat)) {
                     $fixed = $this->getRepo('Room\RoomFixed')->findOneBy([
@@ -624,7 +621,7 @@ class AdminProductController extends ProductController
         $this->handleLeasingSetsPut($leasingSets, $product);
 
         if (!empty($rentSet)) {
-            if ($rentSet['status'] == 1) {
+            if (1 == $rentSet['status']) {
                 $this->handleRentSetPut($rentSet, $product);
                 $this->handleRentTypesPut($rentTypeIds, $product);
             } else {
@@ -844,7 +841,9 @@ class AdminProductController extends ProductController
         $product
     ) {
         foreach ($rentTypeIds as $rentTypeId) {
-            $rentType = $this->getLeaseRentTypesRepo()->find($rentTypeId);
+            $rentType = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Lease\LeaseRentTypes')
+                ->find($rentTypeId);
             if (is_null($rentType)) {
                 throw new NotFoundHttpException(CustomErrorMessagesConstants::ERROR_LEASE_RENT_TYPE_NOT_FOUND_MESSAGE);
             }
@@ -862,7 +861,9 @@ class AdminProductController extends ProductController
         }
 
         foreach ($rentTypeIds as $rentTypeId) {
-            $rentType = $this->getLeaseRentTypesRepo()->find($rentTypeId);
+            $rentType = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Lease\LeaseRentTypes')
+                ->find($rentTypeId);
             if (is_null($rentType)) {
                 throw new NotFoundHttpException(CustomErrorMessagesConstants::ERROR_LEASE_RENT_TYPE_NOT_FOUND_MESSAGE);
             }

@@ -8,7 +8,6 @@ use Sandbox\ApiBundle\Constants\PlatformConstants;
 use Sandbox\ApiBundle\Controller\ChatGroup\ChatGroupController;
 use Sandbox\ApiBundle\Entity\ChatGroup\ChatGroup;
 use Sandbox\ApiBundle\Entity\ChatGroup\ChatGroupMember;
-use Sandbox\ApiBundle\Traits\HasAccessToEntityRepositoryTrait;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,8 +25,6 @@ use FOS\RestBundle\Controller\Annotations;
  */
 class ClientCustomerServiceController extends ChatGroupController
 {
-    use HasAccessToEntityRepositoryTrait;
-
     /**
      * Create a chat group.
      *
