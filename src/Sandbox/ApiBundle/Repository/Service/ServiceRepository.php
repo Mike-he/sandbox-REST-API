@@ -158,7 +158,9 @@ class ServiceRepository extends EntityRepository
                 case 'view':
                     $query->leftJoin('SandboxApiBundle:Service\ViewCounts', 'v', 'WITH', 'v.objectId = s.id')
                         ->andWhere('v.object = :object')
+                        ->andWhere('v.type = :type')
                         ->setParameter('object', ViewCounts::OBJECT_SERVICE)
+                        ->setParameter('type', ViewCounts::TYPE_VIEW)
                         ->orderBy('v.count', 'DESC');
                     break;
                 default:
