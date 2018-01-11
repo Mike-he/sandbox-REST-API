@@ -997,7 +997,7 @@ trait FinanceOfficialExportTraits
             );
 
             $paymentChannel = $this->get('translator')->trans(
-                ProductOrderExport::TRANS_PRODUCT_ORDER_CHANNEL.$serviceOrder->getStatus(),
+                ProductOrderExport::TRANS_PRODUCT_ORDER_CHANNEL.$serviceOrder->getPayChannel(),
                 array(),
                 null,
                 $language
