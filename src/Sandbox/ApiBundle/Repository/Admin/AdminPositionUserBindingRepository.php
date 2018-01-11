@@ -436,6 +436,7 @@ class AdminPositionUserBindingRepository extends EntityRepository
             ')
             ->leftJoin('pb.position', 'p')
             ->leftJoin('p.salesCompany', 'c')
+            ->where('c.banned = 0')
             ->andWhere('pb.userId = :admin')
             ->andWhere('p.platform = :platform')
             ->setParameter('admin', $admin)

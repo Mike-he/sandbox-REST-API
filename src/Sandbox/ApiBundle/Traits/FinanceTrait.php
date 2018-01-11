@@ -1008,10 +1008,9 @@ trait FinanceTrait
 
         $accountRefundToAccountAmount = $em
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->getTopUpAmount(
+            ->getAccountRefundToAccountAmount(
                 $startDate,
-                $endDate,
-                ProductOrder::CHANNEL_ACCOUNT
+                $endDate
             );
 
         $offlineTopUpAmount = $em
@@ -1070,10 +1069,9 @@ trait FinanceTrait
 
         $accountRefundToAccountCount = $em
             ->getRepository('SandboxApiBundle:Order\ProductOrder')
-            ->countTopUpOrder(
+            ->getAccountRefundToAccountCount(
                 $startDate,
-                $endDate,
-                ProductOrder::CHANNEL_ACCOUNT
+                $endDate
             );
 
         $offlineTopUpCount = $em
