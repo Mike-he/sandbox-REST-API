@@ -115,7 +115,8 @@ class ClientLeaseController extends SandboxRestController
             ->find($lesseeCustomer);
         $lease->setLesseeCustomer($customer->getUserId());
 
-        $bills = $this->getLeaseBillRepo()
+        $bills = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
             ->findBy(array(
                 'lease' => $lease,
                 'type' => LeaseBill::TYPE_LEASE,
