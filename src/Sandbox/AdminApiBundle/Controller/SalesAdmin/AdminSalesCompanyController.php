@@ -20,7 +20,6 @@ use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesCompanyPatchType;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesCompanyPostType;
 use Sandbox\ApiBundle\Form\SalesAdmin\ServiceInfoPostType;
-use Sandbox\ApiBundle\Traits\HasAccessToEntityRepositoryTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -53,8 +52,6 @@ class AdminSalesCompanyController extends SandboxRestController
     const ERROR_OVER_LIMIT_SUPER_ADMIN_NUMBER_MESSAGE = 'Over the super administrator limit number';
     const ERROR_NOT_NULL_SUPER_ADMIN_CODE = 400006;
     const ERROR_NOT_NULL_SUPER_ADMIN_MESSAGE = 'Must at least one super administrator position binding';
-
-    use HasAccessToEntityRepositoryTrait;
 
     /**
      * @param Request               $request
@@ -938,10 +935,12 @@ class AdminSalesCompanyController extends SandboxRestController
         $roomType
     ) {
         if (false == $status) {
-            $products = $this->getProductRepo()->findProductsByType(
-                $company,
-                $roomType
-            );
+            $products = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\Product')
+                ->findProductsByType(
+                    $company,
+                    $roomType
+                );
 
             foreach ($products as $product) {
                 $product->setVisible(false);
@@ -1084,7 +1083,8 @@ class AdminSalesCompanyController extends SandboxRestController
             if (is_null($adminId) || empty($adminId)) {
                 continue;
             }
-            $admin = $this->getUserRepo()->find($adminId);
+            $admin = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\User')->find($adminId);
             $this->throwNotFoundIfNull($admin, CustomErrorMessagesConstants::ERROR_ADMIN_NOT_FOUND_MESSAGE);
 
             $this->createPosition(
@@ -1112,7 +1112,8 @@ class AdminSalesCompanyController extends SandboxRestController
 
         $method = 'POST';
         foreach ($servicesInfos as $serviceInfo) {
-            $service = $this->getSalesCompanyServiceInfosRepo()
+            $service = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
                 ->findOneBy(
                     array(
                         'tradeTypes' => $serviceInfo['trade_types'],

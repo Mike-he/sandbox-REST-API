@@ -1748,13 +1748,13 @@ class AdminBuildingController extends LocationController
                     continue;
                 }
 
-                $customerService = $this->getServiceMemberRepo()->findOneBy(
-                    array(
-                        'buildingId' => $building->getId(),
-                        'userId' => $admin->getId(),
-                        'tag' => $key,
-                    )
-                );
+                $customerService = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomBuildingServiceMember')
+                    ->findOneBy(array(
+                            'buildingId' => $building->getId(),
+                            'userId' => $admin->getId(),
+                            'tag' => $key,
+                        ));
                 if (!is_null($customerService)) {
                     continue;
                 }

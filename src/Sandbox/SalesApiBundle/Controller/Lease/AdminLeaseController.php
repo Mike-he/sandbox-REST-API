@@ -23,7 +23,6 @@ use Sandbox\ApiBundle\Form\Lease\LeasePatchType;
 use Sandbox\ApiBundle\Form\Lease\LeaseRequiredType;
 use Sandbox\ApiBundle\Form\Lease\LeaseType;
 use Sandbox\ApiBundle\Traits\GenerateSerialNumberTrait;
-use Sandbox\ApiBundle\Traits\HasAccessToEntityRepositoryTrait;
 use Sandbox\ApiBundle\Traits\LeaseNotificationTrait;
 use Sandbox\ApiBundle\Traits\LeaseTrait;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
@@ -38,7 +37,6 @@ use FOS\RestBundle\Controller\Annotations;
 class AdminLeaseController extends SalesRestController
 {
     use GenerateSerialNumberTrait;
-    use HasAccessToEntityRepositoryTrait;
     use LeaseNotificationTrait;
     use LeaseTrait;
 
@@ -715,7 +713,9 @@ class AdminLeaseController extends SalesRestController
 
         $em = $this->getDoctrine()->getManager();
 
-        $lease = $this->getLeaseRepo()->findOneBy(
+        $lease = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\Lease')
+            ->findOneBy(
                 array(
                     'id' => $id,
                     'status' => Lease::LEASE_STATUS_DRAFTING,
@@ -975,7 +975,9 @@ class AdminLeaseController extends SalesRestController
         $lease
     ) {
         foreach ($leaseRentTypeIds as $leaseRentTypeId) {
-            $leaseRentType = $this->getLeaseRentTypesRepo()->find($leaseRentTypeId);
+            $leaseRentType = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Lease\LeaseRentTypes')
+                ->find($leaseRentTypeId);
             if (is_null($leaseRentType)) {
                 throw new NotFoundHttpException(CustomErrorMessagesConstants::ERROR_LEASE_RENT_TYPE_NOT_FOUND_MESSAGE);
             }
@@ -1373,7 +1375,9 @@ class AdminLeaseController extends SalesRestController
         }
 
         foreach ($leaseRentTypeIds as $leaseRentTypeId) {
-            $leaseRentType = $this->getLeaseRentTypesRepo()->find($leaseRentTypeId);
+            $leaseRentType = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Lease\LeaseRentTypes')
+                ->find($leaseRentTypeId);
             if ($leaseRentType) {
                 $lease->addLeaseRentTypes($leaseRentType);
             }

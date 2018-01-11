@@ -9,7 +9,6 @@ use Sandbox\AdminApiBundle\Controller\AdminRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Traits\GenerateSerialNumberTrait;
-use Sandbox\ApiBundle\Traits\HasAccessToEntityRepositoryTrait;
 use Sandbox\ApiBundle\Traits\LeaseTrait;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -21,7 +20,6 @@ use Symfony\Component\HttpFoundation\Response;
 class AdminLeaseController extends AdminRestController
 {
     use GenerateSerialNumberTrait;
-    use HasAccessToEntityRepositoryTrait;
     use LeaseTrait;
 
     /**

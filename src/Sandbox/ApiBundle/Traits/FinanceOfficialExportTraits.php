@@ -8,6 +8,8 @@ use Sandbox\ApiBundle\Constants\LeaseConstants;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
+use Sandbox\ApiBundle\Entity\Service\Service;
+use Sandbox\ApiBundle\Entity\Service\ServiceOrder;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
@@ -32,7 +34,8 @@ trait FinanceOfficialExportTraits
         $longBills,
         $shopOrders,
         $topUpOrders,
-        $cardOrders
+        $cardOrders,
+        $serviceOrders
     ) {
         $phpExcelObject = new \PHPExcel();
         $phpExcelObject->getProperties()->setTitle('Finance Summary');
@@ -101,6 +104,16 @@ trait FinanceOfficialExportTraits
             );
 
             $phpExcelObject->setActiveSheetIndex(0)->fromArray($cardOrderBody, ' ', "A$row");
+            $row = $phpExcelObject->getActiveSheet()->getHighestRow() + 3;
+        }
+
+        if (!is_null($serviceOrders) && !empty($serviceOrders)) {
+            $serviceOrderBody = $this->setServiceOrderArray(
+                $serviceOrders,
+                $language
+            );
+
+            $phpExcelObject->setActiveSheetIndex(0)->fromArray($serviceOrderBody, ' ', "A$row");
         }
 
         $phpExcelObject->getActiveSheet()->getStyle('A1:V1')->getFont()->setBold(true);
@@ -913,6 +926,113 @@ trait FinanceOfficialExportTraits
         }
 
         return $cardOrderBody;
+    }
+
+    /**
+     * @param $serviceOrders
+     * @param $language
+     *
+     * @return array
+     */
+    private function setServiceOrderArray(
+        $serviceOrders,
+        $language
+    ) {
+        $serviceOrderBody = [];
+
+        $collection = $this->get('translator')->trans(
+            ProductOrderExport::TRANS_CLIENT_PROFILE_SANDBOX,
+            array(),
+            null,
+            $language
+        );
+
+        $orderCategory = $this->get('translator')->trans(
+            ProductOrderExport::TRANS_CLIENT_SERVICE_ORDER,
+            array(),
+            null,
+            $language
+        );
+
+        foreach ($serviceOrders as $serviceOrder) {
+            /** @var ServiceOrder $serviceOrder */
+            $companyId = $serviceOrder->getCompanyId();
+
+            if (is_null($companyId)) {
+                $companyName = '';
+            } else {
+                $company = $this->getDoctrine()->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')->find($companyId);
+                $companyName = $company ? $company->getName() : null;
+            }
+
+            $orderNumber = $serviceOrder->getOrderNumber();
+
+            $service = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Service\Service')
+                ->find($serviceOrder->getServiceId());
+            /** @var Service $service */
+            $serviceName = $service->getName();
+
+            $serviceType = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Service\ServiceTypes')
+                ->findOneBy([
+                    'key' => $service->getType(),
+                ]);
+            $serviceTypeName = $serviceType->getName();
+
+            $userId = $serviceOrder->getUserId();
+
+            $price = $serviceOrder->getPrice();
+
+            $serviceStartDate = $service->getServiceStartDate()->format('Y-m-d H:i:s');
+            $serviceEndDate = $service->getServiceEndDate()->format('Y-m-d H:i:s');
+            $creationDate = $serviceOrder->getCreationDate()->format('Y-m-d H:i:s');
+            $paymentDate = $serviceOrder->getPaymentDate()->format('Y-m-d H:i:s');
+
+            $status = $this->get('translator')->trans(
+                ProductOrderExport::TRANS_PRODUCT_ORDER_STATUS.$serviceOrder->getStatus(),
+                array(),
+                null,
+                $language
+            );
+
+            $paymentChannel = $this->get('translator')->trans(
+                ProductOrderExport::TRANS_PRODUCT_ORDER_CHANNEL.$serviceOrder->getPayChannel(),
+                array(),
+                null,
+                $language
+            );
+
+            $body = $this->getExportBody(
+                $companyName,
+                $collection,
+                null,
+                $orderCategory,
+                $orderNumber,
+                $serviceName,
+                $serviceTypeName,
+                $userId,
+                $price,
+                '1次',
+                $price,
+                $price,
+                null,
+                $price,
+                null,
+                $serviceStartDate,
+                $serviceEndDate,
+                $creationDate,
+                $paymentDate,
+                $status,
+                null,
+                $paymentChannel,
+                null
+            );
+
+            $serviceOrderBody[] = $body;
+        }
+
+        return $serviceOrderBody;
     }
 
     /**

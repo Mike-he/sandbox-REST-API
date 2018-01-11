@@ -124,6 +124,13 @@ class AdminFinanceDashboardController extends AdminRestController
                 $endDate
             );
 
+        $serviceOrders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Service\ServiceOrder')
+            ->getServiceOrdersByDate(
+                $startDate,
+                $endDate
+            );
+
         return $this->getFinanceSummaryExport(
             $startDate,
             $language,
@@ -132,7 +139,8 @@ class AdminFinanceDashboardController extends AdminRestController
             $longBills,
             $shopOrders,
             $topUpOrders,
-            $cardOrders
+            $cardOrders,
+            $serviceOrders
         );
     }
 
