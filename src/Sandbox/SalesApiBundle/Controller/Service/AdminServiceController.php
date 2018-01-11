@@ -11,6 +11,7 @@ use Sandbox\ApiBundle\Entity\Service\ServiceForm;
 use Sandbox\ApiBundle\Entity\Service\ServiceFormOption;
 use Sandbox\ApiBundle\Entity\Service\ServiceOrder;
 use Sandbox\ApiBundle\Entity\Service\ServiceTime;
+use Sandbox\ApiBundle\Entity\Service\ViewCounts;
 use Sandbox\ApiBundle\Form\Service\ServicePatchType;
 use Sandbox\ApiBundle\Form\Service\ServicePostType;
 use Sandbox\ApiBundle\Form\Service\ServicePutType;
@@ -412,6 +413,16 @@ class AdminServiceController extends SalesRestController
         $response = array(
             'id' => $service->getId(),
         );
+
+        $em = $this->getDoctrine()->getManager();
+
+        $viewCount = new ViewCounts();
+        $viewCount->setObject(ViewCounts::OBJECT_SERVICE);
+        $viewCount->setObjectId($service->getId());
+        $viewCount->setType(ViewCounts::TYPE_VIEW);
+        $viewCount->setCount(0);
+        $em->persist($viewCount);
+        $em->flush();
 
         return new View($response, 201);
     }
