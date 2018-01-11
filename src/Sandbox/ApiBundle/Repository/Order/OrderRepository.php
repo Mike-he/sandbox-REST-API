@@ -4115,6 +4115,58 @@ class OrderRepository extends EntityRepository
      *
      * @return float
      */
+    public function getAccountRefundToAccountAmount(
+        $startDate,
+        $endDate
+    ) {
+        $accountRefundQuery = $this->getEntityManager()->createQueryBuilder()
+            ->from('SandboxApiBundle:Order\ProductOrder', 'o')
+            ->select('SUM(o.discountPrice)')
+            ->where('o.payChannel = :account')
+            ->andWhere('o.status = :cancelled')
+            ->andWhere('o.refunded = TRUE')
+            ->andWhere('o.cancelledDate >= :start')
+            ->andWhere('o.cancelledDate <= :end')
+            ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
+            ->setParameter('cancelled', ProductOrder::STATUS_CANCELLED)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        return (float) $accountRefundQuery->getQuery()->getSingleScalarResult();
+    }
+
+    /**
+     * @param $startDate
+     * @param $endDate
+     *
+     * @return float
+     */
+    public function getAccountRefundToAccountCount(
+        $startDate,
+        $endDate
+    ) {
+        $accountRefundQuery = $this->getEntityManager()->createQueryBuilder()
+            ->from('SandboxApiBundle:Order\ProductOrder', 'o')
+            ->select('COUNT(o.discountPrice)')
+            ->where('o.payChannel = :account')
+            ->andWhere('o.status = :cancelled')
+            ->andWhere('o.refunded = TRUE')
+            ->andWhere('o.cancelledDate >= :start')
+            ->andWhere('o.cancelledDate <= :end')
+            ->setParameter('account', ProductOrder::CHANNEL_ACCOUNT)
+            ->setParameter('cancelled', ProductOrder::STATUS_CANCELLED)
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        return (int) $accountRefundQuery->getQuery()->getSingleScalarResult();
+    }
+
+    /**
+     * @param $startDate
+     * @param $endDate
+     *
+     * @return float
+     */
     public function getRefundedToBalanceAmount(
         $startDate,
         $endDate
