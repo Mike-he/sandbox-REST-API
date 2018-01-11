@@ -15,8 +15,6 @@ class AdminExpertFieldController extends SandboxRestController
 {
     const ERROR_CAN_NOT_DELETE_CODE = 400001;
     const ERROR_CAN_NOT_DELETE_MESSAGE = 'Can not delete';
-    const ERROR_OVER_LIMIT_CODE = 400002;
-    const ERROR_OVER_LIMIT_MESSAGE = 'Over limit';
 
     /**
      * @param Request               $request
@@ -35,18 +33,6 @@ class AdminExpertFieldController extends SandboxRestController
 
         if (!isset($data['name']) || !isset($data['description'])) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
-        }
-
-        $currentExpertFields = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Expert\ExpertField')
-            ->findAll();
-
-        if (count($currentExpertFields) >= 3) {
-            return $this->customErrorView(
-                400,
-                self::ERROR_OVER_LIMIT_CODE,
-                self::ERROR_OVER_LIMIT_MESSAGE
-            );
         }
 
         $expertField = new ExpertField();
