@@ -253,13 +253,15 @@ class ClientProductController extends ProductController
                     $recommend
                 );
         } else {
-            $products = $this->getRepo('Product\Product')->productSortByNearestBuilding(
-                $lat,
-                $lng,
-                $productIds,
-                $limit,
-                $offset
-            );
+            $products = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Product\Product')
+                ->productSortByNearestBuilding(
+                    $lat,
+                    $lng,
+                    $productIds,
+                    $limit,
+                    $offset
+                );
         }
 
         foreach ($products as $product) {

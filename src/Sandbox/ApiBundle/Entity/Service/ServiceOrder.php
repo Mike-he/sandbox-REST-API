@@ -184,6 +184,12 @@ class ServiceOrder
     private $purchaseForm;
 
     /**
+     * @Serializer\Groups({"main", "client_service"})
+     */
+    private $companyName;
+
+
+    /**
      * @return float
      */
     public function getServiceFee()
@@ -560,5 +566,21 @@ class ServiceOrder
     public function setPurchaseForm($purchaseForm)
     {
         $this->purchaseForm = $purchaseForm;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCompanyName()
+    {
+        return $this->companyName;
+    }
+
+    /**
+     * @param mixed $companyName
+     */
+    public function setCompanyName($companyName)
+    {
+        $this->companyName = $companyName;
     }
 }

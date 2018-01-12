@@ -67,6 +67,10 @@ trait HandleServiceDataTrait
             }
         }
 
+        $forms =  $em->getRepository('SandboxApiBundle:Service\ServiceAttachment')
+            ->findBy(['service' => $service]);
+        $service->setAttachments($forms);
+
         return $service;
     }
 }
