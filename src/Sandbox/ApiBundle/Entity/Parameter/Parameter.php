@@ -58,6 +58,8 @@ class Parameter
     const KEY_HTML_CLUE_CREATE = 'html_clue_create';                            //创建线索
     const KEY_HTML_CUSTOMER_PROFILE_DETAIL = 'html_customer_profile_detail';    //客户详情
     const KEY_HTML_CUSTOMER_ENTERPRISE_DETAIL = 'html_customer_enterprise_detail'; //客户详情
+    const KEY_HTML_SPACE_RESERVE = 'html_space_reserve';                        //预留
+    const KEY_HTML_SPACE_PREORDER = 'html_space_preorder';                      //预定
 
     /**
      * @var int
