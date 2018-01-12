@@ -143,11 +143,14 @@ class ClientServiceOrderController extends PaymentController
                         );
             }
 
-            $this->handlePurchaseForm(
-                $serviceOrder,
-                $requestContent,
-                $em
-            );
+            $error = $this->handlePurchaseForm(
+                            $serviceOrder,
+                            $requestContent,
+                            $em
+                        );
+            if (!is_null($error->getData())) {
+                return $error;
+            }
         }
 
         $em->flush();
@@ -581,6 +584,8 @@ class ClientServiceOrderController extends PaymentController
 
             $em->persist($purchaseForm);
         }
+
+        return new View();
     }
 
     /**

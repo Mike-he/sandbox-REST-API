@@ -5,7 +5,6 @@ namespace Sandbox\CommnueClientApiBundle\Controller\Service;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
-use Sandbox\ApiBundle\Entity\Room\RoomBuildingServiceMember;
 use Sandbox\ApiBundle\Entity\Service\ViewCounts;
 use Sandbox\ApiBundle\Entity\User\UserFavorite;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -216,7 +215,7 @@ class ClientServiceController extends SandboxRestController
             ->getRepository('SandboxApiBundle:Room\RoomBuildingServiceMember')
             ->findOneBy([
                 'companyId' => $service->getSalesCompanyId(),
-                'tag' => 'service'
+                'tag' => 'service',
             ]);
 
         $result['service_member'] = $serviceMember ? true : false;
