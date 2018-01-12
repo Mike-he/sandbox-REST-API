@@ -53,6 +53,8 @@ class Version920171121082242 extends AbstractMigration implements ContainerAware
             Parameter::KEY_HTML_CLUE_CREATE =>  $aSales."/creatClue",
             Parameter::KEY_HTML_CUSTOMER_PROFILE_DETAIL =>  $aSales."/customer?pageType=personalDetail",
             Parameter::KEY_HTML_CUSTOMER_ENTERPRISE_DETAIL =>  $aSales."/customer?pageType=companyDetail&id=",
+            Parameter::KEY_HTML_SPACE_RESERVE =>  $aSales."/reserve?orderType=reserve&id=",
+            Parameter::KEY_HTML_SPACE_PREORDER =>  $aSales."/reserve?orderType=preorder&id=",
         );
 
 
