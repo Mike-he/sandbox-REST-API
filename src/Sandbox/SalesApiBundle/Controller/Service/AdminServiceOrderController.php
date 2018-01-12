@@ -146,6 +146,11 @@ class AdminServiceOrderController extends SalesRestController
             ));
         $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
 
+        $company = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
+            ->find($companyId);
+        $order->setCompanyName($company->getName());
+
         $service = $order->getService();
         $this->handleServicesData($service);
 
