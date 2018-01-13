@@ -200,21 +200,6 @@ security:
             security: false
             methods: [POST]
 
-        commnue_client_commercial:
-            pattern: ^/commnue/client/commercial
-            security: false
-            methods: [GET]
-
-        commnue_client_communities:
-            pattern: ^/commnue/client/communities
-            security: false
-            methods: [GET]
-
-        commnue_client_events:
-            pattern: ^/commnue/client/events
-            security: false
-            methods: [GET]
-
         main:
             pattern: ^/
             anonymous: true
