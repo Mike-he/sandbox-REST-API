@@ -108,7 +108,7 @@ class AppController extends SandboxRestController
      *
      * @Annotations\QueryParam(
      *     name="platform",
-     *     nullable=false,
+     *     nullable=true,
      *     strict=true
      * )
      *
