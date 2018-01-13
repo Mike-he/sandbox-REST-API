@@ -434,6 +434,13 @@ class SandboxRestController extends FOSRestController
         $platform,
         $salesCompanyId = null
     ) {
+        $excludePermissionIds = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPermission')
+            ->findAdminExcludePermissionIds(
+                $platform,
+                $salesCompanyId
+            );
+
         $commonAdminPositionBindings = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
             ->getPositionBindingsByIsSuperAdmin(
@@ -455,6 +462,9 @@ class SandboxRestController extends FOSRestController
 
             foreach ($positionPermissionMaps as $map) {
                 $permission = $map->getPermission();
+                if (in_array($permission->getId(), $excludePermissionIds)) {
+                    continue;
+                }
                 $permissionArray = array(
                     'key' => $permission->getKey(),
                     'op_level' => $map->getOpLevel(),
