@@ -69,8 +69,10 @@ class AdminPermissionRepository extends EntityRepository
         return $permission->getQuery()->getResult();
     }
 
-    private function findAdminExcludePermissionIds($platform, $salesCompanyId)
-    {
+    public function findAdminExcludePermissionIds(
+        $platform,
+        $salesCompanyId
+    ) {
         // filter by exclude permission ids
         $excludePermissionIdsQuery = $this->getEntityManager()->createQueryBuilder()
             ->select('ep.permissionId')
