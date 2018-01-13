@@ -106,6 +106,12 @@ class AppController extends SandboxRestController
      *     strict=true
      * )
      *
+     * @Annotations\QueryParam(
+     *     name="platform",
+     *     nullable=false,
+     *     strict=true
+     * )
+     *
      * @Route("app_version_check")
      * @Method({"GET"})
      *
@@ -117,12 +123,18 @@ class AppController extends SandboxRestController
     ) {
         $version = $paramFetcher->get('version');
         $device = $paramFetcher->get('device');
+        $platform = $paramFetcher->get('platform');
 
         $versionCheck = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:App\AppVersionCheck')
             ->findOneBy(array(
                 'visible' => true,
+                'platform' => $platform,
             ));
+
+        if (is_null($versionCheck)) {
+            return new View();
+        }
 
         $checkCurrentVersion = $versionCheck->getCurrentVersion();
 
