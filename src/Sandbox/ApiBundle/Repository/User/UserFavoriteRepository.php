@@ -32,6 +32,8 @@ class UserFavoriteRepository extends EntityRepository
                 ->setParameter('ids', $ids);
         }
 
+        $query->orderBy('uf.creationDate', 'DESC');
+
         return $query->getQuery()->getResult();
     }
 

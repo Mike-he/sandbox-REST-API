@@ -167,6 +167,8 @@ class ServiceRepository extends EntityRepository
                     $query->orderBy('s.creationDate', 'DESC');
                     break;
             }
+        } else {
+            $query->orderBy('s.creationDate', 'DESC');
         }
 
         if (!is_null($limit) && !is_null($offset)) {
