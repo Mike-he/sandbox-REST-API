@@ -128,7 +128,7 @@ class ClientExpertOrderController extends SandboxRestController
         $countryId = $expert->getCountryId();
         $provinceId = $expert->getProvinceId();
         $cityId = $expert->getCityId();
-        $districtId = $expert->getProvinceId();
+        $districtId = $expert->getDistrictId();
 
         $location = '';
         if (!is_null($countryId)) {
