@@ -114,6 +114,8 @@ class ClientUserFavoriteController extends LocationController
             ->findBy([
                 'userId' => $userId,
                 'object' => $object,
+            ], [
+                'creationDate' => 'DESC',
             ]);
 
         $view = new View();
