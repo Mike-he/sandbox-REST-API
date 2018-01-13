@@ -16,6 +16,8 @@ use Sandbox\ApiBundle\Entity\Lease\LeaseOffer;
 use Sandbox\ApiBundle\Entity\Lease\LeaseRentTypes;
 use Sandbox\ApiBundle\Entity\MembershipCard\MembershipOrder;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
+use Sandbox\ApiBundle\Entity\Service\Service;
+use Sandbox\ApiBundle\Entity\Service\ServiceOrder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class AdminExportService
@@ -84,6 +86,10 @@ class AdminExportService
             case GenericList::OBJECT_EVENT_ORDER:
                 $excelBody = $this->getExcelEventOrder($data, $lists, $language);
                 $fileName = '活动订单'.$min.'-'.$max;
+                break;
+            case GenericList::OBJECT_SERVICE_ORDER:
+                $excelBody = $this->getExcelServiceOrder($data, $lists, $language);
+                $fileName = '服务订单'.$min.'-'.$max;
                 break;
             default:
                 $excelBody = array();
@@ -691,15 +697,15 @@ class AdminExportService
         $lists,
         $language
     ) {
+        $payments = $this->doctrine->getRepository('SandboxApiBundle:Payment\Payment')->findAll();
+        $payChannel = array();
+        foreach ($payments as $payment) {
+            $payChannel[$payment->getChannel()] = $payment->getName();
+        }
+
         $excelBody = array();
         foreach ($orders as $order) {
             /** @var MembershipOrder $order */
-            $payments = $this->doctrine->getRepository('SandboxApiBundle:Payment\Payment')->findAll();
-            $payChannel = array();
-            foreach ($payments as $payment) {
-                $payChannel[$payment->getChannel()] = $payment->getName();
-            }
-
             $customer = $this->doctrine
                 ->getRepository('SandboxApiBundle:User\UserCustomer')
                 ->findOneBy(array(
@@ -792,6 +798,88 @@ class AdminExportService
                 'name' => $event->getName(),
                 'pay_channel' => $paymentChannel,
                 'description' => $event->getDescription(),
+            ];
+
+            $body = array();
+            foreach ($lists as $key => $value) {
+                $body[] = $orderList[$key];
+            }
+
+            $excelBody[] = $body;
+        }
+
+        return $excelBody;
+    }
+
+    /**
+     * @param $orders
+     * @param $lists
+     * @param $language
+     *
+     * @return array
+     */
+    private function getExcelServiceOrder(
+        $orders,
+        $lists,
+        $language
+    ) {
+        $excelBody = array();
+        foreach ($orders as $order) {
+            /**
+             * @var ServiceOrder
+             * @var Service      $service
+             */
+            $service = $order->getService();
+
+            $cityName = '';
+            if ($service->getCityId()) {
+                $city = $this->doctrine
+                    ->getRepository('SandboxApiBundle:Room\RoomCity')
+                    ->find($service->getCityId());
+
+                $cityName = $city ? $city->getName() : '';
+            }
+
+            $districtName = '';
+            if ($service->getDistrictId()) {
+                $district = $this->doctrine
+                    ->getRepository('SandboxApiBundle:Room\RoomCity')
+                    ->find($service->getDistrictId());
+
+                $districtName = $district ? $district->getName() : '';
+            }
+
+            $serviceStartDate = $service->getServiceStartDate()->format('Y-m-d H:i:s');
+            $serviceEndDate = $service->getServiceEndDate()->format('Y-m-d H:i:s');
+
+            $statusKey = $order->getStatus();
+            $status = $this->container->get('translator')->trans(
+                EventOrderExport::TRANS_EVENT_ORDER_STATUS.$statusKey,
+                array(),
+                null,
+                $language
+            );
+
+            $company = $this->doctrine
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
+                ->find($order->getCompanyId());
+
+            $customer = $this->doctrine
+                ->getRepository('SandboxApiBundle:User\UserCustomer')
+                ->find($order->getCustomerId());
+
+            $orderList = [
+                'order_number' => $order->getOrderNumber(),
+                'service_location' => $cityName.$districtName,
+                'service_date' => $serviceStartDate.' - '.$serviceEndDate,
+                'price' => $order->getPrice() ? $order->getPrice().'元' : '',
+                'status' => $status,
+                'customer_id' => $customer->getName(),
+                'creation_date' => $order->getCreationDate()->format('Y-m-d H:i:s'),
+                'payment_date' => $order->getPaymentDate() ? $order->getPaymentDate()->format('Y-m-d H:i:s') : '',
+                'company' => $company->getName(),
+                'service_name' => $service->getName(),
+                'pay_channel' => $order->getPayChannel() ? '秒租钱包' : '',
             ];
 
             $body = array();
