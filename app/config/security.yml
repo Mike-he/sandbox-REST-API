@@ -207,6 +207,9 @@ security:
             stateless:  true
 
     access_control:
+        - { path: ^/commnue/client/commercial, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET]}
+        - { path: ^/commnue/client/communities, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET]}
+        - { path: ^/commnue/client/events, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET]}
         - { path: ^/property/client/admin_reset, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [POST] }
         - { path: ^/client/admin_register, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [POST] }
         - { path: ^/sales/admin/export/orders, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET]}
