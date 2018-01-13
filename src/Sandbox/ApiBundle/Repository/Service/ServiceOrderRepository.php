@@ -76,8 +76,8 @@ class ServiceOrderRepository extends EntityRepository
         $companyId,
         $keyword,
         $keywordSearch,
-        $limit,
-        $offset
+        $limit = null,
+        $offset = null
     ) {
         $query = $this->createQueryBuilder('so')
             ->where('so.companyId = :companyId')

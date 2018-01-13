@@ -5,6 +5,7 @@ namespace Sandbox\SalesApiBundle\Controller\Service;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Finance\FinanceSalesWalletFlow;
+use Sandbox\ApiBundle\Entity\GenericList\GenericList;
 use Sandbox\ApiBundle\Entity\Service\Service;
 use Sandbox\ApiBundle\Entity\Service\ServiceOrder;
 use Sandbox\ApiBundle\Traits\HandleServiceDataTrait;
@@ -18,6 +19,7 @@ use FOS\RestBundle\View\View;
 class AdminServiceOrderController extends SalesRestController
 {
     use HandleServiceDataTrait;
+
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
@@ -60,6 +62,8 @@ class AdminServiceOrderController extends SalesRestController
      * @Method({"GET"})
      *
      * @return View
+     *
+     *  @throws \Doctrine\ORM\Query\QueryException
      */
     public function getOrdersAction(
         Request $request,
@@ -117,6 +121,70 @@ class AdminServiceOrderController extends SalesRestController
         );
 
         return $view;
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Annotations\QueryParam(
+     *    name="keyword",
+     *    default=null,
+     *    nullable=true,
+     *    description="applicant, room, number"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="keyword_search",
+     *    default=null,
+     *    nullable=true,
+     *    description="search query"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="language",
+     *    array=false,
+     *    default=null,
+     *    nullable=true
+     * )
+     *
+     * @Route("/service/export/orders")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function exportOrdersAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $data = $this->get('sandbox_api.admin_permission_check_service')
+            ->checkPermissionByCookie(
+                AdminPermission::KEY_SALES_PLATFORM_SERVICE_ORDER,
+                AdminPermission::PERMISSION_PLATFORM_SALES
+            );
+
+        $language = $paramFetcher->get('language');
+
+        // search keyword and query
+        $keyword = $paramFetcher->get('keyword');
+        $keywordSearch = $paramFetcher->get('keyword_search');
+
+
+        $orders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Service\ServiceOrder')
+            ->getServiceOrders(
+                $data['company_id'],
+                $keyword,
+                $keywordSearch
+            );
+
+        return $this->get('sandbox_api.export')->exportExcel(
+            $orders,
+            GenericList::OBJECT_SERVICE_ORDER,
+            $data['user_id'],
+            $language
+        );
+
     }
 
     /**
