@@ -302,7 +302,9 @@ class AdminPositionUserBindingRepository extends EntityRepository
             ->where('pb.userId = :user')
             ->setParameter('user', $user);
 
-        if (AdminPosition::PLATFORM_OFFICIAL == $platform) {
+        if (AdminPosition::PLATFORM_OFFICIAL == $platform ||
+            AdminPosition::PLATFORM_COMMNUE == $platform
+        ) {
             $query->andWhere('p.platform = :platform')
                 ->setParameter('platform', $platform);
         } else {
