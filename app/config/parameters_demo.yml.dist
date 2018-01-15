@@ -61,6 +61,7 @@ parameters:
     crm_api_sales_admin_invoices: /sales/admin/invoices
     crm_api_admin_user_create: /admin/useraccounts/{userId}/create
     crm_api_client_user_price_calculate: /client/user/price/rules/{rule_id}/calculate
+    crm_api_sync_user_account_credential: /client/user/account/{userId}/sync
 
     door_api_username: admin
     door_api_password: admin

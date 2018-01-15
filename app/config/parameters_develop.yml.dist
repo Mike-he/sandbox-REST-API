@@ -56,6 +56,7 @@ parameters:
     sandbox_auth_key: sandbox_auth_test
     food_api_url: http://testfood.sandbox3.cn
     food_api_payment_callback: /index.php?route=payment/sandbox_wechat/callback
+
     crm_api_url: crmserver
     crm_api_client_user_account_authentication: /client/user/account/authentication
     crm_api_client_user_account_vip: /client/user/account/vip
@@ -74,6 +75,8 @@ parameters:
     crm_api_sales_admin_invoices: /sales/admin/invoices
     crm_api_admin_user_create: /admin/useraccounts/{userId}/create
     crm_api_client_user_price_calculate: /client/user/price/rules/{rule_id}/calculate
+    crm_api_sync_user_account_credential: /client/user/account/{userId}/sync
+
     door_api_username: admin
     door_api_password: admin
     door_api_login: /Login
