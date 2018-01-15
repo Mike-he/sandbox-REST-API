@@ -125,22 +125,22 @@ class ServiceRepository extends EntityRepository
             ->setParameter('endDate', $now)
             ->groupBy('s.id');
 
-        if (!is_null($country)) {
+        if (!is_null($country) && $country != 0 ) {
             $query->andWhere('s.countryId = :countryId')
                 ->setParameter('countryId', $country);
         }
 
-        if (!is_null($city)) {
+        if (!is_null($city) && $city != 0) {
             $query->andWhere('s.cityId = :cityId')
                 ->setParameter('cityId', $city);
         }
 
-        if (!is_null($province)) {
+        if (!is_null($province) && $province != 0) {
             $query->andWhere('s.provinceId = :provinceId')
                 ->setParameter('provinceId', $province);
         }
 
-        if (!is_null($district)) {
+        if (!is_null($district) && $district != 0) {
             $query->andWhere('s.districtId = :districtId')
                 ->setParameter('districtId', $district);
         }

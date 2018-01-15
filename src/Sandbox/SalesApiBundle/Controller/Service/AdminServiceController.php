@@ -441,6 +441,8 @@ class AdminServiceController extends SalesRestController
 
         $serviceStartDate = new \DateTime($service->getServiceStartDate());
         $serviceEndDate = new \DateTime($service->getServiceEndDate());
+        $serviceStartDate->setTime(00,00,00);
+        $serviceEndDate->setTime(23,59,59);
 
         $service->setServiceStartDate($serviceStartDate);
         $service->setServiceEndDate($serviceEndDate);
