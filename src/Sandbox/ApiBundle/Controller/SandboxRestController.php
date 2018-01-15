@@ -2080,4 +2080,50 @@ class SandboxRestController extends FOSRestController
             $type
         );
     }
+
+    protected function syncUserAuth(
+        $userId,
+        $realName,
+        $credentialNo
+    ) {
+
+        $content = [
+            'real_name' => $realName,
+            'credential_no' => $credentialNo,
+        ];
+        $json = json_encode($content);
+
+
+
+        $auth = $this->authAuthMd5($json);
+
+        $twig = $this->container->get('twig');
+        $globals = $twig->getGlobals();
+
+        // CRM API URL
+        $crmUrl = $this->getParameter('crm_api_url');
+        $apiUrl = $this->getParameter('crm_api_sync_user_account_credential');
+
+        $apiUrl = $crmUrl.$apiUrl;
+        $apiUrl = preg_replace('/{userId}.*?/', "$userId", $apiUrl);
+
+        // init curl
+        $ch = curl_init($apiUrl);
+
+        $response = $this->callAPI(
+            $ch,
+            'POST',
+            array(self::SANDBOX_CUSTOM_HEADER.$auth),
+            $json
+        );
+
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($httpCode != self::HTTP_STATUS_OK_NO_CONTENT) {
+            return;
+        }
+
+        $result = json_decode($response, true);
+
+        return $result;
+    }
 }

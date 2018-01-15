@@ -166,7 +166,19 @@ class ClientExpertController extends SandboxRestController
 
         $expert->setUserId($userId);
         $em->persist($expert);
+
+        if (is_null($userInfo->getCredentialNo())) {
+            $userInfo->setCredentialNo($expert->getCredentialNo());
+            $userInfo->setAuthorized(true);
+        }
+
         $em->flush();
+
+        $this->syncUserAuth(
+            $userId,
+            $expert->getName(),
+            $expert->getCredentialNo()
+        );
 
         $types = [ViewCounts::TYPE_VIEW, ViewCounts::TYPE_BOOKING];
         foreach ($types as $type) {
