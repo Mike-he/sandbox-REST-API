@@ -232,6 +232,11 @@ class ClientServiceController extends SandboxRestController
 
         $result['like'] = $favorite ? true : false;
 
+        $orderUrl = $this->getParameter('orders_url');
+        $wxShareUrl = $orderUrl.'/service?serviceId='.$service->getId().'&ptype=share';
+
+        $result['wx_share_url'] = $wxShareUrl;
+
         $this->get('sandbox_api.view_count')->autoCounting(
             ViewCounts::OBJECT_SERVICE,
             $id,

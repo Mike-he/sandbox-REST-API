@@ -143,6 +143,13 @@ class Expert
     private $photo;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="preview", type="text",nullable=true)
+     */
+    private $preview;
+
+    /**
      * @var \DateTime
      *
      * @Gedmo\Timestampable(on="create")
@@ -530,5 +537,21 @@ class Expert
     public function setLocation($location)
     {
         $this->location = $location;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPreview()
+    {
+        return $this->preview;
+    }
+
+    /**
+     * @param string $preview
+     */
+    public function setPreview($preview)
+    {
+        $this->preview = $preview;
     }
 }

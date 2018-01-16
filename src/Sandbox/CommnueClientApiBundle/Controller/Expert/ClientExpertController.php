@@ -429,6 +429,9 @@ class ClientExpertController extends SandboxRestController
                 'status' => ExpertOrder::STATUS_PENDING,
             ));
 
+        $orderUrl = $this->getParameter('orders_url');
+        $wxShareUrl = $orderUrl.'/expert?expertId='.$expert->getId().'&ptype=share';
+
         $data = [
             'id' => $expert->getId(),
             'user_id' => $expert->getUserId(),
@@ -436,6 +439,7 @@ class ClientExpertController extends SandboxRestController
             'banned' => $expert->isBanned(),
             'is_service' => $expert->isService(),
             'photo' => $expert->getPhoto(),
+            'preview' => $expert->getPreview(),
             'name' => $expert->getName(),
             'city_name' => $cityName,
             'district_name' => $districtName,
@@ -446,6 +450,7 @@ class ClientExpertController extends SandboxRestController
             'view_count' => $viewCount ? $viewCount->getCount() : 0,
             'is_favorite' => $favorite ? true : false,
             'order_id' => $order ? $order->getId() : '',
+            'wx_share_url' => $wxShareUrl,
         ];
 
         $this->get('sandbox_api.view_count')->autoCounting(
