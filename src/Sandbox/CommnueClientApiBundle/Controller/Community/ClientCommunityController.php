@@ -94,7 +94,7 @@ class ClientCommunityController extends LocationController
                 $offset
             );
 
-        $communities = $this->handleCommunityInfo($communities);
+        $communities = $this->handleCommunityInfo($communities, $userId);
 
         $view = new View();
         $view->setData($communities);
@@ -181,7 +181,7 @@ class ClientCommunityController extends LocationController
                 $hots
             );
 
-        $buildings = $this->handleCommunityInfo($buildings);
+        $buildings = $this->handleCommunityInfo($buildings, $userId);
 
         $view = new View();
         $view->setData($buildings);
@@ -213,12 +213,15 @@ class ClientCommunityController extends LocationController
 
     /**
      * @param $communities
+     * @param $userId
      *
      * @return mixed
      */
     private function handleCommunityInfo(
-        $communities
+        $communities,
+        $userId
     ) {
+        $counts = [];
         foreach ($communities as &$community) {
             $id = $community['id'];
             $buildingAttachment = $this->getDoctrine()
@@ -232,12 +235,17 @@ class ClientCommunityController extends LocationController
                     $id
                 );
             $community['room_number'] = (int) $number;
+            $counts[] = $community['room_number'];
 
             $lat = $community['lat'];
             $lng = $community['lng'];
             $locationArray = $this->gaodeToBaidu($lat, $lng);
             $community['lat'] = $locationArray['lat'];
             $community['lng'] = $locationArray['lon'];
+        }
+
+        if (!is_null($userId)) {
+            array_multisort($counts, SORT_DESC, $communities);
         }
 
         return $communities;
