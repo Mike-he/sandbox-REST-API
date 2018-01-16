@@ -119,6 +119,7 @@ product_order:
     email: Renter Email
     channel: Payment Channel
     order_type: Order Type
+    cancel_date: Cancel Date
   push_message:
     meeting_start: Your meeting room will start in 10 minutes
     meeting_end: Your meeting room will end in 10 minutes
