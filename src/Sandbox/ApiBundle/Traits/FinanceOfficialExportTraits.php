@@ -261,7 +261,8 @@ trait FinanceOfficialExportTraits
                 $status,
                 null,
                 $paymentChannel,
-                $orderType
+                $orderType,
+                null
             );
 
             $eventBody[] = $body;
@@ -366,6 +367,8 @@ trait FinanceOfficialExportTraits
 
             $payDate = $order->getPaymentDate()->format('Y-m-d H:i:s');
 
+            $cancelDate = $order->getCancelledDate()->format('Y-m-d H:i:s');
+
             $status = $this->get('translator')->trans(
                 ProductOrderExport::TRANS_PRODUCT_ORDER_STATUS.$order->getStatus(),
                 array(),
@@ -431,7 +434,8 @@ trait FinanceOfficialExportTraits
                 $status,
                 $refundChannel,
                 $paymentChannel,
-                $orderType
+                $orderType,
+                $cancelDate
             );
 
             $shortBody[] = $body;
@@ -580,7 +584,8 @@ trait FinanceOfficialExportTraits
                 $status,
                 null,
                 $paymentChannel,
-                $orderType
+                $orderType,
+                null
             );
 
             $longBody[] = $body;
@@ -616,6 +621,7 @@ trait FinanceOfficialExportTraits
         );
 
         foreach ($shopOrders as $shopOrder) {
+            /** @var ShopOrder $shopOrder */
             $building = $shopOrder->getShop()->getBuilding();
             $company = $building->getCompany();
             $companyName = $company->getName();
@@ -682,6 +688,8 @@ trait FinanceOfficialExportTraits
 
             $creationDate = $shopOrder->getCreationDate()->format('Y-m-d H:i:s');
 
+            $cancelDate = $shopOrder->getCancelledDate()->format('Y-m-d H:i:s');
+
             $body = $this->getExportBody(
                 $companyName,
                 $collection,
@@ -705,7 +713,8 @@ trait FinanceOfficialExportTraits
                 $status,
                 $refundChannel,
                 $paymentChannel,
-                $orderType
+                $orderType,
+                $cancelDate
             );
 
             $shopBody[] = $body;
@@ -779,6 +788,7 @@ trait FinanceOfficialExportTraits
                 null,
                 null,
                 $paymentChannel,
+                null,
                 null,
                 null
             );
@@ -907,7 +917,8 @@ trait FinanceOfficialExportTraits
                 null,
                 null,
                 $paymentChannel,
-                $orderType
+                $orderType,
+                null
             );
 
             $cardOrderBody[] = $body;
@@ -946,6 +957,7 @@ trait FinanceOfficialExportTraits
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_REFUND_TO, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_PAYMENT_CHANNEL, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_TYPE, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_CANCEL_DATE, array(), null, $language),
         ];
     }
 
@@ -999,7 +1011,8 @@ trait FinanceOfficialExportTraits
         $status,
         $refundTo,
         $payChannel,
-        $orderType
+        $orderType,
+        $cancelDate
     ) {
         // set excel body
         $body = array(
@@ -1026,6 +1039,7 @@ trait FinanceOfficialExportTraits
             ProductOrderExport::REFUND_TO => $refundTo,
             ProductOrderExport::PAYMENT_CHANNEL => $payChannel,
             ProductOrderExport::ORDER_TYPE => $orderType,
+            ProductOrderExport::CANCEL_DATE => $cancelDate,
         );
 
         return $body;
