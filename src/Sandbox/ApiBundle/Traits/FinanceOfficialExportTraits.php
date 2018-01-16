@@ -380,7 +380,7 @@ trait FinanceOfficialExportTraits
 
             $payDate = $order->getPaymentDate()->format('Y-m-d H:i:s');
 
-            $cancelDate = $order->getCancelledDate()->format('Y-m-d H:i:s');
+            $cancelDate = !is_null($order->getCancelledDate()) ? $order->getCancelledDate()->format('Y-m-d H:i:s') : '';
 
             $status = $this->get('translator')->trans(
                 ProductOrderExport::TRANS_PRODUCT_ORDER_STATUS.$order->getStatus(),
@@ -700,7 +700,7 @@ trait FinanceOfficialExportTraits
 
             $creationDate = $shopOrder->getCreationDate()->format('Y-m-d H:i:s');
 
-            $cancelDate = $shopOrder->getCancelledDate()->format('Y-m-d H:i:s');
+            $cancelDate = !is_null($shopOrder->getCancelledDate()) ? $shopOrder->getCancelledDate()->format('Y-m-d H:i:s') : '';
 
             $body = $this->getExportBody(
                 $companyName,
