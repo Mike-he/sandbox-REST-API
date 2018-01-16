@@ -92,13 +92,17 @@ class AdminPositionRepository extends EntityRepository
      * @param $platform
      * @param $companyId
      * @param null $isSuperAdmin
+     * @param null $position
+     * @param null $type
      *
      * @return array
      */
     public function getPositionIds(
         $platform,
         $companyId,
-        $isSuperAdmin = null
+        $isSuperAdmin = null,
+        $position = null,
+        $type = null
     ) {
         $query = $this->createQueryBuilder('p')
             ->select('p.id')
@@ -114,6 +118,18 @@ class AdminPositionRepository extends EntityRepository
         if (!is_null($companyId)) {
             $query->andWhere('p.salesCompanyId = :companyId')
                 ->setParameter('companyId', $companyId);
+        }
+
+        if (!is_null($position)) {
+            $query->andWhere('p.id = :id')
+                ->setParameter('id', $position);
+        }
+
+        if (!is_null($type) && !empty($type)) {
+            $query->leftJoin('SandboxApiBundle:Admin\AdminPositionPermissionMap', 'm', 'WITH', 'p.id = m.positionId')
+                ->leftJoin('SandboxApiBundle:Admin\AdminPermission', 'ap', 'WITH', 'ap.id = m.permissionId')
+                ->andWhere('ap.level = :type')
+                ->setParameter('type', $type);
         }
 
         return $query->getQuery()->getResult();

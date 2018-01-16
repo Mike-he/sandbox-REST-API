@@ -143,9 +143,9 @@ class AdminAdminsController extends SandboxRestController
             $users = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserView')->searchUserIds($search);
         }
 
-        $positions = $this->getDoctrine()
+        $positionIds = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminPosition')
-            ->getPositions(
+            ->getPositionIds(
                 $platform,
                 $companyId,
                 $isSuperAdmin,
@@ -153,25 +153,17 @@ class AdminAdminsController extends SandboxRestController
                 $type
             );
 
-        $positionIds = array();
-        foreach ($positions as $position) {
-            $positionIds[] = $position->getId();
-        }
 
         if (AdminPermission::PERMISSION_LEVEL_GLOBAL == $type ||
             self::ADMINS_MENU_KEY_SUPER == $type
         ) {
-            $superPositions = $this->getDoctrine()
+            $superPositionId = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Admin\AdminPosition')
-                ->getPositions(
+                ->getPositionIds(
                     $platform,
                     $companyId,
                     true
                 );
-
-            foreach ($superPositions as $superPosition) {
-                $superPositionId[] = $superPosition->getId();
-            }
 
             $positionIds = array_merge($positionIds, $superPositionId);
         }
@@ -361,7 +353,7 @@ class AdminAdminsController extends SandboxRestController
 
         $positions = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminPosition')
-            ->getPositions(
+            ->getPositionIds(
                 $platform,
                 $companyId
             );
@@ -595,6 +587,7 @@ class AdminAdminsController extends SandboxRestController
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
         $platform = $adminPlatform['platform'];
         $companyId = $adminPlatform['sales_company_id'];
+
         $key = $paramFetcher->get('key');
         $buildingId = $paramFetcher->get('building');
         $shopId = $paramFetcher->get('shop');
