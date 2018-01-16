@@ -132,7 +132,7 @@ class AdminPositionUserBindingRepository extends EntityRepository
             ->setParameter('platform', $platform)
             ->setParameter('isSuperAdmin', $isSuperAdmin);
 
-        if (!is_null($salesCompanyId) && AdminPosition::PLATFORM_OFFICIAL != $platform) {
+        if (!is_null($salesCompanyId)) {
             $query->andWhere('p.salesCompanyId = :salesCompanyId')
                 ->setParameter('salesCompanyId', $salesCompanyId);
         }
@@ -302,19 +302,10 @@ class AdminPositionUserBindingRepository extends EntityRepository
             ->where('pb.userId = :user')
             ->setParameter('user', $user);
 
-        if (AdminPosition::PLATFORM_OFFICIAL == $platform ||
-            AdminPosition::PLATFORM_COMMNUE == $platform
-        ) {
-            $query->andWhere('p.platform = :platform')
-                ->setParameter('platform', $platform);
-        } else {
-            if (is_null($companyId) || empty($companyId)) {
-                return array();
-            }
+        $query->andWhere('p.platform = :platform')
+            ->setParameter('platform', $platform);
 
-            $query->andWhere('p.platform = :platform')
-                ->setParameter('platform', $platform);
-
+        if ($companyId) {
             $query->andWhere('p.salesCompanyId = :companyId')
                 ->setParameter('companyId', $companyId);
         }
@@ -426,6 +417,12 @@ class AdminPositionUserBindingRepository extends EntityRepository
         return $userIds;
     }
 
+    /**
+     * @param $admin
+     * @param $platform
+     *
+     * @return array
+     */
     public function findCompanyByAdmin(
         $admin,
         $platform
@@ -456,8 +453,9 @@ class AdminPositionUserBindingRepository extends EntityRepository
      * @param $permissions
      * @param $platform
      * @param null $salesCompanyId
-     *
      * @return mixed
+     *
+     * @throws \Doctrine\ORM\Query\QueryException
      */
     public function checkHasPermission(
         $userId,
@@ -477,7 +475,7 @@ class AdminPositionUserBindingRepository extends EntityRepository
             ->setParameter('platform', $platform)
             ->setParameter('permission', $permissions);
 
-        if (!is_null($salesCompanyId) && AdminPosition::PLATFORM_OFFICIAL != $platform) {
+        if (!is_null($salesCompanyId)) {
             $query->andWhere('p.salesCompanyId = :salesCompanyId')
                 ->setParameter('salesCompanyId', $salesCompanyId);
         }
