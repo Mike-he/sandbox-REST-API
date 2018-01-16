@@ -1000,6 +1000,8 @@ trait FinanceOfficialExportTraits
             $creationDate = $serviceOrder->getCreationDate()->format('Y-m-d H:i:s');
             $paymentDate = $serviceOrder->getPaymentDate()->format('Y-m-d H:i:s');
 
+            $cancelDate = !is_null($serviceOrder->getCancelledDate()) ? $serviceOrder->getCancelledDate()->format('Y-m-d H:i:s') : '';
+
             $status = $this->get('translator')->trans(
                 ProductOrderExport::TRANS_PRODUCT_ORDER_STATUS.$serviceOrder->getStatus(),
                 array(),
@@ -1037,7 +1039,8 @@ trait FinanceOfficialExportTraits
                 $status,
                 null,
                 $paymentChannel,
-                null
+                null,
+                $cancelDate
             );
 
             $serviceOrderBody[] = $body;
