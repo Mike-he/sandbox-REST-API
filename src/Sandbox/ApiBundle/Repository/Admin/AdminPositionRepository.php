@@ -25,11 +25,7 @@ class AdminPositionRepository extends EntityRepository
             ->andWhere('p.platform = :platform')
             ->setParameter('platform', $platform);
 
-        if (AdminPosition::PLATFORM_OFFICIAL != $platform && AdminPosition::PLATFORM_COMMNUE != $platform) {
-            if (is_null($companyId) || empty($companyId)) {
-                return array();
-            }
-
+        if (!is_null($companyId)) {
             $query->andWhere('p.salesCompanyId = :companyId')
                 ->setParameter('companyId', $companyId);
         }
@@ -72,11 +68,7 @@ class AdminPositionRepository extends EntityRepository
                 ->setParameter('isSuperAdmin', $isSuperAdmin);
         }
 
-        if (AdminPosition::PLATFORM_OFFICIAL != $platform && AdminPosition::PLATFORM_COMMNUE != $platform) {
-            if (is_null($companyId) || empty($companyId)) {
-                return array();
-            }
-
+        if (!is_null($companyId)) {
             $query->andWhere('p.salesCompanyId = :companyId')
                 ->setParameter('companyId', $companyId);
         }
@@ -91,6 +83,37 @@ class AdminPositionRepository extends EntityRepository
                 ->leftJoin('SandboxApiBundle:Admin\AdminPermission', 'ap', 'WITH', 'ap.id = m.permissionId')
                 ->andWhere('ap.level = :type')
                 ->setParameter('type', $type);
+        }
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $platform
+     * @param $companyId
+     * @param null $isSuperAdmin
+     *
+     * @return array
+     */
+    public function getPositionIds(
+        $platform,
+        $companyId,
+        $isSuperAdmin = null
+    ) {
+        $query = $this->createQueryBuilder('p')
+            ->select('p.id')
+            ->where('p.isHidden = FALSE')
+            ->andWhere('p.platform = :platform')
+            ->setParameter('platform', $platform);
+
+        if (!is_null($isSuperAdmin)) {
+            $query->andWhere('p.isSuperAdmin = :isSuperAdmin')
+                ->setParameter('isSuperAdmin', $isSuperAdmin);
+        }
+
+        if (!is_null($companyId)) {
+            $query->andWhere('p.salesCompanyId = :companyId')
+                ->setParameter('companyId', $companyId);
         }
 
         return $query->getQuery()->getResult();

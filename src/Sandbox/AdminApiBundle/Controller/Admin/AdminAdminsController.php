@@ -11,7 +11,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
-use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
 use Knp\Component\Pager\Paginator;
@@ -24,7 +23,7 @@ use Knp\Component\Pager\Paginator;
  * @author   Yimo Zhang <yimo.zhang@Sandbox.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 class AdminAdminsController extends SandboxRestController
 {
@@ -42,13 +41,6 @@ class AdminAdminsController extends SandboxRestController
      * List all admins.
      *
      * @param Request $request the request object
-     *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     200 = "Returned when successful"
-     *   }
-     * )
      *
      * @Annotations\QueryParam(
      *    name="search",
@@ -166,8 +158,8 @@ class AdminAdminsController extends SandboxRestController
             $positionIds[] = $position->getId();
         }
 
-        if ($type == AdminPermission::PERMISSION_LEVEL_GLOBAL ||
-            $type == self::ADMINS_MENU_KEY_SUPER
+        if (AdminPermission::PERMISSION_LEVEL_GLOBAL == $type ||
+            self::ADMINS_MENU_KEY_SUPER == $type
         ) {
             $superPositions = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Admin\AdminPosition')
@@ -211,7 +203,7 @@ class AdminAdminsController extends SandboxRestController
             }
 
             $buildingArr = array();
-            if ($platform == AdminPosition::PLATFORM_SALES) {
+            if (AdminPosition::PLATFORM_SALES == $platform) {
                 $buildingBinds = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
                     ->getBindBuilding(
@@ -228,7 +220,7 @@ class AdminAdminsController extends SandboxRestController
             }
 
             $shopArr = array();
-            if ($platform == AdminPosition::PLATFORM_SHOP) {
+            if (AdminPosition::PLATFORM_SHOP == $platform) {
                 $shopBinds = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
                     ->getBindShop(
@@ -311,13 +303,6 @@ class AdminAdminsController extends SandboxRestController
      * Get Extra Admins.
      *
      * @param Request $request the request object
-     *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     200 = "Returned when successful"
-     *   }
-     * )
      *
      * @Annotations\QueryParam(
      *    name="search",
@@ -452,13 +437,6 @@ class AdminAdminsController extends SandboxRestController
      *
      * @param Request $request the request object
      *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     200 = "Returned when successful"
-     *   }
-     * )
-     *
      * @Method({"GET"})
      * @Route("/admins/menu")
      *
@@ -477,142 +455,96 @@ class AdminAdminsController extends SandboxRestController
         $platform = $adminPlatform['platform'];
         $companyId = $adminPlatform['sales_company_id'];
 
-        $positions = $this->getDoctrine()
-           ->getRepository('SandboxApiBundle:Admin\AdminPosition')
-           ->getAdminPositions(
-               $platform,
-               null,
-               $companyId
+        $allPositionIds = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPosition')
+            ->getPositionIds(
+                $platform,
+                $companyId
            );
 
-        $allUser = $this->getDoctrine()
+        $allUserCount = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
-            ->getBindUser($positions);
+            ->countBindUser(
+                $allPositionIds
+            );
 
-        $allAdmin = array(
-            'key' => self::ADMINS_MENU_KEY_ALL,
-            'name' => $this->get('translator')->trans(self::ADMINS_ALL_ADMIN),
-            'count' => count($allUser),
-       );
-
-        $superPositions = $this->getDoctrine()
+        $superPositionId = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminPosition')
-            ->getPositions(
+            ->getPositionIds(
                 $platform,
                 $companyId,
                 true
             );
 
-        foreach ($superPositions as $superPosition) {
-            $superPositionId[] = $superPosition->getId();
-        }
-
-        $buildingAdmin = array();
-        $shopAdmin = array();
-
-        switch ($platform) {
-            case AdminPosition::PLATFORM_OFFICIAL:
-                $platformPositions = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:Admin\AdminPosition')
-                    ->getPositions(
-                        $platform,
-                        null
-                    );
-                $allPlatformUser = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
-                    ->getBindUser($platformPositions);
-                break;
-            case AdminPosition::PLATFORM_SALES:
-                $platformPositions = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:Admin\AdminPosition')
-                    ->getAdminPositions(
-                        $platform,
-                        AdminPermission::PERMISSION_LEVEL_GLOBAL,
-                        $companyId
-                    );
-                $platformPositionId = array();
-                foreach ($platformPositions as $platformPosition) {
-                    $platformPositionId[] = $platformPosition->getId();
-                }
-
-                $positionIds = array_merge($platformPositionId, $superPositionId);
-
-                $allPlatformUser = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
-                    ->getBindUser($positionIds);
-
-                $myBuildings = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')
-                    ->getCompanyBuildings($companyId);
-
-                foreach ($myBuildings as $myBuilding) {
-                    $buildingUsers = $this->getDoctrine()->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
-                        ->getBindUser(null, $myBuilding);
-
-                    $buildingAdmin[] = array(
-                        'key' => self::ADMINS_MENU_KEY_BUILDING,
-                        'id' => $myBuilding->getId(),
-                        'name' => $myBuilding->getname(),
-                        'count' => count($buildingUsers),
-                    );
-                }
-                break;
-            case AdminPosition::PLATFORM_SHOP:
-                $platformPositions = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:Admin\AdminPosition')
-                    ->getAdminPositions(
-                        $platform,
-                        AdminPermission::PERMISSION_LEVEL_GLOBAL,
-                        $companyId
-                    );
-
-                $platformPositionId = array();
-                foreach ($platformPositions as $platformPosition) {
-                    $platformPositionId[] = $platformPosition->getId();
-                }
-
-                $positionIds = array_merge($platformPositionId, $superPositionId);
-
-                $allPlatformUser = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
-                    ->getBindUser($positionIds);
-
-                $myshops = $this->getDoctrine()->getRepository('SandboxApiBundle:Shop\Shop')
-                    ->getShopsByCompany($companyId);
-
-                foreach ($myshops as $myshop) {
-                    $shopUsers = $this->getDoctrine()->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
-                        ->getBindUser(null, null, $myshop);
-
-                    $shopAdmin[] = array(
-                        'key' => self::ADMINS_MENU_KEY_SHOP,
-                        'id' => $myshop->getId(),
-                        'name' => $myshop->getname(),
-                        'count' => count($shopUsers),
-                    );
-                }
-                break;
-            case AdminPosition::PLATFORM_COMMNUE:
-
-                break;
-            default:
-                return new View();
-        }
-
-        $superAdmins = $this->getDoctrine()
+        $superAdminsCount = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
-            ->getBindUser(
+            ->countBindUser(
                 $superPositionId
             );
 
-        $platformAdmin = array(
-            'key' => self::ADMINS_MENU_KEY_SUPER,
-            'name' => $this->get('translator')->trans(self::ADMINS_SUPER_ADMIN),
-            'count' => count($superAdmins),
-       );
+        $result = array(
+            array(
+                'key' => self::ADMINS_MENU_KEY_ALL,
+                'name' => $this->get('translator')->trans(self::ADMINS_ALL_ADMIN),
+                'count' => $allUserCount,
+            ),
+            array(
+                'key' => self::ADMINS_MENU_KEY_SUPER,
+                'name' => $this->get('translator')->trans(self::ADMINS_SUPER_ADMIN),
+                'count' => $superAdminsCount,
+            ),
+        );
 
-        $result = array($allAdmin, $platformAdmin);
+        if (AdminPosition::PLATFORM_SALES == $platform) {
+            $myBuildings = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                ->getCompanyBuildings($companyId);
 
-        $result = array_merge($result, $buildingAdmin, $shopAdmin);
+            $buildingAdmin = array();
+            foreach ($myBuildings as $myBuilding) {
+                $buildingUsersCount = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                    ->countBindUser(
+                        null,
+                        $myBuilding
+                    );
+
+                $buildingAdmin[] = array(
+                    'key' => self::ADMINS_MENU_KEY_BUILDING,
+                    'id' => $myBuilding->getId(),
+                    'name' => $myBuilding->getname(),
+                    'count' => $buildingUsersCount,
+                );
+            }
+
+            $result = array_merge($result, $buildingAdmin);
+        }
+
+        if (AdminPosition::PLATFORM_SHOP == $platform) {
+            $myShops = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Shop\Shop')
+                ->getShopsByCompany($companyId);
+
+            $shopAdmin = array();
+            foreach ($myShops as $myShop) {
+                $shopUsersCount = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                    ->countBindUser(
+                        null,
+                        null,
+                        $myShop
+                    );
+
+                $shopAdmin[] = array(
+                    'key' => self::ADMINS_MENU_KEY_SHOP,
+                    'id' => $myShop->getId(),
+                    'name' => $myShop->getname(),
+                    'count' => $shopUsersCount,
+                );
+            }
+
+            $result = array_merge($result, $shopAdmin);
+        }
 
         return new View($result);
     }
@@ -621,13 +553,6 @@ class AdminAdminsController extends SandboxRestController
      * get admins Position Menu.
      *
      * @param Request $request the request object
-     *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     200 = "Returned when successful"
-     *   }
-     * )
      *
      * @Annotations\QueryParam(
      *    name="key",
@@ -766,7 +691,7 @@ class AdminAdminsController extends SandboxRestController
         $global_image_url = $this->container->getParameter('image_url');
 
         $positionArr = array();
-        if ($key == self::ADMINS_MENU_KEY_PLATFORM) {
+        if (self::ADMINS_MENU_KEY_PLATFORM == $key) {
             $positions = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Admin\AdminPosition')
                 ->getPositions(
