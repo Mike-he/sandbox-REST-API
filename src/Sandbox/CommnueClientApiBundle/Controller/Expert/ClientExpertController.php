@@ -411,23 +411,27 @@ class ClientExpertController extends SandboxRestController
                 'type' => ViewCounts::TYPE_VIEW,
             ));
 
-        $userId = $this->getUserId();
+        $favorite = null;
+        $order = null;
+        if ($this->isAuthProvided()) {
+            $userId = $this->getUserId();
 
-        $favorite = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserFavorite')
-            ->findOneBy(array(
-                'userId' => $userId,
-                'object' => UserFavorite::OBJECT_EXPERT,
-                'objectId' => $id,
-            ));
+            $favorite = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserFavorite')
+                ->findOneBy(array(
+                    'userId' => $userId,
+                    'object' => UserFavorite::OBJECT_EXPERT,
+                    'objectId' => $id,
+                ));
 
-        $order = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Expert\ExpertOrder')
-            ->findOneBy(array(
-                'expertId' => $id,
-                'userId' => $userId,
-                'status' => ExpertOrder::STATUS_PENDING,
-            ));
+            $order = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Expert\ExpertOrder')
+                ->findOneBy(array(
+                    'expertId' => $id,
+                    'userId' => $userId,
+                    'status' => ExpertOrder::STATUS_PENDING,
+                ));
+        }
 
         $orderUrl = $this->getParameter('orders_url');
         $wxShareUrl = $orderUrl.'/expert?expertId='.$expert->getId().'&ptype=share';
