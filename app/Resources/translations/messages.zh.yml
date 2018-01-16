@@ -119,6 +119,7 @@ product_order:
     email: 租赁人邮箱
     channel: 支付渠道
     order_type: 下单方式
+    cancel_date: 取消时间
   push_message:
     meeting_start: 您的会议室将在10分钟后开始使用
     meeting_end: 您的会议室将在10分钟后到期
