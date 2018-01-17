@@ -228,7 +228,7 @@ class AdminAdminsController extends SandboxRestController
                 }
             }
 
-            $user = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserView')->find($userId['userId']);
+//            $user = $this->getDoctrine()->getRepository('SandboxApiBundle:User\UserView')->find($userId['userId']);
 
             $bind = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
@@ -268,7 +268,7 @@ class AdminAdminsController extends SandboxRestController
 
             $result[] = array(
                 'user_id' => $userId['userId'],
-                'user' => $user,
+//                'user' => $user,
                 'position' => $positionArr,
                 'position_count' => count($positionArr),
                 'building' => $buildingArr,
