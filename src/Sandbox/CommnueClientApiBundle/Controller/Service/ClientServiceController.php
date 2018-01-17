@@ -228,7 +228,7 @@ class ClientServiceController extends SandboxRestController
         $result['service_member'] = $serviceMember ? true : false;
 
         $orderUrl = $this->getParameter('orders_url');
-        $wxShareUrl = $orderUrl.'/service?serviceId='.$service->getId().'&ptype=share';
+        $wxShareUrl = $orderUrl.'/service?serviceId='.$service->getId().'&ptype=share&theme=blue';
 
         $result['wx_share_url'] = $wxShareUrl;
 
