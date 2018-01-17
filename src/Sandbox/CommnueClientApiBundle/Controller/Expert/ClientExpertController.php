@@ -434,7 +434,7 @@ class ClientExpertController extends SandboxRestController
         }
 
         $orderUrl = $this->getParameter('orders_url');
-        $wxShareUrl = $orderUrl.'/expert?expertId='.$expert->getId().'&ptype=share';
+        $wxShareUrl = $orderUrl.'/expert?expertId='.$expert->getId().'&ptype=share&theme=blue';
 
         $data = [
             'id' => $expert->getId(),
