@@ -209,6 +209,20 @@ class ClientOrderController extends OrderController
      *    description="start of the page"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="sort_column",
+     *    default=null,
+     *    nullable=true,
+     *    description="sort column"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="direction",
+     *    default=null,
+     *    nullable=true,
+     *    description="sort direction"
+     * )
+     *
      * @Route("/products")
      * @Method({"GET"})
      *
@@ -247,6 +261,10 @@ class ClientOrderController extends OrderController
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
 
+        //sort
+        $sortColumn = $paramFetcher->get('sort_column');
+        $direction = $paramFetcher->get('direction');
+
         //get my buildings list
         $myBuildingIds = $this->getMySalesBuildingIds(
             $this->getAdminId(),
@@ -281,7 +299,9 @@ class ClientOrderController extends OrderController
                 $productId,
                 null,
                 $limit,
-                $offset
+                $offset,
+                $sortColumn,
+                $direction
             );
 
         $receivableTypes = [
