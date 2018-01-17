@@ -179,7 +179,10 @@ class ClientExpertOrderController extends SandboxRestController
 
             $remarks = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Expert\ExpertOrderRemark')
-                ->findBy(array('orderId' => $order['id']));
+                ->findBy(
+                    array('orderId' => $order['id']),
+                    array('id' => 'desc')
+                );
 
             $order['remarks'] = $remarks;
         }
