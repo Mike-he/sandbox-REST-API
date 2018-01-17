@@ -18,7 +18,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
-use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Security\Acl\Exception\Exception;
 use Sandbox\ApiBundle\Traits\YunPianSms;
@@ -31,7 +30,7 @@ use Sandbox\ApiBundle\Traits\YunPianSms;
  * @author   Yimo Zhang <yimo.zhang@Sandbox.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 class AdminUserLoginController extends AdminRestController
 {
@@ -45,13 +44,6 @@ class AdminUserLoginController extends AdminRestController
      * Get admin check code.
      *
      * @param Request $request the request object
-     *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     200 = "Returned when successful"
-     *  }
-     * )
      *
      * @Route("/check_code")
      * @Method({"POST"})
@@ -144,13 +136,6 @@ class AdminUserLoginController extends AdminRestController
      * Login.
      *
      * @param Request $request the request object
-     *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     200 = "Returned when successful"
-     *  }
-     * )
      *
      * @Route("/login")
      * @Method({"POST"})

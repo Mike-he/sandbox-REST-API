@@ -233,6 +233,52 @@ class AdminPositionUserBindingRepository extends EntityRepository
     }
 
     /**
+     * @param $positions
+     * @param null $building
+     * @param null $shop
+     * @param null $users
+     *
+     * @return mixed
+     *
+     * @throws \Doctrine\ORM\Query\QueryException
+     */
+    public function countBindUser(
+        $positions,
+        $building = null,
+        $shop = null,
+        $users = null
+    ) {
+        $query = $this->createQueryBuilder('p')
+            ->select('count( DISTINCT p.userId)')
+            ->where('1=1');
+
+        if (!is_null($positions)) {
+            $query->andWhere('p.position in (:positions)')
+                ->setParameter('positions', $positions);
+        }
+
+        if (!is_null($building) && !empty($building)) {
+            $query->andWhere('p.building = :building')
+                ->setParameter('building', $building);
+        }
+
+        if (!is_null($shop) && !empty($shop)) {
+            $query->andWhere('p.shop = :shop')
+                ->setParameter('shop', $shop);
+        }
+
+        if (!is_null($users)) {
+            $query->andWhere('p.userId in (:users)')
+                ->setParameter('users', $users);
+        }
+
+
+        $result = $query->getQuery()->getSingleScalarResult();
+
+        return (int) $result;
+    }
+
+    /**
      * @param $user
      * @param $positions
      *

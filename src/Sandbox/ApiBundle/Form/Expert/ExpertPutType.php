@@ -22,6 +22,7 @@ class ExpertPutType extends AbstractType
             ->add('city_id')
             ->add('district_id')
             ->add('photo')
+            ->add('preview')
             ->add('identity')
             ->add('introduction')
             ->add('description')

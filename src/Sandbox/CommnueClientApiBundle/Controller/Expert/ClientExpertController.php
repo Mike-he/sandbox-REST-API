@@ -411,23 +411,30 @@ class ClientExpertController extends SandboxRestController
                 'type' => ViewCounts::TYPE_VIEW,
             ));
 
-        $userId = $this->getUserId();
+        $favorite = null;
+        $order = null;
+        if ($this->isAuthProvided()) {
+            $userId = $this->getUserId();
 
-        $favorite = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserFavorite')
-            ->findOneBy(array(
-                'userId' => $userId,
-                'object' => UserFavorite::OBJECT_EXPERT,
-                'objectId' => $id,
-            ));
+            $favorite = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserFavorite')
+                ->findOneBy(array(
+                    'userId' => $userId,
+                    'object' => UserFavorite::OBJECT_EXPERT,
+                    'objectId' => $id,
+                ));
 
-        $order = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Expert\ExpertOrder')
-            ->findOneBy(array(
-                'expertId' => $id,
-                'userId' => $userId,
-                'status' => ExpertOrder::STATUS_PENDING,
-            ));
+            $order = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Expert\ExpertOrder')
+                ->findOneBy(array(
+                    'expertId' => $id,
+                    'userId' => $userId,
+                    'status' => ExpertOrder::STATUS_PENDING,
+                ));
+        }
+
+        $orderUrl = $this->getParameter('orders_url');
+        $wxShareUrl = $orderUrl.'/expert?expertId='.$expert->getId().'&ptype=share';
 
         $data = [
             'id' => $expert->getId(),
@@ -436,6 +443,7 @@ class ClientExpertController extends SandboxRestController
             'banned' => $expert->isBanned(),
             'is_service' => $expert->isService(),
             'photo' => $expert->getPhoto(),
+            'preview' => $expert->getPreview(),
             'name' => $expert->getName(),
             'city_name' => $cityName,
             'district_name' => $districtName,
@@ -446,6 +454,7 @@ class ClientExpertController extends SandboxRestController
             'view_count' => $viewCount ? $viewCount->getCount() : 0,
             'is_favorite' => $favorite ? true : false,
             'order_id' => $order ? $order->getId() : '',
+            'wx_share_url' => $wxShareUrl,
         ];
 
         $this->get('sandbox_api.view_count')->autoCounting(

@@ -11,7 +11,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations;
-use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 
 class ClientServiceController extends SandboxRestController
 {
@@ -20,13 +19,6 @@ class ClientServiceController extends SandboxRestController
      *
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
-     *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     200 = "Returned when successful"
-     *   }
-     * )
      *
      * @Annotations\QueryParam(
      *    name="limit",
@@ -158,8 +150,6 @@ class ClientServiceController extends SandboxRestController
     public function getServicesByIdAction(
         $id
     ) {
-        $userId = $this->getUserId();
-
         $service = $this->getDoctrine()->getManager()
             ->getRepository('SandboxApiBundle:Service\Service')
             ->find($id);
@@ -201,14 +191,31 @@ class ClientServiceController extends SandboxRestController
         $service->setAddress($addresss);
         $result['service'] = $service;
 
-        $order = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Service\ServiceOrder')
-            ->getUserLastOrder(
-                $userId,
-                $id
-            );
-        if (!is_null($order)) {
-            $result['order_id'] = $order->getId();
+        $result['order_id'] = '';
+        $result['like'] = false;
+        if ($this->isAuthProvided()) {
+            $userId = $this->getUserId();
+            $order = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Service\ServiceOrder')
+                ->getUserLastOrder(
+                    $userId,
+                    $id
+                );
+            if (!is_null($order)) {
+                $result['order_id'] = $order->getId();
+            }
+
+            $favorite = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserFavorite')
+                ->findOneBy(
+                    [
+                        'userId' => $userId,
+                        'object' => UserFavorite::OBJECT_SERVICE,
+                        'objectId' => $id,
+                    ]
+                );
+
+            $result['like'] = $favorite ? true : false;
         }
 
         $serviceMember = $this->getDoctrine()
@@ -220,17 +227,10 @@ class ClientServiceController extends SandboxRestController
 
         $result['service_member'] = $serviceMember ? true : false;
 
-        $favorite = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserFavorite')
-            ->findOneBy(
-                [
-                    'userId' => $userId,
-                    'object' => UserFavorite::OBJECT_SERVICE,
-                    'objectId' => $id,
-                ]
-            );
+        $orderUrl = $this->getParameter('orders_url');
+        $wxShareUrl = $orderUrl.'/service?serviceId='.$service->getId().'&ptype=share';
 
-        $result['like'] = $favorite ? true : false;
+        $result['wx_share_url'] = $wxShareUrl;
 
         $this->get('sandbox_api.view_count')->autoCounting(
             ViewCounts::OBJECT_SERVICE,
