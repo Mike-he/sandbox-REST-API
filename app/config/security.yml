@@ -207,8 +207,8 @@ security:
             stateless:  true
 
     access_control:
-        - { path: ^/commnue/client/experts/, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET]}
-        - { path: ^/commnue/client/services/, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET]}
+        - { path: ^/commnue/client/experts, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET]}
+        - { path: ^/commnue/client/services, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET]}
         - { path: ^/commnue/client/commercial, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET]}
         - { path: ^/commnue/client/communities, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET]}
         - { path: ^/commnue/client/events, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET]}
