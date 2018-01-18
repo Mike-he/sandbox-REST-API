@@ -4,6 +4,7 @@ namespace Sandbox\ClientApiBundle\Controller\User;
 
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Controller\Location\LocationController;
+use Sandbox\ApiBundle\Entity\Event\Event;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\User\UserFavorite;
@@ -275,6 +276,11 @@ class ClientUserFavoriteController extends LocationController
                         $limit,
                         $offset
                     );
+
+                foreach ($objects as $object) {
+                    $this->setEventExtra($object, $userId);
+                }
+
                 break;
             default:
                 return $view;
@@ -514,5 +520,85 @@ class ClientUserFavoriteController extends LocationController
             $em->persist($favorite);
             $em->flush();
         }
+    }
+
+    /**
+     * @param Event $event
+     * @param int   $userId
+     *
+     * @return Event
+     */
+    private function setEventExtra(
+        $event,
+        $userId = null
+    ) {
+        $eventId = $event->getId();
+
+        $attachments = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventAttachment')
+            ->findByEvent($event);
+        $event->setAttachments($attachments);
+
+        $dates = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventDate')
+            ->findByEvent($event);
+        $event->setDates($dates);
+
+        $forms = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventForm')
+            ->findByEvent($event);
+        $event->setForms($forms);
+
+        $registrationCounts = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventRegistration')
+            ->getRegistrationCounts($eventId);
+        $event->setRegisteredPersonNumber((int) $registrationCounts);
+
+        $likesCount = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventLike')
+            ->getLikesCount($eventId);
+        $event->setLikesCount((int) $likesCount);
+
+        $commentsCount = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventComment')
+            ->getCommentsCount($eventId);
+        $event->setCommentsCount((int) $commentsCount);
+
+        // set accepted person number
+        if ($event->isVerify()) {
+            $acceptedCounts = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Event\EventRegistration')
+                ->getAcceptedPersonNumber($eventId);
+            $event->setAcceptedPersonNumber((int) $acceptedCounts);
+        }
+
+
+        // check if user is registered
+        $registration = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventRegistration')
+            ->findOneBy(array(
+                'eventId' => $eventId,
+                'userId' => $userId,
+            ));
+
+        if (!is_null($registration)) {
+            // set registration
+            $event->setEventRegistration($registration);
+        }
+
+        // check my like if
+        $like = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventLike')
+            ->findOneBy(array(
+                'eventId' => $event->getId(),
+                'authorId' => $userId,
+            ));
+
+        if (!is_null($like)) {
+            $event->setMyLikeId($like->getId());
+        }
+
+
+        return $event;
     }
 }
