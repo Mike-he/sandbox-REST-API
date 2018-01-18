@@ -61,6 +61,15 @@ class ClientCommunityController extends LocationController
      * )
      *
      * @Annotations\QueryParam(
+     *    name="province",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    description="provinceId"
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="city",
      *    array=false,
      *    default=null,
@@ -108,6 +117,7 @@ class ClientCommunityController extends LocationController
 
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
+        $province = $paramFetcher->get('province');
         $city = $paramFetcher->get('city');
         $district = $paramFetcher->get('district');
         $sort = $paramFetcher->get('sort');
@@ -115,6 +125,7 @@ class ClientCommunityController extends LocationController
         $communities = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\RoomBuilding')
             ->getCommnueClientAllCommunityBuilding(
+                $province,
                 $city,
                 $district,
                 $sort,

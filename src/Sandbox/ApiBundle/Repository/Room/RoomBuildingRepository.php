@@ -887,6 +887,7 @@ class RoomBuildingRepository extends EntityRepository
     }
 
     /**
+     * @param $province
      * @param $city
      * @param $district
      * @param $sort
@@ -895,6 +896,7 @@ class RoomBuildingRepository extends EntityRepository
      * @return array
      */
     public function getCommnueClientAllCommunityBuilding(
+        $province,
         $city,
         $district,
         $sort,
@@ -917,15 +919,20 @@ class RoomBuildingRepository extends EntityRepository
             ->andWhere('rb.visible = TRUE')
             ->setParameter('commnuestatus', RoomBuilding::FREEZON);
 
-
-        if (!is_null($district) && $district != 0) {
-            $query->andWhere('rb.districtId = :districtId')
-                ->setParameter('districtId', $district);
+        if (!is_null($province) && $province != 0) {
+            $query->leftJoin('SandboxApiBundle:Room\RoomCity','rc','WITH','rc.id = rb.cityId')
+                ->andWhere('rc.parentId = :provinceId')
+                ->setParameter('provinceId', $province);
         }
 
         if (!is_null($city) && $city != 0) {
             $query->andWhere('rb.cityId = :cityId')
                 ->setParameter('cityId', $city);
+        }
+
+        if (!is_null($district) && $district != 0) {
+            $query->andWhere('rb.districtId = :districtId')
+                ->setParameter('districtId', $district);
         }
 
         if (!is_null($sort)) {
