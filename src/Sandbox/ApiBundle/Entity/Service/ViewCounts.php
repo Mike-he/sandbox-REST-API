@@ -17,6 +17,7 @@ class ViewCounts
 
     const OBJECT_SERVICE = 'service';
     const OBJECT_EXPERT = 'expert';
+    const OBJECT_EVENT = 'event';
 
     /**
      * @var int

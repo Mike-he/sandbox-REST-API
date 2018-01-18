@@ -5,6 +5,7 @@ namespace Sandbox\ClientApiBundle\Controller\Event;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Controller\Event\EventController;
 use Sandbox\ApiBundle\Entity\Event\Event;
+use Sandbox\ApiBundle\Entity\Service\ViewCounts;
 use Sandbox\ApiBundle\Entity\User\UserFavorite;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -200,6 +201,12 @@ class ClientEventController extends EventController
         // set extra
         $event = $this->setEventExtra($event, $userId);
 
+        $this->get('sandbox_api.view_count')->autoCounting(
+            ViewCounts::OBJECT_EVENT,
+            $id,
+            ViewCounts::TYPE_VIEW
+        );
+
         // set view
         $view = new View($event);
         $view->setSerializationContext(
@@ -228,8 +235,12 @@ class ClientEventController extends EventController
         $registrationCounts = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Event\EventRegistration')
             ->getRegistrationCounts($eventId);
-        $likesCount = $this->getRepo('Event\EventLike')->getLikesCount($eventId);
-        $commentsCount = $this->getRepo('Event\EventComment')->getCommentsCount($eventId);
+        $likesCount = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventLike')
+            ->getLikesCount($eventId);
+        $commentsCount = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventComment')
+            ->getCommentsCount($eventId);
 
         // set attachment, dates, forms, registrationCounts
         $event->setAttachments($attachments);
