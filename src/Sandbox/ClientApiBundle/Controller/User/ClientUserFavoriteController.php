@@ -267,6 +267,15 @@ class ClientUserFavoriteController extends LocationController
                         $objectIds
                     );
                 break;
+            case UserFavorite::OBJECT_EVENT:
+                $objects = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Event\Event')
+                    ->getAllClientEvents(
+                        $objectIds,
+                        $limit,
+                        $offset
+                    );
+                break;
             default:
                 return $view;
 
@@ -486,6 +495,13 @@ class ClientUserFavoriteController extends LocationController
                         ->getRepository('SandboxApiBundle:Service\Service')
                         ->find($objectId);
                     $this->throwNotFoundIfNull($service, self::NOT_FOUND_MESSAGE);
+
+                    break;
+                case UserFavorite::OBJECT_EVENT:
+                    $event = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:Event\Event')
+                        ->find($objectId);
+                    $this->throwNotFoundIfNull($event, self::NOT_FOUND_MESSAGE);
 
                     break;
                 default:

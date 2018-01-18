@@ -437,6 +437,13 @@ class Event
     private $platform = self::PLATFORM_OFFICIAL;
 
     /**
+     * @var int
+     *
+     * @Serializer\Groups({"client_event"})
+     */
+    private $favorite;
+
+    /**
      * Get id.
      *
      * @return int
@@ -1176,5 +1183,21 @@ class Event
     public function setPlatform($platform)
     {
         $this->platform = $platform;
+    }
+
+    /**
+     * @return int
+     */
+    public function getFavorite()
+    {
+        return $this->favorite;
+    }
+
+    /**
+     * @param int $favorite
+     */
+    public function setFavorite($favorite)
+    {
+        $this->favorite = $favorite;
     }
 }

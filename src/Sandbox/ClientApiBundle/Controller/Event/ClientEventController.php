@@ -5,12 +5,12 @@ namespace Sandbox\ClientApiBundle\Controller\Event;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Controller\Event\EventController;
 use Sandbox\ApiBundle\Entity\Event\Event;
+use Sandbox\ApiBundle\Entity\User\UserFavorite;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\View\View;
-use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use JMS\Serializer\SerializationContext;
 
 /**
@@ -30,13 +30,6 @@ class ClientEventController extends EventController
      *
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
-     *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     200 = "Returned when successful"
-     *   }
-     * )
      *
      * @Annotations\QueryParam(
      *    name="limit",
@@ -81,10 +74,13 @@ class ClientEventController extends EventController
         // get max limit
         $limit = $this->getLoadMoreLimit($limit);
 
-        $events = $this->getRepo('Event\Event')->getAllClientEvents(
-            $limit,
-            $offset
-        );
+        $events = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\Event')
+            ->getAllClientEvents(
+                null,
+                $limit,
+                $offset
+            );
 
         foreach ($events as $event) {
             try {
@@ -105,13 +101,6 @@ class ClientEventController extends EventController
      *
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
-     *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     200 = "Returned when successful"
-     *   }
-     * )
      *
      * @Annotations\QueryParam(
      *    name="limit",
@@ -184,13 +173,6 @@ class ClientEventController extends EventController
      * @param Request $request
      * @param int     $id
      *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     200 = "Returned when successful"
-     *   }
-     * )
-     *
      * @Route("/events/{id}")
      * @Method({"GET"})
      *
@@ -243,7 +225,8 @@ class ClientEventController extends EventController
         $attachments = $this->getRepo('Event\EventAttachment')->findByEvent($event);
         $dates = $this->getRepo('Event\EventDate')->findByEvent($event);
         $forms = $this->getRepo('Event\EventForm')->findByEvent($event);
-        $registrationCounts = $this->getRepo('Event\EventRegistration')
+        $registrationCounts = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventRegistration')
             ->getRegistrationCounts($eventId);
         $likesCount = $this->getRepo('Event\EventLike')->getLikesCount($eventId);
         $commentsCount = $this->getRepo('Event\EventComment')->getCommentsCount($eventId);
@@ -258,7 +241,8 @@ class ClientEventController extends EventController
 
         // set accepted person number
         if ($event->isVerify()) {
-            $acceptedCounts = $this->getRepo('Event\EventRegistration')
+            $acceptedCounts = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Event\EventRegistration')
                 ->getAcceptedPersonNumber($eventId);
             $event->setAcceptedPersonNumber((int) $acceptedCounts);
         }
@@ -266,10 +250,12 @@ class ClientEventController extends EventController
         // set my registration status
         if (!is_null($userId)) {
             // check if user is registered
-            $registration = $this->getRepo('Event\EventRegistration')->findOneBy(array(
-                'eventId' => $eventId,
-                'userId' => $userId,
-            ));
+            $registration = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Event\EventRegistration')
+                ->findOneBy(array(
+                    'eventId' => $eventId,
+                    'userId' => $userId,
+                ));
 
             if (!is_null($registration)) {
                 // set registration
@@ -277,14 +263,27 @@ class ClientEventController extends EventController
             }
 
             // check my like if
-            $like = $this->getRepo('Event\EventLike')->findOneBy(array(
-                'eventId' => $event->getId(),
-                'authorId' => $userId,
-            ));
+            $like = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Event\EventLike')
+                ->findOneBy(array(
+                    'eventId' => $event->getId(),
+                    'authorId' => $userId,
+                ));
 
             if (!is_null($like)) {
                 $event->setMyLikeId($like->getId());
             }
+
+            $favorite = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserFavorite')
+                ->findOneBy(array(
+                    'userId' => $userId,
+                    'object' => UserFavorite::OBJECT_EVENT,
+                    'objectId' => $eventId,
+                ));
+
+            $userFavorite = $favorite ? true : false;
+            $event->setFavorite($userFavorite);
         }
 
         return $event;

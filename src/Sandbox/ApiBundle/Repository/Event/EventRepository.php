@@ -137,18 +137,25 @@ class EventRepository extends EntityRepository
     }
 
     /**
-     * @param int $limit
-     * @param int $offset
+     * @param array $eventIds
+     * @param int   $limit
+     * @param int   $offset
      *
      * @return array
      */
     public function getAllClientEvents(
+        $eventIds,
         $limit,
         $offset
     ) {
         $query = $this->createQueryBuilder('e')
             ->where('e.isDeleted = FALSE')
             ->andWhere('e.visible = TRUE');
+
+        if ($eventIds) {
+            $query->andWhere('e.id IN (:ids)')
+                ->setParameter('ids', $eventIds);
+        }
 
         $query->orderBy('e.creationDate', 'DESC')
             ->setFirstResult($offset)
