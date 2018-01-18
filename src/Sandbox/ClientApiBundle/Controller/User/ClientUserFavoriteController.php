@@ -530,7 +530,7 @@ class ClientUserFavoriteController extends LocationController
      */
     private function setEventExtra(
         $event,
-        $userId = null
+        $userId
     ) {
         $eventId = $event->getId();
 
