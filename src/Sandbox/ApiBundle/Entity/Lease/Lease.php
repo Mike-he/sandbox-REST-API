@@ -55,7 +55,7 @@ class Lease
     private $serialNumber;
 
     /**
-     * @var Sandbox\ApiBundle\Entity\Room\RoomBuilding
+     * @var \Sandbox\ApiBundle\Entity\Room\RoomBuilding
      *
      * @ORM\Column(name="building_id",type="integer", nullable=true)
      *
@@ -64,7 +64,7 @@ class Lease
     private $buildingId;
 
     /**
-     * @var Sandbox\ApiBundle\Entity\Product\Product
+     * @var \Sandbox\ApiBundle\Entity\Product\Product
      *
      * @ORM\Column(name="product_id",type="integer", nullable=true)
      *
@@ -281,7 +281,7 @@ class Lease
     private $leaseRentTypes;
 
     /**
-     * @var Sandbox\ApiBundle\Entity\Lease\LeaseClue
+     * @var \Sandbox\ApiBundle\Entity\Lease\LeaseClue
      *
      * @ORM\Column(name="lease_clue_id", type="integer", nullable=true)
      *
@@ -290,7 +290,7 @@ class Lease
     private $LeaseClueId;
 
     /**
-     * @var Sandbox\ApiBundle\Entity\Lease\LeaseOffer
+     * @var \Sandbox\ApiBundle\Entity\Lease\LeaseOffer
      *
      * @ORM\Column(name="lease_offer_id", type="integer", nullable=true)
      *
@@ -487,6 +487,11 @@ class Lease
      * @Serializer\Groups({"main", "log", "lease_list"})
      */
     private $lesseeEnterpriseName;
+
+    /**
+     * @var
+     */
+    private $statusLog;
 
     public function __construct()
     {
@@ -1342,7 +1347,7 @@ class Lease
     }
 
     /**
-     * @return Sandbox\ApiBundle\Entity\Room\RoomBuilding
+     * @return \Sandbox\ApiBundle\Entity\Room\RoomBuilding
      */
     public function getBuildingId()
     {
@@ -1350,7 +1355,7 @@ class Lease
     }
 
     /**
-     * @param Sandbox\ApiBundle\Entity\Room\RoomBuilding $buildingId
+     * @param \Sandbox\ApiBundle\Entity\Room\RoomBuilding $buildingId
      */
     public function setBuildingId($buildingId)
     {
@@ -1358,7 +1363,7 @@ class Lease
     }
 
     /**
-     * @return Sandbox\ApiBundle\Entity\Product\Product
+     * @return \Sandbox\ApiBundle\Entity\Product\Product
      */
     public function getProductId()
     {
@@ -1366,7 +1371,7 @@ class Lease
     }
 
     /**
-     * @param Sandbox\ApiBundle\Entity\Product\Product $productId
+     * @param \Sandbox\ApiBundle\Entity\Product\Product $productId
      */
     public function setProductId($productId)
     {
@@ -1374,7 +1379,7 @@ class Lease
     }
 
     /**
-     * @return Sandbox\ApiBundle\Entity\Lease\LeaseClue
+     * @return \Sandbox\ApiBundle\Entity\Lease\LeaseClue
      */
     public function getLeaseClueId()
     {
@@ -1382,7 +1387,7 @@ class Lease
     }
 
     /**
-     * @param Sandbox\ApiBundle\Entity\Lease\LeaseClue $LeaseClueId
+     * @param \Sandbox\ApiBundle\Entity\Lease\LeaseClue $LeaseClueId
      */
     public function setLeaseClueId($LeaseClueId)
     {
@@ -1467,5 +1472,21 @@ class Lease
     public function setPaidBillsAmount($paidBillsAmount)
     {
         $this->paidBillsAmount = $paidBillsAmount;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getStatusLog()
+    {
+        return $this->statusLog;
+    }
+
+    /**
+     * @param mixed $statusLog
+     */
+    public function setStatusLog($statusLog)
+    {
+        $this->statusLog = $statusLog;
     }
 }

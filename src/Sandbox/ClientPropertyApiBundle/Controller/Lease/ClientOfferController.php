@@ -5,6 +5,7 @@ namespace Sandbox\ClientPropertyApiBundle\Controller\Lease;
 use FOS\RestBundle\View\View;
 use Sandbox\ApiBundle\Constants\LeaseConstants;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Admin\AdminStatusLog;
 use Sandbox\ApiBundle\Entity\Lease\LeaseOffer;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\Room\RoomTypeTags;
@@ -273,6 +274,16 @@ class ClientOfferController extends SalesRestController
                     ->findAttachmentsByRoom($room->getId(), 1);
             }
 
+
+            $statusLog = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminStatusLog')
+                ->findOneBy(array(
+                    'object' => AdminStatusLog::OBJECT_LEASE_OFFER,
+                    'objectId' => $offer->getId(),
+                    'status' => LeaseOffer::LEASE_OFFER_STATUS_OFFER,
+                ));
+
+
             $result[] = [
                 'id' => $id,
                 'serial_number' => $offer->getSerialNumber(),
@@ -283,6 +294,7 @@ class ClientOfferController extends SalesRestController
                 'building_name' => $building ? $building->getName() : '',
                 'start_date' => $offer->getStartDate(),
                 'end_date' => $offer->getEndDate(),
+                'status_log'=>$statusLog,
                 'customer' => array(
                     'id' => $offer->getLesseeCustomer(),
                     'name' => $customer ? $customer->getName() : '',
@@ -319,6 +331,16 @@ class ClientOfferController extends SalesRestController
             $attachment = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Room\RoomAttachmentBinding')
                 ->findAttachmentsByRoom($room->getId());
+
+            $statusLog = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminStatusLog')
+                ->findOneBy(array(
+                    'object' => AdminStatusLog::OBJECT_LEASE_OFFER,
+                    'objectId' => $offer->getId(),
+                    'status' => LeaseOffer::LEASE_OFFER_STATUS_OFFER,
+                ));
+
+            $offer->setStatusLog($statusLog);
 
             $productData = array(
                 'id' => $offer->getProductId(),

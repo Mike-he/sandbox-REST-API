@@ -220,6 +220,11 @@ class LeaseOffer
      */
     private $companyId;
 
+    /**
+     * @var
+     */
+    private $statusLog;
+
     public function __construct()
     {
         $this->leaseRentTypes = new ArrayCollection();
@@ -703,5 +708,21 @@ class LeaseOffer
     public function setCustomer($customer)
     {
         $this->customer = $customer;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getStatusLog()
+    {
+        return $this->statusLog;
+    }
+
+    /**
+     * @param mixed $statusLog
+     */
+    public function setStatusLog($statusLog)
+    {
+        $this->statusLog = $statusLog;
     }
 }
