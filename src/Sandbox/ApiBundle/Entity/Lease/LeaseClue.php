@@ -141,7 +141,15 @@ class LeaseClue
      */
     private $productAppointmentId;
 
+    /**
+     * @var
+     */
     private $productAppointment;
+
+    /**
+     * @var string
+     */
+    private $source;
 
     /**
      * @var \DateTime
@@ -193,7 +201,7 @@ class LeaseClue
     }
 
     /**
-     * @return Sandbox\ApiBundle\Entity\Room\RoomBuilding
+     * @return \Sandbox\ApiBundle\Entity\Room\RoomBuilding
      */
     public function getBuildingId()
     {
@@ -201,7 +209,7 @@ class LeaseClue
     }
 
     /**
-     * @param Sandbox\ApiBundle\Entity\Room\RoomBuilding $buildingId
+     * @param \Sandbox\ApiBundle\Entity\Room\RoomBuilding $buildingId
      */
     public function setBuildingId($buildingId)
     {
@@ -209,7 +217,7 @@ class LeaseClue
     }
 
     /**
-     * @return Sandbox\ApiBundle\Entity\Product\Product
+     * @return \Sandbox\ApiBundle\Entity\Product\Product
      */
     public function getProductId()
     {
@@ -217,7 +225,7 @@ class LeaseClue
     }
 
     /**
-     * @param Sandbox\ApiBundle\Entity\Product\Product $productId
+     * @param \Sandbox\ApiBundle\Entity\Product\Product $productId
      */
     public function setProductId($productId)
     {
@@ -401,7 +409,7 @@ class LeaseClue
     }
 
     /**
-     * @return Sandbox\ApiBundle\Entity\Product\ProductAppointment
+     * @return \Sandbox\ApiBundle\Entity\Product\ProductAppointment
      */
     public function getProductAppointmentId()
     {
@@ -409,7 +417,7 @@ class LeaseClue
     }
 
     /**
-     * @param Sandbox\ApiBundle\Entity\Product\ProductAppointment $productAppointmentId
+     * @param \Sandbox\ApiBundle\Entity\Product\ProductAppointment $productAppointmentId
      */
     public function setProductAppointmentId($productAppointmentId)
     {
@@ -526,5 +534,21 @@ class LeaseClue
     public function setCompanyId($companyId)
     {
         $this->companyId = $companyId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSource()
+    {
+        return $this->source;
+    }
+
+    /**
+     * @param string $source
+     */
+    public function setSource($source)
+    {
+        $this->source = $source;
     }
 }

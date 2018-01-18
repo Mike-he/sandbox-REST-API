@@ -461,6 +461,11 @@ class Lease
      */
     private $lesseeEnterpriseName;
 
+    /**
+     * @var
+     */
+    private $statusLog;
+
     public function __construct()
     {
         $this->leaserentTypes = new ArrayCollection();
@@ -1291,7 +1296,7 @@ class Lease
     }
 
     /**
-     * @param Product $productId
+     * @param \Sandbox\ApiBundle\Entity\Product\Product $productId
      */
     public function setProductId($productId)
     {
@@ -1392,5 +1397,21 @@ class Lease
     public function setPaidBillsAmount($paidBillsAmount)
     {
         $this->paidBillsAmount = $paidBillsAmount;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getStatusLog()
+    {
+        return $this->statusLog;
+    }
+
+    /**
+     * @param mixed $statusLog
+     */
+    public function setStatusLog($statusLog)
+    {
+        $this->statusLog = $statusLog;
     }
 }

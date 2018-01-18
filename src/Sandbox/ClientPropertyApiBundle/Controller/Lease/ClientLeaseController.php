@@ -9,6 +9,7 @@ use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
 use Sandbox\ApiBundle\Constants\LeaseConstants;
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
+use Sandbox\ApiBundle\Entity\Admin\AdminStatusLog;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Traits\GenerateSerialNumberTrait;
@@ -46,6 +47,16 @@ class ClientLeaseController extends SalesRestController
         $this->throwNotFoundIfNull($lease, CustomErrorMessagesConstants::ERROR_LEASE_NOT_FOUND_MESSAGE);
 
         $this->setLeaseAttributions($lease);
+
+        $statusLog = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminStatusLog')
+            ->findOneBy(array(
+                'object' => AdminStatusLog::OBJECT_LEASE,
+                'objectId' => $lease->getId(),
+                'status' => Lease::LEASE_STATUS_DRAFTING,
+            ));
+
+        $lease->setStatusLog($statusLog);
 
         $view = new View();
         $view->setSerializationContext(
@@ -338,6 +349,14 @@ class ClientLeaseController extends SalesRestController
                     LeaseBill::STATUS_PAID
                 );
 
+            $statusLog = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminStatusLog')
+                ->findOneBy(array(
+                    'object' => AdminStatusLog::OBJECT_LEASE,
+                    'objectId' => $lease->getId(),
+                    'status' => Lease::LEASE_STATUS_DRAFTING,
+                ));
+
             $result[] = [
                 'id' => $id,
                 'serial_number' => $lease->getSerialNumber(),
@@ -354,6 +373,7 @@ class ClientLeaseController extends SalesRestController
                 'paid_amount' => (float) $paidBillsAmount,
                 'paid_bills_count' => $paidBillsCount,
                 'total_bills_count' => $totalBillsCount,
+                'status_log'=> $statusLog,
                 'customer' => array(
                     'id' => $lease->getLesseeCustomer(),
                     'name' => $customer ? $customer->getName() : '',
