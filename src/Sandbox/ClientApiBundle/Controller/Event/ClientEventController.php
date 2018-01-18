@@ -143,11 +143,13 @@ class ClientEventController extends EventController
         // get max limit
         $limit = $this->getLoadMoreLimit($limit);
 
-        $events = $this->getRepo('Event\Event')->getMyClientEvents(
-            $userId,
-            $limit,
-            $offset
-        );
+        $events = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\Event')
+            ->getMyClientEvents(
+                $userId,
+                $limit,
+                $offset
+            );
 
         $eventsArray = array();
 
@@ -191,11 +193,13 @@ class ClientEventController extends EventController
         }
 
         // get an event
-        $event = $this->getRepo('Event\Event')->findOneBy(array(
-            'id' => $id,
-            'isDeleted' => false,
-            'visible' => true,
-        ));
+        $event = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\Event')
+            ->findOneBy(array(
+                'id' => $id,
+                'isDeleted' => false,
+                'visible' => true,
+            ));
         $this->throwNotFoundIfNull($event, self::NOT_FOUND_MESSAGE);
 
         // set extra
@@ -228,26 +232,34 @@ class ClientEventController extends EventController
     ) {
         $eventId = $event->getId();
 
-        // get attachment, dates, forms, registrationCounts, likesCount, commentsCount
-        $attachments = $this->getRepo('Event\EventAttachment')->findByEvent($event);
-        $dates = $this->getRepo('Event\EventDate')->findByEvent($event);
-        $forms = $this->getRepo('Event\EventForm')->findByEvent($event);
+        $attachments = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventAttachment')
+            ->findByEvent($event);
+        $event->setAttachments($attachments);
+
+        $dates = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventDate')
+            ->findByEvent($event);
+        $event->setDates($dates);
+
+        $forms = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventForm')
+            ->findByEvent($event);
+        $event->setForms($forms);
+
         $registrationCounts = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Event\EventRegistration')
             ->getRegistrationCounts($eventId);
+        $event->setRegisteredPersonNumber((int) $registrationCounts);
+
         $likesCount = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Event\EventLike')
             ->getLikesCount($eventId);
+        $event->setLikesCount((int) $likesCount);
+
         $commentsCount = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Event\EventComment')
             ->getCommentsCount($eventId);
-
-        // set attachment, dates, forms, registrationCounts
-        $event->setAttachments($attachments);
-        $event->setDates($dates);
-        $event->setForms($forms);
-        $event->setRegisteredPersonNumber((int) $registrationCounts);
-        $event->setLikesCount((int) $likesCount);
         $event->setCommentsCount((int) $commentsCount);
 
         // set accepted person number
