@@ -489,7 +489,23 @@ class ClientClueController extends SalesRestController
                 'user_id' => $productAppointment->getUserId(),
             );
             $clue->setProductAppointment($productAppointmentData);
+
+            $source = '客户申请';
+        } else {
+            $statusLog = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Admin\AdminStatusLog')
+                ->findOneBy(array(
+                    'object' => AdminStatusLog::OBJECT_LEASE_CLUE,
+                    'objectId' => $clue->getId(),
+                    'status' => LeaseClue::LEASE_CLUE_STATUS_CLUE,
+                ));
+
+            $username = $statusLog ? $statusLog->getUsername() : '';
+
+            $source = $username.' 管理员创建';
         }
+
+        $clue->setSource($source);
 
         return $clue;
     }
