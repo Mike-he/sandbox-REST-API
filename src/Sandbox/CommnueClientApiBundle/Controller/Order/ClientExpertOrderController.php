@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 class ClientExpertOrderController extends SandboxRestController
 {
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam

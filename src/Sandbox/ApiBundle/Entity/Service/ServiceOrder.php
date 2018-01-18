@@ -188,7 +188,6 @@ class ServiceOrder
      */
     private $companyName;
 
-
     /**
      * @return float
      */

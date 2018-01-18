@@ -4,7 +4,6 @@ namespace Sandbox\ApiBundle\Repository\Admin;
 
 use Doctrine\ORM\EntityRepository;
 use Sandbox\AdminApiBundle\Data\Position\Position;
-use Sandbox\ApiBundle\Entity\Admin\AdminPosition;
 
 class AdminPositionRepository extends EntityRepository
 {

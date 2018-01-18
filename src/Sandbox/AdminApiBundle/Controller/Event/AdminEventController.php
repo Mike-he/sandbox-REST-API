@@ -13,6 +13,7 @@ use Sandbox\ApiBundle\Entity\Event\EventDate;
 use Sandbox\ApiBundle\Entity\Event\EventForm;
 use Sandbox\ApiBundle\Entity\Event\EventFormOption;
 use Sandbox\ApiBundle\Entity\Event\EventTime;
+use Sandbox\ApiBundle\Entity\Service\ViewCounts;
 use Sandbox\ApiBundle\Form\Event\EventPatchType;
 use Sandbox\ApiBundle\Form\Event\EventPostType;
 use Sandbox\ApiBundle\Form\Event\EventPutType;
@@ -596,6 +597,15 @@ class AdminEventController extends SandboxRestController
             $event,
             $eventForms
         );
+
+        $types = [ViewCounts::TYPE_VIEW, ViewCounts::TYPE_REGISTERING];
+        foreach ($types as $type) {
+            $this->get('sandbox_api.view_count')->addFirstData(
+                ViewCounts::OBJECT_EVENT,
+                $event->getId(),
+                $type
+            );
+        }
 
         $response = array(
             'id' => $event->getId(),

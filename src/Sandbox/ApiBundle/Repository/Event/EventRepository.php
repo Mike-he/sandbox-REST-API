@@ -5,6 +5,7 @@ namespace Sandbox\ApiBundle\Repository\Event;
 use Doctrine\ORM\EntityRepository;
 use Sandbox\ApiBundle\Entity\Event\Event;
 use Sandbox\ApiBundle\Entity\Event\EventRegistration;
+use Sandbox\ApiBundle\Entity\Service\ViewCounts;
 
 class EventRepository extends EntityRepository
 {
@@ -137,16 +138,19 @@ class EventRepository extends EntityRepository
     }
 
     /**
-     * @param array $eventIds
-     * @param int   $limit
-     * @param int   $offset
-     *
+     * @param $eventIds
+     * @param $limit
+     * @param $offset
+     * @param null $status
+     * @param null $sort
      * @return array
      */
     public function getAllClientEvents(
         $eventIds,
         $limit,
-        $offset
+        $offset,
+        $status = null,
+        $sort = null
     ) {
         $query = $this->createQueryBuilder('e')
             ->where('e.isDeleted = FALSE')
@@ -157,8 +161,41 @@ class EventRepository extends EntityRepository
                 ->setParameter('ids', $eventIds);
         }
 
-        $query->orderBy('e.creationDate', 'DESC')
-            ->setFirstResult($offset)
+        if(!is_null($status)) {
+            $query->andWhere('e.status = :status')
+                ->setParameter('status', $status);
+        }
+
+        if (!is_null($sort)) {
+            switch ($sort) {
+                case 'registering':
+                    $query
+                        ->leftJoin('SandboxApiBundle:Service\ViewCounts','v','WITH','v.objectId = e.id')
+                        ->andWhere('v.object = :object')
+                        ->andWhere('v.type = :type')
+                        ->setParameter('object', ViewCounts::OBJECT_EVENT)
+                        ->setParameter('type', ViewCounts::TYPE_REGISTERING)
+                        ->orderBy('v.count', 'DESC');
+                    break;
+                case 'view':
+                    $query->leftJoin('SandboxApiBundle:Service\ViewCounts', 'v', 'WITH', 'v.objectId = e.id')
+                        ->andWhere('v.object = :object')
+                        ->andWhere('v.type = :type')
+                        ->setParameter('object', ViewCounts::OBJECT_EVENT)
+                        ->setParameter('type', ViewCounts::TYPE_VIEW)
+                        ->orderBy('v.count', 'DESC');
+                    break;
+                default:
+                    $query->orderBy('e.creationDate', 'DESC');
+                    break;
+            }
+        } else {
+            $query->orderBy('e.creationDate', 'DESC');
+        }
+
+        $query->addOrderBy('e.registrationEndDate', 'DESC');
+
+        $query->setFirstResult($offset)
             ->setMaxResults($limit);
 
         return $query->getQuery()->getResult();

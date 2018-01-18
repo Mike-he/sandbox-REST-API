@@ -2086,14 +2086,11 @@ class SandboxRestController extends FOSRestController
         $realName,
         $credentialNo
     ) {
-
         $content = [
             'real_name' => $realName,
             'credential_no' => $credentialNo,
         ];
         $json = json_encode($content);
-
-
 
         $auth = $this->authAuthMd5($json);
 

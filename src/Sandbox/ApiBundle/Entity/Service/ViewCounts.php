@@ -14,10 +14,12 @@ class ViewCounts
 {
     const TYPE_VIEW = 'view';
     const TYPE_BOOKING = 'booking';
+    const TYPE_REGISTERING = 'registering';
 
     const OBJECT_SERVICE = 'service';
     const OBJECT_EXPERT = 'expert';
     const OBJECT_EVENT = 'event';
+    const OBJECT_BUILDING = 'building';
 
     /**
      * @var int
