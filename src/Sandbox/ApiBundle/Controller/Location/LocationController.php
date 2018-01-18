@@ -7,6 +7,7 @@ use Sandbox\ApiBundle\Entity\Property\PropertyTypes;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingServices;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingTag;
 use Sandbox\ApiBundle\Entity\Room\RoomCity;
+use Sandbox\ApiBundle\Entity\Service\ViewCounts;
 use Sandbox\ApiBundle\Traits\HandleCoordinateTrait;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Symfony\Component\HttpFoundation\Request;
@@ -640,6 +641,12 @@ class LocationController extends SalesRestController
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['main']));
         $view->setData($building);
+
+        $this->get('sandbox_api.view_count')->autoCounting(
+            ViewCounts::OBJECT_BUILDING,
+            $id,
+            ViewCounts::TYPE_VIEW
+        );
 
         return $view;
     }

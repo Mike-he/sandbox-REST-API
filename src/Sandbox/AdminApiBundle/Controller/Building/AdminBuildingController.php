@@ -14,6 +14,7 @@ use Sandbox\ApiBundle\Entity\Room\RoomBuildingCompany;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingPhones;
 use Sandbox\ApiBundle\Entity\Room\RoomCity;
 use Sandbox\ApiBundle\Entity\Room\RoomFloor;
+use Sandbox\ApiBundle\Entity\Service\ViewCounts;
 use Sandbox\ApiBundle\Form\Room\RoomAttachmentPostType;
 use Sandbox\ApiBundle\Form\Room\RoomBuildingAttachmentPostType;
 use Sandbox\ApiBundle\Form\Room\RoomBuildingCompanyPostType;
@@ -375,6 +376,13 @@ class AdminBuildingController extends LocationController
 
         $response = array(
             'id' => $building->getId(),
+        );
+
+        // add first view counts
+        $this->get('sandbox_api.view_count')->addFirstData(
+            ViewCounts::OBJECT_BUILDING,
+            $building->getId(),
+            ViewCounts::TYPE_VIEW
         );
 
         return new View($response);

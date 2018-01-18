@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Repository\Room;
 
 use Doctrine\ORM\EntityRepository;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
+use Sandbox\ApiBundle\Entity\Service\ViewCounts;
 
 class RoomBuildingRepository extends EntityRepository
 {
@@ -845,22 +846,15 @@ class RoomBuildingRepository extends EntityRepository
     }
 
     /**
-     * @param $userId
      * @param $lat
      * @param $lng
-     * @param null $buildingIds
-     * @param null $limit
-     * @param null $offset
-     *
+     * @param $buildingIds
      * @return array
      */
     public function getCommnueClientCommunityBuilding(
-        $userId,
         $lat,
         $lng,
-        $buildingIds = null,
-        $limit = null,
-        $offset = null
+        $buildingIds
     ) {
         $query = $this->createQueryBuilder('rb')
                       ->select('
@@ -879,18 +873,97 @@ class RoomBuildingRepository extends EntityRepository
                         (rb.orderEvaluationNumber + rb.buildingEvaluationNumber) as total_comments_amount
                     ')
                         ->where('rb.commnueStatus != :commnuestatus')
+                        ->andWhere('rb.id IN (:ids)')
                         ->andWhere('rb.isDeleted = FALSE')
                         ->andWhere('rb.visible = TRUE')
                         ->setParameter('commnuestatus', RoomBuilding::FREEZON)
+                        ->setParameter('ids', $buildingIds)
                         ->setParameter('latitude', $lat)
                         ->setParameter('longitude', $lng);
 
-        if (!is_null($buildingIds)) {
-            $query->andWhere('rb.id IN (:ids)')
-                ->setParameter('ids', $buildingIds);
+        $query->orderBy('distance', 'ASC');
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $city
+     * @param $district
+     * @param $sort
+     * @param null $limit
+     * @param null $offset
+     * @return array
+     */
+    public function getCommnueClientAllCommunityBuilding(
+        $city,
+        $district,
+        $sort,
+        $limit = null,
+        $offset = null
+    ) {
+        $query = $this->createQueryBuilder('rb')
+            ->select('
+                        rb.id,
+                        rb.name,
+                        rb.evaluationStar,
+                        rb.avatar,
+                        rb.address,
+                        rb.lat,
+                        rb.lng,
+                        (rb.orderEvaluationNumber + rb.buildingEvaluationNumber) as total_comments_amount
+                    ')
+            ->where('rb.commnueStatus != :commnuestatus')
+            ->andWhere('rb.isDeleted = FALSE')
+            ->andWhere('rb.visible = TRUE')
+            ->setParameter('commnuestatus', RoomBuilding::FREEZON);
+
+
+        if (!is_null($district) && $district != 0) {
+            $query->andWhere('rb.districtId = :districtId')
+                ->setParameter('districtId', $district);
         }
 
-        $query->orderBy('distance', 'ASC');
+        if (!is_null($city) && $city != 0) {
+            $query->andWhere('rb.cityId = :cityId')
+                ->setParameter('cityId', $city);
+        }
+
+        if (!is_null($sort)) {
+            switch ($sort) {
+                case 'purchase':
+                    $query
+                        ->select(
+                            'rb.id,
+                            rb.name,
+                            rb.evaluationStar,
+                            rb.avatar,
+                            rb.address,
+                            rb.lat,
+                            rb.lng,
+                            (rb.orderEvaluationNumber + rb.buildingEvaluationNumber) as total_comments_amount,
+                            COUNT(rb.id) as counts'
+                        )
+                        ->leftJoin('SandboxApiBundle:Room\Room','r','WITH','r.buildingId = rb.id')
+                        ->leftJoin('SandboxApiBundle:Product\Product','p','WITH','p.roomId = r.id')
+                        ->leftJoin('SandboxApiBundle:Order\ProductOrder','po','WITH','po.productId = p.id')
+                        ->groupBy('rb.id')
+                        ->orderBy('counts','DESC');
+                    break;
+                case 'view':
+                    $query->leftJoin('SandboxApiBundle:Service\ViewCounts', 'v', 'WITH', 'v.objectId = rb.id')
+                        ->andWhere('v.object = :object')
+                        ->andWhere('v.type = :type')
+                        ->setParameter('object', ViewCounts::OBJECT_BUILDING)
+                        ->setParameter('type', ViewCounts::TYPE_VIEW)
+                        ->orderBy('v.count', 'DESC');
+                    break;
+                default:
+                    $query->orderBy('rb.creationDate', 'DESC');
+                    break;
+            }
+        } else {
+            $query->orderBy('rb.creationDate', 'DESC');
+        }
 
         if (!is_null($limit) && !is_null($offset)) {
             $query->setFirstResult($offset)

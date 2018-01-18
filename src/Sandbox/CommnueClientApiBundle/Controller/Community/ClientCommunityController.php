@@ -60,6 +60,32 @@ class ClientCommunityController extends LocationController
      *    description="start of the page"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="city",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    description="cityId"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="district",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    description="districtId"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="sort",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    description="sort string"
+     * )
+     *
      * @Route("/communities")
      * @Method({"GET"})
      *
@@ -74,22 +100,24 @@ class ClientCommunityController extends LocationController
             $userId = $this->getUserId();
         }
 
-        $lat = $paramFetcher->get('lat');
-        $lng = $paramFetcher->get('lng');
+//        $lat = $paramFetcher->get('lat');
+//        $lng = $paramFetcher->get('lng');
+//        $location = $this->baiduToGaode($lat, $lng);
+//        $lat = $location['lat'];
+//        $lng = $location['lon'];
+
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
-
-        $location = $this->baiduToGaode($lat, $lng);
-        $lat = $location['lat'];
-        $lng = $location['lon'];
+        $city = $paramFetcher->get('city');
+        $district = $paramFetcher->get('district');
+        $sort = $paramFetcher->get('sort');
 
         $communities = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\RoomBuilding')
-            ->getCommnueClientCommunityBuilding(
-                $userId,
-                $lat,
-                $lng,
-                null,
+            ->getCommnueClientAllCommunityBuilding(
+                $city,
+                $district,
+                $sort,
                 $limit,
                 $offset
             );
@@ -175,7 +203,6 @@ class ClientCommunityController extends LocationController
         $buildings = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\RoomBuilding')
             ->getCommnueClientCommunityBuilding(
-                $userId,
                 $lat,
                 $lng,
                 $hots

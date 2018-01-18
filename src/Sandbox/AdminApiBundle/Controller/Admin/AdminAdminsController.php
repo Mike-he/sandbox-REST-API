@@ -153,7 +153,6 @@ class AdminAdminsController extends SandboxRestController
                 $type
             );
 
-
         if (AdminPermission::PERMISSION_LEVEL_GLOBAL == $type ||
             self::ADMINS_MENU_KEY_SUPER == $type
         ) {

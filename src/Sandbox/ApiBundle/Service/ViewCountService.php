@@ -16,6 +16,29 @@ class ViewCountService
         $this->doctrine = $this->container->get('doctrine');
     }
 
+    /**
+     * @param $object
+     * @param $objectId
+     * @param $type
+     */
+    public function addFirstData(
+        $object,
+        $objectId,
+        $type
+    ) {
+        $em = $this->doctrine->getManager();
+
+            $viewCount = new ViewCounts();
+            $viewCount->setCount(0);
+            $viewCount->setObject($object);
+            $viewCount->setObjectId($objectId);
+            $viewCount->setType($type);
+
+            $em->persist($viewCount);
+
+        $em->flush();
+    }
+
     public function autoCounting(
         $object,
         $objectId,

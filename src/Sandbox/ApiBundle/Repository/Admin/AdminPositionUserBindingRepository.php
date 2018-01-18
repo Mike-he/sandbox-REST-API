@@ -3,7 +3,6 @@
 namespace Sandbox\ApiBundle\Repository\Admin;
 
 use Doctrine\ORM\EntityRepository;
-use Sandbox\ApiBundle\Entity\Admin\AdminPosition;
 
 class AdminPositionUserBindingRepository extends EntityRepository
 {
@@ -272,7 +271,6 @@ class AdminPositionUserBindingRepository extends EntityRepository
                 ->setParameter('users', $users);
         }
 
-
         $result = $query->getQuery()->getSingleScalarResult();
 
         return (int) $result;
@@ -499,6 +497,7 @@ class AdminPositionUserBindingRepository extends EntityRepository
      * @param $permissions
      * @param $platform
      * @param null $salesCompanyId
+     *
      * @return mixed
      *
      * @throws \Doctrine\ORM\Query\QueryException

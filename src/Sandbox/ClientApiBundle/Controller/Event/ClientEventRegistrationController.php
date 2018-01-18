@@ -11,6 +11,7 @@ use Sandbox\ApiBundle\Entity\Event\EventForm;
 use Sandbox\ApiBundle\Entity\Event\EventRegistration;
 use Sandbox\ApiBundle\Entity\Event\EventRegistrationCheck;
 use Sandbox\ApiBundle\Entity\Event\EventRegistrationForm;
+use Sandbox\ApiBundle\Entity\Service\ViewCounts;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Form\Event\EventRegistrationPatchType;
 use Sandbox\ApiBundle\Form\Event\EventRegistrationPostType;
@@ -254,6 +255,12 @@ class ClientEventRegistrationController extends EventController
             $eventRegistration,
             $event,
             $userId
+        );
+
+        $this->get('sandbox_api.view_count')->autoCounting(
+            ViewCounts::OBJECT_EVENT,
+             $event->getId(),
+            ViewCounts::TYPE_REGISTERING
         );
 
         $response = array(

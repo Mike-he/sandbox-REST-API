@@ -22,6 +22,7 @@ use Sandbox\ApiBundle\Entity\Room\RoomBuildingServiceMember;
 use Sandbox\ApiBundle\Entity\Room\RoomCity;
 use Sandbox\ApiBundle\Entity\Room\RoomFloor;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany;
+use Sandbox\ApiBundle\Entity\Service\ViewCounts;
 use Sandbox\ApiBundle\Form\Room\RoomAttachmentPostType;
 use Sandbox\ApiBundle\Form\Room\RoomBuildingAttachmentPostType;
 use Sandbox\ApiBundle\Form\Room\RoomBuildingCompanyPostType;
@@ -438,6 +439,13 @@ class AdminBuildingController extends LocationController
             'logObjectKey' => Log::OBJECT_BUILDING,
             'logObjectId' => $building->getId(),
         ));
+
+        // add view counts
+        $this->get('sandbox_api.view_count')->addFirstData(
+            ViewCounts::OBJECT_BUILDING,
+            $building->getId(),
+            ViewCounts::TYPE_VIEW
+        );
 
         return $response;
     }

@@ -52,6 +52,22 @@ class ClientEventController extends EventController
      *    description="offset of page"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="status",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    description="event status"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="sort",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    description="sort string"
+     * )
+     *
      * @Route("/events/all")
      * @Method({"GET"})
      *
@@ -68,6 +84,9 @@ class ClientEventController extends EventController
             $userId = $this->getUserId();
         }
 
+        $status = $paramFetcher->get('status');
+        $sort = $paramFetcher->get('sort');
+
         // filters
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
@@ -80,7 +99,9 @@ class ClientEventController extends EventController
             ->getAllClientEvents(
                 null,
                 $limit,
-                $offset
+                $offset,
+                $status,
+                $sort
             );
 
         foreach ($events as $event) {
@@ -204,6 +225,12 @@ class ClientEventController extends EventController
 
         // set extra
         $event = $this->setEventExtra($event, $userId);
+
+        $this->get('sandbox_api.view_count')->autoCounting(
+            ViewCounts::OBJECT_EVENT,
+            $id,
+            ViewCounts::TYPE_VIEW
+        );
 
         $this->get('sandbox_api.view_count')->autoCounting(
             ViewCounts::OBJECT_EVENT,
