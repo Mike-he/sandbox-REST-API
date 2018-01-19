@@ -6,6 +6,7 @@ namespace Sandbox\AdminApiBundle\Command;
 use Doctrine\ORM\EntityManager;
 use Sandbox\ApiBundle\Entity\Event\Event;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
+use Sandbox\ApiBundle\Entity\Service\Service;
 use Sandbox\ApiBundle\Traits\SetStatusTrait;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
@@ -179,9 +180,15 @@ class CheckStatusCommand extends ContainerAwareCommand
     private function checkServiceStatus(
         $em
     ) {
+        $status = [
+            Service::STATUS_PREHEATING,
+            Service::STATUS_ONGOING
+        ];
+
         $services = $em->getRepository('SandboxApiBundle:Service\Service')
             ->findBy([
                 'isSaved' => false,
+                'status' => $status
             ]);
 
         foreach ($services as $service) {
