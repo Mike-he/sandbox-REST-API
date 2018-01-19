@@ -4,7 +4,9 @@ namespace Sandbox\AdminApiBundle\Controller\Auth;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\AdminApiBundle\Controller\Traits\HandleAdminLoginDataTrait;
+use Sandbox\ApiBundle\Constants\PlatformConstants;
 use Sandbox\ApiBundle\Controller\Auth\AuthController;
+use Sandbox\ApiBundle\Entity\Admin\AdminPlatform;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -82,14 +84,16 @@ class AdminAuthController extends AuthController
                 $salesCompanyId
             );
 
-            // set sales platform monitoring permissions
-            $salesPlatformMonitoringPermissions = $this->getSalesPlatformMonitoringPermissions(
-                $platform,
-                $salesCompanyId
-            );
+            if ($platform == PlatformConstants::PLATFORM_SALES) {
+                // set sales platform monitoring permissions
+                $salesPlatformMonitoringPermissions = $this->getSalesPlatformMonitoringPermissions(
+                    $platform,
+                    $salesCompanyId
+                );
 
-            if (!is_null($salesPlatformMonitoringPermissions) && !empty($salesPlatformMonitoringPermissions)) {
-                $permissions = array_merge($permissions, $salesPlatformMonitoringPermissions);
+                if (!is_null($salesPlatformMonitoringPermissions) && !empty($salesPlatformMonitoringPermissions)) {
+                    $permissions = array_merge($permissions, $salesPlatformMonitoringPermissions);
+                }
             }
         }
 
