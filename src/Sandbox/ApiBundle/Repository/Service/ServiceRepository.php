@@ -183,4 +183,32 @@ class ServiceRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param $limit
+     * @param $offset
+     * @param $serviceIds
+     *
+     * @return array
+     */
+    public function getClientFavoriteServices(
+        $limit,
+        $offset,
+        $serviceIds
+    ) {
+        $query = $this->createQueryBuilder('s')
+            ->where('s.visible = true');
+
+        if (!is_null($limit) && !is_null($offset)) {
+            $query->setFirstResult($offset)
+                ->setMaxResults($limit);
+        }
+
+        if (!is_null($serviceIds)) {
+            $query->andWhere('s.id IN (:ids)')
+                ->setParameter('ids', $serviceIds);
+        }
+
+        return $query->getQuery()->getResult();
+    }
 }

@@ -226,13 +226,7 @@ class ClientUserFavoriteController extends LocationController
             case UserFavorite::OBJECT_SERVICE:
                 $services = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Service\Service')
-                    ->getClientServices(
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
+                    ->getClientFavoriteServices(
                         $limit,
                         $offset,
                         $objectIds
