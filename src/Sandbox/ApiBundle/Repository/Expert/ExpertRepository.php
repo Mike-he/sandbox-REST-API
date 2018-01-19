@@ -7,7 +7,24 @@ use Sandbox\ApiBundle\Entity\Service\ViewCounts;
 
 class ExpertRepository extends EntityRepository
 {
+    /**
+     * @param $banned
+     * @param $isService
+     * @param $field
+     * @param $country
+     * @param $province
+     * @param $city
+     * @param $district
+     * @param $sort
+     * @param $limit
+     * @param $offset
+     * @param null $expertIds
+     * 
+     * @return array
+     */
     public function getExperts(
+        $banned,
+        $isService,
         $field,
         $country,
         $province,
@@ -29,9 +46,17 @@ class ExpertRepository extends EntityRepository
                         rc.name as district_name                    
                 ')
             ->leftJoin('SandboxApiBundle:Room\RoomCity', 'rc', 'WITH', 'e.districtId = rc.id')
-            ->where('e.banned = 0')
-            ->andWhere('e.isService = 1')
-        ;
+            ->where('1=1');
+
+        if (!is_null($banned)) {
+            $query->andWhere('e.banned = :banned')
+                ->setParameter('banned', $banned);
+        }
+
+        if (!is_null($isService)) {
+            $query->andWhere('e.isService = :isService')
+                ->setParameter('isService', $isService);
+        }
 
         if ($field) {
             $query->innerJoin('e.expertFields', 'ef')

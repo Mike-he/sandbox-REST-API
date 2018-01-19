@@ -349,6 +349,8 @@ class ClientExpertController extends SandboxRestController
         $experts = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Expert\Expert')
             ->getExperts(
+                false,
+                true,
                 $field,
                 $country,
                 $province,

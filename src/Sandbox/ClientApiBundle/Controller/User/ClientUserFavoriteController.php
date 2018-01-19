@@ -263,6 +263,8 @@ class ClientUserFavoriteController extends LocationController
                         null,
                         null,
                         null,
+                        null,
+                        null,
                         $limit,
                         $offset,
                         $objectIds
