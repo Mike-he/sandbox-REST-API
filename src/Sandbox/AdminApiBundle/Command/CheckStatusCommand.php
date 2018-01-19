@@ -34,6 +34,9 @@ class CheckStatusCommand extends ContainerAwareCommand
         $this->setInvoiceForProductOrders($em);
 
         $this->checkEventOrders($em);
+
+        $this->checkServiceStatus($em);
+
         $em->flush();
     }
 
@@ -167,6 +170,22 @@ class CheckStatusCommand extends ContainerAwareCommand
 
         foreach ($events as $event) {
             $this->setEventStatus($event);
+        }
+    }
+
+    /**
+     * @param EntityManager $em
+     */
+    private function checkServiceStatus(
+        $em
+    ) {
+        $services = $em->getRepository('SandboxApiBundle:Service\Service')
+            ->findBy([
+                'isSaved' => false,
+            ]);
+
+        foreach ($services as $service) {
+            $this->setServiceStatus($service);
         }
     }
 

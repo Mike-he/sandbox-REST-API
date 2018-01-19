@@ -7,6 +7,7 @@ use Sandbox\ApiBundle\Entity\Event\EventOrder;
 use Sandbox\ApiBundle\Entity\Finance\FinanceLongRentServiceBill;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Parameter\Parameter;
+use Sandbox\ApiBundle\Entity\Service\Service;
 use Sandbox\ApiBundle\Entity\User\UserBeanFlow;
 
 /**
@@ -164,6 +165,31 @@ trait SetStatusTrait
             Event::STATUS_END != $status
         ) {
             $event->setStatus(Event::STATUS_END);
+        }
+    }
+
+    /**
+     * @param Service $service
+     */
+    protected function setServiceStatus(
+        $service
+    ) {
+        $now = new \DateTime();
+
+        $startDate = $service->getServiceStartDate();
+        $endDate = $service->getServiceEndDate();
+
+        $status = $service->getStatus();
+
+        if($now >= $startDate &&
+            $now <= $endDate &&
+            $status != Service::STATUS_ONGOING
+        ) {
+            $service->setStatus(Service::STATUS_ONGOING);
+        } elseif ($now > $endDate &&
+            $status != Service::STATUS_END
+        ) {
+            $service->setStatus(Service::STATUS_END);
         }
     }
 }

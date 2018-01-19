@@ -775,15 +775,6 @@ class AdminServiceController extends SalesRestController
             $service->setDistrict($district);
         }
 
-        $now = new \DateTime();
-        $startDate = $service->getServiceStartDate();
-        $endDate = $service->getServiceEndDate();
-        if ($startDate <= $now && $endDate >= $now) {
-            $service->setStatus('ongoing');
-        } elseif ($endDate < $now) {
-            $service->setStatus('end');
-        }
-
         $addresss = $countryName.$provinceName.$cityName.$districtName;
         $service->setAttachments($attachments);
         $service->setTimes($times);
