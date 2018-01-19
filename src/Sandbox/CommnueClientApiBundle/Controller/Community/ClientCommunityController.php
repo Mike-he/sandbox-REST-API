@@ -181,12 +181,11 @@ class ClientCommunityController extends LocationController
             $userId = $this->getUserId();
         }
 
-        $lat = $paramFetcher->get('lat');
-        $lng = $paramFetcher->get('lng');
-
-        $location = $this->baiduToGaode($lat, $lng);
-        $lat = $location['lat'];
-        $lng = $location['lon'];
+//        $lat = $paramFetcher->get('lat');
+//        $lng = $paramFetcher->get('lng');
+//        $location = $this->baiduToGaode($lat, $lng);
+//        $lat = $location['lat'];
+//        $lng = $location['lon'];
 
         $hots = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\CommnueBuildingHot')
@@ -214,8 +213,6 @@ class ClientCommunityController extends LocationController
         $buildings = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\RoomBuilding')
             ->getCommnueClientCommunityBuilding(
-                $lat,
-                $lng,
                 $hots
             );
 
@@ -275,11 +272,11 @@ class ClientCommunityController extends LocationController
             $community['room_number'] = (int) $number;
             $counts[] = $community['room_number'];
 
-            $lat = $community['lat'];
-            $lng = $community['lng'];
-            $locationArray = $this->gaodeToBaidu($lat, $lng);
-            $community['lat'] = $locationArray['lat'];
-            $community['lng'] = $locationArray['lon'];
+//            $lat = $community['lat'];
+//            $lng = $community['lng'];
+//            $locationArray = $this->gaodeToBaidu($lat, $lng);
+//            $community['lat'] = $locationArray['lat'];
+//            $community['lng'] = $locationArray['lon'];
         }
 
         if (!is_null($userId)) {

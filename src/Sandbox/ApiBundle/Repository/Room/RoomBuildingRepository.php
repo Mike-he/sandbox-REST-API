@@ -846,25 +846,16 @@ class RoomBuildingRepository extends EntityRepository
     }
 
     /**
-     * @param $lat
-     * @param $lng
      * @param $buildingIds
      * @return array
      */
     public function getCommnueClientCommunityBuilding(
-        $lat,
-        $lng,
         $buildingIds
     ) {
         $query = $this->createQueryBuilder('rb')
                       ->select('
                         rb.id,
                         rb.name,
-                        (6371
-                            * acos(cos(radians(:latitude)) * cos(radians(rb.lat))
-                            * cos(radians(rb.lng) - radians(:longitude))
-                            + sin(radians(:latitude)) * sin(radians(rb.lat)))
-                        ) as distance,
                         rb.evaluationStar,
                         rb.avatar,
                         rb.address,
@@ -877,11 +868,9 @@ class RoomBuildingRepository extends EntityRepository
                         ->andWhere('rb.isDeleted = FALSE')
                         ->andWhere('rb.visible = TRUE')
                         ->setParameter('commnuestatus', RoomBuilding::FREEZON)
-                        ->setParameter('ids', $buildingIds)
-                        ->setParameter('latitude', $lat)
-                        ->setParameter('longitude', $lng);
+                        ->setParameter('ids', $buildingIds);
 
-        $query->orderBy('distance', 'ASC');
+        $query->orderBy('rb.creationDate', 'DESC');
 
         return $query->getQuery()->getResult();
     }
