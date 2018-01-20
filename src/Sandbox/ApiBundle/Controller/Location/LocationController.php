@@ -572,6 +572,12 @@ class LocationController extends SalesRestController
         Request $request,
         $id
     ) {
+        $this->get('sandbox_api.view_count')->autoCounting(
+            ViewCounts::OBJECT_BUILDING,
+            $id,
+            ViewCounts::TYPE_VIEW
+        );
+        
         $lat = $paramFetcher->get('lat');
         $lng = $paramFetcher->get('lng');
 
@@ -641,12 +647,6 @@ class LocationController extends SalesRestController
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(['main']));
         $view->setData($building);
-
-        $this->get('sandbox_api.view_count')->autoCounting(
-            ViewCounts::OBJECT_BUILDING,
-            $id,
-            ViewCounts::TYPE_VIEW
-        );
 
         return $view;
     }
