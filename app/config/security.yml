@@ -200,11 +200,6 @@ security:
             security: false
             methods: [POST]
 
-        client_banners:
-            pattern: ^/property/types$
-            security: false
-            methods: [GET]
-
         main:
             pattern: ^/
             anonymous: true
@@ -269,10 +264,10 @@ security:
         - { path: ^/openserver/client/auth/login$, role: ROLE_USER }
         - { path: ^/plugins/fileServer/fileservice, roles: ROLE_CLIENT_API }
         - { path: ^/duiba, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
-        - { path: ^/property/types$, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
         - { path: ^/admin, role: ROLE_CLIENT_API }
         - { path: ^/sales, role: ROLE_CLIENT_API }
         - { path: ^/shop, role: ROLE_CLIENT_API }
         - { path: ^/client, role: ROLE_CLIENT_API }
-        - { path: ^/property, role: ROLE_CLIENT_API }
+        - { path: ^/property/client, role: ROLE_CLIENT_API }
+        - { path: ^/property/admin, role: ROLE_CLIENT_API }
         - { path: ^/commnue, role: ROLE_CLIENT_API }
