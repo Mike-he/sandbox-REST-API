@@ -294,7 +294,7 @@ class CompanyRepository extends EntityRepository
             $query->setParameter('search', '%'.$keywordSearch.'%');
         }
 
-        $query->orderBy('c.creationDate', 'ASC');
+        $query->orderBy('c.creationDate', 'DESC');
 
         $query->setMaxResults($limit)
             ->setFirstResult($offset);
