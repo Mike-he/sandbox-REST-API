@@ -215,7 +215,7 @@ class AdminAuthController extends AuthController
             $platform
         );
 
-        if ($isSuper || $hasSalesMonitoringPermission) {
+        if ($isSuper || ($hasSalesMonitoringPermission && $platform == PlatformConstants::PLATFORM_SALES)) {
             $groups = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Admin\AdminPermissionGroups')
                 ->getPermissionGroupByPlatform(
