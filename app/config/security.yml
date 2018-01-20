@@ -268,5 +268,6 @@ security:
         - { path: ^/sales, role: ROLE_CLIENT_API }
         - { path: ^/shop, role: ROLE_CLIENT_API }
         - { path: ^/client, role: ROLE_CLIENT_API }
-        - { path: ^/property, role: ROLE_CLIENT_API }
+        - { path: ^/property/client, role: ROLE_CLIENT_API }
+        - { path: ^/property/admin, role: ROLE_CLIENT_API }
         - { path: ^/commnue, role: ROLE_CLIENT_API }
