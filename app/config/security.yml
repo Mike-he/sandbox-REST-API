@@ -29,10 +29,6 @@ security:
             pattern:  ^/(_(profiler|wdt)|css|images|js)/
             security: false
 
-        main:
-            pattern: ^/
-            anonymous: true
-
         phone_code:
             pattern: ^/phonecode
             security: false
