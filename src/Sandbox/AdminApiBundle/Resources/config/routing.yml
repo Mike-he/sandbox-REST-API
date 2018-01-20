@@ -334,3 +334,8 @@ sandbox_admin_api_admin_profiles:
     resource: "@SandboxAdminApiBundle/Controller/Admin/AdminUserProfilesController.php"
     type:     annotation
     prefix:   /
+
+sandbox_admin_api_companies:
+    resource: "@SandboxAdminApiBundle/Controller/Company/AdminCompanyController.php"
+    type:     annotation
+    prefix:   /

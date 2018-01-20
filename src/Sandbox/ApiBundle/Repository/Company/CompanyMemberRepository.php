@@ -42,4 +42,24 @@ class CompanyMemberRepository extends EntityRepository
 
         return $result;
     }
+
+    /**
+     * @param $companyId
+     *
+     * @return int
+     *
+     * @throws \Doctrine\ORM\Query\QueryException
+     */
+    public function countCompanyMembers(
+        $companyId
+    ) {
+        $query = $this->createQueryBuilder('cm')
+            ->select('count(cm.id)')
+            ->where('cm.companyId = :companyId')
+            ->setParameter('companyId', $companyId);
+
+        $result = $query->getQuery()->getSingleScalarResult();
+
+        return (int) $result;
+    }
 }

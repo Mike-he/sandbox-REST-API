@@ -256,4 +256,106 @@ class CompanyRepository extends EntityRepository
 
         return $queryBuilder->getQuery()->getResult();
     }
+
+    /**
+     * @param $keyword
+     * @param $keywordSearch
+     * @param $limit
+     * @param $offset
+     *
+     * @return array
+     */
+    public function getCompanies(
+        $keyword,
+        $keywordSearch,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('c')
+//            ->select('
+//                c.id,
+//                c.name,
+//                c.description,
+//                c.address,
+//                c.phone,
+//                c.fax,
+//                c.email,
+//                c.website,
+//                c.buildingId,
+//                c.creatorId,
+//                c.banned,
+//                c.creationDate as creation_date
+//            ')
+            ->where('1=1');
+
+        if (!is_null($keyword) && !is_null($keywordSearch)) {
+            switch ($keyword) {
+                case 'name':
+                    $query->andWhere('c.name LIKE :search');
+                    break;
+                case 'creator_name':
+                    $query->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'c.creatorId = up.userId')
+                        ->andWhere('up.name LIKE :search');
+                    break;
+                case 'creator_phone':
+                    $query->leftJoin('c.creator', 'u')
+                        ->andWhere('u.phone LIKE :search');
+                    break;
+
+                default:
+                    $query->andWhere('o.orderNumber LIKE :search');
+            }
+            $query->setParameter('search', '%'.$keywordSearch.'%');
+        }
+
+        $query->orderBy('c.creationDate', 'ASC');
+
+        $query->setMaxResults($limit)
+            ->setFirstResult($offset);
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
+
+    /**
+     * @param $keyword
+     * @param $keywordSearch
+     *
+     * @return int
+     *
+     * @throws \Doctrine\ORM\Query\QueryException
+     */
+    public function countCompanies(
+        $keyword,
+        $keywordSearch
+    ) {
+        $query = $this->createQueryBuilder('c')
+            ->select('count(c.id)')
+            ->where('1=1');
+
+        if (!is_null($keyword) && !is_null($keywordSearch)) {
+            switch ($keyword) {
+                case 'name':
+                    $query->andWhere('c.name LIKE :search');
+                    break;
+                case 'creator_name':
+                    $query->leftJoin('SandboxApiBundle:User\UserProfile', 'up', 'WITH', 'c.creatorId = up.userId')
+                        ->andWhere('up.name LIKE :search');
+                    break;
+                case 'creator_phone':
+                    $query->leftJoin('c.creator', 'u')
+                        ->andWhere('u.phone LIKE :search');
+                    break;
+
+                default:
+                    $query->andWhere('o.orderNumber LIKE :search');
+            }
+            $query->setParameter('search', '%'.$keywordSearch.'%');
+        }
+
+        $result = $query->getQuery()->getSingleScalarResult();
+
+        return (int) $result;
+    }
 }
