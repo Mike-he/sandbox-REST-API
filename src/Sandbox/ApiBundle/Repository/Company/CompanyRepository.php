@@ -272,20 +272,6 @@ class CompanyRepository extends EntityRepository
         $offset
     ) {
         $query = $this->createQueryBuilder('c')
-//            ->select('
-//                c.id,
-//                c.name,
-//                c.description,
-//                c.address,
-//                c.phone,
-//                c.fax,
-//                c.email,
-//                c.website,
-//                c.buildingId,
-//                c.creatorId,
-//                c.banned,
-//                c.creationDate as creation_date
-//            ')
             ->where('1=1');
 
         if (!is_null($keyword) && !is_null($keywordSearch)) {

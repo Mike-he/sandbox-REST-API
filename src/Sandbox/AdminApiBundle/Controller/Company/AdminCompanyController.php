@@ -145,7 +145,7 @@ class AdminCompanyController extends CompanyController
 
         $memberData = array();
         foreach ($members as $member) {
-            $memberData = array(
+            $memberData[] = array(
                 'id' => $member->getUserId(),
                 'phone' => $member->getUser()->getPhone(),
                 'name' => $member->getUser()->getUserProfile()->getName(),
