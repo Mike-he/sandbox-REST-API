@@ -405,6 +405,7 @@ class ClientOrderController extends OrderController
             'building_name' => $building->getName(),
             'price' => (float) $order->getPrice(),
             'discount_price' => (float) $order->getDiscountPrice(),
+            'order_type_key' => $order->getType(),
             'order_type' => $orderType,
             'pay_channel' => $payChannel,
             'base_price' => $order->getBasePrice(),
