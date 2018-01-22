@@ -66,7 +66,7 @@ class AdminCompanyController extends CompanyController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-//        $this->checkAdminCompanyPermission(AdminPermission::OP_LEVEL_VIEW);
+        $this->checkAdminCompanyPermission(AdminPermission::OP_LEVEL_VIEW);
 
         $keyword = $paramFetcher->get('keyword');
         $keywordSearch = $paramFetcher->get('keyword_search');
@@ -129,7 +129,7 @@ class AdminCompanyController extends CompanyController
         $id
     ) {
         // check user permission
-//        $this->checkAdminCompanyPermission(AdminPermission::OP_LEVEL_VIEW);
+        $this->checkAdminCompanyPermission(AdminPermission::OP_LEVEL_VIEW);
 
         // get a company
         $company = $this->getDoctrine()
@@ -246,7 +246,7 @@ class AdminCompanyController extends CompanyController
         $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
             [
-                ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_VERIFY],
+                ['key' => AdminPermission::KEY_COMMNUE_PLATFORM_COMPANY],
             ],
             $opLevel
         );
