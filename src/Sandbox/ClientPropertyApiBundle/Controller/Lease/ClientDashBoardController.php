@@ -113,9 +113,12 @@ class ClientDashBoardController extends SandboxRestController
             );
 
         $expiringStart = new \DateTime();
+        $expiringStart->setTime(0, 0, 0);
+
         $expiringEnd = new \DateTime();
         $interval = new \DateInterval('P30D');
         $expiringEnd = $expiringEnd->add($interval);
+        $expiringEnd->setTime(23, 59, 59);
 
         $count = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Lease\Lease')
