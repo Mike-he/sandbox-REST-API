@@ -1327,6 +1327,8 @@ class ProductRepository extends EntityRepository
      * @param $building
      * @param $search
      * @param $visible
+     * @param $limit
+     * @param $offset
      *
      * @return array
      */
@@ -1335,7 +1337,9 @@ class ProductRepository extends EntityRepository
         $type,
         $building,
         $search,
-        $visible
+        $visible,
+        $limit,
+        $offset
     ) {
         $query = $this->createQueryBuilder('p')
             ->select('
@@ -1375,7 +1379,51 @@ class ProductRepository extends EntityRepository
                 ->setParameter('visible', $visible);
         }
 
+        if (!is_null($limit) && !is_null($offset)) {
+            $query->setMaxResults($limit)
+                ->setFirstResult($offset);
+        }
+
         $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
+
+    public function countProductIdsByRoomType(
+        $company,
+        $type,
+        $building,
+        $search,
+        $visible
+    ) {
+        $query = $this->createQueryBuilder('p')
+            ->select('count(p.id)')
+            ->leftJoin('p.room', 'r')
+            ->leftJoin('r.building', 'b')
+            ->leftJoin('SandboxApiBundle:Room\RoomMeeting', 'rm', 'WITH', 'r.id = rm.room')
+            ->where('p.isDeleted = FALSE')
+            ->andWhere('r.isDeleted = FALSE')
+            ->andWhere('b.company = :company')
+            ->andWhere('r.type = :type')
+            ->setParameter('company', $company)
+            ->setParameter('type', $type);
+
+        if ($building) {
+            $query->andWhere('b.id = :building')
+                ->setParameter('building', $building);
+        }
+
+        if ($search) {
+            $query->andWhere('r.name LIKE :search')
+                ->setParameter('search', '%'.$search.'%');
+        }
+
+        if (!is_null($visible)) {
+            $query->andWhere('p.visible = :visible')
+                ->setParameter('visible', $visible);
+        }
+
+        $result = $query->getQuery()->getSingleScalarResult();
 
         return $result;
     }

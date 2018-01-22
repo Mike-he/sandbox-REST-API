@@ -73,6 +73,26 @@ class AdminDashBoardController extends SalesRestController
      *    description="Filter by visibility"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="pageLimit",
+     *    array=false,
+     *    default="20",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="How many products to return "
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="pageIndex",
+     *    array=false,
+     *    default="1",
+     *    nullable=true,
+     *    requirements="\d+",
+     *    strict=true,
+     *    description="page number "
+     * )
+     *
      * @Route("/dashboard/rooms/usage")
      * @Method({"GET"})
      *
@@ -109,6 +129,10 @@ class AdminDashBoardController extends SalesRestController
         $end = new \DateTime($endString);
         $end->setTime(23, 59, 59);
 
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+        $offset = ($pageIndex - 1) * $pageLimit;
+
         $usages = array();
         switch ($roomType) {
             case self::TYPE_MEMBERSHIP_CARD:
@@ -121,6 +145,17 @@ class AdminDashBoardController extends SalesRestController
                 $membershipCards = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:MembershipCard\MembershipCard')
                     ->getCards(
+                        $salesCompanyId,
+                        $cardIds,
+                        $visible,
+                        $query,
+                        $pageLimit,
+                        $offset
+                    );
+
+                $count = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:MembershipCard\MembershipCard')
+                    ->countCards(
                         $salesCompanyId,
                         $cardIds,
                         $visible,
@@ -149,6 +184,18 @@ class AdminDashBoardController extends SalesRestController
                         $roomType,
                         $building,
                         $query,
+                        $visible,
+                        $pageLimit,
+                        $offset
+                    );
+
+                $count = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Product\Product')
+                    ->countProductIdsByRoomType(
+                        $salesCompanyId,
+                        $roomType,
+                        $building,
+                        $query,
                         $visible
                     );
 
@@ -163,7 +210,12 @@ class AdminDashBoardController extends SalesRestController
         }
 
         $view = new View();
-        $view->setData($usages);
+        $view->setData(array(
+            'current_page_number' => (int) $pageIndex,
+            'num_items_per_page' => (int) $pageLimit,
+            'items' => $usages,
+            'total_count' => (int) $count,
+        ));
 
         return $view;
     }
