@@ -1400,7 +1400,6 @@ class ProductRepository extends EntityRepository
             ->select('count(p.id)')
             ->leftJoin('p.room', 'r')
             ->leftJoin('r.building', 'b')
-            ->leftJoin('SandboxApiBundle:Room\RoomMeeting', 'rm', 'WITH', 'r.id = rm.room')
             ->where('p.isDeleted = FALSE')
             ->andWhere('r.isDeleted = FALSE')
             ->andWhere('b.company = :company')
