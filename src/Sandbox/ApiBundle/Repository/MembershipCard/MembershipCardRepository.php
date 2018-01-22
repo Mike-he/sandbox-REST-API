@@ -66,6 +66,7 @@ class MembershipCardRepository extends EntityRepository
         $search
     ) {
         $query = $this->createQueryBuilder('c')
+            ->select('count(c.id)')
             ->where('c.companyId = :company')
             ->setParameter('company', $company);
 
