@@ -28,6 +28,41 @@ class MembershipCardRepository extends EntityRepository
         $company,
         $cardIds,
         $visible,
+        $search,
+        $limit,
+        $offset
+    ) {
+        $query = $this->createQueryBuilder('c')
+            ->where('c.companyId = :company')
+            ->setParameter('company', $company);
+
+        if (!is_null($cardIds) || !empty($cardIds)) {
+            $query->andWhere('c.id IN (:ids)')
+                ->setParameter('ids', $cardIds);
+        }
+
+        if (!is_null($visible)) {
+            $query->andWhere('c.visible = :visible')
+                ->setParameter('visible', $visible);
+        }
+
+        if (!is_null($search)) {
+            $query->andWhere('c.name LIKE :search')
+                ->setParameter('search', '%'.$search.'%');
+        }
+
+        if (!is_null($limit) && !is_null($offset)) {
+            $query->setMaxResults($limit)
+                ->setFirstResult($offset);
+        }
+
+        return $query->getQuery()->getResult();
+    }
+
+    public function countCards(
+        $company,
+        $cardIds,
+        $visible,
         $search
     ) {
         $query = $this->createQueryBuilder('c')
@@ -49,6 +84,6 @@ class MembershipCardRepository extends EntityRepository
                 ->setParameter('search', '%'.$search.'%');
         }
 
-        return $query->getQuery()->getResult();
+        return $query->getQuery()->getSingleScalarResult();
     }
 }
