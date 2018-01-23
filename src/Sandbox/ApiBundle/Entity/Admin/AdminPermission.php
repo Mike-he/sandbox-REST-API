@@ -136,6 +136,7 @@ class AdminPermission
     const KEY_COMMNUE_PLATFORM_EVENT = 'commnue.platform.event';
     const KEY_COMMNUE_PLATFORM_ADMIN = 'commnue.platform.admin';
     const KEY_COMMNUE_PLATFORM_CUSTOMER = 'commnue.platform.customer';
+    const KEY_COMMNUE_PLATFORM_COMPANY = 'commue.platform.company';
 
     /**
      * @var int
