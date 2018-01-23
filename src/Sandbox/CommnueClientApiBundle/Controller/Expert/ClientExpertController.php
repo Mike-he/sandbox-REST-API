@@ -380,6 +380,12 @@ class ClientExpertController extends SandboxRestController
     public function getDetailAction(
         $id
     ) {
+        $this->get('sandbox_api.view_count')->autoCounting(
+            ViewCounts::OBJECT_EXPERT,
+            $id,
+            ViewCounts::TYPE_VIEW
+        );
+
         $expert = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Expert\Expert')->find($id);
         $this->throwNotFoundIfNull($expert, self::NOT_FOUND_MESSAGE);
@@ -457,13 +463,8 @@ class ClientExpertController extends SandboxRestController
             'is_favorite' => $favorite ? true : false,
             'order_id' => $order ? $order->getId() : '',
             'wx_share_url' => $wxShareUrl,
+            'expert_fields' => $expert->getExpertFields(),
         ];
-
-        $this->get('sandbox_api.view_count')->autoCounting(
-            ViewCounts::OBJECT_EXPERT,
-            $id,
-            ViewCounts::TYPE_VIEW
-        );
 
         $view = new View();
         $view->setData($data);
