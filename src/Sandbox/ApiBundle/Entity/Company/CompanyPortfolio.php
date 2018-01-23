@@ -71,7 +71,7 @@ class CompanyPortfolio
     /**
      * @var string
      *
-     * @ORM\Column(name="preview", type="string", length=64, nullable=true)
+     * @ORM\Column(name="preview", type="text", nullable=true)
      * @Serializer\Groups({"main", "company_info", "company_portfolio", "verify"})
      */
     private $preview;
