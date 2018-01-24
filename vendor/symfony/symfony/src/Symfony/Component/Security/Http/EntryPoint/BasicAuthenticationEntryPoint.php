@@ -35,8 +35,8 @@ class BasicAuthenticationEntryPoint implements AuthenticationEntryPointInterface
     public function start(Request $request, AuthenticationException $authException = null)
     {
         $response = new Response();
-        $response->headers->set('WWW-Authenticate', sprintf('Basic realm="%s"', $this->realmName));
-        $response->setStatusCode(403);
+//        $response->headers->set('WWW-Authenticate', sprintf('Basic realm="%s"', $this->realmName));
+        $response->setStatusCode(401);
 
         return $response;
     }
