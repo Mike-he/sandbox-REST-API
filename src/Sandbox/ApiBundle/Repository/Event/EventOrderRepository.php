@@ -623,18 +623,6 @@ class EventOrderRepository extends EntityRepository
         // filter by status
         if (!is_null($status)) {
             switch ($status) {
-                case EventOrder::CLIENT_STATUS_PENDING:
-                    $query->andWhere('
-                            (
-                                eo.status = :unpaid OR
-                                (e.verify = TRUE AND er.status = :pending AND eo.status = :paid)
-                            )
-                        ')
-                        ->setParameter('unpaid', EventOrder::STATUS_UNPAID)
-                        ->setParameter('paid', EventOrder::STATUS_PAID)
-                        ->setParameter('userId', $userId)
-                        ->setParameter('pending', EventRegistration::STATUS_PENDING);
-                    break;
                 case EventOrder::CLIENT_STATUS_IN_PROCESS:
                     $query->andWhere('
                             (

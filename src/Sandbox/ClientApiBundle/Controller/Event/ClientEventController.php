@@ -208,6 +208,12 @@ class ClientEventController extends EventController
         Request $request,
         $id
     ) {
+        $this->get('sandbox_api.view_count')->autoCounting(
+            ViewCounts::OBJECT_EVENT,
+            $id,
+            ViewCounts::TYPE_VIEW
+        );
+
         $userId = null;
         if ($this->isAuthProvided()) {
             $userId = $this->getUserId();
@@ -225,18 +231,6 @@ class ClientEventController extends EventController
 
         // set extra
         $event = $this->setEventExtra($event, $userId);
-
-        $this->get('sandbox_api.view_count')->autoCounting(
-            ViewCounts::OBJECT_EVENT,
-            $id,
-            ViewCounts::TYPE_VIEW
-        );
-
-        $this->get('sandbox_api.view_count')->autoCounting(
-            ViewCounts::OBJECT_EVENT,
-            $id,
-            ViewCounts::TYPE_VIEW
-        );
 
         // set view
         $view = new View($event);
