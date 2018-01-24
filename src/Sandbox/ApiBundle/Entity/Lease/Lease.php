@@ -285,7 +285,7 @@ class Lease
      *
      * @ORM\Column(name="lease_clue_id", type="integer", nullable=true)
      *
-     * @Serializer\Groups({"log"})
+     * @Serializer\Groups({"main","log"})
      */
     private $LeaseClueId;
 
@@ -294,7 +294,7 @@ class Lease
      *
      * @ORM\Column(name="lease_offer_id", type="integer", nullable=true)
      *
-     * @Serializer\Groups({"log"})
+     * @Serializer\Groups({"main","log"})
      */
     private $LeaseOfferId;
 
