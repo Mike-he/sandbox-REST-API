@@ -105,11 +105,12 @@ class AdminEventRegistrationController extends SalesRestController
             $em = $this->getDoctrine()->getManager();
             $em->flush();
 
+            // generate event order
+            $userId = $registration->getUserId();
+            $eventId = $registration->getEventId();
+            $event = $registration->getEvent();
+
             if ($registration->getStatus() == EventRegistration::STATUS_ACCEPTED) {
-                // generate event order
-                $userId = $registration->getUserId();
-                $eventId = $registration->getEventId();
-                $event = $registration->getEvent();
 
                 $eventOrder = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Event\EventOrder')
@@ -183,7 +184,21 @@ class AdminEventRegistrationController extends SalesRestController
 
                 $this->sendJpushNotification($zhData);
                 $this->sendJpushNotification($enData);
+            } elseif ($registration->getStatus() == EventRegistration::STATUS_REJECTED) {
+                $eventOrder = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Event\EventOrder')
+                    ->findOneBy([
+                        'userId' => $userId,
+                        'eventId' => $eventId,
+                        'status' => EventOrder::STATUS_UNPAID,
+                    ]);
+
+                if (!is_null($eventOrder)) {
+                    $eventOrder->setStatus(EventOrder::STATUS_CANCELLED);
+                }
             }
+
+            $em->flush();
         }
 
         return new View();
