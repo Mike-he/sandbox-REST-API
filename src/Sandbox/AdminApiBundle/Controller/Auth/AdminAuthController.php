@@ -97,10 +97,6 @@ class AdminAuthController extends AuthController
             }
         }
 
-        $admin = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserView')
-            ->find($adminId);
-
         $salesAdmin = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
             ->findOneBy(array('userId' => $adminId));
@@ -126,9 +122,9 @@ class AdminAuthController extends AuthController
         $data = array(
             'permissions' => $this->remove_duplicate($permissions),
             'admin' => [
-                'id' => $admin->getId(),
+                'id' => $adminId,
                 'name' => $name,
-                'phone' => $admin->getPhone(),
+                'phone' => $salesAdmin->getPhone(),
                 'is_super_admin' => $condition,
                 'client_id' => $this->getUser()->getClientId(),
                 'xmpp_username' => $salesAdmin->getXmppUsername(),
