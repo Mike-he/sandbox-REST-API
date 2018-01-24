@@ -605,11 +605,11 @@ class LeaseRepository extends EntityRepository
         if (!is_null($source) && !empty($source)) {
             switch ($source) {
                 case 'clue':
-                    $query->andWhere('l.LeaseClueId is not null');
+                    $query->andWhere('l.LeaseClueId is not null')
+                        ->andWhere('l.LeaseOfferId is null');
                     break;
                 case 'offer':
-                    $query->andWhere('l.LeaseClueId is null')
-                        ->andWhere('l.LeaseOfferId is not null');
+                    $query->andWhere('l.LeaseOfferId is not null');
                     break;
                 case 'created':
                     $query->andWhere('l.LeaseClueId is null')
