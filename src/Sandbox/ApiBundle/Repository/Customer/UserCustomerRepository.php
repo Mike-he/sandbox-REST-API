@@ -223,7 +223,7 @@ class UserCustomerRepository extends EntityRepository
                 ->setParameter('search', '%'.$search.'%');
         }
 
-        if (!is_null($limit) && !is_null($offset)) {
+        if (!is_null($limit) && !is_null($offset) && $limit != 0) {
             $query->setFirstResult($offset)
                 ->setMaxResults($limit);
         }
