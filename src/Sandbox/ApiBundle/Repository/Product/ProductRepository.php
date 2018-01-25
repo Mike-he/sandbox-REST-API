@@ -1167,7 +1167,8 @@ class ProductRepository extends EntityRepository
         $lng,
         $productIds,
         $limit,
-        $offset
+        $offset,
+        $userId
     ) {
         $query = $this->createQueryBuilder('p')
             ->select('
@@ -1179,20 +1180,29 @@ class ProductRepository extends EntityRepository
                     + sin(radians(:latitude)) * sin(radians(b.lat)))
                 ) as distance
             ')
+            ->leftJoin(
+                'SandboxApiBundle:User\UserFavorite',
+                'uf',
+                'WITH',
+                'uf.objectId = p.id'
+            )
             ->leftjoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
             ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'b.id = r.buildingId')
             ->where('p.id IN (:productIds)')
+            ->andWhere("uf.object = 'product'")
+            ->andWhere('uf.userId = :userId')
             ->andWhere('p.isDeleted = FALSE')
             ->andWhere('p.visible = TRUE')
             ->andWhere('b.status = :accept')
             ->andWhere('b.visible = TRUE')
             ->andWhere('b.isDeleted = FALSE')
+            ->setParameter('userId', $userId)
             ->setParameter('productIds', $productIds)
             ->setParameter('accept', RoomBuilding::STATUS_ACCEPT)
             ->setParameter('latitude', $lat)
             ->setParameter('longitude', $lng)
-            ->orderBy('distance', 'ASC')
-            ->addOrderBy('p.creationDate', 'DESC')
+            ->orderBy('uf.creationDate', 'DESC')
+            ->groupBy('uf.id')
             ->setMaxResults($limit)
             ->setFirstResult($offset);
 

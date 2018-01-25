@@ -141,6 +141,7 @@ class ClientUserFavoriteController extends LocationController
                         $lat,
                         $limit,
                         $offset,
+                        $userId,
                         $excludeIds = [9] // the company id of xiehe
                     );
 
@@ -165,7 +166,8 @@ class ClientUserFavoriteController extends LocationController
                         $lng,
                         $objectIds,
                         $limit,
-                        $offset
+                        $offset,
+                        $userId
                     );
 
                 $objects = [];
@@ -229,7 +231,8 @@ class ClientUserFavoriteController extends LocationController
                     ->getClientFavoriteServices(
                         $limit,
                         $offset,
-                        $objectIds
+                        $objectIds,
+                        $userId
                     );
 
                 foreach ($services as $service) {
@@ -250,27 +253,21 @@ class ClientUserFavoriteController extends LocationController
             case UserFavorite::OBJECT_EXPERT:
                 $objects = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Expert\Expert')
-                    ->getExperts(
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
+                    ->getFavoriteExperts(
                         $limit,
                         $offset,
-                        $objectIds
+                        $objectIds,
+                        $userId
                     );
                 break;
             case UserFavorite::OBJECT_EVENT:
                 $objects = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Event\Event')
-                    ->getAllClientEvents(
+                    ->getFavoriteEvents(
                         $objectIds,
                         $limit,
-                        $offset
+                        $offset,
+                        $userId
                     );
 
                 foreach ($objects as $object) {
