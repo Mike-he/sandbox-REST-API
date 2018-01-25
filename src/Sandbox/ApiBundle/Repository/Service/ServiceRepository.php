@@ -146,8 +146,8 @@ class ServiceRepository extends EntityRepository
         }
 
         if (!is_null($type)) {
-            $query->andWhere('s.type = :type')
-                ->setParameter('type', $type);
+            $query->andWhere('s.type = :serviceType')
+                ->setParameter('serviceType', $type);
         }
 
         if (!is_null($sort)) {
