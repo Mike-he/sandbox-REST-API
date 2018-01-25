@@ -194,10 +194,20 @@ class ServiceRepository extends EntityRepository
     public function getClientFavoriteServices(
         $limit,
         $offset,
-        $serviceIds
+        $serviceIds,
+        $userId
     ) {
         $query = $this->createQueryBuilder('s')
-            ->where('s.visible = true');
+            ->leftJoin(
+                'SandboxApiBundle:User\UserFavorite',
+                'uf',
+                'WITH',
+                'uf.objectId = s.id'
+            )
+            ->where('s.visible = true')
+            ->andWhere("uf.object = 'service'")
+            ->andWhere('uf.userId = :userId')
+            ->setParameter('userId', $userId);
 
         if (!is_null($limit) && !is_null($offset)) {
             $query->setFirstResult($offset)
@@ -208,6 +218,9 @@ class ServiceRepository extends EntityRepository
             $query->andWhere('s.id IN (:ids)')
                 ->setParameter('ids', $serviceIds);
         }
+
+        $query->orderBy('uf.creationDate', 'DESC')
+            ->groupBy('uf.id');
 
         return $query->getQuery()->getResult();
     }

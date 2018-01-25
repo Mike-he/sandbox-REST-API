@@ -202,6 +202,46 @@ class EventRepository extends EntityRepository
     }
 
     /**
+     * @param $objectIds
+     * @param $limit
+     * @param $offset
+     * @param $userId
+     *
+     * @return array
+     */
+    public function getFavoriteEvents(
+        $objectIds,
+        $limit,
+        $offset,
+        $userId
+    ) {
+        $query = $this->createQueryBuilder('e')
+            ->leftJoin(
+                'SandboxApiBundle:User\UserFavorite',
+                'uf',
+                'WITH',
+                'uf.objectId = e.id'
+            )
+            ->where('e.isDeleted = FALSE')
+            ->andWhere("uf.object = 'event'")
+            ->andWhere('uf.userId = :userId')
+            ->andWhere('e.visible = TRUE')
+            ->setParameter('userId', $userId);
+
+        if ($objectIds) {
+            $query->andWhere('e.id IN (:ids)')
+                ->setParameter('ids', $objectIds);
+        }
+
+        $query->orderBy('uf.creationDate', 'DESC')
+            ->groupBy('uf.id')
+            ->setFirstResult($offset)
+            ->setMaxResults($limit);
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
      * @param int $userId
      * @param int $limit
      * @param int $offset

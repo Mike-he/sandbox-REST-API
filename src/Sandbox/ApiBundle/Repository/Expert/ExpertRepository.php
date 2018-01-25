@@ -168,4 +168,52 @@ class ExpertRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param $limit
+     * @param $offset
+     * @param $objectIds
+     * @param $userId
+     *
+     * @return mixed
+     */
+    public function getFavoriteExperts(
+        $limit,
+        $offset,
+        $objectIds,
+        $userId
+    ) {
+        $query = $this->createQueryBuilder('e')
+            ->select('
+                    distinct
+                        e.id,
+                        e.photo,
+                        e.name,
+                        e.identity,
+                        e.introduction,
+                        rc.name as district_name                    
+                ')
+            ->leftJoin('SandboxApiBundle:Room\RoomCity', 'rc', 'WITH', 'e.districtId = rc.id')
+            ->leftJoin(
+                'SandboxApiBundle:User\UserFavorite',
+                'uf',
+                'WITH',
+                'uf.objectId = e.id'
+            )
+            ->andWhere("uf.object = 'expert'")
+            ->andWhere('uf.userId = :userId')
+            ->setParameter('userId', $userId);
+
+        if ($objectIds) {
+            $query->andWhere('e.id IN (:ids)')
+                ->setParameter('ids', $objectIds);
+        }
+
+        $query->orderBy('uf.creationDate', 'DESC')
+            ->groupBy('uf.id')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset);
+
+        return $query->getQuery()->getResult();
+    }
 }

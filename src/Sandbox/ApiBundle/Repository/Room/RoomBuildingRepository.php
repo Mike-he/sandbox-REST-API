@@ -487,6 +487,7 @@ class RoomBuildingRepository extends EntityRepository
         $lat,
         $limit,
         $offset,
+        $userId,
         $excludeIds = null
     ) {
         $buildingsQuery = $this->createQueryBuilder('rb');
@@ -517,6 +518,15 @@ class RoomBuildingRepository extends EntityRepository
             rb.cityId as city_id,
             rb.districtId as district_id
         ')
+            ->leftJoin(
+                'SandboxApiBundle:User\UserFavorite',
+                'uf',
+                'WITH',
+                'uf.objectId = rb.id'
+            )
+            ->andWhere("uf.object = 'building'")
+            ->andWhere('uf.userId = :userId')
+            ->setParameter('userId', $userId)
             ->setParameter('latitude', $lat)
             ->setParameter('longitude', $lng);
 
@@ -531,8 +541,8 @@ class RoomBuildingRepository extends EntityRepository
                 ->setParameter('excludeIds', $excludeIds);
         }
 
-        $buildingsQuery->orderBy('distance', 'ASC')
-            ->addOrderBy('rb.evaluationStar', 'DESC')
+        $buildingsQuery->orderBy('uf.creationDate', 'DESC')
+            ->groupBy('uf.id')
             ->setMaxResults($limit)
             ->setFirstResult($offset);
 
