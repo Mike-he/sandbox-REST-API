@@ -161,9 +161,18 @@ class EventRepository extends EntityRepository
                 ->setParameter('ids', $eventIds);
         }
 
-        if(!is_null($status)) {
-            $query->andWhere('e.status = :status')
-                ->setParameter('status', $status);
+        if(!is_null($status) && !empty($status)) {
+            switch ($status) {
+                case 'registered':
+                    $statusArray = [Event::STATUS_WAITING,Event::STATUS_ONGOING,Event::STATUS_END];
+                    $query->andWhere('e.status IN (:status)')
+                        ->setParameter('status', $statusArray);
+                    break;
+                default:
+                    $query->andWhere( 'e.status = :status')
+                        ->setParameter('status',$status);
+                    break;
+            }
         }
 
         if (!is_null($sort)) {
