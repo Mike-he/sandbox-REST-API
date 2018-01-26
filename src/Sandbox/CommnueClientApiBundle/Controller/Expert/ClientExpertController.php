@@ -238,6 +238,15 @@ class ClientExpertController extends SandboxRestController
             $expert->removeExpertFields($expertField);
         }
         $fieldIds = $requestContent['field_ids'];
+
+        if (count($fieldIds) > 3) {
+            return $this->customErrorView(
+                400,
+                CustomErrorMessagesConstants::ERROR_MORE_THAN_QUANTITY_CODE,
+                CustomErrorMessagesConstants::ERROR_MORE_THAN_QUANTITY_MESSAGE
+            );
+        }
+
         foreach ($fieldIds as $fieldId) {
             $field = $this->getDoctrine()->getRepository('SandboxApiBundle:Expert\ExpertField')->find($fieldId);
             if ($field) {
