@@ -17,6 +17,7 @@ use Sandbox\ApiBundle\Entity\Service\ViewCounts;
 use Sandbox\ApiBundle\Form\Event\EventPatchType;
 use Sandbox\ApiBundle\Form\Event\EventPostType;
 use Sandbox\ApiBundle\Form\Event\EventPutType;
+use Sandbox\ApiBundle\Traits\SetStatusTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -37,6 +38,8 @@ use Symfony\Component\Form\Form;
  */
 class AdminEventController extends SandboxRestController
 {
+    use SetStatusTrait;
+
     const ERROR_NOT_ALLOWED_MODIFY_CODE = 400001;
     const ERROR_NOT_ALLOWED_MODIFY_MESSAGE = 'Not allowed to modify - 不允许被修改';
     const ERROR_NOT_ALLOWED_DELETE_CODE = 400002;
@@ -442,6 +445,7 @@ class AdminEventController extends SandboxRestController
         // change save status
         if ($event->isVisible()) {
             $event->setIsSaved(false);
+            $this->setEventStatus($event);
         }
 
         $em = $this->getDoctrine()->getManager();
@@ -743,6 +747,7 @@ class AdminEventController extends SandboxRestController
         if ($submit) {
             $event->setVisible(true);
             $event->setIsSaved(false);
+            $event->setStatus(Event::STATUS_PREHEATING);
         } else {
             $event->setVisible(false);
             $event->setIsSaved(true);
