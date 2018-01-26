@@ -161,6 +161,7 @@ class CheckStatusCommand extends ContainerAwareCommand
         $eventStatus = [
             Event::STATUS_PREHEATING,
             Event::STATUS_REGISTERING,
+            Event::STATUS_WAITING,
             Event::STATUS_ONGOING,
         ];
         $events = $em->getRepository('SandboxApiBundle:Event\Event')

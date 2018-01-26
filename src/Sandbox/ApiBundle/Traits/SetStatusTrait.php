@@ -165,6 +165,10 @@ trait SetStatusTrait
             Event::STATUS_END != $status
         ) {
             $event->setStatus(Event::STATUS_END);
+        } elseif ($now < $registrationStartDate &&
+            Event::STATUS_PREHEATING != $status
+        ) {
+            $event->setStatus(Event::STATUS_PREHEATING);
         }
     }
 
