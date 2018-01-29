@@ -94,7 +94,7 @@ class ClientEventController extends EventController
         // get max limit
         $limit = $this->getLoadMoreLimit($limit);
 
-        if (is_null($status) && is_null($sort)) {
+        if ((is_null($status) || empty($status)) && (is_null($sort) || empty($sort))) {
             $events = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Event\Event')
                 ->getAllClientEvents(

@@ -177,12 +177,12 @@ class EventRepository extends EntityRepository
             }
         }
 
-        if (!is_null($excludeStatus)) {
+        if (!is_null($excludeStatus) && !empty($excludeStatus)) {
             $query->andWhere('e.status != :exclude_status')
                 ->setParameter('exclude_status', $excludeStatus);
         }
 
-        if (!is_null($sort)) {
+        if (!is_null($sort) && !empty($sort)) {
             switch ($sort) {
                 case 'registering':
                     $query
