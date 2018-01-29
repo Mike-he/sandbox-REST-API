@@ -59,11 +59,10 @@ class AdminUserProfilesController extends AdminRestController
 
         $em->flush();
 
-
         $service = $this->get('sandbox_api.jmessage_property');
 
         $profiles = $em->getRepository('SandboxApiBundle:SalesAdmin\SalesAdminProfiles')
-            ->findBy(array('userId'=>$userId));
+            ->findBy(array('userId' => $userId));
 
         $data = [];
         foreach ($profiles as $profile) {

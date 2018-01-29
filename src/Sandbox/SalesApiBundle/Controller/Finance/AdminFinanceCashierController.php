@@ -232,7 +232,7 @@ class AdminFinanceCashierController extends SalesRestController
                 $result = array_merge($cashierOrders, $cashierBills);
         }
 
-        if(!is_null($sortColumn) && !is_null($direction)){
+        if (!is_null($sortColumn) && !is_null($direction)) {
             $result = $this->sortLists($result, $sortColumn, $direction);
         }
 
@@ -504,7 +504,7 @@ class AdminFinanceCashierController extends SalesRestController
             'description' => '',
             'room_name' => $roomData['room_name'],
             'room_type_tag' => $roomData['room_type_tag'],
-            'building_id' => $roomData['building_id']
+            'building_id' => $roomData['building_id'],
         );
 
         return $data;
@@ -552,7 +552,7 @@ class AdminFinanceCashierController extends SalesRestController
             'description' => $bill->getDescription(),
             'room_name' => $roomData['room_name'],
             'room_type_tag' => $roomData['room_type_tag'],
-            'building_id' => $roomData['building_id']
+            'building_id' => $roomData['building_id'],
         );
 
         return $data;
@@ -597,6 +597,7 @@ class AdminFinanceCashierController extends SalesRestController
      * @param $lists
      * @param $sortColumn
      * @param $direction
+     *
      * @return mixed
      */
     private function sortLists(
@@ -605,20 +606,20 @@ class AdminFinanceCashierController extends SalesRestController
         $direction
     ) {
         $arr = [];
-        foreach( $lists as $list){
-            if ($sortColumn == 'base_price'){
+        foreach ($lists as $list) {
+            if ($sortColumn == 'base_price') {
                 $arr[] = intval($list[$sortColumn]);
-            }else{
+            } else {
                 $arr[] = $list[$sortColumn];
             }
         }
 
-        switch ($direction){
+        switch ($direction) {
             case 'asc':
-                array_multisort($arr,SORT_ASC,$lists);
+                array_multisort($arr, SORT_ASC, $lists);
                 break;
             case 'desc':
-                array_multisort($arr,SORT_DESC,$lists);
+                array_multisort($arr, SORT_DESC, $lists);
                 break;
             default:
                 break;

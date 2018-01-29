@@ -4,7 +4,9 @@ namespace Sandbox\AdminApiBundle\Controller\Auth;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\AdminApiBundle\Controller\Traits\HandleAdminLoginDataTrait;
+use Sandbox\ApiBundle\Constants\PlatformConstants;
 use Sandbox\ApiBundle\Controller\Auth\AuthController;
+use Sandbox\ApiBundle\Entity\Admin\AdminPlatform;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -56,7 +58,7 @@ class AdminAuthController extends AuthController
         }
 
         // response my permissions
-        if ('official' !== $platform) {
+        if ($platform !== 'official' && $platform !== 'commnue') {
             if (is_null($salesCompanyId)) {
                 throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
             }
@@ -82,20 +84,18 @@ class AdminAuthController extends AuthController
                 $salesCompanyId
             );
 
-            // set sales platform monitoring permissions
-            $salesPlatformMonitoringPermissions = $this->getSalesPlatformMonitoringPermissions(
-                $platform,
-                $salesCompanyId
-            );
+            if ($platform == PlatformConstants::PLATFORM_SALES) {
+                // set sales platform monitoring permissions
+                $salesPlatformMonitoringPermissions = $this->getSalesPlatformMonitoringPermissions(
+                    $platform,
+                    $salesCompanyId
+                );
 
-            if (!is_null($salesPlatformMonitoringPermissions) && !empty($salesPlatformMonitoringPermissions)) {
-                $permissions = array_merge($permissions, $salesPlatformMonitoringPermissions);
+                if (!is_null($salesPlatformMonitoringPermissions) && !empty($salesPlatformMonitoringPermissions)) {
+                    $permissions = array_merge($permissions, $salesPlatformMonitoringPermissions);
+                }
             }
         }
-
-        $admin = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:User\UserView')
-            ->find($adminId);
 
         $salesAdmin = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesAdmin')
@@ -122,9 +122,9 @@ class AdminAuthController extends AuthController
         $data = array(
             'permissions' => $this->remove_duplicate($permissions),
             'admin' => [
-                'id' => $admin->getId(),
+                'id' => $adminId,
                 'name' => $name,
-                'phone' => $admin->getPhone(),
+                'phone' => $salesAdmin->getPhone(),
                 'is_super_admin' => $condition,
                 'client_id' => $this->getUser()->getClientId(),
                 'xmpp_username' => $salesAdmin->getXmppUsername(),
@@ -211,7 +211,7 @@ class AdminAuthController extends AuthController
             $platform
         );
 
-        if ($isSuper || $hasSalesMonitoringPermission) {
+        if ($isSuper || ($hasSalesMonitoringPermission && $platform == PlatformConstants::PLATFORM_SALES)) {
             $groups = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Admin\AdminPermissionGroups')
                 ->getPermissionGroupByPlatform(

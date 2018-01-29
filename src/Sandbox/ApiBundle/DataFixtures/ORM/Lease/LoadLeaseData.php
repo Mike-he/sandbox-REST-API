@@ -12,6 +12,9 @@ class LoadLeaseData extends AbstractFixture implements OrderedFixtureInterface
 {
     public function load(ObjectManager $manager)
     {
+        $userCustomer = $this->getReference('user-customer-1');
+        $company = $this->getReference('sales-company-sandbox');
+
         $l1 = new Lease();
         $l1->setDeposit(12456);
         $l1->setStartDate(new \DateTime('2016-11-01'));
@@ -30,8 +33,8 @@ class LoadLeaseData extends AbstractFixture implements OrderedFixtureInterface
         $l1->setTotalRent(96000);
         $l1->setProduct($this->getReference('product-for-longterm'));
         $l1->setLesseeType('personal');
-        $l1->setLesseeCustomer(1);
-        $l1->setCompanyId($this->getReference('sales-company-sandbox')->getId());
+        $l1->setCompanyId($company->getId());
+        $l1->setLesseeCustomer($userCustomer->getId());
         $this->addReference('lease_one', $l1);
 
         $l2 = new Lease();
@@ -40,8 +43,8 @@ class LoadLeaseData extends AbstractFixture implements OrderedFixtureInterface
         $l2->setEndDate(new \DateTime('2016-06-01'));
         $l2->setProduct($this->getReference('product-for-longterm'));
         $l2->setLesseeType('personal');
-        $l2->setLesseeCustomer(1);
-        $l2->setCompanyId($this->getReference('sales-company-sandbox')->getId());
+        $l2->setCompanyId($company->getId());
+        $l2->setLesseeCustomer($userCustomer->getId());
         $l2->setStatus(Lease::LEASE_STATUS_DRAFTING);
 
         $l3 = new Lease();
@@ -51,8 +54,8 @@ class LoadLeaseData extends AbstractFixture implements OrderedFixtureInterface
         $l3->setStatus(Lease::LEASE_STATUS_CLOSED);
         $l3->setProduct($this->getReference('product-for-longterm'));
         $l3->setLesseeType('personal');
-        $l3->setLesseeCustomer(1);
-        $l3->setCompanyId($this->getReference('sales-company-sandbox')->getId());
+        $l3->setLesseeCustomer($userCustomer->getId());
+        $l3->setCompanyId($company->getId());
 
         $lb1 = new LeaseBill();
         $lb1->setSerialNumber('B1234567');

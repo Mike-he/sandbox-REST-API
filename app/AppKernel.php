@@ -37,6 +37,8 @@ class AppKernel extends Kernel
             new Knp\Bundle\SnappyBundle\KnpSnappyBundle(),
 //            new Snc\RedisBundle\SncRedisBundle(),
             new Sandbox\ClientPropertyApiBundle\SandboxClientPropertyApiBundle(),
+            new Sandbox\CommnueAdminApiBundle\CommnueAdminApiBundle(),
+            new Sandbox\CommnueClientApiBundle\CommnueClientApiBundle(),
         );
 
         if (in_array($this->getEnvironment(), array('dev', 'test'))) {
@@ -64,7 +66,7 @@ class AppKernel extends Kernel
 //
 //        return parent::getCacheDir();
 //    }
-//
+
 //    public function getLogDir()
 //    {
 //        if (in_array($this->environment, array('dev', 'test'))) {

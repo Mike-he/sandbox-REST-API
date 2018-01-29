@@ -13,9 +13,11 @@ use Sandbox\ApiBundle\Entity\Event\EventDate;
 use Sandbox\ApiBundle\Entity\Event\EventForm;
 use Sandbox\ApiBundle\Entity\Event\EventFormOption;
 use Sandbox\ApiBundle\Entity\Event\EventTime;
+use Sandbox\ApiBundle\Entity\Service\ViewCounts;
 use Sandbox\ApiBundle\Form\Event\EventPatchType;
 use Sandbox\ApiBundle\Form\Event\EventPostType;
 use Sandbox\ApiBundle\Form\Event\EventPutType;
+use Sandbox\ApiBundle\Traits\SetStatusTrait;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -38,6 +40,8 @@ use Symfony\Component\Form\Form;
  */
 class AdminEventController extends SalesRestController
 {
+    use SetStatusTrait;
+
     const ERROR_NOT_ALLOWED_MODIFY_CODE = 400001;
     const ERROR_NOT_ALLOWED_MODIFY_MESSAGE = 'Not allowed to modify - 不允许被修改';
     const ERROR_NOT_ALLOWED_DELETE_CODE = 400002;
@@ -429,6 +433,7 @@ class AdminEventController extends SalesRestController
         // change save status
         if ($event->isVisible()) {
             $event->setIsSaved(false);
+            $this->setEventStatus($event);
         }
 
         $em = $this->getDoctrine()->getManager();
@@ -601,6 +606,15 @@ class AdminEventController extends SalesRestController
             $eventForms
         );
 
+        $types = [ViewCounts::TYPE_VIEW, ViewCounts::TYPE_REGISTERING];
+        foreach ($types as $type) {
+            $this->get('sandbox_api.view_count')->addFirstData(
+                ViewCounts::OBJECT_EVENT,
+                $event->getId(),
+                $type
+            );
+        }
+
         $response = array(
             'id' => $event->getId(),
         );
@@ -737,6 +751,7 @@ class AdminEventController extends SalesRestController
         if ($submit) {
             $event->setVisible(true);
             $event->setIsSaved(false);
+            $event->setStatus(Event::STATUS_PREHEATING);
         } else {
             $event->setVisible(false);
             $event->setIsSaved(true);

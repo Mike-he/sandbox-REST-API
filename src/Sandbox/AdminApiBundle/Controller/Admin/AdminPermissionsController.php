@@ -9,7 +9,6 @@ use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Form\Admin\AdminPostCheckPermissionType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use FOS\RestBundle\Controller\Annotations;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Request\ParamFetcherInterface;
@@ -23,7 +22,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  * @author  Mike He <mike.he@easylinks.com.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 class AdminPermissionsController extends SandboxRestController
 {
@@ -89,13 +88,6 @@ class AdminPermissionsController extends SandboxRestController
      * List all admin permissions.
      *
      * @param Request $request the request object
-     *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     200 = "Returned when successful"
-     *   }
-     * )
      *
      * @Annotations\QueryParam(
      *    name="salesCompanyId",

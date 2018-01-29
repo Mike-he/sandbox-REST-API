@@ -62,7 +62,6 @@ class SalesAdmin
      *
      * @ORM\Column(name="creation_date", type="datetime")
      * @Gedmo\Timestampable(on="create")
-     *
      */
     private $creationDate;
 
@@ -71,7 +70,6 @@ class SalesAdmin
      *
      * @ORM\Column(name="modification_date", type="datetime")
      * @Gedmo\Timestampable(on="update")
-     *
      */
     private $modificationDate;
 

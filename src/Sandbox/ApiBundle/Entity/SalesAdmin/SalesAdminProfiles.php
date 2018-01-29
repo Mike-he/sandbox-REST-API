@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
- * SalesAdminProfiles
+ * SalesAdminProfiles.
  *
  * @ORM\Table(name="sales_admin_profiles")
  * @ORM\Entity()
@@ -14,7 +14,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 class SalesAdminProfiles
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -23,14 +23,14 @@ class SalesAdminProfiles
     private $id;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="user_id", type="integer")
      */
     private $userId;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="sales_company_id", type="integer", nullable=true)
      */
@@ -69,7 +69,6 @@ class SalesAdminProfiles
      *
      * @ORM\Column(name="creation_date", type="datetime")
      * @Gedmo\Timestampable(on="create")
-     *
      */
     private $creationDate;
 
@@ -78,7 +77,6 @@ class SalesAdminProfiles
      *
      * @ORM\Column(name="modification_date", type="datetime")
      * @Gedmo\Timestampable(on="update")
-     *
      */
     private $modificationDate;
 
@@ -87,11 +85,10 @@ class SalesAdminProfiles
      */
     private $phone;
 
-
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -99,9 +96,10 @@ class SalesAdminProfiles
     }
 
     /**
-     * Set userId
+     * Set userId.
      *
-     * @param integer $userId
+     * @param int $userId
+     *
      * @return SalesAdminProfiles
      */
     public function setUserId($userId)
@@ -112,9 +110,9 @@ class SalesAdminProfiles
     }
 
     /**
-     * Get userId
+     * Get userId.
      *
-     * @return integer 
+     * @return int
      */
     public function getUserId()
     {
@@ -122,9 +120,10 @@ class SalesAdminProfiles
     }
 
     /**
-     * Set salesCompanyId
+     * Set salesCompanyId.
      *
-     * @param integer $salesCompanyId
+     * @param int $salesCompanyId
+     *
      * @return SalesAdminProfiles
      */
     public function setSalesCompanyId($salesCompanyId)
@@ -135,9 +134,9 @@ class SalesAdminProfiles
     }
 
     /**
-     * Get salesCompanyId
+     * Get salesCompanyId.
      *
-     * @return integer 
+     * @return int
      */
     public function getSalesCompanyId()
     {
@@ -145,9 +144,10 @@ class SalesAdminProfiles
     }
 
     /**
-     * Set avatar
+     * Set avatar.
      *
      * @param string $avatar
+     *
      * @return SalesAdminProfiles
      */
     public function setAvatar($avatar)
@@ -158,9 +158,9 @@ class SalesAdminProfiles
     }
 
     /**
-     * Get avatar
+     * Get avatar.
      *
-     * @return string 
+     * @return string
      */
     public function getAvatar()
     {
@@ -168,9 +168,10 @@ class SalesAdminProfiles
     }
 
     /**
-     * Set gender
+     * Set gender.
      *
      * @param string $gender
+     *
      * @return SalesAdminProfiles
      */
     public function setGender($gender)
@@ -181,9 +182,9 @@ class SalesAdminProfiles
     }
 
     /**
-     * Get gender
+     * Get gender.
      *
-     * @return string 
+     * @return string
      */
     public function getGender()
     {
@@ -191,9 +192,10 @@ class SalesAdminProfiles
     }
 
     /**
-     * Set nickname
+     * Set nickname.
      *
      * @param string $nickname
+     *
      * @return SalesAdminProfiles
      */
     public function setNickname($nickname)
@@ -204,9 +206,9 @@ class SalesAdminProfiles
     }
 
     /**
-     * Get nickname
+     * Get nickname.
      *
-     * @return string 
+     * @return string
      */
     public function getNickname()
     {
@@ -214,9 +216,10 @@ class SalesAdminProfiles
     }
 
     /**
-     * Set email
+     * Set email.
      *
      * @param string $email
+     *
      * @return SalesAdminProfiles
      */
     public function setEmail($email)
@@ -227,9 +230,9 @@ class SalesAdminProfiles
     }
 
     /**
-     * Get email
+     * Get email.
      *
-     * @return string 
+     * @return string
      */
     public function getEmail()
     {

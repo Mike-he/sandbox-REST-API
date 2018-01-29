@@ -7,6 +7,7 @@ use Sandbox\ApiBundle\Entity\Property\PropertyTypes;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingServices;
 use Sandbox\ApiBundle\Entity\Room\RoomBuildingTag;
 use Sandbox\ApiBundle\Entity\Room\RoomCity;
+use Sandbox\ApiBundle\Entity\Service\ViewCounts;
 use Sandbox\ApiBundle\Traits\HandleCoordinateTrait;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Symfony\Component\HttpFoundation\Request;
@@ -107,6 +108,45 @@ class LocationController extends SalesRestController
         );
 
         return new View($citiesArray);
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/regions")
+     * @Method({"GET"})
+     *
+     * @Annotations\QueryParam(
+     *    name="parent",
+     *    default=null,
+     *    nullable=false,
+     *    description="parent id"
+     * )
+     *
+     * @return View
+     */
+    public function getRegionsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $parentId = $paramFetcher->get('parent');
+
+        $regions = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomCity')
+            ->findBy(array(
+                'parentId' => $parentId,
+            ));
+
+        $response = array();
+        foreach ($regions as $region) {
+            array_push($response, array(
+                'id' => $region->getId(),
+                'name' => $region->getName(),
+            ));
+        }
+
+        return new View($response);
     }
 
     /**
@@ -532,6 +572,12 @@ class LocationController extends SalesRestController
         Request $request,
         $id
     ) {
+        $this->get('sandbox_api.view_count')->autoCounting(
+            ViewCounts::OBJECT_BUILDING,
+            $id,
+            ViewCounts::TYPE_VIEW
+        );
+        
         $lat = $paramFetcher->get('lat');
         $lng = $paramFetcher->get('lng');
 
@@ -1123,20 +1169,28 @@ class LocationController extends SalesRestController
                 $building['building_tags'] = $tags;
             }
 
+            $building['location'] = '';
+            if (isset($building['city_id'])) {
+                $city = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomCity')
+                    ->find($building['city_id']);
+
+                $building['location'] = $city->getName();
+            }
+
             if (!is_null($building['district_id'])) {
                 $district = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:Room\RoomCity')
                     ->find($building['district_id']);
 
-                $building['location'] = $district->getName();
+                $building['location'] .= $district->getName();
                 unset($building['district_id']);
             }
 
             $roomCount = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Product\Product')
                 ->countRoomsWithProductByBuilding(
-                    $building['id'],
-                    null
+                    $building['id']
                 );
 
             $building['room_count'] = $roomCount;

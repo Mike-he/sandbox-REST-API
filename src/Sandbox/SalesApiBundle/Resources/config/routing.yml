@@ -225,3 +225,22 @@ sandbox_admin_api_reservation:
     resource: "@SandboxSalesApiBundle/Controller/Reservation/AdminReservationController.php"
     type:     annotation
     prefix:   /admin
+
+# Admin Service /sales/admin/service
+sandbox_admin_api_service:
+    resource: "@SandboxSalesApiBundle/Controller/Service/AdminServiceController.php"
+    type:     annotation
+    prefix:   /admin
+
+# Admin Service /sales/admin/services/orders
+sandbox_admin_api_services_orders:
+    resource: "@SandboxSalesApiBundle/Controller/Service/AdminServiceOrderController.php"
+    type:     annotation
+    prefix:   /admin
+
+# Admin ChatGroup
+sandbox_sales_admin_customer_service:
+    resource: "@SandboxSalesApiBundle/Controller/ChatGroup/AdminCustomerServiceController.php"
+    type:     annotation
+    prefix:   /admin
+

@@ -33,10 +33,11 @@ trait LeaseTrait
         /** @var EntityManager $em */
         $em = $this->getContainer()->get('doctrine')->getManager();
 
-        $bills = $this->getLeaseBillRepo()->findBy(array(
-            'lease' => $lease,
-            'type' => LeaseBill::TYPE_LEASE,
-        ));
+        $bills = $em->getRepository('SandboxApiBundle:Lease\LeaseBill')
+            ->findBy(array(
+                'lease' => $lease,
+                'type' => LeaseBill::TYPE_LEASE,
+            ));
         $lease->setBills($bills);
 
         $totalLeaseBills = $em->getRepository('SandboxApiBundle:Lease\LeaseBill')
@@ -103,26 +104,23 @@ trait LeaseTrait
         /** @var Product $product */
         $product = $lease->getProduct();
         $rentSet = $em->getRepository('SandboxApiBundle:Product\ProductRentSet')
-            ->findOneBy(array('product'=>$product));
+            ->findOneBy(array('product' => $product));
 
         $product->setRentSet($rentSet);
     }
 
     /**
-     * @param $lease
+     * @param Lease $lease
      */
     private function setLeaseLogs(
         $lease
     ) {
-        $changeLogs = array();
-        $appointment = $lease->getProductAppointment();
-        if (!is_null($appointment)) {
-            $changeLogs['applicant'] = $appointment->getApplicantName();
-            $changeLogs['apply_date'] = $appointment->getCreationDate();
-        }
+        /** @var EntityManager $em */
+        $em = $this->getContainer()->get('doctrine')->getManager();
 
-        $logConforming = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Log\Log')
+        $changeLogs = array();
+
+        $logConforming = $em->getRepository('SandboxApiBundle:Log\Log')
             ->getLatestAdminLog(
                 Log::MODULE_LEASE,
                 Log::OBJECT_LEASE,
@@ -141,8 +139,7 @@ trait LeaseTrait
             $changeLogs['lease_conformed_date'] = $lease->getConformedDate();
         }
 
-        $logPerforming = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Log\Log')
+        $logPerforming = $em->getRepository('SandboxApiBundle:Log\Log')
             ->getLatestAdminLog(
                 Log::MODULE_LEASE,
                 Log::OBJECT_LEASE,
@@ -156,8 +153,7 @@ trait LeaseTrait
             $changeLogs['lease_performing_date'] = $logPerforming->getCreationDate();
         }
 
-        $logClose = $this->getContainer()->get('doctrine')
-            ->getRepository('SandboxApiBundle:Log\Log')
+        $logClose = $em->getRepository('SandboxApiBundle:Log\Log')
             ->getLatestAdminLog(
                 Log::MODULE_LEASE,
                 Log::OBJECT_LEASE,

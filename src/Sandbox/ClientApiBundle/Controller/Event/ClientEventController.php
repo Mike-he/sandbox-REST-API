@@ -5,12 +5,13 @@ namespace Sandbox\ClientApiBundle\Controller\Event;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sandbox\ApiBundle\Controller\Event\EventController;
 use Sandbox\ApiBundle\Entity\Event\Event;
+use Sandbox\ApiBundle\Entity\Service\ViewCounts;
+use Sandbox\ApiBundle\Entity\User\UserFavorite;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\View\View;
-use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use JMS\Serializer\SerializationContext;
 
 /**
@@ -30,13 +31,6 @@ class ClientEventController extends EventController
      *
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
-     *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     200 = "Returned when successful"
-     *   }
-     * )
      *
      * @Annotations\QueryParam(
      *    name="limit",
@@ -58,6 +52,22 @@ class ClientEventController extends EventController
      *    description="offset of page"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="status",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    description="event status"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="sort",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    description="sort string"
+     * )
+     *
      * @Route("/events/all")
      * @Method({"GET"})
      *
@@ -74,6 +84,9 @@ class ClientEventController extends EventController
             $userId = $this->getUserId();
         }
 
+        $status = $paramFetcher->get('status');
+        $sort = $paramFetcher->get('sort');
+
         // filters
         $limit = $paramFetcher->get('limit');
         $offset = $paramFetcher->get('offset');
@@ -81,10 +94,47 @@ class ClientEventController extends EventController
         // get max limit
         $limit = $this->getLoadMoreLimit($limit);
 
-        $events = $this->getRepo('Event\Event')->getAllClientEvents(
-            $limit,
-            $offset
-        );
+        if ((is_null($status) || empty($status)) && (is_null($sort) || empty($sort))) {
+            $events = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Event\Event')
+                ->getAllClientEvents(
+                    null,
+                    null,
+                    null,
+                    Event::STATUS_REGISTERING,
+                    null,
+                    null
+                );
+
+            $elseEvents = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Event\Event')
+                ->getAllClientEvents(
+                    null,
+                    null,
+                    null,
+                    null,
+                    Event::STATUS_REGISTERING,
+                    null
+                );
+
+            $eventsAll = array_merge($events, $elseEvents);
+
+            $events = [];
+            for ($i = $offset; $i < $offset + $limit; $i++) {
+                array_push($events, $eventsAll[$i]);
+            }
+        } else {
+            $events = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Event\Event')
+                ->getAllClientEvents(
+                    null,
+                    $limit,
+                    $offset,
+                    $status,
+                    null,
+                    $sort
+                );
+        }
 
         foreach ($events as $event) {
             try {
@@ -105,13 +155,6 @@ class ClientEventController extends EventController
      *
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
-     *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     200 = "Returned when successful"
-     *   }
-     * )
      *
      * @Annotations\QueryParam(
      *    name="limit",
@@ -153,11 +196,13 @@ class ClientEventController extends EventController
         // get max limit
         $limit = $this->getLoadMoreLimit($limit);
 
-        $events = $this->getRepo('Event\Event')->getMyClientEvents(
-            $userId,
-            $limit,
-            $offset
-        );
+        $events = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\Event')
+            ->getMyClientEvents(
+                $userId,
+                $limit,
+                $offset
+            );
 
         $eventsArray = array();
 
@@ -184,13 +229,6 @@ class ClientEventController extends EventController
      * @param Request $request
      * @param int     $id
      *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     200 = "Returned when successful"
-     *   }
-     * )
-     *
      * @Route("/events/{id}")
      * @Method({"GET"})
      *
@@ -202,17 +240,25 @@ class ClientEventController extends EventController
         Request $request,
         $id
     ) {
+        $this->get('sandbox_api.view_count')->autoCounting(
+            ViewCounts::OBJECT_EVENT,
+            $id,
+            ViewCounts::TYPE_VIEW
+        );
+
         $userId = null;
         if ($this->isAuthProvided()) {
             $userId = $this->getUserId();
         }
 
         // get an event
-        $event = $this->getRepo('Event\Event')->findOneBy(array(
-            'id' => $id,
-            'isDeleted' => false,
-            'visible' => true,
-        ));
+        $event = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\Event')
+            ->findOneBy(array(
+                'id' => $id,
+                'isDeleted' => false,
+                'visible' => true,
+            ));
         $this->throwNotFoundIfNull($event, self::NOT_FOUND_MESSAGE);
 
         // set extra
@@ -239,26 +285,40 @@ class ClientEventController extends EventController
     ) {
         $eventId = $event->getId();
 
-        // get attachment, dates, forms, registrationCounts, likesCount, commentsCount
-        $attachments = $this->getRepo('Event\EventAttachment')->findByEvent($event);
-        $dates = $this->getRepo('Event\EventDate')->findByEvent($event);
-        $forms = $this->getRepo('Event\EventForm')->findByEvent($event);
-        $registrationCounts = $this->getRepo('Event\EventRegistration')
-            ->getRegistrationCounts($eventId);
-        $likesCount = $this->getRepo('Event\EventLike')->getLikesCount($eventId);
-        $commentsCount = $this->getRepo('Event\EventComment')->getCommentsCount($eventId);
-
-        // set attachment, dates, forms, registrationCounts
+        $attachments = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventAttachment')
+            ->findByEvent($event);
         $event->setAttachments($attachments);
+
+        $dates = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventDate')
+            ->findByEvent($event);
         $event->setDates($dates);
+
+        $forms = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventForm')
+            ->findByEvent($event);
         $event->setForms($forms);
+
+        $registrationCounts = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventRegistration')
+            ->getRegistrationCounts($eventId);
         $event->setRegisteredPersonNumber((int) $registrationCounts);
+
+        $likesCount = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventLike')
+            ->getLikesCount($eventId);
         $event->setLikesCount((int) $likesCount);
+
+        $commentsCount = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventComment')
+            ->getCommentsCount($eventId);
         $event->setCommentsCount((int) $commentsCount);
 
         // set accepted person number
         if ($event->isVerify()) {
-            $acceptedCounts = $this->getRepo('Event\EventRegistration')
+            $acceptedCounts = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Event\EventRegistration')
                 ->getAcceptedPersonNumber($eventId);
             $event->setAcceptedPersonNumber((int) $acceptedCounts);
         }
@@ -266,10 +326,12 @@ class ClientEventController extends EventController
         // set my registration status
         if (!is_null($userId)) {
             // check if user is registered
-            $registration = $this->getRepo('Event\EventRegistration')->findOneBy(array(
-                'eventId' => $eventId,
-                'userId' => $userId,
-            ));
+            $registration = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Event\EventRegistration')
+                ->findOneBy(array(
+                    'eventId' => $eventId,
+                    'userId' => $userId,
+                ));
 
             if (!is_null($registration)) {
                 // set registration
@@ -277,14 +339,27 @@ class ClientEventController extends EventController
             }
 
             // check my like if
-            $like = $this->getRepo('Event\EventLike')->findOneBy(array(
-                'eventId' => $event->getId(),
-                'authorId' => $userId,
-            ));
+            $like = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Event\EventLike')
+                ->findOneBy(array(
+                    'eventId' => $event->getId(),
+                    'authorId' => $userId,
+                ));
 
             if (!is_null($like)) {
                 $event->setMyLikeId($like->getId());
             }
+
+            $favorite = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\UserFavorite')
+                ->findOneBy(array(
+                    'userId' => $userId,
+                    'object' => UserFavorite::OBJECT_EVENT,
+                    'objectId' => $eventId,
+                ));
+
+            $userFavorite = $favorite ? true : false;
+            $event->setFavorite($userFavorite);
         }
 
         return $event;

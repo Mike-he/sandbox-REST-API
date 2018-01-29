@@ -22,6 +22,7 @@ class SalesCompanyServiceInfos
     const TRADE_TYPE_LONGTERM = 'longterm';
     const TRADE_TYPE_ACTIVITY = 'activity';
     const TRADE_TYPE_MEMBERSHIP_CARD = 'membership';
+    const TRADE_TYPE_SERVICE = 'service';
 
     /**
      * @var int

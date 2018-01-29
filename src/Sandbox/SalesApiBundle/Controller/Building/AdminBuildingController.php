@@ -22,6 +22,7 @@ use Sandbox\ApiBundle\Entity\Room\RoomBuildingServiceMember;
 use Sandbox\ApiBundle\Entity\Room\RoomCity;
 use Sandbox\ApiBundle\Entity\Room\RoomFloor;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany;
+use Sandbox\ApiBundle\Entity\Service\ViewCounts;
 use Sandbox\ApiBundle\Form\Room\RoomAttachmentPostType;
 use Sandbox\ApiBundle\Form\Room\RoomBuildingAttachmentPostType;
 use Sandbox\ApiBundle\Form\Room\RoomBuildingCompanyPostType;
@@ -439,6 +440,13 @@ class AdminBuildingController extends LocationController
             'logObjectId' => $building->getId(),
         ));
 
+        // add view counts
+        $this->get('sandbox_api.view_count')->addFirstData(
+            ViewCounts::OBJECT_BUILDING,
+            $building->getId(),
+            ViewCounts::TYPE_VIEW
+        );
+
         return $response;
     }
 
@@ -816,6 +824,7 @@ class AdminBuildingController extends LocationController
         $building
     ) {
         $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $salesCompanyId = $adminPlatform['sales_company_id'];
 
         $em = $this->getDoctrine()->getManager();
         $roomAttachments = $building->getRoomAttachments();
@@ -828,7 +837,7 @@ class AdminBuildingController extends LocationController
 
         $salesCompany = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
-            ->find($adminPlatform['sales_company_id']);
+            ->find($salesCompanyId);
         $buildingServices = $building->getBuildingServices();
 
         // check city
@@ -897,6 +906,7 @@ class AdminBuildingController extends LocationController
 
         // add customer services
 //        $this->addCustomerService(
+//            $salesCompanyId,
 //            $building,
 //            $customerServicesIds,
 //            $em
@@ -1077,7 +1087,10 @@ class AdminBuildingController extends LocationController
         $companyId = $building->getCompanyId();
         $chatGroups = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:ChatGroup\ChatGroup')
-            ->findBy(['buildingId' => $buildingId]);
+            ->findBy([
+                'buildingId' => $buildingId,
+                'tag' => ChatGroup::CUSTOMER_SERVICE,
+            ]);
 
         if (array_key_exists('add', $services)) {
             $this->addChatGroupMembers(
@@ -1155,6 +1168,7 @@ class AdminBuildingController extends LocationController
 
             $newMember = new RoomBuildingServiceMember();
             $newMember->setBuildingId($buildingId);
+            $newMember->setCompanyId($companyId);
             $newMember->setUserId($userId);
             $newMember->setTag($tag);
 
@@ -1717,6 +1731,7 @@ class AdminBuildingController extends LocationController
     }
 
     private function addCustomerService(
+        $salesCompanyId,
         $building,
         $customerServices,
         $em
@@ -1741,18 +1756,19 @@ class AdminBuildingController extends LocationController
                     continue;
                 }
 
-                $customerService = $this->getServiceMemberRepo()->findOneBy(
-                    array(
-                        'buildingId' => $building->getId(),
-                        'userId' => $admin->getId(),
-                        'tag' => $key,
-                    )
-                );
+                $customerService = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomBuildingServiceMember')
+                    ->findOneBy(array(
+                            'buildingId' => $building->getId(),
+                            'userId' => $admin->getId(),
+                            'tag' => $key,
+                        ));
                 if (!is_null($customerService)) {
                     continue;
                 }
 
                 $customerService = new RoomBuildingServiceMember();
+                $customerService->setCompanyId($salesCompanyId);
                 $customerService->setBuildingId($building->getId());
                 $customerService->setUserId($admin->getId());
 

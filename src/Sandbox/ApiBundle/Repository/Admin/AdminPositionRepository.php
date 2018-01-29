@@ -4,7 +4,6 @@ namespace Sandbox\ApiBundle\Repository\Admin;
 
 use Doctrine\ORM\EntityRepository;
 use Sandbox\AdminApiBundle\Data\Position\Position;
-use Sandbox\ApiBundle\Entity\Admin\AdminPosition;
 
 class AdminPositionRepository extends EntityRepository
 {
@@ -25,11 +24,7 @@ class AdminPositionRepository extends EntityRepository
             ->andWhere('p.platform = :platform')
             ->setParameter('platform', $platform);
 
-        if (AdminPosition::PLATFORM_OFFICIAL != $platform) {
-            if (is_null($companyId) || empty($companyId)) {
-                return array();
-            }
-
+        if (!is_null($companyId)) {
             $query->andWhere('p.salesCompanyId = :companyId')
                 ->setParameter('companyId', $companyId);
         }
@@ -72,11 +67,54 @@ class AdminPositionRepository extends EntityRepository
                 ->setParameter('isSuperAdmin', $isSuperAdmin);
         }
 
-        if (AdminPosition::PLATFORM_OFFICIAL != $platform) {
-            if (is_null($companyId) || empty($companyId)) {
-                return array();
-            }
+        if (!is_null($companyId)) {
+            $query->andWhere('p.salesCompanyId = :companyId')
+                ->setParameter('companyId', $companyId);
+        }
 
+        if (!is_null($position)) {
+            $query->andWhere('p.id = :id')
+                ->setParameter('id', $position);
+        }
+
+        if (!is_null($type) && !empty($type)) {
+            $query->leftJoin('SandboxApiBundle:Admin\AdminPositionPermissionMap', 'm', 'WITH', 'p.id = m.positionId')
+                ->leftJoin('SandboxApiBundle:Admin\AdminPermission', 'ap', 'WITH', 'ap.id = m.permissionId')
+                ->andWhere('ap.level = :type')
+                ->setParameter('type', $type);
+        }
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $platform
+     * @param $companyId
+     * @param null $isSuperAdmin
+     * @param null $position
+     * @param null $type
+     *
+     * @return array
+     */
+    public function getPositionIds(
+        $platform,
+        $companyId,
+        $isSuperAdmin = null,
+        $position = null,
+        $type = null
+    ) {
+        $query = $this->createQueryBuilder('p')
+            ->select('p.id')
+            ->where('p.isHidden = FALSE')
+            ->andWhere('p.platform = :platform')
+            ->setParameter('platform', $platform);
+
+        if (!is_null($isSuperAdmin)) {
+            $query->andWhere('p.isSuperAdmin = :isSuperAdmin')
+                ->setParameter('isSuperAdmin', $isSuperAdmin);
+        }
+
+        if (!is_null($companyId)) {
             $query->andWhere('p.salesCompanyId = :companyId')
                 ->setParameter('companyId', $companyId);
         }

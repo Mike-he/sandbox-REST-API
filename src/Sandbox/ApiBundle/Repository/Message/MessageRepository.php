@@ -13,16 +13,45 @@ use Doctrine\ORM\EntityRepository;
 class MessageRepository extends EntityRepository
 {
     /**
-     * Get message list.
+     * @param $platform
+     * @param $limit
+     * @param $offset
      *
      * @return array
      */
-    public function getMessageList()
-    {
+    public function getMessageList(
+        $platform,
+        $limit,
+        $offset
+    ) {
         $query = $this->createQueryBuilder('m')
             ->where('m.visible = TRUE')
+            ->andWhere('m.platform = :platform')
+            ->setParameter('platform', $platform)
             ->orderBy('m.creationDate', 'DESC');
 
+        if (!is_null($limit) && !is_null($offset)) {
+            $query->setMaxResults($limit)
+                ->setFirstResult($offset);
+        }
+
         return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $platform
+     *
+     * @return mixed
+     */
+    public function countMessage(
+        $platform
+    ) {
+        $query = $this->createQueryBuilder('m')
+            ->select('count(m.id)')
+            ->where('m.visible = TRUE')
+            ->andWhere('m.platform = :platform')
+            ->setParameter('platform', $platform);
+
+        return $query->getQuery()->getSingleScalarResult();
     }
 }

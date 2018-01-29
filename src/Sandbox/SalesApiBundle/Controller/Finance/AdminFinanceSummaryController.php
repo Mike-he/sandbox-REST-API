@@ -360,14 +360,28 @@ class AdminFinanceSummaryController extends PaymentController
             $membershipBalance += $membershipOrder->getPrice() * (1 - $membershipOrder->getServiceFee() / 100);
         }
 
+        $serviceOrders = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Service\ServiceOrder')
+            ->getServiceOrdersByDate(
+                $start,
+                $end,
+                $salesCompanyId
+            );
+
+        $serviceOrderBalance = 0;
+        foreach ($serviceOrders as $serviceOrder) {
+            $serviceOrderBalance += $serviceOrder->getPrice();
+        }
+
         $summaryArray = [
-            'total_income' => $amount + $incomeAmount + $eventBalance + $membershipBalance,
+            'total_income' => $amount + $incomeAmount + $eventBalance + $membershipBalance + $serviceOrderBalance,
             'short_rent_balance' => $amount,
             'long_rent_balance' => $incomeAmount,
             'event_order_balance' => $eventBalance,
             'total_service_bill' => $serviceAmount,
             'long_rent_service_bill' => $serviceAmount,
             'membership_order_balance' => $membershipBalance,
+            'service_order_balance' => $serviceOrderBalance,
         ];
 
         return $summaryArray;

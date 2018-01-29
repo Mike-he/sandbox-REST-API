@@ -51,6 +51,7 @@ class OrderController extends PaymentController
 
         // set excel body
         foreach ($orders as $order) {
+            /** @var ProductOrder $order */
             $productInfo = json_decode($order->getProductInfo(), true);
 
             // set product name
@@ -85,28 +86,9 @@ class OrderController extends PaymentController
                 $language
             );
 
-            // set unit price
-            $basePrice = null;
-            if (isset($productInfo['unit_price']) && isset($productInfo['base_price'])) {
-                $unitPriceKey = $productInfo['unit_price'];
-                $basePrice = $productInfo['base_price'];
-            } elseif (isset($productInfo['order']['unit_price'])) {
-                $unitPriceKey = $productInfo['order']['unit_price'];
-
-                if (isset($productInfo['room']['leasing_set'])) {
-                    foreach ($productInfo['room']['leasing_set'] as $item) {
-                        if ($item['unit_price'] == $unitPriceKey) {
-                            $basePrice = $item['base_price'];
-                        }
-                    }
-                }
-            } elseif (isset($productInfo['room']['leasing_set'])) {
-                $unitPriceKey = $productInfo['room']['leasing_set'][0]['unit_price'];
-                $basePrice = $productInfo['room']['leasing_set'][0]['base_price'];
-            }
-
+            $basePrice = $order->getBasePrice();
             $unitPrice = $this->get('translator')->trans(
-                ProductOrderExport::TRANS_ROOM_UNIT.$unitPriceKey,
+                ProductOrderExport::TRANS_ROOM_UNIT.$order->getUnitPrice(),
                 array(),
                 null,
                 $language

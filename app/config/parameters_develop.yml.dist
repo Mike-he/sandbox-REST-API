@@ -1,5 +1,6 @@
 parameters:
     database_driver: pdo_mysql
+
     database_host: rdsuz7cpk5r23ytx02t0.mysql.rds.aliyuncs.com
     database_port: '3306'
     database_name: sandbox_rest_db
@@ -27,12 +28,16 @@ parameters:
     database_path: null
     pingpp_key: sk_test_yHufjLubPOePTW54y5iDeHa5
     pingpp_app_id: app_X5OW105ezz940W14
+
     wechat_app_id: wx5f5a4878763f5515
     wechat_app_secret: 2f576c27bef3d5a83ac78a273712abe7
     wechat_public_platform_app_id: wxd0bc8ff918c8e593
     wechat_public_platform_secret: be4ed95443a324b27d19e313ad7dd2e0
     wechat_website_app_id: wx3ada402af6480db0
     wechat_website_secret: cb013671b7d43e92ea7df28848053e70
+    wechat_commnue_app_id: wx1388ca2b2fa80df6
+    wechat_commnue_secret: 5a5a63d1731189e19870b1342a011887
+
     server_order_id: s
     load_more_limit: 20
     nearby_range_km: 100
@@ -51,6 +56,7 @@ parameters:
     sandbox_auth_key: sandbox_auth_test
     food_api_url: http://testfood.sandbox3.cn
     food_api_payment_callback: /index.php?route=payment/sandbox_wechat/callback
+
     crm_api_url: crmserver
     crm_api_client_user_account_authentication: /client/user/account/authentication
     crm_api_client_user_account_vip: /client/user/account/vip
@@ -69,6 +75,8 @@ parameters:
     crm_api_sales_admin_invoices: /sales/admin/invoices
     crm_api_admin_user_create: /admin/useraccounts/{userId}/create
     crm_api_client_user_price_calculate: /client/user/price/rules/{rule_id}/calculate
+    crm_api_sync_user_account_credential: /client/user/account/{userId}/sync
+
     door_api_username: admin
     door_api_password: admin
     door_api_login: /Login
@@ -125,6 +133,8 @@ parameters:
     jpush_secret: 83aa0ae09df6f9e1a302cae0
     jpush_property_key: 6edbdf8bd11a5cc27212a01b
     jpush_property_secret: 0cd15d94296076c69bd9faa7
+    jpush_commnue_key: c6a84909032e010f76c02caf
+    jpush_commnue_secret: 33552689186c92e57603a6ee
 
     oss_access_key_id: LTAIlrwRyGc3PpVH
     oss_access_key_secret: mxnsEPGC4OgwOLTqB3HX6YMB34wUqh
@@ -132,6 +142,9 @@ parameters:
     oss_endpoint: oss-cn-shanghai-internal.aliyuncs.com
     oss_bucket: sandbox3-dev-image
 
-    error_log_dir: /var/log/app/error.log
+    error_log_dir: /var/www/error.log
 
-    rpc_server_test: http://139.224.210.135:10088
+    rpc_server_feed: feed.local
+
+    id_card_auth_api_url: http://apis.haoservice.com/idcard/VerifyIdcardv2
+    id_card_auth_api_appkey: 09524110e7534dc49773b2bd4a1fe2cd

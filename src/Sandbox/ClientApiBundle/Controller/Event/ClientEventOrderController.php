@@ -241,10 +241,6 @@ class ClientEventOrderController extends PaymentController
             ->find($id);
         $this->throwNotFoundIfNull($event, self::NOT_FOUND_MESSAGE);
 
-        if ($event->isVerify()) {
-            return new View();
-        }
-
         $customerId = null;
         if ($event->getSalesCompanyId()) {
             $customerId = $this->get('sandbox_api.sales_customer')->createCustomer(
@@ -293,7 +289,7 @@ class ClientEventOrderController extends PaymentController
         }
 
         // set status
-        if (0 == $order->getPrice()) {
+        if (0 == $order->getPrice() && !$event->isVerify()) {
             $order->setStatus(EventOrder::STATUS_PAID);
         } else {
             $order->setStatus(EventOrder::STATUS_UNPAID);

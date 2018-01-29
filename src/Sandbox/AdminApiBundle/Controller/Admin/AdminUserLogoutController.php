@@ -8,7 +8,6 @@ use Sandbox\ApiBundle\Entity\Admin\Admin;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 
 /**
  * Logout controller.
@@ -18,7 +17,7 @@ use Nelmio\ApiDocBundle\Annotation\ApiDoc;
  * @author   Albert Feng
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 class AdminUserLogoutController extends AdminLogoutController
 {
@@ -26,13 +25,6 @@ class AdminUserLogoutController extends AdminLogoutController
      * Logout.
      *
      * @param Request $request the request object
-     *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     204 = "NO CONTENT"
-     *  }
-     * )
      *
      * @Route("/logout")
      * @Method({"POST"})

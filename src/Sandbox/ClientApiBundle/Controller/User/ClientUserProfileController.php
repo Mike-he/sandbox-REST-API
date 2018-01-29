@@ -23,7 +23,7 @@ use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
  * @author   Yimo Zhang <yimo.zhang@Sandbox.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 class ClientUserProfileController extends UserProfileController
 {

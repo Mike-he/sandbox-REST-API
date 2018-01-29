@@ -434,6 +434,13 @@ class SandboxRestController extends FOSRestController
         $platform,
         $salesCompanyId = null
     ) {
+        $excludePermissionIds = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Admin\AdminPermission')
+            ->findAdminExcludePermissionIds(
+                $platform,
+                $salesCompanyId
+            );
+
         $commonAdminPositionBindings = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
             ->getPositionBindingsByIsSuperAdmin(
@@ -455,6 +462,9 @@ class SandboxRestController extends FOSRestController
 
             foreach ($positionPermissionMaps as $map) {
                 $permission = $map->getPermission();
+                if (in_array($permission->getId(), $excludePermissionIds)) {
+                    continue;
+                }
                 $permissionArray = array(
                     'key' => $permission->getKey(),
                     'op_level' => $map->getOpLevel(),
@@ -1092,7 +1102,6 @@ class SandboxRestController extends FOSRestController
         $mailer->send($message);
     }
 
-
     //--------------------generate default verification code and token--------------------//
     /**
      * @param $digits
@@ -1328,6 +1337,9 @@ class SandboxRestController extends FOSRestController
 
         $service = $this->get('sandbox_api.jmessage');
         $service->createUser($username, $password);
+
+        $commnueService = $this->get('sandbox_api.jmessage_commnue');
+        $commnueService->createUser($username, $password);
 
         return $username;
     }
@@ -2067,5 +2079,48 @@ class SandboxRestController extends FOSRestController
             $orderNumber,
             $type
         );
+    }
+
+    protected function syncUserAuth(
+        $userId,
+        $realName,
+        $credentialNo
+    ) {
+        $content = [
+            'real_name' => $realName,
+            'credential_no' => $credentialNo,
+        ];
+        $json = json_encode($content);
+
+        $auth = $this->authAuthMd5($json);
+
+        $twig = $this->container->get('twig');
+        $globals = $twig->getGlobals();
+
+        // CRM API URL
+        $crmUrl = $this->getParameter('crm_api_url');
+        $apiUrl = $this->getParameter('crm_api_sync_user_account_credential');
+
+        $apiUrl = $crmUrl.$apiUrl;
+        $apiUrl = preg_replace('/{userId}.*?/', "$userId", $apiUrl);
+
+        // init curl
+        $ch = curl_init($apiUrl);
+
+        $response = $this->callAPI(
+            $ch,
+            'POST',
+            array(self::SANDBOX_CUSTOM_HEADER.$auth),
+            $json
+        );
+
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($httpCode != self::HTTP_STATUS_OK_NO_CONTENT) {
+            return;
+        }
+
+        $result = json_decode($response, true);
+
+        return $result;
     }
 }

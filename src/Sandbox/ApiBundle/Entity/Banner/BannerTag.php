@@ -13,6 +13,7 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class BannerTag
 {
+    const ADVERTISEMENT = 'banner.tag.advertisement';
     /**
      * @var int
      *

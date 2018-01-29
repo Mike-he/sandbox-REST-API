@@ -13,7 +13,6 @@ use Sandbox\ApiBundle\Entity\Admin\AdminStatusLog;
 use Sandbox\ApiBundle\Entity\Lease\LeaseBill;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Traits\GenerateSerialNumberTrait;
-use Sandbox\ApiBundle\Traits\HasAccessToEntityRepositoryTrait;
 use Sandbox\ApiBundle\Traits\LeaseNotificationTrait;
 use Sandbox\ApiBundle\Traits\LeaseTrait;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
@@ -26,7 +25,6 @@ use FOS\RestBundle\Controller\Annotations;
 class ClientLeaseController extends SalesRestController
 {
     use GenerateSerialNumberTrait;
-    use HasAccessToEntityRepositoryTrait;
     use LeaseNotificationTrait;
     use LeaseTrait;
 

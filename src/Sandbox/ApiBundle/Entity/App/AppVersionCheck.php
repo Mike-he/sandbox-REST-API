@@ -86,6 +86,13 @@ class AppVersionCheck
     private $visible;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="platform", type="string", length=64, nullable=true)
+     */
+    private $platform = null;
+
+    /**
      * @var \DateTime
      *
      * @Gedmo\Timestampable(on="create")
@@ -293,6 +300,22 @@ class AppVersionCheck
     public function setAndroidUrl($androidUrl)
     {
         $this->androidUrl = $androidUrl;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPlatform()
+    {
+        return $this->platform;
+    }
+
+    /**
+     * @param string $platform
+     */
+    public function setPlatform($platform)
+    {
+        $this->platform = $platform;
     }
 
     /**

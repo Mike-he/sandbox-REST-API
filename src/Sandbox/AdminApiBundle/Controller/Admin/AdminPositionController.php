@@ -33,7 +33,7 @@ use FOS\RestBundle\Controller\Annotations;
  * @author  Mike He <mike.he@easylinks.com.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 class AdminPositionController extends PaymentController
 {
@@ -110,11 +110,11 @@ class AdminPositionController extends PaymentController
         $action = $sort->getAction();
 
         // change banner position
-        if ($action == Position::ACTION_TOP) {
+        if (Position::ACTION_TOP == $action) {
             $adminPosition->setSortTime(round(microtime(true) * 1000));
         } elseif (
-            $action == Position::ACTION_UP ||
-            $action == Position::ACTION_DOWN
+            Position::ACTION_UP == $action ||
+            Position::ACTION_DOWN == $action
         ) {
             $this->swapAdminPositionSort(
                 $adminPosition,
@@ -168,13 +168,6 @@ class AdminPositionController extends PaymentController
      * create admin position.
      *
      * @param Request $request the request object
-     *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     200 = "Returned when successful"
-     *   }
-     * )
      *
      * @Method({"POST"})
      * @Route("/positions")
@@ -264,13 +257,6 @@ class AdminPositionController extends PaymentController
      * @param Request $request the request object
      * @param $id
      *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     200 = "Returned when successful"
-     *   }
-     * )
-     *
      * @Method({"PUT"})
      * @Route("/positions/{id}")
      *
@@ -350,13 +336,6 @@ class AdminPositionController extends PaymentController
      *
      * @param Request $request the request object
      * @param $id
-     *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     200 = "Returned when successful"
-     *   }
-     * )
      *
      * @Method({"DELETE"})
      * @Route("/positions/{id}")
@@ -457,13 +436,6 @@ class AdminPositionController extends PaymentController
      *
      * @param Request               $request      the request object
      * @param ParamFetcherInterface $paramFetcher
-     *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     200 = "Returned when successful"
-     *   }
-     * )
      *
      * @Annotations\QueryParam(
      *    name="type",
@@ -733,7 +705,7 @@ class AdminPositionController extends PaymentController
             case AdminPosition::PLATFORM_SALES:
                 //TODO: check sales permissions
 
-                if ($method == 'POST' && $currentPlatform == AdminPosition::PLATFORM_OFFICIAL) {
+                if ('POST' == $method && AdminPosition::PLATFORM_OFFICIAL == $currentPlatform) {
                     //TODO: check official permissions
 
                     $position->setIsSuperAdmin(true);
@@ -743,16 +715,19 @@ class AdminPositionController extends PaymentController
             case AdminPosition::PLATFORM_SHOP:
                 //TODO: check shop permissions
 
-                if ($method == 'POST' && $currentPlatform == AdminPosition::PLATFORM_OFFICIAL) {
+                if ('POST' == $method && AdminPosition::PLATFORM_OFFICIAL == $currentPlatform) {
                     //TODO: check official permissions
 
                     $position->setIsSuperAdmin(true);
                 }
 
                 break;
+            case AdminPosition::PLATFORM_COMMNUE:
+                //TODO: check official permissions
+
+                break;
             default:
                 throw new AccessDeniedHttpException();
-
                 break;
         }
     }
@@ -864,7 +839,7 @@ class AdminPositionController extends PaymentController
         $companyId = $position->getSalesCompanyId();
         $platform = $position->getPlatform();
 
-        if ($platform == AdminPosition::PLATFORM_OFFICIAL && is_null($companyId)) {
+        if ((AdminPosition::PLATFORM_OFFICIAL == $platform || AdminPosition::PLATFORM_COMMNUE == $platform) && is_null($companyId)) {
             return;
         } else {
             $company = $this->getDoctrine()
@@ -1050,6 +1025,7 @@ class AdminPositionController extends PaymentController
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ADMIN],
                 ['key' => AdminPermission::KEY_SALES_PLATFORM_ADMIN],
                 ['key' => AdminPermission::KEY_SHOP_PLATFORM_ADMIN],
+                ['key' => AdminPermission::KEY_COMMNUE_PLATFORM_ADMIN],
             ],
             $opLevel
         );

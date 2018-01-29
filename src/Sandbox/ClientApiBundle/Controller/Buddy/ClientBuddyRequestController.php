@@ -184,7 +184,6 @@ class ClientBuddyRequestController extends BuddyRequestController
 
         $em->flush();
 
-
         // set view
         $view = new View();
         $view->setData(

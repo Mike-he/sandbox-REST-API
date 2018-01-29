@@ -27,6 +27,7 @@ use Pingpp\Customer;
 use Pingpp\Error\Base;
 use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
+use Sandbox\ApiBundle\Entity\Service\ServiceOrder;
 use Sandbox\ApiBundle\Entity\Shop\ShopOrder;
 use Sandbox\ApiBundle\Entity\User\UserBeanFlow;
 use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
@@ -1823,6 +1824,36 @@ class PaymentController extends DoorController
         );
 
         return $bill;
+    }
+
+    /**
+     * @param $orderNumber
+     * @param $channel
+     *
+     * @return ServiceOrder
+     */
+    public function setServiceOrderStatus(
+        $orderNumber,
+        $channel
+    ) {
+        $order = $this->getRepo('Service\ServiceOrder')->findOneBy(
+            [
+                'orderNumber' => $orderNumber,
+                'status' => ShopOrder::STATUS_UNPAID,
+            ]
+        );
+        $this->throwNotFoundIfNull($order, self::NOT_FOUND_MESSAGE);
+
+        $now = new \DateTime();
+        $order->setStatus(ServiceOrder::STATUS_PAID);
+        $order->setPaymentDate($now);
+        $order->setPayChannel($channel);
+        $order->setModificationDate($now);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        return $order;
     }
 
     /**

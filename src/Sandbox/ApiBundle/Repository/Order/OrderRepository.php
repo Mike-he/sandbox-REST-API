@@ -766,7 +766,7 @@ class OrderRepository extends EntityRepository
     }
 
     /**
-     * Set preorder orders status to cancelled
+     * Set preorder orders status to cancelled.
      */
     public function setPreOrderStatusCancelled()
     {
@@ -3734,7 +3734,31 @@ class OrderRepository extends EntityRepository
             ->getSingleScalarResult();
         $cardOrderAmount = (float) $cardOrderAmount;
 
-        $totalAmount = $productOrderAmount + $shopOrderAmount + $eventOrderAmount + $leaseBillAmount + $topUpAmount + $cardOrderAmount;
+        // service order amount
+        $serviceOrderAmountQuery = $this->getEntityManager()->createQueryBuilder()
+            ->from('SandboxApiBundle:Service\ServiceOrder', 'so')
+            ->select('SUM(so.price)')
+            ->where('so.paymentDate >= :start')
+            ->andWhere('so.paymentDate <= :end')
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        if (!is_null($payChannel)) {
+            $serviceOrderAmountQuery->andWhere('so.payChannel = :payChannel')
+                ->setParameter('payChannel', $payChannel);
+        }
+
+        $serviceOrderAmount = $serviceOrderAmountQuery->getQuery()
+            ->getSingleScalarResult();
+        $serviceOrderAmount = (float) $serviceOrderAmount;
+
+        $totalAmount = $productOrderAmount
+            + $shopOrderAmount
+            + $eventOrderAmount
+            + $leaseBillAmount
+            + $topUpAmount
+            + $cardOrderAmount
+            + $serviceOrderAmount;
 
         return $totalAmount;
     }
@@ -3879,7 +3903,32 @@ class OrderRepository extends EntityRepository
             ->getSingleScalarResult();
         $cardOrderCount = (int) $cardOrderCount;
 
-        $totalCount = $productOrderCount + $shopOrderCount + $eventOrderCount + $leaseBillCount + $topUpCount + $cardOrderCount;
+        // service order count
+        $serviceOrderCountQuery = $this->getEntityManager()->createQueryBuilder()
+            ->from('SandboxApiBundle:Service\ServiceOrder', 'so')
+            ->select('COUNT(so.price)')
+            ->where('so.paymentDate >= :start')
+            ->andWhere('so.paymentDate <= :end')
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate);
+
+        if (!is_null($payChannel)) {
+            $serviceOrderCountQuery->andWhere('so.payChannel = :payChannel')
+                ->setParameter('payChannel', $payChannel);
+        }
+
+        $serviceOrderCount = $serviceOrderCountQuery->getQuery()
+            ->getSingleScalarResult();
+        $serviceOrderCount = (int) $serviceOrderCount;
+
+        $totalCount = $productOrderCount
+            + $shopOrderCount
+            + $eventOrderCount
+            + $leaseBillCount
+            + $topUpCount
+            + $cardOrderCount
+            + $serviceOrderCount
+        ;
 
         return $totalCount;
     }
@@ -4840,6 +4889,7 @@ class OrderRepository extends EntityRepository
      * @param $buildingIds
      * @param $limit
      * @param $offset
+     *
      * @return array
      */
     public function findCustomerProductsOrder(
@@ -4849,14 +4899,14 @@ class OrderRepository extends EntityRepository
         $offset
     ) {
         $query = $this->createQueryBuilder('o')
-            ->leftJoin('o.product','p')
-            ->leftJoin('p.room','r')
+            ->leftJoin('o.product', 'p')
+            ->leftJoin('p.room', 'r')
             ->where('o.customerId = :customerId')
             ->andWhere('r.building in (:buildingId)')
-            ->setParameter('customerId',$customerId)
-            ->setParameter('buildingId',$buildingIds);
+            ->setParameter('customerId', $customerId)
+            ->setParameter('buildingId', $buildingIds);
 
-        $query->orderBy('o.creationDate','DESC');
+        $query->orderBy('o.creationDate', 'DESC');
 
         $query->setMaxResults($limit)
             ->setFirstResult($offset);

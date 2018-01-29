@@ -4,7 +4,6 @@ namespace Sandbox\SalesApiBundle\Controller\User;
 
 use Sandbox\ApiBundle\Controller\Door\DoorController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
-use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdminProfiles;
 use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesUser;
 use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
@@ -498,7 +497,7 @@ class AdminUsersController extends DoorController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Annotations\QueryParam(
@@ -956,6 +955,12 @@ class AdminUsersController extends DoorController
                 $profile = $this->getRepo('User\UserProfile')->findOneByUser($user);
 
                 $this->get('sandbox_api.jmessage')
+                    ->updateNickname(
+                        $user->getXmppUsername(),
+                        $profile->getName()
+                    );
+
+                $this->get('sandbox_api.jmessage_commnue')
                     ->updateNickname(
                         $user->getXmppUsername(),
                         $profile->getName()

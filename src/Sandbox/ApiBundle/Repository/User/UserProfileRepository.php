@@ -44,4 +44,17 @@ class UserProfileRepository extends EntityRepository
 
         return $query->getQuery()->getSingleResult();
     }
+
+    public function findUsersByBuilding(
+        $building
+    ) {
+        $query = $this->createQueryBuilder('up')
+            ->select('up.userId')
+            ->where('up.building = :building')
+            ->setParameter('building', $building);
+
+        $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
 }

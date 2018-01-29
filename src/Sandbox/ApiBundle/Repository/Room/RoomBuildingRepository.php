@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Repository\Room;
 
 use Doctrine\ORM\EntityRepository;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
+use Sandbox\ApiBundle\Entity\Service\ViewCounts;
 
 class RoomBuildingRepository extends EntityRepository
 {
@@ -486,6 +487,7 @@ class RoomBuildingRepository extends EntityRepository
         $lat,
         $limit,
         $offset,
+        $userId,
         $excludeIds = null
     ) {
         $buildingsQuery = $this->createQueryBuilder('rb');
@@ -512,8 +514,19 @@ class RoomBuildingRepository extends EntityRepository
             rb.avatar,
             rb.lat,
             rb.lng,
-            (rb.orderEvaluationNumber + rb.buildingEvaluationNumber) as total_comments_amount
+            (rb.orderEvaluationNumber + rb.buildingEvaluationNumber) as total_comments_amount,
+            rb.cityId as city_id,
+            rb.districtId as district_id
         ')
+            ->leftJoin(
+                'SandboxApiBundle:User\UserFavorite',
+                'uf',
+                'WITH',
+                'uf.objectId = rb.id'
+            )
+            ->andWhere("uf.object = 'building'")
+            ->andWhere('uf.userId = :userId')
+            ->setParameter('userId', $userId)
             ->setParameter('latitude', $lat)
             ->setParameter('longitude', $lng);
 
@@ -528,8 +541,8 @@ class RoomBuildingRepository extends EntityRepository
                 ->setParameter('excludeIds', $excludeIds);
         }
 
-        $buildingsQuery->orderBy('distance', 'ASC')
-            ->addOrderBy('rb.evaluationStar', 'DESC')
+        $buildingsQuery->orderBy('uf.creationDate', 'DESC')
+            ->groupBy('uf.id')
             ->setMaxResults($limit)
             ->setFirstResult($offset);
 
@@ -749,6 +762,219 @@ class RoomBuildingRepository extends EntityRepository
             ->setParameter('status', 'accept')
             ->setParameter('companyId', $companyId)
             ->setParameter('name', $buildingName);
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $commnueStatus
+     * @param $search
+     *
+     * @return array
+     */
+    public function getAllCommnueRoomBuildings(
+        $commnueStatus,
+        $search
+    ) {
+        $query = $this->createQueryBuilder('rb')
+            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'rb.id = r.building')
+            ->leftJoin('SandboxApiBundle:Room\CommnueBuildingHot', 'cbh', 'WITH', 'rb.id = cbh.buildingId')
+            ->select(
+                'rb.id',
+                'rb.name',
+                'rb.commnueStatus',
+                'COUNT(r.id) as roomNumber'
+            )
+            ->where('rb.isDeleted = FALSE')
+            ->andWhere('rb.visible = TRUE');
+
+        if (!is_null($commnueStatus)) {
+            $query->andWhere('rb.commnueStatus = :commnueStatus')
+                ->setParameter('commnueStatus', $commnueStatus);
+        } else {
+            $query->andWhere('rb.commnueStatus != :commnueStatus')
+                ->setParameter('commnueStatus', RoomBuilding::FREEZON);
+        }
+
+        if (!is_null($search)) {
+            $query->andWhere('rb.name LIKE :search')
+                ->setParameter('search', '%'.$search.'%');
+        }
+
+        $query = $query->groupBy('rb.id')
+            ->orderBy('cbh.id', 'DESC');
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $builingIds
+     * @param $limit
+     *
+     * @return array
+     */
+    public function getExtraHotCommnueClientBuilding(
+        $builingIds,
+        $limit
+    ) {
+        $query = $this->createQueryBuilder('rb')
+            ->select('rb.id')
+            ->andWhere('rb.isDeleted = FALSE')
+            ->andWhere('rb.visible = TRUE')
+            ->andWhere('rb.commnueStatus != :commnueStatus')
+            ->setParameter('commnueStatus', RoomBuilding::FREEZON);
+
+        if (!empty($builingIds)) {
+            $query->andWhere('rb.id NOT IN (:ids)')
+                ->setParameter('ids', $builingIds);
+        }
+
+        $query->setMaxResults($limit);
+
+        $ids = $query->getQuery()->getScalarResult();
+
+        return array_unique(array_map('current', $ids));
+    }
+
+    /*
+     * @param $commnueStatus
+     * @return mixed
+     */
+    public function getCommueDiffStatusCounts(
+        $commnueStatus
+    ) {
+        $query = $this->createQueryBuilder('rb')
+            ->select(
+                'COUNT(rb.id) as counts'
+            )
+            ->where('rb.isDeleted = FALSE')
+            ->andWhere('rb.visible = TRUE')
+            ->andWhere('rb.commnueStatus = :commnueStatus')
+            ->setParameter('commnueStatus', $commnueStatus);
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
+
+    /**
+     * @param $buildingIds
+     * @return array
+     */
+    public function getCommnueClientCommunityBuilding(
+        $buildingIds
+    ) {
+        $query = $this->createQueryBuilder('rb')
+                      ->select('
+                        rb.id,
+                        rb.name,
+                        rb.evaluationStar,
+                        rb.avatar,
+                        rb.address,
+                        rb.lat,
+                        rb.lng,                     
+                        (rb.orderEvaluationNumber + rb.buildingEvaluationNumber) as total_comments_amount
+                    ')
+                        ->where('rb.commnueStatus != :commnuestatus')
+                        ->andWhere('rb.id IN (:ids)')
+                        ->andWhere('rb.isDeleted = FALSE')
+                        ->andWhere('rb.visible = TRUE')
+                        ->setParameter('commnuestatus', RoomBuilding::FREEZON)
+                        ->setParameter('ids', $buildingIds);
+
+        $query->orderBy('rb.creationDate', 'DESC');
+
+        return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $province
+     * @param $city
+     * @param $district
+     * @param $sort
+     * @param null $limit
+     * @param null $offset
+     * @return array
+     */
+    public function getCommnueClientAllCommunityBuilding(
+        $province,
+        $city,
+        $district,
+        $sort,
+        $limit = null,
+        $offset = null
+    ) {
+        $query = $this->createQueryBuilder('rb')
+            ->select('
+                        rb.id,
+                        rb.name,
+                        rb.evaluationStar,
+                        rb.avatar,
+                        rb.address,
+                        rb.lat,
+                        rb.lng,
+                        (rb.orderEvaluationNumber + rb.buildingEvaluationNumber) as total_comments_amount
+                    ')
+            ->where('rb.commnueStatus != :commnuestatus')
+            ->andWhere('rb.isDeleted = FALSE')
+            ->andWhere('rb.visible = TRUE')
+            ->setParameter('commnuestatus', RoomBuilding::FREEZON);
+
+        if (!is_null($province) && $province != 0) {
+            $query->leftJoin('SandboxApiBundle:Room\RoomCity','rc','WITH','rc.id = rb.cityId')
+                ->andWhere('rc.parentId = :provinceId')
+                ->setParameter('provinceId', $province);
+        }
+
+        if (!is_null($city) && $city != 0) {
+            $query->andWhere('rb.cityId = :cityId')
+                ->setParameter('cityId', $city);
+        }
+
+        if (!is_null($district) && $district != 0) {
+            $query->andWhere('rb.districtId = :districtId')
+                ->setParameter('districtId', $district);
+        }
+
+        if (!is_null($sort)) {
+            switch ($sort) {
+                case 'purchase':
+                    $query
+                        ->select(
+                            'rb.id,
+                            rb.name,
+                            rb.evaluationStar,
+                            rb.avatar,
+                            rb.address,
+                            rb.lat,
+                            rb.lng,
+                            (rb.orderEvaluationNumber + rb.buildingEvaluationNumber) as total_comments_amount,
+                            COUNT(rb.id) as counts'
+                        )
+                        ->leftJoin('SandboxApiBundle:Room\Room','r','WITH','r.buildingId = rb.id')
+                        ->leftJoin('SandboxApiBundle:Product\Product','p','WITH','p.roomId = r.id')
+                        ->leftJoin('SandboxApiBundle:Order\ProductOrder','po','WITH','po.productId = p.id')
+                        ->groupBy('rb.id')
+                        ->orderBy('counts','DESC');
+                    break;
+                case 'view':
+                    $query->leftJoin('SandboxApiBundle:Service\ViewCounts', 'v', 'WITH', 'v.objectId = rb.id')
+                        ->andWhere('v.object = :object')
+                        ->andWhere('v.type = :type')
+                        ->setParameter('object', ViewCounts::OBJECT_BUILDING)
+                        ->setParameter('type', ViewCounts::TYPE_VIEW)
+                        ->orderBy('v.count', 'DESC');
+                    break;
+                default:
+                    $query->orderBy('rb.creationDate', 'DESC');
+                    break;
+            }
+        } else {
+            $query->orderBy('rb.creationDate', 'DESC');
+        }
+
+        if (!is_null($limit) && !is_null($offset)) {
+            $query->setFirstResult($offset)
+                ->setMaxResults($limit);
+        }
 
         return $query->getQuery()->getResult();
     }

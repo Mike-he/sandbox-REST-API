@@ -20,9 +20,9 @@ class AdminDashboardControllerTest extends WebTestCase
         $fixtures = [
             'Sandbox\ApiBundle\DataFixtures\ORM\User\LoadUserData',
             'Sandbox\ApiBundle\DataFixtures\ORM\Sales\LoadSalesCompanyData',
-            'Sandbox\ApiBundle\DataFixtures\ORM\Admin\LoadAdminPermissionData',
             'Sandbox\ApiBundle\DataFixtures\ORM\Admin\LoadAdminPositionData',
             'Sandbox\ApiBundle\DataFixtures\ORM\Admin\LoadAdminPositionBindingData',
+            'Sandbox\ApiBundle\DataFixtures\ORM\Admin\LoadAdminPermissionData',
             'Sandbox\ApiBundle\DataFixtures\ORM\Room\LoadRoomCityData',
             'Sandbox\ApiBundle\DataFixtures\ORM\Room\LoadRoomBuildingData',
             'Sandbox\ApiBundle\DataFixtures\ORM\Room\LoadRoomTypesData',
@@ -38,15 +38,6 @@ class AdminDashboardControllerTest extends WebTestCase
 
     public function testGetBuildingWithoutAuthenticationShouldNotWork()
     {
-        $this->performSalesGetBuilding();
-
-        $this->assertPermissionDenied();
-    }
-
-    public function testGetBuildingWithoutPermissionShouldNotWork()
-    {
-        $this->givenLoggedInAs('client-sales-user-without-position', 'sales-user-without-position-token');
-
         $this->performSalesGetBuilding();
 
         $this->assertPermissionDenied();

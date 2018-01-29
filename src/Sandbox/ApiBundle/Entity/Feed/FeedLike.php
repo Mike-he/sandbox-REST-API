@@ -7,12 +7,8 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * FeedLike.
  *
- * @ORM\Table(
- *  name="feed_likes",
- *  indexes={
- *      @ORM\Index(name="fk_feedLike_feedId_idx", columns={"feedId"})
- *  })
- * @ORM\Entity
+ * @ORM\Table(name="feed_likes")
+ * @ORM\Entity(repositoryClass="Sandbox\ApiBundle\Repository\Feed\FeedLikeRepository")
  */
 class FeedLike
 {
@@ -26,36 +22,16 @@ class FeedLike
     private $id;
 
     /**
-     * @var \Sandbox\ApiBundle\Entity\Feed\Feed
-     *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\Feed\Feed")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="feedId", referencedColumnName="id", nullable=false, onDelete="CASCADE")
-     * })
-     */
-    private $feed;
-
-    /**
      * @var int
      *
-     * @ORM\Column(name="feedId", type="integer", nullable=false)
+     * @ORM\Column(name="feedId", type="integer")
      */
     private $feedId;
 
     /**
-     * @var \Sandbox\ApiBundle\Entity\User\User
-     *
-     * @ORM\ManyToOne(targetEntity="Sandbox\ApiBundle\Entity\User\User")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="authorId", referencedColumnName="id", nullable=false, onDelete="CASCADE")
-     * })
-     */
-    private $author;
-
-    /**
      * @var int
      *
-     * @ORM\Column(name="authorId", type="integer", nullable=false)
+     * @ORM\Column(name="authorId", type="integer")
      */
     private $authorId;
 
@@ -146,53 +122,5 @@ class FeedLike
     public function getCreationDate()
     {
         return $this->creationDate;
-    }
-
-    /**
-     * Set feed.
-     *
-     * @param $feed
-     *
-     * @return FeedComment
-     */
-    public function setFeed($feed)
-    {
-        $this->feed = $feed;
-
-        return $this;
-    }
-
-    /**
-     * Get feed.
-     *
-     * @return Feed
-     */
-    public function getFeed()
-    {
-        return $this->feed;
-    }
-
-    /**
-     * Set author.
-     *
-     * @param $author
-     *
-     * @return FeedLike
-     */
-    public function setAuthor($author)
-    {
-        $this->author = $author;
-
-        return $this;
-    }
-
-    /**
-     * Get author.
-     *
-     * @return \Sandbox\ApiBundle\Entity\User\User
-     */
-    public function getAuthor()
-    {
-        return $this->author;
     }
 }

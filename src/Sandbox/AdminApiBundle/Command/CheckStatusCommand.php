@@ -6,6 +6,7 @@ namespace Sandbox\AdminApiBundle\Command;
 use Doctrine\ORM\EntityManager;
 use Sandbox\ApiBundle\Entity\Event\Event;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
+use Sandbox\ApiBundle\Entity\Service\Service;
 use Sandbox\ApiBundle\Traits\SetStatusTrait;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
@@ -34,6 +35,9 @@ class CheckStatusCommand extends ContainerAwareCommand
         $this->setInvoiceForProductOrders($em);
 
         $this->checkEventOrders($em);
+
+        $this->checkServiceStatus($em);
+
         $em->flush();
     }
 
@@ -157,6 +161,7 @@ class CheckStatusCommand extends ContainerAwareCommand
         $eventStatus = [
             Event::STATUS_PREHEATING,
             Event::STATUS_REGISTERING,
+            Event::STATUS_WAITING,
             Event::STATUS_ONGOING,
         ];
         $events = $em->getRepository('SandboxApiBundle:Event\Event')
@@ -167,6 +172,28 @@ class CheckStatusCommand extends ContainerAwareCommand
 
         foreach ($events as $event) {
             $this->setEventStatus($event);
+        }
+    }
+
+    /**
+     * @param EntityManager $em
+     */
+    private function checkServiceStatus(
+        $em
+    ) {
+        $status = [
+            Service::STATUS_PREHEATING,
+            Service::STATUS_ONGOING
+        ];
+
+        $services = $em->getRepository('SandboxApiBundle:Service\Service')
+            ->findBy([
+                'isSaved' => false,
+                'status' => $status
+            ]);
+
+        foreach ($services as $service) {
+            $this->setServiceStatus($service);
         }
     }
 

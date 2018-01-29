@@ -47,7 +47,7 @@ class Parameter
     const KEY_HTML_APPLY = 'html_apply';                                        //预约看房
     const KEY_HTML_ROOM_ORDER_PARAM_ID = 'html_room_order_param_id';            //空间订单
     const KEY_HTML_EVENT_ORDER_PARAM_ID = 'html_event_order_param_id';          //活动订单
-    const KEY_HTML_MEMBER_ORDER_PARAM_ID= 'html_member_order_param_id';         //会员卡订单
+    const KEY_HTML_MEMBER_ORDER_PARAM_ID = 'html_member_order_param_id';         //会员卡订单
     const KEY_HTML_OFFER_PARAM_ID = 'html_offer_param_id';                      //报价
     const KEY_HTML_BILL_PARAM_ID = 'html_bill_param_id';                        //账单
     const KEY_HTML_CONTRACT_PARAM_ID = 'html_contract_param_id';                //合同
@@ -60,6 +60,12 @@ class Parameter
     const KEY_HTML_CUSTOMER_ENTERPRISE_DETAIL = 'html_customer_enterprise_detail'; //客户详情
     const KEY_HTML_SPACE_RESERVE = 'html_space_reserve';                        //预留
     const KEY_HTML_SPACE_PREORDER = 'html_space_preorder';                      //预定
+
+    const KEY_COMMNUE_EVENT_HOT = 'commnue_event_hot';      //合创社热门活动数
+    const KEY_COMMNUE_BUILDING_HOT = 'commnue_building_hot';    //合创社热门社区数
+    const KEY_COMMNUE_BANNER = 'commnue_banner';
+    const KEY_COMMNUE_ADVERTISING_MIDDLE = 'commnue_advertising_middle';
+    const KEY_COMMNUE_ADVERTISING_MICRO = 'commnue_advertising_micro';
 
     /**
      * @var int

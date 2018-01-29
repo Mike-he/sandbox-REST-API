@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 class RpcSampleController extends SandboxRestController
 {
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
      * @Route("/rpc_sample")

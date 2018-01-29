@@ -727,7 +727,7 @@ class AdminLeaseBillController extends SalesRestController
             $this->pushBillMessage($bill);
 
             /** @var Lease $lease */
-            $lease =  $bill->getLease();
+            $lease = $bill->getLease();
 
             $logMessage = '推送账单';
             $this->get('sandbox_api.admin_status_log')->autoLog(

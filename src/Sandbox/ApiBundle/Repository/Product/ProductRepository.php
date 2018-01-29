@@ -1131,7 +1131,7 @@ class ProductRepository extends EntityRepository
      */
     public function countRoomsWithProductByBuilding(
         $building,
-        $userId
+        $userId = null
     ) {
         $query = $this->createQueryBuilder('p')
             ->select('count(distinct r.id)')
@@ -1167,7 +1167,8 @@ class ProductRepository extends EntityRepository
         $lng,
         $productIds,
         $limit,
-        $offset
+        $offset,
+        $userId
     ) {
         $query = $this->createQueryBuilder('p')
             ->select('
@@ -1179,20 +1180,29 @@ class ProductRepository extends EntityRepository
                     + sin(radians(:latitude)) * sin(radians(b.lat)))
                 ) as distance
             ')
+            ->leftJoin(
+                'SandboxApiBundle:User\UserFavorite',
+                'uf',
+                'WITH',
+                'uf.objectId = p.id'
+            )
             ->leftjoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = p.roomId')
             ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'b.id = r.buildingId')
             ->where('p.id IN (:productIds)')
+            ->andWhere("uf.object = 'product'")
+            ->andWhere('uf.userId = :userId')
             ->andWhere('p.isDeleted = FALSE')
             ->andWhere('p.visible = TRUE')
             ->andWhere('b.status = :accept')
             ->andWhere('b.visible = TRUE')
             ->andWhere('b.isDeleted = FALSE')
+            ->setParameter('userId', $userId)
             ->setParameter('productIds', $productIds)
             ->setParameter('accept', RoomBuilding::STATUS_ACCEPT)
             ->setParameter('latitude', $lat)
             ->setParameter('longitude', $lng)
-            ->orderBy('distance', 'ASC')
-            ->addOrderBy('p.creationDate', 'DESC')
+            ->orderBy('uf.creationDate', 'DESC')
+            ->groupBy('uf.id')
             ->setMaxResults($limit)
             ->setFirstResult($offset);
 
@@ -2042,7 +2052,7 @@ class ProductRepository extends EntityRepository
             ");
             $stat->execute();
             $pidsCancelled = array_map('current', $stat->fetchAll());
-            $str = substr(implode(',',$pidsCancelled),1);
+            $str = substr(implode(',', $pidsCancelled), 1);
 
             $stat = $connection->prepare("
                   SELECT
@@ -2079,7 +2089,7 @@ class ProductRepository extends EntityRepository
               ");
             $stat->execute();
             $pids2 = array_map('current', $stat->fetchAll());
-            $str2 = substr(implode(',',$pids2),1);
+            $str2 = substr(implode(',', $pids2), 1);
 
             $stat = $connection->prepare("
                 SELECT p.id
@@ -2096,7 +2106,7 @@ class ProductRepository extends EntityRepository
             $stat->execute();
             $pids3 = array_map('current', $stat->fetchAll());
 
-            $pids = array_merge($pids1,$pids3);
+            $pids = array_merge($pids1, $pids3);
 
 //            $em = $this->getEntityManager();
 //            $connection = $em->getConnection();
@@ -2351,7 +2361,7 @@ class ProductRepository extends EntityRepository
             ->leftJoin('p.room', 'r')
             ->leftJoin('r.building', 'b')
             ->leftJoin('SandboxApiBundle:Room\RoomMeeting', 'rm', 'WITH', 'r.id = rm.room')
-            ->leftJoin('SandboxApiBundle:Room\RoomCity','rc','WITH','rc.id = b.cityId')
+            ->leftJoin('SandboxApiBundle:Room\RoomCity', 'rc', 'WITH', 'rc.id = b.cityId')
             ->where('p.id = :id')
             ->setParameter('id', $productId);
 
@@ -2394,7 +2404,6 @@ class ProductRepository extends EntityRepository
                 ->setParameter('search', '%'.$search.'%');
         }
 
-
         return $query->getQuery()->getResult();
     }
 
@@ -2408,8 +2417,8 @@ class ProductRepository extends EntityRepository
         $offset
     ) {
         $query = $this->createQueryBuilder('p')
-            ->leftJoin('p.room','r')
-            ->leftJoin('r.building','b')
+            ->leftJoin('p.room', 'r')
+            ->leftJoin('r.building', 'b')
             ->leftJoin('SandboxApiBundle:Product\ProductRentSet', 'prs', 'WITH', 'prs.product = p.id')
             ->leftJoin('SandboxApiBundle:Product\ProductLeasingSet', 'ls', 'WITH', 'ls.product = p.id')
             ->where('p.isDeleted = FALSE')

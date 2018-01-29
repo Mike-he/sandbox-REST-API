@@ -77,7 +77,7 @@ class AdminPlatformController extends AdminRestController
             $adminPlatform->setClient($client);
         }
 
-        if ($platform == AdminPermission::PERMISSION_PLATFORM_OFFICIAL) {
+        if (AdminPermission::PERMISSION_PLATFORM_OFFICIAL == $platform || AdminPermission::PERMISSION_PLATFORM_COMMNUE == $platform) {
             if ($platform == $adminPlatform->getPlatform()) {
                 return new View(array(
                     'id' => $adminPlatform->getId(),

@@ -23,6 +23,9 @@ class Event
     const STATUS_END = 'end';
     const STATUS_SAVED = 'saved';
 
+    const PLATFORM_OFFICIAL = 'official';
+    const PLATFORM_COMMNUE = 'commnue';
+
     /**
      * @var int
      *
@@ -309,7 +312,6 @@ class Event
      *      "admin_event",
      *      "client_event"
      * })
-     *
      */
     private $status;
 
@@ -416,6 +418,30 @@ class Event
      * })
      */
     private $salesCompany;
+
+    /**
+     * @var bool
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "client_event"
+     * })
+     */
+    private $commnueHot;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="platform", type="string", length=64, options={"default": "official"})
+     */
+    private $platform = self::PLATFORM_OFFICIAL;
+
+    /**
+     * @var int
+     *
+     * @Serializer\Groups({"client_event"})
+     */
+    private $favorite;
 
     /**
      * Get id.
@@ -1125,5 +1151,53 @@ class Event
     public function setStatus($status)
     {
         $this->status = $status;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isCommnueHot()
+    {
+        return $this->commnueHot;
+    }
+
+    /**
+     * @param bool $commnueHot
+     */
+    public function setCommnueHot($commnueHot)
+    {
+        $this->commnueHot = $commnueHot;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPlatform()
+    {
+        return $this->platform;
+    }
+
+    /**
+     * @param string $platform
+     */
+    public function setPlatform($platform)
+    {
+        $this->platform = $platform;
+    }
+
+    /**
+     * @return int
+     */
+    public function getFavorite()
+    {
+        return $this->favorite;
+    }
+
+    /**
+     * @param int $favorite
+     */
+    public function setFavorite($favorite)
+    {
+        $this->favorite = $favorite;
     }
 }

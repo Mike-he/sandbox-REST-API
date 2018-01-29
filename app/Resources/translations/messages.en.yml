@@ -298,6 +298,7 @@ client:
     short_rent_order: Short Term Order
     top_up_order: Top Up Order
     card_order: Membership Card Order
+    service_order: Service Order
     sandbox: Sandbox3
   account:
     invalid_phone_number: Invalid phone number.

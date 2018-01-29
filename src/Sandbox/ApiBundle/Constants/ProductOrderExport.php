@@ -44,6 +44,7 @@ class ProductOrderExport
     const TRANS_CLIENT_PROFILE_SHOP_ORDER = 'client.profile.shop_order';
     const TRANS_CLIENT_PROFILE_TOP_UP = 'client.profile.top_up_order';
     const TRANS_CLIENT_PROFILE_CARD_ORDER = 'client.profile.card_order';
+    const TRANS_CLIENT_SERVICE_ORDER = 'client.profile.service_order';
     const TRANS_CLIENT_PROFILE_SANDBOX = 'client.profile.sandbox';
 
     const TRANS_PRODUCT_ORDER_STATUS = 'product_order.status.';

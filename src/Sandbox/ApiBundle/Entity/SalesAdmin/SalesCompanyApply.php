@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
- * SalesCompanyApply
+ * SalesCompanyApply.
  *
  * @ORM\Table(name="sales_company_apply")
  * @ORM\Entity()
@@ -19,7 +19,7 @@ class SalesCompanyApply
     const STATUS_CLOSED = 'closed';
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -141,11 +141,10 @@ class SalesCompanyApply
      */
     private $modificationDate;
 
-
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -169,9 +168,10 @@ class SalesCompanyApply
     }
 
     /**
-     * Set name
+     * Set name.
      *
      * @param string $name
+     *
      * @return SalesCompanyApply
      */
     public function setName($name)
@@ -182,9 +182,9 @@ class SalesCompanyApply
     }
 
     /**
-     * Get name
+     * Get name.
      *
-     * @return string 
+     * @return string
      */
     public function getName()
     {
@@ -192,9 +192,10 @@ class SalesCompanyApply
     }
 
     /**
-     * Set phone
+     * Set phone.
      *
      * @param string $phone
+     *
      * @return SalesCompanyApply
      */
     public function setPhone($phone)
@@ -205,9 +206,9 @@ class SalesCompanyApply
     }
 
     /**
-     * Get phone
+     * Get phone.
      *
-     * @return string 
+     * @return string
      */
     public function getPhone()
     {
@@ -215,9 +216,10 @@ class SalesCompanyApply
     }
 
     /**
-     * Set website
+     * Set website.
      *
      * @param string $website
+     *
      * @return SalesCompanyApply
      */
     public function setWebsite($website)
@@ -228,9 +230,9 @@ class SalesCompanyApply
     }
 
     /**
-     * Get website
+     * Get website.
      *
-     * @return string 
+     * @return string
      */
     public function getWebsite()
     {
@@ -334,9 +336,10 @@ class SalesCompanyApply
     }
 
     /**
-     * Set address
+     * Set address.
      *
      * @param string $address
+     *
      * @return SalesCompanyApply
      */
     public function setAddress($address)
@@ -347,9 +350,9 @@ class SalesCompanyApply
     }
 
     /**
-     * Get address
+     * Get address.
      *
-     * @return string 
+     * @return string
      */
     public function getAddress()
     {
@@ -357,9 +360,10 @@ class SalesCompanyApply
     }
 
     /**
-     * Set description
+     * Set description.
      *
      * @param string $description
+     *
      * @return SalesCompanyApply
      */
     public function setDescription($description)
@@ -370,9 +374,9 @@ class SalesCompanyApply
     }
 
     /**
-     * Get description
+     * Get description.
      *
-     * @return string 
+     * @return string
      */
     public function getDescription()
     {
@@ -380,9 +384,10 @@ class SalesCompanyApply
     }
 
     /**
-     * Set status
+     * Set status.
      *
      * @param string $status
+     *
      * @return SalesCompanyApply
      */
     public function setStatus($status)
@@ -393,9 +398,9 @@ class SalesCompanyApply
     }
 
     /**
-     * Get status
+     * Get status.
      *
-     * @return string 
+     * @return string
      */
     public function getStatus()
     {
@@ -419,9 +424,10 @@ class SalesCompanyApply
     }
 
     /**
-     * Set creationDate
+     * Set creationDate.
      *
      * @param \DateTime $creationDate
+     *
      * @return SalesCompanyApply
      */
     public function setCreationDate($creationDate)
@@ -432,9 +438,9 @@ class SalesCompanyApply
     }
 
     /**
-     * Get creationDate
+     * Get creationDate.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getCreationDate()
     {
@@ -442,9 +448,10 @@ class SalesCompanyApply
     }
 
     /**
-     * Set modificationDate
+     * Set modificationDate.
      *
      * @param \DateTime $modificationDate
+     *
      * @return SalesCompanyApply
      */
     public function setModificationDate($modificationDate)
@@ -455,9 +462,9 @@ class SalesCompanyApply
     }
 
     /**
-     * Get modificationDate
+     * Get modificationDate.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getModificationDate()
     {

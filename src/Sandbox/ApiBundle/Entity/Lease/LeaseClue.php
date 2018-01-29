@@ -40,7 +40,7 @@ class LeaseClue
     private $serialNumber;
 
     /**
-     * @var Sandbox\ApiBundle\Entity\Room\RoomBuilding
+     * @var \Sandbox\ApiBundle\Entity\Room\RoomBuilding
      *
      * @ORM\Column(name="building_id",type="integer", nullable=true)
      */
@@ -49,7 +49,7 @@ class LeaseClue
     private $building;
 
     /**
-     * @var Sandbox\ApiBundle\Entity\Product\Product
+     * @var \Sandbox\ApiBundle\Entity\Product\Product
      *
      * @ORM\Column(name="product_id",type="integer", nullable=true)
      */
@@ -135,7 +135,7 @@ class LeaseClue
     private $status;
 
     /**
-     * @var Sandbox\ApiBundle\Entity\Product\ProductAppointment
+     * @var \Sandbox\ApiBundle\Entity\Product\ProductAppointment
      *
      * @ORM\Column(name="product_appointment_id", type="integer", nullable=true)
      */

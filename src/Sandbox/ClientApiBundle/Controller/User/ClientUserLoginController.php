@@ -3,11 +3,13 @@
 namespace Sandbox\ClientApiBundle\Controller\User;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
+use FOS\RestBundle\Controller\Annotations;
 use Sandbox\ApiBundle\Controller\User\UserLoginController;
 use Sandbox\ApiBundle\Entity\Auth\Auth;
 use Sandbox\ApiBundle\Entity\Error\Error;
 use Sandbox\ApiBundle\Entity\ThirdParty\WeChat;
 use Sandbox\ApiBundle\Entity\User\User;
+use Sandbox\ApiBundle\Entity\User\UserPlatform;
 use Sandbox\ApiBundle\Form\User\UserCheckType;
 use Sandbox\ClientApiBundle\Data\User\UserLoginData;
 use Sandbox\ClientApiBundle\Form\User\UserLoginType;
@@ -29,7 +31,7 @@ use Sandbox\ApiBundle\Traits\WeChatApi;
  * @author   Yimo Zhang <yimo.zhang@Sandbox.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 class ClientUserLoginController extends UserLoginController
 {
@@ -50,6 +52,14 @@ class ClientUserLoginController extends UserLoginController
      *  }
      * )
      *
+     * @Annotations\QueryParam(
+     *     name="platform",
+     *     array=false,
+     *     nullable=true,
+     *     default="official",
+     *     strict=true
+     * )
+     *
      * @Route("/login")
      * @Method({"POST"})
      *
@@ -58,7 +68,8 @@ class ClientUserLoginController extends UserLoginController
      * @throws \Exception
      */
     public function postClientUserLoginAction(
-        Request $request
+        Request $request,
+        ParamFetcherInterface $paramFetcher
     ) {
         // check security & get client
         $error = new Error();
@@ -72,20 +83,32 @@ class ClientUserLoginController extends UserLoginController
             );
         }
 
+        $platform = $paramFetcher->get('platform');
+
+        if ('commnue' == $platform) {
+            $checkUser = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Commnue\CommnueUser')
+                ->findOneBy(['userId' => $user->getId()]);
+        } else {
+            $checkUser = $user;
+        }
+
         // user is banned
-        if ($user->isBanned()) {
-            // get globals
-            $globals = $this->getGlobals();
+        if (!is_null($checkUser)) {
+            if ($checkUser->isBanned()) {
+                // get globals
+                $globals = $this->getGlobals();
 
-            $customerPhone = $globals['customer_service_phone'];
-            $translated = $this->get('translator')->trans(self::ERROR_ACCOUNT_BANNED_MESSAGE);
-            $bannedMessage = $translated.$customerPhone;
+                $customerPhone = $globals['customer_service_phone'];
+                $translated = $this->get('translator')->trans(self::ERROR_ACCOUNT_BANNED_MESSAGE);
+                $bannedMessage = $translated.$customerPhone;
 
-            return $this->customErrorView(
-                401,
-                self::ERROR_ACCOUNT_BANNED_CODE,
-                $bannedMessage
-            );
+                return $this->customErrorView(
+                    401,
+                    self::ERROR_ACCOUNT_BANNED_CODE,
+                    $bannedMessage
+                );
+            }
         }
 
         $login = new UserLoginData();
@@ -117,11 +140,42 @@ class ClientUserLoginController extends UserLoginController
 
         $responseArray = $this->handleClientUserLogin($request, $user, $login);
 
+        // set user platform
+        $this->setUserPlatform($user->getId(), $platform);
+
         // response
         $view = new View();
         $view->setSerializationContext(SerializationContext::create()->setGroups(array('login')));
 
         return $view->setData($responseArray);
+    }
+
+    /**
+     * @param $userId
+     * @param $platform
+     */
+    private function setUserPlatform(
+        $userId,
+        $platform
+    ) {
+        $userPlatform = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:User\UserPlatform')
+            ->findOneBy(['userId' => $userId]);
+
+        if (is_null($userPlatform)) {
+            if ('commnue' == $platform) {
+                $userPlatform = new UserPlatform();
+                $userPlatform->setUserId($userId);
+            } else {
+                return;
+            }
+        }
+
+        $userPlatform->setPlatform($platform);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($userPlatform);
+        $em->flush();
     }
 
     /**
@@ -282,7 +336,7 @@ class ClientUserLoginController extends UserLoginController
         $authString = base64_decode($auth, true);
         $authArray = explode(':', $authString);
 
-        if (count($authArray) != 2) {
+        if (2 != count($authArray)) {
             throw new UnauthorizedHttpException(self::UNAUTHED_API_CALL);
         }
 

@@ -312,7 +312,15 @@ class ClientOrderController extends OrderController
             $billAmount = 0;
         }
 
-        $amount = $productAmount + $billAmount;
+        $serviceOrdersAmount = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Service\ServiceOrder')
+            ->getInvoiceServiceOrdersAmount($userId);
+
+        if (is_null($serviceOrdersAmount)) {
+            $serviceOrdersAmount = 0;
+        }
+
+        $amount = $productAmount + $billAmount + $serviceOrdersAmount;
 
         return new View(['amount' => (float) $amount]);
     }
@@ -396,7 +404,7 @@ class ClientOrderController extends OrderController
      *    default=null,
      *    nullable=true,
      *    strict=true,
-     *    description="ids of orders"
+     *    description="numbers of orders"
      * )
      *
      * @return View

@@ -18,18 +18,15 @@ use Sandbox\ApiBundle\Entity\User\User;
 use Sandbox\ApiBundle\Entity\User\UserGroupHasUser;
 use Sandbox\ApiBundle\Traits\DoorAccessTrait;
 use Sandbox\ApiBundle\Traits\GenerateSerialNumberTrait;
-use Sandbox\ApiBundle\Traits\HasAccessToEntityRepositoryTrait;
 use Sandbox\ApiBundle\Traits\LeaseNotificationTrait;
 use Sandbox\ApiBundle\Traits\LeaseTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\Controller\Annotations;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class ClientLeaseController extends SandboxRestController
 {
-    use HasAccessToEntityRepositoryTrait;
     use DoorAccessTrait;
     use LeaseNotificationTrait;
     use GenerateSerialNumberTrait;
@@ -118,7 +115,8 @@ class ClientLeaseController extends SandboxRestController
             ->find($lesseeCustomer);
         $lease->setLesseeCustomer($customer->getUserId());
 
-        $bills = $this->getLeaseBillRepo()
+        $bills = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\LeaseBill')
             ->findBy(array(
                 'lease' => $lease,
                 'type' => LeaseBill::TYPE_LEASE,
@@ -303,7 +301,8 @@ class ClientLeaseController extends SandboxRestController
         $invitedPeople = $lease->getInvitedPeople();
         foreach ($users as $userId) {
             // find user
-            $user = $this->getUserRepo()->find($userId);
+            $user = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\User')->find($userId);
             $this->throwNotFoundIfNull($user, User::ERROR_NOT_FOUND);
 
             // check and add user in sales customer
@@ -383,7 +382,8 @@ class ClientLeaseController extends SandboxRestController
         $userArray = [];
         $recvUsers = [];
         foreach ($removeUsers as $removeUserId) {
-            $removeUser = $this->getUserRepo()->find($removeUserId);
+            $removeUser = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:User\User')->find($removeUserId);
             $this->throwNotFoundIfNull($removeUser);
 
             $hasAccess = $lease->getInvitedPeople()->contains($removeUser);

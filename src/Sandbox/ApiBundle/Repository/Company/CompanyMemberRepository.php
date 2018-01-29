@@ -31,4 +31,35 @@ class CompanyMemberRepository extends EntityRepository
 
         return $query->getResult();
     }
+
+    public function getCompanyMembersByUser(
+        $userId
+    ) {
+        $sql = 'SELECT cm.userId FROM company_member as cm where companyId in ((SELECT companyId from company_member where userId = '.$userId.'))';
+        $query = $this->getEntityManager()->getConnection()->prepare($sql);
+        $query->execute();
+        $result = $query->fetchAll();
+
+        return $result;
+    }
+
+    /**
+     * @param $companyId
+     *
+     * @return int
+     *
+     * @throws \Doctrine\ORM\Query\QueryException
+     */
+    public function countCompanyMembers(
+        $companyId
+    ) {
+        $query = $this->createQueryBuilder('cm')
+            ->select('count(cm.id)')
+            ->where('cm.companyId = :companyId')
+            ->setParameter('companyId', $companyId);
+
+        $result = $query->getQuery()->getSingleScalarResult();
+
+        return (int) $result;
+    }
 }

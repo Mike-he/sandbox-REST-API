@@ -3,7 +3,6 @@
 namespace Sandbox\ApiBundle\Repository\Admin;
 
 use Doctrine\ORM\EntityRepository;
-use Sandbox\ApiBundle\Entity\Admin\AdminPosition;
 
 class AdminPositionUserBindingRepository extends EntityRepository
 {
@@ -132,7 +131,7 @@ class AdminPositionUserBindingRepository extends EntityRepository
             ->setParameter('platform', $platform)
             ->setParameter('isSuperAdmin', $isSuperAdmin);
 
-        if (!is_null($salesCompanyId) && AdminPosition::PLATFORM_OFFICIAL != $platform) {
+        if (!is_null($salesCompanyId)) {
             $query->andWhere('p.salesCompanyId = :salesCompanyId')
                 ->setParameter('salesCompanyId', $salesCompanyId);
         }
@@ -182,6 +181,7 @@ class AdminPositionUserBindingRepository extends EntityRepository
             ->leftJoin('p.salesCompany', 'c')
             ->where('c.banned = 0')
             ->orWhere('p.platform = \'official\'')
+            ->orWhere('p.platform = \'commnue\'')
             ->andWhere('pb.userId = :admin')
             ->setParameter('admin', $admin)
             ->getQuery()
@@ -229,6 +229,51 @@ class AdminPositionUserBindingRepository extends EntityRepository
         $query->groupBy('p.userId');
 
         return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $positions
+     * @param null $building
+     * @param null $shop
+     * @param null $users
+     *
+     * @return mixed
+     *
+     * @throws \Doctrine\ORM\Query\QueryException
+     */
+    public function countBindUser(
+        $positions,
+        $building = null,
+        $shop = null,
+        $users = null
+    ) {
+        $query = $this->createQueryBuilder('p')
+            ->select('count( DISTINCT p.userId)')
+            ->where('1=1');
+
+        if (!is_null($positions)) {
+            $query->andWhere('p.position in (:positions)')
+                ->setParameter('positions', $positions);
+        }
+
+        if (!is_null($building) && !empty($building)) {
+            $query->andWhere('p.building = :building')
+                ->setParameter('building', $building);
+        }
+
+        if (!is_null($shop) && !empty($shop)) {
+            $query->andWhere('p.shop = :shop')
+                ->setParameter('shop', $shop);
+        }
+
+        if (!is_null($users)) {
+            $query->andWhere('p.userId in (:users)')
+                ->setParameter('users', $users);
+        }
+
+        $result = $query->getQuery()->getSingleScalarResult();
+
+        return (int) $result;
     }
 
     /**
@@ -301,17 +346,10 @@ class AdminPositionUserBindingRepository extends EntityRepository
             ->where('pb.userId = :user')
             ->setParameter('user', $user);
 
-        if (AdminPosition::PLATFORM_OFFICIAL == $platform) {
-            $query->andWhere('p.platform = :platform')
-                ->setParameter('platform', $platform);
-        } else {
-            if (is_null($companyId) || empty($companyId)) {
-                return array();
-            }
+        $query->andWhere('p.platform = :platform')
+            ->setParameter('platform', $platform);
 
-            $query->andWhere('p.platform = :platform')
-                ->setParameter('platform', $platform);
-
+        if ($companyId) {
             $query->andWhere('p.salesCompanyId = :companyId')
                 ->setParameter('companyId', $companyId);
         }
@@ -423,6 +461,12 @@ class AdminPositionUserBindingRepository extends EntityRepository
         return $userIds;
     }
 
+    /**
+     * @param $admin
+     * @param $platform
+     *
+     * @return array
+     */
     public function findCompanyByAdmin(
         $admin,
         $platform
@@ -453,8 +497,10 @@ class AdminPositionUserBindingRepository extends EntityRepository
      * @param $permissions
      * @param $platform
      * @param null $salesCompanyId
+     *
      * @return mixed
      *
+     * @throws \Doctrine\ORM\Query\QueryException
      */
     public function checkHasPermission(
         $userId,
@@ -474,7 +520,7 @@ class AdminPositionUserBindingRepository extends EntityRepository
             ->setParameter('platform', $platform)
             ->setParameter('permission', $permissions);
 
-        if (!is_null($salesCompanyId) && AdminPosition::PLATFORM_OFFICIAL != $platform) {
+        if (!is_null($salesCompanyId)) {
             $query->andWhere('p.salesCompanyId = :salesCompanyId')
                 ->setParameter('salesCompanyId', $salesCompanyId);
         }
@@ -487,7 +533,8 @@ class AdminPositionUserBindingRepository extends EntityRepository
     /**
      * @return array
      */
-    public function getDistinctUserIds() {
+    public function getDistinctUserIds()
+    {
         $query = $this->createQueryBuilder('pb')
             ->select('DISTINCT pb.userId');
 

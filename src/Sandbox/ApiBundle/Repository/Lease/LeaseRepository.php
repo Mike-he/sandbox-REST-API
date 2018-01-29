@@ -706,6 +706,7 @@ class LeaseRepository extends EntityRepository
      * @param $myBuildingIds
      * @param $limit
      * @param $offset
+     *
      * @return array
      */
     public function findCustomerLease(
@@ -720,7 +721,7 @@ class LeaseRepository extends EntityRepository
             ->setParameter('customerId', $customerId)
             ->setParameter('buildingIds', $myBuildingIds);
 
-        $query->orderBy('l.creationDate','DESC');
+        $query->orderBy('l.creationDate', 'DESC');
 
         $query->setMaxResults($limit)
             ->setFirstResult($offset);

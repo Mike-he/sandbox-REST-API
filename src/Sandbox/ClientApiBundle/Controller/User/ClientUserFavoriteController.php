@@ -4,6 +4,7 @@ namespace Sandbox\ClientApiBundle\Controller\User;
 
 use Sandbox\ApiBundle\Constants\ProductOrderExport;
 use Sandbox\ApiBundle\Controller\Location\LocationController;
+use Sandbox\ApiBundle\Entity\Event\Event;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\User\UserFavorite;
@@ -26,7 +27,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  * @author   Leo Xu
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 class ClientUserFavoriteController extends LocationController
 {
@@ -114,6 +115,8 @@ class ClientUserFavoriteController extends LocationController
             ->findBy([
                 'userId' => $userId,
                 'object' => $object,
+            ], [
+                'creationDate' => 'DESC',
             ]);
 
         $view = new View();
@@ -138,10 +141,11 @@ class ClientUserFavoriteController extends LocationController
                         $lat,
                         $limit,
                         $offset,
+                        $userId,
                         $excludeIds = [9] // the company id of xiehe
                     );
 
-                if ($lat == 0 || $lng == 0) {
+                if (0 == $lat || 0 == $lng) {
                     $objectArray = [];
                     foreach ($objects as $object) {
                         $object['distance'] = 0;
@@ -162,12 +166,13 @@ class ClientUserFavoriteController extends LocationController
                         $lng,
                         $objectIds,
                         $limit,
-                        $offset
+                        $offset,
+                        $userId
                     );
 
                 $objects = [];
                 foreach ($contents as $content) {
-                    if ($lat == 0 || $lng == 0) {
+                    if (0 == $lat || 0 == $lng) {
                         $content['distance'] = 0;
                     }
 
@@ -195,7 +200,7 @@ class ClientUserFavoriteController extends LocationController
                     }
                     $product->setLeasingSets($productLeasingSets);
 
-                    if ($roomType == Room::TYPE_DESK && $typeTag == Room::TAG_DEDICATED_DESK) {
+                    if (Room::TYPE_DESK == $roomType && Room::TAG_DEDICATED_DESK == $typeTag) {
                         $price = $this->getDoctrine()
                             ->getRepository('SandboxApiBundle:Room\RoomFixed')
                             ->getFixedSeats($room);
@@ -218,6 +223,56 @@ class ClientUserFavoriteController extends LocationController
                 }
 
                 $view->setSerializationContext(SerializationContext::create()->setGroups(['client']));
+
+                break;
+            case UserFavorite::OBJECT_SERVICE:
+                $services = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Service\Service')
+                    ->getClientFavoriteServices(
+                        $limit,
+                        $offset,
+                        $objectIds,
+                        $userId
+                    );
+
+                foreach ($services as $service) {
+                    $attachments = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:Service\ServiceAttachment')
+                        ->findBy(['service' => $service]);
+                    $times = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:Service\ServiceTime')
+                        ->findBy(['service' => $service]);
+
+                    $service->setAttachments($attachments);
+                    $service->setTimes($times);
+                }
+
+                $objects = $services;
+
+                break;
+            case UserFavorite::OBJECT_EXPERT:
+                $objects = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Expert\Expert')
+                    ->getFavoriteExperts(
+                        $limit,
+                        $offset,
+                        $objectIds,
+                        $userId
+                    );
+                break;
+            case UserFavorite::OBJECT_EVENT:
+                $objects = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Event\Event')
+                    ->getFavoriteEvents(
+                        $objectIds,
+                        $limit,
+                        $offset,
+                        $userId
+                    );
+
+                foreach ($objects as $object) {
+                    $this->setEventExtra($object, $userId);
+                }
 
                 break;
             default:
@@ -427,9 +482,29 @@ class ClientUserFavoriteController extends LocationController
                     $this->throwNotFoundIfNull($product, self::NOT_FOUND_MESSAGE);
 
                     break;
+                case UserFavorite::OBJECT_EXPERT:
+                    $expert = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:Expert\Expert')
+                        ->find($objectId);
+                    $this->throwNotFoundIfNull($expert, self::NOT_FOUND_MESSAGE);
+
+                    break;
+                case UserFavorite::OBJECT_SERVICE:
+                    $service = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:Service\Service')
+                        ->find($objectId);
+                    $this->throwNotFoundIfNull($service, self::NOT_FOUND_MESSAGE);
+
+                    break;
+                case UserFavorite::OBJECT_EVENT:
+                    $event = $this->getDoctrine()
+                        ->getRepository('SandboxApiBundle:Event\Event')
+                        ->find($objectId);
+                    $this->throwNotFoundIfNull($event, self::NOT_FOUND_MESSAGE);
+
+                    break;
                 default:
                     throw new NotFoundHttpException();
-
                     break;
             }
 
@@ -438,5 +513,85 @@ class ClientUserFavoriteController extends LocationController
             $em->persist($favorite);
             $em->flush();
         }
+    }
+
+    /**
+     * @param Event $event
+     * @param int   $userId
+     *
+     * @return Event
+     */
+    private function setEventExtra(
+        $event,
+        $userId
+    ) {
+        $eventId = $event->getId();
+
+        $attachments = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventAttachment')
+            ->findByEvent($event);
+        $event->setAttachments($attachments);
+
+        $dates = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventDate')
+            ->findByEvent($event);
+        $event->setDates($dates);
+
+        $forms = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventForm')
+            ->findByEvent($event);
+        $event->setForms($forms);
+
+        $registrationCounts = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventRegistration')
+            ->getRegistrationCounts($eventId);
+        $event->setRegisteredPersonNumber((int) $registrationCounts);
+
+        $likesCount = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventLike')
+            ->getLikesCount($eventId);
+        $event->setLikesCount((int) $likesCount);
+
+        $commentsCount = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventComment')
+            ->getCommentsCount($eventId);
+        $event->setCommentsCount((int) $commentsCount);
+
+        // set accepted person number
+        if ($event->isVerify()) {
+            $acceptedCounts = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Event\EventRegistration')
+                ->getAcceptedPersonNumber($eventId);
+            $event->setAcceptedPersonNumber((int) $acceptedCounts);
+        }
+
+
+        // check if user is registered
+        $registration = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventRegistration')
+            ->findOneBy(array(
+                'eventId' => $eventId,
+                'userId' => $userId,
+            ));
+
+        if (!is_null($registration)) {
+            // set registration
+            $event->setEventRegistration($registration);
+        }
+
+        // check my like if
+        $like = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Event\EventLike')
+            ->findOneBy(array(
+                'eventId' => $event->getId(),
+                'authorId' => $userId,
+            ));
+
+        if (!is_null($like)) {
+            $event->setMyLikeId($like->getId());
+        }
+
+
+        return $event;
     }
 }

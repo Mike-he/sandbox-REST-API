@@ -214,9 +214,9 @@ class AdminPositionBindingController extends AdminRestController
         $platform = $adminPlatform['platform'];
         $salesCompanyId = $adminPlatform['sales_company_id'];
 
-        if ($platform == AdminPermission::PERMISSION_PLATFORM_SALES) {
+        if (AdminPermission::PERMISSION_PLATFORM_SALES == $platform) {
             $this->throwNotFoundIfNull($buildingId, self::BAD_PARAM_MESSAGE);
-        } elseif ($platform == AdminPermission::PERMISSION_PLATFORM_SHOP) {
+        } elseif (AdminPermission::PERMISSION_PLATFORM_SHOP == $platform) {
             $this->throwNotFoundIfNull($shopId, self::BAD_PARAM_MESSAGE);
         } else {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
@@ -315,7 +315,7 @@ class AdminPositionBindingController extends AdminRestController
                         'position' => $position,
                     ));
 
-                if (count($superAdminBindings) == 1) {
+                if (1 == count($superAdminBindings)) {
                     return $this->customErrorView(
                         400,
                         self::ERROR_NOT_NULL_SUPER_ADMIN_CODE,
@@ -541,6 +541,7 @@ class AdminPositionBindingController extends AdminRestController
                 ['key' => AdminPermission::KEY_OFFICIAL_PLATFORM_ADMIN],
                 ['key' => AdminPermission::KEY_SALES_PLATFORM_ADMIN],
                 ['key' => AdminPermission::KEY_SHOP_PLATFORM_ADMIN],
+                ['key' => AdminPermission::KEY_COMMNUE_PLATFORM_ADMIN],
             ],
             $opLevel
         );

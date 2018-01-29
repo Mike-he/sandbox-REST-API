@@ -10,7 +10,6 @@ use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Entity\Product\ProductAppointment;
 use Sandbox\ApiBundle\Entity\Room\Room;
 use Sandbox\ApiBundle\Entity\User\UserFavorite;
-use Sandbox\ApiBundle\Traits\HasAccessToEntityRepositoryTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -36,8 +35,6 @@ class AdminProductController extends ProductController
     const NEED_SEAT_NUMBER = 'Fixed Room Needs A Seat Number';
     const PRODUCT_EXISTS = 'Product with this Room already exists';
     const ROOM_IS_FULL = 'This Room is Full';
-
-    use HasAccessToEntityRepositoryTrait;
 
     /**
      * Product.

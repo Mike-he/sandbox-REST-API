@@ -2,6 +2,8 @@
 
 namespace Sandbox\ClientApiBundle\Controller\ChatGroup;
 
+use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
+use Sandbox\ApiBundle\Constants\PlatformConstants;
 use Sandbox\ApiBundle\Controller\ChatGroup\ChatGroupController;
 use Sandbox\ApiBundle\Entity\ChatGroup\ChatGroup;
 use Sandbox\ClientApiBundle\Data\ChatGroup\ChatGroupData;
@@ -62,6 +64,11 @@ class ClientChatGroupController extends ChatGroupController
         // validate request content
         $memberIds = $data->getMemberIds();
         $name = $data->getName();
+        $platform = $data->getPlatform();
+
+        if (is_null($platform)) {
+            $platform = PlatformConstants::PLATFORM_OFFICIAL;
+        }
 
         if (is_null($memberIds) || empty($memberIds)) {
             // TODO return custom error
@@ -73,6 +80,7 @@ class ClientChatGroupController extends ChatGroupController
         $chatGroup = new ChatGroup();
         $chatGroup->setCreator($myUser);
         $chatGroup->setTag(ChatGroup::GROUP_SERVICE);
+        $chatGroup->setPlatform($platform);
 
         // add member
         $chatGroupName = $name;
@@ -131,8 +139,18 @@ class ClientChatGroupController extends ChatGroupController
         // save to db
         $em->flush();
 
-        $gid = $this->createXmppChatGroup($chatGroup);
-        $chatGroup->setGid($gid);
+        $result = $this->createXmppChatGroup($chatGroup, $platform);
+
+        if (!isset($result['gid'])) {
+            $em->remove($chatGroup);
+            $em->flush();
+
+            throw new BadRequestHttpException(
+                CustomErrorMessagesConstants::ERROR_JMESSAGE_ERROR_MESSAGE
+            );
+        }
+
+        $chatGroup->setGid($result['gid']);
 
         $em->flush();
 
@@ -141,7 +159,7 @@ class ClientChatGroupController extends ChatGroupController
         $view->setData(array(
             'id' => $chatGroup->getId(),
             'name' => $chatGroupName,
-            'gid' => $gid,
+            'gid' => $chatGroup->getGid(),
         ));
 
         return $view;
@@ -169,7 +187,9 @@ class ClientChatGroupController extends ChatGroupController
         }
 
         // get my chat groups
-        $chatGroups = $this->getRepo('ChatGroup\ChatGroup')->getMyChatGroups($myUserId);
+        $chatGroups = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:ChatGroup\ChatGroup')
+            ->getMyChatGroups($myUserId);
 
         // response
         return new View($chatGroups);
@@ -206,7 +226,7 @@ class ClientChatGroupController extends ChatGroupController
             return new View();
         }
 
-        if ($chatGroup->getTag() != ChatGroup::CUSTOMER_SERVICE) {
+        if ($chatGroup->getTag() == ChatGroup::GROUP_SERVICE) {
             // set group name
             if (is_null($chatGroup->getName()) || $chatGroup->getName()) {
                 $chatGroupName = $this->constructGroupChatName(
@@ -259,16 +279,18 @@ class ClientChatGroupController extends ChatGroupController
         }
 
         // get chatGroup
-        $chatGroup = $this->getRepo('ChatGroup\ChatGroup')->findOneBy(array('gid' => $gid));
+        $chatGroup = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:ChatGroup\ChatGroup')
+            ->findOneBy(array('gid' => $gid));
         $this->throwNotFoundIfNull($chatGroup, self::NOT_FOUND_MESSAGE);
 
         // get chat group and members array for response
-        $chatGroupArray = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:ChatGroup\ChatGroup')
-            ->getChatGroup(
-                $chatGroup->getId(),
-                $myUserId
-            );
+        $chatGroupArray = array(
+            'id' => $chatGroup->getId(),
+            'name' => $chatGroup->getName(),
+            'creator_id' => $chatGroup->getCreatorId(),
+            'creator_name' => $chatGroup->getCreator()->getUserProfile()->getName(),
+        );
 
         $members = $this->getRepo('ChatGroup\ChatGroupMember')->findByChatGroup($chatGroup);
         if (!is_null($members) && !empty($members)) {

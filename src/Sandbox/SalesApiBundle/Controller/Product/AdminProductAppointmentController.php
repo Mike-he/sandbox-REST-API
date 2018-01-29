@@ -11,7 +11,6 @@ use Sandbox\ApiBundle\Entity\Log\Log;
 use Sandbox\ApiBundle\Entity\Product\Product;
 use Sandbox\ApiBundle\Entity\Product\ProductAppointment;
 use Sandbox\ApiBundle\Form\Product\ProductAppointmentPatchType;
-use Sandbox\ApiBundle\Traits\HasAccessToEntityRepositoryTrait;
 use Sandbox\ApiBundle\Traits\SendNotification;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -30,12 +29,11 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  * @author   Leo Xu <leo.xu@sandbox3.cn>
  * @license  http://www.Sandbox.cn/ Proprietary
  *
- * @link     http://www.Sandbox.cn/
+ * @see     http://www.Sandbox.cn/
  */
 class AdminProductAppointmentController extends AdminProductController
 {
     use SendNotification;
-    use HasAccessToEntityRepositoryTrait;
 
     /**
      * Get product appointments.
@@ -362,22 +360,13 @@ class AdminProductAppointmentController extends AdminProductController
         $form->submit(json_decode($appointmentJson, true));
 
         $status = $appointment->getStatus();
-        if ($status !== ProductAppointment::STATUS_REJECTED) {
+        if (ProductAppointment::STATUS_REJECTED !== $status) {
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
         $action = Log::ACTION_REJECT;
 
         $em = $this->getDoctrine()->getManager();
-
-        $lease = $this->getLeaseRepo()->findOneBy(['productAppointment' => $appointment]);
-
-        if (!is_null($lease)) {
-            if ($lease->getStatus() == Lease::LEASE_STATUS_DRAFTING) {
-                $em->remove($lease);
-            }
-        }
-
         $em->flush();
 
         $urlParam = 'ptype=rentDetail&rentId='.$appointment->getId();
