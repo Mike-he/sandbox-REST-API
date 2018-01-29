@@ -142,6 +142,7 @@ class EventRepository extends EntityRepository
      * @param $limit
      * @param $offset
      * @param null $status
+     * @param $excludeStatus
      * @param null $sort
      * @return array
      */
@@ -150,6 +151,7 @@ class EventRepository extends EntityRepository
         $limit,
         $offset,
         $status = null,
+        $excludeStatus = null,
         $sort = null
     ) {
         $query = $this->createQueryBuilder('e')
@@ -175,32 +177,44 @@ class EventRepository extends EntityRepository
             }
         }
 
-        switch ($sort) {
-            case 'registering':
-                $query
-                    ->leftJoin('SandboxApiBundle:Service\ViewCounts','v','WITH','v.objectId = e.id')
-                    ->andWhere('v.object = :object')
-                    ->andWhere('v.type = :type')
-                    ->setParameter('object', ViewCounts::OBJECT_EVENT)
-                    ->setParameter('type', ViewCounts::TYPE_REGISTERING)
-                    ->orderBy('v.count', 'DESC');
-                break;
-            case 'view':
-                $query->leftJoin('SandboxApiBundle:Service\ViewCounts', 'v', 'WITH', 'v.objectId = e.id')
-                    ->andWhere('v.object = :object')
-                    ->andWhere('v.type = :type')
-                    ->setParameter('object', ViewCounts::OBJECT_EVENT)
-                    ->setParameter('type', ViewCounts::TYPE_VIEW)
-                    ->orderBy('v.count', 'DESC');
-                break;
-            default:
-                $query->orderBy('e.registrationEndDate', 'DESC')
-                    ->addOrderBy('e.eventStartDate', 'DESC');
-                break;
+        if (!is_null($excludeStatus)) {
+            $query->andWhere('e.status != :exclude_status')
+                ->setParameter('exclude_status', $excludeStatus);
         }
 
-        $query->setFirstResult($offset)
-            ->setMaxResults($limit);
+        if (!is_null($sort)) {
+            switch ($sort) {
+                case 'registering':
+                    $query
+                        ->leftJoin('SandboxApiBundle:Service\ViewCounts','v','WITH','v.objectId = e.id')
+                        ->andWhere('v.object = :object')
+                        ->andWhere('v.type = :type')
+                        ->setParameter('object', ViewCounts::OBJECT_EVENT)
+                        ->setParameter('type', ViewCounts::TYPE_REGISTERING)
+                        ->orderBy('v.count', 'DESC');
+                    break;
+                case 'view':
+                    $query->leftJoin('SandboxApiBundle:Service\ViewCounts', 'v', 'WITH', 'v.objectId = e.id')
+                        ->andWhere('v.object = :object')
+                        ->andWhere('v.type = :type')
+                        ->setParameter('object', ViewCounts::OBJECT_EVENT)
+                        ->setParameter('type', ViewCounts::TYPE_VIEW)
+                        ->orderBy('v.count', 'DESC');
+                    break;
+                default:
+                    $query->orderBy('e.creationDate', 'DESC');
+                    break;
+            }
+        } else {
+            $query->orderBy('e.creationDate', 'DESC');
+        }
+
+        $query->addOrderBy('e.registrationEndDate', 'DESC');
+
+        if (!is_null($limit) && !is_null($offset)) {
+            $query->setFirstResult($offset)
+                ->setMaxResults($limit);
+        }
 
         return $query->getQuery()->getResult();
     }
