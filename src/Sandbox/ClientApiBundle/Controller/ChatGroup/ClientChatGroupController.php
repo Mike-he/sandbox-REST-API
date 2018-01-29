@@ -187,7 +187,9 @@ class ClientChatGroupController extends ChatGroupController
         }
 
         // get my chat groups
-        $chatGroups = $this->getRepo('ChatGroup\ChatGroup')->getMyChatGroups($myUserId);
+        $chatGroups = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:ChatGroup\ChatGroup')
+            ->getMyChatGroups($myUserId);
 
         // response
         return new View($chatGroups);
@@ -224,7 +226,7 @@ class ClientChatGroupController extends ChatGroupController
             return new View();
         }
 
-        if ($chatGroup->getTag() != ChatGroup::CUSTOMER_SERVICE) {
+        if ($chatGroup->getTag() == ChatGroup::GROUP_SERVICE) {
             // set group name
             if (is_null($chatGroup->getName()) || $chatGroup->getName()) {
                 $chatGroupName = $this->constructGroupChatName(

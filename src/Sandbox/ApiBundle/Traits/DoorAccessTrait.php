@@ -559,20 +559,30 @@ trait DoorAccessTrait
         $userId,
         $cardNo
     ) {
-        $userProfile = $this->getContainer()
+        $departmentUser = $this->getContainer()
             ->get('doctrine')
-            ->getRepository(BundleConstants::BUNDLE.':'.'User\UserProfile')
-            ->findOneByUserId($userId);
+            ->getRepository('SandboxApiBundle:Door\DoorDepartmentUsers')
+            ->findOneBy(array(
+                'userId' => $userId,
+                'buildingServer' => $base,
+            ));
 
-        $userName = $userProfile->getName();
+        if (!$departmentUser) {
+            $userProfile = $this->getContainer()
+                ->get('doctrine')
+                ->getRepository(BundleConstants::BUNDLE.':'.'User\UserProfile')
+                ->findOneByUserId($userId);
 
-        $this->setEmployeeCard(
-            $base,
-            $userId,
-            $userName,
-            $cardNo,
-            DoorAccessConstants::METHOD_ADD
-        );
+            $userName = $userProfile->getName();
+
+            $this->setEmployeeCard(
+                $base,
+                $userId,
+                $userName,
+                $cardNo,
+                DoorAccessConstants::METHOD_ADD
+            );
+        }
     }
 
     /**
