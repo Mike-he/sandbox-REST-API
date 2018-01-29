@@ -142,6 +142,7 @@ class EventRepository extends EntityRepository
      * @param $limit
      * @param $offset
      * @param null $status
+     * @param $excludeStatus
      * @param null $sort
      * @return array
      */
@@ -150,6 +151,7 @@ class EventRepository extends EntityRepository
         $limit,
         $offset,
         $status = null,
+        $excludeStatus = null,
         $sort = null
     ) {
         $query = $this->createQueryBuilder('e')
@@ -173,6 +175,11 @@ class EventRepository extends EntityRepository
                         ->setParameter('status',$status);
                     break;
             }
+        }
+
+        if (!is_null($excludeStatus)) {
+            $query->andWhere('e.status != :exclude_status')
+                ->setParameter('exclude_status', $excludeStatus);
         }
 
         if (!is_null($sort)) {
@@ -204,8 +211,10 @@ class EventRepository extends EntityRepository
 
         $query->addOrderBy('e.registrationEndDate', 'DESC');
 
-        $query->setFirstResult($offset)
-            ->setMaxResults($limit);
+        if (!is_null($limit) && !is_null($offset)) {
+            $query->setFirstResult($offset)
+                ->setMaxResults($limit);
+        }
 
         return $query->getQuery()->getResult();
     }
