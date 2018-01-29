@@ -202,11 +202,11 @@ class EventRepository extends EntityRepository
                         ->orderBy('v.count', 'DESC');
                     break;
                 default:
-                    $query->orderBy('e.creationDate', 'DESC');
+                    $query->orderBy('e.eventStartDate', 'DESC');
                     break;
             }
         } else {
-            $query->orderBy('e.creationDate', 'DESC');
+            $query->orderBy('e.eventStartDate', 'DESC');
         }
 
         $query->addOrderBy('e.registrationEndDate', 'DESC');

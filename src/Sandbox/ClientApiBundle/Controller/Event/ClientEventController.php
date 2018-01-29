@@ -131,6 +131,7 @@ class ClientEventController extends EventController
                     $limit,
                     $offset,
                     $status,
+                    null,
                     $sort
                 );
         }
