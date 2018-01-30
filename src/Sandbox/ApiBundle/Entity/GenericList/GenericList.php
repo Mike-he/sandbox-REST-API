@@ -27,6 +27,7 @@ class GenericList
     const OBJECT_MEMBERSHIP_ORDER = 'membership_order';
     const OBJECT_SERVICE_ORDER = 'service_order';
     const OBJECT_COMMNUE_COMPANY = 'commnue_company';
+    const OBJECT_ACTIVITY = 'activity';
 
     const OBJECT_CUSTOMER = 'customer';
     const OBJECT_ENTERPRISE = 'enterprise';
