@@ -1,8 +1,9 @@
 <?php
 
-namespace Sandbox\SalesApiBundle\Controller\GenericList;
+namespace Sandbox\AdminApiBundle\Controller\GenericList;
 
 use FOS\RestBundle\View\View;
+use Sandbox\AdminApiBundle\Controller\AdminRestController;
 use Sandbox\ApiBundle\Entity\GenericList\GenericUserList;
 use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -11,7 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 
-class AdminGenericListController extends SalesRestController
+class AdminGenericListController extends AdminRestController
 {
     /**
      * @param Request               $request
