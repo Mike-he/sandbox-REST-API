@@ -135,7 +135,6 @@ trait LeaseTrait
         }
 
         if (!is_null($lease->getConformedDate())) {
-            $changeLogs['lease_conformed_user'] = $this->getUserProfileName($lease->getSupervisor());
             $changeLogs['lease_conformed_date'] = $lease->getConformedDate();
         }
 
