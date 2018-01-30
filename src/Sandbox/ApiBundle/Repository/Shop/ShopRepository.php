@@ -267,4 +267,18 @@ class ShopRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+
+    public function countShopsByCompany(
+        $companyId
+    ) {
+        $query = $this->createQueryBuilder('s')
+            ->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'b.id = s.buildingId')
+            ->select('count(s.id)')
+            ->where('b.companyId = :companyId')
+            ->andWhere('s.isDeleted = FALSE')
+            ->setParameter('companyId', $companyId);
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
 }

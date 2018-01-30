@@ -101,8 +101,8 @@ class Version920180130084430 extends AbstractMigration implements ContainerAware
                     'required' => false,
                 ),
                 array(
-                    'column' => 'room_counts',
-                    'name' => '已开放空间数',
+                    'column' => 'product_counts',
+                    'name' => '上架空间',
                     'default' => false,
                     'required' => false,
                 ),

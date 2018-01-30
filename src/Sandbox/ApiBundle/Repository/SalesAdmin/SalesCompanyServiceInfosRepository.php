@@ -87,4 +87,21 @@ class SalesCompanyServiceInfosRepository extends EntityRepository
 
         return $categories;
     }
+
+    public function countServices(
+        $companyId,
+        $types
+    ) {
+        $query = $this->createQueryBuilder('s')
+            ->select('count(s.id)')
+            ->where('s.status = TRUE')
+            ->andWhere('s.company = :companyId')
+            ->andWhere('s.tradeTypes in (:types)')
+            ->setParameter('companyId', $companyId)
+            ->setParameter('types', $types);
+
+        $result = $query->getQuery()->getSingleScalarResult();
+
+        return $result;
+    }
 }
