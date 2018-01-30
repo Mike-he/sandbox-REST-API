@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-class Version920180120074949 extends AbstractMigration implements ContainerAwareInterface
+class Version920180130084430 extends AbstractMigration implements ContainerAwareInterface
 {
     use ContainerAwareTrait;
 
@@ -35,87 +35,81 @@ class Version920180120074949 extends AbstractMigration implements ContainerAware
         $columns =
             array(
                 array(
-                    'column' => 'company_logo_and_name',
-                    'name' => '公司logo+名称',
+                    'column' => 'name',
+                    'name' => '销售方名称',
                     'default' => true,
                     'required' => true,
                 ),
                 array(
-                    'column' => 'company_name',
-                    'name' => '公司电话',
+                    'column' => 'building_counts',
+                    'name' => '拥有社区数',
                     'default' => true,
                     'required' => true,
                 ),
                 array(
-                    'column' => 'company_fax',
-                    'name' => '公司传真',
-                    'default' => false,
-                    'required' => false,
-                ),
-                array(
-                    'column' => 'company_building',
-                    'name' => '所属大楼',
-                    'default' => false,
-                    'required' => false,
-                ),
-                array(
-                    'column' => 'company_address',
-                    'name' => '公司地址',
-                    'default' => false,
-                    'required' => false,
-                ),
-                array(
-                    'column' => 'company_email',
-                    'name' => '公司邮箱',
-                    'default' => false,
-                    'required' => false,
-                ),
-                array(
-                    'column' => 'company_website',
-                    'name' => '公司网站',
-                    'default' => false,
-                    'required' => false,
-                ),
-                array(
-                    'column' => 'company_description',
-                    'name' => '公司描述',
-                    'default' => false,
-                    'required' => false,
-                ),
-                array(
-                    'column' => 'company_industry',
-                    'name' => '所属行业',
+                    'column' => 'shop_counts',
+                    'name' => '拥有店铺数',
                     'default' => true,
-                    'required' => false,
+                    'required' => true,
                 ),
                 array(
-                    'column' => 'company_portfolio',
-                    'name' => '公司作品',
+                    'column' => 'banned',
+                    'name' => '状态',
+                    'default' => true,
+                    'required' => true,
+                ),
+                array(
+                    'column' => 'phone',
+                    'name' => '公司/组织电话',
                     'default' => false,
                     'required' => false,
                 ),
                 array(
-                    'column' => 'company_members',
-                    'name' => '公司成员',
-                    'default' => true,
-                    'required' => false,
-                ),
-                array(
-                    'column' => 'creator_name',
-                    'name' => '创建者名字',
-                    'default' => true,
-                    'required' => false,
-                ),
-                array(
-                    'column' => 'creator_phone',
-                    'name' => '创建者手机号',
+                    'column' => 'address',
+                    'name' => '公司/组织地址',
                     'default' => false,
                     'required' => false,
                 ),
                 array(
-                    'column' => 'creation_date',
-                    'name' => '创建时间',
-                    'default' => true,
+                    'column' => 'contacter',
+                    'name' => '联系人姓名',
+                    'default' => false,
+                    'required' => false,
+                ),
+                array(
+                    'column' => 'contacter_phone',
+                    'name' => '联系人电话',
+                    'default' => false,
+                    'required' => false,
+                ),
+                array(
+                    'column' => 'contacter_email',
+                    'name' => '联系人邮箱',
+                    'default' => false,
+                    'required' => false,
+                ),
+                array(
+                    'column' => 'admins',
+                    'name' => '社区超级管理员',
+                    'default' => false,
+                    'required' => false,
+                ),
+                array(
+                    'column' => 'coffee_admins',
+                    'name' => '店铺超级管理员',
+                    'default' => false,
+                    'required' => false,
+                ),
+                array(
+                    'column' => 'room_counts',
+                    'name' => '已开放空间数',
+                    'default' => false,
+                    'required' => false,
+                ),
+                array(
+                    'column' => 'service_counts',
+                    'name' => '已开放模块数',
+                    'default' => false,
                     'required' => false,
                 ),
             );
@@ -126,8 +120,8 @@ class Version920180120074949 extends AbstractMigration implements ContainerAware
             $list->setName($column['name']);
             $list->setDefault($column['default']);
             $list->setRequired($column['required']);
-            $list->setObject(GenericList::OBJECT_COMMNUE_COMPANY);
-            $list->setPlatform(GenericList::OBJECT_PLATFORM_COMMNUE);
+            $list->setObject(GenericList::OBJECT_SALES_COMPANY);
+            $list->setPlatform(GenericList::OBJECT_PLATFORM_OFFICIAL);
 
             $em->persist($list);
         }
