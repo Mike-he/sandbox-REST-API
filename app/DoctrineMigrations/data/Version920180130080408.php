@@ -216,13 +216,15 @@ class Version920180130080408 extends AbstractMigration implements ContainerAware
             );
 
         foreach ($columns2 as $column) {
+            $sort = isset($column['sort']) ? $column['sort'] : false;
+
             $list = new GenericList();
             $list->setColumn($column['column']);
             $list->setName($column['name']);
             $list->setDefault($column['default']);
             $list->setRequired($column['required']);
             $list->setSort($sort);
-            $list->setObject(GenericList::OBJECT_ACTIVITY);
+            $list->setObject(GenericList::OBJECT_SALES_ACTIVITY);
             $list->setPlatform(GenericList::OBJECT_PLATFORM_SALES);
 
             $em->persist($list);
