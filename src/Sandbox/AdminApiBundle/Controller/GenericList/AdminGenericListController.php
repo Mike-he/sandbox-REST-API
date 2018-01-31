@@ -5,7 +5,6 @@ namespace Sandbox\AdminApiBundle\Controller\GenericList;
 use FOS\RestBundle\View\View;
 use Sandbox\AdminApiBundle\Controller\AdminRestController;
 use Sandbox\ApiBundle\Entity\GenericList\GenericUserList;
-use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpFoundation\Request;
@@ -97,7 +96,10 @@ class AdminGenericListController extends AdminRestController
         foreach ($listIds as $listId) {
             $list = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:GenericList\GenericList')
-                ->find($listId);
+                ->findOneBy(array(
+                    'id' => $listId,
+                    'object' => $object,
+                ));
 
             if ($list) {
                 $userList = new GenericUserList();
