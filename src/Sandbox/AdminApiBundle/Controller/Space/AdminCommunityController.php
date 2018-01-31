@@ -258,6 +258,14 @@ class AdminCommunityController extends SandboxRestController
      *    description="sort direction"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="sales_company",
+     *    default=null,
+     *    nullable=true,
+     *    array=false,
+     *    description="id of sales company"
+     * )
+     *
      * @Route("/communities/spaces")
      * @Method({"GET"})
      *
@@ -284,11 +292,12 @@ class AdminCommunityController extends SandboxRestController
         $startDateEnd = $paramFetcher->get('start_date_end');
         $sortColumn = $paramFetcher->get('sort_column');
         $direction = $paramFetcher->get('direction');
+        $salesCompanyId = $paramFetcher->get('sales_company');
 
         $spaces = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\Room')
             ->findSpacesByBuilding(
-                null,
+                $salesCompanyId,
                 $building,
                 $pageLimit,
                 $offset,
