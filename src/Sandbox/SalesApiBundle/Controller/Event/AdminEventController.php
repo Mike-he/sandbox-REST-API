@@ -147,6 +147,38 @@ class AdminEventController extends SalesRestController
      *    description="event visible"
      * )
      *
+     * @Annotations\QueryParam(
+     *     name="query",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="verify",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="charge",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="method",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
      * @Route("/events")
      * @Method({"GET"})
      *
@@ -169,6 +201,10 @@ class AdminEventController extends SalesRestController
         $pageIndex = $paramFetcher->get('pageIndex');
         $status = $paramFetcher->get('status');
         $visible = $paramFetcher->get('visible');
+        $search = $paramFetcher->get('query');
+        $verify = (bool) $paramFetcher->get('verify');
+        $charge = (bool) $paramFetcher->get('charge');
+        $method = $paramFetcher->get('method');
 
         $eventsArray = array();
         $events = $this->getDoctrine()
@@ -176,7 +212,11 @@ class AdminEventController extends SalesRestController
             ->getSalesEvents(
                 $status,
                 $visible,
-                $salesCompanyId
+                $salesCompanyId,
+                $search,
+                $verify,
+                $charge,
+                $method
             );
 
         foreach ($events as $eventArray) {

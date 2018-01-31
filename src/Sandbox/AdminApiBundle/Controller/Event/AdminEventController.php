@@ -146,6 +146,38 @@ class AdminEventController extends SandboxRestController
      *     strict=true
      * )
      *
+     * @Annotations\QueryParam(
+     *     name="query",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="verify",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="charge",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="method",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
      * @Route("/events")
      * @Method({"GET"})
      *
@@ -177,6 +209,10 @@ class AdminEventController extends SandboxRestController
         $pageIndex = $paramFetcher->get('pageIndex');
         $status = $paramFetcher->get('status');
         $visible = $paramFetcher->get('visible');
+        $search = $paramFetcher->get('query');
+        $verify = (bool) $paramFetcher->get('verify');
+        $charge = (bool) $paramFetcher->get('charge');
+        $method = $paramFetcher->get('method');
 
         $limit = $pageLimit;
         $offset = ($pageIndex - 1) * $pageLimit;
@@ -188,7 +224,11 @@ class AdminEventController extends SandboxRestController
                 $visible,
                 $limit,
                 $offset,
-                $platform
+                $platform,
+                $search,
+                $verify,
+                $charge,
+                $method
             );
 
         $count = $this->getDoctrine()
@@ -196,7 +236,11 @@ class AdminEventController extends SandboxRestController
             ->countEvents(
                 $status,
                 $visible,
-                $platform
+                $platform,
+                $search,
+                $verify,
+                $charge,
+                $method
             );
 
         $eventsArray = array();

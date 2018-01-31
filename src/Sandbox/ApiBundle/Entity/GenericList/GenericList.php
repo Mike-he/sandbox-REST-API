@@ -17,18 +17,21 @@ class GenericList
     const OBJECT_PLATFORM_SALES = 'sales';
     const OBJECT_PLATFORM_COMMNUE = 'commnue';
 
+
+    const OBJECT_ACTIVITY = 'activity';
+
     const OBJECT_LEASE = 'lease';
     const OBJECT_LEASE_BILL = 'lease_bill';
     const OBJECT_LEASE_CLUE = 'lease_clue';
     const OBJECT_LEASE_OFFER = 'lease_offer';
-
     const OBJECT_PRODUCT_ORDER = 'product_order';
     const OBJECT_EVENT_ORDER = 'event_order';
     const OBJECT_MEMBERSHIP_ORDER = 'membership_order';
     const OBJECT_SERVICE_ORDER = 'service_order';
-    const OBJECT_COMMNUE_COMPANY = 'commnue_company';
-    const OBJECT_ACTIVITY = 'activity';
     const OBJECT_SALES_ACTIVITY = 'sales_activity';
+
+    const OBJECT_COMMNUE_COMPANY = 'commnue_company';
+    const OBJECT_COMMNUE_ACTIVITY = 'commnue_activity';
 
     const OBJECT_CUSTOMER = 'customer';
     const OBJECT_ENTERPRISE = 'enterprise';
