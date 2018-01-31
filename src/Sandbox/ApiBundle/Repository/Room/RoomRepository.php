@@ -658,7 +658,11 @@ class RoomRepository extends EntityRepository
      * @param $roomTypes
      * @param $visible
      * @param $search
-     *
+     * @param null $keyword
+     * @param null $keywordSearch
+     * @param null $startDate
+     * @param null $startDateStart
+     * @param null $startDateEnd
      * @return array
      */
     public function findSpacesByBuilding(
@@ -668,7 +672,12 @@ class RoomRepository extends EntityRepository
         $offset,
         $roomTypes,
         $visible,
-        $search
+        $search,
+        $keyword=null,
+        $keywordSearch=null,
+        $startDate=null,
+        $startDateStart=null,
+        $startDateEnd=null
     ) {
         $query = $this->createQueryBuilder('r')
             ->select('
@@ -713,6 +722,32 @@ class RoomRepository extends EntityRepository
         if (!is_null($search)) {
             $query->andWhere('r.name LIKE :search')
                 ->setParameter('search', '%'.$search.'%');
+        }
+
+        if(!is_null($keyword) && !is_null($keywordSearch)) {
+            $keywordArray = [
+                'space_name' => 'r.name',
+                'building_name' => 'b.name',
+                'sales_company_name' => 'c.name'
+            ];
+
+            $query->andWhere("$keywordArray[$keyword] LIKE :name")
+                ->setParameter('name', '%'.$keywordSearch.'%');
+        }
+
+        if(!is_null($startDate)) {
+            $query->andWhere('p.startDate = :startDate')
+                ->setParameter('startDate', $startDate);
+        }
+
+        if(!is_null($startDateStart)) {
+            $query->andWhere('p.startDate >= :startDate')
+                ->setParameter('startDate', $startDateStart);
+        }
+
+        if(!is_null($startDateEnd)) {
+            $query->andWhere('p.startDate <= :startDate')
+                ->setParameter('startDate', $startDateEnd);
         }
 
         $query = $query->setFirstResult($offset)

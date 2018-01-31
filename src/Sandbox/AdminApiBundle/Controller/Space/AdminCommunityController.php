@@ -202,6 +202,62 @@ class AdminCommunityController extends SandboxRestController
      *    description="id of building"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="keyword",
+     *    default=null,
+     *    nullable=true,
+     *    array=false,
+     *    description="search keyword"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="keyword_search",
+     *    default=null,
+     *    nullable=true,
+     *    array=false,
+     *    description="search keyword string"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="start_date",
+     *    default=null,
+     *    nullable=true,
+     *    array=false,
+     *    description="start date start time"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="start_date_start",
+     *    default=null,
+     *    nullable=true,
+     *    array=false,
+     *    description="start date start time"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="start_date_end",
+     *    default=null,
+     *    nullable=true,
+     *    array=false,
+     *    description="start date end time"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="sort_column",
+     *    default=null,
+     *    nullable=true,
+     *    array=false,
+     *    description="sort column"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="direction",
+     *    default=null,
+     *    nullable=true,
+     *    array=false,
+     *    description="sort direction"
+     * )
+     *
      * @Route("/communities/spaces")
      * @Method({"GET"})
      *
@@ -221,6 +277,13 @@ class AdminCommunityController extends SandboxRestController
         $visible = $paramFetcher->get('visible');
         $query = $paramFetcher->get('query');
         $building = $paramFetcher->get('building');
+        $keyword = $paramFetcher->get('keyword');
+        $keywordSearch = $paramFetcher->get('keyword_search');
+        $startDate = $paramFetcher->get('start_date');
+        $startDateStart = $paramFetcher->get('start_date_start');
+        $startDateEnd = $paramFetcher->get('start_date_end');
+        $sortColumn = $paramFetcher->get('sort_column');
+        $direction = $paramFetcher->get('direction');
 
         $spaces = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\Room')
@@ -231,10 +294,37 @@ class AdminCommunityController extends SandboxRestController
                 $offset,
                 $roomType,
                 $visible,
-                $query
+                $query,
+                $keyword,
+                $keywordSearch,
+                $startDate,
+                $startDateStart,
+                $startDateEnd
             );
 
         $spaces = $this->handleSpacesData($spaces);
+
+        if(!is_null($sortColumn) && !is_null($direction)) {
+            $sort = [];
+
+            foreach ($spaces as $space) {
+                if (!empty($space['product'])) {
+                    if($sortColumn == 'price') {
+                        $sort[] = $space['product']['leasing_sets'][0]['base_price'];
+                    }else{
+                        $sort[] = $space['product'][$sortColumn];
+                    }
+                }else{
+                    $sort[] = '';
+                }
+            }
+
+            if ($direction == 'asc') {
+                array_multisort($sort, SORT_ASC, $spaces);
+            } elseif ($direction == 'desc') {
+                array_multisort($sort, SORT_DESC, $spaces);
+            }
+        }
 
         $view = new View($spaces);
         $view->setSerializationContext(

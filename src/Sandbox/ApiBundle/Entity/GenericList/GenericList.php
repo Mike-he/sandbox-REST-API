@@ -33,6 +33,7 @@ class GenericList
     const OBJECT_CASHIER = 'cashier';
     const OBJECT_RESERVATION = 'reservation';
     const OBJECT_CUSTOMER_INVOICE = 'customer_invoice';
+    const OBJECT_SPACE = 'space';
 
     /**
      * @var int
