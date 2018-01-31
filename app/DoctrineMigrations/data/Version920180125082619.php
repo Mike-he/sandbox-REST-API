@@ -32,18 +32,6 @@ class Version920180125082619 extends AbstractMigration implements ContainerAware
         /** @var EntityManager $em */
         $em = $this->container->get('doctrine.orm.entity_manager');
 
-        $lists = $em->getRepository('SandboxApiBundle:GenericList\GenericList')
-            ->findBy([
-                'object' => 'commnue_company',
-                'platform' => 'commnue',
-            ]);
-
-        foreach ($lists as $list) {
-            $em->remove($list);
-        }
-
-        $em->flush();
-
         $columns =
             array(
                 array(

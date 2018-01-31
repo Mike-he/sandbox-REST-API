@@ -27,12 +27,15 @@ class GenericList
     const OBJECT_MEMBERSHIP_ORDER = 'membership_order';
     const OBJECT_SERVICE_ORDER = 'service_order';
     const OBJECT_COMMNUE_COMPANY = 'commnue_company';
+    const OBJECT_ACTIVITY = 'activity';
+    const OBJECT_SALES_ACTIVITY = 'sales_activity';
 
     const OBJECT_CUSTOMER = 'customer';
     const OBJECT_ENTERPRISE = 'enterprise';
     const OBJECT_CASHIER = 'cashier';
     const OBJECT_RESERVATION = 'reservation';
     const OBJECT_CUSTOMER_INVOICE = 'customer_invoice';
+    const OBJECT_SALES_COMPANY = 'sales_company';
     const OBJECT_SPACE = 'space';
 
     /**

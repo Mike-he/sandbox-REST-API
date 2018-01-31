@@ -543,4 +543,34 @@ class AdminPositionUserBindingRepository extends EntityRepository
 
         return $result;
     }
+
+
+    public function countBindUserByPlatform(
+        $platform,
+        $salesCompanyId,
+        $isSuperAdmin
+    ) {
+        $query = $this->createQueryBuilder('pb')
+            ->leftJoin('pb.position', 'p')
+            ->select('count( DISTINCT pb.userId)')
+            ->where('p.isHidden = FALSE')
+            ->andWhere('p.platform = :platform')
+            ->andWhere('p.platform = :platform')
+            ->setParameter('platform', $platform)
+        ;
+
+        if (!is_null($isSuperAdmin)) {
+            $query->andWhere('p.isSuperAdmin = :isSuperAdmin')
+                ->setParameter('isSuperAdmin', $isSuperAdmin);
+        }
+
+        if (!is_null($salesCompanyId)) {
+            $query->andWhere('p.salesCompanyId = :salesCompanyId')
+                ->setParameter('salesCompanyId', $salesCompanyId);
+        }
+
+        $result = $query->getQuery()->getSingleScalarResult();
+
+        return (int) $result;
+    }
 }

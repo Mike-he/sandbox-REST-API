@@ -339,3 +339,8 @@ sandbox_admin_api_companies:
     resource: "@SandboxAdminApiBundle/Controller/Company/AdminCompanyController.php"
     type:     annotation
     prefix:   /
+
+sandbox_admin_api_generic_list:
+    resource: "@SandboxAdminApiBundle/Controller/GenericList/AdminGenericListController.php"
+    type:     annotation
+    prefix:   /

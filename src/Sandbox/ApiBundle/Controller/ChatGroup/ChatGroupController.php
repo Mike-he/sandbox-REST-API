@@ -106,6 +106,9 @@ class ChatGroupController extends SandboxRestController
                 $chatRoomDesc['avatar'] = $building->getAvatar();
             }
         }
+        if ($chatGroup->getCompanyId()) {
+            $chatRoomDesc['company_id'] = $chatGroup->getCompanyId();
+        }
         $chatRoomDesc = json_encode($chatRoomDesc);
 
         $ownerName = $chatGroup->getCreator()->getXmppUsername();

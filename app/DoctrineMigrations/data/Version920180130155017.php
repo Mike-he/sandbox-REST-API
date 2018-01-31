@@ -75,18 +75,21 @@ class Version920180130155017 extends AbstractMigration implements ContainerAware
                     'name' => '上架时间',
                     'default' => false,
                     'required' => false,
+                    'sort' => true,
                 ),
                 array(
                     'column' => 'price',
                     'name' => '租赁价格',
                     'default' => true,
                     'required' => true,
+                    'sort' => true,
                 ),
                 array(
                     'column' => 'favorite',
                     'name' => '收藏数',
                     'default' => false,
                     'required' => false,
+                    'sort' => true,
                 ),
                 array(
                     'column' => 'url',
@@ -103,11 +106,14 @@ class Version920180130155017 extends AbstractMigration implements ContainerAware
             );
 
         foreach ($columns as $column) {
+            $sort = isset($column['sort']) ? $column['sort'] : false;
+
             $list = new GenericList();
             $list->setColumn($column['column']);
             $list->setName($column['name']);
             $list->setDefault($column['default']);
             $list->setRequired($column['required']);
+            $list->setSort($sort);
             $list->setObject(GenericList::OBJECT_SPACE);
             $list->setPlatform(GenericList::OBJECT_PLATFORM_OFFICIAL);
 

@@ -157,7 +157,6 @@ class AdminExportService
                 ->findBy(
                     array(
                         'object' => $object,
-                        'platform' => AdminPermission::PERMISSION_PLATFORM_SALES,
                         'default' => true,
                     )
                 );

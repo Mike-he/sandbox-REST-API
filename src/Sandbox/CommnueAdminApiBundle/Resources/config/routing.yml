@@ -68,8 +68,3 @@ commnue_admin_experts:
     resource: "@CommnueAdminApiBundle/Controller/Expert/AdminExpertController.php"
     type:     annotation
     prefix:   /
-
-commnu_admin_generic_list:
-    resource: "@CommnueAdminApiBundle/Controller/GenericList/AdminGenericListController.php"
-    type:     annotation
-    prefix:   /
