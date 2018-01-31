@@ -152,17 +152,11 @@ class AdminExportService
                 $lists[$genericUserList->getList()->getColumn()] = $genericUserList->getList()->getName();
             }
         } else {
-            $adminPlatform = $this->container->get('service_container')
-                ->get('sandbox_api.admin_platform')
-                ->getAdminPlatform();
-            $platform = $adminPlatform['platform'];
-
             $genericLists = $this->doctrine
                 ->getRepository('SandboxApiBundle:GenericList\GenericList')
                 ->findBy(
                     array(
                         'object' => $object,
-                        'platform' => $platform,
                         'default' => true,
                     )
                 );
