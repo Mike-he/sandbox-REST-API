@@ -202,9 +202,12 @@ class AdminEventController extends SalesRestController
         $status = $paramFetcher->get('status');
         $visible = $paramFetcher->get('visible');
         $search = $paramFetcher->get('query');
-        $verify = (bool) $paramFetcher->get('verify');
-        $charge = (bool) $paramFetcher->get('charge');
+        $verify = $paramFetcher->get('verify');
+        $verify = !is_null($verify) ? (bool) $verify : $verify;
+        $charge = $paramFetcher->get('charge');
+        $charge = !is_null($charge) ? (bool) $charge : $charge;
         $method = $paramFetcher->get('method');
+
 
         $eventsArray = array();
         $events = $this->getDoctrine()
