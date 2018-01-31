@@ -78,6 +78,7 @@ product_order:
     cnp_f: 快捷支付(国外)
     offline: 线下支付
     wx_pub: 微信公众号
+    sales_offline: 销售方收款
   status:
     unpaid: 未付款
     paid: 已付款
