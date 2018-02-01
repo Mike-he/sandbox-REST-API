@@ -79,10 +79,12 @@ class ClientExpertOrderController extends SandboxRestController
 
         $orderNumber = $this->generateSerialNumber(LetterHeadConstants::EXPERT_ORDER_LETTER_HEAD);
 
+        $price = $expert->getBasePrice() ? $expert->getBasePrice() : 0;
+
         $order = new ExpertOrder();
         $order->setUserId($userId);
         $order->setExpertId($id);
-        $order->setPrice($expert->getBasePrice());
+        $order->setPrice($price);
         $order->setOrderNumber($orderNumber);
         $order->setStatus(ExpertOrder::STATUS_PENDING);
 
