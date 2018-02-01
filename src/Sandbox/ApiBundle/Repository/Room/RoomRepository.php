@@ -888,8 +888,6 @@ class RoomRepository extends EntityRepository
     /**
      * @param $salesCompanyId
      * @param $buildingId
-     * @param $pageLimit
-     * @param $offset
      * @param $roomTypes
      * @param $visible
      * @param $search
@@ -903,8 +901,6 @@ class RoomRepository extends EntityRepository
     public function countSpacesByBuilding(
         $salesCompanyId,
         $buildingId,
-        $pageLimit,
-        $offset,
         $roomTypes,
         $visible,
         $search,
@@ -975,9 +971,6 @@ class RoomRepository extends EntityRepository
             $query->andWhere('p.startDate <= :startDate')
                 ->setParameter('startDate', $startDateEnd);
         }
-
-        $query = $query->setFirstResult($offset)
-            ->setMaxResults($pageLimit);
 
         $result = $query->getQuery()->getSingleScalarResult();
 

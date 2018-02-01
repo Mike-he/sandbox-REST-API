@@ -340,8 +340,6 @@ class AdminCommunityController extends SandboxRestController
             ->countSpacesByBuilding(
                 $salesCompanyId,
                 $building,
-                $pageLimit,
-                $offset,
                 $roomType,
                 $visible,
                 $query,
