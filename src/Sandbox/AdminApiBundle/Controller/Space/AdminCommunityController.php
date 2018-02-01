@@ -335,9 +335,31 @@ class AdminCommunityController extends SandboxRestController
             }
         }
 
-        $view = new View($spaces);
-        $view->setSerializationContext(
-            SerializationContext::create()->setGroups(['admin_spaces'])
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\Room')
+            ->countSpacesByBuilding(
+                $salesCompanyId,
+                $building,
+                $pageLimit,
+                $offset,
+                $roomType,
+                $visible,
+                $query,
+                $keyword,
+                $keywordSearch,
+                $startDate,
+                $startDateStart,
+                $startDateEnd
+            );
+        
+        $view = new View();
+        $view->setData(
+            array(
+                'current_page_number' => $pageIndex,
+                'num_items_per_page' => (int) $pageLimit,
+                'items' => $spaces,
+                'total_count' => (int) $count,
+            )
         );
 
         return $view;
