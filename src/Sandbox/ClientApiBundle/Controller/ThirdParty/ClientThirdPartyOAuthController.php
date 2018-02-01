@@ -160,8 +160,7 @@ class ClientThirdPartyOAuthController extends ClientThirdPartyController
         $weChat = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:ThirdParty\WeChat')
             ->findOneBy(array(
-                'unionid' => $unionId,
-                'openid' => $openid,
+                'unionid' => $unionId
             ));
 
         $em = $this->getDoctrine()->getManager();
@@ -195,8 +194,7 @@ class ClientThirdPartyOAuthController extends ClientThirdPartyController
                 $currentAccount = $this->getDoctrine()
                     ->getRepository('SandboxApiBundle:ThirdParty\WeChat')
                     ->findOneBy(array(
-                        'unionid' => $unionId,
-                        'openid' => $openid,
+                        'unionid' => $unionId
                     ));
 
                 if (!is_null($currentAccount)) {
