@@ -12,6 +12,7 @@ use Sandbox\ApiBundle\Entity\Event\EventOrderCheck;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
 use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
+use Sandbox\ApiBundle\Entity\Service\ViewCounts;
 use Sandbox\ClientApiBundle\Data\ThirdParty\ThirdPartyOAuthWeChatData;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
@@ -364,6 +365,17 @@ class ClientEventOrderController extends PaymentController
                 ));
                 if (!is_null($eventRegistration)) {
                     $em->remove($eventRegistration);
+
+                    $viewCount = $em->getRepository('SandboxApiBundle:Service\ViewCounts')
+                        ->findOneBy(array(
+                            'object' => ViewCounts::OBJECT_EVENT,
+                            'objectId' => $order->getEventId(),
+                            'type' => ViewCounts::TYPE_REGISTERING,
+                        ));
+                    if ($viewCount) {
+                        $count = $viewCount->getCount() - 1;
+                        $viewCount->setCount($count);
+                    }
                 }
 
                 $em->flush();
