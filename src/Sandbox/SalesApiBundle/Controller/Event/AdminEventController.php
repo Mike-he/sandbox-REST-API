@@ -223,7 +223,9 @@ class AdminEventController extends SalesRestController
             );
 
         foreach ($events as $eventArray) {
+            /** @var Event $event */
             $event = $eventArray['event'];
+            $eventId = $event->getId();
             $attachments = $this->getRepo('Event\EventAttachment')->findByEvent($event);
             $dates = $this->getRepo('Event\EventDate')->findByEvent($event);
             $forms = $this->getRepo('Event\EventForm')->findByEvent($event);
@@ -234,6 +236,11 @@ class AdminEventController extends SalesRestController
             $event->setDates($dates);
             $event->setForms($forms);
             $event->setRegisteredPersonNumber((int) $registrationCounts);
+
+            $commentsCount = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Event\EventComment')
+                ->getCommentsCount($eventId);
+            $event->setCommentsCount((int) $commentsCount);
 
             array_push($eventsArray, $event);
         }
