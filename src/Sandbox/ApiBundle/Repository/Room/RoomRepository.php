@@ -657,6 +657,7 @@ class RoomRepository extends EntityRepository
      * @param $offset
      * @param $roomTypes
      * @param $visible
+     * @param $noProduct
      * @param $search
      * @param null $keyword
      * @param null $keywordSearch
@@ -672,6 +673,7 @@ class RoomRepository extends EntityRepository
         $offset,
         $roomTypes,
         $visible,
+        $noProduct,
         $search,
         $keyword=null,
         $keywordSearch=null,
@@ -717,6 +719,10 @@ class RoomRepository extends EntityRepository
         if (!is_null($visible)) {
             $query->andWhere('p.visible = :visible')
                 ->setParameter('visible', $visible);
+        }
+
+        if($noProduct) {
+            $query->andWhere('p.roomId IS NULL');
         }
 
         if (!is_null($search)) {
@@ -890,19 +896,21 @@ class RoomRepository extends EntityRepository
      * @param $buildingId
      * @param $roomTypes
      * @param $visible
+     * @param $noProduct
      * @param $search
      * @param null $keyword
      * @param null $keywordSearch
      * @param null $startDate
      * @param null $startDateStart
      * @param null $startDateEnd
-     * @return int
+     * @return mixed
      */
     public function countSpacesByBuilding(
         $salesCompanyId,
         $buildingId,
         $roomTypes,
         $visible,
+        $noProduct,
         $search,
         $keyword=null,
         $keywordSearch=null,
@@ -939,6 +947,10 @@ class RoomRepository extends EntityRepository
         if (!is_null($visible)) {
             $query->andWhere('p.visible = :visible')
                 ->setParameter('visible', $visible);
+        }
+
+        if($noProduct) {
+            $query->andWhere('p.roomId IS NULL');
         }
 
         if (!is_null($search)) {

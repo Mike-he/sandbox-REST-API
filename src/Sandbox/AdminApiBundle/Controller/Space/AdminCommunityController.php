@@ -187,6 +187,14 @@ class AdminCommunityController extends SandboxRestController
      * )
      *
      * @Annotations\QueryParam(
+     *    name="no_product",
+     *    default=null,
+     *    nullable=true,
+     *    array=false,
+     *    description="show product visible or not"
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="query",
      *    default=null,
      *    nullable=true,
@@ -283,6 +291,7 @@ class AdminCommunityController extends SandboxRestController
         $offset = ($pageIndex - 1) * $pageLimit;
         $roomType = $paramFetcher->get('room_types');
         $visible = $paramFetcher->get('visible');
+        $noProduct = $paramFetcher->get('no_product');
         $query = $paramFetcher->get('query');
         $building = $paramFetcher->get('building');
         $keyword = $paramFetcher->get('keyword');
@@ -303,6 +312,7 @@ class AdminCommunityController extends SandboxRestController
                 $offset,
                 $roomType,
                 $visible,
+                $noProduct,
                 $query,
                 $keyword,
                 $keywordSearch,
@@ -342,6 +352,7 @@ class AdminCommunityController extends SandboxRestController
                 $building,
                 $roomType,
                 $visible,
+                $noProduct,
                 $query,
                 $keyword,
                 $keywordSearch,
