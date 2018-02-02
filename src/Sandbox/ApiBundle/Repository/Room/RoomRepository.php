@@ -747,13 +747,13 @@ class RoomRepository extends EntityRepository
         }
 
         if(!is_null($startDateStart)) {
-            $query->andWhere('p.startDate >= :startDate')
-                ->setParameter('startDate', $startDateStart);
+            $query->andWhere('p.startDate >= :startDateStart')
+                ->setParameter('startDateStart', $startDateStart);
         }
 
         if(!is_null($startDateEnd)) {
-            $query->andWhere('p.startDate <= :startDate')
-                ->setParameter('startDate', $startDateEnd);
+            $query->andWhere('p.startDate <= :startDateEnd')
+                ->setParameter('startDateEnd', $startDateEnd);
         }
 
         $query = $query->setFirstResult($offset)
@@ -975,13 +975,13 @@ class RoomRepository extends EntityRepository
         }
 
         if(!is_null($startDateStart)) {
-            $query->andWhere('p.startDate >= :startDate')
-                ->setParameter('startDate', $startDateStart);
+            $query->andWhere('p.startDate >= :startDateStart')
+                ->setParameter('startDateStart', $startDateStart);
         }
 
         if(!is_null($startDateEnd)) {
-            $query->andWhere('p.startDate <= :startDate')
-                ->setParameter('startDate', $startDateEnd);
+            $query->andWhere('p.startDate <= :startDateEnd')
+                ->setParameter('startDateEnd', $startDateEnd);
         }
 
         $result = $query->getQuery()->getSingleScalarResult();
