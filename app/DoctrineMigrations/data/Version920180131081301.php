@@ -41,12 +41,6 @@ class Version920180131081301 extends AbstractMigration implements ContainerAware
                     'required' => true,
                 ),
                 array(
-                    'column' => 'publish_company_name',
-                    'name' => '活动发起方',
-                    'default' => true,
-                    'required' => false,
-                ),
-                array(
                     'column' => 'conduct_company_name',
                     'name' => '活动组织方',
                     'default' => false,
