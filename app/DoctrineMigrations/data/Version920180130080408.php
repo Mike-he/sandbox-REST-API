@@ -108,6 +108,12 @@ class Version920180130080408 extends AbstractMigration implements ContainerAware
                     'default' => true,
                     'required' => true,
                 ),
+                array(
+                    'column' => 'visible',
+                    'name' => '上下架',
+                    'default' => true,
+                    'required' => false,
+                ),
             );
 
         foreach ($columns as $column) {
@@ -200,6 +206,12 @@ class Version920180130080408 extends AbstractMigration implements ContainerAware
                     'name' => '活动状态',
                     'default' => true,
                     'required' => true,
+                ),
+                array(
+                    'column' => 'visible',
+                    'name' => '上下架',
+                    'default' => true,
+                    'required' => false,
                 ),
             );
 

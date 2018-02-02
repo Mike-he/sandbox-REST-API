@@ -108,6 +108,12 @@ class Version920180131081301 extends AbstractMigration implements ContainerAware
                     'default' => true,
                     'required' => true,
                 ),
+                array(
+                    'column' => 'visible',
+                    'name' => '上下架',
+                    'default' => true,
+                    'required' => false,
+                ),
             );
 
         foreach ($columns as $column) {
