@@ -23,6 +23,7 @@ class SyncJmessageCommand extends ContainerAwareCommand
 
         $service = $this->getContainer()->get('sandbox_api.jmessage');
         $commnueService = $this->getContainer()->get('sandbox_api.jmessage_commnue');
+        $propertyService = $this->getContainer()->get('sandbox_api.jmessage_property');
 
         $statDate = new \DateTime();
         $interval = new \DateInterval('PT2H');
@@ -61,6 +62,37 @@ class SyncJmessageCommand extends ContainerAwareCommand
                 $em->persist($jmessage);
             }
         }
+
+        // sync Property message
+        $propertyHistory = $propertyService->getMessages(
+            $beginTime,
+            $endTime
+        );
+
+        $propertyMessages = $propertyHistory['body']['messages'];
+
+        foreach ($propertyMessages as $message) {
+            $jmessage = $em->getRepository('SandboxApiBundle:Message\JMessageHistory')
+                ->findOneBy(array(
+                    'msgId' => $message['msgid'],
+                    'msgCtime' => $message['msg_ctime'],
+                ));
+
+            if (!$jmessage) {
+                $jmessage = new JMessageHistory();
+                $jmessage->setFromId($message['from_id']);
+                $jmessage->setMsgBody(json_encode($message['msg_body'], JSON_UNESCAPED_UNICODE));
+                $jmessage->setMsgCtime($message['msg_ctime']);
+                $jmessage->setFromAppKey($message['from_appkey']);
+                $jmessage->setMsgId($message['msgid']);
+                $jmessage->setTargetId($message['target_id']);
+                $jmessage->setTargetType($message['target_type']);
+                $jmessage->setMsgType($message['msg_type']);
+
+                $em->persist($jmessage);
+            }
+        }
+
 
         // sync commnue message
         $commnueHistory = $commnueService->getMessages(
