@@ -41,19 +41,13 @@ class Version920180131081301 extends AbstractMigration implements ContainerAware
                     'required' => true,
                 ),
                 array(
-                    'column' => 'publish_company_name',
-                    'name' => '活动发起方',
-                    'default' => true,
-                    'required' => false,
-                ),
-                array(
                     'column' => 'conduct_company_name',
                     'name' => '活动组织方',
                     'default' => false,
                     'required' => false,
                 ),
                 array(
-                    'column' => 'registration_data',
+                    'column' => 'registration_date',
                     'name' => '报名时间',
                     'default' => false,
                     'required' => false,
@@ -101,12 +95,6 @@ class Version920180131081301 extends AbstractMigration implements ContainerAware
                     'default' => true,
                     'required' => false,
                     'sort' => true,
-                ),
-                array(
-                    'column' => 'description',
-                    'name' => '活动描述',
-                    'default' => false,
-                    'required' => false,
                 ),
                 array(
                     'column' => 'registration_type',

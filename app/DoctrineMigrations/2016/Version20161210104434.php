@@ -60,7 +60,7 @@ class Version20161210104434 extends AbstractMigration implements ContainerAwareI
 
         $p6 = new Payment();
         $p6->setChannel('offline');
-        $p6->setName('线下支付');
+        $p6->setName('线下汇款');
         $p6->setNameEn('Offline Pay');
 
         $p7 = new Payment();
