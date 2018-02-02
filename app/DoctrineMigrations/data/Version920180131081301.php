@@ -97,12 +97,6 @@ class Version920180131081301 extends AbstractMigration implements ContainerAware
                     'sort' => true,
                 ),
                 array(
-                    'column' => 'description',
-                    'name' => '活动描述',
-                    'default' => false,
-                    'required' => false,
-                ),
-                array(
                     'column' => 'registration_type',
                     'name' => '报名方式',
                     'default' => false,
