@@ -35,8 +35,13 @@ class Version20170111090022 extends AbstractMigration implements ContainerAwareI
         $module2->setName('lease');
         $module2->setDescription('长租合同');
 
+        $module3 = new LogModules();
+        $module3->setName('finance');
+        $module3->setDescription('财务');
+
         $em->persist($module1);
         $em->persist($module2);
+        $em->persist($module3);
 
         $em->flush();
     }
