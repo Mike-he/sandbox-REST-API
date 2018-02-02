@@ -5,6 +5,7 @@ namespace Sandbox\AdminApiBundle\Controller\Event;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
 use Rs\Json\Patch;
+use Sandbox\ApiBundle\Constants\PlatformConstants;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Event\Event;
@@ -326,6 +327,9 @@ class AdminEventController extends SandboxRestController
             AdminPermission::OP_LEVEL_VIEW
         );
 
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $platform = $adminPlatform['platform'];
+
         // get an event
         $event = $this->getRepo('Event\Event')->findOneBy(array(
             'id' => $id,
@@ -346,6 +350,17 @@ class AdminEventController extends SandboxRestController
         $event->setForms($forms);
         $event->setRegisteredPersonNumber((int) $registrationCounts);
         $event->setCommentsCount((int) $commentsCount);
+
+        if($platform == PlatformConstants::PLATFORM_COMMNUE) {
+            $eventHot = $this->getDoctrine()->getRepository('SandboxApiBundle:Event\CommnueEventHot')
+                ->findOneBy([
+                    'eventId' => $event->getId()
+                ]);
+
+            if(!is_null($eventHot)) {
+                $event->setCommnueHot(true);
+            }
+        }
 
         // set view
         $view = new View($event);
