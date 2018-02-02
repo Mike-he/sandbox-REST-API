@@ -23,7 +23,11 @@ class EventRepository extends EntityRepository
         $visible,
         $limit,
         $offset,
-        $platform = Event::PLATFORM_OFFICIAL
+        $platform = Event::PLATFORM_OFFICIAL,
+        $search,
+        $verify,
+        $charge,
+        $method
     ) {
         $query = $this->createQueryBuilder('e')
             ->select('
@@ -75,6 +79,30 @@ class EventRepository extends EntityRepository
                 ->setParameter('visible', $visible);
         }
 
+        if (!is_null($search)) {
+            $query->andWhere('
+                    e.name LIKE :search
+                    OR e.publishCompany LIKE :search
+                    OR e.address LIKE :search
+                ')
+                ->setParameter('search', '%'.$search.'%');
+        }
+
+        if (!is_null($verify)) {
+            $query->andWhere('e.verify = :verify')
+                ->setParameter('verify', $verify);
+        }
+
+        if (!is_null($charge)) {
+            $query->andWhere('e.isCharge = :isCharge')
+                ->setParameter('isCharge', $charge);
+        }
+
+        if (!is_null($method)) {
+            $query->andWhere('e.registrationMethod = :registrationMethod')
+                ->setParameter('registrationMethod', $method);
+        }
+
         $query->orderBy('e.creationDate', 'DESC');
 
         $query->setMaxResults($limit)
@@ -86,7 +114,11 @@ class EventRepository extends EntityRepository
     public function countEvents(
         $status,
         $visible,
-        $platform = Event::PLATFORM_OFFICIAL
+        $platform = Event::PLATFORM_OFFICIAL,
+        $search,
+        $verify,
+        $charge,
+        $method
     ) {
         $query = $this->createQueryBuilder('e')
             ->select('count(e.id)')
@@ -132,6 +164,30 @@ class EventRepository extends EntityRepository
         if (!is_null($visible)) {
             $query->andWhere('e.visible = :visible')
                 ->setParameter('visible', $visible);
+        }
+
+        if (!is_null($search)) {
+            $query->andWhere('
+                    e.name LIKE :search
+                    OR e.publishCompany LIKE :search
+                    OR e.address LIKE :search
+                ')
+                ->setParameter('search', '%'.$search.'%');
+        }
+
+        if (!is_null($verify)) {
+            $query->andWhere('e.verify = :verify')
+                ->setParameter('verify', $verify);
+        }
+
+        if (!is_null($charge)) {
+            $query->andWhere('e.isCharge = :isCharge')
+                ->setParameter('isCharge', $charge);
+        }
+
+        if (!is_null($method)) {
+            $query->andWhere('e.registrationMethod = :registrationMethod')
+                ->setParameter('registrationMethod', $method);
         }
 
         return $query->getQuery()->getSingleScalarResult();
@@ -312,7 +368,11 @@ class EventRepository extends EntityRepository
     public function getSalesEvents(
         $status,
         $visible,
-        $salesCompanyId
+        $salesCompanyId,
+        $search,
+        $verify,
+        $charge,
+        $method
     ) {
         $query = $this->createQueryBuilder('e')
             ->select('
@@ -362,6 +422,30 @@ class EventRepository extends EntityRepository
         if (!is_null($visible)) {
             $query->andWhere('e.visible = :visible')
                 ->setParameter('visible', $visible);
+        }
+
+        if (!is_null($search)) {
+            $query->andWhere('
+                    e.name LIKE :search
+                    OR e.publishCompany LIKE :search
+                    OR e.address LIKE :search
+                ')
+                ->setParameter('search', '%'.$search.'%');
+        }
+
+        if (!is_null($verify)) {
+            $query->andWhere('e.verify = :verify')
+                ->setParameter('verify', $verify);
+        }
+
+        if (!is_null($charge)) {
+            $query->andWhere('e.isCharge = :isCharge')
+                ->setParameter('isCharge', $charge);
+        }
+
+        if (!is_null($method)) {
+            $query->andWhere('e.registrationMethod = :registrationMethod')
+                ->setParameter('registrationMethod', $method);
         }
 
         $query->orderBy('e.creationDate', 'DESC');

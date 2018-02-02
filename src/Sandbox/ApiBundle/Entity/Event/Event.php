@@ -424,7 +424,8 @@ class Event
      *
      * @Serializer\Groups({
      *      "main",
-     *      "client_event"
+     *      "client_event",
+     *      "admin_event"
      * })
      */
     private $commnueHot;

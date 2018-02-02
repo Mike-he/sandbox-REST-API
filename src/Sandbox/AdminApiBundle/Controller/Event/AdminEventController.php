@@ -5,6 +5,7 @@ namespace Sandbox\AdminApiBundle\Controller\Event;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
 use Rs\Json\Patch;
+use Sandbox\ApiBundle\Constants\PlatformConstants;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Event\Event;
@@ -146,6 +147,38 @@ class AdminEventController extends SandboxRestController
      *     strict=true
      * )
      *
+     * @Annotations\QueryParam(
+     *     name="query",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="verify",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="charge",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="method",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
      * @Route("/events")
      * @Method({"GET"})
      *
@@ -177,6 +210,12 @@ class AdminEventController extends SandboxRestController
         $pageIndex = $paramFetcher->get('pageIndex');
         $status = $paramFetcher->get('status');
         $visible = $paramFetcher->get('visible');
+        $search = $paramFetcher->get('query');
+        $verify = $paramFetcher->get('verify');
+        $verify = !is_null($verify) ? (bool) $verify : $verify;
+        $charge = $paramFetcher->get('charge');
+        $charge = !is_null($charge) ? (bool) $charge : $charge;
+        $method = $paramFetcher->get('method');
 
         $limit = $pageLimit;
         $offset = ($pageIndex - 1) * $pageLimit;
@@ -188,7 +227,11 @@ class AdminEventController extends SandboxRestController
                 $visible,
                 $limit,
                 $offset,
-                $platform
+                $platform,
+                $search,
+                $verify,
+                $charge,
+                $method
             );
 
         $count = $this->getDoctrine()
@@ -196,13 +239,19 @@ class AdminEventController extends SandboxRestController
             ->countEvents(
                 $status,
                 $visible,
-                $platform
+                $platform,
+                $search,
+                $verify,
+                $charge,
+                $method
             );
 
         $eventsArray = array();
         foreach ($events as $value) {
             /** @var Event $event */
             $event = $value['event'];
+            $eventId = $event->getId();
+
             $attachments = $this->getRepo('Event\EventAttachment')->findByEvent($event);
             $dates = $this->getRepo('Event\EventDate')->findByEvent($event);
             $forms = $this->getRepo('Event\EventForm')->findByEvent($event);
@@ -224,9 +273,14 @@ class AdminEventController extends SandboxRestController
 
             $commnueHot = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Event\CommnueEventHot')
-                ->findOneBy(array('eventId' => $event->getId()));
+                ->findOneBy(array('eventId' => $eventId));
 
             $event->setCommnueHot($commnueHot ? true : false);
+
+            $commentsCount = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Event\EventComment')
+                ->getCommentsCount($eventId);
+            $event->setCommentsCount((int) $commentsCount);
 
             array_push($eventsArray, $event);
         }
@@ -273,6 +327,9 @@ class AdminEventController extends SandboxRestController
             AdminPermission::OP_LEVEL_VIEW
         );
 
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $platform = $adminPlatform['platform'];
+
         // get an event
         $event = $this->getRepo('Event\Event')->findOneBy(array(
             'id' => $id,
@@ -293,6 +350,17 @@ class AdminEventController extends SandboxRestController
         $event->setForms($forms);
         $event->setRegisteredPersonNumber((int) $registrationCounts);
         $event->setCommentsCount((int) $commentsCount);
+
+        if($platform == PlatformConstants::PLATFORM_COMMNUE) {
+            $eventHot = $this->getDoctrine()->getRepository('SandboxApiBundle:Event\CommnueEventHot')
+                ->findOneBy([
+                    'eventId' => $event->getId()
+                ]);
+
+            if(!is_null($eventHot)) {
+                $event->setCommnueHot(true);
+            }
+        }
 
         // set view
         $view = new View($event);

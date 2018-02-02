@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-class Version920180125082619 extends AbstractMigration implements ContainerAwareInterface
+class Version920180130155017 extends AbstractMigration implements ContainerAwareInterface
 {
     use ContainerAwareTrait;
 
@@ -35,99 +35,87 @@ class Version920180125082619 extends AbstractMigration implements ContainerAware
         $columns =
             array(
                 array(
-                    'column' => 'company_logo_and_name',
-                    'name' => '企业名称',
+                    'column' => 'space_name',
+                    'name' => '空间名称',
                     'default' => true,
                     'required' => true,
                 ),
                 array(
-                    'column' => 'company_name',
-                    'name' => '企业电话',
+                    'column' => 'sapce_type',
+                    'name' => '空间类型',
                     'default' => true,
                     'required' => true,
                 ),
                 array(
-                    'column' => 'company_fax',
-                    'name' => '企业传真',
-                    'default' => false,
-                    'required' => false,
-                ),
-                array(
-                    'column' => 'company_building',
-                    'name' => '所属大楼',
-                    'default' => false,
-                    'required' => false,
-                ),
-                array(
-                    'column' => 'company_address',
-                    'name' => '企业地址',
-                    'default' => false,
-                    'required' => false,
-                ),
-                array(
-                    'column' => 'company_email',
-                    'name' => '企业邮箱',
-                    'default' => false,
-                    'required' => false,
-                ),
-                array(
-                    'column' => 'company_website',
-                    'name' => '企业网站',
-                    'default' => false,
-                    'required' => false,
-                ),
-                array(
-                    'column' => 'company_description',
-                    'name' => '企业描述',
-                    'default' => false,
-                    'required' => false,
-                ),
-                array(
-                    'column' => 'company_industry',
-                    'name' => '所属行业',
+                    'column' => 'sales_company',
+                    'name' => '所属销售方',
                     'default' => true,
                     'required' => false,
                 ),
                 array(
-                    'column' => 'company_portfolio',
-                    'name' => '企业作品',
+                    'column' => 'building',
+                    'name' => '所属社区',
+                    'default' => true,
+                    'required' => false,
+                ),
+                array(
+                    'column' => 'area',
+                    'name' => '面积',
                     'default' => false,
                     'required' => false,
                 ),
                 array(
-                    'column' => 'company_members',
-                    'name' => '企业成员',
-                    'default' => true,
-                    'required' => false,
-                ),
-                array(
-                    'column' => 'creator_name',
-                    'name' => '创建者名字',
-                    'default' => true,
-                    'required' => false,
-                ),
-                array(
-                    'column' => 'creator_phone',
-                    'name' => '创建者手机号',
+                    'column' => 'allowed_people',
+                    'name' => '容纳人数',
                     'default' => false,
                     'required' => false,
                 ),
                 array(
-                    'column' => 'creation_date',
-                    'name' => '创建时间',
-                    'default' => true,
+                    'column' => 'start_date',
+                    'name' => '上架时间',
+                    'default' => false,
                     'required' => false,
+                    'sort' => true,
+                ),
+                array(
+                    'column' => 'price',
+                    'name' => '租赁价格',
+                    'default' => true,
+                    'required' => true,
+                    'sort' => true,
+                ),
+                array(
+                    'column' => 'favorite',
+                    'name' => '收藏数',
+                    'default' => false,
+                    'required' => false,
+                    'sort' => true,
+                ),
+                array(
+                    'column' => 'url',
+                    'name' => '商品链接',
+                    'default' => false,
+                    'required' => false,
+                ),
+                array(
+                    'column' => 'status',
+                    'name' => '状态',
+                    'default' => true,
+                    'required' => true,
                 ),
             );
 
         foreach ($columns as $column) {
+            $sort = isset($column['sort']) ? $column['sort'] : false;
+
             $list = new GenericList();
             $list->setColumn($column['column']);
             $list->setName($column['name']);
             $list->setDefault($column['default']);
             $list->setRequired($column['required']);
-            $list->setObject(GenericList::OBJECT_COMMNUE_COMPANY);
-            $list->setPlatform(GenericList::OBJECT_PLATFORM_COMMNUE);
+            $list->setSort($sort);
+            $list->setObject(GenericList::OBJECT_SPACE);
+            $list->setPlatform(GenericList::OBJECT_PLATFORM_OFFICIAL);
 
             $em->persist($list);
         }

@@ -4,13 +4,14 @@ namespace Application\Migrations;
 
 use Doctrine\DBAL\Migrations\AbstractMigration;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\ORM\EntityManager;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-class Version20170111090019 extends AbstractMigration implements ContainerAwareInterface
+class Version920180202030640 extends AbstractMigration implements ContainerAwareInterface
 {
     use ContainerAwareTrait;
 
@@ -20,24 +21,33 @@ class Version20170111090019 extends AbstractMigration implements ContainerAwareI
     public function up(Schema $schema)
     {
         // this up() migration is auto-generated, please modify it to your needs
+
     }
 
     public function postUp(Schema $schema)
     {
+        parent::postUp($schema);
+
+        /** @var EntityManager $em */
         $em = $this->container->get('doctrine.orm.entity_manager');
 
-        $offline = $em->getRepository('SandboxApiBundle:Payment\Payment')
-            ->findOneBy(array('channel' => 'offline'));
+        $list = $em->getRepository('SandboxApiBundle:GenericList\GenericList')
+            ->findOneBy([
+                'object' => 'event_order',
+                'column' => 'description',
+            ]);
 
-        $offline->setName('线下汇款');
+        $em->remove($list);
 
         $em->flush();
     }
+
     /**
      * @param Schema $schema
      */
     public function down(Schema $schema)
     {
         // this down() migration is auto-generated, please modify it to your needs
+
     }
 }

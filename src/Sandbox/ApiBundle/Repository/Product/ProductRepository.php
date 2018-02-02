@@ -2464,4 +2464,21 @@ class ProductRepository extends EntityRepository
 
         return $result;
     }
+
+    public function countsProductsByCompany(
+        $companyId
+    ) {
+        $query = $this->createQueryBuilder('p')
+            ->select('COUNT(p)')
+            ->leftJoin('p.room', 'r')
+            ->leftJoin('r.building', 'b')
+            ->where('p.isDeleted = FALSE')
+            ->andWhere('p.visible = TRUE')
+            ->andWhere('p.visible = TRUE')
+            ->andWhere('b.companyId = :companyId')
+            ->setParameter('companyId', $companyId);
+
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
 }

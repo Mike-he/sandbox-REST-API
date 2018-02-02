@@ -657,8 +657,13 @@ class RoomRepository extends EntityRepository
      * @param $offset
      * @param $roomTypes
      * @param $visible
+     * @param $noProduct
      * @param $search
-     *
+     * @param null $keyword
+     * @param null $keywordSearch
+     * @param null $startDate
+     * @param null $startDateStart
+     * @param null $startDateEnd
      * @return array
      */
     public function findSpacesByBuilding(
@@ -668,7 +673,13 @@ class RoomRepository extends EntityRepository
         $offset,
         $roomTypes,
         $visible,
-        $search
+        $noProduct,
+        $search,
+        $keyword=null,
+        $keywordSearch=null,
+        $startDate=null,
+        $startDateStart=null,
+        $startDateEnd=null
     ) {
         $query = $this->createQueryBuilder('r')
             ->select('
@@ -710,9 +721,39 @@ class RoomRepository extends EntityRepository
                 ->setParameter('visible', $visible);
         }
 
+        if($noProduct) {
+            $query->andWhere('p.roomId IS NULL');
+        }
+
         if (!is_null($search)) {
             $query->andWhere('r.name LIKE :search')
                 ->setParameter('search', '%'.$search.'%');
+        }
+
+        if(!is_null($keyword) && !is_null($keywordSearch)) {
+            $keywordArray = [
+                'space_name' => 'r.name',
+                'building_name' => 'b.name',
+                'sales_company_name' => 'c.name'
+            ];
+
+            $query->andWhere("$keywordArray[$keyword] LIKE :name")
+                ->setParameter('name', '%'.$keywordSearch.'%');
+        }
+
+        if(!is_null($startDate)) {
+            $query->andWhere('p.startDate = :startDate')
+                ->setParameter('startDate', $startDate);
+        }
+
+        if(!is_null($startDateStart)) {
+            $query->andWhere('p.startDate >= :startDateStart')
+                ->setParameter('startDateStart', $startDateStart);
+        }
+
+        if(!is_null($startDateEnd)) {
+            $query->andWhere('p.startDate <= :startDateEnd')
+                ->setParameter('startDateEnd', $startDateEnd);
         }
 
         $query = $query->setFirstResult($offset)
@@ -846,6 +887,104 @@ class RoomRepository extends EntityRepository
         }
 
         $result = $query->getQuery()->getResult();
+
+        return $result;
+    }
+
+    /**
+     * @param $salesCompanyId
+     * @param $buildingId
+     * @param $roomTypes
+     * @param $visible
+     * @param $noProduct
+     * @param $search
+     * @param null $keyword
+     * @param null $keywordSearch
+     * @param null $startDate
+     * @param null $startDateStart
+     * @param null $startDateEnd
+     * @return mixed
+     */
+    public function countSpacesByBuilding(
+        $salesCompanyId,
+        $buildingId,
+        $roomTypes,
+        $visible,
+        $noProduct,
+        $search,
+        $keyword=null,
+        $keywordSearch=null,
+        $startDate=null,
+        $startDateStart=null,
+        $startDateEnd=null
+    ) {
+        $query = $this->createQueryBuilder('r')
+            ->select('
+                count(r.id)
+            ')
+            ->leftJoin('r.building', 'b')
+            ->leftJoin('b.company', 'c')
+            ->leftJoin('SandboxApiBundle:Room\RoomTypes', 'rt', 'WITH', 'r.type = rt.name')
+            ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'r.id = p.roomId')
+            ->where('r.isDeleted = FALSE')
+            ->orderBy('r.id', 'DESC');
+
+        if (!is_null($salesCompanyId)) {
+            $query->andWhere('b.company = :company')
+                ->setParameter('company', $salesCompanyId);
+        }
+
+        if (!is_null($buildingId)) {
+            $query->andWhere('r.building = :buildingId')
+                ->setParameter('buildingId', $buildingId);
+        }
+
+        if (!empty($roomTypes)) {
+            $query->andWhere('r.type IN (:types)')
+                ->setParameter('types', $roomTypes);
+        }
+
+        if (!is_null($visible)) {
+            $query->andWhere('p.visible = :visible')
+                ->setParameter('visible', $visible);
+        }
+
+        if($noProduct) {
+            $query->andWhere('p.roomId IS NULL');
+        }
+
+        if (!is_null($search)) {
+            $query->andWhere('r.name LIKE :search')
+                ->setParameter('search', '%'.$search.'%');
+        }
+
+        if(!is_null($keyword) && !is_null($keywordSearch)) {
+            $keywordArray = [
+                'space_name' => 'r.name',
+                'building_name' => 'b.name',
+                'sales_company_name' => 'c.name'
+            ];
+
+            $query->andWhere("$keywordArray[$keyword] LIKE :name")
+                ->setParameter('name', '%'.$keywordSearch.'%');
+        }
+
+        if(!is_null($startDate)) {
+            $query->andWhere('p.startDate = :startDate')
+                ->setParameter('startDate', $startDate);
+        }
+
+        if(!is_null($startDateStart)) {
+            $query->andWhere('p.startDate >= :startDateStart')
+                ->setParameter('startDateStart', $startDateStart);
+        }
+
+        if(!is_null($startDateEnd)) {
+            $query->andWhere('p.startDate <= :startDateEnd')
+                ->setParameter('startDateEnd', $startDateEnd);
+        }
+
+        $result = $query->getQuery()->getSingleScalarResult();
 
         return $result;
     }

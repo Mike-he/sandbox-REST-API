@@ -187,6 +187,14 @@ class AdminCommunityController extends SandboxRestController
      * )
      *
      * @Annotations\QueryParam(
+     *    name="no_product",
+     *    default=null,
+     *    nullable=true,
+     *    array=false,
+     *    description="show product visible or not"
+     * )
+     *
+     * @Annotations\QueryParam(
      *    name="query",
      *    default=null,
      *    nullable=true,
@@ -200,6 +208,70 @@ class AdminCommunityController extends SandboxRestController
      *    nullable=true,
      *    array=false,
      *    description="id of building"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="keyword",
+     *    default=null,
+     *    nullable=true,
+     *    array=false,
+     *    description="search keyword"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="keyword_search",
+     *    default=null,
+     *    nullable=true,
+     *    array=false,
+     *    description="search keyword string"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="start_date",
+     *    default=null,
+     *    nullable=true,
+     *    array=false,
+     *    description="start date start time"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="start_date_start",
+     *    default=null,
+     *    nullable=true,
+     *    array=false,
+     *    description="start date start time"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="start_date_end",
+     *    default=null,
+     *    nullable=true,
+     *    array=false,
+     *    description="start date end time"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="sort_column",
+     *    default=null,
+     *    nullable=true,
+     *    array=false,
+     *    description="sort column"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="direction",
+     *    default=null,
+     *    nullable=true,
+     *    array=false,
+     *    description="sort direction"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="sales_company",
+     *    default=null,
+     *    nullable=true,
+     *    array=false,
+     *    description="id of sales company"
      * )
      *
      * @Route("/communities/spaces")
@@ -219,26 +291,84 @@ class AdminCommunityController extends SandboxRestController
         $offset = ($pageIndex - 1) * $pageLimit;
         $roomType = $paramFetcher->get('room_types');
         $visible = $paramFetcher->get('visible');
+        $noProduct = $paramFetcher->get('no_product');
         $query = $paramFetcher->get('query');
         $building = $paramFetcher->get('building');
+        $keyword = $paramFetcher->get('keyword');
+        $keywordSearch = $paramFetcher->get('keyword_search');
+        $startDate = $paramFetcher->get('start_date');
+        $startDateStart = $paramFetcher->get('start_date_start');
+        $startDateEnd = $paramFetcher->get('start_date_end');
+        $sortColumn = $paramFetcher->get('sort_column');
+        $direction = $paramFetcher->get('direction');
+        $salesCompanyId = $paramFetcher->get('sales_company');
 
         $spaces = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\Room')
             ->findSpacesByBuilding(
-                null,
+                $salesCompanyId,
                 $building,
                 $pageLimit,
                 $offset,
                 $roomType,
                 $visible,
-                $query
+                $noProduct,
+                $query,
+                $keyword,
+                $keywordSearch,
+                $startDate,
+                $startDateStart,
+                $startDateEnd
             );
 
         $spaces = $this->handleSpacesData($spaces);
 
-        $view = new View($spaces);
-        $view->setSerializationContext(
-            SerializationContext::create()->setGroups(['admin_spaces'])
+        if(!is_null($sortColumn) && !is_null($direction)) {
+            $sort = [];
+
+            foreach ($spaces as $space) {
+                if (!empty($space['product'])) {
+                    if($sortColumn == 'price') {
+                        $sort[] = $space['product']['leasing_sets'][0]['base_price'];
+                    }else{
+                        $sort[] = $space['product'][$sortColumn];
+                    }
+                }else{
+                    $sort[] = '';
+                }
+            }
+
+            if ($direction == 'asc') {
+                array_multisort($sort, SORT_ASC, $spaces);
+            } elseif ($direction == 'desc') {
+                array_multisort($sort, SORT_DESC, $spaces);
+            }
+        }
+
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\Room')
+            ->countSpacesByBuilding(
+                $salesCompanyId,
+                $building,
+                $roomType,
+                $visible,
+                $noProduct,
+                $query,
+                $keyword,
+                $keywordSearch,
+                $startDate,
+                $startDateStart,
+                $startDateEnd
+            );
+        
+        $view = new View();
+        $view->setData(
+            array(
+                'current_page_number' => $pageIndex,
+                'num_items_per_page' => (int) $pageLimit,
+                'items' => $spaces,
+                'total_count' => (int) $count,
+            )
         );
 
         return $view;

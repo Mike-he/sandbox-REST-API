@@ -147,6 +147,38 @@ class AdminEventController extends SalesRestController
      *    description="event visible"
      * )
      *
+     * @Annotations\QueryParam(
+     *     name="query",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="verify",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="charge",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="method",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
      * @Route("/events")
      * @Method({"GET"})
      *
@@ -169,6 +201,13 @@ class AdminEventController extends SalesRestController
         $pageIndex = $paramFetcher->get('pageIndex');
         $status = $paramFetcher->get('status');
         $visible = $paramFetcher->get('visible');
+        $search = $paramFetcher->get('query');
+        $verify = $paramFetcher->get('verify');
+        $verify = !is_null($verify) ? (bool) $verify : $verify;
+        $charge = $paramFetcher->get('charge');
+        $charge = !is_null($charge) ? (bool) $charge : $charge;
+        $method = $paramFetcher->get('method');
+
 
         $eventsArray = array();
         $events = $this->getDoctrine()
@@ -176,11 +215,17 @@ class AdminEventController extends SalesRestController
             ->getSalesEvents(
                 $status,
                 $visible,
-                $salesCompanyId
+                $salesCompanyId,
+                $search,
+                $verify,
+                $charge,
+                $method
             );
 
         foreach ($events as $eventArray) {
+            /** @var Event $event */
             $event = $eventArray['event'];
+            $eventId = $event->getId();
             $attachments = $this->getRepo('Event\EventAttachment')->findByEvent($event);
             $dates = $this->getRepo('Event\EventDate')->findByEvent($event);
             $forms = $this->getRepo('Event\EventForm')->findByEvent($event);
@@ -191,6 +236,11 @@ class AdminEventController extends SalesRestController
             $event->setDates($dates);
             $event->setForms($forms);
             $event->setRegisteredPersonNumber((int) $registrationCounts);
+
+            $commentsCount = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Event\EventComment')
+                ->getCommentsCount($eventId);
+            $event->setCommentsCount((int) $commentsCount);
 
             array_push($eventsArray, $event);
         }
