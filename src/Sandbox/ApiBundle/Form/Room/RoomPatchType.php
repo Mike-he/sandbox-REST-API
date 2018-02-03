@@ -19,7 +19,7 @@ class RoomPatchType extends AbstractType
             ->add('description')
             ->add('type_tag')
             ->add('allowed_people', 'integer')
-            ->add('area', 'integer')
+            ->add('area')
             ->add('office_supplies',
                 null,
                 array(
