@@ -124,9 +124,9 @@ class Room
     private $number;
 
     /**
-     * @var int
+     * @var float
      *
-     * @ORM\Column(name="area", type="integer", nullable=false)
+     * @ORM\Column(name="area", type="float", nullable=false)
      *
      * @Serializer\Groups({"main", "admin_room", "client", "client_appointment_detail"})
      */
