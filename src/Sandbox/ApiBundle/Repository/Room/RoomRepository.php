@@ -8,6 +8,7 @@ use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sandbox\ApiBundle\Entity\Room\RoomCity;
 use Sandbox\ApiBundle\Entity\Room\RoomFloor;
 use Sandbox\ApiBundle\Entity\Order\ProductOrder;
+use Sandbox\ApiBundle\Entity\User\UserFavorite;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class RoomRepository extends EntityRepository
@@ -679,7 +680,9 @@ class RoomRepository extends EntityRepository
         $keywordSearch=null,
         $startDate=null,
         $startDateStart=null,
-        $startDateEnd=null
+        $startDateEnd=null,
+        $sort=null,
+        $direction=null
     ) {
         $query = $this->createQueryBuilder('r')
             ->select('
@@ -754,6 +757,31 @@ class RoomRepository extends EntityRepository
         if(!is_null($startDateEnd)) {
             $query->andWhere('p.startDate <= :startDateEnd')
                 ->setParameter('startDateEnd', $startDateEnd);
+        }
+
+        if(!is_null($sort) && !is_null($direction)) {
+            $direction = strtoupper($direction);
+            switch ($sort) {
+                case 'price':
+                    $query->leftJoin('SandboxApiBundle:Product\ProductLeasingSet','pls','WITH','pls.product = p.id')
+                        ->orderBy('pls.basePrice', $direction);
+                    break;
+                case 'favorite':
+                    $query->leftJoin('SandboxApiBundle:User\UserFavorite','uf','WITH','uf.objectId = p.id')
+                        ->addSelect([
+                            'COUNT(p.id) as favorite'
+                        ])
+                        ->andWhere('uf.object = :object')
+                        ->setParameter('object', UserFavorite::OBJECT_PRODUCT)
+                        ->groupBy('p.id')
+                        ->orderBy('favorite', $direction);
+                    break;
+                case 'start_date':
+                    $query->orderBy('p.startDate', $direction);
+                    break;
+                default:
+                    break;
+            }
         }
 
         $query = $query->setFirstResult($offset)
