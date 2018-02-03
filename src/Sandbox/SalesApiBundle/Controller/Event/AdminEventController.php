@@ -179,6 +179,22 @@ class AdminEventController extends SalesRestController
      *     strict=true
      * )
      *
+     * @Annotations\QueryParam(
+     *     name="sort_column",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="direction",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
      * @Route("/events")
      * @Method({"GET"})
      *
@@ -207,7 +223,8 @@ class AdminEventController extends SalesRestController
         $charge = $paramFetcher->get('charge');
         $charge = !is_null($charge) ? (bool) $charge : $charge;
         $method = $paramFetcher->get('method');
-
+        $sortColumn = $paramFetcher->get('sort_column');
+        $direction = $paramFetcher->get('direction');
 
         $eventsArray = array();
         $events = $this->getDoctrine()
@@ -219,7 +236,9 @@ class AdminEventController extends SalesRestController
                 $search,
                 $verify,
                 $charge,
-                $method
+                $method,
+                $sortColumn,
+                $direction
             );
 
         foreach ($events as $eventArray) {
