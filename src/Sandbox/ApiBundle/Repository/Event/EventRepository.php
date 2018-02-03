@@ -42,7 +42,8 @@ class EventRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Event\EventRegistration', 'er', 'WITH', 'er.eventId = e.id')
             ->where('e.isDeleted = FALSE')
             ->andWhere('e.platform = :platform')
-            ->setParameter('platform', $platform);
+            ->setParameter('platform', $platform)
+            ->groupBy('e.id');
 
         // filter by status
         if (!is_null($status)) {
@@ -113,8 +114,7 @@ class EventRepository extends EntityRepository
                     $query->orderBy('e.price', $direction);
                     break;
                 case 'registrations_number':
-                    $query->orderBy('registration_count', $direction)
-                        ->groupBy('e.id');
+                    $query->orderBy('registration_count', $direction);
             }
         } else {
             $query->orderBy('e.creationDate', 'DESC');
