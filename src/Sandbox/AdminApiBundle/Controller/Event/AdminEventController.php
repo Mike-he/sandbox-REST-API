@@ -179,6 +179,22 @@ class AdminEventController extends SandboxRestController
      *     strict=true
      * )
      *
+     * @Annotations\QueryParam(
+     *     name="sort_column",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="direction",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
      * @Route("/events")
      * @Method({"GET"})
      *
@@ -216,6 +232,8 @@ class AdminEventController extends SandboxRestController
         $charge = $paramFetcher->get('charge');
         $charge = !is_null($charge) ? (bool) $charge : $charge;
         $method = $paramFetcher->get('method');
+        $sortColumn = $paramFetcher->get('sort_column');
+        $direction = $paramFetcher->get('direction');
 
         $limit = $pageLimit;
         $offset = ($pageIndex - 1) * $pageLimit;
@@ -231,7 +249,9 @@ class AdminEventController extends SandboxRestController
                 $search,
                 $verify,
                 $charge,
-                $method
+                $method,
+                $sortColumn,
+                $direction
             );
 
         $count = $this->getDoctrine()

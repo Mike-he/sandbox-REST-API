@@ -27,15 +27,19 @@ class EventRepository extends EntityRepository
         $search,
         $verify,
         $charge,
-        $method
+        $method,
+        $sortColumn,
+        $direction
     ) {
         $query = $this->createQueryBuilder('e')
             ->select('
                 e as event,
                 r.name as room_name,
-                r.number as room_number
+                r.number as room_number,
+                COUNT(er.id) as registration_count
             ')
             ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = e.roomId')
+            ->leftJoin('SandboxApiBundle:Event\EventRegistration', 'er', 'WITH', 'er.eventId = e.id')
             ->where('e.isDeleted = FALSE')
             ->andWhere('e.platform = :platform')
             ->setParameter('platform', $platform);
@@ -103,7 +107,18 @@ class EventRepository extends EntityRepository
                 ->setParameter('registrationMethod', $method);
         }
 
-        $query->orderBy('e.creationDate', 'DESC');
+        if (!is_null($sortColumn) && !is_null($direction)) {
+            switch ($sortColumn) {
+                case 'price':
+                    $query->orderBy('e.price', $direction);
+                    break;
+                case 'registrations_number':
+                    $query->orderBy('registration_count', $direction)
+                        ->groupBy('e.id');
+            }
+        } else {
+            $query->orderBy('e.creationDate', 'DESC');
+        }
 
         $query->setMaxResults($limit)
             ->setFirstResult($offset);
@@ -372,18 +387,23 @@ class EventRepository extends EntityRepository
         $search,
         $verify,
         $charge,
-        $method
+        $method,
+        $sortColumn,
+        $direction
     ) {
         $query = $this->createQueryBuilder('e')
             ->select('
                 e as event,
                 r.name as room_name,
-                r.number as room_number
+                r.number as room_number,
+                COUNT(er.id) as registration_count
             ')
             ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = e.roomId')
+            ->leftJoin('SandboxApiBundle:Event\EventRegistration', 'er', 'WITH', 'er.eventId = e.id')
             ->where('e.isDeleted = FALSE')
             ->andWhere('e.salesCompanyId = :salesCompanyId')
-            ->setParameter('salesCompanyId', $salesCompanyId);
+            ->setParameter('salesCompanyId', $salesCompanyId)
+            ->groupBy('e.id');
 
         // filter by status
         if (!is_null($status)) {
@@ -448,7 +468,18 @@ class EventRepository extends EntityRepository
                 ->setParameter('registrationMethod', $method);
         }
 
-        $query->orderBy('e.creationDate', 'DESC');
+        if (!is_null($sortColumn) && !is_null($direction)) {
+            $direction = strtoupper($direction);
+            switch ($sortColumn) {
+                case 'price':
+                    $query->orderBy('e.price', $direction);
+                    break;
+                case 'registrations_number':
+                    $query->orderBy('registration_count', $direction);
+            }
+        } else {
+            $query->orderBy('e.creationDate', 'DESC');
+        }
 
         return $query->getQuery()->getResult();
     }
