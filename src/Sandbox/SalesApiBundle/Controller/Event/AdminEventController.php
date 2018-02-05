@@ -957,6 +957,10 @@ class AdminEventController extends SalesRestController
         // set price
         if (!$event->isCharge()) {
             $event->setPrice(0.00);
+        } else {
+            if ($event->getPrice() == '0') {
+                return new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            }
         }
 
         $event->setCity($city);
