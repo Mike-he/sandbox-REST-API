@@ -761,27 +761,8 @@ class RoomRepository extends EntityRepository
 
         if(!is_null($sort) && !is_null($direction)) {
             $direction = strtoupper($direction);
-            switch ($sort) {
-                case 'price':
-                    $query->leftJoin('SandboxApiBundle:Product\ProductLeasingSet','pls','WITH','pls.product = p.id')
-                        ->orderBy('pls.basePrice', $direction);
-                    break;
-                case 'favorite':
-                    $query->leftJoin('SandboxApiBundle:User\UserFavorite','uf','WITH','uf.objectId = p.id')
-                        ->addSelect([
-                            'COUNT(p.id) as favorite'
-                        ])
-                        ->andWhere('uf.object = :object')
-                        ->setParameter('object', UserFavorite::OBJECT_PRODUCT)
-                        ->groupBy('p.id')
-                        ->orderBy('favorite', $direction);
-                    break;
-                case 'start_date':
-                    $query->orderBy('p.startDate', $direction);
-                    break;
-                default:
-                    break;
-            }
+            if($sort == 'start_date')
+                $query->orderBy('p.startDate', $direction);
         }
 
         $query = $query->setFirstResult($offset)
