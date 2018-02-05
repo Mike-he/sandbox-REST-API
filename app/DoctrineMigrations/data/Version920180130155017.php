@@ -82,14 +82,12 @@ class Version920180130155017 extends AbstractMigration implements ContainerAware
                     'name' => '租赁价格',
                     'default' => true,
                     'required' => true,
-                    'sort' => true,
                 ),
                 array(
                     'column' => 'favorite',
                     'name' => '收藏数',
                     'default' => false,
                     'required' => false,
-                    'sort' => true,
                 ),
                 array(
                     'column' => 'url',
