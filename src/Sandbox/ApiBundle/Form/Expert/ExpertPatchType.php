@@ -16,6 +16,8 @@ class ExpertPatchType extends AbstractType
     {
         $builder
             ->add('banned')
+            ->add('status')
+            ->add('remark')
         ;
     }
 

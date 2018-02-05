@@ -77,6 +77,14 @@ class ClientExpertOrderController extends SandboxRestController
             );
         }
 
+        if ($expert->getStatus() != Expert::STATUS_SUCCESS) {
+            return $this->customErrorView(
+                400,
+                CustomErrorMessagesConstants::ERROR_EXPERT_HAS_NOT_PASSED_CODE,
+                CustomErrorMessagesConstants::ERROR_EXPERT_HAS_NOT_PASSED_MESSAGE
+            );
+        }
+
         $orderNumber = $this->generateSerialNumber(LetterHeadConstants::EXPERT_ORDER_LETTER_HEAD);
 
         $price = $expert->getBasePrice() ? $expert->getBasePrice() : 0;

@@ -4,7 +4,9 @@ namespace Sandbox\CommnueClientApiBundle\Controller\Expert;
 
 use FOS\RestBundle\View\View;
 use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
+use Sandbox\ApiBundle\Constants\PlatformConstants;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Sandbox\ApiBundle\Entity\Admin\AdminRemark;
 use Sandbox\ApiBundle\Entity\Expert\Expert;
 use Sandbox\ApiBundle\Entity\Expert\ExpertOrder;
 use Sandbox\ApiBundle\Entity\Service\ViewCounts;
@@ -44,8 +46,23 @@ class ClientExpertController extends SandboxRestController
 
         $response = array();
         if ($expert) {
-            $response['status'] = true;
+            $response['status'] = $expert->getStatus();
             $response['banned'] = $expert->isBanned();
+            if (Expert::STATUS_FAILURE == $expert->getStatus()) {
+                //get latest failure remark
+                $adminRemark = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Admin\AdminRemark')
+                    ->findOneBy(
+                        array(
+                            'platform' => PlatformConstants::PLATFORM_COMMNUE,
+                            'object' => AdminRemark::OBJECT_EXPERT,
+                            'objectId' => $expert->getId(),
+                        ),
+                        array('id' => 'DESC')
+                    );
+
+                $response['failure_remark'] = $adminRemark ? $adminRemark->getRemarks() : '';
+            }
         } else {
             $response['status'] = false;
         }
@@ -165,6 +182,7 @@ class ClientExpertController extends SandboxRestController
         }
 
         $expert->setUserId($userId);
+        $expert->setStatus(Expert::STATUS_PENDING);
         $em->persist($expert);
 
         if (is_null($userInfo->getCredentialNo())) {
@@ -197,6 +215,73 @@ class ClientExpertController extends SandboxRestController
         );
 
         return new View($response, 201);
+    }
+
+    /**
+     * Create A Expert.
+     *
+     * @param $request
+     *
+     * @Route("/experts/resubmit")
+     * @Method({"POST"})
+     *
+     * @return View
+     */
+    public function resubmitExpertAction(
+        Request $request
+    ) {
+        $em = $this->getDoctrine()->getManager();
+        $userId = $this->getUserId();
+
+        $expert = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Expert\Expert')
+            ->findOneBy(array('userId' => $userId));
+        $this->throwNotFoundIfNull($expert, self::NOT_FOUND_MESSAGE);
+
+        if (Expert::STATUS_FAILURE != $expert->getStatus()) {
+            return $this->customErrorView(
+                400,
+                CustomErrorMessagesConstants::ERROR_EXPERT_STATUS_ERROR_CODE,
+                CustomErrorMessagesConstants::ERROR_EXPERT_STATUS_ERROR_MESSAGE
+            );
+        }
+
+        $oldname = $expert->getName();
+        $oldCredentialNo = $expert->getCredentialNo();
+
+        $form = $this->createForm(new ExpertPostType(), $expert);
+        $form->handleRequest($request);
+
+        if (!$form->isValid()) {
+            throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+        }
+
+        $requestContent = json_decode($request->getContent(), true);
+
+        $fieldIds = $requestContent['field_ids'];
+
+        if (count($fieldIds) > 3) {
+            return $this->customErrorView(
+                400,
+                CustomErrorMessagesConstants::ERROR_MORE_THAN_QUANTITY_CODE,
+                CustomErrorMessagesConstants::ERROR_MORE_THAN_QUANTITY_MESSAGE
+            );
+        }
+
+        foreach ($fieldIds as $fieldId) {
+            $field = $this->getDoctrine()->getRepository('SandboxApiBundle:Expert\ExpertField')->find($fieldId);
+            if ($field) {
+                $expert->addExpertFields($field);
+            }
+        }
+
+        $expert->setName($oldname);
+        $expert->setCredentialNo($oldCredentialNo);
+        $expert->setStatus(Expert::STATUS_PENDING);
+        $em->persist($expert);
+        $em->flush();
+
+        return new View();
     }
 
     /**
@@ -358,8 +443,6 @@ class ClientExpertController extends SandboxRestController
         $experts = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Expert\Expert')
             ->getExperts(
-                false,
-                true,
                 $field,
                 $country,
                 $province,
