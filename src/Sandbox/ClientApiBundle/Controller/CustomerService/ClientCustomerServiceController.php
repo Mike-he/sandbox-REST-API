@@ -64,8 +64,10 @@ class ClientCustomerServiceController extends ChatGroupController
         $data = json_decode($request->getContent(), true);
 
         $platform = PlatformConstants::PLATFORM_OFFICIAL;
-        if (isset($data['platform']) && !is_null($platform)) {
-            $platform = $data['platform'];
+        if (isset($data['platform'])) {
+            if (!is_null($data['platform'])) {
+                $platform = $data['platform'];
+            }
         }
 
         if (!isset($data['tag'])) {
