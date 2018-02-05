@@ -3,13 +3,12 @@
 namespace Sandbox\ApiBundle\Repository\Expert;
 
 use Doctrine\ORM\EntityRepository;
+use Sandbox\ApiBundle\Entity\Expert\Expert;
 use Sandbox\ApiBundle\Entity\Service\ViewCounts;
 
 class ExpertRepository extends EntityRepository
 {
     /**
-     * @param $banned
-     * @param $isService
      * @param $field
      * @param $country
      * @param $province
@@ -18,13 +17,10 @@ class ExpertRepository extends EntityRepository
      * @param $sort
      * @param $limit
      * @param $offset
-     * @param null $expertIds
-     * 
+     *
      * @return array
      */
     public function getExperts(
-        $banned,
-        $isService,
         $field,
         $country,
         $province,
@@ -32,8 +28,7 @@ class ExpertRepository extends EntityRepository
         $district,
         $sort,
         $limit,
-        $offset,
-        $expertIds = null
+        $offset
     ) {
         $query = $this->createQueryBuilder('e')
             ->select('
@@ -46,17 +41,11 @@ class ExpertRepository extends EntityRepository
                         rc.name as district_name                    
                 ')
             ->leftJoin('SandboxApiBundle:Room\RoomCity', 'rc', 'WITH', 'e.districtId = rc.id')
-            ->where('1=1');
-
-        if (!is_null($banned)) {
-            $query->andWhere('e.banned = :banned')
-                ->setParameter('banned', $banned);
-        }
-
-        if (!is_null($isService)) {
-            $query->andWhere('e.isService = :isService')
-                ->setParameter('isService', $isService);
-        }
+            ->where('e.banned = FALSE')
+            ->andWhere('e.isService = TRUE')
+            ->andWhere('e.status = :success')
+            ->setParameter('success', Expert::STATUS_SUCCESS)
+        ;
 
         if ($field) {
             $query->innerJoin('e.expertFields', 'ef')
@@ -109,11 +98,6 @@ class ExpertRepository extends EntityRepository
                 break;
         }
 
-        if ($expertIds) {
-            $query->andWhere('e.id IN (:ids)')
-                ->setParameter('ids', $expertIds);
-        }
-
         $query->setMaxResults($limit)
             ->setFirstResult($offset);
 
@@ -140,13 +124,19 @@ class ExpertRepository extends EntityRepository
      * @param $banned
      * @param $name
      * @param $phone
+     * @param $status
+     * @param $limit
+     * @param $offset
      *
      * @return array
      */
     public function getAdminExperts(
         $banned,
         $name,
-        $phone
+        $phone,
+        $status,
+        $limit,
+        $offset
     ) {
         $query = $this->createQueryBuilder('e')
             ->where('e.id > 0');
@@ -166,7 +156,61 @@ class ExpertRepository extends EntityRepository
                 ->setParameter('phone', '%'.$phone.'%');
         }
 
+        if (!is_null($status)) {
+            $query->andWhere('e.status = :status')
+                ->setParameter('status', $status);
+        }
+
+        $query->orderBy('e.top', 'DESC')
+            ->addOrderBy('e.creationDate', 'DESC');
+
+        $query->setMaxResults($limit)
+            ->setFirstResult($offset);
+
         return $query->getQuery()->getResult();
+    }
+
+    /**
+     * @param $banned
+     * @param $name
+     * @param $phone
+     * @param $status
+     *
+     * @return mixed
+     *
+     * @throws \Doctrine\ORM\Query\QueryException
+     */
+    public function countAdminExperts(
+        $banned,
+        $name,
+        $phone,
+        $status
+    ) {
+        $query = $this->createQueryBuilder('e')
+            ->select('count(e.id)')
+            ->where('e.id > 0');
+
+        if (!is_null($banned)) {
+            $query->andWhere('e.banned = :banned')
+                ->setParameter('banned', $banned);
+        }
+
+        if (!is_null($name)) {
+            $query->andWhere('e.name LIKE :name')
+                ->setParameter('name', '%'.$name.'%');
+        }
+
+        if (!is_null($phone)) {
+            $query->andWhere('e.phone LIKE :phone')
+                ->setParameter('phone', '%'.$phone.'%');
+        }
+
+        if (!is_null($status)) {
+            $query->andWhere('e.status = :status')
+                ->setParameter('status', $status);
+        }
+
+        return $query->getQuery()->getSingleScalarResult();
     }
 
     /**

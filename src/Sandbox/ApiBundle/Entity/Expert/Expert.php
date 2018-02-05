@@ -14,6 +14,11 @@ use Doctrine\Common\Collections\ArrayCollection;
  */
 class Expert
 {
+
+    const STATUS_PENDING = 'pending';
+    const STATUS_SUCCESS = 'success';
+    const STATUS_FAILURE = 'failure';
+
     /**
      * @var int
      *
@@ -181,6 +186,26 @@ class Expert
      * )
      */
     private $expertFields;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="status", type="string", length=64, options={"default": "pending"})
+     *
+     */
+    private $status = self::STATUS_PENDING;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="top", type="boolean")
+     */
+    private $top = false;
+
+    /**
+     * @var string
+     */
+    private $remark;
 
     public function __construct()
     {
@@ -553,5 +578,53 @@ class Expert
     public function setPreview($preview)
     {
         $this->preview = $preview;
+    }
+
+    /**
+     * @return string
+     */
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    /**
+     * @param string $status
+     */
+    public function setStatus($status)
+    {
+        $this->status = $status;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isTop()
+    {
+        return $this->top;
+    }
+
+    /**
+     * @param bool $top
+     */
+    public function setTop($top)
+    {
+        $this->top = $top;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRemark()
+    {
+        return $this->remark;
+    }
+
+    /**
+     * @param string $remark
+     */
+    public function setRemark($remark)
+    {
+        $this->remark = $remark;
     }
 }
