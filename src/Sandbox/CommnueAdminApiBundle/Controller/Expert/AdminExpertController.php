@@ -25,6 +25,35 @@ class AdminExpertController extends SandboxRestController
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      *
+     * @Route("/experts/pending/check")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getPendingExpertAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $expert = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Expert\Expert')
+            ->findBy(array('status'=> Expert::STATUS_PENDING));
+
+        $status = $expert ? true : false;
+
+        $view = new View();
+        $view->setData(
+            array(
+                'status' => $status
+            )
+        );
+
+        return $view;
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
      * @Annotations\QueryParam(
      *     name="banned",
      *     array=false,
@@ -194,6 +223,8 @@ class AdminExpertController extends SandboxRestController
             switch ($newStatus) {
                 case Expert::STATUS_SUCCESS:
                     $message = self::MESSAGE_SUCCESS;
+
+                    $expert->setTop(false);
                     break;
                 case Expert::STATUS_FAILURE:
 
@@ -216,6 +247,7 @@ class AdminExpertController extends SandboxRestController
 
                     $message = self::MESSAGE_FAILURE;
 
+                    $expert->setTop(false);
                     break;
                 default:
                     return $this->customErrorView(

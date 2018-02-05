@@ -183,6 +183,7 @@ class ClientExpertController extends SandboxRestController
 
         $expert->setUserId($userId);
         $expert->setStatus(Expert::STATUS_PENDING);
+        $expert->setTop(true);
         $em->persist($expert);
 
         if (is_null($userInfo->getCredentialNo())) {
@@ -278,6 +279,7 @@ class ClientExpertController extends SandboxRestController
         $expert->setName($oldname);
         $expert->setCredentialNo($oldCredentialNo);
         $expert->setStatus(Expert::STATUS_PENDING);
+        $expert->setTop(true);
         $em->persist($expert);
         $em->flush();
 
