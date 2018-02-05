@@ -318,32 +318,12 @@ class AdminCommunityController extends SandboxRestController
                 $keywordSearch,
                 $startDate,
                 $startDateStart,
-                $startDateEnd
+                $startDateEnd,
+                $sortColumn,
+                $direction
             );
 
         $spaces = $this->handleSpacesData($spaces);
-
-        if(!is_null($sortColumn) && !is_null($direction)) {
-            $sort = [];
-
-            foreach ($spaces as $space) {
-                if (!empty($space['product'])) {
-                    if($sortColumn == 'price') {
-                        $sort[] = $space['product']['leasing_sets'][0]['base_price'];
-                    }else{
-                        $sort[] = $space['product'][$sortColumn];
-                    }
-                }else{
-                    $sort[] = '';
-                }
-            }
-
-            if ($direction == 'asc') {
-                array_multisort($sort, SORT_ASC, $spaces);
-            } elseif ($direction == 'desc') {
-                array_multisort($sort, SORT_DESC, $spaces);
-            }
-        }
 
         $count = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Room\Room')
