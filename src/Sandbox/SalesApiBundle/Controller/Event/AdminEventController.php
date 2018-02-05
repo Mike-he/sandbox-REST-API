@@ -959,7 +959,7 @@ class AdminEventController extends SalesRestController
             $event->setPrice(0.00);
         } else {
             if ($event->getPrice() == '0') {
-                return new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
             }
         }
 
