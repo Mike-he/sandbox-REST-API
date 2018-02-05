@@ -36,14 +36,14 @@ class AdminExpertController extends SandboxRestController
     ) {
         $expert = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Expert\Expert')
-            ->findBy(array('status'=> Expert::STATUS_PENDING));
+            ->findBy(array('status' => Expert::STATUS_PENDING));
 
         $status = $expert ? true : false;
 
         $view = new View();
         $view->setData(
             array(
-                'status' => $status
+                'status' => $status,
             )
         );
 

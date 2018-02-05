@@ -307,6 +307,14 @@ class ClientExpertController extends SandboxRestController
             ->findOneBy(array('userId' => $userId));
         $this->throwNotFoundIfNull($expert, self::NOT_FOUND_MESSAGE);
 
+        if (Expert::STATUS_SUCCESS != $expert->getStatus()) {
+            return $this->customErrorView(
+                400,
+                CustomErrorMessagesConstants::ERROR_EXPERT_HAS_NOT_PASSED_CODE,
+                CustomErrorMessagesConstants::ERROR_EXPERT_HAS_NOT_PASSED_MESSAGE
+            );
+        }
+
         $form = $this->createForm(
             new ExpertPutType(),
             $expert,

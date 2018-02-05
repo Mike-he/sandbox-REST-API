@@ -77,7 +77,7 @@ class ClientExpertOrderController extends SandboxRestController
             );
         }
 
-        if ($expert->getStatus() != Expert::STATUS_SUCCESS) {
+        if (Expert::STATUS_SUCCESS != $expert->getStatus()) {
             return $this->customErrorView(
                 400,
                 CustomErrorMessagesConstants::ERROR_EXPERT_HAS_NOT_PASSED_CODE,
