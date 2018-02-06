@@ -46,6 +46,7 @@ class ClientExpertController extends SandboxRestController
 
         $response = array();
         if ($expert) {
+            $response['is_expert'] = true;
             $response['status'] = $expert->getStatus();
             $response['banned'] = $expert->isBanned();
             if (Expert::STATUS_FAILURE == $expert->getStatus()) {
@@ -64,7 +65,7 @@ class ClientExpertController extends SandboxRestController
                 $response['failure_remark'] = $adminRemark ? $adminRemark->getRemarks() : '';
             }
         } else {
-            $response['status'] = false;
+            $response['is_expert'] = false;
         }
 
         return new View($response);
