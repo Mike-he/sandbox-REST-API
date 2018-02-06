@@ -3,6 +3,7 @@
 namespace Sandbox\ApiBundle\Repository\Event;
 
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Sandbox\ApiBundle\Entity\Event\Event;
 use Sandbox\ApiBundle\Entity\Event\EventRegistration;
 use Sandbox\ApiBundle\Entity\Service\ViewCounts;
@@ -35,78 +36,19 @@ class EventRepository extends EntityRepository
             ->select('
                 e as event,
                 r.name as room_name,
-                r.number as room_number,
-                COUNT(er.id) as registration_count
-            ')
-            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = e.roomId')
-            ->leftJoin('SandboxApiBundle:Event\EventRegistration', 'er', 'WITH', 'er.eventId = e.id')
-            ->where('e.isDeleted = FALSE')
-            ->andWhere('e.platform = :platform')
-            ->setParameter('platform', $platform)
-            ->groupBy('e.id');
+                r.number as room_number
+            ');
 
-        // filter by status
-        if (!is_null($status)) {
-            switch ($status) {
-                case Event::STATUS_PREHEATING:
-                    $query->andWhere('e.registrationStartDate > :now')
-                        ->andWhere('e.isSaved = FALSE')
-                        ->setParameter('now', new \DateTime('now'));
-                    break;
-                case Event::STATUS_REGISTERING:
-                    $query->andWhere('e.registrationStartDate <= :now')
-                        ->andWhere('e.registrationEndDate >= :now')
-                        ->andWhere('e.isSaved = FALSE')
-                        ->setParameter('now', new \DateTime('now'));
-                    break;
-                case Event::STATUS_ONGOING:
-                    $query->andWhere('e.eventStartDate <= :now')
-                        ->andwhere('e.eventEndDate >= :now')
-                        ->andWhere('e.isSaved = FALSE')
-                        ->setParameter('now', new \DateTime('now'));
-                    break;
-                case Event::STATUS_END == $status:
-                    $query->andwhere('e.eventEndDate < :now')
-                        ->andWhere('e.isSaved = FALSE')
-                        ->setParameter('now', new \DateTime('now'));
-                    break;
-                case Event::STATUS_SAVED == $status:
-                    $query->andWhere('e.isSaved = TRUE');
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        // filter by visible
-        if (!is_null($visible)) {
-            $query->andWhere('e.visible = :visible')
-                ->setParameter('visible', $visible);
-        }
-
-        if (!is_null($search)) {
-            $query->andWhere('
-                    e.name LIKE :search
-                    OR e.publishCompany LIKE :search
-                    OR e.address LIKE :search
-                ')
-                ->setParameter('search', '%'.$search.'%');
-        }
-
-        if (!is_null($verify)) {
-            $query->andWhere('e.verify = :verify')
-                ->setParameter('verify', $verify);
-        }
-
-        if (!is_null($charge)) {
-            $query->andWhere('e.isCharge = :isCharge')
-                ->setParameter('isCharge', $charge);
-        }
-
-        if (!is_null($method)) {
-            $query->andWhere('e.registrationMethod = :registrationMethod')
-                ->setParameter('registrationMethod', $method);
-        }
+        $this->setEventQuery(
+            $query,
+            $status,
+            $visible,
+            $platform,
+            $search,
+            $verify,
+            $charge,
+            $method
+        );
 
         if (!is_null($sortColumn) && !is_null($direction)) {
             switch ($sortColumn) {
@@ -114,7 +56,7 @@ class EventRepository extends EntityRepository
                     $query->orderBy('e.price', $direction);
                     break;
                 case 'registrations_number':
-                    $query->orderBy('registration_count', $direction);
+                    $query->orderBy('vc.count', $direction);
             }
         } else {
             $query->orderBy('e.creationDate', 'DESC');
@@ -126,6 +68,17 @@ class EventRepository extends EntityRepository
         return $query->getQuery()->getResult();
     }
 
+    /**
+     * @param $status
+     * @param $visible
+     * @param string $platform
+     * @param $search
+     * @param $verify
+     * @param $charge
+     * @param $method
+     * @return mixed
+     * @throws \Doctrine\ORM\Query\QueryException
+     */
     public function countEvents(
         $status,
         $visible,
@@ -136,43 +89,60 @@ class EventRepository extends EntityRepository
         $method
     ) {
         $query = $this->createQueryBuilder('e')
-            ->select('count(e.id)')
-            ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = e.roomId')
+            ->select('count(e.id)');
+
+        $this->setEventQuery(
+            $query,
+            $status,
+            $visible,
+            $platform,
+            $search,
+            $verify,
+            $charge,
+            $method
+        );
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
+
+    /**
+     * @param QueryBuilder $query
+     * @param $status
+     * @param $visible
+     * @param string $platform
+     * @param $search
+     * @param $verify
+     * @param $charge
+     * @param $method
+     */
+    private function setEventQuery(
+        $query,
+        $status,
+        $visible,
+        $platform = Event::PLATFORM_OFFICIAL,
+        $search,
+        $verify,
+        $charge,
+        $method
+    ) {
+        $query->leftJoin('SandboxApiBundle:Room\Room',
+                'r',
+                'WITH',
+                'r.id = e.roomId')
+            ->leftJoin('SandboxApiBundle:Service\ViewCounts', 'vc', 'WITH', 'e.id = vc.objectId')
             ->where('e.isDeleted = FALSE')
-            ->where('e.platform = :platform')
-            ->setParameter('platform', $platform);
+            ->andWhere('e.platform = :platform')
+            ->andWhere('vc.object = :event')
+            ->andWhere('vc.type = :registering')
+            ->setParameter('platform', $platform)
+            ->setParameter('event', ViewCounts::OBJECT_EVENT)
+            ->setParameter('registering', ViewCounts::TYPE_REGISTERING)
+        ;
 
         // filter by status
         if (!is_null($status)) {
-            switch ($status) {
-                case Event::STATUS_PREHEATING:
-                    $query->andWhere('e.registrationStartDate > :now')
-                        ->andWhere('e.isSaved = FALSE')
-                        ->setParameter('now', new \DateTime('now'));
-                    break;
-                case Event::STATUS_REGISTERING:
-                    $query->andWhere('e.registrationStartDate <= :now')
-                        ->andWhere('e.registrationEndDate >= :now')
-                        ->andWhere('e.isSaved = FALSE')
-                        ->setParameter('now', new \DateTime('now'));
-                    break;
-                case Event::STATUS_ONGOING:
-                    $query->andWhere('e.eventStartDate <= :now')
-                        ->andwhere('e.eventEndDate >= :now')
-                        ->andWhere('e.isSaved = FALSE')
-                        ->setParameter('now', new \DateTime('now'));
-                    break;
-                case Event::STATUS_END == $status:
-                    $query->andwhere('e.eventEndDate < :now')
-                        ->andWhere('e.isSaved = FALSE')
-                        ->setParameter('now', new \DateTime('now'));
-                    break;
-                case Event::STATUS_SAVED == $status:
-                    $query->andWhere('e.isSaved = TRUE');
-                    break;
-                default:
-                    break;
-            }
+            $query->andWhere('e.status = :status')
+                ->setParameter('status', $status);
         }
 
         // filter by visible
@@ -205,7 +175,7 @@ class EventRepository extends EntityRepository
                 ->setParameter('registrationMethod', $method);
         }
 
-        return $query->getQuery()->getSingleScalarResult();
+        return;
     }
 
     /**
@@ -395,47 +365,22 @@ class EventRepository extends EntityRepository
             ->select('
                 e as event,
                 r.name as room_name,
-                r.number as room_number,
-                COUNT(er.id) as registration_count
+                r.number as room_number
             ')
             ->leftJoin('SandboxApiBundle:Room\Room', 'r', 'WITH', 'r.id = e.roomId')
-            ->leftJoin('SandboxApiBundle:Event\EventRegistration', 'er', 'WITH', 'er.eventId = e.id')
+            ->leftJoin('SandboxApiBundle:Service\ViewCounts', 'vc', 'WITH', 'e.id = vc.objectId')
             ->where('e.isDeleted = FALSE')
             ->andWhere('e.salesCompanyId = :salesCompanyId')
-            ->setParameter('salesCompanyId', $salesCompanyId)
-            ->groupBy('e.id');
+            ->andWhere('vc.object = :event')
+            ->andWhere('vc.type = :registering')
+            ->setParameter('event', ViewCounts::OBJECT_EVENT)
+            ->setParameter('registering', ViewCounts::TYPE_REGISTERING)
+            ->setParameter('salesCompanyId', $salesCompanyId);
 
         // filter by status
         if (!is_null($status)) {
-            switch ($status) {
-                case Event::STATUS_PREHEATING:
-                    $query->andWhere('e.registrationStartDate > :now')
-                        ->andWhere('e.isSaved = FALSE')
-                        ->setParameter('now', new \DateTime('now'));
-                    break;
-                case Event::STATUS_REGISTERING:
-                    $query->andWhere('e.registrationStartDate <= :now')
-                        ->andWhere('e.registrationEndDate >= :now')
-                        ->andWhere('e.isSaved = FALSE')
-                        ->setParameter('now', new \DateTime('now'));
-                    break;
-                case Event::STATUS_ONGOING:
-                    $query->andWhere('e.eventStartDate <= :now')
-                        ->andwhere('e.eventEndDate >= :now')
-                        ->andWhere('e.isSaved = FALSE')
-                        ->setParameter('now', new \DateTime('now'));
-                    break;
-                case Event::STATUS_END == $status:
-                    $query->andwhere('e.eventEndDate < :now')
-                        ->andWhere('e.isSaved = FALSE')
-                        ->setParameter('now', new \DateTime('now'));
-                    break;
-                case Event::STATUS_SAVED == $status:
-                    $query->andWhere('e.isSaved = TRUE');
-                    break;
-                default:
-                    break;
-            }
+            $query->andWhere('e.status = :status')
+                ->setParameter('status', $status);
         }
 
         // filter by visible
@@ -469,13 +414,12 @@ class EventRepository extends EntityRepository
         }
 
         if (!is_null($sortColumn) && !is_null($direction)) {
-            $direction = strtoupper($direction);
             switch ($sortColumn) {
                 case 'price':
                     $query->orderBy('e.price', $direction);
                     break;
                 case 'registrations_number':
-                    $query->orderBy('registration_count', $direction);
+                    $query->orderBy('vc.count', $direction);
             }
         } else {
             $query->orderBy('e.creationDate', 'DESC');
