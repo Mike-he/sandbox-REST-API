@@ -125,7 +125,6 @@ class AdminEventController extends SandboxRestController
      *    array=false,
      *    default=null,
      *    nullable=true,
-     *    requirements="(preheating|registering|ongoing|end|saved)",
      *    strict=true,
      *    description="event status"
      * )
