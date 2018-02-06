@@ -258,6 +258,11 @@ class ClientExpertController extends SandboxRestController
             throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
         }
 
+        $expertFields = $expert->getExpertFields();
+        foreach ($expertFields as $expertField) {
+            $expert->removeExpertFields($expertField);
+        }
+        
         $requestContent = json_decode($request->getContent(), true);
 
         $fieldIds = $requestContent['field_ids'];
