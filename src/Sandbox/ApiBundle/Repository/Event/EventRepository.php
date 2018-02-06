@@ -468,13 +468,12 @@ class EventRepository extends EntityRepository
         }
 
         if (!is_null($sortColumn) && !is_null($direction)) {
-            $direction = strtoupper($direction);
             switch ($sortColumn) {
                 case 'price':
                     $query->orderBy('e.price', $direction);
                     break;
                 case 'registrations_number':
-                    $query->orderBy('registration_count', $direction);
+                    $query->orderBy('vc.count', $direction);
             }
         } else {
             $query->orderBy('e.creationDate', 'DESC');
