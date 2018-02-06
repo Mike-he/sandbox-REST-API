@@ -207,7 +207,7 @@ class AdminEventController extends SalesRestController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkSalesAdminEventPermission(AdminPermission::OP_LEVEL_VIEW);
+//        $this->checkSalesAdminEventPermission(AdminPermission::OP_LEVEL_VIEW);
 
         // get sales company id
         $salesCompanyId = $this->getSalesCompanyId();
