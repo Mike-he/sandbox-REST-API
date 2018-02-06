@@ -702,7 +702,7 @@ class RoomRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Room\RoomTypes', 'rt', 'WITH', 'r.type = rt.name')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'r.id = p.roomId')
             ->where('r.isDeleted = FALSE')
-            ->orderBy('r.id', 'DESC');
+            ->andWhere('(p.id is null OR p.isDeleted = FALSE)');
 
         if (!is_null($salesCompanyId)) {
             $query->andWhere('b.company = :company')
@@ -725,7 +725,8 @@ class RoomRepository extends EntityRepository
         }
 
         if($noProduct) {
-            $query->andWhere('p.roomId IS NULL');
+            $query->andWhere('p.roomId IS NULL')
+                ->orWhere('p.isDeleted = TRUE');
         }
 
         if (!is_null($search)) {
@@ -761,12 +762,25 @@ class RoomRepository extends EntityRepository
 
         if(!is_null($sort) && !is_null($direction)) {
             $direction = strtoupper($direction);
+
+            //上架时间正序后者倒序排序，没有产品的空间都排在有产品的空间之后
             if($sort == 'start_date')
-                $query->orderBy('p.startDate', $direction);
+                $query->addSelect(
+                    'CASE WHEN p.startDate IS NULL THEN 1 ELSE 0 END AS HIDDEN mystartDateIsNull'
+                )
+                    ->orderBy('mystartDateIsNull','ASC')
+                    ->addOrderBy('p.startDate',$direction);
+
+            return  $result = $query->getQuery()->getResult();
         }
 
-        $query = $query->setFirstResult($offset)
+        $query->orderBy('mystartDateIsNull','ASC')
+            ->addOrderBy('p.startDate',$direction);
+
+        if (!is_null($pageLimit) && !is_null($offset)) {
+            $query = $query->setFirstResult($offset)
                 ->setMaxResults($pageLimit);
+        }
 
         $result = $query->getQuery()->getResult();
 
@@ -936,7 +950,8 @@ class RoomRepository extends EntityRepository
             ->leftJoin('SandboxApiBundle:Room\RoomTypes', 'rt', 'WITH', 'r.type = rt.name')
             ->leftJoin('SandboxApiBundle:Product\Product', 'p', 'WITH', 'r.id = p.roomId')
             ->where('r.isDeleted = FALSE')
-            ->orderBy('r.id', 'DESC');
+            ->andWhere('(p.id is null OR p.isDeleted = FALSE)')
+        ;
 
         if (!is_null($salesCompanyId)) {
             $query->andWhere('b.company = :company')
@@ -959,7 +974,8 @@ class RoomRepository extends EntityRepository
         }
 
         if($noProduct) {
-            $query->andWhere('p.roomId IS NULL');
+            $query->andWhere('p.roomId IS NULL')
+                ->orWhere('p.isDeleted = TRUE');
         }
 
         if (!is_null($search)) {
