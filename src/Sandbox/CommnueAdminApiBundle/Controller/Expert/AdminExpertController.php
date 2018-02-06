@@ -225,13 +225,10 @@ class AdminExpertController extends SandboxRestController
         if ($oldStatus != $newStatus) {
             switch ($newStatus) {
                 case Expert::STATUS_SUCCESS:
-
                     $action = Expert::STATUS_SUCCESS;
-
                     $expert->setTop(false);
                     break;
                 case Expert::STATUS_FAILURE:
-
                     if (is_null($expert->getRemark())) {
                         return $this->customErrorView(
                             400,
@@ -239,6 +236,9 @@ class AdminExpertController extends SandboxRestController
                             CustomErrorMessagesConstants::ERROR_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE
                         );
                     }
+
+                    $action = Expert::STATUS_FAILURE;
+                    $expert->setTop(false);
 
                     $this->get('sandbox_api.admin_remark')->autoRemark(
                         $this->getAdminId(),
@@ -248,10 +248,6 @@ class AdminExpertController extends SandboxRestController
                         AdminRemark::OBJECT_EXPERT,
                         $id
                     );
-
-                    $action = Expert::STATUS_FAILURE;
-
-                    $expert->setTop(false);
                     break;
                 default:
                     return $this->customErrorView(
