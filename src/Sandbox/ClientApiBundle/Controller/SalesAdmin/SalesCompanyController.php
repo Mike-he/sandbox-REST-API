@@ -1,0 +1,34 @@
+<?php
+
+namespace Sandbox\ClientApiBundle\Controller\SalesAdmin;
+
+use Sandbox\ApiBundle\Controller\SandboxRestController;
+use FOS\RestBundle\View\View;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+
+class SalesCompanyController extends SandboxRestController
+{
+    /**
+     * @param $id
+     *
+     * @Route("/sales/companies/{id}/description")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getSalesCompanyDescription(
+        $id
+    ) {
+        $salesCompany = $this->getDoctrine()->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
+            ->find($id);
+
+        $this->throwNotFoundIfNull($salesCompany, self::NOT_FOUND_MESSAGE);
+
+        $description = $salesCompany->getDescription();
+
+        return new View([
+            'description' => $description
+        ]);
+    }
+}
