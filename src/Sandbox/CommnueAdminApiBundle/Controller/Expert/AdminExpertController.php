@@ -12,6 +12,7 @@ use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminRemark;
 use Sandbox\ApiBundle\Entity\Expert\Expert;
 use Sandbox\ApiBundle\Form\Expert\ExpertPatchType;
+use Sandbox\ApiBundle\Traits\SendNotification;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,6 +21,8 @@ class AdminExpertController extends SandboxRestController
 {
     const MESSAGE_SUCCESS = '恭喜您，专家身份审核成功。';
     const MESSAGE_FAILURE = '您的专家身份审核未通过，请修改资料后重新提交。';
+
+    use SendNotification;
 
     /**
      * @param Request               $request
@@ -209,7 +212,7 @@ class AdminExpertController extends SandboxRestController
         $this->throwNotFoundIfNull($expert, self::NOT_FOUND_MESSAGE);
 
         $oldStatus = $expert->getStatus();
-        $message = null;
+        $action = null;
 
         $expertJson = $this->container->get('serializer')->serialize($expert, 'json');
         $patch = new Patch($expertJson, $request->getContent());
@@ -222,7 +225,8 @@ class AdminExpertController extends SandboxRestController
         if ($oldStatus != $newStatus) {
             switch ($newStatus) {
                 case Expert::STATUS_SUCCESS:
-                    $message = self::MESSAGE_SUCCESS;
+
+                    $action = Expert::STATUS_SUCCESS;
 
                     $expert->setTop(false);
                     break;
@@ -245,7 +249,7 @@ class AdminExpertController extends SandboxRestController
                         $id
                     );
 
-                    $message = self::MESSAGE_FAILURE;
+                    $action = Expert::STATUS_FAILURE;
 
                     $expert->setTop(false);
                     break;
@@ -261,8 +265,40 @@ class AdminExpertController extends SandboxRestController
         $em = $this->getDoctrine()->getManager();
         $em->flush();
 
-        if ($message) {
-            //todo: Jpush message
+        if ($action) {
+            //Jpush message
+            $title = '合创设';
+            $key = $this->getParameter('jpush_commnue_key');
+            $secret = $this->getParameter('jpush_commnue_secret');
+
+            switch ($action) {
+                case Expert::STATUS_SUCCESS:
+                    $message = self::MESSAGE_SUCCESS;
+                    break;
+                case Expert::STATUS_FAILURE:
+                    $message = self::MESSAGE_FAILURE;
+                    break;
+                default:
+                    return new View();
+            }
+
+            $contentArray = [
+                'type' => 'expert',
+                'action' => $action,
+                'title' => $message,
+            ];
+
+            $receivers = [$expert->getUserId()];
+
+            $data = $this->getJpushData(
+                $receivers,
+                ['lang_zh'],
+                $message,
+                $title,
+                $contentArray
+            );
+
+            $this->sendJpushNotification($data, $key, $secret);
         }
 
         return new View();
