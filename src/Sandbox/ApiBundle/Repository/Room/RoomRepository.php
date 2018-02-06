@@ -769,8 +769,6 @@ class RoomRepository extends EntityRepository
                 )
                     ->orderBy('mystartDateIsNull','ASC')
                     ->addOrderBy('p.startDate',$direction);
-
-            return  $result = $query->getQuery()->getResult();
         }
 
         if (!is_null($pageLimit) && !is_null($offset)) {
