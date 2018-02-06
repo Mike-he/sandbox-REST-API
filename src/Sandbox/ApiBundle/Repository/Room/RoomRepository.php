@@ -725,8 +725,7 @@ class RoomRepository extends EntityRepository
         }
 
         if($noProduct) {
-            $query->andWhere('p.roomId IS NULL')
-                ->orWhere('p.isDeleted = TRUE');
+            $query->andWhere('p.roomId IS NULL');
         }
 
         if (!is_null($search)) {
@@ -773,9 +772,6 @@ class RoomRepository extends EntityRepository
 
             return  $result = $query->getQuery()->getResult();
         }
-
-        $query->orderBy('mystartDateIsNull','ASC')
-            ->addOrderBy('p.startDate',$direction);
 
         if (!is_null($pageLimit) && !is_null($offset)) {
             $query = $query->setFirstResult($offset)
