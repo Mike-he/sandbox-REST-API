@@ -7,7 +7,7 @@ use FOS\RestBundle\View\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 
-class SalesCompanyController extends SandboxRestController
+class ClientSalesCompanyController extends SandboxRestController
 {
     /**
      * @param $id
@@ -25,10 +25,10 @@ class SalesCompanyController extends SandboxRestController
 
         $this->throwNotFoundIfNull($salesCompany, self::NOT_FOUND_MESSAGE);
 
-        $description = $salesCompany->getDescription();
-
         return new View([
-            'description' => $description
+            'id' => $salesCompany->getId(),
+            'name' => $salesCompany->getName(),
+            'description' => $salesCompany->getDescription()
         ]);
     }
 }

@@ -418,6 +418,6 @@ sandbox_client_api_admin_register:
     prefix:   /
 
 sandbox_client_api_sales_company:
-    resource: "@SandboxClientApiBundle/Controller/SalesAdmin/SalesCompanyController.php"
+    resource: "@SandboxClientApiBundle/Controller/SalesAdmin/ClientSalesCompanyController.php"
     type:     annotation
     prefix:   /
