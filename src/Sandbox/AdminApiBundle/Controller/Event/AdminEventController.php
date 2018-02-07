@@ -14,6 +14,7 @@ use Sandbox\ApiBundle\Entity\Event\EventDate;
 use Sandbox\ApiBundle\Entity\Event\EventForm;
 use Sandbox\ApiBundle\Entity\Event\EventFormOption;
 use Sandbox\ApiBundle\Entity\Event\EventTime;
+use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Sandbox\ApiBundle\Entity\Service\ViewCounts;
 use Sandbox\ApiBundle\Form\Event\EventPatchType;
 use Sandbox\ApiBundle\Form\Event\EventPostType;
@@ -710,6 +711,14 @@ class AdminEventController extends SandboxRestController
             $event,
             $eventForms
         );
+
+        if($event->getPlatform() == Event::PLATFORM_OFFICIAL) {
+            $eventsParameter = $this->getDoctrine()->getRepository('SandboxApiBundle:Parameter\Parameter')
+                ->findOneBy([
+                    'key' => Parameter::KEY_COMMNUE_EVENTS_MANAGER
+                ]);
+            $eventsParameter->setValue('true');
+        }
 
         $types = [ViewCounts::TYPE_VIEW, ViewCounts::TYPE_REGISTERING];
         foreach ($types as $type) {
