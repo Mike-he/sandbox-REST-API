@@ -17,6 +17,7 @@ use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdmin;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyApply;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
+use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyView;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesCompanyPatchType;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesCompanyPostType;
 use Sandbox\ApiBundle\Form\SalesAdmin\ServiceInfoPostType;
@@ -125,12 +126,10 @@ class AdminSalesCompanyController extends SandboxRestController
      * @param Request $request the request object
      *
      * @Annotations\QueryParam(
-     *    name="banned",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    strict=true,
-     *    description="sales admin banned status"
+     *     name="status",
+     *     array=false,
+     *     nullable=false,
+     *     strict=true
      * )
      *
      * @Annotations\QueryParam(
@@ -190,7 +189,7 @@ class AdminSalesCompanyController extends SandboxRestController
             AdminPermission::OP_LEVEL_VIEW
         );
 
-        $banned = $paramFetcher->get('banned');
+        $status = $paramFetcher->get('status');
         $pageLimit = $paramFetcher->get('pageLimit');
         $pageIndex = $paramFetcher->get('pageIndex');
         $keyword = $paramFetcher->get('keyword');
@@ -200,9 +199,9 @@ class AdminSalesCompanyController extends SandboxRestController
         $offset = ($pageIndex - 1) * $pageLimit;
 
         $salesCompanies = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyView')
             ->getCompanyList(
-                $banned,
+                $status,
                 $keyword,
                 $keywordSearch,
                 $limit,
@@ -210,69 +209,71 @@ class AdminSalesCompanyController extends SandboxRestController
             );
 
         $count = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyView')
             ->countCompanyList(
-                $banned,
+                $status,
                 $keyword,
                 $keywordSearch
             );
 
         foreach ($salesCompanies as &$company) {
-            $buildingCounts = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Room\RoomBuilding')
-                ->countSalesBuildings($company['id']);
+            if ($company['type'] == SalesCompanyView::TYPE_COMPANY) {
+                $buildingCounts = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                    ->countSalesBuildings($company['id']);
 
-            $company['building_counts'] = (int) $buildingCounts;
+                $company['building_counts'] = (int) $buildingCounts;
 
-            $shopCounts = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Shop\Shop')
-                ->countShopsByCompany($company['id']);
+                $shopCounts = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Shop\Shop')
+                    ->countShopsByCompany($company['id']);
 
-            $company['shop_counts'] = (int) $shopCounts;
+                $company['shop_counts'] = (int) $shopCounts;
 
-            $adminsCount = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
-                ->countBindUserByPlatform(
-                    AdminPermission::PERMISSION_PLATFORM_SALES,
-                    $company['id'],
-                    true
-                );
+                $adminsCount = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                    ->countBindUserByPlatform(
+                        AdminPermission::PERMISSION_PLATFORM_SALES,
+                        $company['id'],
+                        true
+                    );
 
-            $company['admins'] = (int) $adminsCount;
+                $company['admins'] = (int) $adminsCount;
 
-            $coffeeAdminsCount = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
-                ->countBindUserByPlatform(
-                    AdminPermission::PERMISSION_PLATFORM_SHOP,
-                    $company['id'],
-                    true
-                );
+                $coffeeAdminsCount = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                    ->countBindUserByPlatform(
+                        AdminPermission::PERMISSION_PLATFORM_SHOP,
+                        $company['id'],
+                        true
+                    );
 
-            $company['coffee_admins'] = (int) $coffeeAdminsCount;
+                $company['coffee_admins'] = (int) $coffeeAdminsCount;
 
-            $productCount = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Product\Product')
-                ->countsProductsByCompany(
-                    $company['id']
-                );
+                $productCount = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Product\Product')
+                    ->countsProductsByCompany(
+                        $company['id']
+                    );
 
-            $company['product_counts'] = (int) $productCount;
+                $company['product_counts'] = (int) $productCount;
 
-            $tradeTypes = [
-                SalesCompanyServiceInfos::TRADE_TYPE_ACTIVITY,
-                SalesCompanyServiceInfos::TRADE_TYPE_LONGTERM,
-                SalesCompanyServiceInfos::TRADE_TYPE_MEMBERSHIP_CARD,
-                SalesCompanyServiceInfos::TRADE_TYPE_SERVICE,
-            ];
+                $tradeTypes = [
+                    SalesCompanyServiceInfos::TRADE_TYPE_ACTIVITY,
+                    SalesCompanyServiceInfos::TRADE_TYPE_LONGTERM,
+                    SalesCompanyServiceInfos::TRADE_TYPE_MEMBERSHIP_CARD,
+                    SalesCompanyServiceInfos::TRADE_TYPE_SERVICE,
+                ];
 
-            $serviceCount = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
-                ->countServices(
-                    $company['id'],
-                    $tradeTypes
-                );
+                $serviceCount = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
+                    ->countServices(
+                        $company['id'],
+                        $tradeTypes
+                    );
 
-            $company['service_counts'] = (int) $serviceCount;
+                $company['service_counts'] = (int) $serviceCount;
+            }
         }
 
         $view = new View();

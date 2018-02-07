@@ -3,22 +3,12 @@
 namespace Sandbox\ApiBundle\Repository\SalesAdmin;
 
 use Doctrine\ORM\EntityRepository;
+use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyView;
 
-class SalesCompanyRepository extends EntityRepository
+class SalesCompanyViewRepository extends EntityRepository
 {
     /**
-     * @return array
-     */
-    public function getSalesCompanies()
-    {
-        $query = $this->createQueryBuilder('sc')
-           ->orderBy('sc.id', 'ASC');
-
-        return $query->getQuery()->getResult();
-    }
-
-    /**
-     * @param $banned
+     * @param $status
      * @param $keyword
      * @param $keywordSearch
      * @param $limit
@@ -27,7 +17,7 @@ class SalesCompanyRepository extends EntityRepository
      * @return array
      */
     public function getCompanyList(
-        $banned,
+        $status,
         $keyword,
         $keywordSearch,
         $limit,
@@ -35,20 +25,13 @@ class SalesCompanyRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('sc')
             ->select('
-                sc.id,
-                sc.phone,
-                sc.address,
-                sc.name,
-                sc.banned,
-                sc.contacter,
-                sc.contacterPhone as contacter_phone,
-                sc.contacterEmail as contacter_email
+                *
             ')
             ->where('1=1');
 
-        if (!is_null($banned)) {
-            $query->andWhere('sc.banned = :banned')
-                ->setParameter('banned', $banned);
+        if (!is_null($status)) {
+            $query->andWhere('sc.status = :status')
+                ->setParameter('status', $status);
         }
 
         if (!is_null($keyword) && !is_null($keywordSearch)) {
@@ -58,12 +41,18 @@ class SalesCompanyRepository extends EntityRepository
                     break;
                 case 'building':
                     $query->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'sc.id = b.companyId')
-                        ->andWhere('b.name LIKE :search');
+                        ->andWhere('sc.type = :type')
+                        ->andWhere('b.name LIKE :search')
+                        ->setParameter('type', SalesCompanyView::TYPE_COMPANY)
+                    ;
                     break;
                 case 'shop':
                     $query->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'sc.id = b.companyId')
                         ->leftJoin('SandboxApiBundle:Shop\Shop', 's', 'WITH', 'b.id = s.buildingId')
-                        ->andWhere('s.name LIKE :search');
+                        ->andWhere('s.name LIKE :search')
+                        ->andWhere('sc.type = :type')
+                        ->setParameter('type', SalesCompanyView::TYPE_COMPANY)
+                    ;
                     break;
                 default:
                     $query->andWhere('sc.name LIKE :search');
@@ -80,17 +69,16 @@ class SalesCompanyRepository extends EntityRepository
     }
 
     public function countCompanyList(
-        $banned,
+        $status,
         $keyword,
         $keywordSearch
     ) {
         $query = $this->createQueryBuilder('sc')
             ->select('count(sc.id)')
             ->where('1=1');
-
-        if (!is_null($banned)) {
-            $query->andWhere('sc.banned = :banned')
-                ->setParameter('banned', $banned);
+        if (!is_null($status)) {
+            $query->andWhere('sc.status = :status')
+                ->setParameter('status', $status);
         }
 
         if (!is_null($keyword) && !is_null($keywordSearch)) {
@@ -100,12 +88,18 @@ class SalesCompanyRepository extends EntityRepository
                     break;
                 case 'building':
                     $query->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'sc.id = b.companyId')
-                        ->andWhere('b.name LIKE :search');
+                        ->andWhere('sc.type = :type')
+                        ->andWhere('b.name LIKE :search')
+                        ->setParameter('type', SalesCompanyView::TYPE_COMPANY)
+                    ;
                     break;
                 case 'shop':
                     $query->leftJoin('SandboxApiBundle:Room\RoomBuilding', 'b', 'WITH', 'sc.id = b.companyId')
                         ->leftJoin('SandboxApiBundle:Shop\Shop', 's', 'WITH', 'b.id = s.buildingId')
-                        ->andWhere('s.name LIKE :search');
+                        ->andWhere('s.name LIKE :search')
+                        ->andWhere('sc.type = :type')
+                        ->setParameter('type', SalesCompanyView::TYPE_COMPANY)
+                    ;
                     break;
                 default:
                     $query->andWhere('sc.name LIKE :search');
