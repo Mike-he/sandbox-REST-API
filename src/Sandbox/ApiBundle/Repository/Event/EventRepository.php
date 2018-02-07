@@ -4,6 +4,7 @@ namespace Sandbox\ApiBundle\Repository\Event;
 
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
+use Sandbox\ApiBundle\Constants\PlatformConstants;
 use Sandbox\ApiBundle\Entity\Event\Event;
 use Sandbox\ApiBundle\Entity\Event\EventRegistration;
 use Sandbox\ApiBundle\Entity\Service\ViewCounts;
@@ -30,7 +31,9 @@ class EventRepository extends EntityRepository
         $charge,
         $method,
         $sortColumn,
-        $direction
+        $direction,
+        $keyword,
+        $keywordSearch
     ) {
         $query = $this->createQueryBuilder('e')
             ->select('
@@ -47,7 +50,9 @@ class EventRepository extends EntityRepository
             $search,
             $verify,
             $charge,
-            $method
+            $method,
+            $keyword,
+            $keywordSearch
         );
 
         if (!is_null($sortColumn) && !is_null($direction)) {
@@ -86,7 +91,9 @@ class EventRepository extends EntityRepository
         $search,
         $verify,
         $charge,
-        $method
+        $method,
+        $keyword,
+        $keywordSearch
     ) {
         $query = $this->createQueryBuilder('e')
             ->select('count(e.id)');
@@ -99,7 +106,9 @@ class EventRepository extends EntityRepository
             $search,
             $verify,
             $charge,
-            $method
+            $method,
+            $keyword,
+            $keywordSearch
         );
 
         return $query->getQuery()->getSingleScalarResult();
@@ -123,7 +132,9 @@ class EventRepository extends EntityRepository
         $search,
         $verify,
         $charge,
-        $method
+        $method,
+        $keyword,
+        $keywordSearch
     ) {
         $query->leftJoin('SandboxApiBundle:Room\Room',
                 'r',
@@ -138,6 +149,11 @@ class EventRepository extends EntityRepository
             ->setParameter('event', ViewCounts::OBJECT_EVENT)
             ->setParameter('registering', ViewCounts::TYPE_REGISTERING)
         ;
+
+        if ($platform == Event::PLATFORM_COMMNUE) {
+            $query->andWhere('e.platform = :platform')
+                ->setParameter('platform', Event::PLATFORM_OFFICIAL);
+        }
 
         // filter by status
         if (!is_null($status)) {
@@ -173,6 +189,21 @@ class EventRepository extends EntityRepository
         if (!is_null($method)) {
             $query->andWhere('e.registrationMethod = :registrationMethod')
                 ->setParameter('registrationMethod', $method);
+        }
+
+        if(!is_null($keyword) && !is_null($keywordSearch)) {
+            $columnArray = [
+                'name' => 'e.name',
+                'publish_company' => 'e.publishCompany',
+                'address' => 'e.address',
+                'sales_company' => 'sc.name'
+            ];
+
+            if($columnArray[$keyword] == 'sc.name')
+                $query->leftJoin('SandboxApiBundle:SalesAdmin\SalesCompany','sc','WITH','sc.id = e.salesCompanyId');
+
+            $query->andWhere("$columnArray[$keyword] LIKE :searchString")
+                ->setParameter('searchString', $keywordSearch);
         }
 
         return;

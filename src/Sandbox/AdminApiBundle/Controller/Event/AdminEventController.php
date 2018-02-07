@@ -125,7 +125,6 @@ class AdminEventController extends SandboxRestController
      *    array=false,
      *    default=null,
      *    nullable=true,
-     *    requirements="(preheating|registering|ongoing|end|saved)",
      *    strict=true,
      *    description="event status"
      * )
@@ -195,6 +194,22 @@ class AdminEventController extends SandboxRestController
      *     strict=true
      * )
      *
+     * @Annotations\QueryParam(
+     *     name="keyword",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="keyword_search",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
      * @Route("/events")
      * @Method({"GET"})
      *
@@ -234,6 +249,8 @@ class AdminEventController extends SandboxRestController
         $method = $paramFetcher->get('method');
         $sortColumn = $paramFetcher->get('sort_column');
         $direction = $paramFetcher->get('direction');
+        $keyword = $paramFetcher->get('keyword');
+        $keywordSearch = $paramFetcher->get('keyword_search');
 
         $limit = $pageLimit;
         $offset = ($pageIndex - 1) * $pageLimit;
@@ -251,7 +268,9 @@ class AdminEventController extends SandboxRestController
                 $charge,
                 $method,
                 $sortColumn,
-                $direction
+                $direction,
+                $keyword,
+                $keywordSearch
             );
 
         $count = $this->getDoctrine()
@@ -263,7 +282,9 @@ class AdminEventController extends SandboxRestController
                 $search,
                 $verify,
                 $charge,
-                $method
+                $method,
+                $keyword,
+                $keywordSearch
             );
 
         $eventsArray = array();
