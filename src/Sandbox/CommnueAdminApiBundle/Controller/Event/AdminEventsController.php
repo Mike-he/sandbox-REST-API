@@ -20,7 +20,7 @@ class AdminEventsController extends SandboxRestController
      * @param Request $request
      * @param $id
      *
-     * @Route("/commnue/events/{id}")
+     * @Route("/events/{id}")
      * @Method({"PATCH"})
      *
      * @return View
@@ -33,7 +33,10 @@ class AdminEventsController extends SandboxRestController
         $this->checkAdminEventPermission(AdminPermission::OP_LEVEL_EDIT);
 
         $events = $this->getDoctrine()->getRepository('SandboxApiBundle:Event\Event')
-            ->find($id);
+            ->findOneBy([
+                'id' =>$id,
+                'isDeleted' => false
+            ]);
 
         $this->throwNotFoundIfNull($events, self::NOT_FOUND_MESSAGE);
 

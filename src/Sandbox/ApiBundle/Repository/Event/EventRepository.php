@@ -214,8 +214,9 @@ class EventRepository extends EntityRepository
      * @param $limit
      * @param $offset
      * @param null $status
-     * @param $excludeStatus
+     * @param null $excludeStatus
      * @param null $sort
+     * @param $platform
      * @return array
      */
     public function getAllClientEvents(
@@ -224,11 +225,17 @@ class EventRepository extends EntityRepository
         $offset,
         $status = null,
         $excludeStatus = null,
-        $sort = null
+        $sort = null,
+        $platform = null
     ) {
         $query = $this->createQueryBuilder('e')
-            ->where('e.isDeleted = FALSE')
-            ->andWhere('e.visible = TRUE');
+            ->where('e.isDeleted = FALSE');
+
+        if ($platform == Event::PLATFORM_COMMNUE) {
+            $query->andWhere('e.commnueVisible = TRUE');
+        }else{
+            $query->andWhere('e.visible = TRUE');
+        }
 
         if ($eventIds) {
             $query->andWhere('e.id IN (:ids)')

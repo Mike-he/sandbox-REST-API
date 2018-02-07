@@ -68,3 +68,8 @@ commnue_admin_experts:
     resource: "@CommnueAdminApiBundle/Controller/Expert/AdminExpertController.php"
     type:     annotation
     prefix:   /
+
+commnue_admin_event_controller:
+    resource: "@CommnueAdminApiBundle/Controller/Event/AdminEventsController.php"
+    type:     annotation
+    prefix:   /
