@@ -29,7 +29,7 @@ class SalesCompanyView
     /**
      * @var string
      *
-     * @ORM\Column(name="number", type="string", length=255)
+     * @ORM\Column(name="name", type="string", length=255)
      */
     private $name;
 
