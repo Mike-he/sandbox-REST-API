@@ -63,3 +63,8 @@ commnue_client_order_expert_orders:
     resource: "@CommnueClientApiBundle/Controller/Order/ClientExpertOrderController.php"
     type:     annotation
     prefix:   /
+
+commnue_client_events_controller:
+    resource: "@CommnueClientApiBundle/Controller/Event/ClientEventsController.php"
+    type:     annotation
+    prefix:   /

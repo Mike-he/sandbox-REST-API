@@ -1,30 +1,19 @@
 <?php
 
-namespace Sandbox\ClientApiBundle\Controller\Event;
+namespace Sandbox\CommnueClientApiBundle\Controller\Event;
 
 use FOS\RestBundle\Request\ParamFetcherInterface;
-use Sandbox\ApiBundle\Controller\Event\EventController;
-use Sandbox\ApiBundle\Entity\Event\Event;
-use Sandbox\ApiBundle\Entity\Service\ViewCounts;
-use Sandbox\ApiBundle\Entity\User\UserFavorite;
-use Symfony\Component\HttpFoundation\Request;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\View\View;
 use JMS\Serializer\SerializationContext;
+use Sandbox\ApiBundle\Controller\Event\EventController;
+use Sandbox\ApiBundle\Entity\Event\Event;
+use Sandbox\ApiBundle\Entity\User\UserFavorite;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\HttpFoundation\Request;
+use FOS\RestBundle\Controller\Annotations;
 
-/**
- * Class ClientEventController.
- *
- * @category Sandbox
- *
- * @author   Mike He <mike.he@easylinks.com.cn>
- * @license  http://www.Sandbox.cn/ Proprietary
- *
- * @see     http://www.Sandbox.cn/
- */
-class ClientEventController extends EventController
+class ClientEventsController extends EventController
 {
     /**
      * Get all client events.
@@ -103,7 +92,8 @@ class ClientEventController extends EventController
                     null,
                     Event::STATUS_REGISTERING,
                     null,
-                    null
+                    null,
+                    Event::PLATFORM_COMMNUE
                 );
 
             $elseEvents = $this->getDoctrine()
@@ -114,12 +104,12 @@ class ClientEventController extends EventController
                     null,
                     null,
                     Event::STATUS_REGISTERING,
-                    null
+                    null,
+                    Event::PLATFORM_COMMNUE
                 );
 
             $eventsAll = array_merge($events, $elseEvents);
             $counts = count($eventsAll);
-
             $events = [];
             for ($i = $offset; $i < $offset + $limit && $i < $counts; $i++) {
                 array_push($events, $eventsAll[$i]);
@@ -133,7 +123,8 @@ class ClientEventController extends EventController
                     $offset,
                     $status,
                     null,
-                    $sort
+                    $sort,
+                    Event::PLATFORM_COMMNUE
                 );
         }
 
@@ -147,129 +138,6 @@ class ClientEventController extends EventController
 
         $view = new View($events);
         $view->setSerializationContext(SerializationContext::create()->setGroups(['client_event']));
-
-        return $view;
-    }
-
-    /**
-     * Get my register client events.
-     *
-     * @param Request               $request
-     * @param ParamFetcherInterface $paramFetcher
-     *
-     * @Annotations\QueryParam(
-     *    name="limit",
-     *    array=false,
-     *    default="10",
-     *    nullable=true,
-     *    requirements="\d+",
-     *    strict=true,
-     *    description="limit for page"
-     * )
-     *
-     * @Annotations\QueryParam(
-     *    name="offset",
-     *    array=false,
-     *    default="0",
-     *    nullable=true,
-     *    requirements="\d+",
-     *    strict=true,
-     *    description="offset of the page"
-     * )
-     *
-     * @Route("/events/my")
-     * @Method({"GET"})
-     *
-     * @return View
-     *
-     * @throw \Exception
-     */
-    public function getMyClientEventsAction(
-        Request $request,
-        ParamFetcherInterface $paramFetcher
-    ) {
-        $userId = $this->getUserId();
-
-        // filters
-        $limit = $paramFetcher->get('limit');
-        $offset = $paramFetcher->get('offset');
-
-        // get max limit
-        $limit = $this->getLoadMoreLimit($limit);
-
-        $events = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Event\Event')
-            ->getMyClientEvents(
-                $userId,
-                $limit,
-                $offset
-            );
-
-        $eventsArray = array();
-
-        foreach ($events as $event) {
-            try {
-                // set event extra
-                $event = $this->setEventExtra($event, $userId);
-
-                array_push($eventsArray, $event);
-            } catch (\Exception $e) {
-                continue;
-            }
-        }
-
-        $view = new View($eventsArray);
-        $view->setSerializationContext(SerializationContext::create()->setGroups(['client_event']));
-
-        return $view;
-    }
-
-    /**
-     * Get definite id of event.
-     *
-     * @param Request $request
-     * @param int     $id
-     *
-     * @Route("/events/{id}")
-     * @Method({"GET"})
-     *
-     * @return View
-     *
-     * @throws \Exception
-     */
-    public function getClientEventAction(
-        Request $request,
-        $id
-    ) {
-        $this->get('sandbox_api.view_count')->autoCounting(
-            ViewCounts::OBJECT_EVENT,
-            $id,
-            ViewCounts::TYPE_VIEW
-        );
-
-        $userId = null;
-        if ($this->isAuthProvided()) {
-            $userId = $this->getUserId();
-        }
-
-        // get an event
-        $event = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Event\Event')
-            ->findOneBy(array(
-                'id' => $id,
-                'isDeleted' => false,
-                'visible' => true,
-            ));
-        $this->throwNotFoundIfNull($event, self::NOT_FOUND_MESSAGE);
-
-        // set extra
-        $event = $this->setEventExtra($event, $userId);
-
-        // set view
-        $view = new View($event);
-        $view->setSerializationContext(
-            SerializationContext::create()->setGroups(array('client_event'))
-        );
 
         return $view;
     }

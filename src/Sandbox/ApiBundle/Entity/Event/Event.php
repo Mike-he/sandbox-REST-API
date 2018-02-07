@@ -445,6 +445,18 @@ class Event
     private $favorite;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="commnue_visible", type="boolean", nullable=false)
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event"
+     * })
+     */
+    private $commnueVisible = false;
+
+    /**
      * Get id.
      *
      * @return int
@@ -1201,4 +1213,22 @@ class Event
     {
         $this->favorite = $favorite;
     }
+
+    /**
+     * @return bool
+     */
+    public function isCommnueVisible()
+    {
+        return $this->commnueVisible;
+    }
+
+    /**
+     * @param bool $commnueVisible
+     */
+    public function setCommnueVisible($commnueVisible)
+    {
+        $this->commnueVisible = $commnueVisible;
+    }
+
+
 }
