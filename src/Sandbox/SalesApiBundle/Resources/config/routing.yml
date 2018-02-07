@@ -238,3 +238,8 @@ sandbox_sales_admin_customer_service:
     type:     annotation
     prefix:   /admin
 
+# Admin Logo
+sandbox_sales_admin_logo:
+    resource: "@SandboxSalesApiBundle/Controller/Admin/AdminLogoController.php"
+    type:     annotation
+    prefix:   /admin
