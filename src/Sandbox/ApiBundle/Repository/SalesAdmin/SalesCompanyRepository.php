@@ -128,6 +128,6 @@ class SalesCompanyRepository extends EntityRepository
             ->where('sc.id = :id')
             ->setParameter('id', $id);
 
-        return $query->getQuery()->getResult();
+        return $query->getQuery()->getOneOrNullResult();
     }
 }
