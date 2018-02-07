@@ -128,7 +128,7 @@ class AdminSalesCompanyController extends SandboxRestController
      * @Annotations\QueryParam(
      *     name="status",
      *     array=false,
-     *     nullable=false,
+     *     nullable=true,
      *     strict=true
      * )
      *

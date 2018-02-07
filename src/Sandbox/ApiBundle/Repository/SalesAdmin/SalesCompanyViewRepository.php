@@ -25,7 +25,16 @@ class SalesCompanyViewRepository extends EntityRepository
     ) {
         $query = $this->createQueryBuilder('sc')
             ->select('
-                *
+                sc.id,
+                sc.phone,
+                sc.address,
+                sc.name,
+                sc.status,
+                sc.contacter,
+                sc.contacterPhone as contacter_phone,
+                sc.contacterEmail as contacter_email,
+                sc.type,
+                sc.creationDate as creation_date
             ')
             ->where('1=1');
 
