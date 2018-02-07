@@ -116,4 +116,18 @@ class SalesCompanyRepository extends EntityRepository
 
         return $query->getQuery()->getSingleScalarResult();
     }
+
+    public function getCompanyInfo(
+        $id
+    ) {
+        $query = $this->createQueryBuilder('sc')
+            ->select('
+                sc.id,
+                sc.name
+            ')
+            ->where('sc.id = :id')
+            ->setParameter('id', $id);
+
+        return $query->getQuery()->getResult();
+    }
 }

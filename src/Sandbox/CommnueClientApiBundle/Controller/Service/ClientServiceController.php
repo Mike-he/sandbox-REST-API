@@ -125,6 +125,12 @@ class ClientServiceController extends SandboxRestController
             );
 
         foreach ($services as $service) {
+            $salesCompany = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
+                ->getCompanyInfo($service->getSalesCompanyId());
+
+            $service->setSalesCompany($salesCompany);
+
             $attachments = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Service\ServiceAttachment')
                 ->findBy(['service' => $service]);
