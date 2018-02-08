@@ -191,10 +191,12 @@ class EventRepository extends EntityRepository
         }
 
         if (!is_null($search)) {
-            $query->andWhere('
+            $query->leftJoin('SandboxApiBundle:SalesAdmin\SalesCompany','sc','WITH','sc.id = e.salesCompanyId')
+                ->andWhere('
                     e.name LIKE :search
                     OR e.publishCompany LIKE :search
                     OR e.address LIKE :search
+                    OR sc.name LIKE :search
                 ')
                 ->setParameter('search', '%'.$search.'%');
         }
