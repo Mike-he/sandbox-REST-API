@@ -191,14 +191,26 @@ class EventRepository extends EntityRepository
         }
 
         if (!is_null($search)) {
-            $query->leftJoin('SandboxApiBundle:SalesAdmin\SalesCompany','sc','WITH','sc.id = e.salesCompanyId')
-                ->andWhere('
-                    e.name LIKE :search
-                    OR e.publishCompany LIKE :search
-                    OR e.address LIKE :search
-                    OR sc.name LIKE :search
-                ')
-                ->setParameter('search', '%'.$search.'%');
+            switch ($search) {
+                case '合创社':
+                    $query->andWhere('e.platform = :platform')
+                        ->setParameter('platform', Event::PLATFORM_COMMNUE);
+                    break;
+                case '秒租办公':
+                    $query->andWhere('e.platform = :platform')
+                        ->andWhere('e.salesCompanyId IS NULL')
+                        ->setParameter('platform', Event::PLATFORM_OFFICIAL);
+                    break;
+                default:
+                    $query->leftJoin('SandboxApiBundle:SalesAdmin\SalesCompany','sc','WITH','sc.id = e.salesCompanyId')
+                        ->andWhere('
+                                e.name LIKE :search
+                                OR e.publishCompany LIKE :search
+                                OR e.address LIKE :search
+                                OR sc.name LIKE :search
+                            ')
+                        ->setParameter('search', '%'.$search.'%');
+            }
         }
 
         if (!is_null($verify)) {
