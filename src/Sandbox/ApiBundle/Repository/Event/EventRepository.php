@@ -160,17 +160,15 @@ class EventRepository extends EntityRepository
                 'r.id = e.roomId')
             ->leftJoin('SandboxApiBundle:Service\ViewCounts', 'vc', 'WITH', 'e.id = vc.objectId')
             ->where('e.isDeleted = FALSE')
-            ->andWhere('e.platform = :platform')
             ->andWhere('vc.object = :event')
             ->andWhere('vc.type = :registering')
-            ->setParameter('platform', $platform)
             ->setParameter('event', ViewCounts::OBJECT_EVENT)
             ->setParameter('registering', ViewCounts::TYPE_REGISTERING)
         ;
 
-        if ($platform == Event::PLATFORM_COMMNUE) {
-            $query->andWhere('e.platform = :platform')
-                ->setParameter('platform', Event::PLATFORM_OFFICIAL);
+        if ($platform != Event::PLATFORM_COMMNUE) {
+            $query->andWhere('e.platform != :platform')
+                ->setParameter('platform', Event::PLATFORM_COMMNUE);
         }
 
         // filter by status
