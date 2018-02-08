@@ -895,6 +895,10 @@ class AdminEventController extends SandboxRestController
             $event->setIsSaved(true);
         }
 
+        if ($event->getPlatform() == Event::PLATFORM_COMMNUE && $submit) {
+            $event->setCommnueVisible(true);
+        }
+
         $em->flush();
     }
 
@@ -1051,6 +1055,10 @@ class AdminEventController extends SandboxRestController
             $event->setVisible(false);
             $event->setIsSaved(true);
             $event->setStatus(Event::STATUS_SAVED);
+        }
+
+        if ($event->getPlatform() == Event::PLATFORM_COMMNUE && $submit) {
+            $event->setCommnueVisible(true);
         }
 
         // no verify if not free
