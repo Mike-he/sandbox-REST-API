@@ -12,12 +12,20 @@ use Sandbox\ApiBundle\Entity\Service\ViewCounts;
 class EventRepository extends EntityRepository
 {
     /**
-     * @param string $status
-     * @param bool   $visible
-     * @param int    $limit
-     * @param int    $offset
-     * @param        $platform
-     *
+     * @param $status
+     * @param $visible
+     * @param $limit
+     * @param $offset
+     * @param string $platform
+     * @param $search
+     * @param $verify
+     * @param $charge
+     * @param $method
+     * @param $sortColumn
+     * @param $direction
+     * @param $commnueVisible
+     * @param $keyword
+     * @param $keywordSearch
      * @return array
      */
     public function getEvents(
@@ -32,6 +40,7 @@ class EventRepository extends EntityRepository
         $method,
         $sortColumn,
         $direction,
+        $commnueVisible,
         $keyword,
         $keywordSearch
     ) {
@@ -51,6 +60,7 @@ class EventRepository extends EntityRepository
             $verify,
             $charge,
             $method,
+            $commnueVisible,
             $keyword,
             $keywordSearch
         );
@@ -81,8 +91,10 @@ class EventRepository extends EntityRepository
      * @param $verify
      * @param $charge
      * @param $method
+     * @param $commnueVisible
+     * @param $keyword
+     * @param $keywordSearch
      * @return mixed
-     * @throws \Doctrine\ORM\Query\QueryException
      */
     public function countEvents(
         $status,
@@ -92,6 +104,7 @@ class EventRepository extends EntityRepository
         $verify,
         $charge,
         $method,
+        $commnueVisible,
         $keyword,
         $keywordSearch
     ) {
@@ -107,6 +120,7 @@ class EventRepository extends EntityRepository
             $verify,
             $charge,
             $method,
+            $commnueVisible,
             $keyword,
             $keywordSearch
         );
@@ -115,7 +129,7 @@ class EventRepository extends EntityRepository
     }
 
     /**
-     * @param QueryBuilder $query
+     * @param $query
      * @param $status
      * @param $visible
      * @param string $platform
@@ -123,6 +137,9 @@ class EventRepository extends EntityRepository
      * @param $verify
      * @param $charge
      * @param $method
+     * @param $commnueVisible
+     * @param $keyword
+     * @param $keywordSearch
      */
     private function setEventQuery(
         $query,
@@ -133,6 +150,7 @@ class EventRepository extends EntityRepository
         $verify,
         $charge,
         $method,
+        $commnueVisible,
         $keyword,
         $keywordSearch
     ) {
@@ -165,6 +183,11 @@ class EventRepository extends EntityRepository
         if (!is_null($visible)) {
             $query->andWhere('e.visible = :visible')
                 ->setParameter('visible', $visible);
+        }
+
+        if (!is_null($commnueVisible)) {
+            $query->andWhere('e.commnueVisible = :commnueVisible')
+                ->setParameter('commnueVisible', $visible);
         }
 
         if (!is_null($search)) {

@@ -211,6 +211,15 @@ class AdminEventController extends SandboxRestController
      *     strict=true
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="commnue_visible",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="commnue visible"
+     * )
+     *
      * @Route("/events")
      * @Method({"GET"})
      *
@@ -252,6 +261,7 @@ class AdminEventController extends SandboxRestController
         $direction = $paramFetcher->get('direction');
         $keyword = $paramFetcher->get('keyword');
         $keywordSearch = $paramFetcher->get('keyword_search');
+        $commnueVisible = $paramFetcher->get('commnue_visible');
 
         $limit = $pageLimit;
         $offset = ($pageIndex - 1) * $pageLimit;
@@ -270,6 +280,7 @@ class AdminEventController extends SandboxRestController
                 $method,
                 $sortColumn,
                 $direction,
+                $commnueVisible,
                 $keyword,
                 $keywordSearch
             );
@@ -284,6 +295,7 @@ class AdminEventController extends SandboxRestController
                 $verify,
                 $charge,
                 $method,
+                $commnueVisible,
                 $keyword,
                 $keywordSearch
             );
