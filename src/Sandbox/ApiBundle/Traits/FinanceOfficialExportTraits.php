@@ -380,7 +380,7 @@ trait FinanceOfficialExportTraits
 
             $payDate = $order->getPaymentDate()->format('Y-m-d H:i:s');
 
-            $cancelDate = !is_null($order->getCancelledDate()) ? $order->getCancelledDate()->format('Y-m-d H:i:s') : '';
+            $refundDate = !is_null($order->getRefundProcessedDate()) ? $order->getRefundProcessedDate()->format('Y-m-d H:i:s') : '';
 
             $status = $this->get('translator')->trans(
                 ProductOrderExport::TRANS_PRODUCT_ORDER_STATUS.$order->getStatus(),
@@ -447,7 +447,7 @@ trait FinanceOfficialExportTraits
                 $refundChannel,
                 $paymentChannel,
                 $orderType,
-                $cancelDate
+                $refundDate
             );
 
             $shortBody[] = $body;
@@ -700,7 +700,7 @@ trait FinanceOfficialExportTraits
 
             $creationDate = $shopOrder->getCreationDate()->format('Y-m-d H:i:s');
 
-            $cancelDate = !is_null($shopOrder->getCancelledDate()) ? $shopOrder->getCancelledDate()->format('Y-m-d H:i:s') : '';
+            $refundDate = !is_null($shopOrder->getRefundProcessedDate()) ? $shopOrder->getRefundProcessedDate()->format('Y-m-d H:i:s') : '';
 
             $body = $this->getExportBody(
                 $companyName,
@@ -726,7 +726,7 @@ trait FinanceOfficialExportTraits
                 $refundChannel,
                 $paymentChannel,
                 $orderType,
-                $cancelDate
+                $refundDate
             );
 
             $shopBody[] = $body;
@@ -1079,7 +1079,7 @@ trait FinanceOfficialExportTraits
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_REFUND_TO, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_PAYMENT_CHANNEL, array(), null, $language),
             $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_ORDER_TYPE, array(), null, $language),
-            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_CANCEL_DATE, array(), null, $language),
+            $this->get('translator')->trans(ProductOrderExport::TRANS_PRODUCT_ORDER_HEADER_REFUND_DATE, array(), null, $language),
         ];
     }
 
@@ -1134,7 +1134,7 @@ trait FinanceOfficialExportTraits
         $refundTo,
         $payChannel,
         $orderType,
-        $cancelDate
+        $refundDate
     ) {
         // set excel body
         $body = array(
@@ -1161,7 +1161,7 @@ trait FinanceOfficialExportTraits
             ProductOrderExport::REFUND_TO => $refundTo,
             ProductOrderExport::PAYMENT_CHANNEL => $payChannel,
             ProductOrderExport::ORDER_TYPE => $orderType,
-            ProductOrderExport::CANCEL_DATE => $cancelDate,
+            ProductOrderExport::REFUND_DATE => $refundDate,
         );
 
         return $body;

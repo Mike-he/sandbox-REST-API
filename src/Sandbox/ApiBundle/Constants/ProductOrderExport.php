@@ -32,7 +32,7 @@ class ProductOrderExport
     const ORDER_CATEGORY = 'order_category';
     const COMMISSION = 'commission';
     const CREATION_DATE = 'creation_date';
-    const CANCEL_DATE = 'cancel_date';
+    const REFUND_DATE = 'refund_date';
 
     const TRANS_ROOM_TYPE = 'room.type.';
     const TRANS_ROOM_UNIT = 'room.unit.';
@@ -81,7 +81,7 @@ class ProductOrderExport
     const TRANS_PRODUCT_ORDER_HEADER_COMMISSION = 'product_order.export_header.commission';
     const TRANS_PRODUCT_ORDER_HEADER_COLLECTION_METHOD = 'product_order.export_header.collection_method';
     const TRANS_PRODUCT_ORDER_HEADER_ORDER_CATEGORY = 'product_order.export_header.order_category';
-    const TRANS_PRODUCT_ORDER_HEADER_CANCEL_DATE = 'product_order.export_header.cancel_date';
+    const TRANS_PRODUCT_ORDER_HEADER_REFUND_DATE = 'product_order.export_header.refund_date';
 
     const TRANS_ORDER_ROLE = 'product_order.role.';
 }
