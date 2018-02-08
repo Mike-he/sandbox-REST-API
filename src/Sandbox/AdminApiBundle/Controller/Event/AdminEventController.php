@@ -278,11 +278,11 @@ class AdminEventController extends SandboxRestController
                 $verify,
                 $charge,
                 $method,
-                $sortColumn,
-                $direction,
                 $commnueVisible,
                 $keyword,
-                $keywordSearch
+                $keywordSearch,
+                $sortColumn,
+                $direction
             );
 
         $count = $this->getDoctrine()

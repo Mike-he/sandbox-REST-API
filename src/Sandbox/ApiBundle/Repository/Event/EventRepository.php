@@ -38,11 +38,11 @@ class EventRepository extends EntityRepository
         $verify,
         $charge,
         $method,
-        $sortColumn,
-        $direction,
         $commnueVisible,
         $keyword,
-        $keywordSearch
+        $keywordSearch,
+        $sortColumn,
+        $direction
     ) {
         $query = $this->createQueryBuilder('e')
             ->select('
