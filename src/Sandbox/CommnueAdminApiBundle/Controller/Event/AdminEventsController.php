@@ -9,6 +9,7 @@ use Sandbox\ApiBundle\Entity\Event\CommnueEventHot;
 use Sandbox\ApiBundle\Entity\Event\Event;
 use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Sandbox\ApiBundle\Form\Event\CommnueEventPatchType;
+use Sandbox\ApiBundle\Traits\SetStatusTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -16,6 +17,7 @@ use FOS\RestBundle\View\View;
 
 class AdminEventsController extends SandboxRestController
 {
+    use SetStatusTrait;
     /**
      * @param Request $request
      * @param $id
@@ -46,6 +48,12 @@ class AdminEventsController extends SandboxRestController
 
         $form = $this->createForm(new CommnueEventPatchType(), $events);
         $form->submit(json_decode($eventsJson, true));
+
+        // change save status
+        if ($events->isCommnueVisible() && $events->getPlatform() == Event::PLATFORM_COMMNUE) {
+            $events->setIsSaved(false);
+            $this->setEventStatus($events);
+        }
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();

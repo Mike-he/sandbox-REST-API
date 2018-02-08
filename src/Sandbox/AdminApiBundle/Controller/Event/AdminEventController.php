@@ -336,8 +336,12 @@ class AdminEventController extends SandboxRestController
                 ->getCommentsCount($eventId);
             $event->setCommentsCount((int) $commentsCount);
 
-            if($event->getSalesCompanyId()) {
+            if ($event->getSalesCompanyId()) {
                 $event->setPlatform('sales');
+            }
+
+            if ($event->isCommnueVisible() && $event->getStatus() == Event::STATUS_SAVED) {
+                $this->setEventStatus($event);
             }
 
             array_push($eventsArray, $event);

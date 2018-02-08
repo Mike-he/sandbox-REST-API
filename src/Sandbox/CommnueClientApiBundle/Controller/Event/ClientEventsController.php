@@ -8,6 +8,7 @@ use JMS\Serializer\SerializationContext;
 use Sandbox\ApiBundle\Controller\Event\EventController;
 use Sandbox\ApiBundle\Entity\Event\Event;
 use Sandbox\ApiBundle\Entity\User\UserFavorite;
+use Sandbox\ApiBundle\Traits\SetStatusTrait;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,6 +16,7 @@ use FOS\RestBundle\Controller\Annotations;
 
 class ClientEventsController extends EventController
 {
+    use SetStatusTrait;
     /**
      * Get all client events.
      *
@@ -229,6 +231,10 @@ class ClientEventsController extends EventController
 
             $userFavorite = $favorite ? true : false;
             $event->setFavorite($userFavorite);
+        }
+
+        if ($event->isCommnueVisible() && $event->getStatus() == Event::STATUS_SAVED) {
+            $this->setEventStatus($event);
         }
 
         return $event;
