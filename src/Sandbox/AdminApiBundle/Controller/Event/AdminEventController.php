@@ -336,6 +336,10 @@ class AdminEventController extends SandboxRestController
                 ->getCommentsCount($eventId);
             $event->setCommentsCount((int) $commentsCount);
 
+            if($event->getSalesCompanyId()) {
+                $event->setPlatform('sales');
+            }
+
             array_push($eventsArray, $event);
         }
 
@@ -404,6 +408,10 @@ class AdminEventController extends SandboxRestController
         $event->setForms($forms);
         $event->setRegisteredPersonNumber((int) $registrationCounts);
         $event->setCommentsCount((int) $commentsCount);
+
+        if($event->getSalesCompanyId()) {
+            $event->setPlatform('sales');
+        }
 
         if($platform == PlatformConstants::PLATFORM_COMMNUE) {
             $eventHot = $this->getDoctrine()->getRepository('SandboxApiBundle:Event\CommnueEventHot')

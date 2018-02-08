@@ -434,6 +434,10 @@ class Event
      * @var string
      *
      * @ORM\Column(name="platform", type="string", length=64, options={"default": "official"})
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event"
+     * })
      */
     private $platform = self::PLATFORM_OFFICIAL;
 

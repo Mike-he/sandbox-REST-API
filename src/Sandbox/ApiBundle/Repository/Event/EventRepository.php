@@ -187,7 +187,7 @@ class EventRepository extends EntityRepository
 
         if (!is_null($commnueVisible)) {
             $query->andWhere('e.commnueVisible = :commnueVisible')
-                ->setParameter('commnueVisible', $visible);
+                ->setParameter('commnueVisible', $commnueVisible);
         }
 
         if (!is_null($search)) {
