@@ -48,17 +48,8 @@ class Version920180208093017 extends AbstractMigration implements ContainerAware
         $list2->setObject(GenericList::OBJECT_ACTIVITY);
         $list2->setPlatform(GenericList::OBJECT_PLATFORM_OFFICIAL);
 
-        $list3 = new GenericList();
-        $list3->setColumn('sales_company_name');
-        $list3->setName('活动发起方');
-        $list3->setDefault(true);
-        $list3->setRequired(false);
-        $list3->setObject(GenericList::OBJECT_SALES_ACTIVITY);
-        $list3->setPlatform(GenericList::OBJECT_PLATFORM_SALES);
-
         $em->persist($list1);
         $em->persist($list2);
-        $em->persist($list3);
 
         $em->flush();
     }
