@@ -269,7 +269,9 @@ class EventRepository extends EntityRepository
         if ($platform == Event::PLATFORM_COMMNUE) {
             $query->andWhere('e.commnueVisible = TRUE');
         }else{
-            $query->andWhere('e.visible = TRUE');
+            $query->andWhere('e.visible = TRUE')
+                ->andWhere('e.platform != :platform')
+                ->setParameter('platform', Event::PLATFORM_COMMNUE);
         }
 
         if ($eventIds) {
