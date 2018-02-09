@@ -47,6 +47,7 @@ class UserCheckCode
      * 0. Check code for admin login.
      * 1. Check code for user payment check api.
      * 2. Check code for client admin register.
+     * 3. Check code for client admin forget password.
      *
      * @var int
      *
