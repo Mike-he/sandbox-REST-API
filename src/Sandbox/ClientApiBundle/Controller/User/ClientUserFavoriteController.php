@@ -565,7 +565,6 @@ class ClientUserFavoriteController extends LocationController
             $event->setAcceptedPersonNumber((int) $acceptedCounts);
         }
 
-
         // check if user is registered
         $registration = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Event\EventRegistration')

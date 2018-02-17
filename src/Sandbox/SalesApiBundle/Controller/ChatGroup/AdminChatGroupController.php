@@ -153,7 +153,7 @@ class AdminChatGroupController extends ChatGroupController
                 'user_id' => $item,
                 'username' => $salesAdminProfile ? $salesAdminProfile->getNickname() : null,
                 'avatar' => $salesAdminProfile ? $salesAdminProfile->getAvatar() : null,
-                'xmpp_user' => $salesAdmin->getXmppUsername(),
+                'xmpp_user' => $salesAdmin ? $salesAdmin->getXmppUsername() : null,
             );
         }
 

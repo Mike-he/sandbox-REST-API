@@ -5,6 +5,7 @@ namespace Sandbox\AdminApiBundle\Controller\Event;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use JMS\Serializer\SerializationContext;
 use Rs\Json\Patch;
+use Sandbox\ApiBundle\Constants\PlatformConstants;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPermission;
 use Sandbox\ApiBundle\Entity\Event\Event;
@@ -13,6 +14,7 @@ use Sandbox\ApiBundle\Entity\Event\EventDate;
 use Sandbox\ApiBundle\Entity\Event\EventForm;
 use Sandbox\ApiBundle\Entity\Event\EventFormOption;
 use Sandbox\ApiBundle\Entity\Event\EventTime;
+use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Sandbox\ApiBundle\Entity\Service\ViewCounts;
 use Sandbox\ApiBundle\Form\Event\EventPatchType;
 use Sandbox\ApiBundle\Form\Event\EventPostType;
@@ -124,7 +126,6 @@ class AdminEventController extends SandboxRestController
      *    array=false,
      *    default=null,
      *    nullable=true,
-     *    requirements="(preheating|registering|ongoing|end|saved)",
      *    strict=true,
      *    description="event status"
      * )
@@ -144,6 +145,79 @@ class AdminEventController extends SandboxRestController
      *     default="official",
      *     nullable=true,
      *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="query",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="verify",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="charge",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="method",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="sort_column",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="direction",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="keyword",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="keyword_search",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *    name="commnue_visible",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    strict=true,
+     *    description="commnue visible"
      * )
      *
      * @Route("/events")
@@ -177,6 +251,17 @@ class AdminEventController extends SandboxRestController
         $pageIndex = $paramFetcher->get('pageIndex');
         $status = $paramFetcher->get('status');
         $visible = $paramFetcher->get('visible');
+        $search = $paramFetcher->get('query');
+        $verify = $paramFetcher->get('verify');
+        $verify = !is_null($verify) ? (bool) $verify : $verify;
+        $charge = $paramFetcher->get('charge');
+        $charge = !is_null($charge) ? (bool) $charge : $charge;
+        $method = $paramFetcher->get('method');
+        $sortColumn = $paramFetcher->get('sort_column');
+        $direction = $paramFetcher->get('direction');
+        $keyword = $paramFetcher->get('keyword');
+        $keywordSearch = $paramFetcher->get('keyword_search');
+        $commnueVisible = $paramFetcher->get('commnue_visible');
 
         $limit = $pageLimit;
         $offset = ($pageIndex - 1) * $pageLimit;
@@ -188,7 +273,16 @@ class AdminEventController extends SandboxRestController
                 $visible,
                 $limit,
                 $offset,
-                $platform
+                $platform,
+                $search,
+                $verify,
+                $charge,
+                $method,
+                $commnueVisible,
+                $keyword,
+                $keywordSearch,
+                $sortColumn,
+                $direction
             );
 
         $count = $this->getDoctrine()
@@ -196,13 +290,22 @@ class AdminEventController extends SandboxRestController
             ->countEvents(
                 $status,
                 $visible,
-                $platform
+                $platform,
+                $search,
+                $verify,
+                $charge,
+                $method,
+                $commnueVisible,
+                $keyword,
+                $keywordSearch
             );
 
         $eventsArray = array();
         foreach ($events as $value) {
             /** @var Event $event */
             $event = $value['event'];
+            $eventId = $event->getId();
+
             $attachments = $this->getRepo('Event\EventAttachment')->findByEvent($event);
             $dates = $this->getRepo('Event\EventDate')->findByEvent($event);
             $forms = $this->getRepo('Event\EventForm')->findByEvent($event);
@@ -224,9 +327,22 @@ class AdminEventController extends SandboxRestController
 
             $commnueHot = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Event\CommnueEventHot')
-                ->findOneBy(array('eventId' => $event->getId()));
+                ->findOneBy(array('eventId' => $eventId));
 
             $event->setCommnueHot($commnueHot ? true : false);
+
+            $commentsCount = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Event\EventComment')
+                ->getCommentsCount($eventId);
+            $event->setCommentsCount((int) $commentsCount);
+
+            if ($event->getSalesCompanyId()) {
+                $event->setPlatform('sales');
+            }
+
+            if ($event->isCommnueVisible() && $event->getStatus() == Event::STATUS_SAVED) {
+                $this->setEventStatus($event);
+            }
 
             array_push($eventsArray, $event);
         }
@@ -273,6 +389,9 @@ class AdminEventController extends SandboxRestController
             AdminPermission::OP_LEVEL_VIEW
         );
 
+        $adminPlatform = $this->get('sandbox_api.admin_platform')->getAdminPlatform();
+        $platform = $adminPlatform['platform'];
+
         // get an event
         $event = $this->getRepo('Event\Event')->findOneBy(array(
             'id' => $id,
@@ -293,6 +412,21 @@ class AdminEventController extends SandboxRestController
         $event->setForms($forms);
         $event->setRegisteredPersonNumber((int) $registrationCounts);
         $event->setCommentsCount((int) $commentsCount);
+
+        if($event->getSalesCompanyId()) {
+            $event->setPlatform('sales');
+        }
+
+        if($platform == PlatformConstants::PLATFORM_COMMNUE) {
+            $eventHot = $this->getDoctrine()->getRepository('SandboxApiBundle:Event\CommnueEventHot')
+                ->findOneBy([
+                    'eventId' => $event->getId()
+                ]);
+
+            if(!is_null($eventHot)) {
+                $event->setCommnueHot(true);
+            }
+        }
 
         // set view
         $view = new View($event);
@@ -602,6 +736,14 @@ class AdminEventController extends SandboxRestController
             $eventForms
         );
 
+        if($event->getPlatform() == Event::PLATFORM_OFFICIAL) {
+            $eventsParameter = $this->getDoctrine()->getRepository('SandboxApiBundle:Parameter\Parameter')
+                ->findOneBy([
+                    'key' => Parameter::KEY_COMMNUE_EVENTS_MANAGER
+                ]);
+            $eventsParameter->setValue('true');
+        }
+
         $types = [ViewCounts::TYPE_VIEW, ViewCounts::TYPE_REGISTERING];
         foreach ($types as $type) {
             $this->get('sandbox_api.view_count')->addFirstData(
@@ -753,6 +895,10 @@ class AdminEventController extends SandboxRestController
             $event->setIsSaved(true);
         }
 
+        if ($event->getPlatform() == Event::PLATFORM_COMMNUE && $submit) {
+            $event->setCommnueVisible(true);
+        }
+
         $em->flush();
     }
 
@@ -884,6 +1030,10 @@ class AdminEventController extends SandboxRestController
         // set price
         if (!$event->isCharge()) {
             $event->setPrice(0.00);
+        } else {
+            if ($event->getPrice() == '0') {
+                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            }
         }
 
         $event->setCity($city);
@@ -905,6 +1055,10 @@ class AdminEventController extends SandboxRestController
             $event->setVisible(false);
             $event->setIsSaved(true);
             $event->setStatus(Event::STATUS_SAVED);
+        }
+
+        if ($event->getPlatform() == Event::PLATFORM_COMMNUE && $submit) {
+            $event->setCommnueVisible(true);
         }
 
         // no verify if not free

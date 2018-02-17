@@ -66,6 +66,7 @@ class Parameter
     const KEY_COMMNUE_BANNER = 'commnue_banner';
     const KEY_COMMNUE_ADVERTISING_MIDDLE = 'commnue_advertising_middle';
     const KEY_COMMNUE_ADVERTISING_MICRO = 'commnue_advertising_micro';
+    const KEY_COMMNUE_EVENTS_MANAGER = 'commnue_events_manager'; //合创社活动管理
 
     /**
      * @var int

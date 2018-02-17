@@ -4,14 +4,14 @@ namespace Application\Migrations;
 
 use Doctrine\DBAL\Migrations\AbstractMigration;
 use Doctrine\DBAL\Schema\Schema;
-use Sandbox\ApiBundle\Entity\Lease\LeaseRentTypes;
+use Doctrine\ORM\EntityManager;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-class Version920170721165533 extends AbstractMigration implements ContainerAwareInterface
+class Version920180205072929 extends AbstractMigration implements ContainerAwareInterface
 {
     use ContainerAwareTrait;
 
@@ -21,23 +21,28 @@ class Version920170721165533 extends AbstractMigration implements ContainerAware
     public function up(Schema $schema)
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
+
     }
 
+    /**
+     * @param Schema $schema
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
     public function postUp(Schema $schema)
     {
         parent::postUp($schema);
 
+        /** @var EntityManager $em */
         $em = $this->container->get('doctrine.orm.entity_manager');
 
-        $rentTypes = $em->getRepository('SandboxApiBundle:Lease\LeaseRentTypes')->findAll();
+        $events = $em->getRepository('SandboxApiBundle:Event\Event')
+            ->findBy([
+                'isCharge' => true,
+                'price' => '0'
+            ]);
 
-        foreach ($rentTypes as $rentType) {
-            if ($rentType->getName() == '增值税税金') {
-                $rentType->setType(LeaseRentTypes::RENT_TYPE_TAX);
-            } else {
-                $rentType->setType(LeaseRentTypes::RENT_TYPE_RENT);
-            }
+        foreach ($events as $event) {
+            $event->setIsCharge(false);
         }
 
         $em->flush();
@@ -49,6 +54,6 @@ class Version920170721165533 extends AbstractMigration implements ContainerAware
     public function down(Schema $schema)
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
+
     }
 }

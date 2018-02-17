@@ -17,6 +17,7 @@ use Sandbox\ApiBundle\Entity\SalesAdmin\SalesAdmin;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompany;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyApply;
 use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyServiceInfos;
+use Sandbox\ApiBundle\Entity\SalesAdmin\SalesCompanyView;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesCompanyPatchType;
 use Sandbox\ApiBundle\Form\SalesAdmin\SalesCompanyPostType;
 use Sandbox\ApiBundle\Form\SalesAdmin\ServiceInfoPostType;
@@ -24,11 +25,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use FOS\RestBundle\View\View;
-use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations;
-use Knp\Component\Pager\Paginator;
 use Doctrine\ORM\EntityManager;
 use Rs\Json\Patch;
 use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
@@ -126,20 +125,11 @@ class AdminSalesCompanyController extends SandboxRestController
      *
      * @param Request $request the request object
      *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     200 = "Returned when successful"
-     *   }
-     * )
-     *
      * @Annotations\QueryParam(
-     *    name="banned",
-     *    array=false,
-     *    default=null,
-     *    nullable=true,
-     *    strict=true,
-     *    description="sales admin banned status"
+     *     name="status",
+     *     array=false,
+     *     nullable=true,
+     *     strict=true
      * )
      *
      * @Annotations\QueryParam(
@@ -189,12 +179,6 @@ class AdminSalesCompanyController extends SandboxRestController
         Request $request,
         ParamFetcherInterface $paramFetcher
     ) {
-        $banned = $paramFetcher->get('banned');
-        $pageLimit = $paramFetcher->get('pageLimit');
-        $pageIndex = $paramFetcher->get('pageIndex');
-        $keyword = $paramFetcher->get('keyword');
-        $keywordSearch = $paramFetcher->get('keyword_search');
-
         // check user permission
         $this->get('sandbox_api.admin_permission_check_service')->checkPermissions(
             $this->getAdminId(),
@@ -205,49 +189,104 @@ class AdminSalesCompanyController extends SandboxRestController
             AdminPermission::OP_LEVEL_VIEW
         );
 
+        $status = $paramFetcher->get('status');
+        $pageLimit = $paramFetcher->get('pageLimit');
+        $pageIndex = $paramFetcher->get('pageIndex');
+        $keyword = $paramFetcher->get('keyword');
+        $keywordSearch = $paramFetcher->get('keyword_search');
+
+        $limit = $pageLimit;
+        $offset = ($pageIndex - 1) * $pageLimit;
+
         $salesCompanies = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyView')
             ->getCompanyList(
-                $banned,
+                $status,
+                $keyword,
+                $keywordSearch,
+                $limit,
+                $offset
+            );
+
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyView')
+            ->countCompanyList(
+                $status,
                 $keyword,
                 $keywordSearch
             );
 
-        foreach ($salesCompanies as $company) {
-            $buildingCounts = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')->countSalesBuildings($company);
-            $shops = $this->getDoctrine()->getRepository('SandboxApiBundle:Shop\Shop')->getShopsByCompany($company);
-            $shopCounts = count($shops);
+        foreach ($salesCompanies as &$company) {
+            if ($company['type'] == SalesCompanyView::TYPE_COMPANY) {
+                $buildingCounts = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                    ->countSalesBuildings($company['id']);
 
-            /* @var SalesCompany $company*/
-            $company->setBuildingCounts((int) $buildingCounts);
-            $company->setShopCounts((int) $shopCounts);
+                $company['building_counts'] = (int) $buildingCounts;
 
-            // new pending shop
-            foreach ($shops as $shop) {
-                if (!$shop->isActive() && !$shop->isDeleted()) {
-                    $company->setHasPendingShop(true);
-                }
+                $shopCounts = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Shop\Shop')
+                    ->countShopsByCompany($company['id']);
+
+                $company['shop_counts'] = (int) $shopCounts;
+
+                $adminsCount = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                    ->countBindUserByPlatform(
+                        AdminPermission::PERMISSION_PLATFORM_SALES,
+                        $company['id'],
+                        true
+                    );
+
+                $company['admins'] = (int) $adminsCount;
+
+                $coffeeAdminsCount = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Admin\AdminPositionUserBinding')
+                    ->countBindUserByPlatform(
+                        AdminPermission::PERMISSION_PLATFORM_SHOP,
+                        $company['id'],
+                        true
+                    );
+
+                $company['coffee_admins'] = (int) $coffeeAdminsCount;
+
+                $productCount = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Product\Product')
+                    ->countsProductsByCompany(
+                        $company['id']
+                    );
+
+                $company['product_counts'] = (int) $productCount;
+
+                $tradeTypes = [
+                    SalesCompanyServiceInfos::TRADE_TYPE_ACTIVITY,
+                    SalesCompanyServiceInfos::TRADE_TYPE_LONGTERM,
+                    SalesCompanyServiceInfos::TRADE_TYPE_MEMBERSHIP_CARD,
+                    SalesCompanyServiceInfos::TRADE_TYPE_SERVICE,
+                ];
+
+                $serviceCount = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyServiceInfos')
+                    ->countServices(
+                        $company['id'],
+                        $tradeTypes
+                    );
+
+                $company['service_counts'] = (int) $serviceCount;
             }
-
-            // check event module
-            $this->checkExcludePermissions($company);
         }
 
-        $salesCompanies = $this->get('serializer')->serialize(
-            $salesCompanies,
-            'json',
-            SerializationContext::create()->setGroups(['admin_list'])
-        );
-        $salesCompanies = json_decode($salesCompanies, true);
-
-        $paginator = new Paginator();
-        $pagination = $paginator->paginate(
-            $salesCompanies,
-            $pageIndex,
-            $pageLimit
+        $view = new View();
+        $view->setData(
+            array(
+                'current_page_number' => $pageIndex,
+                'num_items_per_page' => (int) $pageLimit,
+                'items' => $salesCompanies,
+                'total_count' => (int) $count,
+            )
         );
 
-        return new View($pagination);
+        return $view;
     }
 
     /**
@@ -255,13 +294,6 @@ class AdminSalesCompanyController extends SandboxRestController
      *
      * @param Request $request the request object
      * @param int     $id
-     *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     200 = "Returned when successful"
-     *   }
-     * )
      *
      * @Method({"GET"})
      * @Route("/companies/{id}")
@@ -421,13 +453,6 @@ class AdminSalesCompanyController extends SandboxRestController
      * Create sales company.
      *
      * @param Request $request the request object
-     *
-     * @ApiDoc(
-     *   resource = true,
-     *   statusCodes = {
-     *     201 = "Returned when successful"
-     *  }
-     * )
      *
      * @Method({"POST"})
      * @Route("/companies")

@@ -118,9 +118,10 @@ class ClientEventController extends EventController
                 );
 
             $eventsAll = array_merge($events, $elseEvents);
+            $counts = count($eventsAll);
 
             $events = [];
-            for ($i = $offset; $i < $offset + $limit; $i++) {
+            for ($i = $offset; $i < $offset + $limit && $i < $counts; $i++) {
                 array_push($events, $eventsAll[$i]);
             }
         } else {

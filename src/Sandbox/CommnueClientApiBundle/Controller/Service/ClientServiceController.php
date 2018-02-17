@@ -125,6 +125,12 @@ class ClientServiceController extends SandboxRestController
             );
 
         foreach ($services as $service) {
+            $salesCompany = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
+                ->getCompanyInfo($service->getSalesCompanyId());
+
+            $service->setSalesCompany($salesCompany);
+
             $attachments = $this->getDoctrine()
                 ->getRepository('SandboxApiBundle:Service\ServiceAttachment')
                 ->findBy(['service' => $service]);
@@ -190,6 +196,14 @@ class ClientServiceController extends SandboxRestController
         $service->setTimes($times);
         $service->setAddress($addresss);
         $result['service'] = $service;
+
+        $salesCompanyId = $service->getSalesCompanyId();
+        if($salesCompanyId) {
+            $salesCompany = $this->getDoctrine()->getRepository('SandboxApiBundle:SalesAdmin\SalesCompany')
+                ->find($salesCompanyId);
+        }
+
+        $result['sales_company_name'] = $salesCompanyId ? $salesCompany->getName() : '';
 
         $result['order_id'] = '';
         $result['like'] = false;

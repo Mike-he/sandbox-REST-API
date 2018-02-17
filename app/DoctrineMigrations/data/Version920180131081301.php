@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-class Version920180120074949 extends AbstractMigration implements ContainerAwareInterface
+class Version920180131081301 extends AbstractMigration implements ContainerAwareInterface
 {
     use ContainerAwareTrait;
 
@@ -35,98 +35,97 @@ class Version920180120074949 extends AbstractMigration implements ContainerAware
         $columns =
             array(
                 array(
-                    'column' => 'company_logo_and_name',
-                    'name' => '公司logo+名称',
+                    'column' => 'activity_name',
+                    'name' => '活动名称',
                     'default' => true,
                     'required' => true,
                 ),
                 array(
-                    'column' => 'company_name',
-                    'name' => '公司电话',
+                    'column' => 'conduct_company_name',
+                    'name' => '活动组织方',
+                    'default' => false,
+                    'required' => false,
+                ),
+                array(
+                    'column' => 'registration_date',
+                    'name' => '报名时间',
+                    'default' => false,
+                    'required' => false,
+                ),
+                array(
+                    'column' => 'activity_date',
+                    'name' => '活动时间',
+                    'default' => true,
+                    'required' => false,
+                ),
+                array(
+                    'column' => 'activity_address',
+                    'name' => '活动地点',
+                    'default' => false,
+                    'required' => false,
+                ),
+                array(
+                    'column' => 'price',
+                    'name' => '收费金额',
+                    'default' => true,
+                    'required' => true,
+                    'sort' => true,
+                ),
+                array(
+                    'column' => 'is_verify',
+                    'name' => '是否审核',
                     'default' => true,
                     'required' => true,
                 ),
                 array(
-                    'column' => 'company_fax',
-                    'name' => '公司传真',
+                    'column' => 'limit_number',
+                    'name' => '人数上限',
                     'default' => false,
                     'required' => false,
                 ),
                 array(
-                    'column' => 'company_building',
-                    'name' => '所属大楼',
+                    'column' => 'comments_count',
+                    'name' => '评论数',
                     'default' => false,
                     'required' => false,
                 ),
                 array(
-                    'column' => 'company_address',
-                    'name' => '公司地址',
-                    'default' => false,
-                    'required' => false,
-                ),
-                array(
-                    'column' => 'company_email',
-                    'name' => '公司邮箱',
-                    'default' => false,
-                    'required' => false,
-                ),
-                array(
-                    'column' => 'company_website',
-                    'name' => '公司网站',
-                    'default' => false,
-                    'required' => false,
-                ),
-                array(
-                    'column' => 'company_description',
-                    'name' => '公司描述',
-                    'default' => false,
-                    'required' => false,
-                ),
-                array(
-                    'column' => 'company_industry',
-                    'name' => '所属行业',
+                    'column' => 'registrations_number',
+                    'name' => '报名人数',
                     'default' => true,
                     'required' => false,
+                    'sort' => true,
                 ),
                 array(
-                    'column' => 'company_portfolio',
-                    'name' => '公司作品',
+                    'column' => 'registration_type',
+                    'name' => '报名方式',
                     'default' => false,
                     'required' => false,
                 ),
                 array(
-                    'column' => 'company_members',
-                    'name' => '公司成员',
+                    'column' => 'activity_status',
+                    'name' => '活动状态',
                     'default' => true,
-                    'required' => false,
+                    'required' => true,
                 ),
                 array(
-                    'column' => 'creator_name',
-                    'name' => '创建者名字',
-                    'default' => true,
-                    'required' => false,
-                ),
-                array(
-                    'column' => 'creator_phone',
-                    'name' => '创建者手机号',
-                    'default' => false,
-                    'required' => false,
-                ),
-                array(
-                    'column' => 'creation_date',
-                    'name' => '创建时间',
+                    'column' => 'visible',
+                    'name' => '上下架',
                     'default' => true,
                     'required' => false,
                 ),
             );
 
         foreach ($columns as $column) {
+            $sort = isset($column['sort']) ? $column['sort'] : false;
+
             $list = new GenericList();
             $list->setColumn($column['column']);
             $list->setName($column['name']);
             $list->setDefault($column['default']);
             $list->setRequired($column['required']);
-            $list->setObject(GenericList::OBJECT_COMMNUE_COMPANY);
+            $list->setSort($sort);
+            $list->setObject(GenericList::OBJECT_COMMNUE_ACTIVITY);
             $list->setPlatform(GenericList::OBJECT_PLATFORM_COMMNUE);
 
             $em->persist($list);

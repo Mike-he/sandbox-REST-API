@@ -978,4 +978,22 @@ class RoomBuildingRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @return mixed
+     */
+    public function getFirstBuildingLogo(){
+        $query = $this->createQueryBuilder('rm')
+            ->select([
+                'rm.avatar'
+            ])
+            ->where('rm.visible = TRUE')
+            ->andWhere('rm.isDeleted = FALSE')
+            ->orderBy('rm.creationDate','ASC')
+            ->setMaxResults(1);
+
+        $result = $query->getQuery()->getSingleResult();
+
+        return $result;
+    }
 }

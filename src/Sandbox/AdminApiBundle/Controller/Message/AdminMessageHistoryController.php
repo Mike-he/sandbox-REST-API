@@ -178,21 +178,22 @@ class AdminMessageHistoryController extends AdminMessagePushController
                     $xmppUsername,
                     JMessageHistory::TARGET_TYPE_SINGLE
                 );
-
-            $usersArray[] = array(
-                'id' => $user->getId(),
-                'name' => $userProfile->getName(),
-                'phone' => $user->getPhone(),
-                'email' => $user->getEmail(),
-                'authorized' => $user->isAuthorized(),
-                'banned' => $user->isBanned(),
-                'jid' => $jid,
-                'message' => [
-                    'msg_type' => $lastMessage->getMsgType(),
-                    'body' => $lastMessage->getMsgBody(),
-                    'sent_date' => $lastMessage->getMsgCtime(),
-                ],
-            );
+            if ($user) {
+                $usersArray[] = array(
+                    'id' => $user->getId(),
+                    'name' => $userProfile->getName(),
+                    'phone' => $user->getPhone(),
+                    'email' => $user->getEmail(),
+                    'authorized' => $user->isAuthorized(),
+                    'banned' => $user->isBanned(),
+                    'jid' => $jid,
+                    'message' => [
+                        'msg_type' => $lastMessage->getMsgType(),
+                        'body' => $lastMessage->getMsgBody(),
+                        'sent_date' => $lastMessage->getMsgCtime(),
+                    ],
+                );
+            }
         }
 
         return new View(array(

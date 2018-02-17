@@ -13,6 +13,7 @@ use Sandbox\ApiBundle\Entity\Event\EventDate;
 use Sandbox\ApiBundle\Entity\Event\EventForm;
 use Sandbox\ApiBundle\Entity\Event\EventFormOption;
 use Sandbox\ApiBundle\Entity\Event\EventTime;
+use Sandbox\ApiBundle\Entity\Parameter\Parameter;
 use Sandbox\ApiBundle\Entity\Service\ViewCounts;
 use Sandbox\ApiBundle\Form\Event\EventPatchType;
 use Sandbox\ApiBundle\Form\Event\EventPostType;
@@ -133,7 +134,6 @@ class AdminEventController extends SalesRestController
      *    array=false,
      *    default=null,
      *    nullable=true,
-     *    requirements="(preheating|registering|ongoing|end|saved)",
      *    strict=true,
      *    description="event status"
      * )
@@ -145,6 +145,54 @@ class AdminEventController extends SalesRestController
      *    nullable=true,
      *    strict=true,
      *    description="event visible"
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="query",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="verify",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="charge",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="method",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="sort_column",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="direction",
+     *     array=false,
+     *     default=null,
+     *     nullable=true,
+     *     strict=true
      * )
      *
      * @Route("/events")
@@ -159,7 +207,7 @@ class AdminEventController extends SalesRestController
         ParamFetcherInterface $paramFetcher
     ) {
         // check user permission
-        $this->checkSalesAdminEventPermission(AdminPermission::OP_LEVEL_VIEW);
+//        $this->checkSalesAdminEventPermission(AdminPermission::OP_LEVEL_VIEW);
 
         // get sales company id
         $salesCompanyId = $this->getSalesCompanyId();
@@ -169,6 +217,14 @@ class AdminEventController extends SalesRestController
         $pageIndex = $paramFetcher->get('pageIndex');
         $status = $paramFetcher->get('status');
         $visible = $paramFetcher->get('visible');
+        $search = $paramFetcher->get('query');
+        $verify = $paramFetcher->get('verify');
+        $verify = !is_null($verify) ? (bool) $verify : $verify;
+        $charge = $paramFetcher->get('charge');
+        $charge = !is_null($charge) ? (bool) $charge : $charge;
+        $method = $paramFetcher->get('method');
+        $sortColumn = $paramFetcher->get('sort_column');
+        $direction = $paramFetcher->get('direction');
 
         $eventsArray = array();
         $events = $this->getDoctrine()
@@ -176,11 +232,19 @@ class AdminEventController extends SalesRestController
             ->getSalesEvents(
                 $status,
                 $visible,
-                $salesCompanyId
+                $salesCompanyId,
+                $search,
+                $verify,
+                $charge,
+                $method,
+                $sortColumn,
+                $direction
             );
 
         foreach ($events as $eventArray) {
+            /** @var Event $event */
             $event = $eventArray['event'];
+            $eventId = $event->getId();
             $attachments = $this->getRepo('Event\EventAttachment')->findByEvent($event);
             $dates = $this->getRepo('Event\EventDate')->findByEvent($event);
             $forms = $this->getRepo('Event\EventForm')->findByEvent($event);
@@ -191,6 +255,11 @@ class AdminEventController extends SalesRestController
             $event->setDates($dates);
             $event->setForms($forms);
             $event->setRegisteredPersonNumber((int) $registrationCounts);
+
+            $commentsCount = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Event\EventComment')
+                ->getCommentsCount($eventId);
+            $event->setCommentsCount((int) $commentsCount);
 
             array_push($eventsArray, $event);
         }
@@ -606,6 +675,12 @@ class AdminEventController extends SalesRestController
             $eventForms
         );
 
+        $eventsParameter = $this->getDoctrine()->getRepository('SandboxApiBundle:Parameter\Parameter')
+            ->findOneBy([
+                'key' => Parameter::KEY_COMMNUE_EVENTS_MANAGER
+            ]);
+        $eventsParameter->setValue('true');
+
         $types = [ViewCounts::TYPE_VIEW, ViewCounts::TYPE_REGISTERING];
         foreach ($types as $type) {
             $this->get('sandbox_api.view_count')->addFirstData(
@@ -888,6 +963,10 @@ class AdminEventController extends SalesRestController
         // set price
         if (!$event->isCharge()) {
             $event->setPrice(0.00);
+        } else {
+            if ($event->getPrice() == '0') {
+                throw new BadRequestHttpException(self::BAD_PARAM_MESSAGE);
+            }
         }
 
         $event->setCity($city);

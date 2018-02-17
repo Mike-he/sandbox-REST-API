@@ -5,17 +5,54 @@ namespace Sandbox\CommnueAdminApiBundle\Controller\Expert;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\Controller\Annotations;
-use Knp\Component\Pager\Paginator;
 use Rs\Json\Patch;
+use Sandbox\ApiBundle\Constants\CustomErrorMessagesConstants;
+use Sandbox\ApiBundle\Constants\PlatformConstants;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Sandbox\ApiBundle\Entity\Admin\AdminRemark;
 use Sandbox\ApiBundle\Entity\Expert\Expert;
 use Sandbox\ApiBundle\Form\Expert\ExpertPatchType;
+use Sandbox\ApiBundle\Traits\SendNotification;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
 
 class AdminExpertController extends SandboxRestController
 {
+    const MESSAGE_SUCCESS = '恭喜您，专家身份审核成功。';
+    const MESSAGE_FAILURE = '您的专家身份审核未通过，请修改资料后重新提交。';
+
+    use SendNotification;
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/experts/pending/check")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getPendingExpertAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $expert = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Expert\Expert')
+            ->findBy(array('status' => Expert::STATUS_PENDING));
+
+        $status = $expert ? true : false;
+
+        $view = new View();
+        $view->setData(
+            array(
+                'status' => $status,
+            )
+        );
+
+        return $view;
+    }
+
     /**
      * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
@@ -30,6 +67,14 @@ class AdminExpertController extends SandboxRestController
      *
      * @Annotations\QueryParam(
      *     name="name",
+     *     array=false,
+     *     nullable=true,
+     *     default=null,
+     *     strict=true
+     * )
+     *
+     * @Annotations\QueryParam(
+     *     name="status",
      *     array=false,
      *     nullable=true,
      *     default=null,
@@ -66,6 +111,8 @@ class AdminExpertController extends SandboxRestController
      * @Method({"GET"})
      *
      * @return View
+     *
+     * @throws \Exception
      */
     public function getExpertsAction(
         Request $request,
@@ -74,33 +121,52 @@ class AdminExpertController extends SandboxRestController
         $banned = (bool) $paramFetcher->get('banned');
         $name = $paramFetcher->get('name');
         $phone = $paramFetcher->get('phone');
+        $status = $paramFetcher->get('status');
         $pageIndex = $paramFetcher->get('pageIndex');
         $pageLimit = $paramFetcher->get('pageLimit');
+
+        $limit = $pageLimit;
+        $offset = ($pageIndex - 1) * $pageLimit;
 
         $experts = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Expert\Expert')
             ->getAdminExperts(
                 $banned,
                 $name,
-                $phone
+                $phone,
+                $status,
+                $limit,
+                $offset
+            );
+
+        $count = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Expert\Expert')
+            ->countAdminExperts(
+                $banned,
+                $name,
+                $phone,
+                $status
             );
 
         foreach ($experts as $expert) {
             $this->setExpertLocation($expert);
         }
 
-        $paginator = new Paginator();
-        $pagination = $paginator->paginate(
-            $experts,
-            $pageIndex,
-            $pageLimit
+        $view = new View();
+        $view->setData(
+            array(
+                'current_page_number' => $pageIndex,
+                'num_items_per_page' => (int) $pageLimit,
+                'items' => $experts,
+                'total_count' => (int) $count,
+            )
         );
 
-        return new View($pagination);
+        return $view;
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      * @param $id
      *
@@ -124,7 +190,7 @@ class AdminExpertController extends SandboxRestController
     }
 
     /**
-     * @param Request $request
+     * @param Request               $request
      * @param ParamFetcherInterface $paramFetcher
      * @param $id
      *
@@ -145,6 +211,9 @@ class AdminExpertController extends SandboxRestController
             ->find($id);
         $this->throwNotFoundIfNull($expert, self::NOT_FOUND_MESSAGE);
 
+        $oldStatus = $expert->getStatus();
+        $action = null;
+
         $expertJson = $this->container->get('serializer')->serialize($expert, 'json');
         $patch = new Patch($expertJson, $request->getContent());
         $expertJson = $patch->apply();
@@ -152,8 +221,81 @@ class AdminExpertController extends SandboxRestController
         $form = $this->createForm(new ExpertPatchType(), $expert);
         $form->submit(json_decode($expertJson, true));
 
+        $newStatus = $expert->getStatus();
+        if ($oldStatus != $newStatus) {
+            switch ($newStatus) {
+                case Expert::STATUS_SUCCESS:
+                    $action = Expert::STATUS_SUCCESS;
+                    $expert->setTop(false);
+                    break;
+                case Expert::STATUS_FAILURE:
+                    if (is_null($expert->getRemark())) {
+                        return $this->customErrorView(
+                            400,
+                            CustomErrorMessagesConstants::ERROR_PAYLOAD_FORMAT_NOT_CORRECT_CODE,
+                            CustomErrorMessagesConstants::ERROR_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE
+                        );
+                    }
+
+                    $action = Expert::STATUS_FAILURE;
+                    $expert->setTop(false);
+
+                    $this->get('sandbox_api.admin_remark')->autoRemark(
+                        $this->getAdminId(),
+                        PlatformConstants::PLATFORM_COMMNUE,
+                        null,
+                        $expert->getRemark(),
+                        AdminRemark::OBJECT_EXPERT,
+                        $id
+                    );
+                    break;
+                default:
+                    return $this->customErrorView(
+                        400,
+                        CustomErrorMessagesConstants::ERROR_PAYLOAD_FORMAT_NOT_CORRECT_CODE,
+                        CustomErrorMessagesConstants::ERROR_PAYLOAD_FORMAT_NOT_CORRECT_MESSAGE
+                    );
+            }
+        }
+
         $em = $this->getDoctrine()->getManager();
         $em->flush();
+
+        if ($action) {
+            //Jpush message
+            $title = '合创设';
+            $key = $this->getParameter('jpush_commnue_key');
+            $secret = $this->getParameter('jpush_commnue_secret');
+
+            switch ($action) {
+                case Expert::STATUS_SUCCESS:
+                    $message = self::MESSAGE_SUCCESS;
+                    break;
+                case Expert::STATUS_FAILURE:
+                    $message = self::MESSAGE_FAILURE;
+                    break;
+                default:
+                    return new View();
+            }
+
+            $contentArray = [
+                'type' => 'expert',
+                'action' => $action,
+                'title' => $message,
+            ];
+
+            $receivers = [$expert->getUserId()];
+
+            $data = $this->getJpushData(
+                $receivers,
+                ['lang_zh'],
+                $message,
+                $title,
+                $contentArray
+            );
+
+            $this->sendJpushNotification($data, $key, $secret);
+        }
 
         return new View();
     }

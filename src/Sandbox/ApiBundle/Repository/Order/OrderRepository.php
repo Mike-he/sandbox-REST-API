@@ -435,6 +435,7 @@ class OrderRepository extends EntityRepository
                     .'o.status = \''.ProductOrder::STATUS_COMPLETED.'\'
                 )')
             ->andWhere('o.endDate > :now')
+            ->andWhere('o.rejected = FALSE')
             ->setParameter('now', $now)
             ->setParameter('userId', $userId);
 

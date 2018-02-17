@@ -424,7 +424,8 @@ class Event
      *
      * @Serializer\Groups({
      *      "main",
-     *      "client_event"
+     *      "client_event",
+     *      "admin_event"
      * })
      */
     private $commnueHot;
@@ -433,6 +434,10 @@ class Event
      * @var string
      *
      * @ORM\Column(name="platform", type="string", length=64, options={"default": "official"})
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event"
+     * })
      */
     private $platform = self::PLATFORM_OFFICIAL;
 
@@ -442,6 +447,18 @@ class Event
      * @Serializer\Groups({"client_event"})
      */
     private $favorite;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="commnue_visible", type="boolean", nullable=false)
+     *
+     * @Serializer\Groups({
+     *      "main",
+     *      "admin_event"
+     * })
+     */
+    private $commnueVisible = false;
 
     /**
      * Get id.
@@ -1200,4 +1217,22 @@ class Event
     {
         $this->favorite = $favorite;
     }
+
+    /**
+     * @return bool
+     */
+    public function isCommnueVisible()
+    {
+        return $this->commnueVisible;
+    }
+
+    /**
+     * @param bool $commnueVisible
+     */
+    public function setCommnueVisible($commnueVisible)
+    {
+        $this->commnueVisible = $commnueVisible;
+    }
+
+
 }
