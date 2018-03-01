@@ -980,19 +980,27 @@ class RoomBuildingRepository extends EntityRepository
     }
 
     /**
+     * @param $salesCompanyId
+     * @param bool $visible
      * @return mixed
      */
-    public function getFirstBuildingLogo(){
+    public function getFirstBuildingLogo(
+        $salesCompanyId,
+        $visible = true
+    ){
         $query = $this->createQueryBuilder('rm')
             ->select([
                 'rm.avatar'
             ])
-            ->where('rm.visible = TRUE')
+            ->where('rm.visible = :visible')
+            ->andWhere('rm.companyId = :companyId')
             ->andWhere('rm.isDeleted = FALSE')
+            ->setParameter('visible', $visible)
+            ->setParameter('companyId', $salesCompanyId)
             ->orderBy('rm.creationDate','ASC')
             ->setMaxResults(1);
 
-        $result = $query->getQuery()->getSingleResult();
+        $result = $query->getQuery()->getOneOrNullResult();
 
         return $result;
     }
