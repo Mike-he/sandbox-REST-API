@@ -49,10 +49,20 @@ class Version920171227132517 extends AbstractMigration implements ContainerAware
         $type4->setName("其他");
         $type4->setKey(ServiceTypes::TYPE_NAME_OTHER);
 
+        $type5 = new ServiceTypes();
+        $type5->setName("数据服务");
+        $type5->setKey(ServiceTypes::TYPE_NAME_DATA_SERVICE);
+
+        $type6 = new ServiceTypes();
+        $type6->setName("媒资服务");
+        $type6->setKey(ServiceTypes::TYPE_NAME_MEDIA_SERVICE);
+
         $em->persist($type1);
         $em->persist($type2);
         $em->persist($type3);
         $em->persist($type4);
+        $em->persist($type5);
+        $em->persist($type6);
 
         $em->flush();
     }

@@ -17,6 +17,8 @@ class ServiceTypes
     const TYPE_NAME_FINANCIAL_COLLECTION = 'financial_collection';
     const TYPE_NAME_LAGAL_ADVICE = 'legal_advice';
     const TYPE_NAME_OTHER = 'other';
+    const TYPE_NAME_DATA_SERVICE = 'data_service';
+    const TYPE_NAME_MEDIA_SERVICE = 'media_service';
 
     /**
      * @var int
