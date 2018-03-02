@@ -2,7 +2,7 @@
 
 namespace Sandbox\SalesApiBundle\Controller\Admin;
 
-use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Sandbox\SalesApiBundle\Controller\SalesRestController;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -11,7 +11,7 @@ use FOS\RestBundle\View\View;
 /**
  * AdminLogo controller.
  */
-class AdminLogoController extends SandboxRestController
+class AdminLogoController extends SalesRestController
 {
     /**
      * @param Request $request
@@ -24,9 +24,17 @@ class AdminLogoController extends SandboxRestController
     public function getSalesAdminLogoAction(
         Request $request
     ) {
+        $salesCompnayId = $this->getSalesCompanyId();
         $logo = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')
-            ->getFirstBuildingLogo();
+            ->getFirstBuildingLogo($salesCompnayId);
 
+        if (!$logo) {
+            $logo = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')
+                ->getFirstBuildingLogo(
+                    $salesCompnayId,
+                    false
+                );
+        }
         return new View($logo);
     }
 }
