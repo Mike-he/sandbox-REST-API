@@ -28,10 +28,17 @@ class ClientSalesCompanyController extends SandboxRestController
 
         $this->throwNotFoundIfNull($salesCompany, self::NOT_FOUND_MESSAGE);
 
+        $profile = $this->getDoctrine()->getRepository('SandboxApiBundle:SalesAdmin\SalesCompanyProfiles')
+            ->findOneBy([
+                'salesCompanyId'=>$id
+            ]);
+
         return new View([
             'id' => $salesCompany->getId(),
             'name' => $salesCompany->getName(),
             'description' => $salesCompany->getDescription(),
+            'cover' => $profile->getCover(),
+            'description' => $salesCompany->getDescription()
         ]);
     }
 
