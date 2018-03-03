@@ -59,6 +59,15 @@ class ClientEventsController extends EventController
      *    description="sort string"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="salesCompany",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    description="sales company id"
+     * )
+     *
      * @Route("/events/all")
      * @Method({"GET"})
      *
@@ -77,6 +86,7 @@ class ClientEventsController extends EventController
 
         $status = $paramFetcher->get('status');
         $sort = $paramFetcher->get('sort');
+        $salesCompanyId = $paramFetcher->get('salesCompany');
 
         // filters
         $limit = $paramFetcher->get('limit');
@@ -95,7 +105,8 @@ class ClientEventsController extends EventController
                     Event::STATUS_REGISTERING,
                     null,
                     null,
-                    Event::PLATFORM_COMMNUE
+                    Event::PLATFORM_COMMNUE,
+                    $salesCompanyId
                 );
 
             $elseEvents = $this->getDoctrine()
@@ -107,7 +118,8 @@ class ClientEventsController extends EventController
                     null,
                     Event::STATUS_REGISTERING,
                     null,
-                    Event::PLATFORM_COMMNUE
+                    Event::PLATFORM_COMMNUE,
+                    $salesCompanyId
                 );
 
             $eventsAll = array_merge($events, $elseEvents);
@@ -126,7 +138,8 @@ class ClientEventsController extends EventController
                     $status,
                     null,
                     $sort,
-                    Event::PLATFORM_COMMNUE
+                    Event::PLATFORM_COMMNUE,
+                    $salesCompanyId
                 );
         }
 
