@@ -31,8 +31,14 @@ class ClientEventHotController extends EventController
         foreach ($hots as &$hot) {
             $url = $this->getParameter('mobile_url');
             $id = $hot['id'];
+            $attachment = $this->getDoctrine()->getRepository('SandboxApiBundle:Event\EventAttachment')
+                ->findOneBy([
+                    'eventId'=>$id
+                ]);
+            $hot['content'] = $attachment->getContent();
+            $hot['preview'] = $attachment->getPreview();
             $hot['url'] = $url.'/'.'event?ptype=detail&id='.$id;
-            $hot['registration_counts'] = $this->getRepo('Event\EventRegistration')
+            $hot['registration_counts'] = $this->getDoctrine()->getRepository('SandboxApiBundle:Event\EventRegistration')
                 ->getRegistrationCounts($id);
 
             $buildingId = $hot['buildingId'];

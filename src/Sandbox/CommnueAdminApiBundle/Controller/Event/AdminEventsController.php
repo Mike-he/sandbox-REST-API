@@ -49,13 +49,22 @@ class AdminEventsController extends SandboxRestController
         $form = $this->createForm(new CommnueEventPatchType(), $events);
         $form->submit(json_decode($eventsJson, true));
 
+        $em = $this->getDoctrine()->getManager();
         // change save status
         if ($events->isCommnueVisible() && $events->getPlatform() == Event::PLATFORM_COMMNUE) {
             $events->setIsSaved(false);
             $this->setEventStatus($events);
+        } elseif (!$events->isCommnueVisible()) {
+            $hots = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Event\CommnueEventHot')
+                ->findOneBy([
+                    'eventId'=>$id
+                ]);
+            if ($hots) {
+                $em->remove($hots);
+            }
         }
 
-        $em = $this->getDoctrine()->getManager();
         $em->flush();
 
         return new View();
