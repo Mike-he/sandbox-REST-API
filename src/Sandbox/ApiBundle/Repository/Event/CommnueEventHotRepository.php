@@ -22,18 +22,15 @@ class CommnueEventHotRepository extends EntityRepository
     {
         $query = $this->createQueryBuilder('h')
             ->leftJoin('SandboxApiBundle:Event\Event', 'e', 'WITH', 'h.eventId = e.id')
-            ->leftJoin('SandboxApiBundle:Event\EventAttachment', 'ea', 'WITH', 'ea.eventId = e.id')
             ->select(
                 'e.id,
                 e.name,
                 e.address,
                 e.status,
-                e.buildingId,
-                ea.content,
-                ea.preview
+                e.buildingId
               '
             )
-            ->where('1=1');
+            ->where('e.commnueVisible = TRUE');
 
         return $query->getQuery()->getResult();
     }

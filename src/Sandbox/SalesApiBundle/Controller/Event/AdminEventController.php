@@ -499,13 +499,23 @@ class AdminEventController extends SalesRestController
         $form = $this->createForm(new EventPatchType(), $event);
         $form->submit(json_decode($eventJson, true));
 
+        $em = $this->getDoctrine()->getManager();
         // change save status
         if ($event->isVisible()) {
             $event->setIsSaved(false);
             $this->setEventStatus($event);
+        } else {
+            $event->setCommnueVisible(false);
+            $hots = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Event\CommnueEventHot')
+                ->findOneBy([
+                    'eventId'=>$id
+                ]);
+            if ($hots) {
+                $em->remove($hots);
+            }
         }
 
-        $em = $this->getDoctrine()->getManager();
         $em->flush();
 
         return new View();
