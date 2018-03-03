@@ -36,7 +36,6 @@ class ClientSalesCompanyController extends SandboxRestController
         return new View([
             'id' => $salesCompany->getId(),
             'name' => $salesCompany->getName(),
-            'description' => $salesCompany->getDescription(),
             'cover' => $profile->getCover(),
             'description' => $salesCompany->getDescription()
         ]);
