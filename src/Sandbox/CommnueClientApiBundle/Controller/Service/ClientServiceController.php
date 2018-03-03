@@ -254,4 +254,22 @@ class ClientServiceController extends SandboxRestController
 
         return new View($result);
     }
+
+    /**
+     * @param Request $request
+     *
+     * @Route("/servicesTypes")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getTypesAction(
+        Request $request
+    ) {
+        $types = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Service\ServiceTypes')
+            ->findAll();
+
+        return new View($types);
+    }
 }
