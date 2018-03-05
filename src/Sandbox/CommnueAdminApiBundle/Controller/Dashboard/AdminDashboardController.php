@@ -8,6 +8,7 @@ use FOS\RestBundle\Controller\Annotations;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPosition;
 use Sandbox\ApiBundle\Entity\Event\Event;
+use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -203,5 +204,47 @@ class AdminDashboardController extends SandboxRestController
                 'servicesOrder_amount' => $serviceOrderData[1]
             ]
         ]);
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/dashboard/leases_data")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getDashboardLeasesDataAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $currentContracts = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\Lease')
+            ->countContract();
+
+        $effectiveStatus = array(
+            Lease::LEASE_STATUS_PERFORMING,
+            Lease::LEASE_STATUS_END,
+            Lease::LEASE_STATUS_MATURED,
+            Lease::LEASE_STATUS_TERMINATED,
+            Lease::LEASE_STATUS_CLOSED,
+        );
+
+        $effectiveContracts = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\Lease')
+            ->countContract($effectiveStatus);
+
+        $totalRent = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\Lease')
+            ->sumTotalRent();
+
+        $result = array(
+            'current_contracts' => $currentContracts,
+            'effective_contracts' => $effectiveContracts,
+            'total_rent' => $totalRent,
+        );
+
+        return new View($result);
     }
 }
