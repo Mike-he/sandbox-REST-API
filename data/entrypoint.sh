@@ -23,13 +23,6 @@ chmod 777 web/
 # Update vendor of sandbox_app
 # composer dump-autoload --optimize
 
-# Clean all caches for sandbox_app
-#php app/console cache:clear --env=prod
-
-#touch app/logs/prod.log
-
-#chmod o+rwx app/cache -R
-#chmod o+rwx app/logs -R
 
 if [ ! -z "$CRON_JOB" ]; then
   if [ "$CRON_JOB" == true ]; then
@@ -39,7 +32,7 @@ if [ ! -z "$CRON_JOB" ]; then
 fi
 
 mkdir /var/log/nginx/error  /var/log/nginx/access
-touch /var/log/nginx/error/error.log /var/log/nginx/access/access.log /var/www/error.log
+touch /var/log/nginx/error/error.log /var/log/nginx/access/access.log
 chmod 777 /var/www/error.log
 
 # Startup
