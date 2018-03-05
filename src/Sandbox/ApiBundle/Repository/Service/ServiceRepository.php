@@ -96,6 +96,7 @@ class ServiceRepository extends EntityRepository
      * @param $district
      * @param $type
      * @param $sort
+     * @param $salesCompanyId
      * @param null $limit
      * @param null $offset
      *
@@ -110,7 +111,8 @@ class ServiceRepository extends EntityRepository
         $sort,
         $limit = null,
         $offset = null,
-        $serviceIds = null
+        $serviceIds = null,
+        $salesCompanyId
     ) {
         $now = new \DateTime();
 
@@ -169,6 +171,11 @@ class ServiceRepository extends EntityRepository
             }
         } else {
             $query->orderBy('s.creationDate', 'DESC');
+        }
+
+        if (!is_null($salesCompanyId)) {
+            $query->andWhere('s.salesCompanyId = :salesCompanyId')
+                ->setParameter('salesCompanyId', $salesCompanyId);
         }
 
         if (!is_null($limit) && !is_null($offset)) {

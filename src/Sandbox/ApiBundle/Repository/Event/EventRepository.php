@@ -260,7 +260,8 @@ class EventRepository extends EntityRepository
      * @param null $status
      * @param null $excludeStatus
      * @param null $sort
-     * @param $platform
+     * @param null $platform
+     * @param null $salesCompanyId
      * @return array
      */
     public function getAllClientEvents(
@@ -270,7 +271,8 @@ class EventRepository extends EntityRepository
         $status = null,
         $excludeStatus = null,
         $sort = null,
-        $platform = null
+        $platform = null,
+        $salesCompanyId = null
     ) {
         $query = $this->createQueryBuilder('e')
             ->where('e.isDeleted = FALSE');
@@ -286,6 +288,11 @@ class EventRepository extends EntityRepository
         if ($eventIds) {
             $query->andWhere('e.id IN (:ids)')
                 ->setParameter('ids', $eventIds);
+        }
+
+        if ($salesCompanyId) {
+            $query->andWhere('e.salesCompanyId = :salesCompanyId')
+                ->setParameter('salesCompanyId', $salesCompanyId);
         }
 
         if(!is_null($status) && !empty($status)) {

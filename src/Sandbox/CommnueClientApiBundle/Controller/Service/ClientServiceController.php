@@ -91,6 +91,15 @@ class ClientServiceController extends SandboxRestController
      *    description="sort string"
      * )
      *
+     * @Annotations\QueryParam(
+     *    name="salesCompany",
+     *    array=false,
+     *    default=null,
+     *    nullable=true,
+     *    requirements="\d+",
+     *    description="sales company id"
+     * )
+     *
      * @Route("/services")
      * @Method({"GET"})
      *
@@ -110,6 +119,7 @@ class ClientServiceController extends SandboxRestController
         $district = $paramFetcher->get('district');
         $type = $paramFetcher->get('type');
         $sort = $paramFetcher->get('sort');
+        $salesCompanyId = $paramFetcher->get('salesCompany');
 
         $services = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Service\Service')
@@ -121,7 +131,9 @@ class ClientServiceController extends SandboxRestController
                 $type,
                 $sort,
                 $limit,
-                $offset
+                $offset,
+                null,
+                $salesCompanyId
             );
 
         foreach ($services as $service) {
