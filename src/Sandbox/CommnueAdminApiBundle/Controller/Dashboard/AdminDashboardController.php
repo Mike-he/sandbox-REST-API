@@ -132,9 +132,7 @@ class AdminDashboardController extends SandboxRestController
         $activities = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Event\Event')
             ->findBy([
-                'platform' => Event::PLATFORM_COMMNUE,
                 'isDeleted' => false,
-                'commnueVisible' => true,
                 'status' => [
                     Event::STATUS_WAITING,
                     Event::STATUS_END,
@@ -156,7 +154,6 @@ class AdminDashboardController extends SandboxRestController
         $ongoingActivities = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Event\Event')
             ->findBy([
-                'platform' => Event::PLATFORM_COMMNUE,
                 'isDeleted' => false,
                 'commnueVisible' => true,
                 'status' => [
@@ -170,7 +167,6 @@ class AdminDashboardController extends SandboxRestController
         $endedActivities = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Event\Event')
             ->findBy([
-                'platform' => Event::PLATFORM_COMMNUE,
                 'isDeleted' => false,
                 'commnueVisible' => true,
                 'status' => [
