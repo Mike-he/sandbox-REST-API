@@ -45,6 +45,7 @@ class EventRepository extends EntityRepository
         $direction
     ) {
         $query = $this->createQueryBuilder('e')
+            ->leftJoin('SandboxApiBundle:Event\CommnueEventHot','ceh','WITH','ceh.eventId = e.id')
             ->select('
                 e as event,
                 r.name as room_name,
@@ -65,16 +66,22 @@ class EventRepository extends EntityRepository
             $keywordSearch
         );
 
+        //热门空间排在其他空间之前
+        $query->addSelect(
+            'CASE WHEN ceh.id IS NULL THEN 1 ELSE 0 END AS HIDDEN eventHotIsNull'
+        )
+            ->orderBy('eventHotIsNull','ASC');
+
         if (!is_null($sortColumn) && !is_null($direction)) {
             switch ($sortColumn) {
                 case 'price':
-                    $query->orderBy('e.price', $direction);
+                    $query->addOrderBy('e.price', $direction);
                     break;
                 case 'registrations_number':
-                    $query->orderBy('vc.count', $direction);
+                    $query->addOrderBy('vc.count', $direction);
             }
         } else {
-            $query->orderBy('e.creationDate', 'DESC');
+            $query->addOrderBy('e.creationDate', 'DESC');
         }
 
         $query->setMaxResults($limit)

@@ -762,7 +762,7 @@ class RoomRepository extends EntityRepository
         if(!is_null($sort) && !is_null($direction)) {
             $direction = strtoupper($direction);
 
-            //上架时间正序后者倒序排序，没有产品的空间都排在有产品的空间之后
+            //上架时间正序或者倒序排序，没有产品的空间都排在有产品的空间之后
             if($sort == 'start_date')
                 $query->addSelect(
                     'CASE WHEN p.startDate IS NULL THEN 1 ELSE 0 END AS HIDDEN mystartDateIsNull'
