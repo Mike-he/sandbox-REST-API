@@ -134,7 +134,7 @@ class AdminDashboardController extends SandboxRestController
             ->findBy([
                 'platform' => Event::PLATFORM_COMMNUE,
                 'isDeleted' => false,
-                'visible' => true,
+                'commnueVisible' => true,
                 'status' => [
                     Event::STATUS_WAITING,
                     Event::STATUS_END,
@@ -158,7 +158,7 @@ class AdminDashboardController extends SandboxRestController
             ->findBy([
                 'platform' => Event::PLATFORM_COMMNUE,
                 'isDeleted' => false,
-                'visible' => true,
+                'commnueVisible' => true,
                 'status' => [
                     Event::STATUS_WAITING,
                     Event::STATUS_ONGOING,
@@ -172,7 +172,7 @@ class AdminDashboardController extends SandboxRestController
             ->findBy([
                 'platform' => Event::PLATFORM_COMMNUE,
                 'isDeleted' => false,
-                'visible' => true,
+                'commnueVisible' => true,
                 'status' => [
                     Event::STATUS_END,
                 ],
