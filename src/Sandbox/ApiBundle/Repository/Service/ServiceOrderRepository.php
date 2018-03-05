@@ -286,4 +286,16 @@ class ServiceOrderRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    public function getTotalServiceOrderData() {
+        $query = $this->createQueryBuilder('so')
+            ->select('
+                SUM(so.price),
+                COUNT(so.id)            
+            ')
+            ->where('so.status != :status')
+            ->setParameter('status', 'unpaid');
+
+        return $query->getQuery()->getSingleResult();
+    }
 }

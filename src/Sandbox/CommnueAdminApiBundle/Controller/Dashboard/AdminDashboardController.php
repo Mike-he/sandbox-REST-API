@@ -174,6 +174,12 @@ class AdminDashboardController extends SandboxRestController
                 ],
             ]);
 
+        $totalServicesCount = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\Service')
+            ->getTotalServicesCount();
+
+        $serviceOrderData = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServiceOrder')
+            ->getTotalServiceOrderData();
+
         return new View([
             'administrator' => [
                 'current_positions' => count($positions),
@@ -191,6 +197,11 @@ class AdminDashboardController extends SandboxRestController
                 'ongoing_activities' => count($ongoingActivities),
                 'ended_activities' => count($endedActivities),
             ],
+            'service' => [
+                'services' => $totalServicesCount,
+                'servicesOrder_count' => $serviceOrderData[2],
+                'servicesOrder_amount' => $serviceOrderData[1]
+            ]
         ]);
     }
 }
