@@ -29,11 +29,7 @@ class AdminLogoController extends SalesRestController
             ->getFirstBuildingLogo($salesCompnayId);
 
         if (!$logo) {
-            $logo = $this->getDoctrine()->getRepository('SandboxApiBundle:Room\RoomBuilding')
-                ->getFirstBuildingLogo(
-                    $salesCompnayId,
-                    false
-                );
+            $logo = 'https://testimage.sandbox3.cn/saleadmin/default/1.png';
         }
         return new View($logo);
     }
