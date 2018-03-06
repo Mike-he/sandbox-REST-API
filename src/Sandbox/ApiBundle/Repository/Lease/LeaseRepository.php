@@ -733,7 +733,10 @@ class LeaseRepository extends EntityRepository
         $status = null
     ) {
         $query = $this->createQueryBuilder('l')
-            ->select('count(l.id)')
+            ->select('
+                count(l.id) as total_numbers,
+                sum(l.totalRent) as total_rent
+            ')
             ->where('1=1');
 
         if ($status) {
@@ -741,17 +744,8 @@ class LeaseRepository extends EntityRepository
                 ->setParameter('status', $status);
         }
 
-        $result = $query->getQuery()->getSingleScalarResult();
+        $result = $query->getQuery()->getSingleResult();
 
-        return (int) $result;
-    }
-
-    public function sumTotalRent() {
-        $query = $this->createQueryBuilder('l')
-            ->select('sum(l.totalRent)');
-
-        $result = $query->getQuery()->getSingleScalarResult();
-
-        return (float) $result;
+        return $result;
     }
 }

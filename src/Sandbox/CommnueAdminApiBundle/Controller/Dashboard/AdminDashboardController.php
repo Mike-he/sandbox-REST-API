@@ -235,14 +235,10 @@ class AdminDashboardController extends SandboxRestController
             ->getRepository('SandboxApiBundle:Lease\Lease')
             ->countContract($effectiveStatus);
 
-        $totalRent = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Lease\Lease')
-            ->sumTotalRent();
-
         $result = array(
-            'current_contracts' => $currentContracts,
-            'effective_contracts' => $effectiveContracts,
-            'total_rent' => $totalRent,
+            'current_contracts' => (int) $currentContracts['total_numbers'],
+            'effective_contracts' => (int) $effectiveContracts['total_numbers'],
+            'total_rent' => (float) $currentContracts['total_rent'],
         );
 
         return new View($result);
