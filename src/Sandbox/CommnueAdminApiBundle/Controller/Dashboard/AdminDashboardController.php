@@ -8,7 +8,9 @@ use FOS\RestBundle\Controller\Annotations;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
 use Sandbox\ApiBundle\Entity\Admin\AdminPosition;
 use Sandbox\ApiBundle\Entity\Event\Event;
+use Sandbox\ApiBundle\Entity\Lease\Lease;
 use Sandbox\ApiBundle\Entity\Room\RoomBuilding;
+use Sandbox\ApiBundle\Entity\Room\RoomTypes;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
@@ -174,6 +176,12 @@ class AdminDashboardController extends SandboxRestController
                 ],
             ]);
 
+        $totalServicesCount = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\Service')
+            ->getTotalServicesCount();
+
+        $serviceOrderData = $this->getDoctrine()->getRepository('SandboxApiBundle:Service\ServiceOrder')
+            ->getTotalServiceOrderData();
+
         return new View([
             'administrator' => [
                 'current_positions' => count($positions),
@@ -191,6 +199,112 @@ class AdminDashboardController extends SandboxRestController
                 'ongoing_activities' => count($ongoingActivities),
                 'ended_activities' => count($endedActivities),
             ],
+            'service' => [
+                'services' => $totalServicesCount,
+                'servicesOrder_count' => $serviceOrderData[2],
+                'servicesOrder_amount' => $serviceOrderData[1]
+            ]
+        ]);
+    }
+
+    /**
+     * @param Request               $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/dashboard/leases_data")
+     * @Method({"GET"})
+     *
+     * @return View
+     */
+    public function getDashboardLeasesDataAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $currentContracts = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\Lease')
+            ->countContract();
+
+        $effectiveStatus = array(
+            Lease::LEASE_STATUS_PERFORMING,
+            Lease::LEASE_STATUS_END,
+            Lease::LEASE_STATUS_MATURED,
+            Lease::LEASE_STATUS_TERMINATED,
+            Lease::LEASE_STATUS_CLOSED,
+        );
+
+        $effectiveContracts = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Lease\Lease')
+            ->countContract($effectiveStatus);
+
+        $result = array(
+            'current_contracts' => (int) $currentContracts['total_numbers'],
+            'effective_contracts' => (int) $effectiveContracts['total_numbers'],
+            'total_rent' => (float) $currentContracts['total_rent'],
+        );
+
+        return new View($result);
+    }
+
+    /**
+     * @param Request $request
+     * @param ParamFetcherInterface $paramFetcher
+     *
+     * @Route("/dashboard/spaces_statistics")
+     * @Method({"GET"})
+     *
+     * @return View
+     * @throws \Doctrine\ORM\Query\QueryException
+     */
+    public function getDashboardSpacesStatisticsAction(
+        Request $request,
+        ParamFetcherInterface $paramFetcher
+    ) {
+        $meetingRooms = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\Room')
+            ->findBy(['type' => RoomTypes::TYPE_NAME_MEETING]);
+
+        $officeRooms = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\Room')
+            ->findBy(['type' => RoomTypes::TYPE_NAME_OFFICE]);
+
+        $otherRooms = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\Room')
+            ->findBy(['type' => RoomTypes::TYPE_NAME_OTHERS]);
+
+        $meetingOrdersCount = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getOrdersCount(RoomTypes::TYPE_NAME_MEETING);
+
+        $officeOrdersCount = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getOrdersCount(RoomTypes::TYPE_NAME_OFFICE);
+
+        $otherOrdersCount = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getOrdersCount(RoomTypes::TYPE_NAME_OTHERS);
+
+        $meetingOrdersPriceSum = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getOrdersPriceSum(RoomTypes::TYPE_NAME_MEETING);
+
+        $officeOrdersPriceSum = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getOrdersPriceSum(RoomTypes::TYPE_NAME_OFFICE);
+
+        $othersOrdersPriceSum = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Order\ProductOrder')
+            ->getOrdersPriceSum(RoomTypes::TYPE_NAME_OTHERS);
+
+        return new View([
+            'meeting_space_count' => count($meetingRooms),
+            'meeting_order_count' => $meetingOrdersCount,
+            'meeting_price_sum' => $meetingOrdersPriceSum,
+            'office_space_count' => count($officeRooms),
+            'office_order_count' => $officeOrdersCount,
+            'office_price_sum' => $officeOrdersPriceSum,
+            'others_space_count' => count($otherRooms),
+            'others_order_count' => $otherOrdersCount,
+            'others_price_sum' => $othersOrdersPriceSum,
         ]);
     }
 }

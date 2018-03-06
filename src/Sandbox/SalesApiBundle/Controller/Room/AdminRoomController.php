@@ -1613,8 +1613,6 @@ class AdminRoomController extends SalesRestController
             );
 
             $leaseStatus = array(
-                Lease::LEASE_STATUS_CONFIRMED,
-                Lease::LEASE_STATUS_RECONFIRMING,
                 Lease::LEASE_STATUS_PERFORMING,
                 Lease::LEASE_STATUS_END,
                 Lease::LEASE_STATUS_MATURED,

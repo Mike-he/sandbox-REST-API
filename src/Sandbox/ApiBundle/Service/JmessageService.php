@@ -69,7 +69,6 @@ class JmessageService
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
-        $this->errorLogDir = $this->container->getParameter('error_log_dir');
         $this->appKey = $this->container->getParameter('jpush_key');
         $this->masterSecret = $this->container->getParameter('jpush_secret');
         $this->client = new JMessage($this->appKey, $this->masterSecret);
@@ -94,11 +93,6 @@ class JmessageService
         $password
     ) {
         $result = $this->user->updatePassword($username, $password);
-
-        if (204 != $result['http_code']) {
-            $errorMessage = json_encode($result);
-            error_log('[jiguang] -- '.date('Y-m-d H:i:s').' -- '.$errorMessage."\r\n", 3, $this->errorLogDir);
-        }
 
         return $result;
     }
@@ -131,11 +125,6 @@ class JmessageService
     ) {
         $response = $this->group->create($owner, $name, $desc, $members);
 
-        if (201 != $response['http_code']) {
-            $errorMessage = json_encode($response);
-            error_log('[jiguang] -- '.date('Y-m-d H:i:s').' -- '.$errorMessage."\r\n", 3, $this->errorLogDir);
-        }
-
         return $response;
     }
 
@@ -164,11 +153,6 @@ class JmessageService
             $response = $this->member->add($gid, $appKey, $usernames);
         }
 
-        if (204 != $response['http_code']) {
-            $errorMessage = json_encode($response);
-            error_log('[jiguang] -- '.date('Y-m-d H:i:s').' -- '.$errorMessage."\r\n", 3, $this->errorLogDir);
-        }
-
         return $response;
     }
 
@@ -181,11 +165,6 @@ class JmessageService
             $response = $this->group->removeMembers($gid, $usernames);
         } else {
             $response = $this->member->remove($gid, $appKey, $usernames);
-        }
-
-        if (204 != $response['http_code']) {
-            $errorMessage = json_encode($response);
-            error_log('[jiguang] -- '.date('Y-m-d H:i:s').' -- '.$errorMessage."\r\n", 3, $this->errorLogDir);
         }
 
         return $response;

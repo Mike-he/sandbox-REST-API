@@ -130,8 +130,6 @@ parameters:
     oss_endpoint: oss-cn-shanghai-internal.aliyuncs.com
     oss_bucket: sandbox3-demo-image
 
-    error_log_dir: /var/www/error.log
-
     rpc_server_feed: demofeed.local
 
     id_card_auth_api_url: http://apis.haoservice.com/idcard/VerifyIdcardv2

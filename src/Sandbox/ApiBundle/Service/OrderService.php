@@ -99,8 +99,6 @@ class OrderService
         $now
     ) {
         $status = array(
-            Lease::LEASE_STATUS_CONFIRMED,
-            Lease::LEASE_STATUS_RECONFIRMING,
             Lease::LEASE_STATUS_PERFORMING,
         );
 

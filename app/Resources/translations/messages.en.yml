@@ -395,12 +395,9 @@ lease:
   push_message:
     application_rejected: Dear user, we are sorry that your rental application has not been approved. We are looking forward for our next collaboration! Click to view details.
     application_approved: Dear user, your rental application has been approved. Hope we have a nice collaboration! Click to view details.
-    lease_confirming: Dear user, a leasing contract has been created for you. Please confirm it within the limited time! Click to view details.
-    lease_expired: Dear user, we are sorry that your leasing contract has been expired due to it has not been confirmed within the limited time! Please contact with Sandbox customer service staff. Click to view details.
     lease_closed: Dear user, we are sorry that your leasing contract has been closed by Sandbox administrator. Click to view details.
     lease_performing: Dear user, your leasing contract has taken into effect! Wish you a pleasant working experience here! Click to view details.
     lease_terminated: Dear user, your leasing contract has been terminated by Sandbox administrator! Click to view details.
-    lease_reconfirming: Dear user, your leasing contract has been amended by Sandbox administrator! Please reconfirm it! Click to view details.
     lease_ended_with_unpaid_bills: Dear user, your leasing contract will be expired at 0:00am tomorrow! There are still unpaid bills waiting for payment. Please pay them as soon as possible. Click to view details.
     lease_ended_without_unpaid_bills: Dear user, your leasing contract will be expired at 0:00am tomorrow! Thanks for your support! Click to view details.
     lease_ended: Dear user, your leasing contract has been completed! Thanks for your trust and support. Click to view details.
