@@ -15,8 +15,6 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Parameter
 {
-    const KEY_LEASE_CONFIRM_EXPIRE_IN = 'lease_confirm_expire_in';
-
     // BEAN
     const KEY_BEAN_USER_REGISTER = 'bean_user_register';
     const KEY_BEAN_USER_LOGIN = 'bean_user_login';
