@@ -4914,4 +4914,40 @@ class OrderRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param $type
+     * @return mixed
+     * @throws \Doctrine\ORM\Query\QueryException
+     */
+    public function getOrdersCount(
+        $type
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->leftJoin('o.product', 'p')
+            ->leftJoin('p.room', 'r')
+            ->select('COUNT(o)')
+            ->where('r.type = :type')
+            ->setParameter('type', $type);
+
+        return (int) $query->getQuery()->getSingleScalarResult();
+    }
+
+    /**
+     * @param $type
+     * @return float
+     * @throws \Doctrine\ORM\Query\QueryException
+     */
+    public function getOrdersPriceSum(
+        $type
+    ) {
+        $query = $this->createQueryBuilder('o')
+            ->leftJoin('o.product', 'p')
+            ->leftJoin('p.room', 'r')
+            ->select('SUM(o.discountPrice)')
+            ->where('r.type = :type')
+            ->setParameter('type', $type);
+
+        return (float) $query->getQuery()->getSingleScalarResult();
+    }
 }
