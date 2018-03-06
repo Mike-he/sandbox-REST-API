@@ -231,4 +231,16 @@ class ServiceRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @return mixed
+     */
+    public function getTotalServicesCount() {
+        $query = $this->createQueryBuilder('s')
+            ->select('
+                COUNT(s.id)
+            ');
+
+        return $query->getQuery()->getSingleScalarResult();
+    }
 }

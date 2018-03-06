@@ -728,4 +728,24 @@ class LeaseRepository extends EntityRepository
 
         return $query->getQuery()->getResult();
     }
+
+    public function countContract(
+        $status = null
+    ) {
+        $query = $this->createQueryBuilder('l')
+            ->select('
+                count(l.id) as total_numbers,
+                sum(l.totalRent) as total_rent
+            ')
+            ->where('1=1');
+
+        if ($status) {
+            $query->where('l.status in (:status)')
+                ->setParameter('status', $status);
+        }
+
+        $result = $query->getQuery()->getSingleResult();
+
+        return $result;
+    }
 }

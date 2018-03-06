@@ -28,7 +28,7 @@ class LoadLeaseData extends AbstractFixture implements OrderedFixtureInterface
         $l1->setMonthlyRent(8000);
         $l1->setPurpose('我也不知道');
         $l1->setSerialNumber('HT01092091029012');
-        $l1->setStatus(Lease::LEASE_STATUS_CONFIRMING);
+        $l1->setStatus(Lease::LEASE_STATUS_PERFORMING);
         $l1->setSupplementaryTerms('woquniqutaqu');
         $l1->setTotalRent(96000);
         $l1->setProduct($this->getReference('product-for-longterm'));
