@@ -29,7 +29,7 @@ class AdminLogoController extends SalesRestController
             ->getFirstBuildingLogo($salesCompnayId);
 
         if (!$logo) {
-            $logo = 'https://testimage.sandbox3.cn/saleadmin/default/1.png';
+            $logo = ['avatar'=>'https://testimage.sandbox3.cn/saleadmin/default/1.png'];
         }
         return new View($logo);
     }
