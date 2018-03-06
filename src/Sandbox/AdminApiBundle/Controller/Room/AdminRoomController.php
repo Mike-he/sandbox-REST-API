@@ -1628,8 +1628,6 @@ class AdminRoomController extends RoomController
             $yearEnd = $yearEnd->modify('last day of December'.$yearString);
             $yearEnd->setTime(23, 59, 59);
             $status = array(
-                Lease::LEASE_STATUS_CONFIRMED,
-                Lease::LEASE_STATUS_RECONFIRMING,
                 Lease::LEASE_STATUS_PERFORMING,
                 Lease::LEASE_STATUS_END,
                 Lease::LEASE_STATUS_MATURED,

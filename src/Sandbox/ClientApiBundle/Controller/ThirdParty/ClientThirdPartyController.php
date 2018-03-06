@@ -105,9 +105,6 @@ class ClientThirdPartyController extends ThirdPartyController
 
         // lease
         $status = array(
-            Lease::LEASE_STATUS_CONFIRMING,
-            Lease::LEASE_STATUS_CONFIRMED,
-            Lease::LEASE_STATUS_RECONFIRMING,
             Lease::LEASE_STATUS_PERFORMING,
         );
 

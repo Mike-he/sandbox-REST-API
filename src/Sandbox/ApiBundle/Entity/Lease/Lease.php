@@ -23,11 +23,6 @@ class Lease
     const LEASE_STATUS_END = 'end'; //已结束
     const LEASE_STATUS_CLOSED = 'closed'; //已关闭,作废
 
-    const LEASE_STATUS_RECONFIRMING = 'reconfirming';
-    const LEASE_STATUS_CONFIRMING = 'confirming';
-    const LEASE_STATUS_CONFIRMED = 'confirmed';
-    const LEASE_STATUS_EXPIRED = 'expired';
-
     const LEASE_LETTER_HEAD = 'C';
 
     const LEASE_LESSEE_TYPE_ENTERPRISE = 'enterprise';
