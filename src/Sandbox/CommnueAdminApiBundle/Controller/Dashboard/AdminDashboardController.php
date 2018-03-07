@@ -202,7 +202,7 @@ class AdminDashboardController extends SandboxRestController
             'service' => [
                 'services' => (int) $totalServicesCount,
                 'servicesOrder_count' => (int) $serviceOrderData[2],
-                'servicesOrder_amount' => (int) $serviceOrderData[1] ? $serviceOrderData[1] : 0
+                'servicesOrder_amount' => $serviceOrderData[1] ? (int) $serviceOrderData[1] : 0
             ]
         ]);
     }

@@ -177,7 +177,8 @@ class EventRepository extends EntityRepository
             $query->andWhere('e.platform != :platform')
                 ->setParameter('platform', Event::PLATFORM_COMMNUE);
         } else {
-            $query->andWhere('e.visible = TRUE');
+            $query->andWhere('e.visible = TRUE OR e.platform = :platform')
+                ->setParameter('platform', Event::PLATFORM_COMMNUE);
         }
 
         // filter by status
