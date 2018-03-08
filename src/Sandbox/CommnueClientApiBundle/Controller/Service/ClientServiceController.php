@@ -152,6 +152,24 @@ class ClientServiceController extends SandboxRestController
 
             $service->setAttachments($attachments);
             $service->setTimes($times);
+            $province = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomCity')
+                ->find($service->getProvinceId())
+                ->getName();
+            $city = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomCity')
+                ->find($service->getCityId())
+                ->getName();
+            $district = '';
+            if ($service->getDistrictId()) {
+                $district = $this->getDoctrine()
+                    ->getRepository('SandboxApiBundle:Room\RoomCity')
+                    ->find($service->getDistrictId())
+                    ->getName();
+            }
+
+            $addresss = $province.$city.$district;
+            $service->setAddress($addresss);
         }
 
         return new View($services);
