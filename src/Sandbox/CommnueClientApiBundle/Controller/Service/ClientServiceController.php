@@ -280,7 +280,7 @@ class ClientServiceController extends SandboxRestController
     ) {
         $types = $this->getDoctrine()
             ->getRepository('SandboxApiBundle:Service\ServiceTypes')
-            ->findAll();
+            ->findBy([],['sort'=>'ASC']);
 
         return new View($types);
     }
