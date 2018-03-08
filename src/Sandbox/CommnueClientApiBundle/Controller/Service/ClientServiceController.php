@@ -5,6 +5,7 @@ namespace Sandbox\CommnueClientApiBundle\Controller\Service;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use Sandbox\ApiBundle\Controller\SandboxRestController;
+use Sandbox\ApiBundle\Entity\Service\Service;
 use Sandbox\ApiBundle\Entity\Service\ViewCounts;
 use Sandbox\ApiBundle\Entity\User\UserFavorite;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -143,33 +144,7 @@ class ClientServiceController extends SandboxRestController
 
             $service->setSalesCompany($salesCompany);
 
-            $attachments = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Service\ServiceAttachment')
-                ->findBy(['service' => $service]);
-            $times = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Service\ServiceTime')
-                ->findBy(['service' => $service]);
-
-            $service->setAttachments($attachments);
-            $service->setTimes($times);
-            $province = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Room\RoomCity')
-                ->find($service->getProvinceId())
-                ->getName();
-            $city = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Room\RoomCity')
-                ->find($service->getCityId())
-                ->getName();
-            $district = '';
-            if ($service->getDistrictId()) {
-                $district = $this->getDoctrine()
-                    ->getRepository('SandboxApiBundle:Room\RoomCity')
-                    ->find($service->getDistrictId())
-                    ->getName();
-            }
-
-            $addresss = $province.$city.$district;
-            $service->setAddress($addresss);
+            $this->setServicesInfo($service);
         }
 
         return new View($services);
@@ -193,38 +168,8 @@ class ClientServiceController extends SandboxRestController
         $this->throwNotFoundIfNull($service, self::NOT_FOUND_MESSAGE);
 
         $result = [];
-        $attachments = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Service\ServiceAttachment')
-            ->findBy(['service' => $service]);
-        $times = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Service\ServiceTime')
-            ->findBy(['service' => $service]);
-        $forms = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Service\ServiceForm')
-            ->findBy(['service' => $service]);
 
-        $province = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Room\RoomCity')
-            ->find($service->getProvinceId())
-            ->getName();
-        $city = $this->getDoctrine()
-            ->getRepository('SandboxApiBundle:Room\RoomCity')
-            ->find($service->getCityId())
-            ->getName();
-        $district = '';
-        if ($service->getDistrictId()) {
-            $district = $this->getDoctrine()
-                ->getRepository('SandboxApiBundle:Room\RoomCity')
-                ->find($service->getDistrictId())
-                ->getName();
-        }
-
-        $addresss = $province.$city.$district;
-
-        $service->setAttachments($attachments);
-        $service->setForms($forms);
-        $service->setTimes($times);
-        $service->setAddress($addresss);
+        $this->setServicesInfo($service);
         $result['service'] = $service;
 
         $salesCompanyId = $service->getSalesCompanyId();
@@ -301,5 +246,47 @@ class ClientServiceController extends SandboxRestController
             ->findBy([],['sort'=>'ASC']);
 
         return new View($types);
+    }
+
+    /**
+     * @param Service $service
+     * @return mixed
+     */
+    private function setServicesInfo(
+        $service
+    ) {
+        $attachments = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Service\ServiceAttachment')
+            ->findBy(['service' => $service]);
+        $times = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Service\ServiceTime')
+            ->findBy(['service' => $service]);
+        $forms = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Service\ServiceForm')
+            ->findBy(['service' => $service]);
+
+        $province = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomCity')
+            ->find($service->getProvinceId())
+            ->getName();
+        $city = $this->getDoctrine()
+            ->getRepository('SandboxApiBundle:Room\RoomCity')
+            ->find($service->getCityId())
+            ->getName();
+        $district = '';
+        if ($service->getDistrictId()) {
+            $district = $this->getDoctrine()
+                ->getRepository('SandboxApiBundle:Room\RoomCity')
+                ->find($service->getDistrictId())
+                ->getName();
+        }
+        $addresss = $province.$city.$district;
+
+        $service->setAttachments($attachments);
+        $service->setTimes($times);
+        $service->setForms($forms);
+        $service->setAddress($addresss);
+
+        return $service;
     }
 }
