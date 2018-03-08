@@ -50,6 +50,13 @@ class ServiceTypes
     private $key;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="sort", type="integer", options={"default": 1})
+     */
+    private $sort = 1;
+
+    /**
      * Get id.
      *
      * @return int
@@ -90,4 +97,21 @@ class ServiceTypes
     {
         $this->key = $key;
     }
+
+    /**
+     * @return int
+     */
+    public function getSort()
+    {
+        return $this->sort;
+    }
+
+    /**
+     * @param int $sort
+     */
+    public function setSort($sort)
+    {
+        $this->sort = $sort;
+    }
+
 }
